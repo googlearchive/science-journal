@@ -22,9 +22,9 @@ import static org.junit.Assert.assertNull;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 
 import org.junit.After;
 import org.junit.Before;

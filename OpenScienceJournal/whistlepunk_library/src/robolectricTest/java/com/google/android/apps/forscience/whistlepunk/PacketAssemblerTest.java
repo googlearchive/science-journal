@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 
 import org.junit.Test;

@@ -21,8 +21,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.util.Pair;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.util.Pair;
 
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;

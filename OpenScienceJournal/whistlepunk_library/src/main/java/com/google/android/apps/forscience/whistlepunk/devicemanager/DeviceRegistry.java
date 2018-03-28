@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;

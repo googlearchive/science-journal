@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;

@@ -16,15 +16,15 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.nano.CodedOutputByteBufferNano;

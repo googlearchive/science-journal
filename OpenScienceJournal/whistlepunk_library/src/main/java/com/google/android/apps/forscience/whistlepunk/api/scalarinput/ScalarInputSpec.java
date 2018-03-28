@@ -19,14 +19,14 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciScalarInput;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;

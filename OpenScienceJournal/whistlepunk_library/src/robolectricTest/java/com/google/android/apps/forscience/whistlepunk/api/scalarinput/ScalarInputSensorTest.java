@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;

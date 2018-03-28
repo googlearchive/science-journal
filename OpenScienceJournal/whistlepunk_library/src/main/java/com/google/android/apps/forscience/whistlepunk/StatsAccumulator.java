@@ -17,10 +17,10 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.os.Bundle;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;

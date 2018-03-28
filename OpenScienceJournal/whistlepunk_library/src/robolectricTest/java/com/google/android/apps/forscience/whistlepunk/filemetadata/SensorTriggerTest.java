@@ -21,7 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation
         .TriggerInformation;
 
 import org.junit.Test;

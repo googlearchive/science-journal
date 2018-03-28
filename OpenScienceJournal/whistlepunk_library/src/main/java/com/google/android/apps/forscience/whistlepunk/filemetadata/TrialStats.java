@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 
 import java.util.ArrayList;
 import java.util.Arrays;

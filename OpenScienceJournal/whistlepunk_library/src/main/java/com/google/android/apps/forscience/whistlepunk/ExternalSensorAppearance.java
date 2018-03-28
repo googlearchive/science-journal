@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.common.base.Preconditions;
 

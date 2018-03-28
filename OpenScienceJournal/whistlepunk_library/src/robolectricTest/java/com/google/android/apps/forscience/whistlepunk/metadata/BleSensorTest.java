@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig.BleSensorConfig
         .ScaleTransform;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ValueFilter;

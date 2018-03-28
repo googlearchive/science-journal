@@ -17,8 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk.scalarchart;
 
 import android.os.Bundle;
-import android.support.annotation.IntDef;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.IntDef;
+import androidx.annotation.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

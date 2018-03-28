@@ -23,12 +23,12 @@ import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.protobuf.nano.MessageNano;
 
 import org.junit.Test;

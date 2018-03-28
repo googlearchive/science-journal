@@ -22,10 +22,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;

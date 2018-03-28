@@ -30,7 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 /**

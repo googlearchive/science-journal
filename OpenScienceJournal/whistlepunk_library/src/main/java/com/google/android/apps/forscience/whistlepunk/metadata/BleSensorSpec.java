@@ -21,7 +21,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.common.annotations.VisibleForTesting;

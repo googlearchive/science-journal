@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.apps.forscience.ble.BleFlow;
@@ -25,8 +25,8 @@ import com.google.android.apps.forscience.ble.BleFlowListener;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.PacketAssembler;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;

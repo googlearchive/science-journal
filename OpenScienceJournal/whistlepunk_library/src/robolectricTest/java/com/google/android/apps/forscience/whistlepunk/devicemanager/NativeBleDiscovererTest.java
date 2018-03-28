@@ -27,7 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingRunnable;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 
 import org.junit.Test;

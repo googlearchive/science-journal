@@ -15,12 +15,12 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 
 import io.reactivex.Single;
 

@@ -16,11 +16,11 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;

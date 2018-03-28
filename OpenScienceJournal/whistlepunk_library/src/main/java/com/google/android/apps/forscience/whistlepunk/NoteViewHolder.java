@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,14 +27,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 
 /**
  * ViewHolder and helper methods for showing notes in a list.

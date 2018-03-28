@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;

@@ -16,7 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.junit.rules.ExternalResource;
 import org.robolectric.RuntimeEnvironment;

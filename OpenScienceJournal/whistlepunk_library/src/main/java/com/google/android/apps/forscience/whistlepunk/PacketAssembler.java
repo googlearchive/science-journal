@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.util.Log;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;

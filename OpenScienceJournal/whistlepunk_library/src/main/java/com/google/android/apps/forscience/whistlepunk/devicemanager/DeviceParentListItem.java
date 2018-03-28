@@ -17,7 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;

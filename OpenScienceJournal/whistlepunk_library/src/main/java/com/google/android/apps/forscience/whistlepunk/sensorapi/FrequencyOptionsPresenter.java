@@ -27,7 +27,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 
 /**
  * Presents options for calculating and presenting frequency on the Android device.

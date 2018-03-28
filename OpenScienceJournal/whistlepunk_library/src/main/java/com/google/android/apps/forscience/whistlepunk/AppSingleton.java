@@ -21,7 +21,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;

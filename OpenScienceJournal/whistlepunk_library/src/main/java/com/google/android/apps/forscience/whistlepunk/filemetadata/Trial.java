@@ -27,12 +27,12 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProviderImpl;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 

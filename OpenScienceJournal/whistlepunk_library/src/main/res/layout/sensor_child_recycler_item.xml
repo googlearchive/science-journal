@@ -24,7 +24,7 @@
 
     <!-- It is OK that this button is smaller than the min accessible size, because the entire
          48dp high row is clickable and does the same action as this small touch target. -->
-    <android.support.v7.widget.AppCompatCheckBox
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/paired_checkbox"
         android:layout_width="32dp"
         android:layout_height="32dp"

@@ -15,11 +15,11 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 import org.junit.Assert;

@@ -23,8 +23,8 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensordb.IncrementableMonotonicClock;
 
 import org.junit.After;

@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 

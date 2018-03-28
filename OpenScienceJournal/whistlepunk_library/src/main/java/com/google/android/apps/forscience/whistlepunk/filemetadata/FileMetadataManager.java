@@ -17,14 +17,14 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.content.Context;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ColorAllocator;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 
 import java.io.File;
 import java.util.List;

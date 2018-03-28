@@ -18,8 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

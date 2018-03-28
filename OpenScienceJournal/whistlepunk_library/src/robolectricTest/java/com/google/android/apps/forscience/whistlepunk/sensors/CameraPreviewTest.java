@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.junit.Test;
 

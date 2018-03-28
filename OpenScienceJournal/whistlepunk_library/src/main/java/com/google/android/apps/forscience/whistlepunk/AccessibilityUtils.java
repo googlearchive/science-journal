@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import android.view.MotionEvent;
 import android.view.TouchDelegate;

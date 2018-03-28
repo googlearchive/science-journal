@@ -23,10 +23,10 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.common.annotations.VisibleForTesting;
 

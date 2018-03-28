@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

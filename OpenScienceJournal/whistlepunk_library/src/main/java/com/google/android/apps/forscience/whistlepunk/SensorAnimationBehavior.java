@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.view.Surface;
 import android.widget.ImageView;
 

@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.support.v4.util.ArraySet;
+import androidx.collection.ArraySet;
 import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.javalib.Consumer;

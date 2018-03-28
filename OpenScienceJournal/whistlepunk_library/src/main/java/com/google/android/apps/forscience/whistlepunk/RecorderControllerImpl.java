@@ -19,8 +19,8 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 
@@ -31,18 +31,18 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation
         .TriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;

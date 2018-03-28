@@ -31,7 +31,7 @@ message Version {
   // version policy and implementation details.
   // Encode new versions using
   // https://goosci.googlesource.com/android/+/master/proto/version_codec.py
-  enum Version {
+  enum VersionEnum {
     option allow_alias = true;
     V_1_0_0 = 0x800;
 

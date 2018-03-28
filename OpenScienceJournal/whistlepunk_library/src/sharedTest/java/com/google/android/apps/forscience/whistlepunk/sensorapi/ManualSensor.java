@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;

@@ -34,9 +34,9 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.ArraySet;
+import androidx.collection.ArraySet;
 import android.util.ArrayMap;
 import android.util.Log;
 

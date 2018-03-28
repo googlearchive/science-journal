@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.content.Context;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
 

@@ -23,8 +23,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.os.Binder;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.ArrayMap;
 import android.util.Log;
 

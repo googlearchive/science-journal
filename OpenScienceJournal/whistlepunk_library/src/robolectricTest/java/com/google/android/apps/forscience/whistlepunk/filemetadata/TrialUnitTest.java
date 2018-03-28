@@ -27,10 +27,10 @@ import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

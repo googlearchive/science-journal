@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.review;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 

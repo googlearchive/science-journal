@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.featurediscovery;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * An object which can show feature discovery to the user.

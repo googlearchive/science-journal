@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig.BleSensorConfig
         .ScaleTransform;
 
 /**

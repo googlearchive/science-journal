@@ -17,8 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +31,7 @@ import android.widget.EditText;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 
 /**
  * Details view controller for TextLabel

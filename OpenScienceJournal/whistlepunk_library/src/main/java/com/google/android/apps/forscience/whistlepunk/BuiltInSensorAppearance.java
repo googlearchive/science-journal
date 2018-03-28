@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.common.base.Preconditions;
 

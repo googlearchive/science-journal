@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;

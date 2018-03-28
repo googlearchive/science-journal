@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.ArrayMap;
 
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -35,7 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;

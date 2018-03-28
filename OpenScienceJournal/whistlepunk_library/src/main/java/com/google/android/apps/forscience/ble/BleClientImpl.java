@@ -222,11 +222,7 @@ public class BleClientImpl implements BleClient {
         if (bleService == null) {
             return null;
         }
-        BleDevices bleDevices = bleService.getBleDevices();
-        if (bleDevices.devices.isEmpty()) {
-            return null;
-        }
-        return bleDevices.devices.keySet().iterator().next();
+        return bleService.getBleDevices().getFirstDeviceAddress();
     }
 
     @Override

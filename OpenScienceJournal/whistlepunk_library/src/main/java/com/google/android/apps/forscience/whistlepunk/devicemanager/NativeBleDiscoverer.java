@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.FailureListener;
@@ -27,7 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;

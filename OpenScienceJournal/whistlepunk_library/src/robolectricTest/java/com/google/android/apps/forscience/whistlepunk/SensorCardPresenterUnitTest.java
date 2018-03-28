@@ -24,7 +24,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;

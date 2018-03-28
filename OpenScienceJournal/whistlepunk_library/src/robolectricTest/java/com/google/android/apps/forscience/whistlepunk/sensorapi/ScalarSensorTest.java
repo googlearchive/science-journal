@@ -19,22 +19,22 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.TestData;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ExplicitExecutor;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig.BleSensorConfig
         .ScaleTransform;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;

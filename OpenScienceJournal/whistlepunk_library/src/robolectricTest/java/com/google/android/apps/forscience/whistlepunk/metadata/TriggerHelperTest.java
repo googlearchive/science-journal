@@ -21,7 +21,7 @@ import static org.junit.Assert.assertFalse;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.content.Context;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;

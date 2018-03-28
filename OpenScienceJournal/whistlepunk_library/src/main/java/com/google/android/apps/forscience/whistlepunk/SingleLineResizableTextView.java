@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatTextView;
+import androidx.appcompat.widget.AppCompatTextView;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;

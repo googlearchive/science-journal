@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;

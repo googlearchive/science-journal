@@ -16,9 +16,9 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 
 import java.util.Map;

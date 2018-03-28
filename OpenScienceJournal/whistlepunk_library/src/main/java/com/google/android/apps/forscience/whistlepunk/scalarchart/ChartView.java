@@ -28,7 +28,7 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;

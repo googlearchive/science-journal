@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.opensource.modules;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 

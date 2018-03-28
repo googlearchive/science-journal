@@ -17,15 +17,15 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;

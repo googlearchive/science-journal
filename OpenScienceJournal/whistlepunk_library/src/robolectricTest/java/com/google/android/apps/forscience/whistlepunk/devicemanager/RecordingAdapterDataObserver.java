@@ -17,7 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import static org.junit.Assert.assertEquals;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;

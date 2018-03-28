@@ -19,10 +19,10 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import static junit.framework.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

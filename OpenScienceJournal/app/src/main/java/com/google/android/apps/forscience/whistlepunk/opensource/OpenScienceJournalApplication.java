@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.opensource;
 
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.modules.ContextModule;

@@ -21,7 +21,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
 

@@ -17,7 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.text.TextUtils;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 import com.google.common.annotations.VisibleForTesting;
 
 /**

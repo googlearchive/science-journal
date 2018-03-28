@@ -21,7 +21,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.AdvertisedDevice;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.AdvertisedSensor;

@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;

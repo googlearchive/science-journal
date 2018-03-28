@@ -25,7 +25,7 @@ import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 
 import org.junit.After;
 import org.junit.Test;

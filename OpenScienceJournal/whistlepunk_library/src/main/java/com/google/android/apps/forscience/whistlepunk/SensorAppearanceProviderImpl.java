@@ -21,7 +21,7 @@ import android.os.Build;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;

@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.scalarchart;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;

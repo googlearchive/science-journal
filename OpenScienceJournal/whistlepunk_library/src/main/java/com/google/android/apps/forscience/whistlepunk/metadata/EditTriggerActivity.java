@@ -16,7 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.R;

@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;

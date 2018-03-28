@@ -23,8 +23,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.util.ArraySet;
+import androidx.annotation.VisibleForTesting;
+import androidx.collection.ArraySet;
 import android.util.ArrayMap;
 import android.util.Log;
 

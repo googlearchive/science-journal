@@ -25,7 +25,7 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;

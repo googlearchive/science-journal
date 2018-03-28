@@ -20,7 +20,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.RemoteException;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.apps.forscience.javalib.FailureListener;

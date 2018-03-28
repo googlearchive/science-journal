@@ -16,7 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.Delay;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;

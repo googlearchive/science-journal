@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.android.apps.forscience.whistlepunk.R;
 

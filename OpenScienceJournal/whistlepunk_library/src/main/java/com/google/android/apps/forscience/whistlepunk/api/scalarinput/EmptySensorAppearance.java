@@ -24,7 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.BuiltInSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
 
 import java.text.NumberFormat;
 

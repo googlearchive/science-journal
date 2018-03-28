@@ -112,6 +112,14 @@ import java.util.List;
         return devices.size();
     }
 
+    public String getFirstDeviceAddress() {
+        // TODO: is this function really necessary?
+        if (devices.isEmpty()) {
+            return null;
+        } else {
+            return devices.keySet().iterator().next();
+        }
+    }
 
     /**
      * Removes devices which haven't been seen since the last scan time and are not currently

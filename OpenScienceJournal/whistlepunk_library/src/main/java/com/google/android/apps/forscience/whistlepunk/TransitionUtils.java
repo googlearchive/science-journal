@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Activity;
 import android.os.Build;
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 import android.view.View;
 import android.view.Window;
 

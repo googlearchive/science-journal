@@ -16,7 +16,7 @@
 package com.google.android.apps.forscience.scalarapisample;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Main point of this activity is so that the app shows up in the launcher, as an easy way to

@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;

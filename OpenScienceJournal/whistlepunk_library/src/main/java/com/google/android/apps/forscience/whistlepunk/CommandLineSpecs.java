@@ -17,9 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.res.Resources;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 
 import java.util.ArrayList;
 import java.util.List;

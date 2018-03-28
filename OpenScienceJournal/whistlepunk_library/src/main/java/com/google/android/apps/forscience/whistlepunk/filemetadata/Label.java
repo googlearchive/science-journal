@@ -23,12 +23,12 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 

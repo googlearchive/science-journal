@@ -25,7 +25,7 @@ import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;

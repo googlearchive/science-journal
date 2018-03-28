@@ -720,6 +720,9 @@
     <!-- Text for snackbar shown when a run note is deleted [CHAR_LIMIT=100] -->
     <string name="snackbar_note_deleted">Note deleted</string>
 
+    <!-- Text for snackbar shown when a recording is deleted [CHAR_LIMIT=100] -->
+    <string name="snackbar_recording_deleted">Recording deleted</string>
+
     <!-- Text for a snackbar action to undo something [CHAR_LIMIT=20] -->
     <string name="snackbar_undo">Undo</string>
 

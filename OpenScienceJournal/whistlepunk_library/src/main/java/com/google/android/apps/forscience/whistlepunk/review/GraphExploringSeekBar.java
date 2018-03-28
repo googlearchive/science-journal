@@ -18,10 +18,10 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v7.widget.AppCompatSeekBar;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.appcompat.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;

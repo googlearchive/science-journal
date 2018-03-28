@@ -21,12 +21,12 @@ import static org.junit.Assert.assertNotEquals;
 import android.os.Parcel;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.protobuf.nano.MessageNano;
 
 import org.junit.Test;

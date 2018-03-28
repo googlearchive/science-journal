@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -35,7 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /**

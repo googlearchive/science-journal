@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.project;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
