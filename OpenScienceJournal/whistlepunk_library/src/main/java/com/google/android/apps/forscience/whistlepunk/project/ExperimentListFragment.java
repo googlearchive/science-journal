@@ -133,6 +133,7 @@ public class ExperimentListFragment extends Fragment implements
 
     @Override
     public void onDestroy() {
+        // TODO: Use RxEvent here
         mExperimentListAdapter.onDestroy();
         super.onDestroy();
     }
@@ -355,6 +356,7 @@ public class ExperimentListFragment extends Fragment implements
 
         private final WeakReference<ExperimentListFragment> mParentReference;
         private SnackbarManager mSnackbarManager = new SnackbarManager();
+        private PopupMenu mPopupMenu = null;
 
         public ExperimentListAdapter(ExperimentListFragment parent, DataController dc) {
             mItems = new ArrayList<>();
@@ -471,16 +473,17 @@ public class ExperimentListFragment extends Fragment implements
             holder.menuButton.setOnClickListener(v -> {
                 int position = mItems.indexOf(item);
                 Context context = holder.menuButton.getContext();
-                PopupMenu popup = new PopupMenu(context, holder.menuButton, Gravity.NO_GRAVITY,
+                mPopupMenu = new PopupMenu(context, holder.menuButton, Gravity.NO_GRAVITY,
                         R.attr.actionOverflowMenuStyle, 0);
-                popup.getMenuInflater().inflate(R.menu.menu_experiment_overview, popup.getMenu());
-                popup.getMenu().findItem(R.id.menu_item_archive).setVisible(
+                mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_overview,
+                        mPopupMenu.getMenu());
+                mPopupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(
                         !overview.isArchived);
-                popup.getMenu().findItem(R.id.menu_item_unarchive).setVisible(
+                mPopupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(
                         overview.isArchived);
-                popup.getMenu().findItem(R.id.menu_item_delete).setEnabled(
+                mPopupMenu.getMenu().findItem(R.id.menu_item_delete).setEnabled(
                         overview.isArchived);
-                popup.setOnMenuItemClickListener(menuItem -> {
+                mPopupMenu.setOnMenuItemClickListener(menuItem -> {
                     if (menuItem.getItemId() == R.id.menu_item_archive) {
                         setExperimentArchived(overview, position, true);
                         return true;
@@ -494,7 +497,8 @@ public class ExperimentListFragment extends Fragment implements
                     }
                     return false;
                 });
-                popup.show();
+                mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
+                mPopupMenu.show();
             });
 
             if (!TextUtils.isEmpty(overview.imagePath)) {
@@ -616,6 +620,9 @@ public class ExperimentListFragment extends Fragment implements
 
         public void onDestroy() {
             mSnackbarManager.onDestroy();
+            if (mPopupMenu != null) {
+                mPopupMenu.dismiss();
+            }
         }
     }
 
