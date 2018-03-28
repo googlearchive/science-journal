@@ -72,7 +72,7 @@ public class Label implements Parcelable {
         return result;
     }
 
-    public static Label fromUuidAndValue(long creationTimeMs, String uuid,  int type,
+    public static Label fromUuidAndValue(long creationTimeMs, String uuid, int type,
             MessageNano data) {
         Label result = new Label(creationTimeMs, uuid, type);
         result.setLabelProtoData(data);
@@ -166,7 +166,7 @@ public class Label implements Parcelable {
     // You cannot edit the timestamp of some labels, like Snapshot and Trigger labels.
     public boolean canEditTimestamp() {
         return (mLabel.type != GoosciLabel.Label.SNAPSHOT && mLabel.type !=
-                GoosciLabel.Label.SENSOR_TRIGGER);
+                                                             GoosciLabel.Label.SENSOR_TRIGGER);
     }
 
     public String getCaptionText() {
@@ -285,7 +285,41 @@ public class Label implements Parcelable {
 
     @Override
     public String toString() {
-        return mLabel.labelId + ": time: " + mLabel.timestampMs + ", type:" + mLabel.type;
+        return mLabel.labelId
+               + ": time: "
+               + mLabel.timestampMs
+               + ", type:"
+               + getDebugTypeString()
+               + ", data: "
+               + getDebugLabelValue();
+    }
+
+    private String getDebugTypeString() {
+        switch (mLabel.type) {
+            case GoosciLabel.Label.TEXT:
+                return "TEXT";
+            case GoosciLabel.Label.PICTURE:
+                return "PICTURE";
+            case GoosciLabel.Label.SENSOR_TRIGGER:
+                return "TRIGGER";
+            case GoosciLabel.Label.SNAPSHOT:
+                return "SNAPSHOT";
+        }
+        return "???";
+    }
+
+    private Object getDebugLabelValue() {
+        switch (mLabel.type) {
+            case GoosciLabel.Label.TEXT:
+                return getTextLabelValue();
+            case GoosciLabel.Label.PICTURE:
+                return getPictureLabelValue();
+            case GoosciLabel.Label.SENSOR_TRIGGER:
+                return getSensorTriggerLabelValue();
+            case GoosciLabel.Label.SNAPSHOT:
+                return getSnapshotLabelValue();
+        }
+        return "unknown type";
     }
 
     private static void throwLabelValueException(String protoToCreate, int actualType) {
