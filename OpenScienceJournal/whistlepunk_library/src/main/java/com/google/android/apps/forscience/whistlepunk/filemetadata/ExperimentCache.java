@@ -391,6 +391,12 @@ class ExperimentCache {
                 // Upgrade minor version from 0 to 1, within in major version 1, for example.
                 fileVersion.minorVersion = 1;
             }
+
+            if (fileVersion.minorVersion == 1 && fileVersion.minorVersion < newMinorVersion) {
+                // Upgrade minor version from 1 to 2, within in major version 1, for example.
+                fileVersion.minorVersion = 2;
+            }
+
             // More minor version upgrades for major version 1 could be done here.
 
             // Also, update any data from incomplete or buggy platformVersions here.
@@ -413,6 +419,19 @@ class ExperimentCache {
                     trial.trialNumberInExperiment = ++count;
                 }
                 setPlatformVersion(proto, 2);
+            }
+
+            if (fileVersion.platform != GoosciGadgetInfo.GadgetInfo.ANDROID) {
+                // Update platform version to reflect Android, if this is coming from iOS.
+                // Also put any iOS version specific fixes in here, if we find any issues.
+                setPlatformVersion(proto, newPlatformVersion);
+            }
+
+            if (fileVersion.platformVersion < newPlatformVersion) {
+                // We will already be at platformVersion 2 or greater. Do any necessary platform
+                // bug fixes here before increasing to newPlatformVersion. None are necessary
+                // at this time.
+                setPlatformVersion(proto, newPlatformVersion);
             }
 
             // When we are ready for version 2.0, we would do work in the following if statement
