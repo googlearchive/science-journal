@@ -213,7 +213,7 @@ public class CropHelper {
         }
 
         private void addReadingsToStats(final DataController dc, final TimeRange range) {
-            dc.getScalarReadings(mSensorId, /* tier 0 */ 0, range,
+            dc.getScalarReadings(mTrialId, mSensorId, /* tier 0 */ 0, range,
                     DATAPOINTS_PER_LOAD, new MaybeConsumer<ScalarReadingList>() {
                         @Override
                         public void success(ScalarReadingList list) {

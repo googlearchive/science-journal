@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.FileProvider;
@@ -64,6 +63,7 @@ public class PictureUtils {
 
     /**
      * Tries to capture a picture label using the default camera app.
+     *
      * @return The relative path to the picture in the experiment.
      */
     public static String capturePictureLabel(final Activity activity, String experimentId,
@@ -172,7 +172,8 @@ public class PictureUtils {
 
     public static String getExperimentOverviewRelativeImagePath(String experimentId,
             String relativeFilePath) {
-        return FileMetadataManager.getRelativePathInFilesDir(experimentId, relativeFilePath);
+        return FileMetadataManager.getRelativePathInFilesDir(experimentId,
+                relativeFilePath).toString();
     }
 
     /**

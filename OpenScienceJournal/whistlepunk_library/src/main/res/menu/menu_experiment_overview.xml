@@ -35,4 +35,9 @@
         android:id="@+id/menu_item_delete"
         />
 
+    <item
+        android:id="@+id/menu_item_export_experiment"
+        android:orderInCategory="104"
+        android:title="@string/send_copy_action"
+        />
 </menu>

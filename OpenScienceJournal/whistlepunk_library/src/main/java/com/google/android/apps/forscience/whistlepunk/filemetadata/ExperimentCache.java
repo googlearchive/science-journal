@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
@@ -32,6 +33,8 @@ import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * This reads and writes experiments to disk. It caches the last used experiment to avoid extra
@@ -48,14 +51,14 @@ class ExperimentCache {
 
     // The current minor version number we expect from experiments.
     // See upgradeExperimentVersionIfNeeded for the meaning of version numbers.
-    protected static final int MINOR_VERSION = 1;
+    protected static final int MINOR_VERSION = 2;
 
     // The current platform version number for experiments we write.
     // This is implementation-specific; it _shouldn't_ affect future readers of the data, but it
     // will allow us to detect files written by buggy versions if needed.
     //
     // Increment this each time the file-writing logic changes.
-    protected static final int PLATFORM_VERSION = 2;
+    protected static final int PLATFORM_VERSION = BuildConfig.PLATFORM_VERSION;
 
     // Write the experiment file no more than once per every WRITE_DELAY_MS.
     private static final long WRITE_DELAY_MS = 1000;
@@ -79,8 +82,9 @@ class ExperimentCache {
     private boolean mActiveExperimentNeedsWrite = false;
     private final long mWriteDelayMs;
 
-    private Handler mHandler;
-    private Runnable mWriteRunnable;
+    private final Handler mHandler;
+    private final ExecutorService mBackgroundWriteThread;
+    private final Runnable mWriteRunnable;
 
     public ExperimentCache(Context context, FailureListener failureListener) {
         this (context, failureListener, WRITE_DELAY_MS);
@@ -92,12 +96,10 @@ class ExperimentCache {
         mFailureListener = failureListener;
         mExperimentProtoFileHelper = new ProtoFileHelper<>();
         mHandler = new Handler();
-        mWriteRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (mActiveExperimentNeedsWrite) {
-                    writeActiveExperimentFile();
-                }
+        mBackgroundWriteThread = Executors.newSingleThreadExecutor();
+        mWriteRunnable = () -> {
+            if (mActiveExperimentNeedsWrite) {
+                mBackgroundWriteThread.execute(this::writeActiveExperimentFile);
             }
         };
         mWriteDelayMs = writeDelayMs;

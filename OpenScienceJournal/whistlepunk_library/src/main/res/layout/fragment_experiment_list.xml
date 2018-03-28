@@ -22,6 +22,15 @@
     android:fitsSystemWindows="true"
     tools:context=".project.ExperimentListFragment">
 
+    <ProgressBar
+        android:id="@+id/indeterminateBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="9dp"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_anchor="@id/details" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/details"
         android:layout_width="match_parent"

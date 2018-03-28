@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
+import android.content.Intent;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.InputType;
@@ -33,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -53,6 +55,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_CAPTION = 5;
 
     private PopupMenu mPopupMenu = null;
+
     /**
      * An interface for listening to when a pinned note should be edited or deleted.
      */
@@ -169,14 +172,16 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
 
         if (mEditListener != null) {
+            final Context context = noteHolder.menuButton.getContext();
+            final Intent shareIntent = getPhotoShareIntent(label, context);
             noteHolder.menuButton.setOnClickListener(v -> {
-                Context context = noteHolder.menuButton.getContext();
                 mPopupMenu = new PopupMenu(context, noteHolder.menuButton, Gravity.NO_GRAVITY,
                         R.attr.actionOverflowMenuStyle, 0);
                 mPopupMenu.getMenuInflater().inflate(R.menu.menu_note, mPopupMenu.getMenu());
                 if (!label.canEditTimestamp()) {
                     mPopupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
                 }
+                mPopupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(shareIntent != null);
                 mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
                 mPopupMenu.setOnMenuItemClickListener(item -> {
                     int itemId = item.getItemId();
@@ -185,6 +190,12 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         return true;
                     } else if (itemId == R.id.btn_delete_note) {
                         mEditListener.onLabelDelete(label);
+                        return true;
+                    } else if (itemId == R.id.btn_share_photo) {
+                        context.startActivity(
+                                Intent.createChooser(shareIntent, context.getResources().getString(
+                                        R.string.export_photo_chooser_title)));
+
                         return true;
                     }
                     return false;
@@ -206,6 +217,15 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     mClickListener.onLabelClicked(label);
                 }
             });
+        }
+    }
+
+    private Intent getPhotoShareIntent(Label label, Context context) {
+        if (label.getType() != GoosciLabel.Label.PICTURE) {
+            return null;
+        } else {
+            return FileMetadataManager.createPhotoShareIntent(context, mExperimentId,
+                    label.getPictureLabelValue().filePath, label.getCaptionText());
         }
     }
 

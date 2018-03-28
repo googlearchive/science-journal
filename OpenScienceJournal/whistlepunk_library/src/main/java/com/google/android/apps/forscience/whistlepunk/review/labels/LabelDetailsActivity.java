@@ -24,11 +24,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
-import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 
@@ -121,8 +120,8 @@ public class LabelDetailsActivity extends AppCompatActivity {
         // re-creating it.
         Intent upIntent;
         if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_EXP_DETAILS)) {
-            upIntent = new Intent(this, PanesActivity.class);
-            upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, getExperimentId());
+            upIntent =
+                    WhistlePunkApplication.getLaunchIntentForPanesActivity(this, getExperimentId());
         } else if (getIntent().getExtras().getBoolean(
                 LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
             upIntent = new Intent(this, RunReviewActivity.class);
@@ -144,7 +143,6 @@ public class LabelDetailsActivity extends AppCompatActivity {
         if (labelDeleted) {
             AppSingleton.getInstance(this).pushDeletedLabelForUndo(originalLabel);
         }
-        // TODO: In the Panes world, do we still need to pass any other args?
 
         // TODO: nice transition!
 

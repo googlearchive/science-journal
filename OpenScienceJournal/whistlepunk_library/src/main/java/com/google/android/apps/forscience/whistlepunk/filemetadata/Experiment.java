@@ -567,6 +567,12 @@ public class Experiment extends LabelListHolder {
         return deleteLabelAndReturnAssetDeleter(item, getExperimentId());
     }
 
+    public boolean isEmpty() {
+        return getLabelCount() == 0 && getTrialCount() == 0 &&
+                TextUtils.isEmpty(getExperimentOverview().imagePath) &&
+                TextUtils.isEmpty(getTitle()) && !isArchived();
+    }
+
     @VisibleForTesting
     public int getVersion() {
         return mProto.fileVersion.version;

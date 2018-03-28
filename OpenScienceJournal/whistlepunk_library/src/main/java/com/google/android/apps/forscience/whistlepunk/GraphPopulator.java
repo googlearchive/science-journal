@@ -79,7 +79,7 @@ public class GraphPopulator {
      */
     public void requestObservations(final GraphStatus graphStatus,
             final DataController dataController, final FailureListener failureListener,
-            final int resolutionTier, final String sensorId) {
+            final int resolutionTier, final String trialId, final String sensorId) {
         if (mRequestInFlight) {
             return;
         }
@@ -88,7 +88,7 @@ public class GraphPopulator {
             mObservationDisplay.onFinish(mRequestId);
         } else {
             mRequestInFlight = true;
-            dataController.getScalarReadings(sensorId, resolutionTier, r,
+            dataController.getScalarReadings(trialId, sensorId, resolutionTier, r,
                     MAX_DATAPOINTS_PER_SENSOR_LOAD, MaybeConsumers.chainFailure(failureListener,
                             new FallibleConsumer<ScalarReadingList>() {
                                 @Override
@@ -104,7 +104,7 @@ public class GraphPopulator {
                                         addToRequestedTimes(getEffectiveAddedRange(r,
                                                 received.first));
                                         requestObservations(graphStatus, dataController,
-                                                failureListener, resolutionTier, sensorId);
+                                                failureListener, resolutionTier, trialId, sensorId);
                                     }
                                 }
 

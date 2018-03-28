@@ -23,8 +23,10 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 
 import com.google.android.apps.forscience.whistlepunk.BuildConfig;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.sensordb.IncrementableMonotonicClock;
 
 import org.junit.After;
@@ -36,6 +38,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Tests for the FileMetadataManager class.
@@ -125,7 +128,7 @@ public class FileMetadataManagerTest {
     }
 
     @Test
-    public void testRelativePathFunctions() {
+    public void testRelativePathFunctions() throws IOException {
         File file = new File(getContext().getFilesDir() +
                 "/experiments/experiment182/assets/cats.png");
         assertEquals("assets/cats.png",
@@ -139,7 +142,50 @@ public class FileMetadataManagerTest {
         assertEquals(file.getAbsolutePath(), result.getAbsolutePath());
 
         assertEquals("experiments/experiment182/assets/cats.png",
-                FileMetadataManager.getRelativePathInFilesDir("experiment182", "assets/cats.png"));
+                FileMetadataManager.getRelativePathInFilesDir("experiment182",
+                        "assets/cats.png").toString());
+
+        File exportDir = new File(getContext().getFilesDir().toString(), "/exported_experiments");
+        assertEquals(exportDir.getAbsolutePath().toString(),
+                FileMetadataManager.getExperimentExportDirectory(getContext()));
+
+    }
+
+    @Test public void versionChecks() {
+        Version.FileVersion fileVersion = new Version.FileVersion();
+        fileVersion.version = 1;
+        fileVersion.minorVersion = 1;
+        fileVersion.platform = GoosciGadgetInfo.GadgetInfo.ANDROID;
+        fileVersion.platformVersion = 1;
+        assertEquals(true, FileMetadataManager.canImportFromVersion(fileVersion));
+
+        fileVersion.minorVersion = 2;
+        assertEquals(true, FileMetadataManager.canImportFromVersion(fileVersion));
+
+        fileVersion.minorVersion = 3;
+        assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
+
+        fileVersion.version = 2;
+        fileVersion.minorVersion = 1;
+        assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
+
+        fileVersion.platform = GoosciGadgetInfo.GadgetInfo.IOS;
+        fileVersion.version = 1;
+        fileVersion.minorVersion = 1;
+        fileVersion.platformVersion = 1;
+        assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
+
+        fileVersion.platformVersion = 2;
+        assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
+
+        fileVersion.platformVersion = 3;
+        assertEquals(true, FileMetadataManager.canImportFromVersion(fileVersion));
+
+        fileVersion.minorVersion = 2;
+        assertEquals(true, FileMetadataManager.canImportFromVersion(fileVersion));
+
+        fileVersion.minorVersion = 3;
+        assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
     }
 
     private Context getContext() {

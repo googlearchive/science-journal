@@ -133,6 +133,7 @@ public final class AccessibilityUtils {
     public static Snackbar makeSnackbar(View view, String message, int length) {
         Context context = view.getContext();
         Snackbar bar = Snackbar.make(view, message, length);
+        bar.getView().setContentDescription(message);
         bar.setDuration(getLongerToastDurationIfAccessibilityEnabled(context, bar));
         bar.setActionTextColor(context.getResources().getColor(R.color.snackbar_action_color));
         return bar;

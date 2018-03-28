@@ -41,6 +41,11 @@ public interface AppServices {
         public FeedbackProvider getFeedbackProvider() {
             return FeedbackProvider.STUB;
         }
+
+        @Override
+        public ActivityNavigator getNavigator() {
+            return ActivityNavigator.STUB;
+        }
     };
 
     RefWatcher getRefWatcher();
@@ -50,4 +55,6 @@ public interface AppServices {
     FeatureDiscoveryProvider getFeatureDiscoveryProvider();
 
     FeedbackProvider getFeedbackProvider();
+
+    ActivityNavigator getNavigator();
 }

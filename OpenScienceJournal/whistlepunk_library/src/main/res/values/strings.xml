@@ -29,6 +29,9 @@
     <!-- Menu option for saving an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_save">Save</string>
 
+    <!-- Menu option for discarding an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
+    <string name="action_discard">Discard</string>
+
     <!-- Menu option for editing an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_edit">Edit</string>
 
@@ -92,8 +95,8 @@
     <!-- Displayed units for a sound intensity sensor, decibels [CHAR_LIMIT=10] -->
     <string name="decibel_units">dB</string>
 
-    <!-- Displayed units for a pitch sensor, hertz [CHAR_LIMIT=10] DO NOT TRANSLATE -->
-    <string name="hertz_units" translatable="false">Hz</string>
+    <!-- Displayed units for a pitch sensor, hertz [CHAR_LIMIT=10] -->
+    <string name="hertz_units">Hz</string>
 
     <!-- Displayed units for an RPM sensor [CHAR_LIMIT=10] -->
     <string name="rpm_units">RPM</string>
@@ -129,8 +132,8 @@
     <!-- Sound intensity sensor name [CHAR_LIMIT=25] -->
     <string name="decibel">Sound intensity</string>
 
-    <!-- Pitch sensor name [CHAR_LIMIT=25] DO NOT TRANSLATE -->
-    <string name="pitch" translatable="false">Pitch</string>
+    <!-- Pitch sensor name [CHAR_LIMIT=25] -->
+    <string name="pitch">Pitch</string>
 
     <!-- Window title label for the experiment details activity [CHAR_LIMIT=25] -->
     <string name="title_activity_age_verifier">Birthday</string>
@@ -353,8 +356,17 @@
     <!-- Name of the menu item to data from graphs [CHAR_LIMIT=25] -->
     <string name="export_action">Share</string>
 
+    <!-- Name of the menu item to export an experiment file [CHAR_LIMIT=25] -->
+    <string name="send_copy_action">Send a copy</string>
+
     <!-- Dialog title for the chooser that pops up after exporting a run [CHAR_LIMIT=50]-->
     <string name="export_run_chooser_title">Save to\u2026</string>
+
+    <!-- Dialog title for the chooser that pops up after exporting an experiment [CHAR_LIMIT=50]-->
+    <string name="export_experiment_chooser_title">Send Experiment</string>
+
+    <!-- Dialog title for the chooser that pops up after exporting a photo [CHAR_LIMIT=50]-->
+    <string name="export_photo_chooser_title">Share photo to\u2026</string>
 
     <!-- Settings strings -->
     <skip/>
@@ -565,8 +577,8 @@
     <!-- One-sentence description of the Decibel sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_decibel">The intensity of the sound, measured in decibels (dB), reaching the sound sensor or microphone.</string>
 
-    <!-- One-sentence description of the pitch sensor [CHAR_LIMIT=100] DO NOT TRANSLATE -->
-    <string name="sensor_desc_short_pitch" translatable="false">The pitch of the sound, measured in hertz (Hz), reaching the sound sensor or microphone.</string>
+    <!-- One-sentence description of the pitch sensor [CHAR_LIMIT=100] -->
+    <string name="sensor_desc_short_pitch">The pitch of the sound, measured in hertz (Hz), reaching the sound sensor or microphone.</string>
 
     <!-- One-sentence description of the light sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_light">The amount of light, measured in lux, reaching the ambient light sensor.</string>
@@ -586,13 +598,13 @@
     <!-- One-sentence description of the raw sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_barometer">The atmospheric pressure measured in hectopascals (hPa).</string>
 
-    <!-- Long description of a light sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a light sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_light">The ambient light sensor measures light in lux, a measure of illumination that depends on the amount of incoming light and the area over which it is spread.
         \n\nA full moon provides about 1 lux of illumination, a typical lamp-lit living room about 50 lux, classroom lighting and sunrise and sunset about 400 lux, daylight (indirect sun) over 10,000 lux, and direct sun over 30,000 lux.
         \n\nLux is an unfamiliar unit for most of us. When we buy lightbulbs, we often shop by watts—but the wattage of a bulb doesn\'t tell you how bright a bulb is, only how much energy it uses. Lumens are a better measure for light shopping; they tell you how much light a bulb will actually produce. Lux, meanwhile, tells you how much of that light arrives at a particular area.
     </string>
 
-    <!-- Long description of a light sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a light sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_light">Since light spreads out as it travels, the number of lux dwindles as you back away from a light source, even though the source is still emitting the same amount of light in lumens. An area that is tilted away from a light sources also receives less illumination—which happens to be why the equatorial regions here on Earth are so much warmer than the chilly poles.
         \n\nBy the way, the purpose of the light sensor in your phone is to control the light level of the screen, adjusting accordingly to dim and bright environments. Inside the light sensor, a tiny semiconductor responds to incoming light by producing a small but measurable electrical current—a phenomenon known as the photoelectric effect. Similar sensors are used in some streetlights to turn them on when it gets dark outside.
     </string>
@@ -605,22 +617,21 @@
     <!-- Long description of a magnetic rotation sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_magnetic_strength">Magnets, electric currents, and metal objects will easily steer your phone\'s magnetometer this way and that. But even in the middle of an empty field, the magnetometer in your phone always shows a low, non-zero reading: this is the Earth\'s magnetic field!</string>
 
-    <!-- Long description of a accelerometer sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a accelerometer sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_acc">Objects have a tendency to stay put, or to keep moving if they\'re moving—we call this tendency inertia. Newton\'s First Law expresses this idea formally: An object continues in its state of motion or rest unless acted on by an unbalanced force.
         \n\nWhen an unbalanced force does cause an object to budge, we say the object accelerates: its velocity, or speed, changes—either by speeding up, slowing down, or changing direction. Acceleration is measured as a change of velocity (meters per second) in time, or meters per second squared (m/s\u00B2).
         \n\nYour phone has a device to measure these changes in motion—an accelerometer. Inside an accelerometer, small suspended masses are free to move. Changes in motion cause these masses to shift, much as your own head tends to flop forward when you\'re in a car that stops suddenly. Measuring these subtle inertial shifts, an accelerometer in a phone can detect changes in motion and orientation, useful for switching the screen from landscape to portrait mode, for playing games on your phone, and more.</string>
 
-    <!-- Long description of a accelerometer sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a accelerometer sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_acc">You probably noticed a persistent acceleration in the Z axis, even with the phone sitting still on a table. This is the acceleration we experience here at the Earth\'s surface due to the pull of gravity, approximately 9.8 m/s\u00B2.</string>
 
-    <!-- Long description of a decibel sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a decibel sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_decibel">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal cords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
 
-    <!-- Long description of a decibel sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
-    <!-- TODO(lizlooney): Update this description if/when we add the pitch sensor. -->
+    <!-- Long description of a decibel sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_decibel">All sounds can be described in terms of their frequency and intensity.
-        \n\nIntensity is what you measure here with the Science Journal, in units of decibels (dB). Intensity, or loudness, depends on the distance that a vibrating object moves each time it vibrates; we hear greater intensity as increased loudness.
-        \n\nThe frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound. The Science Journal does not measure frequency—only loudness.
+        \n\nIntensity is what you measure here with the Science Journal sound intensity sensor, in units of decibels (dB). Intensity, or loudness, depends on the distance that a vibrating object moves each time it vibrates; we hear greater intensity as increased loudness.
+        \n\nThe frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound. The Science Journal sound intensity sensor does not measure frequency—only loudness.
         \n\nOne important thing to know is that the microphone in your device is designed to be very sensitive to differences in sound waves over time, but not the absolute size of each wave.  We have tried to choose code that is likely to produce numbers similar to the reference numbers shown below, but each device may give consistently higher or lower numbers.  Scientists will usually calibrate a sensor like this to a known measurement.  For now, Science Journal can tell you whether your next train ride is louder than your next rock concert, but only if you bring the same phone to both events.
         \n\nAnother thing to know is that there are important differences between “sound intensity”, “sound intensity level”, and “sound pressure”.  We are treating them here as the same thing, but if you want to dig deeper, there’s many online resources about the differences.
         \n\nThe quietest sound that the average human ear can detect is defined as 0 dB. Ordinary conversation corresponds to about 60 dB, and sounds above about 140 dB are painful to the human ear. But sounds don\'t have to be painful to be harmful. Continued exposure to sounds of 90 dB—about the loudness of a vacuum cleaner—can eventually cause hearing loss.
@@ -638,41 +649,73 @@
         \n140 dB airplane taking off
     </string>
 
-    <!-- Long description of a pitch sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] DO NOT TRANSLATE -->
-    <string name="sensor_desc_first_paragraph_pitch" translatable="false">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal cords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
+    <!-- Long description of a pitch sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <string name="sensor_desc_first_paragraph_pitch">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal cords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
 
-    <!-- Long description of a pitch sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] DO NOT TRANSLATE -->
-    <string name="sensor_desc_second_paragraph_pitch" translatable="false">All sounds can be described in terms of their frequency and intensity.
-        \n\nThe frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound.
+    <!-- Long description of a pitch sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <string name="sensor_desc_second_paragraph_pitch">All sounds can be described in terms of their frequency and intensity. The frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound. We measure these vibrations in Hertz (Hz) where 1 Hertz = 1 vibration/second.
         \n\nHumans can hear sounds in the range of 20 to 20,000 Hz. The lowest key on a piano produces a sound with a frequency of 27.5 Hz and the highest key produces a sound with a frequency of 4186.01 Hz.
-    </string>
+        \n\nThe red dot indicates how close the detected pitch is to the nearest musical note. If the pitch is lower or “flatter”, the dot will appear to the left. If the pitch is higher or “sharper”, then the red dot will appear to the right.</string>
 
-    <!-- Long description of a rotation sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Content description for low pitch [CHAR_LIMIT=NONE] -->
+    <string name="pitch_low_content_description">low pitch</string>
+
+    <!-- Content description for a pitch that is flatter than a natural musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_flatter_than_natural_note_content_description"><xliff:g id="half_steps_flatter">%3$s</xliff:g> half steps flatter than <xliff:g id="musical_note">%1$s</xliff:g>, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is flatter than a flat musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_flatter_than_flat_note_content_description"><xliff:g id="half_steps_flatter">%3$s</xliff:g> half steps flatter than <xliff:g id="musical_note">%1$s</xliff:g> flat, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is flatter than a sharp musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_flatter_than_sharp_note_content_description"><xliff:g id="half_steps_flatter">%3$s</xliff:g> half steps flatter than <xliff:g id="musical_note">%1$s</xliff:g> sharp, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is equal to a natural musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_natural_note_content_description"><xliff:g id="musical_note">%1$s</xliff:g>, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is equal to a flat musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_flat_note_content_description"><xliff:g id="musical_note">%1$s</xliff:g> flat, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is equal to a sharp musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_sharp_note_content_description"><xliff:g id="musical_note">%1$s</xliff:g> sharp, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is sharper than a natural musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_sharper_than_natural_note_content_description"><xliff:g id="half_steps_sharper">%3$s</xliff:g> half steps sharper than <xliff:g id="musical_note">%1$s</xliff:g>, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is sharper than a flat musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_sharper_than_flat_note_content_description"><xliff:g id="half_steps_sharper">%3$s</xliff:g> half steps sharper than <xliff:g id="musical_note">%1$s</xliff:g> flat, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is sharper than a sharp musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_sharper_than_sharp_note_content_description"><xliff:g id="half_steps_sharper">%3$s</xliff:g> half steps sharper than <xliff:g id="musical_note">%1$s</xliff:g> sharp, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for high pitch [CHAR_LIMIT=NONE] -->
+    <string name="pitch_high_content_description">high pitch</string>
+
+    <!-- Long description of a rotation sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_rotation">Rotations per minute (RPM) is a measure of the frequency of rotation around a fixed axis in one minute.
         \n\nAs your wind spinner turns, it rotates the encoder disc:
     </string>
 
-    <!-- Long description of a rotation sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a rotation sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_rotation">This creates periods of light and dark on the sensor that register in the Science Journal as a rotation.</string>
 
     <!-- Long description of a raw sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_raw">The data displayed here is coming from an external sensor communication with your phone via Bluetooth.
         \n\nThe value shows the percentage of the raw reading directly from your microcontroller. This is usually the percentage of a voltage drop across a sensor.</string>
 
-    <!-- Long description of a raw bluetooth sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a raw bluetooth sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_raw">Bluetooth is a wireless technology standard using radio waves to exchange data over short distances from fixed and mobile devices.</string>
 
-    <!-- Long description of an unknown bluetooth sensor displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of an unknown bluetooth sensor displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_unknown_bluetooth">The data displayed here is coming from an external sensor communication with your phone via Bluetooth.</string>
 
-    <!-- Long description of an unknown bluetooth sensor displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of an unknown bluetooth sensor displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_unknown_bluetooth">Bluetooth is a wireless technology standard using radio waves to exchange data over short distances from fixed and mobile devices.</string>
 
-    <!-- Long description of an barometer sensor displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of an barometer sensor displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_barometer">Though we rarely notice it, all of us live at the bottom of a deep ocean of air: Earth\'s atmosphere, which extends upwards of 40 kilometers (130,000 feet) high. The weight of all that air pushing down on us from above us creates what\'s called atmospheric pressure.
         \n\nAt sea level, atmospheric pressure applies 14 pounds of force on every square inch—that\'s the equivalent of about 1,300 pounds on an area the size of a standard sheet of paper.</string>
 
-    <!-- Long description of an barometer sensor displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of an barometer sensor displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_barometer">We don\'t notice this crushing pressure because we\'re used to it—that is, until it changes, even slightly, as it does when we visit high altitudes or ride in airplanes. Atmospheric pressure also varies with weather conditions, dropping in the presence of stormy, unstable air, and rising when air stabilizes and skies clear.
         \n\nThe digital barometer in your phone measures atmospheric pressure in hectopascals. (A hectopascal is 100 pascals, where a pascal is one newton of force applied over a square meter of area.) You\'ve probably heard weather forecasters give atmospheric pressure in millibars—this friendlier-sounding unit is equivalent to hectopascals.
         \n\nYou might be wondering: Why would a phone measure pressure? Atmospheric pressure changes measurably with even slight changes in elevation, say, when you climb a flight of stairs. So a digital barometer in a phone can help detect location changes, for example, telling you what floor of a building you are on, or whether you are driving on the upper or lower deck of a bridge.</string>
@@ -859,6 +902,27 @@ New features and improvements:
 \n\u2022 Bug fixes
     </string>
 
+    <!-- Note: following here are partial strings for stitching together changelogs: our changelog
+         extraction script is responsible for concatenating the right features for each release. -->
+
+    <!-- Reusable partial string for changelog introducing new features [CHAR LIMIT=50] -->
+    <string name="listing_changelog_features">New features:</string>
+
+    <!-- Reusable partial string for changelog mentioning that we fixed bugs.  This should start with two newlines to give it space  [CHAR LIMIT=75] -->
+    <string name="listing_changelog_bug_fixes">Performance improvements and bug fixes.</string>
+
+    <!-- Separator between features and bugs in release notes when both are present.  Should be two newlines  [CHAR LIMIT=5] -->
+    <string name="listing_changelog_separator">\n\n</string>
+
+    <!-- Feature 1 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=80] -->
+    <string name="listing_h_feature_1">\n\u2022 Sound pitch sensor.</string>
+
+    <!-- Feature 2 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=120] -->
+    <string name="listing_h_feature_2">\n\u2022 Export experiments to a file, and import them to other devices.</string>
+
+    <!-- Feature 3 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=100] -->
+    <string name="listing_h_feature_3">\n\u2022 Export photos from an experiment.</string>
+
     <!-- Description text shown in the Play Store for this app. Ensure a space
          remains before and after urls. [CHAR LIMIT=4000]-->
     <string name="listing__description">
@@ -912,12 +976,6 @@ Permissions notice:
 
     <!-- Summary of developer option to display an ambient temperature sensor [CHAR_LIMIT=none] -->
     <string name="enable_temperature_sensor_summary">Enable experimental ambient temperature sensor</string>
-
-    <!-- Title of developer option to enable a pitch sensor [CHAR_LIMIT=35] DO NOT TRANSLATE -->
-    <string name="enable_pitch_sensor_title" translatable="false">Enable pitch</string>
-
-    <!-- Summary of developer option to display a pitch sensor [CHAR_LIMIT=none] DO NOT TRANSLATE -->
-    <string name="enable_pitch_sensor_summary" translatable="false">Enable experimental pitch sensor</string>
 
     <!-- Title of developer option to display a synthetic sine wave [CHAR_LIMIT=35]-->
     <string name="enable_sine_wave_sensor_title">Enable sine wave</string>
@@ -1453,6 +1511,51 @@ Permissions notice:
 
     <!-- Description for the notification channel in Oreo [CHAR_LIMIT=50] -->
     <string name="notification_channel_description">Recording status</string>
+
+    <!-- Headline for import error dialogs [CHAR_LIMIT=50] -->
+    <string name="open_experiment_failed">Cannot open experiment</string>
+
+    <!-- Headline for import error dialogs [CHAR_LIMIT=50] -->
+    <string name="open_file_failed">Cannot open file</string>
+
+    <!-- Body for import error dialogs [CHAR_LIMIT=NONE] -->
+    <string name="open_file_failed_body">Experiments must be a Science Journal file format (.sj)</string>
+
+    <!-- Error for attempting to import while recording [CHAR_LIMIT=NONE] -->
+    <string name="import_failed_recording">Science Journal is currently in use. Please stop recording and try again.</string>
+
+    <!-- Error for attempting to import a corrupted file [CHAR_LIMIT=NONE] -->
+    <string name="import_failed_file">Import failed. Something\'s wrong with this experiment.</string>
+
+    <!-- Error for attempting to import without age verification [CHAR_LIMIT=NONE] -->
+    <string name="import_age_verification">To begin, please enter your age.</string>
+
+    <!-- Headline for insufficient storage dialog [CHAR_LIMIT=50] -->
+    <string name="import_storage_limit">Not enough storage space</string>
+
+    <!-- Body for insufficient storage dialog [CHAR_LIMIT=NONE] -->
+    <string name="import_storage_limit_body">You can manage your storage in settings.</string>
+
+    <!-- Button to dismiss [CHAR_LIMIT=25] -->
+    <string name="action_dismiss">Dismiss</string>
+
+    <!-- Button to report an issue [CHAR_LIMIT=25] -->
+    <string name="action_report">Report</string>
+
+    <!-- Generic Error for attempting to import [CHAR_LIMIT=NONE] -->
+    <string name="import_failed">Unfortunately, an unknown error has occurred.</string>
+
+    <!-- Title for Add To Library confirmation dialog [CHAR_LIMIT=25] -->
+    <string name="save_experiment">Save experiment</string>
+
+    <!-- Text for Add To Library confirmation dialog [CHAR_LIMIT=NONE] -->
+    <string name="save_experiment_text">Would you like to add this experiment to your library?</string>
+
+    <!-- Title for Dev Options preference to display user's birthday status -->
+    <string name="age_status_over_13" translatable="false">User age is over 13</string>
+
+    <!-- Title for Dev Options preference to display user's birthday status -->
+    <string name="age_status_under_13" translatable="false">User age is under 13</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

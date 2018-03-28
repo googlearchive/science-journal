@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -36,6 +35,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity
     private MultiTouchDrawerLayout mDrawerLayout;
     private int mSelectedItemId = NO_SELECTED_ITEM;
     private boolean mIsRecording = false;
+    private ProgressBar mProgressBar;
 
     /** Receives an event every time the activity pauses */
     RxEvent mPause = new RxEvent();
@@ -138,6 +139,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume() {
         super.onResume();
+        AppSingleton appSingleton = AppSingleton.getInstance(this);
+        appSingleton.setResumedActivity(this);
+        mPause.happensNext().subscribe(() -> appSingleton.setResumedActivity(null));
+
         if (showRequiredScreensIfNeeded()) {
             return;
         }
@@ -151,6 +156,27 @@ public class MainActivity extends AppCompatActivity
                 AgeVerifier.isOver13(AgeVerifier.getUserAge(this)) ?
                         TrackerConstants.LABEL_MODE_NONCHILD : TrackerConstants.LABEL_MODE_CHILD,
                 0);
+        if (isAttemptingImport()) {
+            WhistlePunkApplication.getUsageTracker(this).trackEvent(
+                    TrackerConstants.CATEGORY_EXPERIMENTS,
+                    TrackerConstants.ACTION_IMPORTED,
+                    TrackerConstants.LABEL_EXPERIMENT_LIST, 0);
+
+            if (!mIsRecording) {
+                ExportService.handleExperimentImport(this, getIntent().getData());
+            } else {
+                AccessibilityUtils.makeSnackbar(findViewById(R.id.drawer_layout),
+                        getResources().getString(R.string.import_failed_recording),
+                        Snackbar.LENGTH_SHORT).show();
+            }
+
+            setIntent(null);
+        }
+    }
+
+    public boolean isAttemptingImport() {
+        return getIntent() != null && getIntent().getAction() != null &&
+                getIntent().getAction().equals(Intent.ACTION_VIEW);
     }
 
     @Override
@@ -202,23 +228,30 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateRecorderControllerForResume() {
-        RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
+        AppSingleton singleton = AppSingleton.getInstance(this);
+        RecorderController rc = singleton.getRecorderController();
 
         // TODO: extract and test
         rc.watchRecordingStatus().takeUntil(mPause.happens()).subscribe(status -> {
             mIsRecording = status.isRecording();
             // TODO: Add experimentId to RecordingStatus
             if (mIsRecording) {
-                AppSingleton.getInstance(this).getDataController().getLastUsedUnarchivedExperiment(
+                rememberAttemptingImport();
+                singleton.getDataController().getLastUsedUnarchivedExperiment(
                         new LoggingConsumer<Experiment>(TAG, "getting last used experiment") {
                             @Override
                             public void success(Experiment experiment) {
-                                PanesActivity.launch(MainActivity.this,
-                                        experiment.getExperimentId());
+                                startActivity(
+                                        WhistlePunkApplication.getLaunchIntentForPanesActivity(
+                                                MainActivity.this, experiment.getExperimentId()));
                             }
                         });
             }
         });
+    }
+
+    private void rememberAttemptingImport() {
+        AppSingleton.getInstance(this).setMostRecentOpenWasImport(isAttemptingImport());
     }
 
     private void updateRecorderControllerForPause() {
@@ -233,6 +266,7 @@ public class MainActivity extends AppCompatActivity
      */
     private boolean showRequiredScreensIfNeeded() {
         if (AgeVerifier.shouldShowUserAge(this)) {
+            rememberAttemptingImport();
             Intent intent = new Intent(this, AgeVerifier.class);
             startActivity(intent);
             finish();
@@ -382,7 +416,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Launches the main activity to the selected navigation item.
      *
-     * @param id One of the navigation_item constants.
+     * @param id       One of the navigation_item constants.
      * @param usePanes should we use panes (the drawer) when observing?
      */
     @NonNull

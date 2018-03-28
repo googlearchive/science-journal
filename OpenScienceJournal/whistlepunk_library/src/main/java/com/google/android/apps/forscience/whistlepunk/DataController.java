@@ -16,6 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -23,6 +26,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
@@ -39,10 +44,20 @@ import io.reactivex.Observable;
  * later on the UI thread.
  */
 public interface DataController {
-    void getScalarReadings(String databaseTag, final int resolutionTier, TimeRange timeRange,
-            int maxRecords, MaybeConsumer<ScalarReadingList> onSuccess);
+    void getScalarReadings(String trialId, String databaseTag, final int resolutionTier,
+            TimeRange timeRange, int maxRecords,
+            MaybeConsumer<ScalarReadingList> onSuccess);
 
-    Observable<ScalarReading> createScalarObservable(String[] sensorIds,
+    // TODO: refactor to remove the interface inconsistency here.
+
+    /**
+     * Unlike all other DataController methods, this one calls onSuccess on the background thread.
+     */
+    void getScalarReadingProtosInBackground(
+            GoosciExperiment.Experiment experiment,
+            final MaybeConsumer<GoosciScalarSensorData.ScalarSensorData> onSuccess);
+
+    Observable<ScalarReading> createScalarObservable(String trialId, String[] sensorIds,
             TimeRange timeRange, final int resolutionTier);
 
     void deleteTrialData(Trial trial, MaybeConsumer<Success> onSuccess);
@@ -60,6 +75,9 @@ public interface DataController {
     void saveImmediately(MaybeConsumer<Success> onSuccess);
 
     String generateNewLabelId();
+
+    void importExperimentFromZip(final Uri zipUri, ContentResolver resolver,
+            final MaybeConsumer<String> onSuccess);
 
     /**
      * Gets all experiment overviews.
@@ -81,6 +99,7 @@ public interface DataController {
     void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess);
 
     // TODO: fix docs, rename?
+
     /**
      * Passes to onSuccess a map from sensor ids to external sensor specs
      */
@@ -117,6 +136,7 @@ public interface DataController {
     void addOrGetExternalSensor(ExternalSensorSpec sensor, MaybeConsumer<String> onSensorId);
 
     // TODO: layout and external sensor storage is redundant
+
     /**
      * Replace oldSensorId with newSensorId in experiment.  All cards that were showing oldSensorId
      * will now show newSensorId

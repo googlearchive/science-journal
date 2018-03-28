@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -25,21 +26,25 @@ import androidx.annotation.NonNull;
 
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
+import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabaseImpl;
+import com.google.common.base.Optional;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
+import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
 public class AppSingleton {
@@ -60,6 +65,8 @@ public class AppSingleton {
     private Map<String, SensorProvider> mExternalSensorProviders;
     private ConnectableSensor.Connector mSensorConnector;
     private PublishSubject<Label> mLabelsAdded = PublishSubject.create();
+    private BehaviorSubject<Boolean> mExportServiceBusy = BehaviorSubject.create();
+    private BehaviorSubject<Optional<Activity>> mResumedActivity = BehaviorSubject.create();
 
     private SensorEnvironment mSensorEnvironment = new SensorEnvironment() {
         @Override
@@ -88,6 +95,7 @@ public class AppSingleton {
         }
     };
     private DeletedLabel mDeletedLabel;
+    private boolean mMostRecentOpenWasImport = false;
 
     @NonNull
     public PrefsSensorHistoryStorage getPrefsSensorHistoryStorage() {
@@ -241,4 +249,30 @@ public class AppSingleton {
         }
         return null;
     }
-}
+
+    public void setMostRecentOpenWasImport(boolean mostRecentOpenWasImport) {
+        mMostRecentOpenWasImport = mostRecentOpenWasImport;
+    }
+
+    public boolean getAndClearMostRecentOpenWasImport() {
+        boolean returnThis = mMostRecentOpenWasImport;
+        mMostRecentOpenWasImport = false;
+        return returnThis;
+    }
+
+    public void setExportServiceBusy(boolean b) {
+        mExportServiceBusy.onNext(b);
+    }
+
+    public Observable<Boolean> whenExportBusyChanges() {
+        return mExportServiceBusy;
+    }
+
+    public Maybe<Activity> onNextActivity() {
+        return mResumedActivity.filter(Optional::isPresent).map(Optional::get).firstElement();
+    }
+
+    public void setResumedActivity(Activity activity) {
+        mResumedActivity.onNext(Optional.fromNullable(activity));
+    }
+ }

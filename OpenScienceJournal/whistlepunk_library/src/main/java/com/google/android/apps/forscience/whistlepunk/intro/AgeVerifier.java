@@ -21,11 +21,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -96,6 +99,16 @@ public class AgeVerifier extends AppCompatActivity {
             }
         });
         WhistlePunkApplication.getPerfTrackerProvider(this).onAppInteractive();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (AppSingleton.getInstance(this).getAndClearMostRecentOpenWasImport()) {
+            AccessibilityUtils.makeSnackbar(mDatePicker,
+                    getResources().getString(R.string.import_age_verification),
+                    Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     public static boolean shouldShowUserAge(Context context) {

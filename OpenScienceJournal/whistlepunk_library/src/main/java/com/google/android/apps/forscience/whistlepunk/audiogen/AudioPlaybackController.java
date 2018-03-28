@@ -63,7 +63,8 @@ public class AudioPlaybackController {
     }
 
     public void startPlayback(final DataController dataController, final long firstTimestamp,
-            final long lastTimestamp, long xMinToLoad, final String sensorId) {
+            final long lastTimestamp, long xMinToLoad, final String trialId,
+                              final String sensorId) {
         if (mPlaybackStatus != PLAYBACK_STATUS_NOT_PLAYING) {
             return;
         }
@@ -108,7 +109,7 @@ public class AudioPlaybackController {
                 if (audioData.size() < DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD / 10 && !mFullyLoaded &&
                         !mLoading) {
                     mLoading = true;
-                    dataController.getScalarReadings(sensorId, /* tier 0 */ 0,
+                    dataController.getScalarReadings(trialId, sensorId, /* tier 0 */ 0,
                             TimeRange.oldest(Range.openClosed(lastTimestamp, xMax)),
                             DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD,
                             new MaybeConsumer<ScalarReadingList>() {
@@ -153,7 +154,7 @@ public class AudioPlaybackController {
         };
 
         // Load the first set of scalar readings, and start playing as soon as they are loaded.
-        dataController.getScalarReadings(sensorId, /* tier 0 */ 0,
+        dataController.getScalarReadings(trialId, sensorId, /* tier 0 */ 0,
                 TimeRange.oldest(Range.closed(xMinToLoad, xMax)),
                 DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD, new MaybeConsumer<ScalarReadingList>() {
                     @Override

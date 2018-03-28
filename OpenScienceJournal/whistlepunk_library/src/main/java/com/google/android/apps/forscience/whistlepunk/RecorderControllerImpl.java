@@ -227,7 +227,8 @@ public class RecorderControllerImpl implements RecorderController {
                         double value = ScalarSensor.getValue(data);
 
                         // Remember latest value
-                        mLatestValues.get(sensorId).onNext(new ScalarReading(timestamp, value));
+                        mLatestValues.get(sensorId).onNext(new ScalarReading(
+                                timestamp, value, sensorId));
 
                         // Fire triggers.
                         for (SensorTrigger trigger : activeTriggers) {

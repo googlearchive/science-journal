@@ -26,13 +26,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    lintOptions {
-        absolutePaths false
-
-        htmlOutput file("build/reports/sciencejournalapi-lint-results.html")
-        xmlOutput file("build/reports/sciencejournalapi-lint-results.xml")
-    }
 }
 
 dependencies {

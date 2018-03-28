@@ -20,6 +20,7 @@ import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
@@ -75,6 +76,11 @@ public abstract class WhistlePunkApplication extends Application {
         public FeedbackProvider getFeedbackProvider() {
             return mFeedbackProvider;
         }
+
+        @Override
+        public ActivityNavigator getNavigator() {
+            return WhistlePunkApplication.this.getNavigator();
+        }
     };
 
     public static AppServices getAppServices(Context context) {
@@ -104,6 +110,11 @@ public abstract class WhistlePunkApplication extends Application {
     public static PerfTrackerProvider getPerfTrackerProvider(Context context) {
         WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
         return app.mPerfTrackerProvider;
+    }
+
+    public static Intent getLaunchIntentForPanesActivity(Context context, String experimentId) {
+        return getAppServices(context).getNavigator()
+                                      .launchIntentForPanesActivity(context, experimentId);
     }
 
     @Override
@@ -153,5 +164,14 @@ public abstract class WhistlePunkApplication extends Application {
             mChannel.setDescription(description);
             notificationManager.createNotificationChannel(mChannel);
         }
+    }
+
+    public ActivityNavigator getNavigator() {
+        return new ActivityNavigator() {
+            @Override
+            public Intent launchIntentForPanesActivity(Context context, String experimentId) {
+                return PanesActivity.launchIntent(context, experimentId);
+            }
+        };
     }
 }

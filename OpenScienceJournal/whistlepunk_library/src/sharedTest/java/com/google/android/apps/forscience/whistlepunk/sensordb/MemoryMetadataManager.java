@@ -16,6 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
+import android.content.ContentResolver;
+import android.net.Uri;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
 
@@ -90,6 +92,12 @@ public class MemoryMetadataManager implements MetaDataManager {
             result.add(experiment.getExperimentOverview());
         }
         return result;
+    }
+
+    @Override
+    public Experiment importExperimentFromZip(Uri zipUri,
+            ContentResolver resolver) {
+        return null;
     }
 
     @Override
@@ -188,7 +196,8 @@ public class MemoryMetadataManager implements MetaDataManager {
             if (!experiment.isArchived()) {
                 return experiment;
             }
-        };
+        }
+        ;
         return null;
     }
 

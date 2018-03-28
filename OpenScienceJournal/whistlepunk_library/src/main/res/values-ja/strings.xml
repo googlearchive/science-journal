@@ -22,6 +22,7 @@
     <string name="action_settings" msgid="7253243161333327313">"設定"</string>
     <string name="action_about" msgid="6800644842624263352">"基本情報"</string>
     <string name="action_save" msgid="9094966122984771386">"保存"</string>
+    <string name="action_discard" msgid="6259512454044716532">"破棄"</string>
     <string name="action_edit" msgid="8133918565183877925">"編集"</string>
     <string name="action_archive_experiment" msgid="4508918574186115343">"実験をアーカイブ"</string>
     <string name="action_unarchive_experiment" msgid="7449138468795347573">"実験をアーカイブ解除"</string>
@@ -43,6 +44,7 @@
     <string name="ambient_light_units" msgid="3481544691869862434">"ルクス"</string>
     <string name="magnetic_strength_units" msgid="2947332496355264272">"μT"</string>
     <string name="decibel_units" msgid="1242238682082079824">"dB"</string>
+    <string name="hertz_units" msgid="4545305712642207214">"Hz"</string>
     <string name="rpm_units" msgid="2651871280948091901">"RPM"</string>
     <string name="voltage_units" msgid="598716668433769220">"V"</string>
     <string name="raw_units" msgid="4501311675565391535">"%"</string>
@@ -53,6 +55,7 @@
     <string name="snackbar_source_error" msgid="488480213360860471">"次のソースへの接続時にエラーが発生しました: <xliff:g id="ERROR_TEXT">%1s</xliff:g>"</string>
     <string name="action_retry" msgid="3145700667339813916">"再試行"</string>
     <string name="decibel" msgid="2567269521573545643">"音量"</string>
+    <string name="pitch" msgid="2148769314255632130">"ピッチ"</string>
     <string name="title_activity_age_verifier" msgid="7040452872458524616">"生年月日"</string>
     <string name="title_activity_ruler" msgid="7356097859627917798">"定規"</string>
     <string name="ruler_label_metric" msgid="4168199108712627963">"<xliff:g id="LENGTH_VALUE">%1$.2f</xliff:g> mm"</string>
@@ -123,7 +126,10 @@
     <string name="stat_unknown" msgid="4617276179275913656">"不明"</string>
     <string name="btn_reset_description" msgid="7031769397794008342">"現在に移動"</string>
     <string name="export_action" msgid="897850091094685357">"共有"</string>
+    <string name="send_copy_action" msgid="8502214895995380196">"コピーを送信"</string>
     <string name="export_run_chooser_title" msgid="3151522898296393519">"保存先…"</string>
+    <string name="export_experiment_chooser_title" msgid="8176450675888300476">"実験の送信"</string>
+    <string name="export_photo_chooser_title" msgid="6955808280489177106">"写真の共有先…"</string>
     <string name="settings_version_title" msgid="6926476057478648092">"バージョン"</string>
     <string name="settings_open_source_title" msgid="2075335777151654751">"オープンソース ライセンス"</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"サイエンス ジャーナルを使用して外部端末（「サイエンス ジャーナル センサー」）にアクセスするには、まず Bluetooth を ON にする必要があります。また、サイエンス ジャーナル センサーを検出するには、Android 端末による位置情報へのアクセスを許可する必要があります。これは、デバイスの検出時に他の Bluetooth 端末がその位置情報をブロードキャストする可能性があるためです。ただし、サイエンス ジャーナルが位置情報を保存または使用したり、サイエンス ジャーナル センサーが位置情報を送信したりすることはありません。"</string>
@@ -187,6 +193,7 @@
     <string name="sensor_desc_short_acc_y" msgid="7084492489358508838">"前後方向へのスマートフォンの加速度（m/s²）"</string>
     <string name="sensor_desc_short_acc_z" msgid="3654652952186189306">"上下方向へのスマートフォンの加速度（m/s²）"</string>
     <string name="sensor_desc_short_decibel" msgid="2359189091191569028">"音センサーまたはマイクに届いている音の強さ（dB）。"</string>
+    <string name="sensor_desc_short_pitch" msgid="7776392143377283098">"音声センサーまたはマイクに届いている音のピッチ（Hz）。"</string>
     <string name="sensor_desc_short_light" msgid="8639505918865988429">"環境光センサーに届いている光量（ルクス）。"</string>
     <string name="sensor_desc_short_magnetic_strength" msgid="62101212164736802">"周囲の磁場の強さ（マイクロテスラ）です。"</string>
     <string name="sensor_desc_short_bluetooth" msgid="4277948592491963946">"外部センサーのデータは、カスタム設定に基づいて、ここに表示されます。"</string>
@@ -200,7 +207,20 @@
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"物体にはその位置に留まる性質、また移動している場合は動き続ける性質があります。この性質を慣性といいます。ニュートンの第 1 法則では、この考え方を明確に説明しています。つまり、物体は外部から不平衡力が加わらない限り、移動または静止した状態を保ち続けます。\n\n不平衡力が物体自体を変化させない状況を物体の加速と呼び、物体の速力または速度が変化します。これは、加速、減速、または方向の変化のいずれかを指します。加速度は時間あたりの速力（メートル/秒）、またはメートル毎秒毎秒（m/s²）の変化として測定されます。\n\nスマートフォンにはこのような動きの変化を測定する装置が搭載されており、加速度計と呼ばれています。加速度計の内部には小さな重りが吊り下げられていて、自由に移動できるようになっています。動きに変化が発生すると、このような重りの移動にも変化が生まれます。たとえば、車が急に停止すると頭が前に倒れるような感じです。このような微妙な慣性の変化を測定することで、スマートフォンの加速度計は動きの変化と方向を検出することができます。これは、画面を横向きから縦向きに切り替えたり、スマートフォンでゲームをプレイしたりする場合に利用されています。"</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"スマートフォンをテーブルに置いて動かしていない場合でも、Z 軸には絶えず加速度が発生していることにお気付きでしょうか。これは重力によって地球上で発生する加速度であり、約 9.8 m/s² です。"</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"音は振動によって生じます。たとえば、皆さんの声も喉の声帯が振動することで生み出されています。このような振動によって、気圧が高いところと低いところが交互に発生する領域が生まれ、外側に向かって広がっていきます。池に小石を投げると、輪状の波が広がっていくような感じです。"</string>
-    <string name="sensor_desc_second_paragraph_decibel" msgid="8847748188455408317">"すべての音は、周波数と強さという観点から表すことができます。\n\nサイエンス ジャーナルで測定するのは強さであり、単位はデシベル（dB）です。音の強さ、つまり音量は、物体が振動する幅によって変化し、強さが大きくなるほど聞こえる音量も大きくなります。\n\n音波の周波数（ピッチやトーンとも呼ばれます）は、振動の速さに相当します。物体の振動が速いほど、生み出される音のピッチも高くなります。サイエンス ジャーナルでは周波数は測定されず、音量だけが測定されます。\n\nただし、端末のマイクは、時間の経過による音波の変化には非常に敏感ですが、それぞれの音波の絶対的なサイズを測ることはあまり得意ではないことは覚えておいてください。アプリの開発にあたっては、以下に示す参照数値と同じような数値を生成するコードを選択しようと努めてきましたが、高めに測定されたり低めに出たりと、端末ごとに違うクセがあります。科学者は通常、既知の測定数値に合致させるために、このようなセンサーに対して較正という作業を行います。現時点では、サイエンス ジャーナルで電車の騒音とロック コンサートの音量を測ることはできますが、どちらの音量が大きいかを比べるためには、同じスマートフォンで両方の音量を測定する必要があります。\n\nまた、「音の強さ」、「音の強さのレベル」、「音圧」の違いを理解することも重要です。ここではすべて同じものとして扱っていますが、それらの違いについて詳しく知りたい場合は、多くのオンライン リソースが公開されているのでそちらをご覧ください。\n\n平均的な人間の耳で聴き取れる最小の音量が 0 dB と定義されています。日常会話の音量は 60 dB ほどで、140 dB を超える音は人間の耳には苦痛に感じられます。ただし、そこまで大きくなくても有害な音はあります。たとえば、掃除機の音量は 90 dB ほどですが、この音量の環境に継続的にさらされていると難聴を引き起こす原因となります。\n\nデシベルは対数的な尺度であるため、少々注意を要します。たとえば、40 dB の音源は 20 dB の音源と比較して強さが 2 倍ではなく、100 倍になります。また、音量が 70 dB のアラーム時計を 2 台鳴らした場合、音量は 140 dB ではなく 73 dB になります。このように、この尺度には少し直観的ではない部分もあります。\n\n木の葉のこすれる音は 10 dB\n1.5 メートル離れたところからのささやき声は 20 dB\n優しいささやき声は 30 dB\n雨音は 50 dB\n普通の会話は 60 dB\nブレンダーの音は 90 dB\nマフラーのない自動車の音は 100 dB\n耳元での叫び声は 110 dB\n雷は 120 dB\nドリルの音は 130 dB\n飛行機の離陸音は 140 dB"</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="8166889038083369367">"すべての音は、周波数と強さという観点から表すことができます。\n\nサイエンス ジャーナルの音量センサーで測定するのは強さであり、単位はデシベル（dB）です。音の強さ、つまり音量は物体の振動の大きさによって変化し、強さが大きくなるほど聞こえる音量も大きくなります。\n\n音波の周波数（ピッチまたはトーンとも呼ばれます）は、振動の速さに相当します。物体の振動が速いほど、生み出される音のピッチも高くなります。サイエンス ジャーナルの音量センサーでは周波数は測定されず、音量だけが測定されます。\n\nただし、端末のマイクは、時間の経過による音の変化には非常に敏感ですが、音の絶対的な大きさを測ることはあまり得意ではないことは覚えておいてください。アプリの開発にあたっては、以下に示す参照数値と同じような数値を生成するコードを選択しようと努めてきましたが、高めに測定されたり低めに出たりと、端末ごとに違うクセがあります。科学者は通常、既知の測定数値に合致させるために、このようなセンサーに対して較正という作業を行います。現時点では、サイエンス ジャーナルで電車の騒音やロック コンサートの音量を測ることはできますが、どちらの音量が大きいかを比べるためには、同じスマートフォンで両方の音量を測定する必要があります。\n\nまた、「音の強さ」、「音の強さのレベル」、「音圧」の違いを理解することも重要です。ここではすべて同じものとして扱っていますが、それらの違いについて詳しく知りたい場合は、多くのオンライン リソースが公開されているのでそちらをご覧ください。\n\n平均的な人間の耳で聴き取れる最小の音量が 0 dB と定義されています。日常会話の音量は 60 dB ほどで、140 dB を超える音は人間の耳には苦痛に感じられます。ただし有害な音量が必ずしも苦痛に感じられるわけではありません。掃除機の音量は 90 dB ほどですが、この音量の環境に継続的にさらされていると難聴を引き起こす原因となります。\n\nデシベルは対数的な尺度であるため、少々注意を要します。たとえば、40 dB の音源は 20 dB の音源と比較して強さが 2 倍というわけではなく、100 倍になります。また、音量が 70 dB のアラーム時計を 2 台鳴らした場合、音量は 140 dB ではなく 73 dB になります。このように、少しわかりにくい尺度といえます。\n\n葉が触れ合う音: 10 dB\n距離 1.5 m でのささやき: 20 dB\n小声の話し声: 30 dB\n雨音: 50 dB\n日常会話: 60 dB\nミキサーの音: 90 dB\nマフラーなしの自動車: 100 dB\n耳元での大声: 110 dB\n雷の音: 120 dB\n削岩機の音: 130 dB\n飛行機の離陸: 140 dB"</string>
+    <string name="sensor_desc_first_paragraph_pitch" msgid="7962772956430692744">"音は振動によって生じます。たとえば、皆さんの声も喉の声帯が振動することで生み出されています。このような振動によって、気圧が高いところと低いところが交互に発生する領域が生まれ、外側に向かって広がっていきます。池に小石を投げると、輪状の波が広がっていくような感じです。"</string>
+    <string name="sensor_desc_second_paragraph_pitch" msgid="4589061556176185098">"すべての音は、周波数と強さという観点から表すことができます。音波の周波数（ピッチまたはトーンとも呼ばれます）は、振動の速さに相当します。物体の振動が速いほど、生み出される音のピッチも高くなります。振動の測定単位はヘルツ（Hz）で、1 ヘルツは 1 秒間に 1 回の振動です。\n\n人間が聴き取ることができる音の範囲は 20～20,000 Hz です。ピアノの最も低い音の周波数は 27.5 Hz、最も高い音の周波数は 4186.01 Hz です。\n\n赤色の点は、検出されたピッチと一番近い音にどれだけ近いかを表しています。ピッチが低い（フラット）場合、点は左側に表示されます。ピッチが高い（シャープ）場合、点は右側に表示されます。"</string>
+    <string name="pitch_low_content_description" msgid="8695511503753207769">"低ピッチ"</string>
+    <string name="pitch_flatter_than_natural_note_content_description" msgid="8324964942005813893">"オクターブ <xliff:g id="OCTAVE_NUMBER">%2$s</xliff:g> の <xliff:g id="MUSICAL_NOTE">%1$s</xliff:g> より半音 <xliff:g id="HALF_STEPS_FLATTER">%3$s</xliff:g> 個分低い音"</string>
+    <string name="pitch_flatter_than_flat_note_content_description" msgid="1959422893838797226">"オクターブ <xliff:g id="OCTAVE_NUMBER">%2$s</xliff:g> の <xliff:g id="MUSICAL_NOTE">%1$s</xliff:g> フラットより半音 <xliff:g id="HALF_STEPS_FLATTER">%3$s</xliff:g> 個分低い音"</string>
+    <string name="pitch_flatter_than_sharp_note_content_description" msgid="2573068992185343358">"オクターブ <xliff:g id="OCTAVE_NUMBER">%2$s</xliff:g> の <xliff:g id="MUSICAL_NOTE">%1$s</xliff:g> シャープより半音 <xliff:g id="HALF_STEPS_FLATTER">%3$s</xliff:g> 個分低い音"</string>
+    <string name="pitch_natural_note_content_description" msgid="6407475425320811450">"オクターブ <xliff:g id="OCTAVE_NUMBER">%2$s</xliff:g> の <xliff:g id="MUSICAL_NOTE">%1$s</xliff:g>"</string>
+    <string name="pitch_flat_note_content_description" msgid="4616654177499556844">"オクターブ <xliff:g id="OCTAVE_NUMBER">%2$s</xliff:g> の <xliff:g id="MUSICAL_NOTE">%1$s</xliff:g> フラット"</string>
+    <string name="pitch_sharp_note_content_description" msgid="4277539527742085043">"オクターブ <xliff:g id="OCTAVE_NUMBER">%2$s</xliff:g> の <xliff:g id="MUSICAL_NOTE">%1$s</xliff:g> シャープ"</string>
+    <string name="pitch_sharper_than_natural_note_content_description" msgid="5675085058351026179">"オクターブ <xliff:g id="OCTAVE_NUMBER">%2$s</xliff:g> の <xliff:g id="MUSICAL_NOTE">%1$s</xliff:g> より半音 <xliff:g id="HALF_STEPS_SHARPER">%3$s</xliff:g> 個分高い音"</string>
+    <string name="pitch_sharper_than_flat_note_content_description" msgid="5144618611651957">"オクターブ <xliff:g id="OCTAVE_NUMBER">%2$s</xliff:g> の <xliff:g id="MUSICAL_NOTE">%1$s</xliff:g> フラットより半音 <xliff:g id="HALF_STEPS_SHARPER">%3$s</xliff:g> 個分高い音"</string>
+    <string name="pitch_sharper_than_sharp_note_content_description" msgid="3982786629728248354">"オクターブ <xliff:g id="OCTAVE_NUMBER">%2$s</xliff:g> の <xliff:g id="MUSICAL_NOTE">%1$s</xliff:g> シャープより半音 <xliff:g id="HALF_STEPS_SHARPER">%3$s</xliff:g> 個分高い音"</string>
+    <string name="pitch_high_content_description" msgid="8429650709064057317">"高ピッチ"</string>
     <string name="sensor_desc_first_paragraph_rotation" msgid="701021949358379491">"回転/分（RPM）は、固定軸を中心とした 1 分あたりの回転数を表す測定単位です。\n\n風車が回転すると、エンコーダ ディスクが回ります。"</string>
     <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"これによりセンサー上に明暗の周期が生じ、サイエンス ジャーナルに回転として登録されます。"</string>
     <string name="sensor_desc_first_paragraph_raw" msgid="8624088001449985317">"ここに表示されるデータは、スマートフォンが Bluetooth 経由で外部センサーと通信して取得したデータです。\n\nこの値は、マイクロコントローラから直接取得した未加工の読み取り値の割合を表し、通常はセンサー間の電圧降下の割合を表します。"</string>
@@ -266,6 +286,12 @@
     <string name="listing_title" msgid="1732490922169483408">"サイエンス ジャーナル"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"身の周りで実験しよう。"</string>
     <string name="listing_changelog" msgid="5369749928069010879">"新機能と改善点: \n• 実験やメモが簡単に削除できるようにしました。\n• バグを修正しました。"</string>
+    <string name="listing_changelog_features" msgid="5960780642716652776">"新機能"</string>
+    <string name="listing_changelog_bug_fixes" msgid="4761215250610273591">"パフォーマンスの改善とバグの修正。"</string>
+    <string name="listing_changelog_separator" msgid="4877278307682777551">\n\n""</string>
+    <string name="listing_h_feature_1" msgid="509624928159704256">\n"• 音声ピッチセンサーが追加されました。"</string>
+    <string name="listing_h_feature_2" msgid="3246821542104327986">\n"• 実験をファイルにエクスポートし、他の端末にインポートできるようになりました。"</string>
+    <string name="listing_h_feature_3" msgid="8015717167634284014">\n"• 実験から写真をエクスポートできるようになりました。"</string>
     <string name="listing__description" msgid="1193865948828289689">"サイエンス ジャーナルは、Google が提供する無料のデジタル研究ノートです。\n\n科学教育の関係者の方も、科学が趣味という方も、メモや写真、観察記録のすべてを 1 つのアプリに保存できます。スマートフォンのセンサーを利用して、光、音、動きなどを測定してグラフにしたり、Bluetooth 経由で外部センサーと接続して身の回りのさまざまなもので実験したりすることができます。\n\nサイエンス ジャーナル アプリでは、次のことができます。\n• スマートフォンのセンサーを使って光、音、加速度、気圧などを測定できます。\n• メモを入力したり写真を撮ったりして、科学実験を記録することができます。メモの種類は今後も追加される予定です。\n• Bluetooth 対応の Arduino や Vernier の一部の端末を使って、外部センサーに接続できます。\n• 記録したデータを CSV ファイルとしてエクスポートできます。\n• データの記録やメモの入力に自動トリガーを作成できます。\n• ソニフィケーションを使ってグラフの動きを音で聴くことができます。\n \nサイエンス ジャーナルは Android、iPhone、iPad、および互換性のある Chromebook 端末に無料でダウンロードできます。\n \nパートナーによる教育アクティビティ: https://makingscience.withgoogle.com/science-journal/activities \nサポート: https://productforums.google.com/forum/#!forum/sciencejournal \nオープンソース コード: https://github.com/google/science-journal \n\n 権限に関する注意事項: \n• 位置情報: Bluetooth センサー端末をスキャンするために必要です。\n• カメラ: 実験の記録として写真を撮るために必要です。\n• マイク: 音響センサーに必要です。\n• ストレージ: 実験の記録に写真を挿入する場合の写真へのアクセスに必要です。"</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"サードパーティ製センサーのスキャン"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"サードパーティのセンサー API をサポートするアプリを探して、そのセンサーを実験に追加できるようにします。"</string>
@@ -447,4 +473,17 @@
     <string name="snapshot_button_description" msgid="6847875690172106880">"センサーのスナップショット"</string>
     <string name="notification_channel_name" msgid="1753404325741073278">"記録"</string>
     <string name="notification_channel_description" msgid="2996787662937550240">"記録ステータス"</string>
+    <string name="open_experiment_failed" msgid="61346855146237294">"実験を開けません"</string>
+    <string name="open_file_failed" msgid="3363193502951623828">"ファイルを開けません"</string>
+    <string name="open_file_failed_body" msgid="6216964697142283265">"インポートできる実験データはサイエンス ジャーナルのファイル形式（.sj）のもののみです"</string>
+    <string name="import_failed_recording" msgid="3253247189038130584">"サイエンス ジャーナルは現在使用中です。記録を中止してもう一度お試しください。"</string>
+    <string name="import_failed_file" msgid="210618901984516510">"インポートできませんでした。この実験データに問題があるようです。"</string>
+    <string name="import_age_verification" msgid="6715034536720356029">"開始するには、年齢を入力してください。"</string>
+    <string name="import_storage_limit" msgid="2517315958564057887">"保存容量が足りません"</string>
+    <string name="import_storage_limit_body" msgid="6816130509278408820">"設定で保存容量を管理できます。"</string>
+    <string name="action_dismiss" msgid="1581386413916882579">"閉じる"</string>
+    <string name="action_report" msgid="8939346727990940171">"報告する"</string>
+    <string name="import_failed" msgid="5616455460788859844">"不明なエラーが発生しました。"</string>
+    <string name="save_experiment" msgid="2860651796383341570">"実験の保存"</string>
+    <string name="save_experiment_text" msgid="8930262386437926310">"この実験をライブラリに追加しますか？"</string>
 </resources>

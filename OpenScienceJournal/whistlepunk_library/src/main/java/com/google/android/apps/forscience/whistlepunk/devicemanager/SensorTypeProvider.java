@@ -20,8 +20,8 @@ import android.content.Context;
 import androidx.annotation.IntDef;
 
 import com.google.android.apps.forscience.whistlepunk.ExternalSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.ImageViewSensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.SensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 
 import java.lang.annotation.Retention;
@@ -46,8 +46,8 @@ public class SensorTypeProvider {
                     R.string.sensor_desc_first_paragraph_rotation,
                     R.string.sensor_desc_second_paragraph_rotation,
                     R.drawable.learnmore_rotation,
-                    new SensorAnimationBehavior(R.drawable.rotation_level_drawable,
-                            SensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE), name, kind);
+                    new ImageViewSensorAnimationBehavior(R.drawable.rotation_level_drawable,
+                            ImageViewSensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE), name, kind);
         } else if (kind == SensorTypeProvider.TYPE_RAW) {
             // TODO(dek): switch icon to voltage when ready.
             // b/27226547
@@ -58,8 +58,8 @@ public class SensorTypeProvider {
                     R.string.sensor_desc_first_paragraph_raw,
                     R.string.sensor_desc_second_paragraph_raw,
                     R.drawable.artboard,
-                    new SensorAnimationBehavior(R.drawable.percent_level_drawable,
-                            SensorAnimationBehavior.TYPE_RELATIVE_SCALE), name, kind);
+                    new ImageViewSensorAnimationBehavior(R.drawable.percent_level_drawable,
+                            ImageViewSensorAnimationBehavior.TYPE_RELATIVE_SCALE), name, kind);
         } else {
             // Handle appearance for custom sensors.
             return new ExternalSensorAppearance(R.string.sensor_custom,
@@ -68,8 +68,8 @@ public class SensorTypeProvider {
                     R.string.sensor_desc_first_paragraph_unknown_bluetooth,
                     R.string.sensor_desc_second_paragraph_unknown_bluetooth,
                     R.drawable.learnmore_bluetooth,
-                    new SensorAnimationBehavior(R.drawable.bluetooth_level_drawable,
-                            SensorAnimationBehavior.TYPE_RELATIVE_SCALE), name, kind);
+                    new ImageViewSensorAnimationBehavior(R.drawable.bluetooth_level_drawable,
+                            ImageViewSensorAnimationBehavior.TYPE_RELATIVE_SCALE), name, kind);
         }
     }
 

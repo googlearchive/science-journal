@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import android.widget.ImageView;
 
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
 /**
@@ -39,6 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 public class PictureLabelDetailsFragment extends LabelDetailsFragment {
 
     private ImageView mImageView;
+    private Intent mShareIntent;
 
     public static PictureLabelDetailsFragment newInstance(String experimentId,
             String trialId, Label originalLabel) {
@@ -86,6 +89,13 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_picture_label_details, menu);
+        getContext();
+        mShareIntent = FileMetadataManager.createPhotoShareIntent(getContext(),
+                mExperimentId, mOriginalLabel.getPictureLabelValue().filePath,
+                mOriginalLabel.getCaptionText());
+        if (mShareIntent != null) {
+            menu.findItem(R.id.btn_share_photo).setVisible(true);
+        }
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setTitle("");
@@ -99,7 +109,15 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
             PictureUtils.launchExternalEditor(getActivity(), mExperimentId,
                     mOriginalLabel.getPictureLabelValue().filePath);
             return true;
+        } else if (item.getItemId() == R.id.btn_share_photo) {
+            if (mShareIntent != null) {
+                getContext().startActivity(Intent.createChooser(mShareIntent,
+                        getContext().getResources().getString(
+                                R.string.export_photo_chooser_title)));
+            }
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 

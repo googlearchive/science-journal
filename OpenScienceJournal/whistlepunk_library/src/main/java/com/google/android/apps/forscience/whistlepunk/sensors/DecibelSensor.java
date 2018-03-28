@@ -18,8 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.sensors;
 
 import android.content.Context;
 
-import com.google.android.apps.forscience.whistlepunk.AudioSource;
-import com.google.android.apps.forscience.whistlepunk.AudioSource.AudioReceiver;
+import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
+import com.google.android.apps.forscience.whistlepunk.audio.AudioSource.AudioReceiver;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.audio.SoundUtils;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;

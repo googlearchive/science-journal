@@ -22,6 +22,7 @@ import android.provider.MediaStore;
 import androidx.loader.content.AsyncTaskLoader;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -59,26 +60,33 @@ class PhotoAsyncLoader extends AsyncTaskLoader<List<PhotoAsyncLoader.Image>> {
     @Override
     public List<Image> loadInBackground() {
         // TODO: Maybe add date taken to results for content description
+        try (Cursor cursor = getCursor()) {
+            // Cursor can return as null in some situations
+            if (cursor == null) {
+                return Collections.emptyList();
+            }
+
+            mItems = new ArrayList<>(cursor.getCount());
+
+            if (cursor.moveToFirst()) {
+                do {
+                    mItems.add(new Image(uriToFullImage(cursor), timestampCreated(cursor)));
+                } while (cursor.moveToNext());
+            }
+        }
+        return mItems;
+    }
+
+    private Cursor getCursor() {
         final String[] projection = {MediaStore.Images.Media.DATA,
                 MediaStore.Images.Media._ID, MediaStore.Images.ImageColumns.DATE_TAKEN};
         String sortOrder = MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC";
-
-        Cursor cursor = getContext().getContentResolver().query(
+        return getContext().getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 projection, // Which columns to return
                 null,       // Return all rows
                 null,
                 sortOrder); // In order of date taken
-
-        mItems = new ArrayList<>(cursor.getCount());
-
-        if (cursor.moveToFirst()) {
-            do {
-                mItems.add(new Image(uriToFullImage(cursor), timestampCreated(cursor)));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return mItems;
     }
 
     /**

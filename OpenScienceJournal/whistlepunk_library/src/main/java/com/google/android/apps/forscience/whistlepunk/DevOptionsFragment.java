@@ -26,6 +26,8 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import androidx.annotation.VisibleForTesting;
 
+import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
+
 /**
  * Holder for Developer Testing Options
  */
@@ -40,9 +42,9 @@ public class DevOptionsFragment extends PreferenceFragment {
     private static final String KEY_STRICT_MODE = "strict_mode";
     public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
     public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
-    private static final String KEY_PITCH_SENSOR = "enable_pitch_sensor";
     private static final String KEY_PERF_DEBUG_SCREEN = "show_perf_tracker_debug";
     public static final String KEY_SMOOTH_SCROLL = "enable_smooth_scrolling_to_bottom";
+    private static final String KEY_AGE_STATUS = "age_status";
 
     public static DevOptionsFragment newInstance() {
         return new DevOptionsFragment();
@@ -60,11 +62,13 @@ public class DevOptionsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Context context = getActivity();
+
         addPreferencesFromResource(R.xml.dev_options);
 
         CheckBoxPreference leakPref = (CheckBoxPreference) findPreference(KEY_LEAK_CANARY);
         if (isDebugVersion()) {
-            leakPref.setChecked(isLeakCanaryEnabled(getActivity()));
+            leakPref.setChecked(isLeakCanaryEnabled(context));
             leakPref.setOnPreferenceChangeListener((preference, newValue) -> {
                 final SharedPreferences prefs = getPrefs(preference.getContext());
                 prefs.edit().putBoolean(KEY_LEAK_CANARY, (Boolean) newValue).apply();
@@ -76,10 +80,15 @@ public class DevOptionsFragment extends PreferenceFragment {
 
         Preference prefTrackerPref = findPreference(KEY_PERF_DEBUG_SCREEN);
         prefTrackerPref.setOnPreferenceClickListener(preference -> {
-            WhistlePunkApplication.getPerfTrackerProvider(getContext())
-                    .startPerfTrackerEventDebugActivity(getContext());
+            WhistlePunkApplication.getPerfTrackerProvider(context)
+                    .startPerfTrackerEventDebugActivity(context);
             return true;
         });
+
+        Preference ageStatusPreference = findPreference(KEY_AGE_STATUS);
+        ageStatusPreference.setTitle(AgeVerifier.isOver13(AgeVerifier.getUserAge(context))
+                ? context.getResources().getString(R.string.age_status_over_13)
+                : context.getResources().getString(R.string.age_status_under_13));
     }
 
     @Override
@@ -124,10 +133,6 @@ public class DevOptionsFragment extends PreferenceFragment {
 
     public static boolean isAmbientTemperatureSensorEnabled(Context context) {
         return getBoolean(KEY_AMBIENT_TEMPERATURE_SENSOR, false, context);
-    }
-
-    public static boolean isExperimentalPitchSensorEnabled(Context context) {
-      return getBoolean(KEY_PITCH_SENSOR, false, context);
     }
 
     public static boolean isSmoothScrollingToBottomEnabled(Context context) {

@@ -49,11 +49,6 @@ public class FakeBleClient implements BleClient {
     }
 
     @Override
-    public void scanForDevices(UUID[] serviceType, int timeoutSeconds) {
-
-    }
-
-    @Override
     public boolean connectToAddress(String address) {
         mostRecentAddress = address;
         return address.equals(expectedAddress);
@@ -86,11 +81,6 @@ public class FakeBleClient implements BleClient {
     }
 
     @Override
-    public void commit(String address) {
-
-    }
-
-    @Override
     public void writeValue(String address, BluetoothGattDescriptor currentDescriptor,
             byte[] value) {
 
@@ -106,26 +96,6 @@ public class FakeBleClient implements BleClient {
     public boolean disableNotifications(String address,
             BluetoothGattCharacteristic characteristic) {
         return false;
-    }
-
-    @Override
-    public void changeMtu(String address, int mtu) {
-
-    }
-
-    @Override
-    public void startTransaction(String address) {
-
-    }
-
-    @Override
-    public String getFirstDeviceAddress() {
-        return null;
-    }
-
-    @Override
-    public void setMaxNoDevices(int maxNoDevices) {
-
     }
 
     @Override

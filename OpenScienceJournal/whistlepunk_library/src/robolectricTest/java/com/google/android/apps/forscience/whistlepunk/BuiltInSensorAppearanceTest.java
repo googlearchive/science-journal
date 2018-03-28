@@ -43,7 +43,7 @@ public class BuiltInSensorAppearanceTest {
         int infoDrawableId = Arbitrary.integer();
         String sensorId = Arbitrary.string();
 
-        SensorAnimationBehavior behavior = SensorAnimationBehavior.createDefault();
+        SensorAnimationBehavior behavior = ImageViewSensorAnimationBehavior.createDefault();
 
         int pointsAfterDecimalInNumberFormat = BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL;
         BuiltInSensorAppearance appearance =

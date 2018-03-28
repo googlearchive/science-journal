@@ -4,11 +4,13 @@ ext {
     // Updating requires giving the path to the local Maven repo in repositories.properties
     // We are always using the snapshot version, ignore the lint warning for newer revisions
     gmsVersion = "11.6-SNAPSHOT"
+    // Increment to something more modern after resolving Dagger conflicts with future builds
+    guavaVersion = "20.0"
     jsr250Version = "1.0"
     junitVersion = "4.12"
     leakCanaryVersion = "1.5.4"
     multidexVersion = "1.0.2"
-    robolectricVersion = "3.5.1"
+    robolectricVersion = "3.7"
     // Major version should always match compileSdkVersion in android.properties
     supportLibraryVersion = "27.0.2"
 }

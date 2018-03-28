@@ -58,9 +58,9 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.CompassSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.ExperimentalPitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.LinearAccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.collect.Lists;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -148,7 +148,7 @@ public class SensorCardPresenter {
 
     // The sensor ID ordering.
     private static final String[] SENSOR_ID_ORDER = {AmbientLightSensor.ID, DecibelSensor.ID,
-            ExperimentalPitchSensor.ID, LinearAccelerometerSensor.ID,
+            PitchSensor.ID, LinearAccelerometerSensor.ID,
             AccelerometerSensor.Axis.X.getSensorId(), AccelerometerSensor.Axis.Y.getSensorId(),
             AccelerometerSensor.Axis.Z.getSensorId(), BarometerSensor.ID, CompassSensor.ID,
             MagneticStrengthSensor.ID};
@@ -156,7 +156,7 @@ public class SensorCardPresenter {
     // Update the back data textview every .25 seconds maximum.
     private static final int MAX_TEXT_UPDATE_TIME_MS = 250;
 
-    // Update the back data imageview every .05 seconds maximum.
+    // Update the back data icon every .025 seconds maximum.
     private static final int MAX_ICON_UPDATE_TIME_MS = 25;
 
     public static final int ANIMATION_TIME_MS = 200;
@@ -260,6 +260,12 @@ public class SensorCardPresenter {
         if (!mTextTimeHasElapsed && !iconTimeHasElapsed) {
             return;
         }
+        if (mSensorAnimationBehavior.updateIconAndTextTogether()) {
+            // For some sensors (for example, the pitch sensor), it doesn't make sense to update
+            // the icon without updating the text.
+            mTextTimeHasElapsed = true;
+            iconTimeHasElapsed = true;
+        }
 
         if (mTextTimeHasElapsed) {
             mLastUpdatedTextTimestamp = timestamp;
@@ -277,14 +283,14 @@ public class SensorCardPresenter {
                 mCardViewHolder.meterLiveData.setText(mDataFormat.format(valueString, mUnits));
             }
             if (iconTimeHasElapsed && mSensorPresenter != null) {
-                mSensorAnimationBehavior.updateImageView(mCardViewHolder.meterSensorIcon,
+                mSensorAnimationBehavior.updateIcon(mCardViewHolder.meterSensorIconContainer,
                         value, mSensorPresenter.getMinY(), mSensorPresenter.getMaxY(),
                         mCardViewHolder.screenOrientation);
             }
         } else {
             // TODO: Show an error state for no numerical value.
             mCardViewHolder.meterLiveData.setText("");
-            mCardViewHolder.meterSensorIcon.setImageLevel(0);
+            mSensorAnimationBehavior.resetIcon(mCardViewHolder.meterSensorIconContainer);
         }
     }
 
@@ -577,7 +583,8 @@ public class SensorCardPresenter {
     }
 
     private void setMeterIcon() {
-        mSensorAnimationBehavior.initializeLargeIcon(mCardViewHolder.meterSensorIcon);
+        mSensorAnimationBehavior.initializeLargeIcon(mCardViewHolder.meterSensorIconContainer,
+                null /* value */);
     }
 
     private void updateCardMenu() {

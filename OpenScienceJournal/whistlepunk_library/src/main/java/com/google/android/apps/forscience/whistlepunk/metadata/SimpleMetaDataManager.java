@@ -16,12 +16,15 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.net.Uri;
 import android.provider.BaseColumns;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -251,6 +254,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     /**
      * Tries to migrate a label's picture assets if it is a picture label, returns true if the label
      * was modified.
+     *
      * @param label The label whose pictures should be migrated, if needed
      * @return true if the label was modified
      */
@@ -298,7 +302,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         List<String> experimentIds = new ArrayList<>();
         Cursor cursor = null;
         try {
-            cursor = db.query(Tables.EXPERIMENTS, new String[] {ExperimentColumns.EXPERIMENT_ID},
+            cursor = db.query(Tables.EXPERIMENTS, new String[]{ExperimentColumns.EXPERIMENT_ID},
                     null, null, null, null, null);
             while (cursor.moveToNext()) {
                 experimentIds.add(cursor.getString(0));
@@ -582,6 +586,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
     @Override
     public void updateExperiment(Experiment experiment) {
         getFileMetadataManager().updateExperiment(experiment);
+    }
+
+    @Override
+    public Experiment importExperimentFromZip(Uri zipUri,
+            ContentResolver resolver)
+            throws IOException {
+        FileMetadataManager manager = getFileMetadataManager();
+        return manager.importExperiment(mContext, zipUri, resolver);
+
     }
 
     @Override
@@ -1033,7 +1046,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     private String getExternalSensorId(ExternalSensorSpec sensor, SQLiteDatabase db) {
         String sql = "SELECT IFNULL(MIN(" + SensorColumns.SENSOR_ID + "), '') FROM " + Tables
                 .EXTERNAL_SENSORS + " WHERE " + SensorColumns.CONFIG + "=? AND " +
-                     SensorColumns.TYPE + "=?";
+                SensorColumns.TYPE + "=?";
         SQLiteStatement statement = db.compileStatement(sql);
         statement.bindBlob(1, sensor.getConfig());
         statement.bindString(2, sensor.getType());
@@ -1119,7 +1132,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     private static List<Label> getDatabaseLabelsForExperiment(SQLiteDatabase db,
             Experiment experiment, Context context) {
         final String selection = LabelColumns.EXPERIMENT_ID + "=? AND " +
-                LabelColumns.START_LABEL_ID + "=? and not " + LabelColumns.TYPE + "=?";;
+                LabelColumns.START_LABEL_ID + "=? and not " + LabelColumns.TYPE + "=?";
+        ;
         final String[] selectionArgs = new String[]{experiment.getExperimentId(),
                 RecorderController.NOT_RECORDING_RUN_ID, ApplicationLabel.TAG};
         return getDatabaseLabels(db, selection, selectionArgs, context);
@@ -2030,6 +2044,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
             void onMigrateMyDevicesToProto(SQLiteDatabase db);
         }
+
         private MetadataDatabaseUpgradeCallback mUpgradeCallback;
 
         DatabaseHelper(Context context, String filename,

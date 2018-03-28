@@ -31,13 +31,6 @@
     />
 
     <CheckBoxPreference
-        android:key="enable_pitch_sensor"
-        android:defaultValue="false"
-        android:title="@string/enable_pitch_sensor_title"
-        android:summary="@string/enable_pitch_sensor_summary"
-        />
-
-    <CheckBoxPreference
         android:key="dev_tools"
         android:defaultValue="false"
         android:title="@string/dev_tools_title"
@@ -88,6 +81,10 @@
     <Preference
         android:key="show_perf_tracker_debug"
         android:title="@string/perf_tracker_debug_pref_title"
+        />
+
+    <Preference
+        android:key="age_status"
         />
 
 </PreferenceScreen>

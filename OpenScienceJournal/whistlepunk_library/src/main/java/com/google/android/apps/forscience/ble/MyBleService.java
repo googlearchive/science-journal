@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.ble;
 
-import android.annotation.TargetApi;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -31,9 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import androidx.annotation.VisibleForTesting;
 import android.support.v4.content.LocalBroadcastManager;
 import androidx.collection.ArraySet;
@@ -53,9 +50,6 @@ public class MyBleService extends Service {
     private static String TAG = "MyBleService";
     private static final int SERVICES_RETRY_COUNT = 3;
     private static final boolean DEBUG = false;
-    private static final long PRUNE_DEVICE_TIMEOUT_MS = 10 * 1000;
-    private static final int MSG_PRUNE = 1011;
-    static int MAX_NO_DEVICES = 100;
 
     static LocalBroadcastManager getBroadcastManager(Context context) {
         // For security, only use local broadcasts (See b/32803250)
@@ -78,36 +72,11 @@ public class MyBleService extends Service {
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter btAdapter;
-    private Boolean isScanning = new Boolean(false);
-    private int maxNoDevices = MAX_NO_DEVICES;
-
-    // the list of discovered devices
-    private BleDevices bleDevices;
 
     private Map<String, BluetoothGatt> addressToGattClient =
             Collections.synchronizedMap(new LinkedHashMap<String, BluetoothGatt>());
 
-    private Handler handler;
-
     private Set<String> mOutstandingServiceDiscoveryAddresses = new ArraySet<>();
-
-    // BLE callback
-    BluetoothAdapter.LeScanCallback scanCallback = new BluetoothAdapter.LeScanCallback() {
-
-        @Override
-        public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-            if (bleDevices.addDevice(device, rssi, scanRecord)) {
-                if (DEBUG)
-                    Log.d(TAG, "New device: " + device.getAddress() + ", name: " + device.getName());
-
-                if (bleDevices.getCount() >= maxNoDevices) {
-                    Log.d(TAG, "Max no of devices reached, exiting the scan.");
-                    endScan();
-                }
-            }
-            pruneAfterDelay();
-        }
-    };
 
     // GATT callbacks
     private BluetoothGattCallback gattCallbacks = new BluetoothGattCallback() {
@@ -207,18 +176,6 @@ public class MyBleService extends Service {
             sendGattBroadcast(getAddressFromGatt(gatt), status == BluetoothGatt.GATT_SUCCESS
                     ? BleEvents.WRITE_DESC_OK : BleEvents.WRITE_DESC_FAIL, null);
         }
-
-        @Override
-        public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
-            sendGattBroadcast(getAddressFromGatt(gatt), status == BluetoothGatt.GATT_SUCCESS
-                    ? BleEvents.COMMIT_OK : BleEvents.COMMIT_FAIL, null);
-        }
-
-        @Override
-        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            sendGattBroadcast(getAddressFromGatt(gatt), status == BluetoothGatt.GATT_SUCCESS
-                    ? BleEvents.MTU_CHANGE_OK : BleEvents.MTU_CHANGE_OK, null);
-        }
     };
 
     public static void sendServiceDiscoveryIntent(Context context, String address,
@@ -249,24 +206,6 @@ public class MyBleService extends Service {
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        bleDevices = new BleDevices();
-        handler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(Message msg) {
-                if (MSG_PRUNE == msg.what && bleDevices != null) {
-                    Log.v(TAG, "Pruning devices");
-                    BluetoothManager manager = (BluetoothManager) getSystemService(
-                            Context.BLUETOOTH_SERVICE);
-                    bleDevices.pruneOldDevices(manager.getConnectedDevices(BluetoothProfile.GATT));
-                }
-                return false;
-            }
-        });
-    }
-
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Intent newIntent = new Intent(BleEvents.BLE_UNSUPPORTED);
@@ -284,8 +223,6 @@ public class MyBleService extends Service {
             stopSelf();
             return START_NOT_STICKY;
         }
-        // Intent newIntent = new Intent(BleEvents.BLE_ENABLED);
-        // LocalBroadcastManager.getInstance(this).sendBroadcast(newIntent);
 
         return START_STICKY;
     }
@@ -359,9 +296,6 @@ public class MyBleService extends Service {
     }
 
     void resetGatt() {
-        if (btAdapter != null && isScanning) {
-            btAdapter.stopLeScan(scanCallback);
-        }
         for (BluetoothGatt bluetoothGatt : addressToGattClient.values()) {
             bluetoothGatt.close();
         }
@@ -378,15 +312,6 @@ public class MyBleService extends Service {
         return binder;
     }
 
-    @Override
-    public boolean onUnbind(Intent intent) {
-        return super.onUnbind(intent);
-    }
-
-    public BleDevices getBleDevices() {
-        return bleDevices;
-    }
-
     public boolean discoverServices(String address) {
         if (mOutstandingServiceDiscoveryAddresses.contains(address)) {
             return addressToGattClient.containsKey(address);
@@ -401,40 +326,6 @@ public class MyBleService extends Service {
         return bluetoothGatt != null && bluetoothGatt.discoverServices();
     }
 
-    public void scanFor(UUID[] serviceType) {
-        synchronized (isScanning) {
-            if (isScanning) {
-                return;
-            }
-            btAdapter.startLeScan(serviceType, scanCallback);
-            isScanning = true;
-        }
-        setLastScanTime();
-    }
-
-    public void scanAll() {
-        synchronized (isScanning) {
-            if (isScanning) {
-                return;
-            }
-            isScanning = true;
-            btAdapter.startLeScan(scanCallback);
-        }
-        setLastScanTime();
-    }
-
-    public void endScan() {
-        synchronized (isScanning) {
-            maxNoDevices = MAX_NO_DEVICES;
-            if (!isScanning) {
-                return;
-            }
-            isScanning = false;
-            btAdapter.stopLeScan(scanCallback);
-            getBroadcastManager(this).sendBroadcast(new Intent(BleEvents.BLE_SCAN_END));
-        }
-    }
-
     BluetoothGattService getService(String address, UUID serviceId) {
         if (DEBUG) Log.d(TAG, "lookup for service: " + serviceId);
         BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
@@ -445,6 +336,7 @@ public class MyBleService extends Service {
      * FOR DEBUGGING ONLY.  This should never be called from production code; we don't want this
      * data in our logs.
      */
+    @SuppressWarnings("UnusedDeclaration")
     public void printServices(String address) {
         if (!DEBUG) {
             return;
@@ -470,6 +362,7 @@ public class MyBleService extends Service {
         }
     }
 
+
     void readValue(String address, BluetoothGattCharacteristic theCharacteristic) {
         BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
         if (bluetoothGatt == null) {
@@ -491,16 +384,6 @@ public class MyBleService extends Service {
         bluetoothGatt.writeCharacteristic(theCharacteristic);
     }
 
-    void commit(String address) {
-        BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
-        if (bluetoothGatt == null) {
-            Log.w(TAG, "No connection found for: " + address);
-            sendGattBroadcast(address, BleEvents.COMMIT_FAIL, null);
-            return;
-        }
-        bluetoothGatt.executeReliableWrite();
-    }
-
     public void writeValue(String address, BluetoothGattDescriptor descriptor, byte[] value) {
         BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
         if (bluetoothGatt == null) {
@@ -514,17 +397,6 @@ public class MyBleService extends Service {
         }
     }
 
-    @TargetApi(21)
-    public void setMtu(String address, int mtu) {
-        BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
-        if (bluetoothGatt == null) {
-            Log.w(TAG, "No connection found for: " + address);
-            sendGattBroadcast(address, BleEvents.MTU_CHANGE_FAIL, null);
-            return;
-        }
-        bluetoothGatt.requestMtu(mtu);
-    }
-
     boolean setNotificationsFor(String address, BluetoothGattCharacteristic characteristic,
                                 boolean enable) {
         BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
@@ -534,36 +406,5 @@ public class MyBleService extends Service {
         }
 
         return bluetoothGatt.setCharacteristicNotification(characteristic, enable);
-    }
-
-    public void startTransaction(String address) {
-        BluetoothGatt bluetoothGatt = addressToGattClient.get(address);
-        if (bluetoothGatt == null) {
-            Log.w(TAG, "No connection found for: " + address);
-            return;
-        }
-        sendGattBroadcast(
-                address,
-                (bluetoothGatt.beginReliableWrite() ? BleEvents.START_TX_OK
-                        : BleEvents.START_TX_FAIL),
-                null);
-    }
-
-    public void setMaxNoDevices(int maxNoDevices) {
-        this.maxNoDevices = maxNoDevices;
-    }
-
-    private void setLastScanTime() {
-        bleDevices.setLastScanTime();
-    }
-
-    private void cancelPrune() {
-        handler.removeMessages(MSG_PRUNE);
-    }
-
-    private void pruneAfterDelay() {
-        cancelPrune();
-
-        handler.sendEmptyMessageDelayed(MSG_PRUNE, PRUNE_DEVICE_TIMEOUT_MS);
     }
 }

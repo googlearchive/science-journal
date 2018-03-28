@@ -30,10 +30,14 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import android.support.design.widget.Snackbar;
+import androidx.core.content.FileProvider;
 import androidx.collection.ArrayMap;
 import android.util.Log;
 
+import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -44,25 +48,37 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Objects;
+import java.util.zip.ZipException;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
 /**
- * Service for exporting trial data with different options.
+ * Service for importing and exporting trial and experiment data with different options.
  * Can be bound for status updates using {@link #bind(Context)}.
  * Export trial data using {@link #exportTrial(Context, String, String, boolean, String[])}
+ * Export experiment data using {@link #exportExperiment(Context, String)}
+ * Import experiment data using {@link #importExperiment(Context, Uri)}
+ * TODO: Rename to ImportExportService
  */
 public class ExportService extends Service {
     private static final String TAG = "ExportService";
 
     private static final String ACTION_EXPORT_TRIAL =
             "com.google.android.apps.forscience.whistlepunk.action.EXPORT_TRIAL";
+
+    private static final String ACTION_EXPORT_EXPERIMENT =
+            "com.google.android.apps.forscience.whistlepunk.action.EXPORT_EXPERIMENT";
+
+    private static final String ACTION_IMPORT_EXPERIMENT =
+            "com.google.android.apps.forscience.whistlepunk.action.IMPORT_EXPERIMENT";
 
     private static final String EXTRA_EXPERIMENT_ID =
             "com.google.android.apps.forscience.whistlepunk.extra.EXPERIMENT_ID";
@@ -72,6 +88,8 @@ public class ExportService extends Service {
             "com.google.android.apps.forscience.whistlepunk.extra.RELATIVE_TIME";
     private static final String EXTRA_SENSOR_IDS =
             "com.google.android.apps.forscience.whistlepunk.extra.SENSOR_IDS";
+    private static final String EXTRA_IMPORT_URI =
+            "com.google.android.apps.forscience.whistlepunk.extra.IMPORT_URI";
 
     private static final String ACTION_CLEAN_OLD_FILES =
             "com.google.android.apps.forscience.whistlepunk.action.CLEAN_OLD_FILES";
@@ -126,7 +144,6 @@ public class ExportService extends Service {
     /**
      * Starts this service to perform action export trial with the given parameters. If
      * the service is already performing a task this action will be queued.
-     *
      */
     public static void exportTrial(Context context, String experimentId, String trialId,
             boolean relativeTime, String[] sensorIds) {
@@ -136,6 +153,28 @@ public class ExportService extends Service {
         intent.putExtra(EXTRA_TRIAL_ID, trialId);
         intent.putExtra(EXTRA_RELATIVE_TIME, relativeTime);
         intent.putExtra(EXTRA_SENSOR_IDS, sensorIds);
+        context.startService(intent);
+    }
+
+    /**
+     * Starts this service to perform action export experiment with the given parameters. If
+     * the service is already performing a task this action will be queued.
+     */
+    public static void exportExperiment(Context context, String experimentId) {
+        Intent intent = new Intent(context, ExportService.class);
+        intent.setAction(ACTION_EXPORT_EXPERIMENT);
+        intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
+        context.startService(intent);
+    }
+
+    /**
+     * Starts this service to perform action import experiment with the given parameters. If
+     * the service is already performing a task this action will be queued.
+     */
+    public static void importExperiment(Context context, Uri file) {
+        Intent intent = new Intent(context, ExportService.class);
+        intent.setAction(ACTION_IMPORT_EXPERIMENT);
+        intent.putExtra(EXTRA_IMPORT_URI, file.toString());
         context.startService(intent);
     }
 
@@ -158,8 +197,14 @@ public class ExportService extends Service {
                 final boolean relativeTime = intent.getBooleanExtra(EXTRA_RELATIVE_TIME, false);
                 final String[] sensorIds = intent.getStringArrayExtra(EXTRA_SENSOR_IDS);
                 handleActionExportTrial(experimentId, trialId, relativeTime, sensorIds, startId);
+            } else if (ACTION_EXPORT_EXPERIMENT.equals(action)) {
+                final String experimentId = intent.getStringExtra(EXTRA_EXPERIMENT_ID);
+                handleActionExportExperiment(experimentId, startId);
             } else if (ACTION_CLEAN_OLD_FILES.equals(action)) {
                 handleCleanOldFiles(startId);
+            } else if (ACTION_IMPORT_EXPERIMENT.equals(action)) {
+                final Uri file = Uri.parse(intent.getStringExtra(EXTRA_IMPORT_URI));
+                handleActionImportExperiment(file, startId);
             }
         }
     }
@@ -186,21 +231,22 @@ public class ExportService extends Service {
         public static final int EXPORTING = 2;
         public static final int EXPORT_COMPLETE = 3;
 
-        private final String mTrialId;
+        private final String mId;
         private final int mState;
         private final int mProgress;
 
         private Throwable mError;
         private Uri mFileUri;
 
-        public ExportProgress(String trialId, int state, int progress) {
-            mTrialId = trialId;
+        // id should be a UUID, like a trialId or an experimentId.
+        public ExportProgress(String id, int state, int progress) {
+            mId = id;
             mState = state;
             mProgress = progress;
         }
 
-        public String getTrialId() {
-            return mTrialId;
+        public String getId() {
+            return mId;
         }
 
         public int getState() {
@@ -224,21 +270,21 @@ public class ExportService extends Service {
             return "State: " + mState + " progress " + mProgress;
         }
 
-        public static ExportProgress getComplete(String trialId, Uri fileUri) {
-            ExportProgress progress = new ExportProgress(trialId, EXPORT_COMPLETE, 0);
+        public static ExportProgress getComplete(String id, Uri fileUri) {
+            ExportProgress progress = new ExportProgress(id, EXPORT_COMPLETE, 0);
             progress.mFileUri = fileUri;
             return progress;
         }
 
-        public static ExportProgress fromThrowable(String trialId, Throwable throwable) {
-            ExportProgress progress = new ExportProgress(trialId, ERROR, 0);
+        public static ExportProgress fromThrowable(String id, Throwable throwable) {
+            ExportProgress progress = new ExportProgress(id, ERROR, 0);
             progress.mError = throwable;
             return progress;
         }
     }
 
-    public static void resetProgress(String trialId) {
-        sProgressSubject.onNext(new ExportProgress(trialId, ExportProgress.NOT_EXPORTING, 0));
+    public static void resetProgress(String id) {
+        sProgressSubject.onNext(new ExportProgress(id, ExportProgress.NOT_EXPORTING, 0));
     }
 
     public static Observable<ExportProgress> bind(Context context) {
@@ -258,7 +304,8 @@ public class ExportService extends Service {
             }
 
             @Override
-            public void onServiceDisconnected(ComponentName name) {}
+            public void onServiceDisconnected(ComponentName name) {
+            }
         };
         Intent intent = new Intent(appContext, ExportService.class);
         if (appContext.bindService(intent, conn, BIND_AUTO_CREATE)) {
@@ -292,11 +339,70 @@ public class ExportService extends Service {
         // Start observing sensor data from here, while grouping them into timestamp equal rows.
         // Then write the rows out.
         Range<Long> range = Range.closed(trial.getFirstTimestamp(), trial.getLastTimestamp());
-        dc.createScalarObservable(sensorIds, TimeRange.oldest(range), 0 /* resolution tier */)
+        dc.createScalarObservable(trialId, sensorIds, TimeRange.oldest(range), 0 /* resolution
+        tier */)
                 .doOnComplete(() -> stopSelf(startId))
                 .observeOn(Schedulers.io())
                 .subscribe(new TrialDataWriter(trialId, fileName, relativeTime, sensorIds,
                         trial.getFirstTimestamp(), trial.getLastTimestamp()));
+    }
+
+    /**
+     * Handle action export experiment in the provided background thread with the provided
+     * parameters.
+     */
+    private void handleActionExportExperiment(String experimentId, int startId) {
+        // Blocking gets OK: this is already background threaded.
+        DataController dc = getDataController().blockingGet();
+        Experiment experiment = RxDataController.getExperimentById(dc, experimentId).blockingGet();
+        File file = FileMetadataManager.getFileForExport(getApplicationContext(), experiment, dc)
+                .blockingGet();
+
+        updateProgress(ExportProgress.getComplete(experimentId, getExperimentFileUri(
+                file.getName())));
+
+    }
+
+    /**
+     * Handle action import experiment in the provided background thread with the provided
+     * parameters.
+     */
+    private void handleActionImportExperiment(Uri fileUri, int startId) {
+        // Blocking gets OK: this is already background threaded.
+        AppSingleton.getInstance(
+                getApplicationContext()).getDataController().importExperimentFromZip(
+                fileUri,
+                getApplicationContext().getContentResolver(),
+                new MaybeConsumer<String>() {
+                    @Override
+                    public void success(String experimentId) {
+                        updateProgress(ExportProgress.getComplete(experimentId, fileUri));
+                    }
+
+                    @Override
+                    public void fail(Exception e) {
+                        AppSingleton.getInstance(getApplicationContext()).setExportServiceBusy(
+                                false);
+                        if (e instanceof ZipException) {
+                            showSnackbar(R.string.import_failed_file);
+                            Log.e(TAG, "SJ file format exception", e);
+                        } else {
+                            showSnackbar(R.string.import_failed);
+                            Log.e(TAG, "Unknown import error", e);
+                        }
+                    }
+                });
+    }
+
+    private void showSnackbar(int stringResource) {
+        AppSingleton.getInstance(
+                getApplicationContext()).onNextActivity().subscribe(
+                activity -> {
+                    AccessibilityUtils.makeSnackbar(
+                            activity.findViewById(R.id.drawer_layout),
+                            getResources().getString(stringResource),
+                            Snackbar.LENGTH_SHORT).show();
+                });
     }
 
     private Single<DataController> getDataController() {
@@ -345,7 +451,19 @@ public class ExportService extends Service {
 
     @NonNull
     private Uri getFileUri(String fileName) {
-        return Uri.parse("content://" + getPackageName() + "/exported_runs/" + fileName);
+        return Uri.parse(
+                "content://" + getPackageName() + "/exported_runs/" + Uri.encode(fileName));
+    }
+
+    private Uri getExperimentFileUri(String fileName) {
+        try {
+            return FileProvider.getUriForFile(getApplicationContext(), getPackageName(), new File(
+                    FileMetadataManager.getExperimentExportDirectory(getApplicationContext()),
+                    fileName));
+        } catch (IOException ioe) {
+            Log.e(TAG, "Error getting export file", ioe);
+            return null;
+        }
     }
 
     /**
@@ -356,13 +474,82 @@ public class ExportService extends Service {
                 .observeOn(Schedulers.io())
                 .doOnComplete(() -> stopSelf(startId))
                 .subscribe(id -> {
-                    final File storageDir = getStorageDir();
-                    if (storageDir.exists()) {
-                        for (File file : storageDir.listFiles()) {
-                            file.delete();
-                        }
-                    }
+                    File storageDir = getStorageDir();
+                    deleteAllFiles(storageDir);
+
+                    File exportExperimentDir = new File(
+                            FileMetadataManager.getExperimentExportDirectory(
+                                    getApplicationContext()));
+                    deleteAllFiles(exportExperimentDir);
                 });
+    }
+
+    private void deleteAllFiles(File exportExperimentDir) {
+        if (exportExperimentDir.exists()) {
+            for (File file : exportExperimentDir.listFiles()) {
+                file.delete();
+            }
+        }
+    }
+
+    public static void handleExperimentExportClick(Context context, String experimentId) {
+        AppSingleton appSingleton = AppSingleton.getInstance(context);
+        appSingleton.setExportServiceBusy(true);
+        ExportService.bind(context)
+                // Only look at events for this trial or the default value
+                .filter(progress -> Objects.equals(progress.getId(), experimentId)
+                        || progress.getId().equals(""))
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(progress -> progress.getState()
+                        == ExportService.ExportProgress.EXPORT_COMPLETE)
+                // Get just the next success
+                .firstElement()
+                .doOnSuccess(progress -> {
+                    // Reset the progress only after the UI has consumed this.
+                    ExportService.resetProgress(experimentId);
+                })
+                .subscribe(progress -> {
+                    Uri fileUri = progress.getFileUri();
+                    appSingleton.onNextActivity()
+                            .subscribe(activity -> launchExportChooser(activity, fileUri));
+                });
+
+        ExportService.exportExperiment(context, experimentId);
+    }
+
+
+    public static void launchExportChooser(Context context, Uri fileUri) {
+        Intent shareIntent = FileMetadataManager.getShareIntent(context, fileUri);
+        AppSingleton.getInstance(context).setExportServiceBusy(false);
+        context.startActivity(Intent.createChooser(shareIntent,
+                context.getResources().getString(R.string.export_experiment_chooser_title)));
+    }
+
+    public static void handleExperimentImport(Context context, Uri experimentFile) {
+        AppSingleton.getInstance(context).setExportServiceBusy(true);
+        ExportService.bind(context)
+                // Only look at events for this uri or the default value
+                .filter(progress -> Objects.equals(progress.getFileUri(), experimentFile)
+                        || progress.getId().equals(""))
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(progress -> progress.getState()
+                        == ExportService.ExportProgress.EXPORT_COMPLETE)
+                // Get just the next success
+                .firstElement()
+                .doOnSuccess(progress -> {
+                    // Reset the progress only after the UI has consumed this.
+                    ExportService.resetProgress(experimentFile.toString());
+                })
+                .subscribe(progress -> {
+                    AppSingleton.getInstance(context).setExportServiceBusy(false);
+                    AppSingleton.getInstance(context).onNextActivity().subscribe(activity -> {
+                        activity.startActivity(
+                                WhistlePunkApplication.getLaunchIntentForPanesActivity(
+                                        context, progress.getId()));
+                    });
+                });
+
+        ExportService.importExperiment(context, experimentFile);
     }
 
     private class TrialDataWriter implements Observer<ScalarReading> {

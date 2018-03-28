@@ -74,8 +74,8 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
         mTrialId = getArguments().getString(KEY_TRIAL_ID);
         mUntilStop = ExportService.bind(getActivity())
                 // Only look at events for this trial or the default value
-                .filter(progress -> Objects.equals(progress.getTrialId(), mTrialId)
-                        || progress.getTrialId().equals(""))
+                .filter(progress -> Objects.equals(progress.getId(), mTrialId)
+                        || progress.getId().equals(""))
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(progress -> {
                     if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {

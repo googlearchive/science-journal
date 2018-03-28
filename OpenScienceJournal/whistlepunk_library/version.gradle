@@ -17,3 +17,7 @@ ext.buildVersionCode = {
 ext.buildVersionName = {
     return "$majorVersionNumber.$minorVersionNumber.$buildNumber"
 }
+
+ext.getReleaseVersionNumber = {
+    return "$releaseVersionNumber"
+}

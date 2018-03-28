@@ -156,7 +156,8 @@ class ControlBarController {
         }
 
         Intent launchIntent =
-                PanesActivity.launchIntent(anchorView.getContext(), mExperimentId);
+                WhistlePunkApplication.getLaunchIntentForPanesActivity(anchorView.getContext(),
+                        mExperimentId);
 
         // This isn't currently used, but does ensure this intent doesn't match any other intent.
         // See b/31616891

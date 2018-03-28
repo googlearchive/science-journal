@@ -29,6 +29,8 @@
     <uses-permission android:name="android.permission.CAMERA"/>
     <!-- Necessary to write out data. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- Necessary to read some files shared from other apps. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- Vibrate option available for triggers. -->
     <uses-permission android:name="android.permission.VIBRATE"/>
 
@@ -74,40 +76,50 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/NoBarTheme.MainActivity"
-            android:launchMode = "singleTop"
+            android:launchMode = "singleTask"
+            tools:ignore="AppLinkUrlError"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="*"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <data android:mimeType="*/*"/>
+                <!-- Match all file or content URIs ending in .sj-->
+                <!-- Why? We expect files passed to have an extension although for Content URIs this
+                may not always be correct-->
+                <data android:pathPattern=".*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.sj"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="*"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <!-- Match all file or content URIs with a MIME type 'x-zip'-->
+                <!-- Why? This appears to be the MIME type Android assigns to us as a ZIP file with
+                a renamed extension-->
+                <data android:mimeType="application/x-zip"/>
+                <!-- Match all file or content URIs with a MIME type 'octet-steam'-->
+                <!-- Why? This SHOULD BE the default, and is seen on some Samsung devices-->
+                <data android:mimeType="application/octet-stream"/>
             </intent-filter>
         </activity>
         <activity
             android:name=".PanesActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.Panes"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
             >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
-        </activity>
-        <activity
-            android:name=".RulerActivity"
-            android:exported="false"
-            android:label="@string/title_activity_ruler"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
-        </activity>
-        <activity
-            android:name=".LevelActivity"
-            android:exported="false"
-            android:label="@string/title_activity_level"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>

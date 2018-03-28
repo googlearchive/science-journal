@@ -74,6 +74,15 @@ public class Trial extends LabelListHolder {
     }
 
     /**
+     * Populates the Trial from an existing proto, but changes the TrialId.
+     */
+    public static Trial fromTrialWithNewId(GoosciTrial.Trial trial) {
+        Trial t = new Trial(trial);
+        t.mTrial.trialId = java.util.UUID.randomUUID().toString();
+        return t;
+    }
+
+    /**
      * Invoked when recording begins to save the metadata about what's being recorded.
      */
     public static Trial newTrial(long startTimeMs, GoosciSensorLayout.SensorLayout[] sensorLayouts,

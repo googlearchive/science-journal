@@ -57,6 +57,7 @@ public class RecorderService extends Service implements IRecorderService {
                         .setContentText(getString(R.string.service_notification_content_text))
                         .setSubText(experimentName)
                         .setSmallIcon(R.drawable.ic_notification_24dp)
+                        .setShowWhen(false)
                         .setContentIntent(pi)
                         .build());
         WhistlePunkApplication.getPerfTrackerProvider(getApplicationContext())

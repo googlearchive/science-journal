@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.os.Build;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
@@ -29,12 +28,15 @@ import com.google.android.apps.forscience.whistlepunk.sensors.AmbientTemperature
 import com.google.android.apps.forscience.whistlepunk.sensors.BarometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.CompassSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.ExperimentalPitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.LinearAccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.common.base.Preconditions;
 
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -46,13 +48,19 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
             new BuiltInSensorAppearance(R.string.unknown_sensor, R.drawable.ic_sensors_white_24dp,
                     null);
 
+    public static final int DEFAULT_POINTS_AFTER_DECIMAL = -1;
+
+    // Don't allow more than 10 places after the decimal to be displayed. The UX can't
+    // handle this very well.
+    // TODO: Revisit this constant -- should it be even smaller, like 5?
+    public static final int MAX_POINTS_AFTER_DECIMAL = 10;
+
     private Map<String, SensorAppearance> mAppearances = new HashMap<>();
 
     private DataController mDataController;
 
     public static GoosciSensorAppearance.BasicSensorAppearance toProto(
             SensorAppearance appearance, Context context) {
-        // TODO: transfer other appearance fields
         GoosciSensorAppearance.BasicSensorAppearance proto = new GoosciSensorAppearance
                 .BasicSensorAppearance();
         proto.name = appearance.getName(context);
@@ -75,7 +83,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     }
 
     private static Locale getCurrentLocale(Context context) {
-        if (AndroidVersionUtils.isApiLevelAtLeastNougat()){
+        if (AndroidVersionUtils.isApiLevelAtLeastNougat()) {
             return context.getResources().getConfiguration().getLocales().get(0);
         } else {
             //noinspection deprecation
@@ -106,8 +114,8 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.acc_x, R.drawable.ic_sensor_acc_x_white_24dp, R.string.acc_units,
                 R.string.sensor_desc_short_acc_x, R.string.sensor_desc_first_paragraph_acc,
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
-                new SensorAnimationBehavior(R.drawable.accx_level_drawable,
-                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE_ROTATES),
+                new ImageViewSensorAnimationBehavior(R.drawable.accx_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE_ROTATES),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL,
                 AccelerometerSensor.Axis.X.getSensorId()));
 
@@ -115,8 +123,8 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.acc_y, R.drawable.ic_sensor_acc_y_white_24dp, R.string.acc_units,
                 R.string.sensor_desc_short_acc_y, R.string.sensor_desc_first_paragraph_acc,
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
-                new SensorAnimationBehavior(R.drawable.accy_level_drawable,
-                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE_ROTATES),
+                new ImageViewSensorAnimationBehavior(R.drawable.accy_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE_ROTATES),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL,
                 AccelerometerSensor.Axis.Y.getSensorId()));
 
@@ -124,8 +132,8 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.acc_z, R.drawable.ic_sensor_acc_z_white_24dp, R.string.acc_units,
                 R.string.sensor_desc_short_acc_z, R.string.sensor_desc_first_paragraph_acc,
                 R.string.sensor_desc_second_paragraph_acc, R.drawable.learnmore_acc,
-                new SensorAnimationBehavior(R.drawable.accz_level_drawable,
-                        SensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
+                new ImageViewSensorAnimationBehavior(R.drawable.accz_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL,
                 AccelerometerSensor.Axis.Z.getSensorId()));
 
@@ -134,8 +142,8 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.acc_units, R.string.sensor_desc_short_linear_acc,
                 R.string.sensor_desc_first_paragraph_linear_acc,
                 R.string.sensor_desc_second_paragraph_linear_acc, R.drawable.learnmore_acc,
-                new SensorAnimationBehavior(R.drawable.linacc_level_drawable,
-                        SensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE),
+                new ImageViewSensorAnimationBehavior(R.drawable.linacc_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL,
                 LinearAccelerometerSensor.ID));
 
@@ -143,8 +151,8 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.drawable.ic_sensor_light_white_24dp, R.string.ambient_light_units,
                 R.string.sensor_desc_short_light, R.string.sensor_desc_first_paragraph_light,
                 R.string.sensor_desc_second_paragraph_light, R.drawable.learnmore_light,
-                new SensorAnimationBehavior(R.drawable.ambient_level_drawable,
-                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
+                new ImageViewSensorAnimationBehavior(R.drawable.ambient_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, AmbientLightSensor.ID));
 
         putAppearance(MagneticStrengthSensor.ID, BuiltInSensorAppearance.create(
@@ -153,49 +161,49 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
                 R.string.sensor_desc_first_paragraph_magnetic_strength,
                 R.string.sensor_desc_second_paragraph_magnetic_strength,
                 R.drawable.learnmore_magnet,
-                new SensorAnimationBehavior(R.drawable.magnetometer_level_drawable,
-                        SensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE),
+                new ImageViewSensorAnimationBehavior(R.drawable.magnetometer_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_POSITIVE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, MagneticStrengthSensor.ID));
 
         putAppearance(CompassSensor.ID, BuiltInSensorAppearance.create(R.string.compass,
                 R.drawable.ic_sensor_compass_white_24dp, R.string.compass_units,
                 R.string.sensor_desc_short_compass, R.string.sensor_desc_first_paragraph_compass,
                 R.string.sensor_desc_second_paragraph_compass, R.drawable.learnmore_compass,
-                new SensorAnimationBehavior(R.drawable.compass_level_drawable,
-                        SensorAnimationBehavior.TYPE_ROTATION),
+                new ImageViewSensorAnimationBehavior(R.drawable.compass_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_ROTATION),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, CompassSensor.ID));
 
         putAppearance(DecibelSensor.ID, BuiltInSensorAppearance.create(R.string.decibel,
                 R.drawable.ic_sensor_decibels_white_24dp, R.string.decibel_units,
                 R.string.sensor_desc_short_decibel, R.string.sensor_desc_first_paragraph_decibel,
                 R.string.sensor_desc_second_paragraph_decibel, R.drawable.learnmore_sound,
-                new SensorAnimationBehavior(R.drawable.decibel_level_drawable,
-                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE),
+                new ImageViewSensorAnimationBehavior(R.drawable.decibel_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_RELATIVE_SCALE),
                 BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, DecibelSensor.ID));
 
-        putAppearance(ExperimentalPitchSensor.ID, BuiltInSensorAppearance.create(
+        putAppearance(PitchSensor.ID, BuiltInSensorAppearance.create(
                 R.string.pitch, R.drawable.ic_sensor_sound_frequency_white_24dp,
                 R.string.hertz_units, R.string.sensor_desc_short_pitch,
                 R.string.sensor_desc_first_paragraph_pitch,
                 R.string.sensor_desc_second_paragraph_pitch,
                 R.drawable.learnmore_sound,
-                new SensorAnimationBehavior(R.drawable.sound_frequency_drawable,
-                        SensorAnimationBehavior.TYPE_PITCH),
-                1 /* pointsAfterDecimalInNumberFormat */, ExperimentalPitchSensor.ID));
+                new PitchSensorAnimationBehavior(),
+                1 /* 1 decimal place */, PitchSensor.ID));
 
         putAppearance(BarometerSensor.ID, BuiltInSensorAppearance.create(R.string.barometer,
                 R.drawable.ic_sensor_barometer_white_24dp, R.string.barometer_units,
                 R.string.sensor_desc_short_barometer,
                 R.string.sensor_desc_first_paragraph_barometer,
                 R.string.sensor_desc_second_paragraph_barometer, R.drawable.learnmore_barometer,
-                new SensorAnimationBehavior(R.drawable.barometer_level_drawable,
-                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE), 2 /* 2 decimal places */,
-                BarometerSensor.ID));
+                new ImageViewSensorAnimationBehavior(R.drawable.barometer_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_RELATIVE_SCALE),
+                2 /* 2 decimal places */, BarometerSensor.ID));
 
         putAppearance(AmbientTemperatureSensor.ID, new BuiltInSensorAppearance(
                 R.string.ambient_temperature, R.drawable.ic_sensors_white_24dp,
-                R.string.temperature_units, new SensorAnimationBehavior(
-                R.drawable.bluetooth_level_drawable, SensorAnimationBehavior.TYPE_STATIC_ICON),
+                R.string.temperature_units,
+                new ImageViewSensorAnimationBehavior(R.drawable.bluetooth_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_STATIC_ICON),
                 AmbientTemperatureSensor.ID));
 
         putAppearance(SineWavePseudoSensor.ID, new BuiltInSensorAppearance(R.string.sine_wave,
@@ -222,10 +230,40 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
 
     public static GoosciSensorAppearance.BasicSensorAppearance appearanceToProto(
             SensorAppearance appearance, Context context) {
-        // TODO: transfer other appearance fields
         GoosciSensorAppearance.BasicSensorAppearance proto = new GoosciSensorAppearance
                 .BasicSensorAppearance();
         proto.name = appearance.getName(context);
+        proto.units = appearance.getUnits(context);
+        proto.shortDescription = appearance.getShortDescription(context);
+        proto.iconPath = appearance.getSmallIconPath();
+        proto.largeIconPath = appearance.getLargeIconPath();
+        proto.pointsAfterDecimal = appearance.getPointsAfterDecimal();
         return proto;
+    }
+
+    public static NumberFormat createNumberFormat(int pointsAfterDecimalInNumberFormat) {
+        if (pointsAfterDecimalInNumberFormat <= DEFAULT_POINTS_AFTER_DECIMAL) {
+            return new AxisNumberFormat();
+        } else {
+            pointsAfterDecimalInNumberFormat = Math.min(pointsAfterDecimalInNumberFormat,
+                    MAX_POINTS_AFTER_DECIMAL);
+            final String format = "%." + pointsAfterDecimalInNumberFormat + "f";
+            return new NumberFormat() {
+                @Override
+                public StringBuffer format(double value, StringBuffer buffer, FieldPosition field) {
+                    return buffer.append(String.format(format, value));
+                }
+
+                @Override
+                public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
+                    return format((double) value, buffer, field);
+                }
+
+                @Override
+                public Number parse(String string, ParsePosition position) {
+                    return null;
+                }
+            };
+        }
     }
 }

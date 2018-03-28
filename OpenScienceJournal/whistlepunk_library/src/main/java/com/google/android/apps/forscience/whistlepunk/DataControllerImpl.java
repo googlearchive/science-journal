@@ -16,6 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
@@ -28,6 +31,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
@@ -119,20 +124,40 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             TimeRange times = TimeRange.oldest(Range.closed(firstTimestamp,
                     lastTimestamp));
             for (String tag : trial.getSensorIds()) {
-                mSensorDatabase.deleteScalarReadings(tag, times);
+                mSensorDatabase.deleteScalarReadings(trial.getTrialId(), tag, times);
             }
         });
     }
 
     @Override
-    public void addScalarReading(final String sensorId, final int resolutionTier,
-            final long timestampMillis, final double value) {
+    public void addScalarReadings(List<BatchInsertScalarReading> readings) {
         mSensorDataThread.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    mSensorDatabase.addScalarReading(sensorId, resolutionTier, timestampMillis,
-                            value);
+                    mSensorDatabase.addScalarReadings(readings);
+                } catch (final Exception e) {
+                    mUiThread.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyFailureListener("batchImport", e);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @Override
+    public void addScalarReading(final String trialId, final String sensorId,
+            final int resolutionTier, final long timestampMillis,
+            final double value) {
+        mSensorDataThread.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mSensorDatabase.addScalarReading(trialId, sensorId, resolutionTier,
+                            timestampMillis, value);
                 } catch (final Exception e) {
                     mUiThread.execute(new Runnable() {
                         @Override
@@ -153,23 +178,36 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     @Override
-    public void getScalarReadings(final String databaseTag, final int resolutionTier,
+    public void getScalarReadings(final String trialId, final String databaseTag,
+            final int resolutionTier,
             final TimeRange timeRange, final int maxRecords,
             final MaybeConsumer<ScalarReadingList> onSuccess) {
         Preconditions.checkNotNull(databaseTag);
         background(mSensorDataThread, onSuccess, new Callable<ScalarReadingList>() {
             @Override
             public ScalarReadingList call() throws Exception {
-                return mSensorDatabase.getScalarReadings(databaseTag, timeRange, resolutionTier,
-                        maxRecords);
+                return mSensorDatabase.getScalarReadings(trialId, databaseTag, timeRange,
+                        resolutionTier, maxRecords);
             }
         });
     }
 
     @Override
-    public Observable<ScalarReading> createScalarObservable(final String[] sensorIds,
-            final TimeRange timeRange, final int resolutionTier) {
-        return mSensorDatabase.createScalarObservable(sensorIds, timeRange, resolutionTier)
+    public void getScalarReadingProtosInBackground(
+            GoosciExperiment.Experiment experiment,
+            final MaybeConsumer<GoosciScalarSensorData.ScalarSensorData> onSuccess) {
+        Preconditions.checkNotNull(experiment);
+        mSensorDataThread.execute(() -> {
+            onSuccess.success(mSensorDatabase.getScalarReadingProtos(experiment));
+        });
+    }
+
+    @Override
+    public Observable<ScalarReading> createScalarObservable(final String trialId,
+            final String[] sensorIds,
+            final TimeRange timeRange,
+            final int resolutionTier) {
+        return mSensorDatabase.createScalarObservable(trialId, sensorIds, timeRange, resolutionTier)
                 .observeOn(Schedulers.from(mSensorDataThread));
     }
 
@@ -190,8 +228,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                 new Consumer<Experiment>() {
                     @Override
                     public void take(Experiment experiment) {
-                        mCachedExperiments.put(experiment.getExperimentId(),
-                                new WeakReference<>(experiment));
+                        cacheExperiment(experiment);
                         onSuccess.success(experiment);
                     }
                 });
@@ -206,7 +243,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void deleteExperiment(final Experiment experiment,
-                                 final MaybeConsumer<Success> onSuccess) {
+            final MaybeConsumer<Success> onSuccess) {
         if (mCachedExperiments.containsKey(experiment.getExperimentId())) {
             mCachedExperiments.remove(experiment.getExperimentId());
         }
@@ -290,7 +327,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         if (mCachedExperiments.get(experiment.getExperimentId()).get() != experiment) {
             throw new IllegalArgumentException(
                     "Updating different instance of experiment than is managed by DataController: "
-                    + experiment);
+                            + experiment);
         }
 
         // Every time we update the experiment, we can update its last used time.
@@ -347,7 +384,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                         return;
                     }
                 }
-                mCachedExperiments.put(lastUsed.getExperimentId(), new WeakReference<>(lastUsed));
+                cacheExperiment(lastUsed);
                 onSuccess.success(lastUsed);
             }
 
@@ -362,6 +399,25 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                 return mMetaDataManager.getLastUsedUnarchivedExperiment();
             }
         });
+    }
+
+    @Override
+    public void importExperimentFromZip(final Uri zipUri,
+            ContentResolver resolver, final MaybeConsumer<String> onSuccess) {
+        background(mMetaDataThread, onSuccess, new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                Experiment experiment = mMetaDataManager.importExperimentFromZip(zipUri,
+                        resolver);
+                cacheExperiment(experiment);
+                return experiment.getExperimentId();
+            }
+        });
+    }
+
+    private void cacheExperiment(Experiment experiment) {
+        mCachedExperiments.put(experiment.getExperimentId(),
+                new WeakReference<>(experiment));
     }
 
     @Override
@@ -388,7 +444,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     @Override
     public void getExternalSensorById(final String id,
-                                      final MaybeConsumer<ExternalSensorSpec> onSuccess) {
+            final MaybeConsumer<ExternalSensorSpec> onSuccess) {
         background(mMetaDataThread, onSuccess, new Callable<ExternalSensorSpec>() {
             @Override
             public ExternalSensorSpec call() throws Exception {

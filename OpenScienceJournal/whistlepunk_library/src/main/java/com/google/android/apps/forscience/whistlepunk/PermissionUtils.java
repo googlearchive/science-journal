@@ -39,20 +39,24 @@ public class PermissionUtils {
     @IntDef({REQUEST_WRITE_EXTERNAL_STORAGE,
             REQUEST_CAMERA,
             REQUEST_RECORD_AUDIO,
-            REQUEST_ACCESS_COARSE_LOCATION})
+            REQUEST_ACCESS_COARSE_LOCATION,
+            REQUEST_READ_EXTERNAL_STORAGE})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Requests{}
+    public @interface Requests {
+    }
 
     static final int REQUEST_WRITE_EXTERNAL_STORAGE = 0;
     public static final int REQUEST_CAMERA = 1;
     static final int REQUEST_RECORD_AUDIO = 2;
     public static final int REQUEST_ACCESS_COARSE_LOCATION = 3;
+    public static final int REQUEST_READ_EXTERNAL_STORAGE = 4;
 
     @IntDef({DENIED,
             GRANTED,
             PERMANENTLY_DENIED})
     @Retention(RetentionPolicy.SOURCE)
-    @interface PermissionState{}
+    @interface PermissionState {
+    }
 
     static final int DENIED = 0;
     static final int GRANTED = 1;
@@ -62,12 +66,15 @@ public class PermissionUtils {
             Manifest.permission.WRITE_EXTERNAL_STORAGE, // 0
             Manifest.permission.CAMERA,                 // 1
             Manifest.permission.RECORD_AUDIO,           // 2
-            Manifest.permission.ACCESS_COARSE_LOCATION  // 3
+            Manifest.permission.ACCESS_COARSE_LOCATION, // 3
+            Manifest.permission.READ_EXTERNAL_STORAGE   // 4
     };
 
     public interface PermissionListener {
         void onPermissionGranted();
+
         void onPermissionDenied();
+
         void onPermissionPermanentlyDenied();
     }
 

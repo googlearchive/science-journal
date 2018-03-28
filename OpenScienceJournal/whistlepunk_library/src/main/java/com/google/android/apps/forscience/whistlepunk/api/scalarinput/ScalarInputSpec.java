@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
+import com.google.android.apps.forscience.whistlepunk.ImageViewSensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -146,8 +147,8 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
             @Override
             public SensorAnimationBehavior getSensorAnimationBehavior() {
-                return new SensorAnimationBehavior(R.drawable.api_level_drawable,
-                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE);
+                return new ImageViewSensorAnimationBehavior(R.drawable.api_level_drawable,
+                        ImageViewSensorAnimationBehavior.TYPE_RELATIVE_SCALE);
             }
         };
     }

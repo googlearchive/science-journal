@@ -80,18 +80,19 @@ public class ScalarSensorTest {
         recorder.stopObserving();
 
         ArrayList<InMemorySensorDatabase.Reading> expectedRecorded = Lists.newArrayList(
-                new InMemorySensorDatabase.Reading("test", 1, 1),
-                new InMemorySensorDatabase.Reading("test", 2, 2));
+                new InMemorySensorDatabase.Reading("runId", "test", 1, 1),
+                new InMemorySensorDatabase.Reading("runId", "test", 2, 2));
         assertEquals(expectedRecorded, mDb.getReadings(0));
 
         // We should just have two values at tier 1, too (none from after we stopped recording,
         // but even a partial buffer should have representative points)
         assertEquals(expectedRecorded, mDb.getReadings(1));
 
-        ArrayList<ScalarReading> expectedObserved = Lists.newArrayList(new ScalarReading(0, 0),
-                new ScalarReading(1, 1), new ScalarReading(2, 2), new ScalarReading(3, 3),
-                new ScalarReading(4, 4), new ScalarReading(5, 5), new ScalarReading(6, 6),
-                new ScalarReading(7, 7));
+        ArrayList<ScalarReading> expectedObserved = Lists.newArrayList(
+                new ScalarReading(0, 0), new ScalarReading(1, 1),
+                new ScalarReading(2, 2), new ScalarReading(3, 3),
+                new ScalarReading(4, 4), new ScalarReading(5, 5),
+                new ScalarReading(6, 6), new ScalarReading(7, 7));
 
         assertEquals(expectedObserved, observer.getReadings());
     }
@@ -312,10 +313,10 @@ public class ScalarSensorTest {
         }
 
         ArrayList<InMemorySensorDatabase.Reading> expected = Lists.newArrayList(
-                new InMemorySensorDatabase.Reading("test", 0, 0),
-                new InMemorySensorDatabase.Reading("test", 9, 9),
-                new InMemorySensorDatabase.Reading("test", 10, 10),
-                new InMemorySensorDatabase.Reading("test", 19, 19));
+                new InMemorySensorDatabase.Reading("runId", "test", 0, 0),
+                new InMemorySensorDatabase.Reading("runId", "test", 9, 9),
+                new InMemorySensorDatabase.Reading("runId", "test", 10, 10),
+                new InMemorySensorDatabase.Reading("runId", "test", 19, 19));
         assertEquals(expected, mDb.getReadings(1));
     }
 
@@ -340,10 +341,10 @@ public class ScalarSensorTest {
         }
 
         ArrayList<InMemorySensorDatabase.Reading> expected = Lists.newArrayList(
-                new InMemorySensorDatabase.Reading("test", 0, 0),
-                new InMemorySensorDatabase.Reading("test", 49, 49),
-                new InMemorySensorDatabase.Reading("test", 50, 50),
-                new InMemorySensorDatabase.Reading("test", 99, 99));
+                new InMemorySensorDatabase.Reading(trial.getTrialId(), "test", 0, 0),
+                new InMemorySensorDatabase.Reading(trial.getTrialId(), "test", 49, 49),
+                new InMemorySensorDatabase.Reading(trial.getTrialId(), "test", 50, 50),
+                new InMemorySensorDatabase.Reading(trial.getTrialId(), "test", 99, 99));
         assertEquals(expected, mDb.getReadings(2));
 
         recorder.stopRecording(trial);

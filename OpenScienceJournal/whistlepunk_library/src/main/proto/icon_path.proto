@@ -35,7 +35,10 @@ message IconPath {
         // TODO: replace with better system
         LEGACY_ANDROID_BLE = 1;
 
-        // TODO: When we have local storage of custom sensor icons, add another type here.
+        // Used to signify sensors whose appearances are loaded from the appearance proto.
+        // path_string will be empty for these sensors.
+        // TODO: populate path_string and load image from there.
+        PROTO = 2;
     }
 
     optional PathType type = 1;

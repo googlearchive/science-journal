@@ -16,11 +16,15 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +49,12 @@ public interface MetaDataManager {
      * Updates experiment details, including the experiment's labels.
      */
     void updateExperiment(Experiment experiment);
+
+    /**
+     * Add an existing experiment.
+     */
+    Experiment importExperimentFromZip(Uri zipUri, ContentResolver resolver)
+            throws IOException;
 
     /**
      * @return the list of all experiments.

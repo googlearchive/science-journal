@@ -15,6 +15,9 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.ContentResolver;
+import android.net.Uri;
+
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -22,6 +25,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
@@ -38,14 +43,22 @@ import io.reactivex.Observable;
  */
 public class StubDataController implements DataController {
     @Override
-    public void getScalarReadings(String databaseTag, int resolutionTier, TimeRange timeRange,
-            int maxRecords, MaybeConsumer<ScalarReadingList> onSuccess) {
+    public void getScalarReadings(String trialId, String databaseTag, int resolutionTier,
+                                  TimeRange timeRange, int maxRecords,
+                                  MaybeConsumer<ScalarReadingList> onSuccess) {
 
     }
 
     @Override
-    public Observable<ScalarReading> createScalarObservable(String[] sensorIds, TimeRange timeRange,
-            int resolutionTier) {
+    public void getScalarReadingProtosInBackground(GoosciExperiment.Experiment experiment,
+                          MaybeConsumer<GoosciScalarSensorData.ScalarSensorData> onSuccess) {
+
+    }
+
+    @Override
+    public Observable<ScalarReading> createScalarObservable(String trialId, String[] sensorIds,
+                                                            TimeRange timeRange,
+                                                            int resolutionTier) {
         return null;
     }
 
@@ -76,6 +89,12 @@ public class StubDataController implements DataController {
 
     @Override
     public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+
+    }
+
+    @Override
+    public void importExperimentFromZip(Uri zipUri, ContentResolver resolver,
+                                        MaybeConsumer<String> onSuccess) {
 
     }
 

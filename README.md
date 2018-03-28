@@ -16,7 +16,7 @@ Download the source, go into the OpenScienceJournal directory and run:
 
 Alternatively, import the source code in OpenScienceJournal into Android Studio (File, Import Project).
 
-Note: You'll need Android SDK version 23, build tools 23.0.3, and the Android Support Library to
+Note: You'll need Android SDK version 27, build tools 23.0.3, and the Android Support Library to
 compile the project. If you're unsure about this, use Android Studio and tick the appropriate boxes
 in the SDK Manager.
 

@@ -119,7 +119,7 @@ public class DataControllerTest {
     public void testAddDataError() {
         InMemorySensorDatabase failingDb = new InMemorySensorDatabase() {
             @Override
-            public void addScalarReading(String databaseTag, int resolutionTier,
+            public void addScalarReading(String trialId, String databaseTag, int resolutionTier,
                     long timestampMillis, double value) {
                 throw new RuntimeException("Could not add value " + value);
             }
@@ -128,15 +128,15 @@ public class DataControllerTest {
                 new MemoryMetadataManager());
         StoringFailureListener listener = new StoringFailureListener();
         rdc.setDataErrorListenerForSensor("sensorId", listener);
-        rdc.addScalarReading("sensorId", 0, 0, 3.0);
+        rdc.addScalarReading("trialId", "sensorId", 0, 0, 3.0);
 
         // Different sensorId: won't be stored
-        rdc.addScalarReading("notSensorId", 0, 0, 4.0);
+        rdc.addScalarReading("trialId", "notSensorId", 0, 0, 4.0);
 
         rdc.clearDataErrorListenerForSensor("sensorId");
 
         // Listener cleared: won't be stored
-        rdc.addScalarReading("sensorId", 0, 0, 5.0);
+        rdc.addScalarReading("trialId", "sensorId", 0, 0, 5.0);
 
         assertEquals("Could not add value 3.0", listener.exception.getMessage());
     }

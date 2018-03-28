@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -53,7 +54,8 @@ import io.reactivex.subjects.SingleSubject;
 
 public class PanesActivity extends AppCompatActivity implements RecordFragment.CallbacksProvider,
         CameraFragment.ListenerProvider, TextToolFragment.ListenerProvider, GalleryFragment
-                .ListenerProvider, PanesToolFragment.EnvProvider {
+                .ListenerProvider, PanesToolFragment.EnvProvider, ExperimentDetailsFragment
+                .ListenerProvider {
     private static final String TAG = "PanesActivity";
     public static final String EXTRA_EXPERIMENT_ID = "experimentId";
     private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
@@ -71,6 +73,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             new ToolTab[]{ToolTab.NOTES, ToolTab.OBSERVE, ToolTab.CAMERA, ToolTab.GALLERY};
     private RxPermissions mPermissions;
     private int mInitialDrawerState = -1;
+    private RxEvent mPaused = new RxEvent();
 
     public PanesActivity() {
         mSnackbarManager = new SnackbarManager();
@@ -141,7 +144,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                     @Override
                     public Fragment createFragment(String experimentId,
                             AppCompatActivity activity) {
-                        return RecordFragment.newInstance(experimentId, false);
+                        return RecordFragment.newInstance(experimentId);
                     }
 
                     @Override
@@ -427,6 +430,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                         public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                         }
                     });
+            mBottomBehavior.setAllowHalfHeightDrawerInLandscape(
+                    getResources().getBoolean(R.bool.allow_half_height_drawer_in_landscape));
 
             // TODO: could this be FragmentStatePagerAdapter?  Would the fragment lifecycle methods
             //       get called in time to remove the camera preview views and avoid b/64442501?
@@ -634,10 +639,19 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     @Override
     public void onResume() {
         super.onResume();
+        AppSingleton appSingleton = AppSingleton.getInstance(this);
+        appSingleton.setResumedActivity(this);
+        mPaused.happensNext().subscribe(() -> appSingleton.setResumedActivity(null));
+
         if (!isMultiWindowEnabled()) {
             updateRecorderControllerForResume();
         }
         setupGrabber();
+        if (appSingleton.getAndClearMostRecentOpenWasImport()) {
+            AccessibilityUtils.makeSnackbar(findViewById(R.id.bottom_control_bar),
+                    getResources().getString(R.string.import_failed_recording),
+                    Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -646,6 +660,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             updateRecorderControllerForPause();
             logPanesState(TrackerConstants.ACTION_PAUSED);
         }
+        mPaused.happens();
         super.onPause();
     }
 
@@ -712,9 +727,10 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             @Override
             public void onRecordingRequested(String experimentName, boolean userInitiated) {
                 showRecordingBar();
-                if (mTabsInitialized && userInitiated) {
-                    expandSheet();
-                }
+                // We don't call expandSheet until after we've called
+                // mExperimentFragment.onStartRecording (below in onRecordingStart). Otherwise, the
+                // ExperimentFragment won't be able to scroll to the bottom because the details
+                // lists's height will be zero. Scrolling doesn't work if a View's height is zero.
             }
 
             @Override
@@ -726,6 +742,11 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 String trialId = recordingStatus.getCurrentRunId();
                 if (!TextUtils.isEmpty(trialId)) {
                     mExperimentFragment.onStartRecording(trialId);
+                }
+                // Now that mExperimentFragment.onStartRecording has been called (and it has
+                // scrolled to the bottom), we can call expandSheet.
+                if (mTabsInitialized && recordingStatus.userInitiated) {
+                    expandSheet();
                 }
             }
 
@@ -901,5 +922,15 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
                 return super.layoutDependsOn(parent, child, dependency);
             }
         }
+    }
+
+    @Override
+    public ExperimentDetailsFragment.Listener getExperimentDetailsFragmentListener() {
+        return new ExperimentDetailsFragment.Listener() {
+            @Override
+            public void onArchivedStateChanged(Experiment changed) {
+                PanesActivity.this.onArchivedStateChanged(changed);
+            }
+        };
     }
 }

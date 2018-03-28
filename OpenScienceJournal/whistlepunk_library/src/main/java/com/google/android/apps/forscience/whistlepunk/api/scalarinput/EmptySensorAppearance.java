@@ -20,6 +20,7 @@ import android.graphics.drawable.Drawable;
 
 import com.google.android.apps.forscience.whistlepunk.AxisNumberFormat;
 import com.google.android.apps.forscience.whistlepunk.BuiltInSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.ImageViewSensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -81,7 +82,7 @@ public class EmptySensorAppearance implements SensorAppearance {
 
     @Override
     public SensorAnimationBehavior getSensorAnimationBehavior() {
-        return SensorAnimationBehavior.createDefault();
+        return ImageViewSensorAnimationBehavior.createDefault();
     }
 
     @Override

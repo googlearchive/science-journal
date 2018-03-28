@@ -19,35 +19,22 @@ buildscript {
 android {
     compileSdkVersion 27
 
-    publishNonDefault true
-
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 27
         versionCode buildVersionCode()
         versionName buildVersionName()
-        multiDexEnabled true
+        buildConfigField "int", "PLATFORM_VERSION",  getReleaseVersionNumber()
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
     lintOptions {
-        abortOnError true
-        absolutePaths false
-
-        lintConfig file("lint.xml")
-        warning "MissingTranslation", "ExtraTranslation"
-
-        // b/64679950
-        warning "InvalidPackage"
-
-        htmlOutput file("build/reports/whistlepunk-lint-results.html")
-        xmlOutput file("build/reports/whistlepunk-lint-results.xml")
+        warning "MissingTranslation"
     }
 
     sourceSets {
@@ -126,7 +113,7 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     implementation "com.google.dagger:dagger:$daggerVersion"
-    implementation 'com.google.guava:guava:20.0'
+    implementation "com.google.guava:guava:$guavaVersion"
     implementation 'com.google.protobuf.nano:protobuf-javanano:3.0.0-alpha-3.1'
     implementation 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'

@@ -28,8 +28,6 @@ import androidx.collection.ArraySet;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,9 +61,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BleFlow {
     private static final long SERVICES_RETRY_DELAY_MILLIS = 500;
 
-    private enum Action {SCAN, CONNECT, LOOKUP_SRV, LOOKUP_CHARACT, READ_CHARACT, WRITE_CHARACT,
-        LOOKUP_DESC, WRITE_DESC, ENABLE_NOTIF, DISABLE_NOTIF, DISCONNECT, COMMIT,
-        CHANGE_MTU, START_TX, WRITE_STREAM, PICK_FIRST_DEVICE }
+    private enum Action {CONNECT, LOOKUP_SRV, LOOKUP_CHARACT, READ_CHARACT, WRITE_CHARACT,
+        LOOKUP_DESC, WRITE_DESC, ENABLE_NOTIF, DISABLE_NOTIF, DISCONNECT }
     private static String TAG = "BleFlow";
     private static final boolean DEBUG = false;
     private static UUID BLE_CLIENT_CONFIG_CHARACTERISTIC = UUID.fromString(
@@ -128,7 +125,6 @@ public class BleFlow {
     private final List<UUID> characteristics;
     private final List<UUID> descriptors;
     private final List<byte[]> values;
-    private UUID[] scanServiceFilter;
     private Handler mDelayHandler = new Handler();
 
     private BluetoothGattCharacteristic currentCharacteristic;
@@ -139,13 +135,8 @@ public class BleFlow {
     private int valueIndex;
     private int actionIndex;
     private int descriptorIndex;
-    private int timeout = -1;
     private String address;
     private AtomicBoolean flowEnded;
-    private InputStream inputStream;
-    private int maxNoDevices;
-
-    private int currentBufferSize = 20;
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
 
@@ -169,9 +160,7 @@ public class BleFlow {
                 return;
             }
 
-            if (BleEvents.BLE_SCAN_END.equals(action)) {
-                nextAction();
-            } else if (BleEvents.BLE_DISABLED.equals(action)) {
+            if (BleEvents.BLE_DISABLED.equals(action)) {
                 listener.onFailure(new Exception("BLE disabled"));
                 flowEnded.set(true);
             } else if (BleEvents.GATT_CONNECT.equals(action)) {
@@ -219,12 +208,6 @@ public class BleFlow {
                 listener.onFailure(new Exception("Service lookup failure at: "
                         + address));
                 flowEnded.set(true);
-            } else if (BleEvents.START_TX_OK.equals(action)) {
-                nextAction();
-            } else if (BleEvents.START_TX_FAIL.equals(action)) {
-                listener.onFailure(new Exception("Start TX characteristic fail for: "
-                        + currentCharacteristic));
-                flowEnded.set(true);
             } else if (BleEvents.READ_CHAR_OK.equals(action)) {
                 UUID characteristic = UUID.fromString(intent.getStringExtra(MyBleService.UUID));
                 int flags = intent.getIntExtra(MyBleService.FLAGS, 0);
@@ -242,15 +225,6 @@ public class BleFlow {
             } else if (BleEvents.WRITE_DESC_FAIL.equals(action)) {
                 listener.onFailure(new Exception("Write desriptor fail for: "
                         + currentDescriptor));
-                flowEnded.set(true);
-            } else if (BleEvents.COMMIT_OK.equals(action)) {
-                nextAction();
-            } else if (BleEvents.COMMIT_FAIL.equals(action)) {
-                listener.onFailure(new Exception("Commit TX fail for: "
-                        + currentDescriptor));
-                flowEnded.set(true);
-            } else if (BleEvents.MTU_CHANGE_FAIL.equals(action)) {
-                listener.onFailure(new Exception("Mtu change failed."));
                 flowEnded.set(true);
             } else {
                 Log.e(TAG, "Event not mapped: " + action);
@@ -279,7 +253,6 @@ public class BleFlow {
         listener = defaultListener;
         flowEnded = new AtomicBoolean();
         flowEnded.set(true);
-        maxNoDevices = MyBleService.MAX_NO_DEVICES;
 
         registerReceiver(receiver);
     }
@@ -306,24 +279,6 @@ public class BleFlow {
         Object param = richAction.param;
         if (DEBUG) Log.d(TAG, "current action: " + action);
         switch (action) {
-            case SCAN:
-                if (timeout > 0) {
-                    client.setMaxNoDevices(maxNoDevices);
-                    client.scanForDevices(scanServiceFilter, timeout);
-                } else {
-                    listener.onFailure(new Exception("no scanning time set"));
-                    flowEnded.set(true);
-                }
-                break;
-            case PICK_FIRST_DEVICE:
-                address = client.getFirstDeviceAddress();
-                if (address == null) {
-                    listener.onFailure(new Exception("no device found"));
-                    flowEnded.set(true);
-                } else {
-                    nextAction();
-                }
-                break;
             case CONNECT:
                 if (!client.connectToAddress(address)) {
                     listener.onFailure(new Exception("cannot connect to: " + address));
@@ -332,12 +287,6 @@ public class BleFlow {
                 break;
             case DISCONNECT:
                 client.disconnectDevice(address);
-                break;
-            case START_TX:
-                client.startTransaction(address);
-                break;
-            case COMMIT:
-                client.commit(address);
                 break;
             case LOOKUP_SRV:
                 client.findServices(address);
@@ -374,9 +323,6 @@ public class BleFlow {
                             + " the value " + Arrays.toString(values.get(valueIndex)));
                     client.writeValue(address, currentCharacteristic, values.get(valueIndex++));
                 }
-                break;
-            case WRITE_STREAM:
-                writeStream();
                 break;
             case LOOKUP_DESC:
                 UUID descId = descriptors.get(descriptorIndex++);
@@ -446,10 +392,7 @@ public class BleFlow {
         descriptorIndex = 0;
         currentCharacteristic = null;
         currentDescriptor = null;
-        inputStream = null;
-        timeout = -1;
         listener = defaultListener;
-        maxNoDevices = MyBleService.MAX_NO_DEVICES;
 
         return this;
     }
@@ -467,28 +410,8 @@ public class BleFlow {
         return this;
     }
 
-    public BleFlow scan(int timeout) {
-        addAction(Action.SCAN);
-        scanServiceFilter = null;
-        this.timeout = timeout;
-        return this;
-    }
-
     private void addAction(Action action) {
         actions.add(new RichAction(action, null));
-    }
-
-    public BleFlow scan(int timeout, int maxNoDevices) {
-        addAction(Action.SCAN);
-        this.maxNoDevices = maxNoDevices;
-        scanServiceFilter = null;
-        this.timeout = timeout;
-        return this;
-    }
-
-    public BleFlow setAddress(String address) {
-        this.address = address;
-        return this;
     }
 
     public BleFlow connect() {
@@ -547,24 +470,6 @@ public class BleFlow {
         return this;
     }
 
-    public BleFlow beginTransaction() {
-        addAction(Action.START_TX);
-        return this;
-    }
-
-    // TODO: If we need this, need to figure out how to make it work at API < 21
-    //
-    //    public BleFlow changeMessageTransferUnitSize(int mtu) {
-    //        actions.add(Action.CHANGE_MTU);
-    //        this.mtu = mtu;
-    //        return this;
-    //    }
-
-    public BleFlow commit() {
-        addAction(Action.COMMIT);
-        return this;
-    }
-
     public BleFlow disconnect() {
         addAction(Action.DISCONNECT);
         return this;
@@ -600,32 +505,6 @@ public class BleFlow {
 
     void close() {
         MyBleService.getBroadcastManager(context).unregisterReceiver(receiver);
-    }
-
-    private void writeStream() {
-        byte[] buffer = new byte[currentBufferSize];
-        try {
-            int read = inputStream.read(buffer);
-            if (read <= 0) {
-                nextAction();
-                return;
-            }
-
-            // we execute the same action again
-            actionIndex--;
-
-            if (read == buffer.length) {
-                client.writeValue(address, currentCharacteristic, buffer);
-                return;
-            }
-
-            byte[] smallerBuffer = new byte[read];
-            System.arraycopy(buffer, 0, smallerBuffer, 0, read);
-            client.writeValue(address, currentCharacteristic, smallerBuffer);
-        } catch (IOException e) {
-            listener.onFailure(new Exception("Failed to read input stream."));
-            flowEnded.set(true);
-        }
     }
 
     public String getAddress() {

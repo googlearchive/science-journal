@@ -19,6 +19,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment"
+    tools:ignore="Overdraw"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"

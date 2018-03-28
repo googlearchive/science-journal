@@ -50,7 +50,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public ViewGroup graphViewGroup;
     public ImageButton menuButton;
     public ImageButton infoButton;
-    public ImageView meterSensorIcon;
+    public RelativeLayout meterSensorIconContainer;
     public SingleLineResizableTextView meterLiveData;
     public ViewGroup statusViewGroup;
     public ProgressBar statusProgressBar;
@@ -79,7 +79,8 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         toggleButtonSpacer = itemView.findViewById(R.id.sensor_card_toggle_spacer);
         menuButton = (ImageButton) itemView.findViewById(R.id.btn_sensor_card_overflow_menu);
         graphViewGroup = (ViewGroup) itemView.findViewById(R.id.graph_view_content_group);
-        meterSensorIcon = (ImageView) itemView.findViewById(R.id.card_meter_sensor_icon);
+        meterSensorIconContainer =
+                (RelativeLayout) itemView.findViewById(R.id.card_meter_sensor_icon_container);
         meterLiveData = (SingleLineResizableTextView) itemView.findViewById(R.id.live_sensor_value);
         statusViewGroup = (ViewGroup) itemView.findViewById(R.id.status_view_content_group);
         statusProgressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar);

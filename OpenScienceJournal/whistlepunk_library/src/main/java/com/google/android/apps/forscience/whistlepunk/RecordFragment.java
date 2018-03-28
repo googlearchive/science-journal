@@ -64,7 +64,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
-import com.google.android.apps.forscience.whistlepunk.sensors.ExperimentalPitchSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
@@ -86,7 +86,6 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
     private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
     private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
     private static final String KEY_EXPERIMENT_ID = "experimentId";
-    private static final String KEY_INFLATE_MENU = "inflateMenu";
 
     private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.METER;
     private static final boolean DEFAULT_AUDIO_ENABLED = false;
@@ -190,10 +189,9 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
     RxEvent mUiStop = new RxEvent();
     RxEvent mContextDetach = new RxEvent();
 
-    public static RecordFragment newInstance(String experimentId, boolean inflateMenu) {
+    public static RecordFragment newInstance(String experimentId) {
         RecordFragment fragment = new RecordFragment();
         Bundle args = new Bundle();
-        args.putBoolean(KEY_INFLATE_MENU, inflateMenu);
         args.putString(KEY_EXPERIMENT_ID, experimentId);
         fragment.setArguments(args);
         return fragment;
@@ -511,10 +509,6 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
         if (mExternalAxis != null) {
             mExternalAxis.setRecordingTimeUpdateListener(listener);
         }
-    }
-
-    private boolean shouldInflateMenu() {
-        return getArguments().getBoolean(KEY_INFLATE_MENU, true);
     }
 
     private String getExperimentId() {
@@ -878,7 +872,7 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
     private void tryStartObserving(SensorCardPresenter sensorCardPresenter, String sensorId,
             RecordingStatus status) {
         if ((TextUtils.equals(sensorId, DecibelSensor.ID) ||
-                        TextUtils.equals(sensorId, ExperimentalPitchSensor.ID)) &&
+                        TextUtils.equals(sensorId, PitchSensor.ID)) &&
                 mSensorCardPresenterForAudio == null &&
                 !PermissionUtils.isPermissionPermanentlyDenied(
                         PermissionUtils.REQUEST_RECORD_AUDIO) &&
@@ -928,13 +922,13 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
         // TODO: Extend this to work for any sensor that doesn't have the permission granted.
         // See b/27439593
         if (availableSensors.contains(DecibelSensor.ID) ||
-                availableSensors.contains(ExperimentalPitchSensor.ID)) {
+                availableSensors.contains(PitchSensor.ID)) {
             for (SensorCardPresenter presenter : sensorCardPresenters) {
                 if (TextUtils.equals(presenter.getSelectedSensorId(), DecibelSensor.ID)) {
                     availableSensors.remove(DecibelSensor.ID);
                 }
-                if (TextUtils.equals(presenter.getSelectedSensorId(), ExperimentalPitchSensor.ID)) {
-                    availableSensors.remove(ExperimentalPitchSensor.ID);
+                if (TextUtils.equals(presenter.getSelectedSensorId(), PitchSensor.ID)) {
+                    availableSensors.remove(PitchSensor.ID);
                 }
             }
         }
@@ -1272,66 +1266,6 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
             mFeatureDiscoveryProvider.show(((AppCompatActivity) getActivity()),
                     FeatureDiscoveryProvider.FEATURE_NEW_EXTERNAL_SENSOR, sensorId);
         }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (getActivity() == null) {
-            return;
-        }
-        if (shouldInflateMenu()) {
-            inflater.inflate(R.menu.menu_record, menu);
-            boolean enableDevTools = DevOptionsFragment.isDevToolsEnabled(getActivity());
-            menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
-            menu.findItem(R.id.action_level).setVisible(enableDevTools);
-            menu.findItem(R.id.action_ruler).setVisible(enableDevTools);
-        }
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(final Menu menu) {
-        if (shouldInflateMenu()) {
-            mRecordingStatus.firstElement().subscribe(status -> {
-                MenuItem addSensors = menu.findItem(R.id.btn_add_sensors);
-                if (addSensors != null) {
-                    addSensors.setVisible(!status.isRecording());
-                }
-                MenuItem expDetails = menu.findItem(R.id.btn_experiment_details);
-                if (expDetails != null) {
-                    expDetails.setVisible(!status.isRecording());
-                }
-            });
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // TODO: This whole menu is never shown. Delete this code.
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_graph_options) {
-            mGraphOptionsController.launchOptionsDialog(mScalarDisplayOptions,
-                    new NewOptionsStorage.SnackbarFailureListener(getView()));
-        } else if (id == R.id.btn_experiment_details) {
-            if (mSelectedExperiment != null) {
-                PanesActivity.launch(getActivity(), mSelectedExperiment.getExperimentId());
-            }
-        } else if (id == R.id.action_ruler) {
-            Intent intent = new Intent(getActivity(), RulerActivity.class);
-            startActivity(intent);
-            return true;
-        } else if (id == R.id.action_level) {
-            Intent intent = new Intent(getActivity(), LevelActivity.class);
-            startActivity(intent);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private RecorderController getRecorderController() {

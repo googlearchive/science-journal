@@ -64,6 +64,13 @@
                 android:icon="@drawable/menu_delete"
                 app:showAsAction="never"
                 />
+            <item
+                android:id="@+id/action_export_experiment"
+                android:orderInCategory="104"
+                android:title="@string/send_copy_action"
+                android:icon="@drawable/menu_share"
+                app:showAsAction="never"
+                />
         </menu>
     </item>
 </menu>

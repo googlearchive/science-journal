@@ -109,6 +109,7 @@ public class ChartController {
     private final FailureListener mDataFailureListener;
     private long mResetTime = -1;
     private String mSensorId;
+    private String mTrialId;
 
     private ZoomPresenter mZoomPresenter;
     // Need to keep track of min/max loaded separately from what is in ChartData,
@@ -503,6 +504,10 @@ public class ChartController {
         mSensorId = sensorId;
     }
 
+    public void setTrialId(String trialId) {
+        mTrialId = trialId;
+    }
+
     public void setRecordingStartTime(long recordingStartTime) {
         mChartOptions.setRecordingStartTime(recordingStartTime);
         if (mChartView != null) {
@@ -542,6 +547,7 @@ public class ChartController {
         mChartOptions.setRecordingTimes(firstTimestamp, lastTimestamp,
                 trial.getOriginalFirstTimestamp(), trial.getOriginalLastTimestamp());
         mSensorId = sensorLayout.sensorId;
+        mTrialId = trial.getTrialId();
         tryLoadingChartData(trial.getTrialId(), sensorLayout, dc,
                 mChartOptions.getRecordingStartTime(), mChartOptions.getRecordingEndTime(), status,
                 stats, fullChartLoadDataCallback, context);
@@ -609,7 +615,7 @@ public class ChartController {
         mCurrentLoadIds.add(graphPopulator.getRequestId());
         graphPopulator.requestObservations(
                 GraphPopulator.constantGraphStatus(firstTimestamp, lastTimestamp), dc,
-                mDataFailureListener, currentTier, mSensorId);
+                mDataFailureListener, currentTier, runId, mSensorId);
     }
 
     private ZoomPresenter getZoomPresenter(TrialStats stats) {
@@ -771,7 +777,7 @@ public class ChartController {
         }, mUptimeClock);
         mCurrentLoadIds.add(graphPopulator.getRequestId());
         graphPopulator.requestObservations(GraphPopulator.constantGraphStatus(minToLoad, maxToLoad),
-                dataController, mDataFailureListener, currentTier, mSensorId);
+                dataController, mDataFailureListener, currentTier, mTrialId, mSensorId);
 
         callChartDataStartLoadingCallbacks(chartHiddenForLoad);
     }

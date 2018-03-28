@@ -24,8 +24,8 @@
     android:paddingBottom="4dp"
     >
 
-    <ImageView
-        android:id="@+id/large_icon"
+    <RelativeLayout
+        android:id="@+id/large_icon_container"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_alignParentStart="true"
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_toEndOf="@id/large_icon"
+        android:layout_toEndOf="@id/large_icon_container"
         android:textColor="@color/text_color_light_grey"
         android:textSize="16sp"
         android:drawablePadding="4dp"
@@ -55,7 +55,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_below="@id/sensor_name"
-        android:layout_toEndOf="@id/large_icon"
+        android:layout_toEndOf="@id/large_icon_container"
         android:textColor="@color/text_color_dark_grey"
         android:textSize="32sp"
         android:textStyle="bold"

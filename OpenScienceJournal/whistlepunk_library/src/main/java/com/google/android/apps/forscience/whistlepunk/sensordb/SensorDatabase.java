@@ -16,6 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
+import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
+
+import java.util.List;
+
 import io.reactivex.Observable;
 
 /**
@@ -25,13 +31,21 @@ import io.reactivex.Observable;
 public interface SensorDatabase {
 
     /**
-     * See {@link #getScalarReadings(String, TimeRange, int, int)} for semantics of these params
+     * Add all of the readings to the database.
      */
-    void addScalarReading(String sensorTag, int resolutionTier, long timestampMillis, double value);
+    void addScalarReadings(List<BatchInsertScalarReading> readings);
+
+    /**
+     * See {@link #getScalarReadings(String, String, TimeRange, int, int)}
+     * for semantics of these params
+     */
+    void addScalarReading(String trialId, String sensorTag, int resolutionTier,
+                          long timestampMillis, double value);
 
     /**
      * Get stored scalar records
      *
+     * @param trialId    get records from this trial.
      * @param sensorTag  get records with this tag
      * @param range      specifies both the timestamps of interest, and the order in which records
      *                   should be returned
@@ -42,8 +56,8 @@ public interface SensorDatabase {
      *                   range#getOrder
      * @return a list of readings read from the database
      */
-    ScalarReadingList getScalarReadings(String sensorTag, TimeRange range, int resolutionTier,
-            int maxRecords);
+    ScalarReadingList getScalarReadings(String trialId, String sensorTag, TimeRange range,
+                                        int resolutionTier, int maxRecords);
 
     /**
      * Find the first sensor reading after {@code timestamp}.  Return the database tag that
@@ -55,8 +69,16 @@ public interface SensorDatabase {
     /**
      * Deletes the scalar records for the given sensor for the given time range.
      */
-    void deleteScalarReadings(String sensorTag, TimeRange range);
+    void deleteScalarReadings(String trialId, String sensorTag, TimeRange range);
 
-    Observable<ScalarReading> createScalarObservable(String[] sensorTags, TimeRange range,
-            int resolutionTier);
+    Observable<ScalarReading> createScalarObservable(String trialId, String[] sensorTags,
+                                                     TimeRange range, int resolutionTier);
+
+    /**
+     * Get a proto that contains all of the sensor data for the given experiment. Primarily used
+     * for exporting experiments from the app.
+     */
+    GoosciScalarSensorData.ScalarSensorData getScalarReadingProtos(
+            GoosciExperiment.Experiment experiment);
+
 }

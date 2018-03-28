@@ -84,6 +84,8 @@ public final class TrackerConstants {
     public static final String ACTION_READ_FAILED = "ReadFailed";
     public static final String ACTION_PAUSED = "Paused";
     public static final String ACTION_LABEL_ADDED = "LabelAdded";
+    public static final String ACTION_SHARED = "Shared";
+    public static final String ACTION_IMPORTED = "Imported";
 
     // Labels
     public static final String LABEL_RECORD = "record";

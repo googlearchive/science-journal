@@ -20,5 +20,11 @@
         android:title="@string/delete_note_menu_item"
         android:id="@+id/btn_delete_note"
         />
+    <item
+        android:title="@string/export_action"
+        android:id="@+id/btn_share_photo"
+        android:visible="false"
+        />
+
 
 </menu>

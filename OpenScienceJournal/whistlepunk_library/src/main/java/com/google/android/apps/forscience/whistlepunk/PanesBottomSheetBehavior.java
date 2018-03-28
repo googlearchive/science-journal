@@ -16,8 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -49,6 +47,8 @@ import android.view.ViewParent;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 /**
  * An interaction behavior plugin for a child view of {@link CoordinatorLayout} to make it work as
  * a bottom sheet that has a mid-height stop, STATE_MIDDLE.
@@ -59,6 +59,7 @@ import java.lang.ref.WeakReference;
 public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
     private static final String TAG = "PanesBottomSheetBehavior";
     private View mViewToKeepVisibleIfPossible;
+    private boolean mAllowHalfHeightDrawerInLandscape = false;
 
     /**
      * Callback for monitoring events about bottom sheets.
@@ -167,6 +168,12 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
         ViewConfiguration configuration = ViewConfiguration.get(context);
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
     }
+
+
+    public void setAllowHalfHeightDrawerInLandscape(boolean allowHalfHeightDrawerInLandscape) {
+        mAllowHalfHeightDrawerInLandscape = allowHalfHeightDrawerInLandscape;
+    }
+
     @Override
     public Parcelable onSaveInstanceState(CoordinatorLayout parent, V child) {
         return new SavedState(super.onSaveInstanceState(parent, child), mState);
@@ -210,7 +217,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
         }
         mMinOffset = Math.max(0, mParentHeight - child.getHeight());
         mMaxOffset = Math.max(mParentHeight - peekHeight, mMinOffset);
-        if (mState == STATE_EXPANDED || (mState == STATE_MIDDLE && isLandscape(child))) {
+        if (mState == STATE_EXPANDED || (mState == STATE_MIDDLE && suppressMiddleDrawer(child))) {
             ViewCompat.offsetTopAndBottom(child, mMinOffset);
         } else if (mState == STATE_COLLAPSED) {
             ViewCompat.offsetTopAndBottom(child, mMaxOffset);
@@ -239,7 +246,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             // We're at a space premium.  Show just enough drawer to keep the target view entirely
             // visible.  (Assumes target view is just below tool tabs)
             int height = mViewToKeepVisibleIfPossible.getHeight();
-            return Math.max(mMaxOffset - height, mMinOffset);
+            return Math.min(midOffset, Math.max(mMaxOffset - height, mMinOffset));
         }
     }
 
@@ -580,7 +587,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
         int top;
         if (state == STATE_COLLAPSED) {
             top = mMaxOffset;
-        } else if (state == STATE_EXPANDED || (state == STATE_MIDDLE && isLandscape(child))) {
+        } else if (state == STATE_EXPANDED || (state == STATE_MIDDLE && suppressMiddleDrawer(child))) {
             top = mMinOffset;
         } else if (state == STATE_MIDDLE) {
             // Added for PanesBottomSheetBehavior.
@@ -628,7 +635,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
             int top;
             @State int targetState;
             int currentTop = releasedChild.getTop();
-            boolean isLandscape = isLandscape(releasedChild);
+            boolean isLandscape = suppressMiddleDrawer(releasedChild);
             if (yvel < 0) { // Moving up
                 // Adjusted for PanesBottomSheetBehavior to have 1/3 or less of the distance stop at
                 // the middle, and >1/3 of the distance go up to expanded.
@@ -765,9 +772,11 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
         return (mMaxOffset - mMinOffset) / 2;
     }
 
-    private boolean isLandscape(View view) {
-        return view.getContext().getResources().getConfiguration().orientation ==
-                Configuration.ORIENTATION_LANDSCAPE;
+    // On some devices, landscape is too short to have a useful half-height drawer
+    private boolean suppressMiddleDrawer(View view) {
+        return !mAllowHalfHeightDrawerInLandscape
+               && view.getContext().getResources().getConfiguration().orientation
+                  == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     /**

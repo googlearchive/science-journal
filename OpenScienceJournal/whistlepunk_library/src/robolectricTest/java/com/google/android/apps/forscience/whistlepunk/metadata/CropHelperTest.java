@@ -140,7 +140,7 @@ public class CropHelperTest {
         mDataController.updateExperiment(experiment.getExperimentId(),
                 TestConsumers.<Success>expectingSuccess());
 
-        mDataController.addScalarReading("sensor", 0, 50, 50);
+        mDataController.addScalarReading(trial.getTrialId(), "sensor", 0, 50, 50);
         setEmptyStats(experiment, trial.getTrialId());
 
         CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
@@ -164,10 +164,10 @@ public class CropHelperTest {
         mDataController.updateExperiment(experiment.getExperimentId(),
                 TestConsumers.<Success>expectingSuccess());
 
-        mDataController.addScalarReading("sensor", 0, 1, 1); // This gets cropped out
-        mDataController.addScalarReading("sensor", 0, 50, 50);
-        mDataController.addScalarReading("sensor", 0, 60, 60);
-        mDataController.addScalarReading("sensor", 0, 70, 70);
+        mDataController.addScalarReading(trial.getTrialId(), "sensor", 0, 1, 1); // This gets cropped out
+        mDataController.addScalarReading(trial.getTrialId(), "sensor", 0, 50, 50);
+        mDataController.addScalarReading(trial.getTrialId(), "sensor", 0, 60, 60);
+        mDataController.addScalarReading(trial.getTrialId(), "sensor", 0, 70, 70);
         setEmptyStats(experiment, trial.getTrialId());
         CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);
         cropHelper.cropTrial(null, experiment, trial.getTrialId(), 2, 1008, mCropTrialListener);

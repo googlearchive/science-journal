@@ -381,8 +381,9 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             public void startRecording(String runId) {
                 mRunId = runId;
                 statsAccumulator.clearStats();
+                zoomRecorder.setTrialId(runId);
                 zoomRecorder.clear();
-                consumer.startRecording();
+                consumer.startRecording(mRunId);
                 super.startRecording(runId);
             }
 
@@ -400,6 +401,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
                 }
                 consumer.stopRecording();
                 statsAccumulator.clearStats();
+                zoomRecorder.clearTrialId();
             }
 
             @Override
@@ -460,6 +462,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         private long mLastDataTimestampMillis = NO_DATA_RECORDED;
         private long mTimestampBeforeRecordingStart = NO_DATA_RECORDED;
         private SensorMessage.Pool mMessagePool;
+        private String mRunId = null;
 
         public ScalarStreamConsumer(StatsAccumulator statsAccumulator,
                 SensorObserver observer, RecordingDataController dataController,
@@ -470,9 +473,10 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             mMessagePool = new SensorMessage.Pool(observer);
         }
 
-        public void startRecording() {
+        public void startRecording(String runId) {
             mIsRecording = true;
             mTimestampBeforeRecordingStart = mLastDataTimestampMillis;
+            mRunId = runId;
         }
 
         public void stopRecording() {
@@ -517,7 +521,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         public void recordData(long timestampMillis, double value) {
             if (mIsRecording) {
                 mZoomRecorder.addData(timestampMillis, value, mDataController);
-                mDataController.addScalarReading(getId(), 0, timestampMillis, value);
+                mDataController.addScalarReading(mRunId, getId(), 0, timestampMillis, value);
             }
         }
 

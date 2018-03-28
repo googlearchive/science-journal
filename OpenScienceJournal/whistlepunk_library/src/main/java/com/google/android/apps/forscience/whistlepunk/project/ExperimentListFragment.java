@@ -19,7 +19,6 @@ package com.google.android.apps.forscience.whistlepunk.project;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -47,11 +46,12 @@ import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
-import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -79,7 +79,6 @@ import java.util.List;
  */
 public class ExperimentListFragment extends Fragment implements
         DeleteMetadataItemDialog.DeleteDialogListener {
-
     private static final String TAG = "ExperimentListFragment";
 
     /**
@@ -91,6 +90,8 @@ public class ExperimentListFragment extends Fragment implements
 
     private ExperimentListAdapter mExperimentListAdapter;
     private boolean mIncludeArchived;
+    private boolean mProgressBarVisible = false;
+    private RxEvent mDestroyed = new RxEvent();
 
     public static ExperimentListFragment newInstance(boolean usePanes) {
         ExperimentListFragment fragment = new ExperimentListFragment();
@@ -106,6 +107,10 @@ public class ExperimentListFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppSingleton.getInstance(getContext()).whenExportBusyChanges()
+                .takeUntil(mDestroyed.happens()).subscribe(busy -> {
+            setProgressBarVisible(busy);
+        });
         if (savedInstanceState != null) {
             mIncludeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
             getActivity().invalidateOptionsMenu();
@@ -123,6 +128,7 @@ public class ExperimentListFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
+        setProgressBarVisible(mProgressBarVisible);
         loadExperiments();
     }
 
@@ -136,12 +142,13 @@ public class ExperimentListFragment extends Fragment implements
     public void onDestroy() {
         // TODO: Use RxEvent here
         mExperimentListAdapter.onDestroy();
+        mDestroyed.onHappened();
         super.onDestroy();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_experiment_list, container, false);
         final RecyclerView detailList = (RecyclerView) view.findViewById(R.id.details);
 
@@ -170,11 +177,16 @@ public class ExperimentListFragment extends Fragment implements
                                         TrackerConstants.ACTION_CREATE,
                                         TrackerConstants.LABEL_EXPERIMENT_LIST,
                                         0);
-                        PanesActivity.launch(v.getContext(), experiment.getExperimentId());
+                        launchPanesActivity(v.getContext(), experiment.getExperimentId());
                     }
                 }));
 
         return view;
+    }
+
+    public static void launchPanesActivity(Context context, String experimentId) {
+        context.startActivity(
+                WhistlePunkApplication.getLaunchIntentForPanesActivity(context, experimentId));
     }
 
     private void loadExperiments() {
@@ -266,6 +278,17 @@ public class ExperimentListFragment extends Fragment implements
 
     private DataController getDataController() {
         return AppSingleton.getInstance(getActivity()).getDataController();
+    }
+
+    public void setProgressBarVisible(boolean visible) {
+        mProgressBarVisible = visible;
+        if (getView() != null) {
+            if (visible) {
+                getView().findViewById(R.id.indeterminateBar).setVisibility(View.VISIBLE);
+            } else {
+                getView().findViewById(R.id.indeterminateBar).setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
@@ -421,7 +444,7 @@ public class ExperimentListFragment extends Fragment implements
             if (mItems.get(position).viewType == VIEW_TYPE_EXPERIMENT) {
                 bindExperiment(holder, mItems.get(position));
             } else if (mItems.get(position).viewType == VIEW_TYPE_DATE) {
-                ((TextView)holder.itemView).setText(mItems.get(position).dateString);
+                ((TextView) holder.itemView).setText(mItems.get(position).dateString);
             }
         }
 
@@ -432,7 +455,7 @@ public class ExperimentListFragment extends Fragment implements
 
         @Override
         public int getItemViewType(int position) {
-            if (mItems.size() == 0){
+            if (mItems.size() == 0) {
                 return VIEW_TYPE_EMPTY;
             } else {
                 return mItems.get(position).viewType;
@@ -468,12 +491,15 @@ public class ExperimentListFragment extends Fragment implements
             holder.itemView.setTag(R.id.experiment_title, overview.experimentId);
 
             holder.cardView.setOnClickListener(v -> {
-                PanesActivity.launch(v.getContext(), overview.experimentId);
+                launchPanesActivity(v.getContext(), overview.experimentId);
             });
+
+            Context context = holder.menuButton.getContext();
+            boolean isShareIntentValid = FileMetadataManager.validateShareIntent(context,
+                    overview.experimentId);
 
             holder.menuButton.setOnClickListener(v -> {
                 int position = mItems.indexOf(item);
-                Context context = holder.menuButton.getContext();
                 mPopupMenu = new PopupMenu(context, holder.menuButton, Gravity.NO_GRAVITY,
                         R.attr.actionOverflowMenuStyle, 0);
                 mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_overview,
@@ -482,6 +508,9 @@ public class ExperimentListFragment extends Fragment implements
                         !overview.isArchived);
                 mPopupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(
                         overview.isArchived);
+                mPopupMenu.getMenu().findItem(R.id.menu_item_export_experiment).setVisible(
+                        isShareIntentValid && !overview.isArchived);
+
                 mPopupMenu.setOnMenuItemClickListener(menuItem -> {
                     if (menuItem.getItemId() == R.id.menu_item_archive) {
                         setExperimentArchived(overview, position, true);
@@ -492,6 +521,15 @@ public class ExperimentListFragment extends Fragment implements
                     } else if (menuItem.getItemId() == R.id.menu_item_delete) {
                         mSnackbarManager.hideVisibleSnackbar();
                         mParentReference.get().confirmDelete(overview.experimentId);
+                        return true;
+                    } else if (menuItem.getItemId() == R.id.menu_item_export_experiment) {
+                        WhistlePunkApplication.getUsageTracker(
+                                mParentReference.get().getActivity())
+                                .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                                        TrackerConstants.ACTION_SHARED,
+                                        TrackerConstants.LABEL_EXPERIMENT_LIST, 0);
+                        mParentReference.get().setProgressBarVisible(true);
+                        ExportService.handleExperimentExportClick(context, overview.experimentId);
                         return true;
                     }
                     return false;
@@ -508,9 +546,9 @@ public class ExperimentListFragment extends Fragment implements
                 holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 holder.experimentImage.setImageDrawable(mPlaceHolderImage);
                 int[] intArray = holder.experimentImage.getContext()
-                                                       .getResources()
-                                                       .getIntArray(
-                                                               R.array.experiment_colors_array);
+                        .getResources()
+                        .getIntArray(
+                                R.array.experiment_colors_array);
                 holder.experimentImage.setBackgroundColor(intArray[overview.colorIndex]);
             }
         }
@@ -565,7 +603,8 @@ public class ExperimentListFragment extends Fragment implements
                     Snackbar.LENGTH_LONG);
             if (archived) {
                 // We only seem to show "undo" for archiving items, not unarchiving them.
-                bar.setAction(R.string.action_undo, view -> setExperimentArchived(overview, position, !archived));
+                bar.setAction(R.string.action_undo,
+                        view -> setExperimentArchived(overview, position, !archived));
             }
             mSnackbarManager.showSnackbar(bar);
         }

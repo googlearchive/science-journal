@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
@@ -96,7 +97,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         }
 
         if (label.getType() != GoosciLabel.Label.SENSOR_TRIGGER &&
-            label.getType() != GoosciLabel.Label.SNAPSHOT) {
+                label.getType() != GoosciLabel.Label.SNAPSHOT) {
             valuesList.setVisibility(View.GONE);
         } else {
             if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
@@ -159,7 +160,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
 
             loadLargeDrawable(appearance,
                     AppSingleton.getInstance(context).getSensorAppearanceProvider(),
-                    snapshotLayout);
+                    snapshotLayout, snapshot.value);
         }
     }
 
@@ -206,7 +207,8 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
                 String.format(valueFormat, value,
                         appearance.units));
         loadLargeDrawable(appearance,
-                AppSingleton.getInstance(context).getSensorAppearanceProvider(), valuesList);
+                AppSingleton.getInstance(context).getSensorAppearanceProvider(), valuesList,
+                labelValue.triggerInformation.valueToTrigger);
     }
 
     private static GoosciSensorAppearance.BasicSensorAppearance createDefaultAppearance() {
@@ -214,19 +216,22 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     }
 
     private static void loadLargeDrawable(GoosciSensorAppearance.BasicSensorAppearance appearance,
-            SensorAppearanceProvider appearanceProvider, ViewGroup layout) {
+            SensorAppearanceProvider appearanceProvider, ViewGroup layout, double value) {
         GoosciIcon.IconPath iconPath = appearance.largeIconPath;
-        SensorAppearance sa = getSensorAppearance(iconPath, appearanceProvider);
+        SensorAppearance sa = getSensorAppearance(appearance, appearanceProvider);
         if (sa != null) {
             SensorAnimationBehavior behavior = sa.getSensorAnimationBehavior();
-            behavior.initializeLargeIcon(((ImageView) layout.findViewById(R.id.large_icon)));
+            behavior.initializeLargeIcon(
+                    (RelativeLayout) layout.findViewById(R.id.large_icon_container), value);
         }
     }
 
-    private static SensorAppearance getSensorAppearance(GoosciIcon.IconPath iconPath,
+    private static SensorAppearance getSensorAppearance(
+            GoosciSensorAppearance.BasicSensorAppearance appearance,
             SensorAppearanceProvider appearanceProvider) {
+        GoosciIcon.IconPath iconPath = appearance.iconPath;
         if (iconPath == null) {
-            return null;
+            return new ProtoSensorAppearance(appearance);
         }
         switch (iconPath.type) {
             case GoosciIcon.IconPath.BUILTIN:
@@ -234,6 +239,8 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
             case GoosciIcon.IconPath.LEGACY_ANDROID_BLE:
                 return SensorTypeProvider.getSensorAppearance(Integer.valueOf(iconPath.pathString),
                         "");
+            case GoosciIcon.IconPath.PROTO:
+                return new ProtoSensorAppearance(appearance);
         }
         return null;
     }

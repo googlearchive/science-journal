@@ -54,12 +54,12 @@ public class DataControllerUnitTest {
         controller.setDataErrorListenerForSensor("tag",
                 ExplodingFactory.makeListener());
 
-        controller.addScalarReading("tag", 0, 1234, 12.34);
+        controller.addScalarReading("runId", "tag", 0, 1234, 12.34);
 
         List<InMemorySensorDatabase.Reading> readings = db.getReadings(0);
         assertEquals(1, readings.size());
         InMemorySensorDatabase.Reading reading = readings.get(0);
-        assertEquals("tag", reading.getDatabaseTag());
+        assertEquals("runId", "tag", reading.getDatabaseTag());
         assertEquals(1234, reading.getTimestampMillis());
         assertEquals(12.34, reading.getValue(), 0.001);
     }

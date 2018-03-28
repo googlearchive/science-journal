@@ -20,7 +20,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
@@ -67,6 +66,7 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
 import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
+import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
@@ -172,8 +172,8 @@ public class RunReviewFragment extends Fragment implements
      * this fragment using the provided parameters.
      *
      * @param startLabelId the startLabelId that joins the labels identifying this run
-     * @param sensorIndex the initial sensor to select in run review
-     * @param createTask if {@code true}, will create tasks when navigating up
+     * @param sensorIndex  the initial sensor to select in run review
+     * @param createTask   if {@code true}, will create tasks when navigating up
      * @return A new instance of fragment RunReviewFragment.
      */
     public static RunReviewFragment newInstance(String experimentId, String startLabelId,
@@ -365,7 +365,7 @@ public class RunReviewFragment extends Fragment implements
                             mAudioPlaybackController.startPlayback(getDataController(),
                                     getTrial().getFirstTimestamp(),
                                     getTrial().getLastTimestamp(),
-                                    mRunReviewOverlay.getTimestamp(),
+                                    mRunReviewOverlay.getTimestamp(), getRunId(),
                                     getSensorId());
                         }
                     }
@@ -416,10 +416,10 @@ public class RunReviewFragment extends Fragment implements
                 // If playback is loading, don't do anything.
                 if (mAudioPlaybackController.isPlaying()) {
                     mAudioPlaybackController.stopPlayback();
-                } else if (mAudioPlaybackController.isNotPlaying()){
+                } else if (mAudioPlaybackController.isNotPlaying()) {
                     mAudioPlaybackController.startPlayback(getDataController(),
                             getTrial().getFirstTimestamp(), getTrial().getLastTimestamp(),
-                            mRunReviewOverlay.getTimestamp(), getSensorId());
+                            mRunReviewOverlay.getTimestamp(), getRunId(), getSensorId());
                 }
             }
         });
@@ -465,8 +465,6 @@ public class RunReviewFragment extends Fragment implements
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_export).setVisible(AgeVerifier.isOver13(
-                AgeVerifier.getUserAge(getActivity())));
         menu.findItem(R.id.action_graph_options).setVisible(false);  // b/29771945
 
         // Hide some menu buttons if the run isn't loaded yet.
@@ -483,7 +481,7 @@ public class RunReviewFragment extends Fragment implements
             menu.findItem(R.id.action_run_review_crop).setEnabled(
                     CropHelper.experimentIsLongEnoughForCrop(getTrial()));
 
-            menu.findItem(R.id.action_export).setVisible(true);
+            menu.findItem(R.id.action_export).setVisible(shouldShowExport());
         } else {
             menu.findItem(R.id.action_run_review_archive).setVisible(false);
             menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
@@ -500,6 +498,10 @@ public class RunReviewFragment extends Fragment implements
         }
 
         super.onPrepareOptionsMenu(menu);
+    }
+
+    private boolean shouldShowExport() {
+        return AgeVerifier.isOver13(AgeVerifier.getUserAge(getActivity()));
     }
 
     @Override
@@ -613,7 +615,7 @@ public class RunReviewFragment extends Fragment implements
                             getActivity().invalidateOptionsMenu();
                         }
                     }
-        });
+                });
     }
 
     private void adjustYAxis() {
@@ -801,7 +803,7 @@ public class RunReviewFragment extends Fragment implements
                         getTrial().getFirstTimestamp(),
                         getTrial().getLastTimestamp(),
                         mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP),
-                        getSensorId());
+                        getRunId(), getSensorId());
             }
             // If this isn't the first time we've made a view, check if the timepicker UI is up.
             if (mSavedInstanceStateForLoad.getBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE)) {
@@ -840,10 +842,10 @@ public class RunReviewFragment extends Fragment implements
             mPinnedNoteAdapter.onLabelAdded(item.getLabel());
             mChartController.setLabels(getTrial().getLabels());
             WhistlePunkApplication.getUsageTracker(getActivity())
-                                  .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                          TrackerConstants.ACTION_DELETE_UNDO,
-                                          TrackerConstants.LABEL_RUN_REVIEW,
-                                          TrackerConstants.getLabelValueType(item.getLabel()));
+                    .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                            TrackerConstants.ACTION_DELETE_UNDO,
+                            TrackerConstants.LABEL_RUN_REVIEW,
+                            TrackerConstants.getLabelValueType(item.getLabel()));
         });
 
         mPinnedNoteAdapter.onLabelUpdated(item.getLabel());
@@ -1020,8 +1022,10 @@ public class RunReviewFragment extends Fragment implements
             statsList.clearStats();
             mChartController.updateStats(Collections.<StreamStat>emptyList());
         } else {
-            NumberFormat numberFormat = AppSingleton.getInstance(getActivity())
-                    .getSensorAppearanceProvider().getAppearance(layout.sensorId).getNumberFormat();
+            NumberFormat numberFormat = ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
+                    getTrial().getAppearances().get(layout.sensorId), layout.sensorId,
+                    AppSingleton.getInstance(getActivity())
+                            .getSensorAppearanceProvider()).getNumberFormat();
             List<StreamStat> streamStats = new StatsAccumulator.StatsDisplay(numberFormat)
                     .updateStreamStats(trialStats);
             statsList.updateStats(streamStats);
@@ -1093,7 +1097,8 @@ public class RunReviewFragment extends Fragment implements
                 durationText.getContext());
         durationText.setText(formatter.format(
                 trial.elapsedSeconds()));
-        durationText.setContentDescription(formatter.formatForAccessibility(trial.elapsedSeconds()));
+        durationText.setContentDescription(
+                formatter.formatForAccessibility(trial.elapsedSeconds()));
     }
 
     private void setArchivedUi(View rootView, boolean isArchived) {
@@ -1132,7 +1137,7 @@ public class RunReviewFragment extends Fragment implements
             });
             String prevSensorId = sensorIds.get(position - 1);
             updateContentDescription(prevButton, R.string.run_review_switch_sensor_btn_prev,
-                    prevSensorId, getActivity());
+                    prevSensorId, getActivity(), getTrial());
         }
         if (hasNextButton) {
             nextButton.setOnClickListener(new View.OnClickListener() {
@@ -1144,28 +1149,29 @@ public class RunReviewFragment extends Fragment implements
             });
             String nextSensorId = sensorIds.get(position + 1);
             updateContentDescription(nextButton, R.string.run_review_switch_sensor_btn_next,
-                    nextSensorId, getActivity());
+                    nextSensorId, getActivity(), getTrial());
         }
     }
 
     public static void updateContentDescription(ImageButton button, int stringId, String sensorId,
-                                                Context context) {
-        SensorAppearance appearance = AppSingleton.getInstance(context)
-                .getSensorAppearanceProvider()
-                .getAppearance(sensorId);
-        String content = context.getResources().getString(stringId, appearance.getName(context));
+            Context context, Trial trial) {
+        String content = ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
+                trial.getAppearances().get(sensorId),
+                sensorId, AppSingleton.getInstance(context)
+                        .getSensorAppearanceProvider()).getName(context);
         button.setContentDescription(content);
     }
 
     private void populateSensorViews(View rootView, GoosciSensorLayout.SensorLayout sensorLayout) {
         final Context context = rootView.getContext();
-        final SensorAppearance appearance = AppSingleton.getInstance(context)
-                .getSensorAppearanceProvider().getAppearance(sensorLayout.sensorId);
         final TextView sensorNameText = (TextView) rootView.findViewById(
                 R.id.run_review_sensor_name);
-        sensorNameText.setText(Appearances.getSensorDisplayName(appearance, context));
+        sensorNameText.setText(getTrial().getAppearances().get(sensorLayout.sensorId).name);
         final ImageView sensorIconImage = (ImageView) rootView.findViewById(
                 R.id.sensor_icon);
+        final SensorAppearance appearance = ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
+                getTrial().getAppearances().get(sensorLayout.sensorId), sensorLayout.sensorId,
+                AppSingleton.getInstance(context).getSensorAppearanceProvider());
         Appearances.applyDrawableToImageView(appearance.getIconDrawable(context), sensorIconImage,
                 context.getResources().getIntArray(
                         R.array.graph_colors_array)[sensorLayout.colorIndex]);
@@ -1193,10 +1199,10 @@ public class RunReviewFragment extends Fragment implements
                         mPinnedNoteAdapter.onLabelAdded(newLabel);
                         mChartController.setLabels(getTrial().getLabels());
                         WhistlePunkApplication.getUsageTracker(getActivity())
-                                              .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                                      TrackerConstants.ACTION_CREATE,
-                                                      TrackerConstants.LABEL_RUN_REVIEW,
-                                                      TrackerConstants.getLabelValueType(newLabel));
+                                .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                        TrackerConstants.ACTION_CREATE,
+                                        TrackerConstants.LABEL_RUN_REVIEW,
+                                        TrackerConstants.getLabelValueType(newLabel));
                     }
                 };
             }
@@ -1298,7 +1304,7 @@ public class RunReviewFragment extends Fragment implements
                                 dismissEditTimeDialog();
                             }
                         }
-            });
+                    });
             EditLabelTimeDialog dialog = (EditLabelTimeDialog) getChildFragmentManager()
                     .findFragmentByTag(EditLabelTimeDialog.TAG);
             if (dialog != null) {

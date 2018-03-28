@@ -42,6 +42,7 @@ public class ZoomRecorder {
     private final int mZoomBufferSize;
     private final int mTier;
 
+    private String mTrialId = null;
     private int mSeenThisPass = 0;
     private long mTimestampOfMinSeen;
     private double mValueOfMinSeen;
@@ -67,6 +68,21 @@ public class ZoomRecorder {
         resetBuffer();
     }
 
+    public void clearTrialId() {
+        mTrialId = null;
+        if (mNextTierUp != null) {
+            mNextTierUp.clearTrialId();
+        }
+    }
+
+    public void setTrialId(String trialId) {
+        mTrialId = trialId;
+        if (mNextTierUp != null) {
+            mNextTierUp.setTrialId(trialId);
+        }
+    }
+
+
     private void resetBuffer() {
         mSeenThisPass = 0;
         mValueOfMinSeen = Double.MAX_VALUE;
@@ -91,13 +107,14 @@ public class ZoomRecorder {
 
     private void addReadingAtThisTier(RecordingDataController dc, long timestamp,
             double value) {
-        dc.addScalarReading(mSensorId, mTier, timestamp, value);
+        dc.addScalarReading(mTrialId, mSensorId, mTier, timestamp, value);
         getNextTierUp().addData(timestamp, value, dc);
     }
 
     private ZoomRecorder getNextTierUp() {
         if (mNextTierUp == null) {
             mNextTierUp = new ZoomRecorder(mSensorId, mZoomBufferSize, mTier + 1);
+            mNextTierUp.setTrialId(mTrialId);
         }
         return mNextTierUp;
     }

@@ -25,6 +25,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBar;
@@ -57,14 +58,16 @@ import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
+import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
-import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
+import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
@@ -72,6 +75,7 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
@@ -97,8 +101,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 
@@ -108,6 +114,15 @@ import io.reactivex.subjects.BehaviorSubject;
 public class ExperimentDetailsFragment extends Fragment
         implements DeleteMetadataItemDialog.DeleteDialogListener,
         NameExperimentDialog.OnExperimentTitleChangeListener {
+
+    public interface Listener {
+        void onArchivedStateChanged(Experiment changed);
+    }
+
+    public interface ListenerProvider {
+        Listener getExperimentDetailsFragmentListener();
+    }
+
 
     public static final String ARG_EXPERIMENT_ID = "experiment_id";
     public static final String ARG_CREATE_TASK = "create_task";
@@ -129,14 +144,17 @@ public class ExperimentDetailsFragment extends Fragment
     private BroadcastReceiver mBroadcastReceiver;
     private String mActiveTrialId;
     private TextView mEmptyView;
+    private ProgressBar mProgressBar;
+    private boolean mProgressVisible = false;
+    private RxEvent mDestroyed = new RxEvent();
 
     /**
      * Creates a new instance of this fragment.
      *
-     * @param experimentId      Experiment ID to display
-     * @param createTaskStack   If {@code true}, then navigating home requires building a task stack
-     *                          up to the experiment list. If {@code false}, use the default
-     *                          navigation.
+     * @param experimentId    Experiment ID to display
+     * @param createTaskStack If {@code true}, then navigating home requires building a task stack
+     *                        up to the experiment list. If {@code false}, use the default
+     *                        navigation.
      */
     public static ExperimentDetailsFragment newInstance(String experimentId,
             boolean createTaskStack) {
@@ -154,6 +172,10 @@ public class ExperimentDetailsFragment extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppSingleton.getInstance(getContext()).whenExportBusyChanges().takeUntil(
+                mDestroyed.happens()).subscribe(busy -> {
+            setProgressBarVisible(busy);
+        });
         mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
         setHasOptionsMenu(true);
     }
@@ -194,16 +216,19 @@ public class ExperimentDetailsFragment extends Fragment
         if (label != null) {
             onLabelDelete(label);
         }
+        setProgressBarVisible(mProgressVisible);
     }
 
     @Override
     public void onDestroy() {
         mAdapter.onDestroy();
+        mDestroyed.onHappened();
         super.onDestroy();
     }
 
     public void reloadWithoutScroll() {
-        loadExperimentIfInitialized().subscribe(() -> {}, onReloadError());
+        loadExperimentIfInitialized().subscribe(() -> {
+        }, onReloadError());
     }
 
     @NonNull
@@ -218,17 +243,17 @@ public class ExperimentDetailsFragment extends Fragment
             return Completable.complete();
         }
         return RxDataController.getExperimentById(getDataController(), mExperimentId)
-                               .doOnSuccess(experiment -> {
-                                   if (experiment == null) {
-                                       // This was deleted on us. Finish and return so we don't
-                                       // try to load.
-                                       getActivity().finish();
-                                       return;
-                                   }
-                                   attachExperimentDetails(experiment);
-                                   loadExperimentData(experiment);
-                               })
-                               .toCompletable();
+                .doOnSuccess(experiment -> {
+                    if (experiment == null) {
+                        // This was deleted on us. Finish and return so we don't
+                        // try to load.
+                        getActivity().finish();
+                        return;
+                    }
+                    attachExperimentDetails(experiment);
+                    loadExperimentData(experiment);
+                })
+                .toCompletable();
     }
 
     @Override
@@ -250,7 +275,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_panes_experiment_details, container, false);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -264,6 +289,8 @@ public class ExperimentDetailsFragment extends Fragment
         mEmptyView.setText(R.string.empty_experiment);
         mEmptyView.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null,
                 view.getResources().getDrawable(R.drawable.empty_run));
+
+        mProgressBar = (ProgressBar) view.findViewById(R.id.detailsIndeterminateBar);
 
         mDetails = (RecyclerView) view.findViewById(R.id.details_list);
         mDetails.setLayoutManager(new LinearLayoutManager(view.getContext(),
@@ -346,6 +373,27 @@ public class ExperimentDetailsFragment extends Fragment
             mActiveTrialId = null;
         }
         getActivity().invalidateOptionsMenu();
+        if (mDetails != null) {
+            // We want to scroll to the bottom to show the new recording, but first check whether
+            // the details list's height is more than zero. Scrolling doesn't work if a View's
+            // height is zero.
+            if (mDetails.getHeight() > 0) {
+                scrollToBottom();
+            } else {
+                // Delay calling scrollToBottom until the details lists's height is no longer zero,
+                // or give up if 1 second elapses.
+                RxEvent done = new RxEvent();
+                Observable.interval(100, TimeUnit.MILLISECONDS)
+                        .take(10)
+                        .takeUntil(done.happens())
+                        .subscribe(n -> {
+                            if (mDetails.getHeight() > 0) {
+                                scrollToBottom();
+                                done.onHappened();
+                            }
+                        });
+            }
+        }
     }
 
     // Sets the actionBar home button to opaque to indicate it is disabled.
@@ -414,6 +462,13 @@ public class ExperimentDetailsFragment extends Fragment
         menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
         menu.findItem(R.id.action_edit_experiment).setVisible(mExperiment != null &&
                 !mExperiment.isArchived());
+
+        boolean isShareIntentValid = FileMetadataManager.validateShareIntent(getContext(),
+                mExperimentId);
+
+        menu.findItem(R.id.action_export_experiment).setVisible(mExperiment != null &&
+                !mExperiment.isArchived() && isShareIntentValid);
+        menu.findItem(R.id.action_export_experiment).setEnabled(!isRecording());
         setHomeButtonState(isRecording());
     }
 
@@ -447,17 +502,60 @@ public class ExperimentDetailsFragment extends Fragment
             return true;
         } else if (itemId == R.id.action_delete_experiment) {
             confirmDeleteExperiment();
+        } else if (itemId == R.id.action_export_experiment) {
+            WhistlePunkApplication.getUsageTracker(
+                    getActivity())
+                    .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                            TrackerConstants.ACTION_SHARED,
+                            TrackerConstants.LABEL_EXPERIMENT_DETAIL, 0);
+            setProgressBarVisible(true);
+            ExportService.handleExperimentExportClick(getContext(), mExperimentId);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    public void setProgressBarVisible(boolean visible) {
+        mProgressVisible = visible;
+        if (mProgressBar != null) {
+            if (visible) {
+                mProgressBar.setVisibility(View.VISIBLE);
+            } else {
+                mProgressBar.setVisibility(View.GONE);
+            }
+        }
+    }
+
     // Prompt the user to name the experiment if they haven't yet.
     private void displayNamePromptOrGoUp() {
+        if (mExperiment.isEmpty()) {
+            // Experiment is empty. No reason to keep it.
+            deleteCurrentExperiment();
+            return;
+        }
         if (!TextUtils.isEmpty(mExperiment.getTitle()) || mExperiment.isArchived()) {
             goToExperimentList();
             return;
         }
         displayNamePrompt();
+    }
+
+    private void deleteCurrentExperiment() {
+        RxDataController.getExperimentById(getDataController(), mExperimentId)
+                .subscribe(fullExperiment -> {
+                    getDataController().deleteExperiment(fullExperiment,
+                            new LoggingConsumer<Success>(TAG, "delete experiment") {
+                                @Override
+                                public void success(Success value) {
+                                    WhistlePunkApplication.getUsageTracker(getActivity())
+                                            .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                                                    TrackerConstants.ACTION_DELETED,
+                                                    TrackerConstants.LABEL_EXPERIMENT_DETAIL,
+                                                    0);
+                                    goToExperimentList();
+                                }
+                            });
+                });
     }
 
     private void displayNamePrompt() {
@@ -477,6 +575,10 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public boolean handleOnBackPressed() {
+        if (mProgressBar.getVisibility() == View.VISIBLE) {
+            return true;
+        }
+
         if (isRecording()) {
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
@@ -484,6 +586,13 @@ public class ExperimentDetailsFragment extends Fragment
             startActivity(intent);
             return true;
         }
+
+        if (mExperiment.isEmpty()) {
+            // Experiment is empty. No reason to keep it.
+            deleteCurrentExperiment();
+            return true;
+        }
+
         if (TextUtils.isEmpty(mExperiment.getTitle()) && !mExperiment.isArchived()) {
             displayNamePrompt();
             // We are handling this.
@@ -533,17 +642,21 @@ public class ExperimentDetailsFragment extends Fragment
             @Override
             public void success(Success value) {
                 setExperimentItemsOrder(mExperiment);
-                ((PanesActivity) getActivity()).onArchivedStateChanged(mExperiment);
+                FragmentActivity activity = getActivity();
+                if (activity instanceof ListenerProvider) {
+                    ((ListenerProvider) activity).getExperimentDetailsFragmentListener()
+                            .onArchivedStateChanged(mExperiment);
+                }
                 // Reload the data to refresh experiment item and insert it if necessary.
                 loadExperimentData(mExperiment);
-                WhistlePunkApplication.getUsageTracker(getActivity())
+                WhistlePunkApplication.getUsageTracker(activity)
                         .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
                                 archived ? TrackerConstants.ACTION_ARCHIVE :
                                         TrackerConstants.ACTION_UNARCHIVE,
                                 TrackerConstants.LABEL_EXPERIMENT_DETAIL, 0);
 
                 Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                        getActivity().getResources().getString(
+                        activity.getResources().getString(
                                 archived ? R.string.archived_experiment_message : R.string
                                         .unarchived_experiment_message),
                         Snackbar.LENGTH_LONG);
@@ -552,7 +665,7 @@ public class ExperimentDetailsFragment extends Fragment
                     bar.setAction(R.string.action_undo, v -> setExperimentArchived(false));
                 }
                 bar.show();
-                getActivity().invalidateOptionsMenu();
+                activity.invalidateOptionsMenu();
             }
         });
     }
@@ -585,11 +698,11 @@ public class ExperimentDetailsFragment extends Fragment
                     mAdapter.insertNote(deletedLabel.getLabel());
 
                     WhistlePunkApplication.getUsageTracker(getActivity())
-                                          .trackEvent(TrackerConstants.CATEGORY_NOTES,
-                                                  TrackerConstants.ACTION_DELETE_UNDO,
-                                                  TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                                                  TrackerConstants.getLabelValueType(
-                                                          deletedLabel.getLabel()));
+                            .trackEvent(TrackerConstants.CATEGORY_NOTES,
+                                    TrackerConstants.ACTION_DELETE_UNDO,
+                                    TrackerConstants.LABEL_EXPERIMENT_DETAIL,
+                                    TrackerConstants.getLabelValueType(
+                                            deletedLabel.getLabel()));
                 });
 
         mAdapter.deleteNote(deletedLabel.getLabel());
@@ -638,16 +751,16 @@ public class ExperimentDetailsFragment extends Fragment
         } else {
             getDataController().deleteExperiment(mExperiment,
                     new LoggingConsumer<Success>(TAG, "Delete experiment") {
-                @Override
-                public void success(Success value) {
-                    WhistlePunkApplication.getUsageTracker(getActivity())
-                            .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
-                                    TrackerConstants.ACTION_DELETED,
-                                    TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-                                    0);
-                    getActivity().finish();
-                }
-            });
+                        @Override
+                        public void success(Success value) {
+                            WhistlePunkApplication.getUsageTracker(getActivity())
+                                    .trackEvent(TrackerConstants.CATEGORY_EXPERIMENTS,
+                                            TrackerConstants.ACTION_DELETED,
+                                            TrackerConstants.LABEL_EXPERIMENT_DETAIL,
+                                            0);
+                            getActivity().finish();
+                        }
+                    });
         }
     }
 
@@ -689,7 +802,7 @@ public class ExperimentDetailsFragment extends Fragment
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view;
-            LayoutInflater inflater =  LayoutInflater.from(parent.getContext());
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             if (viewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL ||
                     viewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL ||
                     viewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL ||
@@ -736,7 +849,8 @@ public class ExperimentDetailsFragment extends Fragment
 
                 noteViewHolder.menuButton.setOnClickListener(view -> {
                     Context context = noteViewHolder.menuButton.getContext();
-                    mPopupMenu = new PopupMenu(context, noteViewHolder.menuButton, Gravity.NO_GRAVITY,
+                    mPopupMenu = new PopupMenu(context, noteViewHolder.menuButton,
+                            Gravity.NO_GRAVITY,
                             R.attr.actionOverflowMenuStyle, 0);
                     setupNoteMenu(item);
                     mPopupMenu.show();
@@ -796,7 +910,8 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         private void setupTrialMenu(ExperimentDetailItem item) {
-            mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_trial, mPopupMenu.getMenu());
+            mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_trial,
+                    mPopupMenu.getMenu());
             boolean archived = item.getTrial().isArchived();
             mPopupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
             mPopupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
@@ -820,10 +935,39 @@ public class ExperimentDetailsFragment extends Fragment
 
         private void setupNoteMenu(ExperimentDetailItem item) {
             mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_note, mPopupMenu.getMenu());
+            final Context context;
+            final Intent shareIntent;
+            if (item.getViewType() == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL) {
+
+                if (mParentReference.get() != null) {
+                    context = mParentReference.get().getContext();
+                    shareIntent = FileMetadataManager.createPhotoShareIntent(context,
+                            mExperiment.getExperimentId(),
+                            item.getLabel().getPictureLabelValue().filePath,
+                            item.getLabel().getCaptionText());
+                    if (shareIntent != null) {
+                        mPopupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(true);
+                    }
+                } else {
+                    context = null;
+                    shareIntent = null;
+                }
+            } else {
+                context = null;
+                shareIntent = null;
+            }
             mPopupMenu.setOnMenuItemClickListener(menuItem -> {
                 if (menuItem.getItemId() == R.id.btn_delete_note) {
                     if (mParentReference.get() != null) {
                         mParentReference.get().deleteLabel(item.getLabel());
+                    }
+                    return true;
+                }
+                if (menuItem.getItemId() == R.id.btn_share_photo) {
+                    if (context != null && shareIntent != null) {
+                        context.startActivity(Intent.createChooser(shareIntent,
+                                context.getResources().getString(
+                                        R.string.export_photo_chooser_title)));
                     }
                     return true;
                 }
@@ -1021,8 +1165,8 @@ public class ExperimentDetailsFragment extends Fragment
 
             holder.itemView.findViewById(R.id.content).setAlpha(
                     applicationContext.getResources().getFraction(trial.isArchived() ?
-                        R.fraction.metadata_card_archived_alpha :
-                        R.fraction.metadata_card_alpha, 1, 1));
+                            R.fraction.metadata_card_archived_alpha :
+                            R.fraction.metadata_card_alpha, 1, 1));
             View archivedIndicator = holder.itemView.findViewById(R.id.archived_indicator);
             archivedIndicator.setVisibility(trial.isArchived() ? View.VISIBLE :
                     View.GONE);
@@ -1055,8 +1199,9 @@ public class ExperimentDetailsFragment extends Fragment
                 holder.sensorNext.setOnClickListener(v -> {
                     //Sometimes we tap the button before it can disable so return if the button
                     //should be disabled.
-                    if (item.getSensorTagIndex() >= item.getTrial().getSensorIds().size() - 1)
+                    if (item.getSensorTagIndex() >= item.getTrial().getSensorIds().size() - 1) {
                         return;
+                    }
                     item.setSensorTagIndex(item.getSensorTagIndex() + 1);
                     loadSensorData(applicationContext, holder, item);
                     GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
@@ -1068,8 +1213,9 @@ public class ExperimentDetailsFragment extends Fragment
                     // TODO: reduce duplication with next listener above?
                     //Sometimes we tap the button before it can disable so return if the button
                     //should be disabled.
-                    if (item.getSensorTagIndex() == 0)
+                    if (item.getSensorTagIndex() == 0) {
                         return;
+                    }
                     item.setSensorTagIndex(item.getSensorTagIndex() - 1);
                     loadSensorData(applicationContext, holder, item);
                     GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
@@ -1161,16 +1307,16 @@ public class ExperimentDetailsFragment extends Fragment
             int inactiveColor = context.getResources().getColor(R.color.archived_background_color);
 
             AppSingleton.getInstance(context)
-                        .getRecorderController()
-                        .watchRecordingStatus()
-                        .takeUntil(RxView.detaches(button))
-                        .subscribe(status -> {
-                            if (status.isRecording()) {
-                                button.setTextColor(inactiveColor);
-                            } else {
-                                button.setTextColor(activeTextColor);
-                            }
-                        });
+                    .getRecorderController()
+                    .watchRecordingStatus()
+                    .takeUntil(RxView.detaches(button))
+                    .subscribe(status -> {
+                        if (status.isRecording()) {
+                            button.setTextColor(inactiveColor);
+                        } else {
+                            button.setTextColor(activeTextColor);
+                        }
+                    });
 
             button.setOnClickListener(
                     view -> RunReviewActivity.launch(noteHolder.getContext(), runId,
@@ -1203,13 +1349,14 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         private void loadSensorData(Context appContext, final DetailsViewHolder holder,
-                                    final ExperimentDetailItem item) {
+                final ExperimentDetailItem item) {
             final Trial trial = item.getTrial();
             final String sensorId = trial.getSensorIds().get(item.getSensorTagIndex());
 
-            final SensorAppearance appearance = AppSingleton.getInstance(appContext)
-                    .getSensorAppearanceProvider()
-                    .getAppearance(sensorId);
+            final SensorAppearance appearance =
+                    ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
+                            trial.getAppearances().get(sensorId), sensorId,
+                            AppSingleton.getInstance(appContext).getSensorAppearanceProvider());
             final NumberFormat numberFormat = appearance.getNumberFormat();
             holder.sensorName.setText(Appearances.getSensorDisplayName(appearance, appContext));
             final GoosciSensorLayout.SensorLayout sensorLayout = item.getSelectedSensorLayout();
@@ -1225,12 +1372,12 @@ public class ExperimentDetailsFragment extends Fragment
             if (hasNextButton) {
                 RunReviewFragment.updateContentDescription(holder.sensorNext,
                         R.string.run_review_switch_sensor_btn_next, item.getNextSensorId(),
-                        appContext);
+                        appContext, trial);
             }
             if (hasPrevButton) {
                 RunReviewFragment.updateContentDescription(holder.sensorPrev,
                         R.string.run_review_switch_sensor_btn_prev, item.getPrevSensorId(),
-                        appContext);
+                        appContext, trial);
             }
 
             TrialStats stats = getStatsOrDefault(trial, sensorId);

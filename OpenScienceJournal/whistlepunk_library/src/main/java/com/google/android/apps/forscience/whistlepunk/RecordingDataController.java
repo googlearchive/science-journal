@@ -18,15 +18,23 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
 
+import java.util.List;
+
 /**
  * Data interface for sensor recorders
  */
 public interface RecordingDataController {
     /**
-     * @see com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase#addScalarReading(String, int, long, double)
+     * @see com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase#addScalarReading(String, String, int, long, double)
      */
-    void addScalarReading(String sensorId, final int resolutionTier, long timestampMillis,
-            double value);
+    void addScalarReading(String trialId, String sensorId, final int resolutionTier,
+                          long timestampMillis, double value);
+
+
+    /**
+     * Add all of the scalar readings in the list.
+     */
+    void addScalarReadings(List<BatchInsertScalarReading> readings);
 
     /**
      * If an error is encountered storing data or stats for {@code sensorId}, notify {@code

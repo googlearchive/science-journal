@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Reads and writes ExperimentOverview lists
@@ -50,8 +52,9 @@ public class UserMetadataManager {
     private static final int MINOR_VERSION = 1;
     private static final long WRITE_DELAY_MS = 500;
 
-    private final Handler mHandler;
     private final Runnable mWriteRunnable;
+    private final Handler mHandler;
+    private final ExecutorService mBackgroundWriteThread;
     private final long mWriteDelayMs;
     private boolean mNeedsWrite = false;
     private GoosciUserMetadata.UserMetadata mUserMetadata;
@@ -75,13 +78,11 @@ public class UserMetadataManager {
         mFailureListener = failureListener;
         mOverviewProtoFileHelper = new ProtoFileHelper<>();
         mUserMetadataFile = FileMetadataManager.getUserMetadataFile(context);
+        mBackgroundWriteThread = Executors.newSingleThreadExecutor();
         mHandler = new Handler();
-        mWriteRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (mNeedsWrite) {
-                    writeUserMetadata(mUserMetadata);
-                }
+        mWriteRunnable = () -> {
+            if (mNeedsWrite) {
+                mBackgroundWriteThread.execute(() -> writeUserMetadata(mUserMetadata));
             }
         };
         mWriteDelayMs = WRITE_DELAY_MS;
