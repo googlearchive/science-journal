@@ -200,7 +200,7 @@
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"Objekter har en tendens til at blive, hvor de er, eller fortsætte en eventuel igangværende bevægelse. Denne tendens kaldes for interti. Newtons første lov udtrykker denne ide formelt: Et objekt fortsætter sin bevægelsestilstand, medmindre det påvirkes af en ubalanceret kraft. \n\nNår en ubalanceret kraft får et objekt til at bevæge sig, siger man, at objektet accelererer: Objektets hastighed eller fart ændres, enten ved forøgelse eller reduktion af hastigheden, eller ved at bevægelsesretningen ændres. Acceleration måles som ændring af hastighed (meter pr. sekund) over tid, eller som meter pr. sekund i anden (m/s²). \n\nDin telefon har en enhed, der kan måle disse ændringer af bevægelse. Enheden hedder et accelerometer. Et accelerometer indeholder små masser, der kan bevæge sig frit. En ændring af bevægelsen får disse masser til at bevæge sig, lidt på samme måde som dit hoved har en tendens til at bevæge sig fremefter, når du sidder i en bil, der pludselig stopper. Ved at måle næsten umærkelige ændringer i intertien kan accelerometeret i en telefon registrere ændringer i bevægelse og retning. Dette er nyttigt, når skærmen skal skifte mellem liggende og stående tilstand, eller når du spiller spil på telefonen og meget mere."</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"Du har sikkert bemærket en konstant acceleration langs Z-aksen, selv når telefonen ligger helt stille på et bord. Dette er den acceleration, vi oplever her på jordens overflade, der skyldes tyngdekraftens virkning (tyngdeaccelerationen), som er på ca. 9,8 m/s²."</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"Lyd skabes af svingninger. For eksempel opstår lyden af din stemme på grund af svingninger i stemmebåndene i din hals. Svingningerne skaber områder med skiftevist lavt og højt lufttryk, der bevæger sig udefter, lidt på samme måde som ringe i vandet, når du kaster en sten i en sø."</string>
-    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"Alle lyde kan beskrives ved hjælp af deres frekvens og intensitet. \n\nIntensiteten er det, du måler her vha. Science Journal, og den måles i decibel (dB). Intensiteten eller lydstyrken afhænger af den afstand, et vibrerende objekt bevæger sig, hver gang det vibrerer. Vi oplever større intensitet som forøget lydstyrke. \n\nFrekvensen (kaldes også pitch eller tone) for en lydbølge svarer til dens svingningsfrekvens. Jo hurtigere, et objekt vibrerer, jo højere er pitch for den resulterende lyd. Science Journal måler ikke frekvens, kun lydstyrke. \n\nDen mest stille lyd, som kan opfattes af det menneskelige øre, er defineret som 0 dB. Almindelig samtale svarer til ca. 60 dB, og lyd på over 140 dB giver smerter i det menneskelige øre. Men lyde behøver ikke at give smerter eller være skadelige. Konstant udsættelse for lyd på 90 dB (svarer omtrent til lydstyrken for en støvsuger) kan med tiden medføre høretab. \n\nDecibelskalaen er logaritmisk og kan derfor være lidt drilsk: En lydkilde på 40 dB er ikke dobbelt så intens som en lydkilde på 20 dB. Den er 100 gange så intens! Og hvis et vækkeur ringer med 70 dB, ringer to vækkeure ikke med 140 dB, men med 73 dB. Som allerede nævnt, er det en underlig skala. \n\n10 dB raslende blade \n20 dB hvisken over 1,5 meter \n30 dB stille hvisken \n50 dB regnvejr \n60 dB almindelig samtale \n90 dB blender \n100 dB bil uden lydpotte \n110 dB råben direkte ind i øret \n120 dB torden \n130 dB trykluftsbor \n140 dB fly, der letter"</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="8847748188455408317">"Alle lyde kan beskrives ved hjælp af deres frekvens og deres intensitet. \n\nDet er intensiteten, du måler med Science Journal, og det foregår i enheden decibel (dB). Intensiteten, eller lydstyrken, afhænger af den afstand, som et vibrerende objekt bevæger sig, hver gang det vibrerer. Vi oplever større intensitet som øget lydstyrke. \n\nFrekvensen (også kaldet pitch eller tone) af en lydbølge svarer til dens vibrationshastighed. Jo hurtigere et objekt vibrerer, jo højere er tonehøjden af den resulterende lyd. Science Journal måler ikke frekvens, kun lydstyrke. \n\nDet er vigtigt at vide, at mikrofonen i din enhed er designet til at være meget følsom over for forskelle i lydbølger over tid, men ikke den enkelte lydbølges absolutte størrelse. Vi har forsøgt at udvælge kode, der med stor sandsynlighed kan producere tal, der ligger tæt på referencenumrene nedenfor, men hver enkelt enhed kan give tal, der konsekvent er højere eller lavere. Forskere vil normalt kalibrere en sensor som denne til en kendt måling. Indtil videre kan Science Journal fortælle dig, om lydstyrken på din næste togtur er højere end til din næste rockkoncert, men kun hvis du medbringer den samme telefon begge steder. \n\nDet er også værd at vide, at der er væsentlige forskelle mellem \"lydintensitet\", \"lydintensitetsniveau\" og \"lydtryk\". Her behandler vi dem som det samme, men hvis du vil dykke længere ned i det, findes der mange onlineressourcer om forskellene. \n\nDen mindste lyd, der kan opfattes af det menneskelige øre, er defineret som 0 dB. Almindelig samtale svarer til ca. 60 dB, og lyd over 140 dB giver smerter i det menneskelige øre. Lyd behøver imidlertid ikke at forårsage smerte for at være skadelig. Konstant udsættelse for lyd på 90 dB (svarer omtrent til lydstyrken af en støvsuger) kan med tiden medføre høretab. \n\nDecibelskalaen er logaritmisk og kan derfor være svær at gå til: En lydkilde på 40 dB er ikke dobbelt så intens som en lydkilde på 20 dB – den er 100 gange så intens! På samme skala har du et vækkeur, der ringer med 70 dB, men to vækkeure ringer ikke med 140 dB, de ringer med 73 dB. Som allerede nævnt er det en underlig skala. \n\n10 dB raslende blade \n20 dB hvisken over 1,5 meter \n30 dB stille hvisken \n50 dB regnvejr \n60 dB almindelig samtale \n90 dB blender \n100 dB bil uden lydpotte \n110 dB råben direkte ind i øret \n120 dB torden \n130 dB trykluftsbor \n140 dB et fly, der letter"</string>
     <string name="sensor_desc_first_paragraph_rotation" msgid="701021949358379491">"Rotationer pr. minut (RPM, rotations per minute) er et mål for antal omdrejninger pr. minut rundt om en fast akse. \n\nNår vindmøllen drejer, får den konverteringsskiven til at dreje rundt:"</string>
     <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"Dette skaber perioder med lys og mørke på sensoren, og dette registreres i Science Journal som rotation."</string>
     <string name="sensor_desc_first_paragraph_raw" msgid="8624088001449985317">"Dataene, der vises her, kommer fra kommunikation mellem en ekstern sensor og din telefon via Bluetooth. \n\nVærdien viser procentdelen for den ubehandlede aflæsning direkte fra mikrocontrolleren. Dette er normalt det procentvise spændingsfald i en sensor."</string>
@@ -232,6 +232,7 @@
     <string name="run_review_switch_sensor_btn_next" msgid="7804434037837088592">"næste sensor: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="add_note_hint_text" msgid="2378709047693154979">"Tilføj en ny note"</string>
     <string name="snackbar_note_deleted" msgid="6991629249337643878">"Noten er slettet"</string>
+    <string name="snackbar_recording_deleted" msgid="4571106292806473151">"Registrering slettet"</string>
     <string name="snackbar_undo" msgid="2277748858954056127">"Fortryd"</string>
     <string name="add_run_note_placeholder_text" msgid="4139664399729584582">"Føj note til denne registrering"</string>
     <string name="add_note_image_button_content_description" msgid="45880639214601555">"Tag et billede, og tilføj det som note"</string>
@@ -265,7 +266,7 @@
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Udfør forsøg på verden omkring dig."</string>
     <string name="listing_changelog" msgid="530900357619095816">"Nye funktioner og forbedringer: \n• Helt ny grænseflade til notetagning og dokumentation af videnskabelige eksperimenter. \n• Ny fotofunktion til registrering af individuelle datapunkter. \n• Nye sensorer: Lineært accelerometer, magnetometer og kompas \n• Nydesignet galleri til søgning blandt eksperimenter \n• Nu tilgængeligt på iOS-enheder!"</string>
-    <string name="listing__description" msgid="1193865948828289689">"Science Journal er den gratis digitale videnskabsnotesbog fra Google. \n \nUanset om du underviser i naturvidenskab eller blot beskæftiger dig med det på hobbyplan, kan du samle dine noter, fotos og observationer på ét praktisk sted. Brug sensorerne i din telefon til at måle og illustrere fænomener som lys, lyd og bevægelse, eller opret forbindelse til eksterne sensorer via Bluetooth for at udføre eksperimenter på verden omkring dig. \n \nMed appen Science Journal kan du: \n• Måle lys, lyd, acceleration, lufttryk og meget mere med telefonens indbyggede sensorer. \n• Tage noter og fotos til dokumentation af dine videnskabelige eksperimenter. (Der kommer snart flere notetyper). \n• Oprette forbindelse til eksterne sensorer ved hjælp af udvalgte Bluetooth-aktiverede Arduino- og Vernier-enheder. \n• Eksportere registrerede sensordata som CSV-filer. \n• Oprette automatiske udløsere til optagelse af data og notetagning. \n• Bruge sonificering til at høre bevægelserne i dine grafer. \n \nScience Journal er gratis til Android, iPhone, iPad og kompatible Chromebook-enheder. \n \nUddannelsesmæssige aktiviteter fra vores partnere: https://makingscience.withgoogle.com/science-journal/activities \nSupport: https://productforums.google.com/forum/#!forum/sciencejournal \nTilgængelig open source-kode: https://github.com/google/science-journal \n\n Meddelelse om tilladelser: \n• Placering: Påkrævet for at kunne scanne efter sensorenheder med Bluetooth. \n• Kamera: Påkrævet for at tage billeder til dokumentation af eksperimenter. \n• Mikrofon: Påkrævet for at kunne bruge sensor til registrering af lydstyrke. \n• Lager: Påkrævet for at få adgang til fotos til indsættelse i eksperimenter."</string>
+    <string name="listing__description" msgid="1193865948828289689">"Science Journal er den gratis digitale videnskabsnotesbog fra Google. \n \nUanset om du underviser i naturvidenskab eller blot beskæftiger dig med det på hobbyplan, kan du samle dine noter, fotos og observationer på ét praktisk sted. Brug sensorerne i din telefon til at måle og illustrere fænomener som lys, lyd og bevægelse, eller opret forbindelse til eksterne sensorer via Bluetooth for at udføre eksperimenter på verden omkring dig. \n \nMed appen Science Journal kan du: \n• Måle lys, lyd, acceleration, lufttryk og meget mere med telefonens indbyggede sensorer. \n• Tage noter og fotos til dokumentation af dine videnskabelige eksperimenter. (Der kommer snart flere notetyper). \n• Oprette forbindelse til eksterne sensorer ved hjælp af udvalgte Bluetooth-aktiverede Arduino- og Vernier-enheder. \n• Eksportere registrerede sensordata som CSV-filer. \n• Oprette automatiske triggers til optagelse af data og notetagning. \n• Bruge sonificering til at høre bevægelserne i dine grafer. \n \nScience Journal er gratis til Android, iPhone, iPad og kompatible Chromebook-enheder. \n \nUddannelsesmæssige aktiviteter fra vores partnere: https://makingscience.withgoogle.com/science-journal/activities \nSupport: https://productforums.google.com/forum/#!forum/sciencejournal \nTilgængelig open source-kode: https://github.com/google/science-journal \n\n Meddelelse om tilladelser: \n• Placering: Påkrævet for at kunne scanne efter sensorenheder med Bluetooth. \n• Kamera: Påkrævet for at tage billeder til dokumentation af eksperimenter. \n• Mikrofon: Påkrævet for at kunne bruge sensor til registrering af lydstyrke. \n• Lager: Påkrævet for at få adgang til fotos til indsættelse i eksperimenter."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Scan efter tredjepartssensorer"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Se efter apps, der understøtter tredjepartssensorens API, og aktivér tilføjelse af de pågældende sensorer til eksperimenter."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Aktivér omgivende temperatur"</string>
@@ -281,17 +282,17 @@
     <string name="run_review_overflow_menu_content_description" msgid="5689925874345140909">"Flere valgmuligheder"</string>
     <string name="licenses_empty" msgid="2746335366478622872">"Der blev ikke fundet nogen licenser."</string>
     <string name="audio_enabled_format" msgid="4202071153288924614">"<xliff:g id="SENSOR_DISPLAY_NAME">%1s</xliff:g> ♪"</string>
-    <string name="menu_item_set_triggers" msgid="3555868641262376254">"Indstil udløsere"</string>
-    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"Rediger udløsere"</string>
-    <string name="title_activity_trigger_list" msgid="2928411265364344194">"Liste over udløsere"</string>
-    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"Udløsere for <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
-    <string name="btn_add_new_trigger" msgid="1143389268664607859">"Opret udløser"</string>
-    <string name="empty_trigger_list" msgid="238046755667717404">"Der er ikke indstillet nogen udløsere"</string>
-    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"Rediger udløser"</string>
-    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"Rediger <xliff:g id="SENSOR_NAME">%s</xliff:g>-udløser"</string>
-    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"Ny <xliff:g id="SENSOR_NAME">%s</xliff:g>-udløser"</string>
+    <string name="menu_item_set_triggers" msgid="3555868641262376254">"Indstil triggers"</string>
+    <string name="menu_item_edit_triggers" msgid="5719430048511669542">"Rediger triggers"</string>
+    <string name="title_activity_trigger_list" msgid="2928411265364344194">"Liste over triggers"</string>
+    <string name="title_fragment_trigger_list" msgid="4425969691529503861">"Triggers for <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
+    <string name="btn_add_new_trigger" msgid="1143389268664607859">"Opret trigger"</string>
+    <string name="empty_trigger_list" msgid="238046755667717404">"Der er ikke indstillet nogen triggers"</string>
+    <string name="title_activity_edit_trigger" msgid="2115747586987165481">"Rediger trigger"</string>
+    <string name="title_fragment_edit_trigger" msgid="9141329265681138113">"Rediger <xliff:g id="SENSOR_NAME">%s</xliff:g>-trigger"</string>
+    <string name="title_fragment_add_trigger" msgid="7877645218403597761">"Ny <xliff:g id="SENSOR_NAME">%s</xliff:g>-trigger"</string>
     <string name="trigger_type_label" msgid="4847350415951495617">"Udløsertype"</string>
-    <string name="trigger_when_label" msgid="8616405039634043612">"Udløs, når værdien"</string>
+    <string name="trigger_when_label" msgid="8616405039634043612">"Aktivér, når værdien"</string>
     <string name="trigger_value_label" msgid="3412972042230849085">"Udløserværdi"</string>
     <string name="trigger_type_start_recording" msgid="7292105639999785968">"Start registrering"</string>
     <string name="trigger_type_stop_recording" msgid="3022683931027310288">"Stop registrering"</string>
@@ -308,7 +309,7 @@
     <string name="trigger_audio_alert" msgid="7125606348399123076">"Lyd"</string>
     <string name="trigger_haptic_alert" msgid="9173126487427899717">"Vibration"</string>
     <string name="trigger_visual_alert" msgid="3137431533902715114">"Visuel underretning"</string>
-    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"Du skal indtaste en numerisk værdi, hvorved denne udløser aktiveres."</string>
+    <string name="cannot_save_invalid_value" msgid="2889387470051561369">"Du skal indtaste en numerisk værdi, hvorved denne trigger aktiveres."</string>
     <string name="trigger_when_at_description" msgid="6704567729507492002">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>, når værdien er ved <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
     <string name="trigger_when_rises_above_description" msgid="8089893226169256044">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>, når værdien overstiger <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
     <string name="trigger_when_drops_below_description" msgid="5435046961646187734">"<xliff:g id="TRIGGER_ACTION">%1$s</xliff:g>, når værdien falder til under <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
@@ -331,15 +332,15 @@
     <item msgid="5929079391002165627">"ligger over"</item>
     <item msgid="2421726237024232431">"ligger under"</item>
   </string-array>
-    <string name="trigger_only_when_recording" msgid="2102420075414851575">"Udløs kun under registrering"</string>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"Aktivér kun under registrering"</string>
     <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
     <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
     <string name="scroll_to_card" msgid="4531288548260633064">"vis"</string>
     <string name="could_not_find_service_error" msgid="6399923176664381124">"Tjenesten blev ikke fundet: <xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
     <string name="recording_stopped_notification_text" msgid="2700948290649435580">"Registreringen er gennemført."</string>
-    <string name="disable_all_triggers" msgid="4207192080361552008">"Deaktiver udløsere"</string>
-    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"udløsere"</string>
-    <string name="alert_trigger_needs_alerts" msgid="1195471137123743218">"Du skal vælge mindst én type underretning for denne udløser."</string>
+    <string name="disable_all_triggers" msgid="4207192080361552008">"Deaktiver triggers"</string>
+    <string name="trigger_view_icon_content_description" msgid="468973450644969062">"triggers"</string>
+    <string name="alert_trigger_needs_alerts" msgid="1195471137123743218">"Du skal vælge mindst én type underretning for denne trigger."</string>
     <string name="trigger_fired_text" msgid="8122555560445417775">"Udløseren er aktiveret"</string>
     <string name="crop_start_seekbar_content_description" msgid="4988981065063060933">"afkortningens start: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
     <string name="crop_end_seekbar_content_description" msgid="7890284972885551270">"afkortningens slutning: <xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>"</string>
@@ -386,8 +387,8 @@
     <string name="snapshot_button_text" msgid="6920838734610813060">"foto"</string>
     <string name="export_options_title" msgid="1313836868518047627">"Eksportér…"</string>
     <string name="export_options_relative_time" msgid="3171536380796115508">"Relativ tid"</string>
-    <string name="old_trigger_note_format" msgid="5794951574203245272">"Udløst note: <xliff:g id="AUTO_TEXT">%1s</xliff:g>"</string>
-    <string name="old_trigger_note_format_custom" msgid="4352918996399391010">"Udløst note: <xliff:g id="USER_TEXT">%1s</xliff:g>; <xliff:g id="AUTO_TEXT">%2s</xliff:g>"</string>
+    <string name="old_trigger_note_format" msgid="5794951574203245272">"Aktiveret note: <xliff:g id="AUTO_TEXT">%1s</xliff:g>"</string>
+    <string name="old_trigger_note_format_custom" msgid="4352918996399391010">"Aktiveret note: <xliff:g id="USER_TEXT">%1s</xliff:g>; <xliff:g id="AUTO_TEXT">%2s</xliff:g>"</string>
     <string name="compass" msgid="7226757706683095417">"Kompas"</string>
     <string name="compass_units" msgid="2437446630519758665">"grader"</string>
     <string name="sensor_desc_short_compass" msgid="9116131754124775262">"Telefonens placering i forhold til jordens magnetfelt."</string>
@@ -407,7 +408,7 @@
     <string name="add_note_button_text" msgid="1263907264569204297">"Føj note til tidslinje"</string>
     <string name="trial_caption_hint_text" msgid="8974493718130569209">"Tilføj en beskrivelse af registreringen her"</string>
     <string name="snapshot_label_details_title" msgid="876439532036968792">"Fotooplysninger"</string>
-    <string name="trigger_label_details_title" msgid="7844261655862849084">"Oplysninger om udløst note"</string>
+    <string name="trigger_label_details_title" msgid="7844261655862849084">"Oplysninger om aktiveret note"</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Tilgængelige værktøjer"</string>
     <string name="tab_description_add_note" msgid="8259995764315955353">"Skriv tekst"</string>
     <string name="tab_description_observe" msgid="8315777883595993294">"Observer sensorer"</string>
@@ -430,7 +431,7 @@
     <string name="tab_description_gallery" msgid="1558619247937893970">"Vælg et billede"</string>
     <string name="gallery_image_content_description" msgid="474626617793194680">"Billede taget <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"valgt"</string>
-    <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Rediger billede med…"</string>
+    <string name="photo_editor_dialog_title" msgid="706476743547220050">"Rediger billede med…"</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Vis værktøjsskuffe"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"Udvid værktøjsskuffe"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"Skjul værktøjsskuffe"</string>
@@ -438,7 +439,10 @@
     <string name="add_text_note" msgid="7399260444850532349">"Tilføj tekstnote"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"Livevisning for kamera"</string>
     <string name="input_camera_permission_denied" msgid="647063985319912627">"Kameraet kan ikke bruges, da Science Journal ikke har tilladelse til at åbne det."</string>
-    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"Din billedsamling kan ikke bruges, da Science Journal ikke har tilladelse til at åbne den."</string>
-    <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
-    <skip />
+    <string name="input_photo_library_permission_denied" msgid="7854809867722656783">"Dit fotogalleri kan ikke bruges, da Science Journal ikke har adgang til det."</string>
+    <string name="input_blocked_open_settings_button" msgid="4065294335092002359">"Åbn indstillinger"</string>
+    <string name="action_show_archived_experiments" msgid="2077011015345957679">"Vis arkiverede eksperimenter"</string>
+    <string name="action_hide_archived_experiments" msgid="1641276713027230561">"Skjul arkiverede eksperimenter"</string>
+    <string name="action_hide_archived_trials" msgid="8663689130822379245">"Skjul arkiv. registreringer"</string>
+    <string name="snapshot_button_description" msgid="6847875690172106880">"Øjebliksbillede fra sensor"</string>
 </resources>

@@ -200,7 +200,7 @@
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"物体保持静止不动或匀速移动（在移动状态下）的倾向称之为惯性。牛顿第一定律正式提出了这个观点：除非有不平衡的力作用于物体，否则物体会保持匀速运动或静止状态。\n\n如果不平衡的力改变了物体的运动状态，我们就会说物体获得了加速度：速率或速度发生了改变。加速、减速或改变方向都会带来加速度。加速度通过一定时间内的速率（每秒米数）变化来衡量（也就是米/秒²）。\n\n您的手机配有计算这些运动变化的设备 - 加速计。在加速计内部有处于悬浮状态的微粒，这些微粒可以自由移动。手机运动状态的变化会使这些微粒移动，如同您坐在汽车中，汽车突然刹车时，您的头会不由自主前倾一样。通过计算这些微粒的移动情况，手机中的加速计可以检测自身的运动状态和方向变化，从而能够轻松将手机屏幕从横屏模式切换为纵向模式，方便您玩游戏或进行其他活动。"</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"您可能注意到了 Z 轴上持续存在的加速度，即使手机仍放在桌子上也是如此。这是我们在地球表面上由于重力所体验到的加速度，约为 9.8 米/秒²。"</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"声音是通过振动产生的。例如，人的声音是喉咙中的声带振动发出的。这些振动产生了交替出现的高气压区和低气压区，并向外传播，就如将鹅卵石扔进池塘形成不断扩大的环形涟漪一样。"</string>
-    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"所有声音都可以从频率和强度两个角度进行描述。\n\n强度（以分贝为单位）就是您在此使用科学日志测量的方面。强度（也称为响度）取决于振动物体每次振动时移动的距离；响度增大，我们听到的声音强度也越大。\n\n声波的频率（也称为音高或音色）等于其振动频率。物体振动越快，发出的声音的音高就越高。科学日志不会测量频率，仅测量响度。\n\n人们将人耳平均可以分辨的最小声音定义为 0 分贝。日常交谈的声音约为 60 分贝。超过 140 分贝的声音会使人耳产生痛感，但会对人体造成伤害的声音并不一定会带来痛感。持续暴露在声音为 90 分贝（大约是真空吸尘器的响度）的环境中会使人逐渐丧失听力。\n\n分贝的计量是呈对数级增加的，有一点欺骗性：40 分贝声源的强度并非 20 分贝声源的两倍，而是 100 倍。另外，如果一个闹钟的响度是 70 分贝，那么同时响铃的两个闹钟发出的响声不是 140 分贝，而是 73 分贝。这种计量方式确实有点奇怪。\n\n10 分贝相当于落叶发出的沙沙声\n20 分贝相当于 5 英尺之外的低语\n30 分贝相当于低声耳语\n50 分贝相当于下雨的声音\n60 相当于正常交谈的声音\n90 分贝相当于搅拌器发出的声音\n100 分贝相当于汽车未安装消声器的情况下发出的声音\n110 分贝相当于在耳边喊叫的声音\n120 分贝相当于打雷发出的声音\n130 分贝相当于电钻发出的声音\n140 分贝相当于飞机起飞的声音"</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="8847748188455408317">"所有声音都可以从频率和强度两个角度进行描述。\n\n在本次实验中，你要使用科学日志测量的是强度，以分贝 (dB) 为单位。强度（或响度）取决于振动物体每次振动时移动的距离；我们听到的更大的声音强度表现为更高的响度。\n\n声波的频率（或者音高或音色）等于其振动频率。物体振动越快，发出的声音的音高就越高。科学日志不会测量频率，仅测量响度。\n\n值得注意的是，由于设计原因，你设备中的麦克风能够灵敏地感应一段时间内声波的变化，而非每个声波的绝对振幅大小。我们尽量选择了可能会产生与下方显示的参考数字接似的代码，但是，每台设备给出的数字可能仍会持续性地较高或较低。科学家们通常会使用一个已知的测量结果来对这类传感器进行校准。目前，科学日志可以比较你下次乘坐火车与参加摇滚音乐会时哪个声音更大。不过，体验这两项活动时，你必须携带同一部手机，只有这样才有可比性。\n\n需要注意的另一点是，“声强”、“声强度级”和“声压”之间有重要区别。在这里，我们把它们当成一回事，但如果你想要深入研究，可以参阅网上大量的资源来了解它们之间的区别。\n\n人们将人耳平均可以分辨的最小声音定义为 0 分贝。日常交谈的声音约为 60 分贝。超过 140 分贝的声音会使人耳产生痛感，但会对人体造成伤害的声音并不一定会带来痛感。持续暴露在声音为 90 分贝（大约是真空吸尘器的响度）的环境中会使人逐渐丧失听力。\n\n分贝的计量是以对数级增加的，有一点欺骗性：40 分贝声源的强度并非 20 分贝声源的两倍，而是 100 倍。另外，如果一个闹钟的响度是 70 分贝，那么同时响铃的两个闹钟发出的响声不是 140 分贝，而是 73 分贝。这种计量方式确实有点奇怪。\n\n10 分贝相当于落叶发出的沙沙声\n20 分贝相当于 5 英尺之外的低语\n30 分贝相当于低声耳语\n50 分贝相当于下雨的声音\n60 分贝相当于正常交谈的声音\n90 分贝相当于搅拌器发出的声音\n100 分贝相当于汽车未安装消声器的情况下发出的声音\n110 分贝相当于在耳边喊叫的声音\n120 分贝相当于打雷发出的声音\n130 分贝相当于手持式凿岩机发出的声音\n140 分贝相当于飞机起飞的声音"</string>
     <string name="sensor_desc_first_paragraph_rotation" msgid="701021949358379491">"转/分钟 (RPM) 是衡量一分钟内绕固定轴旋转的频率的方法。\n\n当您启动风铃时，它会使编码器码盘旋转："</string>
     <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"这会产生传感器检测到的明亮和黑暗时段（在科学日志中记录为旋转）。"</string>
     <string name="sensor_desc_first_paragraph_raw" msgid="8624088001449985317">"此处所示的数据来自通过蓝牙与手机进行通信的外部传感器。\n\n其中的值显示的是直接来自您的微型控制器的原始百分比读数。这通常是传感器内部电压下降的百分比。"</string>
@@ -232,6 +232,7 @@
     <string name="run_review_switch_sensor_btn_next" msgid="7804434037837088592">"下一个传感器：<xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="add_note_hint_text" msgid="2378709047693154979">"添加新备注"</string>
     <string name="snackbar_note_deleted" msgid="6991629249337643878">"已删除备注"</string>
+    <string name="snackbar_recording_deleted" msgid="4571106292806473151">"已删除记录"</string>
     <string name="snackbar_undo" msgid="2277748858954056127">"撤消"</string>
     <string name="add_run_note_placeholder_text" msgid="4139664399729584582">"为本次记录添加备注"</string>
     <string name="add_note_image_button_content_description" msgid="45880639214601555">"添加图片备注"</string>
@@ -430,7 +431,7 @@
     <string name="tab_description_gallery" msgid="1558619247937893970">"选择照片"</string>
     <string name="gallery_image_content_description" msgid="474626617793194680">"照片拍摄日期：<xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"已选择"</string>
-    <string name="photo_editor_dialog_title" msgid="2305657514653927089">"使用以下应用编辑图片…"</string>
+    <string name="photo_editor_dialog_title" msgid="706476743547220050">"选择用于修改照片的应用…"</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"显示工具箱"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"展开工具箱"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"收起工具箱"</string>
@@ -438,7 +439,10 @@
     <string name="add_text_note" msgid="7399260444850532349">"添加文字备注"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"摄像头取景器预览"</string>
     <string name="input_camera_permission_denied" msgid="647063985319912627">"无法使用相机，因为科学日志没有对它的访问权限。"</string>
-    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"无法使用照片图库，因为科学日志没有对它的访问权限。"</string>
-    <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
-    <skip />
+    <string name="input_photo_library_permission_denied" msgid="7854809867722656783">"无法使用照片图库，因为科学日志没有使用权限。"</string>
+    <string name="input_blocked_open_settings_button" msgid="4065294335092002359">"打开设置"</string>
+    <string name="action_show_archived_experiments" msgid="2077011015345957679">"显示已归档的实验"</string>
+    <string name="action_hide_archived_experiments" msgid="1641276713027230561">"隐藏已归档的实验"</string>
+    <string name="action_hide_archived_trials" msgid="8663689130822379245">"隐藏已归档的记录"</string>
+    <string name="snapshot_button_description" msgid="6847875690172106880">"传感器快照"</string>
 </resources>

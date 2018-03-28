@@ -66,17 +66,17 @@
     <string name="calibration_ruler_metric" msgid="3428029796129511235">"Regle (80 mm)"</string>
     <string name="btn_add_experiment_note_description" msgid="8169467252583720202">"Afegeix una nota a l\'experiment"</string>
     <string name="btn_add_run_note_description" msgid="7794624989896671036">"Afegeix una nota a la prova"</string>
-    <string name="btn_record_description" msgid="268797023942242799">"Inicia l\'enregistrament"</string>
-    <string name="btn_stop_description" msgid="360845145601118810">"Atura l\'enregistrament"</string>
+    <string name="btn_record_description" msgid="268797023942242799">"Inicia la gravació"</string>
+    <string name="btn_stop_description" msgid="360845145601118810">"Atura la gravació"</string>
     <string name="unknown_sensor" msgid="2817579529256439266">"Sensor desconegut"</string>
-    <string name="recording_start_failed" msgid="8552798481347616797">"No s\'ha iniciat l\'enregistrament; torna-ho a provar"</string>
-    <string name="recording_start_failed_disconnected" msgid="5403438882837691163">"No s\'ha pogut iniciar l\'enregistrament perquè un sensor està desconnectat. Torna-ho a provar."</string>
+    <string name="recording_start_failed" msgid="8552798481347616797">"No s\'ha iniciat la gravació; torna-ho a provar"</string>
+    <string name="recording_start_failed_disconnected" msgid="5403438882837691163">"No s\'ha pogut iniciar la gravació perquè un sensor està desconnectat. Torna-ho a provar."</string>
     <string name="recording_stop_failed_no_data_title" msgid="7187684438487384614">"No s\'estan enregistrant dades"</string>
     <string name="recording_stop_failed_no_data" msgid="5652683982830054853">"Un o més dels teus sensors no han enregistrat cap dada. Vols cancel·lar aquest enregistrament?"</string>
     <string name="recording_stop_failed_continue" msgid="6866415472979372254">"Continua"</string>
-    <string name="recording_stop_failed_cancel" msgid="1054502695356124817">"Cancel·la l\'enregistrament"</string>
-    <string name="recording_stop_failed_disconnected" msgid="4286495388309028275">"No s\'ha pogut aturar l\'enregistrament perquè un sensor està desconnectat. Vols cancel·lar-lo?"</string>
-    <string name="recording_stop_failed_save" msgid="207682974449628219">"No s\'ha pogut aturar l\'enregistrament o desar la prova. Torna-ho a provar."</string>
+    <string name="recording_stop_failed_cancel" msgid="1054502695356124817">"Cancel·la la gravació"</string>
+    <string name="recording_stop_failed_disconnected" msgid="4286495388309028275">"No s\'ha pogut aturar la gravació perquè un sensor està desconnectat. Vols cancel·lar-lo?"</string>
+    <string name="recording_stop_failed_save" msgid="207682974449628219">"No s\'ha pogut aturar la gravació o desar la prova. Torna-ho a provar."</string>
     <string name="elapsed_time_short_format" msgid="8463172882298601730">"<xliff:g id="SECONDS">%1d</xliff:g> s"</string>
     <string name="elapsed_time_long_format" msgid="4817190871022457088">"<xliff:g id="MINUTES">%1d</xliff:g> min <xliff:g id="SECONDS">%2d</xliff:g> s"</string>
     <string name="accessible_elapsed_time_short_format" msgid="1251813383121495815">"<xliff:g id="SECONDS">%1d</xliff:g> segons"</string>
@@ -86,7 +86,7 @@
     <string name="elapsed_time_axis_format_small_tenths" msgid="4091017607656155791">"<xliff:g id="MINUTES">%1d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>,<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="elapsed_time_axis_format_large_tenths" msgid="3013544179502005785">"<xliff:g id="HOURS">%1d</xliff:g>:<xliff:g id="MINUTES">%02d</xliff:g>:<xliff:g id="SECONDS">%02d</xliff:g>,<xliff:g id="TENTHS">%1d</xliff:g>"</string>
     <string name="graph_exploring_seekbar_content_description" msgid="5849730569799133573">"<xliff:g id="TIME">%1$s</xliff:g>, <xliff:g id="VALUE">%2$s</xliff:g> <xliff:g id="UNITS">%3$s</xliff:g>."</string>
-    <string name="picture_note_description" msgid="380216379546379164">"Foto de l\'enregistrament"</string>
+    <string name="picture_note_description" msgid="380216379546379164">"Foto de la gravació"</string>
     <string name="picture_note_preview_content_description" msgid="6722170064198693944">"Previsualització de la nota fotogràfica"</string>
     <string name="navigation_item_activities" msgid="2828059180911151657">"Activitats"</string>
     <string name="navigation_item_settings" msgid="2126253880412012953">"Configuració"</string>
@@ -103,7 +103,7 @@
     <string name="no_options_message" msgid="6604746064377213999">"No pots configurar opcions per a <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="options_message" msgid="5565091991624696680">"Configura les opcions per a <xliff:g id="SENSOR_NAME">%1$s</xliff:g>"</string>
     <string name="sine_wave_frequency_option" msgid="5738179822180276142">"Estableix la freqüència de l\'ona sinusoïdal en mil·lisegons:"</string>
-    <string name="video_stream_fps_option" msgid="5159674567746736769">"Estableix la velocitat d\'enregistrament de l\'emissió de vídeo en fotogrames per segon:"</string>
+    <string name="video_stream_fps_option" msgid="5159674567746736769">"Estableix la velocitat de gravació de l\'emissió de vídeo en fotogrames per segon:"</string>
     <string name="graph_name" msgid="2545455541298916481">"el gràfic"</string>
     <string name="graph_options" msgid="6713912577613720780">"Opcions del gràfic"</string>
     <string name="graph_options_title" msgid="1337465440393004072">"Opcions del gràfic"</string>
@@ -134,8 +134,8 @@
     <string name="btn_new_experiment_content_description" msgid="3961726691003098466">"Experiment nou"</string>
     <string name="archived_experiment_message" msgid="8039215577892892448">"L\'experiment s\'ha arxivat."</string>
     <string name="unarchived_experiment_message" msgid="7870126733421916514">"S\'ha tret l\'experiment de l\'arxiu."</string>
-    <string name="archived_run_message" msgid="9177761999719472818">"S\'ha arxivat l\'enregistrament."</string>
-    <string name="unarchived_run_message" msgid="3312481757552571642">"S\'ha tret l\'enregistrament de l\'arxiu."</string>
+    <string name="archived_run_message" msgid="9177761999719472818">"S\'ha arxivat la gravació."</string>
+    <string name="unarchived_run_message" msgid="3312481757552571642">"S\'ha tret la gravació de l\'arxiu."</string>
     <string name="archived_content_description" msgid="7931247623909344339">"<xliff:g id="ITEM">%1s</xliff:g> (arxivat)"</string>
     <string name="experiment_title_hint" msgid="4911759592447244874">"Títol de l\'experiment"</string>
     <string name="experiment_description_hint" msgid="9040493859360181138">"Descripció de l\'experiment"</string>
@@ -200,7 +200,7 @@
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"Els objectes tenen tendència a quedar-se quiets o bé a continuar en moviment si s\'estan movent: és el que anomenem principi d\'inèrcia. La primera llei de Newton expressa aquesta idea formalment: un objecte manté el seu estat de moviment o de repòs llevat que hi actuï una força desequilibradora. \n\nQuan una força desequilibradora provoca que un objecte es desplaci, diem que l\'objecte accelera: la seva velocitat (o rapidesa) canvia, ja sigui perquè accelera, desaccelera o perquè canvia de direcció. L\'acceleració es mesura com un canvi de la velocitat en el temps, en metres per segon o en metres per segon al quadrat (m/s²). \n\nEl teu telèfon té un dispositiu per mesurar aquests canvis en el moviment: un acceleròmetre. Dins de l\'acceleròmetre hi ha petites masses suspeses que tenen llibertat per moure\'s. Els canvis en el moviment provoquen que aquestes masses es desplacin, de la mateixa manera que el teu cap té tendència a caure endavant quan vas en un cotxe que frena de cop. Mesurant aquests desplaçaments subtils causats per la inèrcia, l\'acceleròmetre d\'un telèfon pot detectar canvis en el moviment i en l\'orientació, fet que resulta útil per canviar la pantalla del mode horitzontal al vertical, per jugar a videojocs al telèfon i molt més."</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"Probablement has notat una acceleració persistent en l\'eix Z, fins i tot amb el telèfon sobre una taula. Aquesta és l\'acceleració que experimentem a la superfície de la Terra a causa de la força de la gravetat, d\'aproximadament 9,8 m/s²."</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"Els sons els produeixen les vibracions. La teva veu, per exemple, prové de les vibracions de les cordes vocals de la gola. Aquestes vibracions creen zones alternes de pressió d\'aire alta i baixa que es desplacen cap a l\'exterior, de la mateixa manera que s\'expandeixen les ones produïdes en llançar una pedra a l\'aigua."</string>
-    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"Tots els sons es poden descriure en termes de freqüència i intensitat. \n\nLa intensitat és el que mesures amb Science Journal, expressada en decibels (dB). La intensitat, o el volum, depèn de la distància que es mou un objecte quan vibra; com més alt és el volum, més intensitat sentim. \n\nLa freqüència (també altura tonal o to) d\'una ona sonora equival a la velocitat de la vibració. Com més ràpid vibri un objecte, més alta serà l\'altura tonal del so resultant. Science Journal només mesura el volum, no la freqüència. \n\nEl so més baix que pot detectar l\'oïda humana es defineix com a 0 dB. Una conversa normal correspon a 60 dB, i els sons que superen els 140 dB causen dolor a l\'oïda humana. Tot i això, els sons poden ser perjudicials encara que no causin dolor. L\'exposició contínua a sons superiors als 90 dB (d\'un volum aproximat al d\'un aspirador) pot acabar causant pèrdua d\'audició. \n\nL\'escala de decibels és logarítmica, cosa que pot generar confusions: una font sonora de 40 dB no és el doble d\'intensa que una de 20 dB, sinó que és 100 vegades més intensa. D\'altra banda, si l\'alarma d\'un despertador produeix 70 dB, les alarmes de dos despertadors no produeixen 140 dB, sinó 73 dB. Com ja hem dit, es tracta d\'una escala peculiar. \n\nRemor de fulles: 10 dB \nXiuxiueig a 1,5 metres: 20 dB \nXiuxiueig suau: 30 dB \nPluja: 50 dB \nConversa normal: 60 dB \nBatedora: 90 dB \nCotxe sense silenciador: 100 dB \nCrit a l\'orella: 110 dB \nTro: 120 dB \nTrepant amb percussor: 130 dB \nAvió enlairant-se: 140 dB"</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="8847748188455408317">"Es poden descriure tots els sons en termes de freqüència i intensitat. \n\nLa intensitat és el que mesures amb Science Journal, expressada en decibels (dB). La intensitat, o el volum, depèn de la distància que recorre un objecte cada cop que vibra; com més alt és el volum, més intensitat sentim. \n\nLa freqüència (també altura tonal o to) d\'una ona sonora equival a la velocitat de la vibració. Com més ràpid vibri un objecte, més alta serà l\'altura tonal del so resultant. Science Journal només mesura el volum, no la freqüència. \n\nÉs important que tinguis en compte que el micròfon del teu dispositiu és molt sensible a les diferències de les ones sonores al llarg del temps, però no a la mida absoluta de cada ona. Hem triat un codi capaç de produir uns resultats semblants als de referència, que es mostren més avall. Tot i això, és possible que cada dispositiu doni, de manera sistemàtica, uns resultats més alts o baixos. Els científics calibren els sensors d\'aquest tipus en funció d\'una mesura coneguda. Ara per ara, Science Journal només pot dir-te si el pròxim viatge en tren és més sorollós que el pròxim concert de rock si portes el mateix telèfon a tots dos llocs. \n\nUna altra cosa que cal saber és que hi ha diferències importants entre \"intensitat acústica\", \"nivell d\'intensitat acústica\" i \"pressió acústica\". Els tractem com si fossin el mateix, però si vols saber-ne més, a Internet trobaràs molta informació sobre les diferències. \n\nEl so més baix que pot detectar l\'oïda humana es defineix com a 0 dB. Una conversa normal correspon a 60 dB, i els sons que superen els 140 dB causen dolor a l\'oïda humana. Tot i això, els sons poden ser perjudicials encara que no causin dolor. L\'exposició contínua a sons superiors als 90 dB (d\'un volum aproximat al d\'un aspirador) pot acabar causant pèrdua d\'audició. \n\nL\'escala de decibels és logarítmica, cosa que pot generar confusions: una font sonora de 40 dB no és el doble d\'intensa que una de 20 dB, sinó que és 100 vegades més intensa. D\'altra banda, si l\'alarma d\'un despertador produeix 70 dB, les alarmes de dos despertadors no produeixen 140 dB, sinó 73 dB. Com ja hem dit, es tracta d\'una escala peculiar. \n\nRemor de fulles: 10 dB \nXiuxiueig a 1,5 metres: 20 dB \nXiuxiueig suau: 30 dB \nPluja: 50 dB \nConversa normal: 60 dB \nBatedora: 90 dB \nCotxe sense silenciador: 100 dB \nCrit a l\'orella: 110 dB \nTro: 120 dB \nTrepant amb percussor: 130 dB \nAvió enlairant-se: 140 dB"</string>
     <string name="sensor_desc_first_paragraph_rotation" msgid="701021949358379491">"Les rotacions per minut (RPM) indiquen la freqüència de rotació al voltant d\'un eix fix en un minut. \n\nA mesura que gira el molinet de vent, també ho fa el disc del codificador:"</string>
     <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"Això crea períodes de llum i de foscor en el sensor que es registren a Science Journal com una rotació."</string>
     <string name="sensor_desc_first_paragraph_raw" msgid="8624088001449985317">"Les dades que es mostren aquí provenen de la comunicació d\'un sensor extern amb el teu telèfon per Bluetooth. \n\nEl valor mostra el percentatge de la lectura de dades sense processar directament des del microcontrolador. Aquest sol ser el percentatge d\'una caiguda de tensió en un sensor."</string>
@@ -227,13 +227,14 @@
     <string name="crop_run" msgid="6840335859520847482">"Retalla"</string>
     <string name="add_experiment_note" msgid="3946438334341592982">"Afegeix una nota"</string>
     <string name="title_with_duration" msgid="7294061868597672387">"<xliff:g id="TITLE">%1$s</xliff:g> (<xliff:g id="ELAPSED_TIME">%2$s</xliff:g>)"</string>
-    <string name="default_trial_title" msgid="3107589851566196173">"Enregistrament <xliff:g id="INDEX">%1$d</xliff:g>"</string>
+    <string name="default_trial_title" msgid="3107589851566196173">"Gravació <xliff:g id="INDEX">%1$d</xliff:g>"</string>
     <string name="run_review_switch_sensor_btn_prev" msgid="193192887823025190">"sensor anterior: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="run_review_switch_sensor_btn_next" msgid="7804434037837088592">"sensor següent: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="add_note_hint_text" msgid="2378709047693154979">"Afegeix una nota nova"</string>
     <string name="snackbar_note_deleted" msgid="6991629249337643878">"S\'ha suprimit la nota"</string>
+    <string name="snackbar_recording_deleted" msgid="4571106292806473151">"S\'ha suprimit la gravació"</string>
     <string name="snackbar_undo" msgid="2277748858954056127">"Desfés"</string>
-    <string name="add_run_note_placeholder_text" msgid="4139664399729584582">"Afegeix una nota a aquest enregistrament"</string>
+    <string name="add_run_note_placeholder_text" msgid="4139664399729584582">"Afegeix una nota a aquesta gravació"</string>
     <string name="add_note_image_button_content_description" msgid="45880639214601555">"Fes una foto per afegir-la com a nota"</string>
     <string name="pinned_note_placeholder_text" msgid="1019278674906788183">"Afegeix una nota"</string>
     <string name="indeterminate_value" msgid="3103662211042579599">"--"</string>
@@ -241,8 +242,8 @@
     <string name="action_include_archived_experiments" msgid="9179328397501796497">"Inclou els experiments arxivats"</string>
     <string name="delete_experiment_dialog_title" msgid="522221451175758058">"Vols suprimir l\'experiment?"</string>
     <string name="delete_experiment_dialog_message" msgid="8509346279898186875">"Confirmes que vols suprimir aquest experiment? Els enregistraments i les notes que conté se suprimiran. Aquesta acció no es pot desfer."</string>
-    <string name="delete_run_dialog_title" msgid="7008565166051348569">"Suprimir l\'enregistrament?"</string>
-    <string name="run_review_delete_confirm" msgid="6565595557388366823">"Confirmes que vols suprimir aquest enregistrament? Les notes i les dades enregistrades se suprimiran. Aquesta acció no es pot desfer."</string>
+    <string name="delete_run_dialog_title" msgid="7008565166051348569">"Suprimir la gravació?"</string>
+    <string name="run_review_delete_confirm" msgid="6565595557388366823">"Confirmes que vols suprimir aquesta gravació? Les notes i les dades gravades se suprimiran. Aquesta acció no es pot desfer."</string>
     <string name="menu_btn_content_description" msgid="6686128481642305452">"menú"</string>
     <string name="age_verifier_header" msgid="6109465186601177801">"Verifica la teva edat"</string>
     <string name="age_verifier_birthday" msgid="6757334725141206468">"Data de naixement:"</string>
@@ -256,8 +257,8 @@
     <string name="playback_button_pause" msgid="348710889337495167">"posa la reproducció d\'àudio en pausa"</string>
     <string name="playback_button_play" msgid="3845595255478520691">"inicia la reproducció d\'àudio"</string>
     <string name="dev_sonification_types_title" msgid="8470117255317834775">"Activa els tipus de sonificació de desenvolupadors"</string>
-    <string name="title_edit_trial_activity" msgid="6563295412905345378">"Edita l\'enregistrament"</string>
-    <string name="edit_trial_title_hint" msgid="2517506393996420794">"Títol de l\'enregistrament"</string>
+    <string name="title_edit_trial_activity" msgid="6563295412905345378">"Edita la gravació"</string>
+    <string name="edit_trial_title_hint" msgid="2517506393996420794">"Títol de la gravació"</string>
     <string name="include_archived_trials" msgid="4061915194331729499">"Mostra els enregistraments arxivats"</string>
     <string name="export_error" msgid="2485739090885091041">"No s\'ha pogut exportar."</string>
     <string name="no_app_found_for_csv" msgid="4251087103186089612">"No hi ha cap aplicació instal·lada que permeti exportar en CSV."</string>
@@ -265,7 +266,7 @@
     <string name="listing_title" msgid="1732490922169483408">"Science Journal"</string>
     <string name="listing_tagline" msgid="1469201637342921292">"Explora el teu món."</string>
     <string name="listing_changelog" msgid="530900357619095816">"Funcions noves i millores: \n• Interfície completament nova per prendre notes i documentar experiments científics. \n• Nova funció per fer instantànies i capturar punts de dades concrets. \n• Sensors nous: acceleròmetre lineal, magnetòmetre i brúixola \n• Galeria redissenyada per cercar experiments \n• Ara també disponible per a dispositius iOS."</string>
-    <string name="listing__description" msgid="1193865948828289689">"Google t\'ofereix Science Journal, una llibreta científica digital gratuïta. \n \nTant si ensenyes ciències com si t\'agrada fer experiments científics a casa, pots prendre notes, fer fotos i anotar observacions en un sol lloc. Fes servir els sensors del teu telèfon per mesurar i crear gràfics de fenòmens com ara la llum, el so i el moviment, o connecta\'l per Bluetooth a sensors externs per dur a terme experiments en el teu entorn. \n\nL\'aplicació Science Journal et permet fer el següent: \n• Mesurar la llum, el so, l\'acceleració, la pressió atmosfèrica i molts altres fenòmens amb els sensors integrats al teu telèfon mòbil. \n• Prendre notes i fer fotos per documentar els teus experiments científics. Aviat afegirem més tipus de notes. \n• Connectar el dispositiu a sensors externs per Bluetooth (només amb determinats dispositius Arduino i Vernier compatibles). \n• Exportar les dades enregistrades amb els sensors com a fitxers CSV. \n• Crear activadors automàtics per enregistrar dades i prendre notes. \n• Fer servir la sonificació per sentir el moviment dels teus gràfics. \n\nScience Journal està disponible de manera gratuïta per a Android, iPhone, iPad i dispositius Chromebook compatibles. \n\nActivitats educatives dels nostres col·laboradors: https://makingscience.withgoogle.com/science-journal/activities. \nAssistència: https://productforums.google.com/forum/#!forum/sciencejournal. \nCodi obert disponible a https://github.com/google/science-journal. \n\n Avís de permisos: \n• Ubicació: es necessita per cercar dispositius amb sensors Bluetooth. \n• Càmera: es necessita per fer fotos per documentar experiments. \n• Micròfon: es necessita per utilitzar el sensor d\'intensitat del so. \n• Emmagatzematge: es necessita per accedir a les fotos i inserir-les als experiments."</string>
+    <string name="listing__description" msgid="1193865948828289689">"Google t\'ofereix Science Journal, una llibreta científica digital gratuïta. \n \nTant si ensenyes ciències com si t\'agrada fer experiments científics a casa, pots prendre notes, fer fotos i anotar observacions en un sol lloc. Fes servir els sensors del teu telèfon per mesurar i crear gràfics de fenòmens com ara la llum, el so i el moviment, o connecta\'l per Bluetooth a sensors externs per dur a terme experiments en el teu entorn. \n\nL\'aplicació Science Journal et permet fer el següent: \n• Mesurar la llum, el so, l\'acceleració, la pressió atmosfèrica i molts altres fenòmens amb els sensors integrats al teu telèfon mòbil. \n• Prendre notes i fer fotos per documentar els teus experiments científics. Aviat afegirem més tipus de notes. \n• Connectar el dispositiu a sensors externs per Bluetooth (només amb determinats dispositius Arduino i Vernier compatibles). \n• Exportar les dades enregistrades amb els sensors com a fitxers CSV. \n• Crear activadors automàtics per gravar dades i prendre notes. \n• Fer servir la sonificació per sentir el moviment dels teus gràfics. \n\nScience Journal està disponible de manera gratuïta per a Android, iPhone, iPad i dispositius Chromebook compatibles. \n\nActivitats educatives dels nostres col·laboradors: https://makingscience.withgoogle.com/science-journal/activities. \nAssistència: https://productforums.google.com/forum/#!forum/sciencejournal. \nCodi obert disponible a https://github.com/google/science-journal. \n\n Avís de permisos: \n• Ubicació: es necessita per cercar dispositius amb sensors Bluetooth. \n• Càmera: es necessita per fer fotos per documentar experiments. \n• Micròfon: es necessita per utilitzar el sensor d\'intensitat del so. \n• Emmagatzematge: es necessita per accedir a les fotos i inserir-les als experiments."</string>
     <string name="third_party_sensors_option_title" msgid="4835603485129230503">"Cerca sensors de tercers"</string>
     <string name="third_party_sensors_option_summary" msgid="2567608839882361492">"Cerca aplicacions que admetin l\'API de sensors de tercers i permet que s\'afegeixin aquests sensors als experiments."</string>
     <string name="enable_temperature_sensor_title" msgid="3445129532763718616">"Activa la temperatura ambient"</string>
@@ -293,8 +294,8 @@
     <string name="trigger_type_label" msgid="4847350415951495617">"Tipus d\'activador"</string>
     <string name="trigger_when_label" msgid="8616405039634043612">"Activa\'l quan"</string>
     <string name="trigger_value_label" msgid="3412972042230849085">"Valor de l\'activador"</string>
-    <string name="trigger_type_start_recording" msgid="7292105639999785968">"Inicia l\'enregistrament"</string>
-    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"Atura l\'enregistrament"</string>
+    <string name="trigger_type_start_recording" msgid="7292105639999785968">"Inicia la gravació"</string>
+    <string name="trigger_type_stop_recording" msgid="3022683931027310288">"Atura la gravació"</string>
     <string name="trigger_type_note" msgid="626654531254636746">"Escriu una nota"</string>
     <string name="trigger_type_alert" msgid="6525543144561765762">"Avisa\'m"</string>
     <string name="trigger_when_at" msgid="762967868925610869">"El valor és igual"</string>
@@ -331,12 +332,12 @@
     <item msgid="5929079391002165627">"detecti un valor superior a"</item>
     <item msgid="2421726237024232431">"detecti un valor inferior a"</item>
   </string-array>
-    <string name="trigger_only_when_recording" msgid="2102420075414851575">"Activa\'l només en enregistrar"</string>
+    <string name="trigger_only_when_recording" msgid="2102420075414851575">"Activa\'l només en gravar"</string>
     <string name="trigger_label_auto_text" msgid="7238124210986703642">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
     <string name="trigger_snackbar_auto_text" msgid="1082338857442085741">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g> <xliff:g id="TRIGGER_VALUE">%3$.2f</xliff:g> <xliff:g id="SENSOR_UNITS">%4$s</xliff:g>"</string>
     <string name="scroll_to_card" msgid="4531288548260633064">"mostra"</string>
     <string name="could_not_find_service_error" msgid="6399923176664381124">"No s\'ha pogut trobar el servei: <xliff:g id="SERVICE_ID">%s</xliff:g>"</string>
-    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"L\'enregistrament s\'ha completat."</string>
+    <string name="recording_stopped_notification_text" msgid="2700948290649435580">"La gravació s\'ha completat."</string>
     <string name="disable_all_triggers" msgid="4207192080361552008">"Desactiva els activadors"</string>
     <string name="trigger_view_icon_content_description" msgid="468973450644969062">"activadors"</string>
     <string name="alert_trigger_needs_alerts" msgid="1195471137123743218">"Has de seleccionar com a mínim un tipus d\'alerta per a aquest activador."</string>
@@ -383,7 +384,7 @@
     <string name="crop_failed_range_too_large" msgid="3346936676881544788">"La prova no es pot retallar fora dels límits enregistrats prèviament"</string>
     <string name="crop_failed_range_too_small" msgid="2107171169092126449">"La prova no es pot retallar fins a menys d\'un segon"</string>
     <string name="project_experiment_title" msgid="2978147784450916263">"<xliff:g id="PROJECT_NAME">%1s</xliff:g>: <xliff:g id="EXPERIMENT_NAME">%1s</xliff:g>"</string>
-    <string name="snapshot_button_text" msgid="6920838734610813060">"visualització general"</string>
+    <string name="snapshot_button_text" msgid="6920838734610813060">"captura"</string>
     <string name="export_options_title" msgid="1313836868518047627">"Exporta…"</string>
     <string name="export_options_relative_time" msgid="3171536380796115508">"Temps relatiu"</string>
     <string name="old_trigger_note_format" msgid="5794951574203245272">"Nota activada: <xliff:g id="AUTO_TEXT">%1s</xliff:g>"</string>
@@ -405,8 +406,8 @@
     <string name="data_with_units" msgid="6919197320548318804">"<xliff:g id="VALUE">%1$s</xliff:g> <xliff:g id="UNITS">%2$s</xliff:g>"</string>
     <string name="edit_note_time_menu_item" msgid="8949041732814286402">"Edita el temps"</string>
     <string name="add_note_button_text" msgid="1263907264569204297">"Afegeix una nota a la cronologia"</string>
-    <string name="trial_caption_hint_text" msgid="8974493718130569209">"Afegeix una descripció de l\'enregistrament aquí"</string>
-    <string name="snapshot_label_details_title" msgid="876439532036968792">"Detalls visualització general"</string>
+    <string name="trial_caption_hint_text" msgid="8974493718130569209">"Afegeix una descripció de la gravació aquí"</string>
+    <string name="snapshot_label_details_title" msgid="876439532036968792">"Detalls de la captura"</string>
     <string name="trigger_label_details_title" msgid="7844261655862849084">"Detalls de la nota activada"</string>
     <string name="tool_picker_tab_layout_description" msgid="6898249361624127701">"Eines disponibles"</string>
     <string name="tab_description_add_note" msgid="8259995764315955353">"Escriu"</string>
@@ -416,13 +417,13 @@
     <string name="name_experiment_dialog_title" msgid="4253322993689197542">"Posa nom a l\'experiment"</string>
     <string name="empty_experiment_title_error" msgid="4741357059638017915">"El nom no pot estar buit"</string>
     <string name="card_recording_title" msgid="2760260378349508177">"<xliff:g id="TITLE">%1$s</xliff:g>…"</string>
-    <string name="throbber_content_description" msgid="3400101352483412316">"Enregistrament en curs"</string>
+    <string name="throbber_content_description" msgid="3400101352483412316">"Gravació en curs"</string>
     <string name="trigger_label_name_header" msgid="2262672414778047276">"<xliff:g id="SENSOR_NAME">%1$s</xliff:g> <xliff:g id="TRIGGER_WHEN">%2$s</xliff:g>"</string>
     <string name="description_hint" msgid="673355468672398307">"Descripció"</string>
     <string name="details_header" msgid="3615607795479940179">"Detalls"</string>
     <string name="text_label_hint" msgid="1108956064543616019">"Afegeix una observació"</string>
     <string name="first_experiment_title" msgid="4510437516891041608">"Et donem la benvinguda a Science Journal"</string>
-    <string name="first_experiment_text_note" msgid="1517699072074036189">"Prova de prendre notes i enregistrar dades amb la barra d\'eines que hi ha a més avall."</string>
+    <string name="first_experiment_text_note" msgid="1517699072074036189">"Prova de prendre notes i gravar dades amb la barra d\'eines que hi ha a més avall."</string>
     <string name="first_experiment_picture_note_caption" msgid="5429499615012974999">"Et donem la benvinguda a Science Journal!"</string>
     <string name="first_experiment_second_text_note" msgid="7840206175805610752">"Troba activitats per fer a \ng.co/sciencejournalactivities"</string>
     <string name="experiment_cover_description" msgid="6319265532135034002">"Tria una foto de l\'experiment"</string>
@@ -430,7 +431,7 @@
     <string name="tab_description_gallery" msgid="1558619247937893970">"Tria una foto"</string>
     <string name="gallery_image_content_description" msgid="474626617793194680">"Foto feta el dia <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"seleccionada"</string>
-    <string name="photo_editor_dialog_title" msgid="2305657514653927089">"Edita la foto amb..."</string>
+    <string name="photo_editor_dialog_title" msgid="706476743547220050">"Edita la foto amb…"</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"Mostra el tauler d\'eines"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"Desplega el tauler d\'eines"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"Replega el tauler d\'eines"</string>
@@ -438,7 +439,10 @@
     <string name="add_text_note" msgid="7399260444850532349">"Afegeix una nota de text"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"Vista en directe de la càmera"</string>
     <string name="input_camera_permission_denied" msgid="647063985319912627">"No es pot fer servir la càmera perquè Science Journal no té permís per accedir-hi."</string>
-    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"No es pot fer servir la biblioteca de fotos perquè Science Journal no té permís per accedir-hi."</string>
-    <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
-    <skip />
+    <string name="input_photo_library_permission_denied" msgid="7854809867722656783">"No es pot fer servir la galeria de fotos perquè Science Journal no té permís per accedir-hi."</string>
+    <string name="input_blocked_open_settings_button" msgid="4065294335092002359">"Obre la configuració"</string>
+    <string name="action_show_archived_experiments" msgid="2077011015345957679">"Mostra els experiments arxivats"</string>
+    <string name="action_hide_archived_experiments" msgid="1641276713027230561">"Amaga els experiments arxivats"</string>
+    <string name="action_hide_archived_trials" msgid="8663689130822379245">"Amaga els enregistraments arxivats"</string>
+    <string name="snapshot_button_description" msgid="6847875690172106880">"Visualització general dels sensors"</string>
 </resources>

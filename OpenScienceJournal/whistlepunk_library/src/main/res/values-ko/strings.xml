@@ -200,7 +200,7 @@
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"물체는 그대로 있거나 이동 중인 경우에는 계속 이동하려는 경향이 있으며 이러한 경향을 관성이라고 합니다. 이 개념을 공식적으로 표현한 것이 뉴턴의 제1법칙입니다. 물체는 이동 상태로 계속 진행하거나 불균형한 힘이 작용하지 않는 한 움직이지 않습니다. \n\n불균형한 힘이 물체를 움직이게 하면 물체가 가속된다고 합니다. 가속, 감속 또는 방향 변경에 의해 물체의 속도가 변합니다. 가속도는 시간에 따른 속도 변화(초당 미터) 또는 미터 매 초 제곱(m/s²)으로 측정됩니다. \n\n휴대전화에 이러한 움직임 변화를 측정하는 장치인 가속도계가 있습니다. 가속도계 내부에 달려 있는 소형 질량 물체는 이동이 가능하며 움직임에 변화가 있을 때 이동합니다. 이는 자동차가 갑자기 멈출 때 탑승자의 머리가 앞쪽으로 이동하는 것과 같습니다. 휴대전화의 가속도계는 이러한 미묘한 관성에 의한 이동을 측정하여 움직임과 방향의 변화를 감지하므로 휴대전화에서 게임 등의 활동을 할 때 화면을 가로에서 세로 모드로 전환하는 데 유용합니다."</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"휴대전화를 탁자 위에 놓아둔 상태에서도 z축의 지속적인 가속을 확인할 수 있습니다. 이는 중력의 당기는 힘에 의해 지구 표면에서 발생하는 가속도이며 약 9.8m/s²입니다."</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"소리는 진동에 의해 발생합니다. 예를 들어 목소리는 성대의 진동을 통해 발생합니다. 이러한 진동은 높고 낮은 공기압이 번갈아 밖으로 배출되는 공간을 만듭니다. 이는 연못에 조약돌을 던지면 원형의 잔물결이 확대되는 것과 같습니다."</string>
-    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"모든 소리는 주파수와 세기로 설명할 수 있습니다. \n\n세기는 과학 저널에서 데시벨(dB) 단위로 측정하는 항목입니다. 소리의 강도나 세기는 진동하는 물체가 진동할 때마다 이동하는 거리에 따라 다릅니다. 소리가 커지면 더 큰 세기의 소리를 듣게 됩니다. \n\n음파의 주파수, 음높이 또는 음색은 진동 속도와 같습니다. 물체가 빠르게 진동할수록 진동에 의한 소리의 음높이가 더 높습니다. 과학 저널은 주파수가 아닌 세기만 측정합니다. \n\n평균적인 인간의 귀로 감지할 수 있는 가장 작은 소리는 0dB로 정의됩니다. 일반적인 대화는 약 60dB이며 약 140dB 이상의 소리는 인간의 귀에 고통스럽습니다. 하지만 이러한 고통이 해로운 소리의 기준이 아닙니다. 진공청소기의 세기와 비슷한 90dB의 소리에 지속적으로 노출되어도 청력을 상실할 수 있습니다. \n\n데시벨 등급은 로그 방식이므로 이해하는 것이 조금 까다로울 수 있습니다. 40dB의 소리는 20dB 세기의 2배가 아닌 100배입니다. 한편 자명종 1개는 70dB이지만 자명종 2개는 140dB이 아닌 73dB입니다. 설명한 것처럼 친숙하지 않은 방식의 등급입니다. \n\n10dB: 나뭇잎이 바스락거리는 소리 \n20dB: 1.5미터 거리에서 속삭이는 소리 \n30dB: 부드럽게 속삭이는 소리 \n50dB: 빗소리 \n60dB: 일반적인 대화 \n90dB: 믹서기 \n100dB: 소음기가 없는 자동차 \n110dB: 귀에 대고 지르는 고함 \n120dB: 천둥 \n130dB: 착암기 \n140dB: 비행기 착륙"</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="8847748188455408317">"모든 소리는 주파수와 세기로 표현할 수 있습니다. \n\n세기는 과학 저널에서 데시벨(dB) 단위로 측정되는 수치입니다. 소리의 강도나 세기는 진동하는 물체가 진동할 때마다 이동하는 거리에 따라 다릅니다. 소리가 커지면 더 큰 세기의 소리를 듣게 됩니다. \n\n음파의 주파수, 음높이 또는 음색은 진동 속도와 같습니다. 물체가 빠르게 진동할수록 진동에 의한 소리의 음높이가 더 높습니다. 과학 저널은 주파수가 아닌 세기만 측정합니다. \n\n기기의 마이크는 시간 경과에 따른 음파의 차이에 매우 민감하게 감지하도록 설계되어 있지만 각 음파의 절대적인 크기에는 민감하지 않다는 점을 알고 있어야 합니다. 과학 저널은 아래에 나와 있는 참조 수치와 비슷한 수치가 나올 가능성이 높은 코드를 채택했지만 각각의 기기에서 지속적으로 더 높거나 낮은 수치가 나올 수 있습니다. 과학자는 대개 이와 같은 센서를 알려진 측정값에 맞게 보정합니다. 현재 과학 저널로 다음에 탑승할 열차가 다음에 관람할 록 콘서트보다 시끄러운지 확인할 수 있지만 기차와 콘서트장 모두 동일한 휴대전화를 가져가는 경우에만 가능합니다. \n\n\'소리 세기\', \'소리 세기 수준\', \'음압\' 사이에 중요한 차이점이 있다는 점도 알고 있어야 합니다. 과학 저널에서는 모두 동일한 것으로 취급하고 있지만 더 자세히 알아보고 싶은 경우 이러한 차이점에 대한 다양한 온라인 리소스를 확인해 보세요. \n\n평균적인 사람의 청각이 감지할 수 있는 가장 작은 소리를 0dB로 정의합니다. 보통의 대화는 약 60dB이며, 약 140dB을 초과한 소리는 사람이 듣기에 고통스럽다고 합니다. 그러나 고통을 주지 않는 소리도 해로울 수 있습니다. 진공청소기가 내는 소음 수준인 90dB의 소리에 지속적으로 노출되어도 청력을 상실할 수 있습니다. \n\n데시벨 수치는 지수적이므로 착각하기 쉽습니다. 예를 들어 40dB의 음원은 20dB의 음원보다 2배가 아니라 100배나 강한 것입니다. 또한 자명종 하나가 70dB의 소리를 낸다면 자명종 두 개는 140dB이 아닌 73dB의 소리를 냅니다. 이상하죠? \n\n10dB: 나뭇잎이 바스락거리는 소리 \n20dB: 1.5미터 거리에서 속삭이는 소리 \n30dB: 부드럽게 속삭이는 소리 \n50dB: 빗소리 \n60dB: 일반적인 대화 \n90dB: 믹서기 \n100dB: 소음기가 없는 자동 \n110dB: 귀에 대고 지르는 고함 \n120dB thunder \n130dB: 착암기 \n140dB: 비행기 이륙"</string>
     <string name="sensor_desc_first_paragraph_rotation" msgid="701021949358379491">"분당 회전수(RPM)는 고정된 축에서 1분 동안 회전하는 빈도를 측정합니다. \n\n풍력 회전자가 돌아가면 인코더 디스크가 회전합니다."</string>
     <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"과학 저널에서 회전으로 인식되는 밝고 어두운 부분이 센서에서 생성됩니다."</string>
     <string name="sensor_desc_first_paragraph_raw" msgid="8624088001449985317">"여기에 표시되는 데이터는 블루투스를 통해 휴대전화와 외부 센서가 통신하여 제공합니다. \n\n값은 마이크로 컨트롤러에서 직접 읽은 원본 비율을 보여줍니다. 이 값은 보통 센서의 전압 강하 비율입니다."</string>
@@ -232,6 +232,7 @@
     <string name="run_review_switch_sensor_btn_next" msgid="7804434037837088592">"다음 센서: <xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="add_note_hint_text" msgid="2378709047693154979">"새 메모 추가"</string>
     <string name="snackbar_note_deleted" msgid="6991629249337643878">"메모를 삭제했습니다."</string>
+    <string name="snackbar_recording_deleted" msgid="4571106292806473151">"기록이 삭제되었습니다."</string>
     <string name="snackbar_undo" msgid="2277748858954056127">"실행취소"</string>
     <string name="add_run_note_placeholder_text" msgid="4139664399729584582">"이 기록에 메모 추가"</string>
     <string name="add_note_image_button_content_description" msgid="45880639214601555">"메모 촬영"</string>
@@ -430,7 +431,7 @@
     <string name="tab_description_gallery" msgid="1558619247937893970">"사진 선택"</string>
     <string name="gallery_image_content_description" msgid="474626617793194680">"<xliff:g id="DATE">%s</xliff:g>에 촬영한 이미지"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"선택됨"</string>
-    <string name="photo_editor_dialog_title" msgid="2305657514653927089">"사진을 수정할 앱 선택..."</string>
+    <string name="photo_editor_dialog_title" msgid="706476743547220050">"사진을 수정할 앱 선택..."</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"도구 창 표시"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"도구 창 펼치기"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"도구 창 접기"</string>
@@ -438,7 +439,10 @@
     <string name="add_text_note" msgid="7399260444850532349">"텍스트 메모 추가"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"카메라 실시간 보기"</string>
     <string name="input_camera_permission_denied" msgid="647063985319912627">"카메라에 액세스할 수 있는 권한이 없어 과학 저널에서 카메라를 사용할 수 없습니다."</string>
-    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"사진 라이브러리에 액세스할 수 있는 권한이 없어 과학 저널에서 사진 라이브러리를 사용할 수 없습니다."</string>
-    <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
-    <skip />
+    <string name="input_photo_library_permission_denied" msgid="7854809867722656783">"과학 저널에 사진 갤러리 액세스 권한이 없어 사진 갤러리를 사용할 수 없습니다."</string>
+    <string name="input_blocked_open_settings_button" msgid="4065294335092002359">"설정 열기"</string>
+    <string name="action_show_archived_experiments" msgid="2077011015345957679">"보관처리된 실험 표시"</string>
+    <string name="action_hide_archived_experiments" msgid="1641276713027230561">"보관처리된 실험 숨기기"</string>
+    <string name="action_hide_archived_trials" msgid="8663689130822379245">"보관처리된 기록 숨기기"</string>
+    <string name="snapshot_button_description" msgid="6847875690172106880">"센서 스냅샷"</string>
 </resources>

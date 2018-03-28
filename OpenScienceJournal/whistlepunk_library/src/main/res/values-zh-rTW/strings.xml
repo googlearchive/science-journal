@@ -200,7 +200,7 @@
     <string name="sensor_desc_first_paragraph_acc" msgid="4473484678164840377">"物體在原地保持不動、或在移動過程中持續移動的趨勢，稱為慣性。牛頓第一定律正式闡述了這個概念：除非施加不平衡力，否則物體的移動或靜止狀態不會改變。\n\n如果不平衡力造成物件輕微移動，就稱為物體「加速」，表示物體的速度或速率有變化 (無論是因速度增加、減緩或改變方向所造成)。加速度是指速度 (單位為 m/s) 之於時間的變化率，單位為 m/s²。\n\n手機裡的加速計可用於測量移動中的加速度變化。加速計內含有可任意移動的細小懸浮物質，運動產生變化時，這些物質就會隨之移動，就像人的頭部會在緊急煞車時往前傾一樣。只要測量這些物質的慣性移動，手機裡的加速計就能偵測運動與定向的變化，方便您將螢幕從橫向切換成縱向模式、在手機上玩遊戲或進行其他操作。"</string>
     <string name="sensor_desc_second_paragraph_acc" msgid="2427906479343745578">"您可能會發現，即使將手機靜置在桌面上，Z 軸的加速度仍然持續存在。這是地球表面上因重力牽引產生的加速度，大約為 9.8 m/s²。"</string>
     <string name="sensor_desc_first_paragraph_decibel" msgid="2327698150398006617">"我們聽到的聲音是由空氣振動所產生。舉例來說，喉嚨的聲帶振動就會發出聲音。這些振動會產生向外移動的高氣壓和低氣壓，形成多個彼此交會的區域，原理類似把石子扔進池塘後形成的擴散漣漪。"</string>
-    <string name="sensor_desc_second_paragraph_decibel" msgid="6039417536094358024">"所有聲音都能以頻率和強度來表示。\n\n強度是科學日誌使用的測量數值，以分貝 (dB) 為單位。強度或響度皆取決於物體振動時移動的距離。響度越大，人耳聽到的聲音越強。\n\n聲波的頻率、音高或音調相當於物體的振動速率。物體振動得越快，產生的音高也越高。科學日誌中不提供測量頻率，只能測量聲音的響度。\n\n人耳勉強能聽見的聲音強度定義為 0 分貝，一般談話約為 60 分貝，超過 140 分貝的聲音則會令人耳感到疼痛。但即使是不會引發耳朵疼痛的聲音，也可能對人有害。持續暴露在 90 分貝 (約等於吸塵器的響度) 的環境中，最終會導致聽力衰退。\n\n分貝的規模為對數性質，因此不太容易計算：40 分貝的聲源強度並不是 20 分貝聲源的 2 倍，而是 100 倍。另外，如果鬧鐘的聲音強度是 70 分貝，由兩個鬧鐘產生的聲音強度並不是 140 分貝，而是 73 分貝。誠如先前所述，分貝規模的計算方式較為繁複。\n\n10 dB 微風吹動樹葉的沙沙聲 \n20 dB 5 呎外的低語聲 \n30 dB 輕聲說話 \n50 dB 下雨聲 \n60 dB 一般談話 \n90 dB 果汁機的聲音 \n100 dB 未裝消音器的汽車聲 \n110 dB 在耳邊尖叫的聲音 \n120 dB 雷聲 \n130 dB 電鑽聲 \n140 dB 飛機起飛的聲音"</string>
+    <string name="sensor_desc_second_paragraph_decibel" msgid="8847748188455408317">"所有聲音都能以頻率和強度來表示。\n\n強度是科學日誌使用的測量基準，以分貝 (dB) 為單位。強度 (又稱響度) 取決於物體振動時移動的距離。強度越高，人耳聽到的聲音也就越響亮。\n\n聲波的頻率 (亦即音高或音調) 相當於物體的振動速率。物體振動得越快，產生的音高也越高。科學日誌無法測量頻率，只能測量聲音的響度。\n\n雖然行動裝置的麥克風非常靈敏，能夠偵測聲波在一段時間內產生的變化，但無法測量每段音波的絕對大小。我們試著從程式設計上著手，讓各種裝置產生的數值盡可能接近下方的參考數值，但不同裝置得出的數值仍可能有高有低 (同一部裝置測出的數值高低則是一致的)。科學家通常會藉由調校感測器，讓得出的結果符合已知的數值。現階段來說，科學日誌能讓你知道某一班火車的音量是否超越某一場搖滾音樂會，但前提是你必須使用同一支手機來測量這兩種情境中的數據。\n\n另外，也請留意「聲音強度」、「聲強級別」和「聲壓」三者之間的差異。雖然我們在這裡將這三者一視同仁，但如要深入探究箇中的差異，網路上有許多相關資料可供參考。\n\n人耳勉強能聽見的聲音強度定義為 0 分貝，一般談話約為 60 分貝，超過 140 分貝的聲音則會令人耳感到疼痛。但即使是不會引發耳朵疼痛的聲音，也可能對人有害。持續暴露在 90 分貝 (約等於吸塵器的響度) 的環境中，最終可能會導致聽力衰退。\n\n分貝的大小屬於對數性質，因此不太容易計算：40 分貝的聲源強度並不是 20 分貝聲源的 2 倍，而是 100 倍。同理，假設鬧鐘的聲音強度是 70 分貝，兩個鬧鐘產生的聲音強度並不是 140 分貝，而是 73 分貝。分貝強弱的計算方式難以一言以蔽之。\n\n微風吹動樹葉的沙沙聲約為 10 分貝\n5 呎外的低語聲約為 20 分貝\n輕聲說話約為 30 分貝\n下雨聲約為 50 分貝\n一般談話約為 60 分貝\n果汁機的聲音約為 90 分貝\n未裝消音器的汽車聲約為 100 分貝\n在耳邊尖叫的聲音約為 110 分貝\n雷聲約為 120 分貝\n電鑽聲約為 130 分貝\n飛機起飛的聲音約為 140 分貝"</string>
     <string name="sensor_desc_first_paragraph_rotation" msgid="701021949358379491">"每分鐘旋轉次數 (RPM) 可測量定軸在 1 分鐘內的旋轉頻率。\n\n風動裝置開始旋轉時，編碼器碟片也會一併轉動 (如下圖)："</string>
     <string name="sensor_desc_second_paragraph_rotation" msgid="5453599141200678146">"這會在感測器上產生斷斷續續的光影，科學日誌則會根據光影的規律來判讀旋轉的次數。"</string>
     <string name="sensor_desc_first_paragraph_raw" msgid="8624088001449985317">"這個畫面會顯示外部感測器透過藍牙傳送到手機的資料。\n\n資料中顯示的值是微控器傳送的原始讀數百分比 (通常是電流通過感測器時的電壓百分比)。"</string>
@@ -232,6 +232,7 @@
     <string name="run_review_switch_sensor_btn_next" msgid="7804434037837088592">"下一個感測器：<xliff:g id="SENSOR_NAME">%s</xliff:g>"</string>
     <string name="add_note_hint_text" msgid="2378709047693154979">"加入新的附註"</string>
     <string name="snackbar_note_deleted" msgid="6991629249337643878">"已刪除附註"</string>
+    <string name="snackbar_recording_deleted" msgid="4571106292806473151">"已刪除紀錄"</string>
     <string name="snackbar_undo" msgid="2277748858954056127">"復原"</string>
     <string name="add_run_note_placeholder_text" msgid="4139664399729584582">"為這項紀錄新增附註"</string>
     <string name="add_note_image_button_content_description" msgid="45880639214601555">"拍攝附註圖片"</string>
@@ -430,7 +431,7 @@
     <string name="tab_description_gallery" msgid="1558619247937893970">"選擇相片"</string>
     <string name="gallery_image_content_description" msgid="474626617793194680">"拍攝於 <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="content_description_selected" msgid="4555792111169052548">"已選取"</string>
-    <string name="photo_editor_dialog_title" msgid="2305657514653927089">"選擇相片編輯程式..."</string>
+    <string name="photo_editor_dialog_title" msgid="706476743547220050">"選擇相片編輯程式…"</string>
     <string name="btn_show_tools" msgid="2318999636820360860">"顯示工具導覽匣"</string>
     <string name="btn_expand_tools" msgid="8312223732779598934">"展開工具導覽匣"</string>
     <string name="btn_hide_tools" msgid="1499529350560310547">"收合工具導覽匣"</string>
@@ -438,7 +439,10 @@
     <string name="add_text_note" msgid="7399260444850532349">"新增文字附註"</string>
     <string name="camera_preview_content_description" msgid="5571625157168747543">"相機即時預覽功能"</string>
     <string name="input_camera_permission_denied" msgid="647063985319912627">"由於「科學日誌」沒有相機的存取權，因此無法使用相機。"</string>
-    <string name="input_photo_library_permission_denied" msgid="5779659490264636585">"由於「科學日誌」沒有照片圖庫的存取權，因此無法使用你的照片圖庫。"</string>
-    <!-- no translation found for input_blocked_open_settings_button (4065294335092002359) -->
-    <skip />
+    <string name="input_photo_library_permission_denied" msgid="7854809867722656783">"由於「科學日誌」沒有圖片庫的存取權，因此無法使用你的圖片庫。"</string>
+    <string name="input_blocked_open_settings_button" msgid="4065294335092002359">"開啟設定"</string>
+    <string name="action_show_archived_experiments" msgid="2077011015345957679">"顯示已封存的實驗"</string>
+    <string name="action_hide_archived_experiments" msgid="1641276713027230561">"隱藏已封存的實驗"</string>
+    <string name="action_hide_archived_trials" msgid="8663689130822379245">"隱藏已封存的紀錄"</string>
+    <string name="snapshot_button_description" msgid="6847875690172106880">"感測器數據匯報"</string>
 </resources>
