@@ -1403,7 +1403,7 @@ Permissions notice:
     <string name="input_camera_permission_denied">The camera cannot be used because Science Journal does not have permission to access it.</string>
 
     <!-- Error message for gallery view when permissions are denied [CHAR_LIMIT=NONE] -->
-    <string name="input_photo_library_permission_denied">Your photo library cannot be used because Science Journal does not have permission to access it.</string>
+    <string name="input_photo_library_permission_denied">Your photo gallery cannot be used because Science Journal does not have permission to access it.</string>
 
     <!-- Button text to open phone settings [CHAR_LIMIT=30] -->
     <string name="input_blocked_open_settings_button">Open Settings</string>
