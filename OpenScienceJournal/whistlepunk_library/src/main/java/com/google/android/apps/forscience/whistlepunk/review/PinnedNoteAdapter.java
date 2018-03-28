@@ -52,6 +52,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_ADD_LABEL = 4;
     private static final int TYPE_CAPTION = 5;
 
+    private PopupMenu mPopupMenu = null;
     /**
      * An interface for listening to when a pinned note should be edited or deleted.
      */
@@ -168,30 +169,26 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
 
         if (mEditListener != null) {
-            noteHolder.menuButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Context context = noteHolder.menuButton.getContext();
-                    PopupMenu popup = new PopupMenu(context, noteHolder.menuButton);
-                    popup.getMenuInflater().inflate(R.menu.menu_note, popup.getMenu());
-                    if (!label.canEditTimestamp()) {
-                        popup.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
-                    }
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        public boolean onMenuItemClick(MenuItem item) {
-                            int itemId = item.getItemId();
-                            if (itemId == R.id.btn_edit_note_time) {
-                                mEditListener.onLabelEditTime(label);
-                                return true;
-                            } else if (itemId == R.id.btn_delete_note) {
-                                mEditListener.onLabelDelete(label);
-                                return true;
-                            }
-                            return false;
-                        }
-                    });
-                    popup.show();
+            noteHolder.menuButton.setOnClickListener(v -> {
+                Context context = noteHolder.menuButton.getContext();
+                mPopupMenu = new PopupMenu(context, noteHolder.menuButton);
+                mPopupMenu.getMenuInflater().inflate(R.menu.menu_note, mPopupMenu.getMenu());
+                if (!label.canEditTimestamp()) {
+                    mPopupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
                 }
+                mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
+                mPopupMenu.setOnMenuItemClickListener(item -> {
+                    int itemId = item.getItemId();
+                    if (itemId == R.id.btn_edit_note_time) {
+                        mEditListener.onLabelEditTime(label);
+                        return true;
+                    } else if (itemId == R.id.btn_delete_note) {
+                        mEditListener.onLabelDelete(label);
+                        return true;
+                    }
+                    return false;
+                });
+                mPopupMenu.show();
             });
         }
         // Notes out of range are not clickable.
@@ -299,5 +296,8 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onDestroy() {
         mClickListener = null;
         mEditListener = null;
+        if (mPopupMenu != null) {
+            mPopupMenu.dismiss();
+        }
     }
 }
