@@ -472,7 +472,6 @@ public class RunReviewFragment extends Fragment implements
         if (mExperiment != null) {
             menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
             menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
-            menu.findItem(R.id.action_run_review_delete).setEnabled(getTrial().isArchived());
 
             menu.findItem(R.id.action_disable_auto_zoom).setVisible(
                     getTrial().getAutoZoomEnabled());

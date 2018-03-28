@@ -396,8 +396,8 @@ public class ExperimentDetailsFragment extends Fragment
                 mExperiment.isArchived());
         // Disable archive option when recording.
         menu.findItem(R.id.action_archive_experiment).setEnabled(!isRecording());
-        menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null
-                && mExperiment.isArchived());
+        menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null &&
+                !isRecording());
         menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
         menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
         menu.findItem(R.id.action_edit_experiment).setVisible(mExperiment != null &&
