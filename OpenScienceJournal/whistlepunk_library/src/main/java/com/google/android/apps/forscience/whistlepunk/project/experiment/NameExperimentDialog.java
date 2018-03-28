@@ -23,6 +23,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -49,7 +51,8 @@ public class NameExperimentDialog extends DialogFragment {
     }
 
     private String mExperimentId;
-    private EditText mInput;
+    private TextInputEditText mInput;
+    private TextInputLayout mInputLayout;
 
     public static NameExperimentDialog newInstance(String experimentId) {
         NameExperimentDialog dialog = new NameExperimentDialog();
@@ -79,7 +82,8 @@ public class NameExperimentDialog extends DialogFragment {
         final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
         ViewGroup rootView = (ViewGroup) LayoutInflater.from(getActivity()).inflate(
                 R.layout.name_experiment_dialog, null);
-        mInput = (EditText) rootView.findViewById(R.id.title);
+        mInput = (TextInputEditText) rootView.findViewById(R.id.title);
+        mInputLayout = (TextInputLayout) rootView.findViewById(R.id.title_input_layout);
         mInput.setText(previousTitle);
         if (savedInstanceState == null) {
             mInput.selectAll();
@@ -98,13 +102,14 @@ public class NameExperimentDialog extends DialogFragment {
             Button button = result.getButton(DialogInterface.BUTTON_POSITIVE);
             if (mInput.getText().toString().length() == 0) {
                 if (getActivity() != null) {
-                    mInput.setError(getActivity().getResources().getString(
+                    mInputLayout.setError(getActivity().getResources().getString(
                             R.string.empty_experiment_title_error));
                 }
                 if (button != null) {
                     button.setEnabled(false);
                 }
             } else if (button != null) {
+                mInputLayout.setErrorEnabled(false);
                 button.setEnabled(true);
             }
         });
