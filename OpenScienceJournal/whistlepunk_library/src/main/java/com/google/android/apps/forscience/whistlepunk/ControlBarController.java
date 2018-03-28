@@ -16,14 +16,21 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.support.design.widget.Snackbar;
+import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.view.RxView;
 
@@ -52,6 +59,32 @@ class ControlBarController {
                      .firstElement()
                      .flatMapSingle(status -> snapshotter.addSnapshotLabel(mExperimentId, status))
                      .subscribe(label -> singleton.onLabelsAdded().onNext(label));
+        });
+        // Adapted from TabLayout.java
+        // TODO: Replace with TooltipCompat#setTooltipText after O update b/67935835
+        snapshotButton.setOnLongClickListener(view -> {
+            final int[] screenPos = new int[2];
+            final Rect displayFrame = new Rect();
+            view.getLocationOnScreen(screenPos);
+            view.getWindowVisibleDisplayFrame(displayFrame);
+
+            final Context context = view.getContext();
+            final int width = view.getWidth();
+            final int height = view.getHeight();
+            int referenceX = screenPos[0] + width / 2;
+
+            if (ViewCompat.getLayoutDirection(view) == ViewCompat.LAYOUT_DIRECTION_LTR) {
+                final int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
+                referenceX = screenWidth - referenceX; // mirror
+            }
+
+            Toast cheatSheet = Toast.makeText(context,
+                    context.getResources().getString(R.string.snapshot_button_description),
+                    Toast.LENGTH_SHORT);
+            cheatSheet.setGravity(Gravity.TOP | GravityCompat.END, referenceX,
+                    screenPos[1] - (int) (height * 1.5));
+            cheatSheet.show();
+            return true;
         });
     }
 

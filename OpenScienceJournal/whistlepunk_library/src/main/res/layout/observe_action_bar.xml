@@ -38,7 +38,7 @@
             android:id="@+id/snapshot_button"
             android:layout_width="@dimen/accessibility_touch_target_min_size"
             android:layout_height="@dimen/accessibility_touch_target_min_size"
-            android:contentDescription="@string/snapshot_button_text"
+            android:contentDescription="@string/snapshot_button_description"
             android:src="@drawable/snapshot_icon"
             android:layout_gravity="center"
             android:background="?attr/selectableItemBackgroundBorderless"
