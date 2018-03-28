@@ -98,6 +98,7 @@ import java.util.Objects;
 
 import io.reactivex.Completable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * A fragment to handle displaying Experiment details, runs and labels.
@@ -120,6 +121,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     private String mExperimentId;
     private Experiment mExperiment;
+    private BehaviorSubject<Experiment> mLoadedExperiment = BehaviorSubject.create();
     private ScalarDisplayOptions mScalarDisplayOptions;
     private boolean mIncludeArchived;
     private BroadcastReceiver mBroadcastReceiver;
@@ -253,7 +255,18 @@ public class ExperimentDetailsFragment extends Fragment
         mDetails = (RecyclerView) view.findViewById(R.id.details_list);
         mDetails.setLayoutManager(new LinearLayoutManager(view.getContext(),
                 LinearLayoutManager.VERTICAL, /* don't reverse layout */ false));
-        mAdapter = new DetailsAdapter(this, savedInstanceState);
+        DetailsAdapter adapter = new DetailsAdapter(this, savedInstanceState);
+        mLoadedExperiment.subscribe(experiment -> {
+            boolean includeInvalidRuns = false;
+            adapter.setScalarDisplayOptions(mScalarDisplayOptions);
+            adapter.setData(experiment,
+                    experiment.getTrials(mIncludeArchived, includeInvalidRuns));
+            if (mActiveTrialId != null) {
+                adapter.addActiveRecording(experiment.getTrial(mActiveTrialId));
+            }
+        });
+        mAdapter = adapter;
+
         mDetails.setAdapter(mAdapter);
 
         mEmptyView = (TextView) view.findViewById(R.id.empty_list);
@@ -278,12 +291,7 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void loadExperimentData(final Experiment experiment) {
-        boolean includeInvalidRuns = false;
-        mAdapter.setScalarDisplayOptions(mScalarDisplayOptions);
-        mAdapter.setData(experiment, experiment.getTrials(mIncludeArchived, includeInvalidRuns));
-        if (mActiveTrialId != null) {
-            mAdapter.addActiveRecording(experiment.getTrial(mActiveTrialId));
-        }
+        mLoadedExperiment.onNext(experiment);
     }
 
     public void onStartRecording(String trialId) {
