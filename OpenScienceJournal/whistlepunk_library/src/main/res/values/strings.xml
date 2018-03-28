@@ -1376,7 +1376,7 @@ Permissions notice:
     <string name="content_description_selected">selected</string>
 
     <!-- Title for a chooser to open a photo editing app [CHAR_LIMIT=50] -->
-    <string name="photo_editor_dialog_title">Edit photo with...</string>
+    <string name="photo_editor_dialog_title">Edit photo with&#8230;</string>
 
     <!-- Title for the Primes debug screen preference [CHAR_LIMIT=50] -->
     <string name="perf_tracker_debug_pref_title" translatable="false">Show Perf Tracker Debug Screen</string>
@@ -1407,6 +1407,18 @@ Permissions notice:
 
     <!-- Button text to open phone settings [CHAR_LIMIT=30] -->
     <string name="input_blocked_open_settings_button">Open Settings</string>
+
+    <!-- Menu item label for viewing all experiments, including the archived ones [CHAR_LIMIT=50]-->
+    <string name="action_show_archived_experiments">Show archived experiments</string>
+
+    <!-- Menu item label to hide archived experiments from the list [CHAR_LIMIT=50]-->
+    <string name="action_hide_archived_experiments">Hide archived experiments</string>
+
+    <!-- Menu option to hide archived recordings when viewing a list of recordings in an experiment [CHAR_LIMIT=30] -->
+    <string name="action_hide_archived_trials">Hide archived recordings</string>
+
+    <!-- Description of a button that records the current value of one or more sensors [CHAR_LIMIT=50] -->
+    <string name="snapshot_button_description">Sensor snapshot</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
