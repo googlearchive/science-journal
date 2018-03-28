@@ -785,7 +785,6 @@ public class ExperimentDetailsFragment extends Fragment
             boolean archived = item.getTrial().isArchived();
             popup.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
             popup.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
-            popup.getMenu().findItem(R.id.menu_item_delete).setEnabled(archived);
             popup.setOnMenuItemClickListener(menuItem -> {
                 if (menuItem.getItemId() == R.id.menu_item_archive) {
                     mParentReference.get().setTrialArchived(item.getTrial(), true);

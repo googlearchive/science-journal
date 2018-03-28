@@ -481,8 +481,6 @@ public class ExperimentListFragment extends Fragment implements
                         !overview.isArchived);
                 mPopupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(
                         overview.isArchived);
-                mPopupMenu.getMenu().findItem(R.id.menu_item_delete).setEnabled(
-                        overview.isArchived);
                 mPopupMenu.setOnMenuItemClickListener(menuItem -> {
                     if (menuItem.getItemId() == R.id.menu_item_archive) {
                         setExperimentArchived(overview, position, true);

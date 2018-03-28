@@ -33,6 +33,7 @@
     <item
         android:title="@string/action_delete"
         android:id="@+id/menu_item_delete"
+        android:enabled="true"
         />
 
 </menu>
