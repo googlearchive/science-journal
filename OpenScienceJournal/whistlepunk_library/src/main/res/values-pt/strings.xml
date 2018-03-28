@@ -72,7 +72,7 @@
     <string name="recording_start_failed" msgid="8552798481347616797">"Não foi possível iniciar a gravação. Tente novamente"</string>
     <string name="recording_start_failed_disconnected" msgid="5403438882837691163">"Não foi possível iniciar a gravação porque um sensor está desconectado. Tente novamente."</string>
     <string name="recording_stop_failed_no_data_title" msgid="7187684438487384614">"Os dados não estão sendo gravados"</string>
-    <string name="recording_stop_failed_no_data" msgid="5652683982830054853">"Um ou mais sensores não gravaram nenhum dado. Deseja cancelar esta gravação?"</string>
+    <string name="recording_stop_failed_no_data" msgid="5652683982830054853">"Um ou mais sensores não gravaram nenhum dado. Quer cancelar esta gravação?"</string>
     <string name="recording_stop_failed_continue" msgid="6866415472979372254">"Continuar"</string>
     <string name="recording_stop_failed_cancel" msgid="1054502695356124817">"Cancelar gravação"</string>
     <string name="recording_stop_failed_disconnected" msgid="4286495388309028275">"Não foi possível parar a gravação porque um sensor está desconectado. Quer cancelar esta gravação?"</string>
@@ -445,4 +445,6 @@
     <string name="action_hide_archived_experiments" msgid="1641276713027230561">"Ocultar experimentos arquivados"</string>
     <string name="action_hide_archived_trials" msgid="8663689130822379245">"Ocultar gravações arquivadas"</string>
     <string name="snapshot_button_description" msgid="6847875690172106880">"Instantâneo do sensor"</string>
+    <string name="notification_channel_name" msgid="1753404325741073278">"Gravações"</string>
+    <string name="notification_channel_description" msgid="2996787662937550240">"Status da gravação"</string>
 </resources>

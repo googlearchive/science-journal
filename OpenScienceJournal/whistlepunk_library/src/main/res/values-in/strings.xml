@@ -213,8 +213,8 @@
     <string name="run_review_activity_label" msgid="5646135462344737004">"Peninjauan"</string>
     <string name="service_notification_content_title" msgid="791621361781451323">"Jurnal Sains"</string>
     <string name="service_notification_content_text" msgid="8364458347657207997">"Merekam..."</string>
-    <string name="live_graph_content_description" msgid="7102643199006291209">"Grafik sensor langsung. Seret untuk menggeser sumbu X, cubit untuk memperbesar sumbu Y."</string>
-    <string name="static_graph_content_description" msgid="4724363632843408472">"Grafik sensor. Cubit untuk memperbesar dan seret untuk menggeser, tap dua kali untuk memperkecil."</string>
+    <string name="live_graph_content_description" msgid="7102643199006291209">"Grafik sensor langsung. Tarik untuk menggeser sumbu X, cubit untuk memperbesar sumbu Y."</string>
+    <string name="static_graph_content_description" msgid="4724363632843408472">"Grafik sensor. Cubit untuk memperbesar dan tarik untuk menggeser, tap dua kali untuk memperkecil."</string>
     <string name="sensor_card_overflow_menu_content_description" msgid="4358551973476442373">"Opsi kartu"</string>
     <string name="sensor_tab_layout_content_description" msgid="3807243095823040361">"sensor yang tersedia"</string>
     <string name="title_activity_sensor_info" msgid="8667402055779114709">"Informasi Sensor"</string>
@@ -445,4 +445,6 @@
     <string name="action_hide_archived_experiments" msgid="1641276713027230561">"Sembunyikan arsip eksperimen"</string>
     <string name="action_hide_archived_trials" msgid="8663689130822379245">"Sembunyikan arsip rekaman"</string>
     <string name="snapshot_button_description" msgid="6847875690172106880">"Rekam sensor"</string>
+    <string name="notification_channel_name" msgid="1753404325741073278">"Rekaman"</string>
+    <string name="notification_channel_description" msgid="2996787662937550240">"Status perekaman"</string>
 </resources>

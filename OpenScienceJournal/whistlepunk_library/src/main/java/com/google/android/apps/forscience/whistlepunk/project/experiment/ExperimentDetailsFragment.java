@@ -196,6 +196,12 @@ public class ExperimentDetailsFragment extends Fragment
         }
     }
 
+    @Override
+    public void onDestroy() {
+        mAdapter.onDestroy();
+        super.onDestroy();
+    }
+
     public void reloadWithoutScroll() {
         loadExperimentIfInitialized().subscribe(() -> {}, onReloadError());
     }
@@ -315,9 +321,6 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void scrollToBottom() {
-        // Doing this here lets the initial layout NOT stack from end, and keeps the view
-        // at the top of the list.
-        ((LinearLayoutManager) mDetails.getLayoutManager()).setStackFromEnd(true);
         if (mDetails != null && mAdapter != null && mAdapter.getItemCount() > 0) {
             if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
                 mDetails.smoothScrollToPosition(mAdapter.getItemCount() - 1);
@@ -672,6 +675,7 @@ public class ExperimentDetailsFragment extends Fragment
         private boolean mHasRunsOrLabels;
         private ScalarDisplayOptions mScalarDisplayOptions;
         private boolean mReverseOrder = true;
+        private PopupMenu mPopupMenu = null;
 
         DetailsAdapter(ExperimentDetailsFragment parent, Bundle savedInstanceState) {
             mItems = new ArrayList<>();
@@ -732,10 +736,10 @@ public class ExperimentDetailsFragment extends Fragment
 
                 noteViewHolder.menuButton.setOnClickListener(view -> {
                     Context context = noteViewHolder.menuButton.getContext();
-                    PopupMenu popup = new PopupMenu(context, noteViewHolder.menuButton, Gravity.NO_GRAVITY,
+                    mPopupMenu = new PopupMenu(context, noteViewHolder.menuButton, Gravity.NO_GRAVITY,
                             R.attr.actionOverflowMenuStyle, 0);
-                    setupNoteMenu(item, popup);
-                    popup.show();
+                    setupNoteMenu(item);
+                    mPopupMenu.show();
                 });
                 holder.itemView.setOnClickListener(view -> {
                     if (!isRecording()) {
@@ -768,10 +772,10 @@ public class ExperimentDetailsFragment extends Fragment
 
             holder.menuButton.setOnClickListener(view -> {
                 Context context = holder.menuButton.getContext();
-                PopupMenu popup = new PopupMenu(context, holder.menuButton, Gravity.NO_GRAVITY,
+                mPopupMenu = new PopupMenu(context, holder.menuButton, Gravity.NO_GRAVITY,
                         R.attr.actionOverflowMenuStyle, 0);
-                setupTrialMenu(item, popup);
-                popup.show();
+                setupTrialMenu(item);
+                mPopupMenu.show();
             });
         }
 
@@ -791,31 +795,32 @@ public class ExperimentDetailsFragment extends Fragment
             }*/
         }
 
-        private void setupTrialMenu(ExperimentDetailItem item, PopupMenu popup) {
-            popup.getMenuInflater().inflate(R.menu.menu_experiment_trial, popup.getMenu());
+        private void setupTrialMenu(ExperimentDetailItem item) {
+            mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_trial, mPopupMenu.getMenu());
             boolean archived = item.getTrial().isArchived();
-            popup.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
-            popup.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
-            popup.setOnMenuItemClickListener(menuItem -> {
-                if (menuItem.getItemId() == R.id.menu_item_archive) {
-                    mParentReference.get().setTrialArchived(item.getTrial(), true);
-                    return true;
-                } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
-                    mParentReference.get().setTrialArchived(item.getTrial(), false);
-                    return true;
-                } else if (menuItem.getItemId() == R.id.menu_item_delete) {
-                    if (mParentReference.get() != null) {
+            mPopupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
+            mPopupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
+            mPopupMenu.setOnMenuItemClickListener(menuItem -> {
+                if (mParentReference.get() != null && mParentReference.get().isVisible()) {
+                    if (menuItem.getItemId() == R.id.menu_item_archive) {
+                        mParentReference.get().setTrialArchived(item.getTrial(), true);
+                        return true;
+                    } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
+                        mParentReference.get().setTrialArchived(item.getTrial(), false);
+                        return true;
+                    } else if (menuItem.getItemId() == R.id.menu_item_delete) {
                         mParentReference.get().deleteTrial(item.getTrial());
+                        return true;
                     }
-                    return true;
                 }
                 return false;
             });
+            mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
         }
 
-        private void setupNoteMenu(ExperimentDetailItem item, PopupMenu popup) {
-            popup.getMenuInflater().inflate(R.menu.menu_experiment_note, popup.getMenu());
-            popup.setOnMenuItemClickListener(menuItem -> {
+        private void setupNoteMenu(ExperimentDetailItem item) {
+            mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_note, mPopupMenu.getMenu());
+            mPopupMenu.setOnMenuItemClickListener(menuItem -> {
                 if (menuItem.getItemId() == R.id.btn_delete_note) {
                     if (mParentReference.get() != null) {
                         mParentReference.get().deleteLabel(item.getLabel());
@@ -824,6 +829,7 @@ public class ExperimentDetailsFragment extends Fragment
                 }
                 return false;
             });
+            mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
         }
 
         public void deleteNote(Label label) {
@@ -923,6 +929,12 @@ public class ExperimentDetailsFragment extends Fragment
         @Override
         public int getItemViewType(int position) {
             return mItems.get(position).getViewType();
+        }
+
+        public void onDestroy() {
+            if (mPopupMenu != null) {
+                mPopupMenu.dismiss();
+            }
         }
 
         public void setScalarDisplayOptions(ScalarDisplayOptions scalarDisplayOptions) {

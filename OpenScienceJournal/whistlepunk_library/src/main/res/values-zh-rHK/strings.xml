@@ -445,4 +445,6 @@
     <string name="action_hide_archived_experiments" msgid="1641276713027230561">"隱藏已封存的實驗"</string>
     <string name="action_hide_archived_trials" msgid="8663689130822379245">"隱藏已封存的紀錄"</string>
     <string name="snapshot_button_description" msgid="6847875690172106880">"感測器數據匯報"</string>
+    <string name="notification_channel_name" msgid="1753404325741073278">"紀錄"</string>
+    <string name="notification_channel_description" msgid="2996787662937550240">"記錄狀態"</string>
 </resources>

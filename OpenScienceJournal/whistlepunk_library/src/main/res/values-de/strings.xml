@@ -125,7 +125,7 @@
     <string name="export_action" msgid="897850091094685357">"Teilen"</string>
     <string name="export_run_chooser_title" msgid="3151522898296393519">"Speichern unter…"</string>
     <string name="settings_version_title" msgid="6926476057478648092">"Version"</string>
-    <string name="settings_open_source_title" msgid="2075335777151654751">"Open-Source-Lizenzen"</string>
+    <string name="settings_open_source_title" msgid="2075335777151654751">"Open Source-Lizenzen"</string>
     <string name="cannot_scan_message" msgid="5736974833739008592">"Für den Zugriff auf externe Geräte (\"Science Journal-Sensor\") mittels Science Journal müssen Sie zunächst Bluetooth aktivieren. Um Science Journal-Sensoren zu finden, benötigt Android außerdem Ihre Erlaubnis, auf Ihren Standort zuzugreifen, da andere Bluetooth-Geräte während der Geräteerkennung möglicherweise ihre Standortinformationen übertragen. Science Journal speichert diese Standortinformationen jedoch nicht und Science Journal-Sensoren übertragen keine Standortinformationen."</string>
     <string name="btn_request_location" msgid="307169020767649663">"Standortzugriff aktivieren"</string>
     <string name="btn_enable_bluetooth" msgid="4110230448360114456">"Bluetooth aktivieren"</string>
@@ -445,4 +445,6 @@
     <string name="action_hide_archived_experiments" msgid="1641276713027230561">"Archivierte Experimente ausblenden"</string>
     <string name="action_hide_archived_trials" msgid="8663689130822379245">"Archivierte Aufz. ausblenden"</string>
     <string name="snapshot_button_description" msgid="6847875690172106880">"Momentaufnahme des Sensors"</string>
+    <string name="notification_channel_name" msgid="1753404325741073278">"Aufzeichnungen"</string>
+    <string name="notification_channel_description" msgid="2996787662937550240">"Aufzeichnungsstatus"</string>
 </resources>

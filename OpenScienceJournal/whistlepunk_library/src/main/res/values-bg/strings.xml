@@ -445,4 +445,6 @@
     <string name="action_hide_archived_experiments" msgid="1641276713027230561">"Скриване на архивираните експерименти"</string>
     <string name="action_hide_archived_trials" msgid="8663689130822379245">"Скриване на архив. записи"</string>
     <string name="snapshot_button_description" msgid="6847875690172106880">"Моментна снимка на сензорите"</string>
+    <string name="notification_channel_name" msgid="1753404325741073278">"Записи"</string>
+    <string name="notification_channel_description" msgid="2996787662937550240">"Състояние на записите"</string>
 </resources>

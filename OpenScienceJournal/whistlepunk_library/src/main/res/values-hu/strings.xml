@@ -445,4 +445,6 @@
     <string name="action_hide_archived_experiments" msgid="1641276713027230561">"Archivált kísérletek elrejtése"</string>
     <string name="action_hide_archived_trials" msgid="8663689130822379245">"Archivált felvételek elrejtése"</string>
     <string name="snapshot_button_description" msgid="6847875690172106880">"Aktuális szenzorérték"</string>
+    <string name="notification_channel_name" msgid="1753404325741073278">"Felvételek"</string>
+    <string name="notification_channel_description" msgid="2996787662937550240">"Rögzítési állapot"</string>
 </resources>
