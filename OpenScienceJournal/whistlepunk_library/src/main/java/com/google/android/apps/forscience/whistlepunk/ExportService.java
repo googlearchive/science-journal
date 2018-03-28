@@ -419,7 +419,7 @@ public class ExportService extends Service {
                 + ".csv");
     }
 
-    private static String truncate(String string, int maxLength) {
+    public static String truncate(String string, int maxLength) {
         int hexLength = 8;
         if (string.length() < maxLength) {
             return string;

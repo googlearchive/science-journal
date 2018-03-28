@@ -31,6 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ColorAllocator;
 import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -210,7 +211,7 @@ public class FileMetadataManager {
                     }
                     try {
                         zipFile = new File(getExperimentExportDirectory(context),
-                                experimentName + ".sj");
+                                ExportService.truncate(experimentName, 70) + ".sj");
                     } catch (IOException ioException) {
                         s.onError(ioException);
                         return;
