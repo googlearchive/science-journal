@@ -475,6 +475,9 @@ public class ExperimentDetailsFragment extends Fragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
+        if (mProgressVisible) {
+            return true;
+        }
         if (itemId == android.R.id.home) {
             // Disable the home button functionality when recording is active
             // Set with appearance in setHomeButtonState

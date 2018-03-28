@@ -273,6 +273,12 @@ public class AppSingleton {
     }
 
     public void setResumedActivity(Activity activity) {
-        mResumedActivity.onNext(Optional.fromNullable(activity));
+        mResumedActivity.onNext(Optional.of(activity));
+    }
+
+    public void setNoLongerResumedActivity(Activity activity) {
+        if (activity.equals(mResumedActivity.getValue().orNull())) {
+            mResumedActivity.onNext(Optional.absent());
+        }
     }
  }

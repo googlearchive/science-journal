@@ -306,6 +306,9 @@ public class ExperimentListFragment extends Fragment implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        if (mProgressBarVisible) {
+            return true;
+        }
         if (id == R.id.action_include_archived) {
             mIncludeArchived = true;
             loadExperiments();
@@ -491,7 +494,9 @@ public class ExperimentListFragment extends Fragment implements
             holder.itemView.setTag(R.id.experiment_title, overview.experimentId);
 
             holder.cardView.setOnClickListener(v -> {
-                launchPanesActivity(v.getContext(), overview.experimentId);
+                if (!mParentReference.get().mProgressBarVisible) {
+                    launchPanesActivity(v.getContext(), overview.experimentId);
+                }
             });
 
             Context context = holder.menuButton.getContext();
@@ -500,6 +505,7 @@ public class ExperimentListFragment extends Fragment implements
 
             holder.menuButton.setOnClickListener(v -> {
                 int position = mItems.indexOf(item);
+
                 mPopupMenu = new PopupMenu(context, holder.menuButton, Gravity.NO_GRAVITY,
                         R.attr.actionOverflowMenuStyle, 0);
                 mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_overview,
@@ -512,6 +518,9 @@ public class ExperimentListFragment extends Fragment implements
                         isShareIntentValid && !overview.isArchived);
 
                 mPopupMenu.setOnMenuItemClickListener(menuItem -> {
+                    if (mParentReference.get().mProgressBarVisible) {
+                        return true;
+                    }
                     if (menuItem.getItemId() == R.id.menu_item_archive) {
                         setExperimentArchived(overview, position, true);
                         return true;

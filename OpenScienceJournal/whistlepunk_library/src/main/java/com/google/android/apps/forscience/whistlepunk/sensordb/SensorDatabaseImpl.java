@@ -209,7 +209,6 @@ public class SensorDatabaseImpl implements SensorDatabase {
                         ScalarSensorsTable.DEFAULT_TRIAL_ID, new String[]{sensorTag},
                         range, resolutionTier, maxRecords)) {
                     return cursorAsScalarReadingList(fallbackCursor, maxRecords);
-
                 }
             } else {
                 return cursorAsScalarReadingList(cursor, maxRecords);
@@ -272,26 +271,21 @@ public class SensorDatabaseImpl implements SensorDatabase {
                 // Start by opening the cursor.
                 TimeRange searchRange = range;
                 while (true) {
-                    Cursor c = null;
-                    try {
-                        c = getCursor(trialId, sensorTags, searchRange, resolutionTier, pageSize);
-                        if (c != null) {
+                    try (Cursor cursor = getCursor(trialId, sensorTags, searchRange, resolutionTier,
+                            pageSize)) {
+                        if (cursor != null) {
                             int count = 0;
-                            while (c.moveToNext()) {
-                                long timeStamp = c.getLong(0);
-                                String sensorTag = c.getString(2);
+                            while (cursor.moveToNext()) {
+                                long timeStamp = cursor.getLong(0);
+                                String sensorTag = cursor.getString(2);
                                 observableEmitter.onNext(new ScalarReading(
-                                        timeStamp, c.getDouble(1), sensorTag));
+                                        timeStamp, cursor.getDouble(1), sensorTag));
                                 mLastTimeStampWritten = timeStamp;
                                 count++;
                             }
                             if (count == 0 || observableEmitter.isDisposed()) {
                                 break;
                             }
-                        }
-                    } finally {
-                        if (c != null) {
-                            c.close();
                         }
                     }
                     if (mLastTimeStampWritten >= range.getTimes().upperEndpoint()) {
@@ -354,31 +348,39 @@ public class SensorDatabaseImpl implements SensorDatabase {
     // TimeRange.
     public GoosciScalarSensorData.ScalarSensorDataDump getScalarReadingSensorProtos(
             String trialId, String sensorTag, TimeRange range) {
-
-        Cursor cursor = getCursor(trialId, new String[]{sensorTag}, range, 0, 0);
-        if (cursor.getCount() == 0) {
-            // No results for the TrialId. Assume this is a pre-export trial, so query again
-            // with the default trial id.
-            cursor = getCursor(ScalarSensorsTable.DEFAULT_TRIAL_ID, new String[]{sensorTag}, range,
-                    0, 0);
+        try (Cursor cursor = getCursor(trialId, new String[]{sensorTag}, range, 0, 0)) {
+            if (cursor.getCount() == 0) {
+                // No results for the TrialId. Assume this is a pre-export trial, so query again
+                // with the default trial id.
+                try (Cursor fallbackCursor = getCursor(ScalarSensorsTable.DEFAULT_TRIAL_ID,
+                        new String[]{sensorTag}, range, 0, 0)) {
+                    return cursorAsScalarSensorDataDump(fallbackCursor, trialId, sensorTag);
+                }
+            } else {
+                return cursorAsScalarSensorDataDump(cursor, trialId, sensorTag);
+            }
         }
+    }
+
+    private GoosciScalarSensorData.ScalarSensorDataDump cursorAsScalarSensorDataDump(Cursor cursor,
+            String trialId, String sensorTag) {
         GoosciScalarSensorData.ScalarSensorDataDump sensor =
                 new GoosciScalarSensorData.ScalarSensorDataDump();
-        try {
-            sensor.tag = sensorTag;
-            sensor.trialId = trialId;
-            ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> rowsList = new ArrayList<>();
-            while (cursor.moveToNext()) {
-                GoosciScalarSensorData.ScalarSensorDataRow row =
-                        new GoosciScalarSensorData.ScalarSensorDataRow();
-                row.timestampMillis = cursor.getLong(0);
-                row.value = cursor.getDouble(1);
-                rowsList.add(row);
-            }
-            sensor.rows = rowsList.toArray(GoosciScalarSensorData.ScalarSensorDataRow.emptyArray());
-        } finally {
-            cursor.close();
+
+        sensor.tag = sensorTag;
+        sensor.trialId = trialId;
+        ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> rowsList = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+            GoosciScalarSensorData.ScalarSensorDataRow row =
+                    new GoosciScalarSensorData.ScalarSensorDataRow();
+            row.timestampMillis = cursor.getLong(0);
+            row.value = cursor.getDouble(1);
+            rowsList.add(row);
         }
+
+        sensor.rows = rowsList.toArray(GoosciScalarSensorData.ScalarSensorDataRow.emptyArray());
+
         return sensor;
     }
 
@@ -387,18 +389,15 @@ public class SensorDatabaseImpl implements SensorDatabase {
     @Override
     public String getFirstDatabaseTagAfter(long timestamp) {
         final String timestampString = String.valueOf(timestamp);
-        final Cursor cursor = mOpenHelper.getReadableDatabase().query(ScalarSensorsTable.NAME,
+        try (Cursor cursor = mOpenHelper.getReadableDatabase().query(ScalarSensorsTable.NAME,
                 new String[]{ScalarSensorsTable.Column.TAG},
                 ScalarSensorsTable.Column.TIMESTAMP_MILLIS + ">?", new String[]{timestampString},
-                null, null, ScalarSensorsTable.Column.TIMESTAMP_MILLIS + " ASC", "1");
-        try {
+                null, null, ScalarSensorsTable.Column.TIMESTAMP_MILLIS + " ASC", "1")) {
             if (cursor.moveToNext()) {
                 return cursor.getString(0);
             } else {
                 return null;
             }
-        } finally {
-            cursor.close();
         }
     }
 

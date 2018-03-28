@@ -641,7 +641,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
         super.onResume();
         AppSingleton appSingleton = AppSingleton.getInstance(this);
         appSingleton.setResumedActivity(this);
-        mPaused.happensNext().subscribe(() -> appSingleton.setResumedActivity(null));
+        mPaused.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
 
         if (!isMultiWindowEnabled()) {
             updateRecorderControllerForResume();

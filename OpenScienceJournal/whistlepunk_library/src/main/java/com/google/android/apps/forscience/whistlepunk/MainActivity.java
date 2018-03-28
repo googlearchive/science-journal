@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         AppSingleton appSingleton = AppSingleton.getInstance(this);
         appSingleton.setResumedActivity(this);
-        mPause.happensNext().subscribe(() -> appSingleton.setResumedActivity(null));
+        mPause.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
 
         if (showRequiredScreensIfNeeded()) {
             return;

@@ -203,9 +203,14 @@ public class FileMetadataManager {
                             context, experiment.getExperimentId()) + "/sensorData.proto";
 
                     File zipFile;
+                    String experimentName = experiment.getTitle();
+                    if (experimentName.isEmpty()) {
+                        experimentName = context.getResources()
+                                .getString(R.string.default_experiment_name);
+                    }
                     try {
                         zipFile = new File(getExperimentExportDirectory(context),
-                                experiment.getTitle() + ".sj");
+                                experimentName + ".sj");
                     } catch (IOException ioException) {
                         s.onError(ioException);
                         return;
@@ -272,16 +277,19 @@ public class FileMetadataManager {
                 continue;
             }
             FileInputStream fis = new FileInputStream(f.getAbsolutePath());
-            ZipEntry zipEntry = new ZipEntry(path + f.getName());
-            zipOutputStream.putNextEntry(zipEntry);
+            String zipPath = path + f.getName();
+            if (!zipPath.equals(COVER_IMAGE_FILE)) {
+                ZipEntry zipEntry = new ZipEntry(zipPath);
+                zipOutputStream.putNextEntry(zipEntry);
 
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = fis.read(bytes)) >= 0) {
-                zipOutputStream.write(bytes, 0, length);
+                byte[] bytes = new byte[1024];
+                int length;
+                while ((length = fis.read(bytes)) >= 0) {
+                    zipOutputStream.write(bytes, 0, length);
+                }
+                zipOutputStream.closeEntry();
             }
 
-            zipOutputStream.closeEntry();
             fis.close();
         }
     }
@@ -517,19 +525,22 @@ public class FileMetadataManager {
         }
         updateExperiment(Experiment.fromExperiment(proto, overview));
         File dataFile = new File(externalPath, "sensorData.proto");
-        ProtoFileHelper<GoosciScalarSensorData.ScalarSensorData> dataProtoFileHelper =
-                new ProtoFileHelper<>();
-        GoosciScalarSensorData.ScalarSensorData dataProto = dataProtoFileHelper.readFromFile(
-                dataFile,
-                GoosciScalarSensorData.ScalarSensorData::parseFrom,
-                WhistlePunkApplication.getUsageTracker(context));
 
-        if (dataProto != null) {
-            ScalarSensorDumpReader dumpReader = new ScalarSensorDumpReader(
-                    AppSingleton.getInstance(context).getSensorEnvironment().getDataController());
-            dumpReader.readData(dataProto, trialIdMap);
+        if (dataFile.exists()) {
+            ProtoFileHelper<GoosciScalarSensorData.ScalarSensorData> dataProtoFileHelper =
+                    new ProtoFileHelper<>();
+            GoosciScalarSensorData.ScalarSensorData dataProto = dataProtoFileHelper.readFromFile(
+                    dataFile,
+                    GoosciScalarSensorData.ScalarSensorData::parseFrom,
+                    WhistlePunkApplication.getUsageTracker(context));
+
+            if (dataProto != null) {
+                ScalarSensorDumpReader dumpReader = new ScalarSensorDumpReader(
+                        AppSingleton.getInstance(
+                                context).getSensorEnvironment().getDataController());
+                dumpReader.readData(dataProto, trialIdMap);
+            }
         }
-
 
         return newExperiment;
     }
