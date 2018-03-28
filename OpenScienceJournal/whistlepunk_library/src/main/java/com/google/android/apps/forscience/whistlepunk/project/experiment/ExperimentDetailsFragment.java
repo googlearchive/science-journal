@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;

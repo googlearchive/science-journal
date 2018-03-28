@@ -16,13 +16,13 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.app.ListFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.ListFragment;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -76,8 +76,8 @@ public class LicenseActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_licenses);
 
-        if (getFragmentManager().findFragmentByTag("list") == null) {
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
+        if (getSupportFragmentManager().findFragmentByTag("list") == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(R.id.container, new LicenseListFragment(), "list");
             ft.commit();
         }
@@ -91,7 +91,7 @@ public class LicenseActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            if (getFragmentManager().popBackStackImmediate()) {
+            if (getSupportFragmentManager().popBackStackImmediate()) {
                 return true;
             } else {
                 Intent intent = SettingsActivity.getLaunchIntent(this,
@@ -182,7 +182,7 @@ public class LicenseActivity extends AppCompatActivity {
     }
 
     private void showLicense(License license) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.container, LicenseFragment.newInstance(license), "license");
         ft.addToBackStack(license.key);
         ft.commit();

@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.content.AsyncTaskLoader;
+import androidx.loader.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;

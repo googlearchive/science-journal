@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;

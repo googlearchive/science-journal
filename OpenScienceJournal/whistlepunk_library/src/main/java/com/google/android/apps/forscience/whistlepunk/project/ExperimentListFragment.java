@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.project;
 
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;

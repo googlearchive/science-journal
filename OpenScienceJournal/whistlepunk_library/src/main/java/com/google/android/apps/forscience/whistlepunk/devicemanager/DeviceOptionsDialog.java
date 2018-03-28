@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
+import androidx.fragment.app.DialogFragment;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.os.Bundle;

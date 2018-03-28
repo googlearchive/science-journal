@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.Manifest;
-import android.app.DialogFragment;
+import androidx.fragment.app.DialogFragment;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;

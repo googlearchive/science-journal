@@ -16,9 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -253,13 +253,13 @@ public class MainActivity extends AppCompatActivity
             return false;
         }
         if (menuItem.getItemId() == R.id.navigation_item_experiments) {
-            FragmentManager fragmentManager = getFragmentManager();
+            FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             Fragment fragment;
             int itemId = menuItem.getItemId();
 
             final String tag = String.valueOf(itemId);
-            fragment = getFragmentManager().findFragmentByTag(tag);
+            fragment = getSupportFragmentManager().findFragmentByTag(tag);
             if (fragment == null) {
                 fragment = ExperimentListFragment.newInstance(shouldUsePanes());
             }
@@ -394,7 +394,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // TODO: Do this for all possible IDs in case others have activity results.
-        Fragment fragment = getFragmentManager().findFragmentByTag(
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(
                 String.valueOf(R.id.navigation_item_experiments));
         if (fragment != null) {
             fragment.onActivityResult(requestCode, resultCode, data);

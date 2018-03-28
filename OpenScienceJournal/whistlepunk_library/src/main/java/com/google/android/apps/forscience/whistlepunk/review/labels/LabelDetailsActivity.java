@@ -88,7 +88,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
         // and these activities, similar to RunReview transition. This may involve
         // supportPostponeEnterTransition();?
 
-        if (getFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
             LabelDetailsFragment fragment;
             if (labelType == GoosciLabel.Label.TEXT) {
                 fragment = TextLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(),
@@ -107,8 +107,8 @@ public class LabelDetailsActivity extends AppCompatActivity {
                 finish();
                 return;
             }
-            getFragmentManager().beginTransaction().add(R.id.container, fragment, FRAGMENT_TAG)
-                    .commit();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, fragment, FRAGMENT_TAG).commit();
         }
     }
 

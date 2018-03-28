@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.app.DialogFragment;
+import androidx.fragment.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;

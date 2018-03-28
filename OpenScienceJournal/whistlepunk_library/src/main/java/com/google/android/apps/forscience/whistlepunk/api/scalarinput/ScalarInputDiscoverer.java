@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-import android.app.FragmentManager;
+import androidx.fragment.app.FragmentManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Drawable;

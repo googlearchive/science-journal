@@ -15,9 +15,8 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,7 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
-import android.support.v13.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -114,7 +113,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     private static enum ToolTab {
         NOTES(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp, "NOTES") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity) {
+            public Fragment createFragment(String experimentId, AppCompatActivity activity) {
                 return TextToolFragment.newInstance();
             }
 
@@ -131,7 +130,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, OBSERVE(R.string.tab_description_observe, R.drawable.sensortab_white_24dp, "OBSERVE") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity) {
+            public Fragment createFragment(String experimentId, AppCompatActivity activity) {
                 return RecordFragment.newInstance(experimentId, false);
             }
 
@@ -148,7 +147,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, CAMERA(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity) {
+            public Fragment createFragment(String experimentId, AppCompatActivity activity) {
                 return CameraFragment.newInstance();
             }
 
@@ -164,7 +163,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             }
         }, GALLERY(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp, "GALLERY") {
             @Override
-            public Fragment createFragment(String experimentId, Activity activity) {
+            public Fragment createFragment(String experimentId, AppCompatActivity activity) {
                 return GalleryFragment.newInstance();
             }
 
@@ -190,7 +189,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
             mLoggingName = loggingName;
         }
 
-        public abstract Fragment createFragment(String experimentId, Activity activity);
+        public abstract Fragment createFragment(String experimentId, AppCompatActivity activity);
 
         public int getContentDescriptionId() {
             return mContentDescriptionId;
@@ -410,7 +409,8 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
 
             // TODO: could this be FragmentStatePagerAdapter?  Would the fragment lifecycle methods
             //       get called in time to remove the camera preview views and avoid b/64442501?
-            final FragmentPagerAdapter adapter = new FragmentPagerAdapter(getFragmentManager()) {
+            final FragmentPagerAdapter adapter =
+                    new FragmentPagerAdapter(getSupportFragmentManager()) {
                 // TODO: extract and test this.
                 private int mPreviousPrimary = -1;
                 private Runnable mOnLosingFocus = null;
@@ -579,7 +579,7 @@ public class PanesActivity extends AppCompatActivity implements RecordFragment.C
     }
 
     private void setExperimentFragmentId(Experiment experiment) {
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
         if (mExperimentFragment == null) {
             // If we haven't cached the fragment, go looking for it.

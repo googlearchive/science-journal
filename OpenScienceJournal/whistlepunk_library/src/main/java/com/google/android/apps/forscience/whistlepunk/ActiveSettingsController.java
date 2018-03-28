@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;

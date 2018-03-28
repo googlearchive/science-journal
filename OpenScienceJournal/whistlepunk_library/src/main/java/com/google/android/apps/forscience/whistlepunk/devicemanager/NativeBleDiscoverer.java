@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.app.FragmentManager;
+import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import androidx.annotation.VisibleForTesting;

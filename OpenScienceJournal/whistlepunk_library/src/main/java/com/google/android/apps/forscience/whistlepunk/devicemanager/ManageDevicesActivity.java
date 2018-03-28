@@ -17,9 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -118,7 +118,7 @@ public class ManageDevicesActivity extends AppCompatActivity implements
     }
 
     private void setupFragment() {
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragmentById = fragmentManager.findFragmentById(R.id.fragment);
         if (fragmentById != null) {
             mManageFragment = (ManageDevicesRecyclerFragment) fragmentById;

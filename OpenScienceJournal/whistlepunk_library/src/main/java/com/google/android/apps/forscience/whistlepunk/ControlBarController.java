@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.app.FragmentManager;
+import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;

@@ -17,10 +17,10 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.Manifest;
-import android.app.Fragment;
-import android.app.LoaderManager;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
 import android.content.Context;
-import android.content.Loader;
+import androidx.loader.content.Loader;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;

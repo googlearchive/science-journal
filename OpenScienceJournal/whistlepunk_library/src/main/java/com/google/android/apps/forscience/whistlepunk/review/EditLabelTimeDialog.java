@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import android.app.DialogFragment;
+import androidx.fragment.app.DialogFragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
