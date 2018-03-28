@@ -64,6 +64,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.SoundFrequencySensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
@@ -170,10 +171,10 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
     private BehaviorSubject<RecordingStatus> mRecordingStatus =
             BehaviorSubject.createDefault(RecordingStatus.UNCONNECTED);
 
-    // A temporary variable to store a sensor card presenter that wants to use
-    // the decibel sensor before the permission to use microphone is granted
-    // in Android M.
-    private SensorCardPresenter mDecibelSensorCardPresenter;
+    // A temporary variable to store a sensor card presenter that wants to use the decibel or
+    // frequency sensor before the permission to use microphone is granted in Android M.
+    private SensorCardPresenter mSensorCardPresenterForAudio;
+    private String mSensorIdForAudio;
 
     private Handler mHandler;
     private FeatureDiscoveryProvider mFeatureDiscoveryProvider;
@@ -231,22 +232,22 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
     }
 
     private void onAudioPermissionChanged(@PermissionUtils.PermissionState int newState) {
-        if (mDecibelSensorCardPresenter == null || getActivity() == null) {
+        if (mSensorCardPresenterForAudio == null || getActivity() == null) {
             return;
         }
         if (newState == PermissionUtils.GRANTED) {
-            mDecibelSensorCardPresenter.retryConnection(getActivity());
+            mSensorCardPresenterForAudio.retryConnection(getActivity());
         } else if (newState == PermissionUtils.DENIED) {
             // If the sensor can't be loaded, still show it as selected on the card
             // so the user understands that they wanted this sensor but can't use it.
-            mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
+            mSensorCardPresenterForAudio.setConnectingUI(mSensorIdForAudio, true,
                     getActivity(), true);
         } else {
-            mDecibelSensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
+            mSensorCardPresenterForAudio.setConnectingUI(mSensorIdForAudio, true,
                     getActivity(), false);
         }
         // in either case, we have our answer.  Stop waiting for it.
-        mDecibelSensorCardPresenter = null;
+        mSensorCardPresenterForAudio = null;
         updateAvailableSensors();
     }
 
@@ -876,11 +877,14 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
 
     private void tryStartObserving(SensorCardPresenter sensorCardPresenter, String sensorId,
             RecordingStatus status) {
-        if (TextUtils.equals(sensorId, DecibelSensor.ID) && mDecibelSensorCardPresenter == null &&
+        if ((TextUtils.equals(sensorId, DecibelSensor.ID) ||
+                        TextUtils.equals(sensorId, SoundFrequencySensor.ID)) &&
+                mSensorCardPresenterForAudio == null &&
                 !PermissionUtils.hasPermission(getActivity(),
                         PermissionUtils.REQUEST_RECORD_AUDIO)) {
-            mDecibelSensorCardPresenter = sensorCardPresenter;
-            sensorCardPresenter.setConnectingUI(DecibelSensor.ID, true,
+            mSensorCardPresenterForAudio = sensorCardPresenter;
+            mSensorIdForAudio = sensorId;
+            sensorCardPresenter.setConnectingUI(mSensorIdForAudio, true,
                     getActivity().getApplicationContext(), true);
             PermissionUtils.tryRequestingPermission(getActivity(),
                     PermissionUtils.REQUEST_RECORD_AUDIO,
@@ -915,15 +919,20 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
                 mSensorCardAdapter.getSensorCardPresenters();
 
         // Available Sensors includes only sensors that are not being observed.
-        // Check if a card wants to show the decibel sensor but permission was denied.
-        // Remove this from the list of available sensors so the decibel sensor icon doesn't show
-        // up in other cards.
+        // Check if a card wants to show the decibel and frequency sensors but permission was
+        // denied.
+        // Remove these from the list of available sensors so the decibel and frequency sensor
+        // icons don't show up in other cards.
         // TODO: Extend this to work for any sensor that doesn't have the permission granted.
         // See b/27439593
-        if (availableSensors.contains(DecibelSensor.ID)) {
+        if (availableSensors.contains(DecibelSensor.ID) ||
+                availableSensors.contains(SoundFrequencySensor.ID)) {
             for (SensorCardPresenter presenter : sensorCardPresenters) {
                 if (TextUtils.equals(presenter.getSelectedSensorId(), DecibelSensor.ID)) {
                     availableSensors.remove(DecibelSensor.ID);
+                }
+                if (TextUtils.equals(presenter.getSelectedSensorId(), SoundFrequencySensor.ID)) {
+                  availableSensors.remove(SoundFrequencySensor.ID);
                 }
             }
         }

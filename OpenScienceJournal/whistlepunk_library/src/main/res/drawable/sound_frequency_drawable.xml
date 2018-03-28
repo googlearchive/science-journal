@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2016 Google Inc. All Rights Reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+<level-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:maxLevel="0" android:drawable="@drawable/frequency_low"/>
+    <item android:maxLevel="1" android:drawable="@drawable/frequency_piano_1"/>
+    <item android:maxLevel="2" android:drawable="@drawable/frequency_piano_2"/>
+    <item android:maxLevel="3" android:drawable="@drawable/frequency_piano_3"/>
+    <item android:maxLevel="4" android:drawable="@drawable/frequency_piano_4"/>
+    <item android:maxLevel="5" android:drawable="@drawable/frequency_piano_5"/>
+    <item android:maxLevel="6" android:drawable="@drawable/frequency_piano_6"/>
+    <item android:maxLevel="7" android:drawable="@drawable/frequency_piano_7"/>
+    <item android:maxLevel="8" android:drawable="@drawable/frequency_piano_8"/>
+    <item android:maxLevel="9" android:drawable="@drawable/frequency_piano_9"/>
+    <item android:maxLevel="10" android:drawable="@drawable/frequency_piano_10"/>
+    <item android:maxLevel="11" android:drawable="@drawable/frequency_piano_11"/>
+    <item android:maxLevel="12" android:drawable="@drawable/frequency_piano_12"/>
+    <item android:maxLevel="13" android:drawable="@drawable/frequency_piano_13"/>
+    <item android:maxLevel="14" android:drawable="@drawable/frequency_piano_14"/>
+    <item android:maxLevel="15" android:drawable="@drawable/frequency_piano_15"/>
+    <item android:maxLevel="16" android:drawable="@drawable/frequency_piano_16"/>
+    <item android:maxLevel="17" android:drawable="@drawable/frequency_piano_17"/>
+    <item android:maxLevel="18" android:drawable="@drawable/frequency_piano_18"/>
+    <item android:maxLevel="19" android:drawable="@drawable/frequency_piano_19"/>
+    <item android:maxLevel="20" android:drawable="@drawable/frequency_piano_20"/>
+    <item android:maxLevel="21" android:drawable="@drawable/frequency_piano_21"/>
+    <item android:maxLevel="22" android:drawable="@drawable/frequency_piano_22"/>
+    <item android:maxLevel="23" android:drawable="@drawable/frequency_piano_23"/>
+    <item android:maxLevel="24" android:drawable="@drawable/frequency_piano_24"/>
+    <item android:maxLevel="25" android:drawable="@drawable/frequency_piano_25"/>
+    <item android:maxLevel="26" android:drawable="@drawable/frequency_piano_26"/>
+    <item android:maxLevel="27" android:drawable="@drawable/frequency_piano_27"/>
+    <item android:maxLevel="28" android:drawable="@drawable/frequency_piano_28"/>
+    <item android:maxLevel="29" android:drawable="@drawable/frequency_piano_29"/>
+    <item android:maxLevel="30" android:drawable="@drawable/frequency_piano_30"/>
+    <item android:maxLevel="31" android:drawable="@drawable/frequency_piano_31"/>
+    <item android:maxLevel="32" android:drawable="@drawable/frequency_piano_32"/>
+    <item android:maxLevel="33" android:drawable="@drawable/frequency_piano_33"/>
+    <item android:maxLevel="34" android:drawable="@drawable/frequency_piano_34"/>
+    <item android:maxLevel="35" android:drawable="@drawable/frequency_piano_35"/>
+    <item android:maxLevel="36" android:drawable="@drawable/frequency_piano_36"/>
+    <item android:maxLevel="37" android:drawable="@drawable/frequency_piano_37"/>
+    <item android:maxLevel="38" android:drawable="@drawable/frequency_piano_38"/>
+    <item android:maxLevel="39" android:drawable="@drawable/frequency_piano_39"/>
+    <item android:maxLevel="40" android:drawable="@drawable/frequency_piano_40"/>
+    <item android:maxLevel="41" android:drawable="@drawable/frequency_piano_41"/>
+    <item android:maxLevel="42" android:drawable="@drawable/frequency_piano_42"/>
+    <item android:maxLevel="43" android:drawable="@drawable/frequency_piano_43"/>
+    <item android:maxLevel="44" android:drawable="@drawable/frequency_piano_44"/>
+    <item android:maxLevel="45" android:drawable="@drawable/frequency_piano_45"/>
+    <item android:maxLevel="46" android:drawable="@drawable/frequency_piano_46"/>
+    <item android:maxLevel="47" android:drawable="@drawable/frequency_piano_47"/>
+    <item android:maxLevel="48" android:drawable="@drawable/frequency_piano_48"/>
+    <item android:maxLevel="49" android:drawable="@drawable/frequency_piano_49"/>
+    <item android:maxLevel="50" android:drawable="@drawable/frequency_piano_50"/>
+    <item android:maxLevel="51" android:drawable="@drawable/frequency_piano_51"/>
+    <item android:maxLevel="52" android:drawable="@drawable/frequency_piano_52"/>
+    <item android:maxLevel="53" android:drawable="@drawable/frequency_piano_53"/>
+    <item android:maxLevel="54" android:drawable="@drawable/frequency_piano_54"/>
+    <item android:maxLevel="55" android:drawable="@drawable/frequency_piano_55"/>
+    <item android:maxLevel="56" android:drawable="@drawable/frequency_piano_56"/>
+    <item android:maxLevel="57" android:drawable="@drawable/frequency_piano_57"/>
+    <item android:maxLevel="58" android:drawable="@drawable/frequency_piano_58"/>
+    <item android:maxLevel="59" android:drawable="@drawable/frequency_piano_59"/>
+    <item android:maxLevel="60" android:drawable="@drawable/frequency_piano_60"/>
+    <item android:maxLevel="61" android:drawable="@drawable/frequency_piano_61"/>
+    <item android:maxLevel="62" android:drawable="@drawable/frequency_piano_62"/>
+    <item android:maxLevel="63" android:drawable="@drawable/frequency_piano_63"/>
+    <item android:maxLevel="64" android:drawable="@drawable/frequency_piano_64"/>
+    <item android:maxLevel="65" android:drawable="@drawable/frequency_piano_65"/>
+    <item android:maxLevel="66" android:drawable="@drawable/frequency_piano_66"/>
+    <item android:maxLevel="67" android:drawable="@drawable/frequency_piano_67"/>
+    <item android:maxLevel="68" android:drawable="@drawable/frequency_piano_68"/>
+    <item android:maxLevel="69" android:drawable="@drawable/frequency_piano_69"/>
+    <item android:maxLevel="70" android:drawable="@drawable/frequency_piano_70"/>
+    <item android:maxLevel="71" android:drawable="@drawable/frequency_piano_71"/>
+    <item android:maxLevel="72" android:drawable="@drawable/frequency_piano_72"/>
+    <item android:maxLevel="73" android:drawable="@drawable/frequency_piano_73"/>
+    <item android:maxLevel="74" android:drawable="@drawable/frequency_piano_74"/>
+    <item android:maxLevel="75" android:drawable="@drawable/frequency_piano_75"/>
+    <item android:maxLevel="76" android:drawable="@drawable/frequency_piano_76"/>
+    <item android:maxLevel="77" android:drawable="@drawable/frequency_piano_77"/>
+    <item android:maxLevel="78" android:drawable="@drawable/frequency_piano_78"/>
+    <item android:maxLevel="79" android:drawable="@drawable/frequency_piano_79"/>
+    <item android:maxLevel="80" android:drawable="@drawable/frequency_piano_80"/>
+    <item android:maxLevel="81" android:drawable="@drawable/frequency_piano_81"/>
+    <item android:maxLevel="82" android:drawable="@drawable/frequency_piano_82"/>
+    <item android:maxLevel="83" android:drawable="@drawable/frequency_piano_83"/>
+    <item android:maxLevel="84" android:drawable="@drawable/frequency_piano_84"/>
+    <item android:maxLevel="85" android:drawable="@drawable/frequency_piano_85"/>
+    <item android:maxLevel="86" android:drawable="@drawable/frequency_piano_86"/>
+    <item android:maxLevel="87" android:drawable="@drawable/frequency_piano_87"/>
+    <item android:maxLevel="88" android:drawable="@drawable/frequency_piano_88"/>
+    <item android:maxLevel="89" android:drawable="@drawable/frequency_high"/>
+</level-list>

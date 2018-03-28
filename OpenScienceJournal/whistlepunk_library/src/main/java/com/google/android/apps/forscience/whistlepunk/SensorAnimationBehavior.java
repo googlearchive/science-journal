@@ -25,6 +25,9 @@ import android.widget.ImageView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Defines sensor animation behavior for sensor cards.
@@ -33,7 +36,8 @@ public class SensorAnimationBehavior {
 
     // The different types of behavior for the sensor animation.
     @IntDef({TYPE_STATIC_ICON, TYPE_ACCELEROMETER_SCALE, TYPE_RELATIVE_SCALE,
-            TYPE_POSITIVE_RELATIVE_SCALE, TYPE_ROTATION, TYPE_ACCELEROMETER_SCALE_ROTATES})
+            TYPE_POSITIVE_RELATIVE_SCALE, TYPE_ROTATION, TYPE_ACCELEROMETER_SCALE_ROTATES,
+            TYPE_SOUND_FREQUENCY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BehaviorType {
     }
@@ -44,6 +48,11 @@ public class SensorAnimationBehavior {
     public static final int TYPE_POSITIVE_RELATIVE_SCALE = 4;
     public static final int TYPE_ROTATION = 5;
     public static final int TYPE_ACCELEROMETER_SCALE_ROTATES = 6;
+    public static final int TYPE_SOUND_FREQUENCY = 7;
+
+    private static final double HALF_STEP_FREQUENCY_RATIO = 1.0595;
+
+    private static final List<Double> noteFrequencies = new ArrayList<Double>();
 
     private final int mBehaviorType;
     private int mLevelDrawableId;
@@ -100,6 +109,8 @@ public class SensorAnimationBehavior {
             } else {
                 index = 0;
             }
+        } else if (mBehaviorType == TYPE_SOUND_FREQUENCY) {
+            index = soundFrequencyToLevel(newValue);
         } else {
             double scaled;
             if (mBehaviorType == TYPE_POSITIVE_RELATIVE_SCALE) {
@@ -159,5 +170,72 @@ public class SensorAnimationBehavior {
             // Pick the most exciting icon (the biggest value represented)
             largeIcon.setImageLevel(3);
         }
+    }
+
+    private static void fillNoteFrequencies() {
+        // Fill the noteFrequencies list with the notes for an 88 key piano.
+        double[] highNotes = {
+            4186.01, // c
+            3951.07, // b
+            3729.31, // a#
+            3520,    // a
+            3322.44, // g#
+            3135.96, // g
+            2959.96, // f#
+            2793.83, // f
+            2637.02, // e
+            2489.02, // d#
+            2349.32, // d
+            2217.46, // c#
+        };
+        double multiplier = 1;
+        while (noteFrequencies.size() < 88) {
+            for (double note : highNotes) {
+                if (noteFrequencies.size() == 88) {
+                    break;
+                }
+                noteFrequencies.add(note * multiplier);
+            }
+            multiplier /= 2;
+        }
+        Collections.reverse(noteFrequencies);
+        // Add first and last items to make lookup easier. Use the approximate half-step ratio to
+        // determine the first and last items.
+        noteFrequencies.add(0, noteFrequencies.get(0) / HALF_STEP_FREQUENCY_RATIO);
+        noteFrequencies.add(
+                noteFrequencies.get(noteFrequencies.size() - 1) * HALF_STEP_FREQUENCY_RATIO);
+    }
+
+    /**
+     * Returns the index corresponding to the given sound frequency, where indices 1-88 represent
+     * the notes of keys on a piano.
+     */
+    private static int soundFrequencyToLevel(double frequency) {
+        if (noteFrequencies.isEmpty()) {
+            fillNoteFrequencies();
+        }
+        int i = Collections.binarySearch(noteFrequencies, frequency);
+        // If there is an exact match, i will be a non-negative number, which is the index of the
+        // matching value.
+        if (i >= 0) {
+            return i;
+        }
+        // If there is no exact match, i will provide the insertion point, where the observed
+        // frequency would belong in the list, as (-(insertion point) - 1).
+        // This is the usual case, since in most cases the observed frequency will not match a
+        // specific note exactly.
+         // Calculate the insertion point
+        i = -i - 1;
+        if (i == 0) {
+            // frequency is significantly lower than the lowest note.
+            return 0;
+        }
+        if (i == noteFrequencies.size()) {
+            // frequency is significantly higher than the highest note.
+            return noteFrequencies.size() - 1;
+        }
+        // frequency is between two notes.
+        double midpoint = (noteFrequencies.get(i - 1) + noteFrequencies.get(i)) / 2;
+        return (frequency < midpoint) ? (i - 1) : i;
     }
 }

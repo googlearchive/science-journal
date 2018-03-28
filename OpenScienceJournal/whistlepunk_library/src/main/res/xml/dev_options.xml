@@ -31,6 +31,13 @@
     />
 
     <CheckBoxPreference
+        android:key="enable_sound_frequency_sensor"
+        android:defaultValue="false"
+        android:title="@string/enable_sound_frequency_sensor_title"
+        android:summary="@string/enable_sound_frequency_sensor_summary"
+        />
+
+    <CheckBoxPreference
         android:key="dev_tools"
         android:defaultValue="false"
         android:title="@string/dev_tools_title"
