@@ -51,7 +51,7 @@ public class ExternalSensorAppearance extends BuiltInSensorAppearance {
     @Override
     public GoosciIcon.IconPath getSmallIconPath() {
         GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-        path.type = GoosciIcon.IconPath.LEGACY_ANDROID_BLE;
+        path.type = GoosciIcon.IconPath.PathType.LEGACY_ANDROID_BLE;
         path.pathString = String.valueOf(mKind);
         return path;
     }
@@ -59,7 +59,7 @@ public class ExternalSensorAppearance extends BuiltInSensorAppearance {
     @Override
     public GoosciIcon.IconPath getLargeIconPath() {
         GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-        path.type = GoosciIcon.IconPath.LEGACY_ANDROID_BLE;
+        path.type = GoosciIcon.IconPath.PathType.LEGACY_ANDROID_BLE;
         path.pathString = String.valueOf(mKind);
         return path;
     }

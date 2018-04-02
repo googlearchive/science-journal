@@ -24,7 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.protobuf.nano.MessageNano;
 

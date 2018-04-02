@@ -92,14 +92,14 @@ public class StatsAccumulator {
         }
 
         public List<StreamStat> updateStreamStats(TrialStats trialStats) {
-            if (trialStats.hasStat(GoosciTrial.SensorStat.MINIMUM)) {
-                mMinStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.MINIMUM, 0));
+            if (trialStats.hasStat(GoosciTrial.SensorStat.StatType.MINIMUM)) {
+                mMinStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0));
             }
-            if (trialStats.hasStat(GoosciTrial.SensorStat.MAXIMUM)) {
-                mMaxStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 0));
+            if (trialStats.hasStat(GoosciTrial.SensorStat.StatType.MAXIMUM)) {
+                mMaxStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0));
             }
-            if (trialStats.hasStat(GoosciTrial.SensorStat.AVERAGE)) {
-                mAvgStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.AVERAGE, 0));
+            if (trialStats.hasStat(GoosciTrial.SensorStat.StatType.AVERAGE)) {
+                mAvgStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, 0));
             }
 
             updateListeners();
@@ -192,11 +192,11 @@ public class StatsAccumulator {
     }
 
     public void populateTrialStats(TrialStats stats) {
-        stats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
-        stats.putStat(GoosciTrial.SensorStat.MINIMUM, mMin);
-        stats.putStat(GoosciTrial.SensorStat.MAXIMUM, mMax);
-        stats.putStat(GoosciTrial.SensorStat.AVERAGE, getAverage());
-        stats.putStat(GoosciTrial.SensorStat.NUM_DATA_POINTS, mStatSize);
-        stats.putStat(GoosciTrial.SensorStat.TOTAL_DURATION, mLatestTimestamp - mStartTimestamp);
+        stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+        stats.putStat(GoosciTrial.SensorStat.StatType.MINIMUM, mMin);
+        stats.putStat(GoosciTrial.SensorStat.StatType.MAXIMUM, mMax);
+        stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, getAverage());
+        stats.putStat(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, mStatSize);
+        stats.putStat(GoosciTrial.SensorStat.StatType.TOTAL_DURATION, mLatestTimestamp - mStartTimestamp);
     }
 }

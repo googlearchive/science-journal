@@ -118,13 +118,13 @@ public final class TrackerConstants {
      */
     // TODO: Add tracking for snapshot labels.
     public static long getLabelValueType(Label label) {
-        if (label.getType() == GoosciLabel.Label.PICTURE) {
+        if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
             return TrackerConstants.VALUE_TYPE_PICTURE;
-        } else if (label.getType() == GoosciLabel.Label.TEXT) {
+        } else if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
             return TrackerConstants.VALUE_TYPE_TEXT;
-        } else if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
+        } else if (label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
             return TrackerConstants.VALUE_TYPE_SENSOR_TRIGGER;
-        } else if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
+        } else if (label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT) {
             return TrackerConstants.VALUE_TYPE_SNAPSHOT;
         } else {
             throw new IllegalArgumentException("Label type is not supported for logging.");

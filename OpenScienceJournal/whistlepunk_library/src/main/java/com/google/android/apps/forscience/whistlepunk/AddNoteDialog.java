@@ -250,13 +250,13 @@ public class AddNoteDialog extends DialogFragment {
             if (getArguments().containsKey(KEY_SAVED_VALUE)) {
                 Label savedLabel = getArguments().getParcelable(KEY_SAVED_VALUE);
                 if (savedLabel != null) {
-                    if (savedLabel.getType() == GoosciLabel.Label.TEXT) {
+                    if (savedLabel.getType() == GoosciLabel.Label.ValueType.TEXT) {
                         // Text labels don't use the caption field.
                         text = savedLabel.getTextLabelValue().text;
                     } else {
                         text = savedLabel.getCaptionText();
                     }
-                    if (savedLabel.getType() == GoosciLabel.Label.PICTURE) {
+                    if (savedLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
                         mPictureLabelPath = savedLabel.getPictureLabelValue().filePath;
                     }
                     mUuid = savedLabel.getLabelId();
@@ -382,13 +382,13 @@ public class AddNoteDialog extends DialogFragment {
             GoosciCaption.Caption caption = new GoosciCaption.Caption();
             caption.text = mInput.getText().toString();
             caption.lastEditedTimestamp = timestamp;
-            return Label.newLabelWithValue(timestamp, GoosciLabel.Label.PICTURE,
+            return Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.PICTURE,
                     labelValue, caption);
         } else {
             GoosciTextLabelValue.TextLabelValue labelValue =
                     new GoosciTextLabelValue.TextLabelValue();
             labelValue.text = mInput.getText().toString();
-            return Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT, labelValue, null);
+            return Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);
         }
     }
 
@@ -430,7 +430,7 @@ public class AddNoteDialog extends DialogFragment {
         GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
         labelValue.text = text;
         mInput.setText("");
-        Label label = Label.newLabelWithValue(mTimestamp, GoosciLabel.Label.TEXT,
+        Label label = Label.newLabelWithValue(mTimestamp, GoosciLabel.Label.ValueType.TEXT,
                 labelValue, null);
         addLabel(label, getDataController(mInput.getContext()), experiment, mInput.getContext());
         return true;
@@ -444,7 +444,7 @@ public class AddNoteDialog extends DialogFragment {
         GoosciPictureLabelValue.PictureLabelValue labelValue = new GoosciPictureLabelValue
                 .PictureLabelValue();
         labelValue.filePath = mPictureLabelPath;
-        Label label = Label.fromUuidAndValue(mTimestamp, mUuid, GoosciLabel.Label.PICTURE,
+        Label label = Label.fromUuidAndValue(mTimestamp, mUuid, GoosciLabel.Label.ValueType.PICTURE,
                 labelValue);
         GoosciCaption.Caption caption = new GoosciCaption.Caption();
         caption.text = mInput.getText().toString();

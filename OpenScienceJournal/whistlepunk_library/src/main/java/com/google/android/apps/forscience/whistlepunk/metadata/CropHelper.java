@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -146,7 +147,7 @@ public class CropHelper {
             // First delete the min/max/avg stats, but leave the rest available, because they are
             // used in loading data by ZoomPresenter.
             TrialStats stats = trial.getStatsForSensor(sensorId);
-            stats.setStatStatus(GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
+            stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
             trial.setStats(stats);
         }
         mDataController.updateExperiment(experiment.getExperimentId(),

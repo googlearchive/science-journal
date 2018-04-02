@@ -53,7 +53,7 @@ public class SensorTrigger {
     public static SensorTrigger newAlertTypeTrigger(String sensorId,
             int triggerWhen, int[] alertTypes, double triggerValue) {
         SensorTrigger result = new SensorTrigger(sensorId, triggerWhen,
-                TriggerInformation.TRIGGER_ACTION_ALERT, triggerValue);
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT, triggerValue);
         result.setAlertTypes(alertTypes);
         return result;
     }
@@ -62,7 +62,7 @@ public class SensorTrigger {
     public static SensorTrigger newNoteTypeTrigger(String sensorId,
             int triggerWhen, String noteText, double triggerValue) {
         SensorTrigger result = new SensorTrigger(sensorId, triggerWhen,
-                TriggerInformation.TRIGGER_ACTION_NOTE, triggerValue);
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE, triggerValue);
         result.setNoteText(noteText);
         return result;
     }
@@ -147,10 +147,10 @@ public class SensorTrigger {
         }
         // Clear old metadata to defaults when the new trigger is set.
         if (mTriggerProto.triggerInformation.triggerActionType ==
-                TriggerInformation.TRIGGER_ACTION_NOTE) {
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
             mTriggerProto.triggerInformation.noteText = "";
         } else if (mTriggerProto.triggerInformation.triggerActionType ==
-                TriggerInformation.TRIGGER_ACTION_ALERT) {
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
             mTriggerProto.triggerInformation.triggerAlertTypes = new int[]{};
         }
         mTriggerProto.triggerInformation.triggerActionType = actionType;
@@ -180,22 +180,22 @@ public class SensorTrigger {
             result = false;
         } else {
             if (mTriggerProto.triggerInformation.triggerWhen ==
-                    TriggerInformation.TRIGGER_WHEN_AT) {
+                    TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT) {
                 // Not just an equality check: also test to see if the threshold was crossed in
                 // either direction.
                 result = doubleEquals(newValue, mTriggerProto.triggerInformation.valueToTrigger) ||
                         crossedThreshold(newValue, mOldValue);
             } else if (mTriggerProto.triggerInformation.triggerWhen ==
-                    TriggerInformation.TRIGGER_WHEN_DROPS_BELOW) {
+                    TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW) {
                 result = droppedBelow(newValue, mOldValue);
             } else if (mTriggerProto.triggerInformation.triggerWhen ==
-                    TriggerInformation.TRIGGER_WHEN_RISES_ABOVE) {
+                    TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE) {
                 result = roseAbove(newValue, mOldValue);
             } else if (mTriggerProto.triggerInformation.triggerWhen ==
-                    TriggerInformation.TRIGGER_WHEN_BELOW) {
+                    TriggerInformation.TriggerWhen.TRIGGER_WHEN_BELOW) {
                 return newValue < mTriggerProto.triggerInformation.valueToTrigger;
             } else if (mTriggerProto.triggerInformation.triggerWhen ==
-                    TriggerInformation.TRIGGER_WHEN_ABOVE) {
+                    TriggerInformation.TriggerWhen.TRIGGER_WHEN_ABOVE) {
                 return newValue > mTriggerProto.triggerInformation.valueToTrigger;
             }
         }

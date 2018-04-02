@@ -170,7 +170,7 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     @Override
     public GoosciIcon.IconPath getSmallIconPath() {
         GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-        path.type = GoosciIcon.IconPath.BUILTIN;
+        path.type = GoosciIcon.IconPath.PathType.BUILTIN;
         path.pathString = Preconditions.checkNotNull(mBuiltInSensorId);
         return path;
     }
@@ -178,7 +178,7 @@ public class BuiltInSensorAppearance implements SensorAppearance {
     @Override
     public GoosciIcon.IconPath getLargeIconPath() {
         GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-        path.type = GoosciIcon.IconPath.BUILTIN;
+        path.type = GoosciIcon.IconPath.PathType.BUILTIN;
         path.pathString = Preconditions.checkNotNull(mBuiltInSensorId);
         return path;
     }

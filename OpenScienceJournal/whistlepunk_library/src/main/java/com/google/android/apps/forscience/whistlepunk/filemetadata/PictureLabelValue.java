@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.text.TextUtils;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 /**
  * A Label which is represented by a set of pictures.
@@ -42,7 +42,7 @@ public class PictureLabelValue extends LabelValue {
     @VisibleForTesting
     PictureLabelValue() {
         super();
-        mValue.type = GoosciLabelValue.LabelValue.PICTURE;
+        mValue.type = GoosciLabelValue.LabelValue.ValueType.PICTURE;
     }
 
     @Override
@@ -119,7 +119,7 @@ public class PictureLabelValue extends LabelValue {
 
     public static void populateLabelValue(GoosciLabelValue.LabelValue value, String path,
             String caption) {
-        value.type = GoosciLabelValue.LabelValue.PICTURE;
+        value.type = GoosciLabelValue.LabelValue.ValueType.PICTURE;
         if (value.data == null || value.data.length == 0) {
             value.data = new GoosciLabelValue.LabelValue.DataEntry[NUM_FIELDS];
             value.data[INDEX_FILE_PATH] = new GoosciLabelValue.LabelValue.DataEntry();

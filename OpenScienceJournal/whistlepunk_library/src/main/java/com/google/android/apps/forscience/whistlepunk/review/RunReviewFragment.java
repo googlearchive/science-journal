@@ -623,8 +623,8 @@ public class RunReviewFragment extends Fragment implements
                 mAudioPlaybackController == null) {
             return;
         }
-        double yMin = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.MINIMUM, 0);
-        double yMax = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 0);
+        double yMin = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0);
+        double yMax = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0);
         if (getTrial().getAutoZoomEnabled()) {
             mChartController.setReviewYAxis(yMin, yMax, /* has buffer */ true);
         } else {

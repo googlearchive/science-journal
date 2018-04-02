@@ -48,10 +48,10 @@ public class ZoomPresenterTest {
         int perZoomLevel = 20;
 
         TrialStats stats = new TrialStats("sensorId");
-        stats.putStat(GoosciTrial.SensorStat.TOTAL_DURATION, 99);
-        stats.putStat(GoosciTrial.SensorStat.NUM_DATA_POINTS, 100);
-        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, 2);
-        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS, perZoomLevel);
+        stats.putStat(GoosciTrial.SensorStat.StatType.TOTAL_DURATION, 99);
+        stats.putStat(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, 100);
+        stats.putStat(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT, 2);
+        stats.putStat(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS, perZoomLevel);
 
         ZoomPresenter zp = new ZoomPresenter(200);
         zp.setRunStats(stats);
@@ -90,26 +90,26 @@ public class ZoomPresenterTest {
     @Test
     public void testWantMoreTiersThanWeHave() {
         TrialStats stats = new TrialStats("sensorId");
-        stats.putStat(GoosciTrial.SensorStat.TOTAL_DURATION, 99);
-        stats.putStat(GoosciTrial.SensorStat.NUM_DATA_POINTS, 100);
-        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, 5);
-        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS, 5);
+        stats.putStat(GoosciTrial.SensorStat.StatType.TOTAL_DURATION, 99);
+        stats.putStat(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, 100);
+        stats.putStat(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT, 5);
+        stats.putStat(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS, 5);
 
         // This is the ideal tier level
         assertEquals(2, ZoomPresenter.computeTier(-1, 4, stats, 100));
 
         // Now, we have fewer tiers than we wish
-        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, 2);
+        stats.putStat(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT, 2);
         assertEquals(1, ZoomPresenter.computeTier(-1, 4, stats, 100));
     }
 
     @Test
     public void testBiasToCurrentTier() {
         TrialStats stats = new TrialStats("sensorId");
-        stats.putStat(GoosciTrial.SensorStat.TOTAL_DURATION, 99);
-        stats.putStat(GoosciTrial.SensorStat.NUM_DATA_POINTS, 100);
-        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, 5);
-        stats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS, 5);
+        stats.putStat(GoosciTrial.SensorStat.StatType.TOTAL_DURATION, 99);
+        stats.putStat(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, 100);
+        stats.putStat(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT, 5);
+        stats.putStat(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS, 5);
 
         // Establish the ideal fractional tiers
         assertEquals(1.006, ZoomPresenter.computeIdealTier(20, stats, 100), 0.01);

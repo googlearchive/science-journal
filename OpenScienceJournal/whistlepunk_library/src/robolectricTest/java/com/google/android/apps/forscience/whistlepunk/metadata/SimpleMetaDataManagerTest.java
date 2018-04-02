@@ -143,7 +143,7 @@ public class SimpleMetaDataManagerTest {
                 new GoosciTextLabelValue.TextLabelValue();
         textLabelValue.text = testLabelString;
 
-        Label textLabel = Label.newLabelWithValue(1, GoosciLabel.Label.TEXT, textLabelValue, null);
+        Label textLabel = Label.newLabelWithValue(1, GoosciLabel.Label.ValueType.TEXT, textLabelValue, null);
         experiment.addLabel(textLabel);
         File tmpFile;
         try {
@@ -165,7 +165,7 @@ public class SimpleMetaDataManagerTest {
                 .PictureLabelValue();
         labelValue.filePath = testPicturePath;
 
-        Label pictureLabel = Label.newLabelWithValue(2, GoosciLabel.Label.PICTURE, labelValue,
+        Label pictureLabel = Label.newLabelWithValue(2, GoosciLabel.Label.ValueType.PICTURE, labelValue,
                 caption);
         experiment.addLabel(pictureLabel);
 
@@ -178,12 +178,12 @@ public class SimpleMetaDataManagerTest {
         boolean foundText = false;
         boolean foundPicture = false;
         for (Label foundLabel : labels) {
-            if (foundLabel.getType() == GoosciLabel.Label.TEXT) {
+            if (foundLabel.getType() == GoosciLabel.Label.ValueType.TEXT) {
                 assertEquals(testLabelString, foundLabel.getTextLabelValue().text);
                 assertEquals(textLabel.getLabelId(), foundLabel.getLabelId());
                 foundText = true;
             }
-            if (foundLabel.getType() == GoosciLabel.Label.PICTURE) {
+            if (foundLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
                 assertEquals(testPicturePath, foundLabel.getPictureLabelValue().filePath);
                 assertEquals(pictureLabel.getLabelId(), foundLabel.getLabelId());
                 assertEquals(testPictureCaption, foundLabel.getCaptionText());
@@ -204,7 +204,7 @@ public class SimpleMetaDataManagerTest {
                 "stopId1", "startId1", 1);
         final ApplicationLabel startId2 = new ApplicationLabel(
                 ApplicationLabel.TYPE_RECORDING_START, "startId2", "startId2", 2);
-        final Label label = Label.newLabel(3, GoosciLabel.Label.TEXT);
+        final Label label = Label.newLabel(3, GoosciLabel.Label.ValueType.TEXT);
         GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
         labelValue.text = "text";
         label.setLabelProtoData(labelValue);
@@ -641,7 +641,7 @@ public class SimpleMetaDataManagerTest {
             GoosciPictureLabelValue.PictureLabelValue labelValue = new GoosciPictureLabelValue
                     .PictureLabelValue();
             labelValue.filePath = "fake/path";
-            Label label = Label.newLabelWithValue(i * 1000, GoosciLabelValue.LabelValue.PICTURE,
+            Label label = Label.newLabelWithValue(i * 1000, GoosciLabelValue.LabelValue.ValueType.PICTURE,
                     labelValue, null);
             LabelValue deprecatedValue = PictureLabelValue.fromPicture(labelValue.filePath, "");
             // In the database, labels are stored separately. Add them directly here so that we

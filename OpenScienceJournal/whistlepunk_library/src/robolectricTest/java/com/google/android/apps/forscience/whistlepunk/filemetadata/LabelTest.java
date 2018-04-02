@@ -53,7 +53,7 @@ public class LabelTest {
 
     @Test
     public void testCanEditLabelTimestamp() {
-        GoosciLabel.Label goosciLabel = makeGoosciLabel(GoosciLabel.Label.TEXT, 10);
+        GoosciLabel.Label goosciLabel = makeGoosciLabel(GoosciLabel.Label.ValueType.TEXT, 10);
         Label label = Label.fromLabel(goosciLabel);
 
         assertEquals(label.getTimeStamp(), 10);
@@ -63,10 +63,10 @@ public class LabelTest {
 
     @Test
     public void testCanCreateTextLabel() {
-        GoosciLabel.Label goosciLabel = makeGoosciLabel(GoosciLabel.Label.TEXT, 10);
+        GoosciLabel.Label goosciLabel = makeGoosciLabel(GoosciLabel.Label.ValueType.TEXT, 10);
         Label label = Label.fromLabel(goosciLabel);
 
-        assertEquals(label.getType(), GoosciLabel.Label.TEXT);
+        assertEquals(label.getType(), GoosciLabel.Label.ValueType.TEXT);
 
         GoosciTextLabelValue.TextLabelValue labelValue = label.getTextLabelValue();
         labelValue.text = "The meaning of life";
@@ -84,9 +84,9 @@ public class LabelTest {
         GoosciPictureLabelValue.PictureLabelValue labelValue = new GoosciPictureLabelValue
                 .PictureLabelValue();
         labelValue.filePath = "path/to/photo";
-        Label label = Label.newLabelWithValue(10, GoosciLabel.Label.PICTURE, labelValue, caption);
+        Label label = Label.newLabelWithValue(10, GoosciLabel.Label.ValueType.PICTURE, labelValue, caption);
 
-        assertEquals(label.getType(), GoosciLabel.Label.PICTURE);
+        assertEquals(label.getType(), GoosciLabel.Label.ValueType.PICTURE);
         assertEquals("path/to/photo", label.getPictureLabelValue().filePath);
         assertEquals(10, label.getTimeStamp());
         assertEquals("kitten", label.getCaptionText());
@@ -96,30 +96,30 @@ public class LabelTest {
     @Test
    public void testCanCreateTriggerLabel() {
        SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("sensorId",
-               GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
+               GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW, "note",
                7.5);
        GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
                new GoosciSensorTriggerLabelValue.SensorTriggerLabelValue();
        labelValue.triggerInformation = trigger.getTriggerProto().triggerInformation;
 
-       Label label = Label.newLabelWithValue(10, GoosciLabel.Label.SENSOR_TRIGGER, labelValue,
+       Label label = Label.newLabelWithValue(10, GoosciLabel.Label.ValueType.SENSOR_TRIGGER, labelValue,
                null);
 
-       assertEquals(GoosciLabel.Label.SENSOR_TRIGGER, label.getType());
+       assertEquals(GoosciLabel.Label.ValueType.SENSOR_TRIGGER, label.getType());
 
        assertEquals(label.getSensorTriggerLabelValue().triggerInformation.noteText, "note");
        assertEquals(label.canEditTimestamp(), false);
        assertEquals(label.getSensorTriggerLabelValue().triggerInformation.triggerWhen,
-               GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW);
+               GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW);
    }
 
    @Test
     public void testParcelableBehavior() {
         GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
         goosciLabel.timestampMs = 10;
-        goosciLabel.type = GoosciLabel.Label.SENSOR_TRIGGER;
+        goosciLabel.type = GoosciLabel.Label.ValueType.SENSOR_TRIGGER;
         SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("sensorId",
-                GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
+                GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW, "note",
                 7.5);
         GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
                 new GoosciSensorTriggerLabelValue.SensorTriggerLabelValue();
@@ -134,15 +134,15 @@ public class LabelTest {
         parcel.setDataPosition(0);
         Label result = Label.CREATOR.createFromParcel(parcel);
 
-        assertEquals(GoosciLabel.Label.SENSOR_TRIGGER, result.getType());
+        assertEquals(GoosciLabel.Label.ValueType.SENSOR_TRIGGER, result.getType());
         assertEquals(20, result.getTimeStamp());
         assertEquals("note", result.getSensorTriggerLabelValue().triggerInformation.noteText);
     }
 
     @Test
     public void testUniqueIds() {
-        Label first = Label.newLabel(10, GoosciLabel.Label.TEXT);
-        Label second = Label.newLabel(10, GoosciLabel.Label.TEXT);
+        Label first = Label.newLabel(10, GoosciLabel.Label.ValueType.TEXT);
+        Label second = Label.newLabel(10, GoosciLabel.Label.ValueType.TEXT);
         assertNotEquals(first.getLabelId(), second.getLabelId());
 
         Label firstAgain = Label.fromLabel(first.getLabelProto());
@@ -154,11 +154,11 @@ public class LabelTest {
         GoosciTextLabelValue.TextLabelValue textLabelValue =
                 new GoosciTextLabelValue.TextLabelValue();
         textLabelValue.text = "peanutbutter";
-        Label first = Label.newLabelWithValue(10, GoosciLabel.Label.TEXT, textLabelValue, null);
+        Label first = Label.newLabelWithValue(10, GoosciLabel.Label.ValueType.TEXT, textLabelValue, null);
         Label second = Label.copyOf(first);
         assertNotEquals(first.getLabelId(), second.getLabelId());
         assertEquals(first.getTimeStamp(), second.getTimeStamp());
-        assertEquals(GoosciLabel.Label.TEXT, second.getType());
+        assertEquals(GoosciLabel.Label.ValueType.TEXT, second.getType());
         assertEquals("peanutbutter", second.getTextLabelValue().text);
 
         // Changing the first doesn't change the second.

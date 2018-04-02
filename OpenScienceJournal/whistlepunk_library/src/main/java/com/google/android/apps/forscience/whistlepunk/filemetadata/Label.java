@@ -168,8 +168,8 @@ public class Label implements Parcelable {
 
     // You cannot edit the timestamp of some labels, like Snapshot and Trigger labels.
     public boolean canEditTimestamp() {
-        return (mLabel.type != GoosciLabel.Label.SNAPSHOT && mLabel.type !=
-                                                             GoosciLabel.Label.SENSOR_TRIGGER);
+        return (mLabel.type != GoosciLabel.Label.ValueType.SNAPSHOT && mLabel.type !=
+                                                             GoosciLabel.Label.ValueType.SENSOR_TRIGGER);
     }
 
     public String getCaptionText() {
@@ -192,7 +192,7 @@ public class Label implements Parcelable {
      * If changes are made, this needs to be re-set on the Label for them to be saved.
      */
     public GoosciTextLabelValue.TextLabelValue getTextLabelValue() {
-        if (mLabel.type == GoosciLabel.Label.TEXT) {
+        if (mLabel.type == GoosciLabel.Label.ValueType.TEXT) {
             try {
                 return GoosciTextLabelValue.TextLabelValue.parseFrom(mLabel.protoData);
             } catch (InvalidProtocolBufferNanoException e) {
@@ -211,7 +211,7 @@ public class Label implements Parcelable {
      * If changes are made, this needs to be re-set on the Label for them to be saved.
      */
     public GoosciPictureLabelValue.PictureLabelValue getPictureLabelValue() {
-        if (mLabel.type == GoosciLabel.Label.PICTURE) {
+        if (mLabel.type == GoosciLabel.Label.ValueType.PICTURE) {
             try {
                 return GoosciPictureLabelValue.PictureLabelValue.parseFrom(mLabel.protoData);
             } catch (InvalidProtocolBufferNanoException e) {
@@ -230,7 +230,7 @@ public class Label implements Parcelable {
      * If changes are made, this needs to be re-set on the Label for them to be saved.
      */
     public GoosciSensorTriggerLabelValue.SensorTriggerLabelValue getSensorTriggerLabelValue() {
-        if (mLabel.type == GoosciLabel.Label.SENSOR_TRIGGER) {
+        if (mLabel.type == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
             try {
                 return GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.parseFrom(
                         mLabel.protoData);
@@ -250,7 +250,7 @@ public class Label implements Parcelable {
      * If changes are made, this needs to be re-set on the Label for them to be saved.
      */
     public GoosciSnapshotValue.SnapshotLabelValue getSnapshotLabelValue() {
-        if (mLabel.type == GoosciLabel.Label.SNAPSHOT) {
+        if (mLabel.type == GoosciLabel.Label.ValueType.SNAPSHOT) {
             try {
                 return GoosciSnapshotValue.SnapshotLabelValue.parseFrom(mLabel.protoData);
             } catch (InvalidProtocolBufferNanoException e) {
@@ -276,7 +276,7 @@ public class Label implements Parcelable {
      * Deletes any assets associated with this label
      */
     public void deleteAssets(Context context, String experimentId) {
-        if (mLabel.type == GoosciLabel.Label.PICTURE) {
+        if (mLabel.type == GoosciLabel.Label.ValueType.PICTURE) {
             File file = new File(PictureUtils.getExperimentImagePath(context, experimentId,
                     getPictureLabelValue().filePath));
             boolean deleted = file.delete();
@@ -299,13 +299,13 @@ public class Label implements Parcelable {
 
     private String getDebugTypeString() {
         switch (mLabel.type) {
-            case GoosciLabel.Label.TEXT:
+            case GoosciLabel.Label.ValueType.TEXT:
                 return "TEXT";
-            case GoosciLabel.Label.PICTURE:
+            case GoosciLabel.Label.ValueType.PICTURE:
                 return "PICTURE";
-            case GoosciLabel.Label.SENSOR_TRIGGER:
+            case GoosciLabel.Label.ValueType.SENSOR_TRIGGER:
                 return "TRIGGER";
-            case GoosciLabel.Label.SNAPSHOT:
+            case GoosciLabel.Label.ValueType.SNAPSHOT:
                 return "SNAPSHOT";
         }
         return "???";
@@ -313,13 +313,13 @@ public class Label implements Parcelable {
 
     private Object getDebugLabelValue() {
         switch (mLabel.type) {
-            case GoosciLabel.Label.TEXT:
+            case GoosciLabel.Label.ValueType.TEXT:
                 return getTextLabelValue();
-            case GoosciLabel.Label.PICTURE:
+            case GoosciLabel.Label.ValueType.PICTURE:
                 return getPictureLabelValue();
-            case GoosciLabel.Label.SENSOR_TRIGGER:
+            case GoosciLabel.Label.ValueType.SENSOR_TRIGGER:
                 return getSensorTriggerLabelValue();
-            case GoosciLabel.Label.SNAPSHOT:
+            case GoosciLabel.Label.ValueType.SNAPSHOT:
                 return getSnapshotLabelValue();
         }
         return "unknown type";

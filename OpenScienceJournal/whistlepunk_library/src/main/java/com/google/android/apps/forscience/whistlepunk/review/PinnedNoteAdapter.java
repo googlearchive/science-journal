@@ -221,7 +221,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private Intent getPhotoShareIntent(Label label, Context context) {
-        if (label.getType() != GoosciLabel.Label.PICTURE) {
+        if (label.getType() != GoosciLabel.Label.ValueType.PICTURE) {
             return null;
         } else {
             return FileMetadataManager.createPhotoShareIntent(context, mExperimentId,
@@ -251,16 +251,16 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_CAPTION;
         }
         int labelType = mTrial.getLabels().get(position - 1).getType();
-        if (labelType == GoosciLabel.Label.TEXT) {
+        if (labelType == GoosciLabel.Label.ValueType.TEXT) {
             return TYPE_TEXT_NOTE;
         }
-        if (labelType == GoosciLabel.Label.PICTURE) {
+        if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
             return TYPE_PICTURE_NOTE;
         }
-        if (labelType == GoosciLabel.Label.SENSOR_TRIGGER) {
+        if (labelType == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
             return TYPE_TRIGGER_NOTE;
         }
-        if (labelType == GoosciLabel.Label.SNAPSHOT) {
+        if (labelType == GoosciLabel.Label.ValueType.SNAPSHOT) {
             return TYPE_SNAPSHOT_NOTE;
         }
         return TYPE_UNKNOWN;

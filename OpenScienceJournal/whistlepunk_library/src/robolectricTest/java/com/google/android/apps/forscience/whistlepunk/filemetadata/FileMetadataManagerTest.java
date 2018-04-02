@@ -79,7 +79,7 @@ public class FileMetadataManagerTest {
 
         clock.increment();
         experiment.setTitle("Title");
-        experiment.addLabel(Label.newLabelWithValue(clock.getNow(), GoosciLabel.Label.TEXT,
+        experiment.addLabel(Label.newLabelWithValue(clock.getNow(), GoosciLabel.Label.ValueType.TEXT,
                 new GoosciTextLabelValue.TextLabelValue(), null));
         fmm.updateExperiment(experiment);
 
@@ -155,7 +155,7 @@ public class FileMetadataManagerTest {
         Version.FileVersion fileVersion = new Version.FileVersion();
         fileVersion.version = 1;
         fileVersion.minorVersion = 1;
-        fileVersion.platform = GoosciGadgetInfo.GadgetInfo.ANDROID;
+        fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
         fileVersion.platformVersion = 1;
         assertEquals(true, FileMetadataManager.canImportFromVersion(fileVersion));
 
@@ -169,7 +169,7 @@ public class FileMetadataManagerTest {
         fileVersion.minorVersion = 1;
         assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
 
-        fileVersion.platform = GoosciGadgetInfo.GadgetInfo.IOS;
+        fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.IOS;
         fileVersion.version = 1;
         fileVersion.minorVersion = 1;
         fileVersion.platformVersion = 1;

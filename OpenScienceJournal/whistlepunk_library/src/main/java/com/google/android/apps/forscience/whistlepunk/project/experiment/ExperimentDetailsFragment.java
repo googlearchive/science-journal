@@ -990,10 +990,10 @@ public class ExperimentDetailsFragment extends Fragment
         }
 
         private int findLabelIndex(Label label) {
-            int expectedViewType = label.getType() == GoosciLabel.Label.TEXT ?
-                    VIEW_TYPE_EXPERIMENT_TEXT_LABEL : label.getType() == GoosciLabel.Label.PICTURE ?
+            int expectedViewType = label.getType() == GoosciLabel.Label.ValueType.TEXT ?
+                    VIEW_TYPE_EXPERIMENT_TEXT_LABEL : label.getType() == GoosciLabel.Label.ValueType.PICTURE ?
                     VIEW_TYPE_EXPERIMENT_PICTURE_LABEL :
-                    label.getType() == GoosciLabel.Label.SNAPSHOT ? VIEW_TYPE_SNAPSHOT_LABEL :
+                    label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT ? VIEW_TYPE_SNAPSHOT_LABEL :
                             VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
             int position = -1;
             int size = mItems.size();
@@ -1267,14 +1267,14 @@ public class ExperimentDetailsFragment extends Fragment
                 noteView.findViewById(R.id.caption_section).setVisibility(View.GONE);
             }
 
-            if (label.getType() == GoosciLabel.Label.TEXT) {
+            if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
                 ((TextView) noteView.findViewById(R.id.note_text)).setText(
                         label.getTextLabelValue().text);
             } else {
                 noteView.findViewById(R.id.note_text).setVisibility(View.GONE);
             }
 
-            if (label.getType() == GoosciLabel.Label.PICTURE) {
+            if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
                 GoosciPictureLabelValue.PictureLabelValue labelValue = label.getPictureLabelValue();
                 noteView.findViewById(R.id.note_image).setVisibility(View.VISIBLE);
                 PictureUtils.loadExperimentImage(noteView.getContext(),
@@ -1282,16 +1282,16 @@ public class ExperimentDetailsFragment extends Fragment
                         mExperiment.getExperimentId(), labelValue.filePath);
             }
 
-            if (label.getType() != GoosciLabel.Label.SENSOR_TRIGGER &&
-                    label.getType() != GoosciLabel.Label.SNAPSHOT) {
+            if (label.getType() != GoosciLabel.Label.ValueType.SENSOR_TRIGGER &&
+                    label.getType() != GoosciLabel.Label.ValueType.SNAPSHOT) {
                 noteView.findViewById(R.id.snapshot_values_list).setVisibility(View.GONE);
             } else {
-                if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
+                if (label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
                     NoteViewHolder.loadTriggerIntoList((ViewGroup)
                             noteView.findViewById(R.id.snapshot_values_list), label);
                 }
 
-                if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
+                if (label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT) {
                     NoteViewHolder.loadSnapshotsIntoList((ViewGroup)
                             noteView.findViewById(R.id.snapshot_values_list), label);
                 }
@@ -1408,8 +1408,8 @@ public class ExperimentDetailsFragment extends Fragment
                             chartController.setLabels(trial.getLabels());
                             chartController.setXAxis(firstTimestamp, lastTimestamp);
                             chartController.setReviewYAxis(
-                                    stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, 0),
-                                    stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 0), true);
+                                    stats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0),
+                                    stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0), true);
                         }
 
                         @Override
@@ -1428,7 +1428,7 @@ public class ExperimentDetailsFragment extends Fragment
                 }
                 // At least allow generating default values
                 stats = new TrialStats(sensorId);
-                stats.setStatStatus(GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
+                stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
             }
             return stats;
         }

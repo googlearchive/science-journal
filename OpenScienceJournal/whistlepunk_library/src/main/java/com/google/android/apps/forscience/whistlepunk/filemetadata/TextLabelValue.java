@@ -16,7 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 /**
  * A label value which represents a piece of text.
@@ -29,7 +29,7 @@ public class TextLabelValue extends LabelValue {
 
     public TextLabelValue(GoosciLabelValue.LabelValue value) {
         super(value);
-        mValue.type = GoosciLabelValue.LabelValue.TEXT;
+        mValue.type = GoosciLabelValue.LabelValue.ValueType.TEXT;
     }
 
     public static TextLabelValue fromText(String text) {
@@ -39,7 +39,7 @@ public class TextLabelValue extends LabelValue {
     @VisibleForTesting
     TextLabelValue() {
         super();
-        mValue.type = GoosciLabelValue.LabelValue.TEXT;
+        mValue.type = GoosciLabelValue.LabelValue.ValueType.TEXT;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TextLabelValue extends LabelValue {
     }
 
     public static void populateLabelValue(GoosciLabelValue.LabelValue value, String text) {
-        value.type = GoosciLabelValue.LabelValue.TEXT;
+        value.type = GoosciLabelValue.LabelValue.ValueType.TEXT;
         if (value.data == null || value.data.length == 0) {
             value.data = new GoosciLabelValue.LabelValue.DataEntry[NUM_FIELDS];
             value.data[INDEX_LABEL_TEXT] = new GoosciLabelValue.LabelValue.DataEntry();

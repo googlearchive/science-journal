@@ -38,8 +38,8 @@ public class SensorAppearanceProviderImplTest {
 
         GoosciSensorAppearance.BasicSensorAppearance proto =
                 SensorAppearanceProviderImpl.toProto(appearance, context);
-        assertEquals(GoosciIcon.IconPath.BUILTIN, proto.iconPath.type);
-        assertEquals(GoosciIcon.IconPath.BUILTIN, proto.largeIconPath.type);
+        assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.iconPath.type);
+        assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.largeIconPath.type);
         assertEquals("sensorId", proto.iconPath.pathString);
         assertEquals("sensorId", proto.largeIconPath.pathString);
 

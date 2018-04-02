@@ -42,7 +42,7 @@ import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.Version;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 
 import java.io.File;
@@ -560,9 +560,9 @@ public class FileMetadataManager {
     @VisibleForTesting
     public static boolean canImportFromVersion(Version.FileVersion fileVersion) {
         switch (fileVersion.platform) {
-            case GoosciGadgetInfo.GadgetInfo.ANDROID:
+            case GoosciGadgetInfo.GadgetInfo.Platform.ANDROID:
                 return fileVersion.version == 1 && fileVersion.minorVersion <= 2;
-            case GoosciGadgetInfo.GadgetInfo.IOS:
+            case GoosciGadgetInfo.GadgetInfo.Platform.IOS:
                 if (fileVersion.version != 1) {
                     return false;
                 }

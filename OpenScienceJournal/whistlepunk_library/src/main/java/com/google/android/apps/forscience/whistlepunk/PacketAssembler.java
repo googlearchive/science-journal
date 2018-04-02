@@ -20,7 +20,7 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 
 import java.io.ByteArrayOutputStream;

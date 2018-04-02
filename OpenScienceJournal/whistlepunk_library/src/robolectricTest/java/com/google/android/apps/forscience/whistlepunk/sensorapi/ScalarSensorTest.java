@@ -349,8 +349,8 @@ public class ScalarSensorTest {
 
         recorder.stopRecording(trial);
         TrialStats stats = trial.getStatsForSensor("test");
-        assertEquals(100.0, stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 0.001);
-        assertEquals(3.0, stats.getStatValue(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, -1),
+        assertEquals(100.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, -1), 0.001);
+        assertEquals(3.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT, -1),
                 0.001);
 
         Trial trial2 = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[]{layout},
@@ -360,8 +360,8 @@ public class ScalarSensorTest {
         sensor.pushValue(200, 0);
         recorder.stopRecording(trial2);
         TrialStats stats2 = trial2.getStatsForSensor("test");
-        assertEquals(1.0, stats2.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 0.001);
-        assertEquals(1.0, stats2.getStatValue(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT, -1),
+        assertEquals(1.0, stats2.getStatValue(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, -1), 0.001);
+        assertEquals(1.0, stats2.getStatValue(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT, -1),
                 0.001);
     }
 

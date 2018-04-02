@@ -184,7 +184,7 @@ public class GalleryFragment extends PanesToolFragment implements
             }
 
             mListener.getActiveExperimentId().firstElement().subscribe(experimentId -> {
-                Label result = Label.newLabel(timestamp, GoosciLabel.Label.PICTURE);
+                Label result = Label.newLabel(timestamp, GoosciLabel.Label.ValueType.PICTURE);
                 File imageFile = PictureUtils.createImageFile(getActivity(), experimentId,
                         result.getLabelId());
 

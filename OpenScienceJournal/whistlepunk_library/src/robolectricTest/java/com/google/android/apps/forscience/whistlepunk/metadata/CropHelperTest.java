@@ -180,10 +180,10 @@ public class CropHelperTest {
         TrialStats stats = mMetadataManager.getExperimentById(experiment.getExperimentId())
                 .getTrial(trial.getTrialId()).getStatsForSensor("sensor");
         assertTrue(stats.statsAreValid());
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 50.0, DELTA);
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 60.0, DELTA);
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, -1), 70.0, DELTA);
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 3.0, DELTA);
+        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, -1), 50.0, DELTA);
+        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, -1), 60.0, DELTA);
+        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, -1), 70.0, DELTA);
+        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, -1), 3.0, DELTA);
     }
 
     @Test

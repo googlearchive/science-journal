@@ -28,8 +28,8 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.Version;
-import com.google.common.annotations.VisibleForTesting;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
+import androidx.annotation.VisibleForTesting;
 
 import java.io.File;
 import java.io.IOException;
@@ -421,7 +421,7 @@ class ExperimentCache {
                 setPlatformVersion(proto, 2);
             }
 
-            if (fileVersion.platform != GoosciGadgetInfo.GadgetInfo.ANDROID) {
+            if (fileVersion.platform != GoosciGadgetInfo.GadgetInfo.Platform.ANDROID) {
                 // Update platform version to reflect Android, if this is coming from iOS.
                 // Also put any iOS version specific fixes in here, if we find any issues.
                 setPlatformVersion(proto, newPlatformVersion);
@@ -454,7 +454,7 @@ class ExperimentCache {
     }
 
     private void setPlatformVersion(GoosciExperiment.Experiment proto, int platformVersion) {
-        proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.ANDROID;
+        proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
         proto.fileVersion.platformVersion = platformVersion;
     }
 

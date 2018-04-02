@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.text.TextUtils;
 
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 /**
  * Represents a project, which is a collection of experiments.

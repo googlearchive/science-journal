@@ -55,7 +55,7 @@ public class TrialTest {
         trial.updateLabel(label);
         assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
 
-        Label second = Label.newLabel(20, GoosciLabel.Label.TEXT);
+        Label second = Label.newLabel(20, GoosciLabel.Label.ValueType.TEXT);
         trial.addLabel(second);
         assertEquals(trial.getLabelCount(), 2);
 
@@ -67,9 +67,9 @@ public class TrialTest {
     public void testLabelsStillSortedOnAdd() {
         Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0],
                 new FakeAppearanceProvider(), getContext());
-        trial.addLabel(Label.newLabel(20, GoosciLabel.Label.TEXT));
-        trial.addLabel(Label.newLabel(30, GoosciLabel.Label.TEXT));
-        trial.addLabel(Label.newLabel(10, GoosciLabel.Label.TEXT));
+        trial.addLabel(Label.newLabel(20, GoosciLabel.Label.ValueType.TEXT));
+        trial.addLabel(Label.newLabel(30, GoosciLabel.Label.ValueType.TEXT));
+        trial.addLabel(Label.newLabel(10, GoosciLabel.Label.ValueType.TEXT));
         assertEquals(trial.getLabels().size(), 3);
         assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
         assertEquals(trial.getLabels().get(1).getTimeStamp(), 20);
@@ -80,9 +80,9 @@ public class TrialTest {
     public void testLabelsStillSortedOnUpdate() {
         Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0],
                 new FakeAppearanceProvider(), getContext());
-        trial.addLabel(Label.newLabel(10, GoosciLabel.Label.TEXT));
-        trial.addLabel(Label.newLabel(20, GoosciLabel.Label.TEXT));
-        trial.addLabel(Label.newLabel(30, GoosciLabel.Label.TEXT));
+        trial.addLabel(Label.newLabel(10, GoosciLabel.Label.ValueType.TEXT));
+        trial.addLabel(Label.newLabel(20, GoosciLabel.Label.ValueType.TEXT));
+        trial.addLabel(Label.newLabel(30, GoosciLabel.Label.ValueType.TEXT));
         Label second = trial.getLabels().get(1);
         second.setTimestamp(40);
         trial.updateLabel(second);

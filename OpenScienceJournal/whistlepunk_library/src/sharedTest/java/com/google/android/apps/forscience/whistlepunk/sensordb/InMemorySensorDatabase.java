@@ -30,7 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalar
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import com.google.common.collect.Range;
 import com.google.common.util.concurrent.MoreExecutors;
 

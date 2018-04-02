@@ -55,7 +55,7 @@ public class Snapshotter {
 
                  // Make it into a label
                  .map(snapshotValue -> Label.newLabelWithValue(rc.getNow(),
-                         GoosciLabel.Label.SNAPSHOT, snapshotValue, null))
+                         GoosciLabel.Label.ValueType.SNAPSHOT, snapshotValue, null))
 
                  // Make sure it's successfully added
                  .flatMap(label -> {

@@ -142,13 +142,13 @@ public class TriggerHelper {
         Resources res = activity.getResources();
         int actionType = trigger.getActionType();
         String action = "";
-        if (actionType == TriggerInformation.TRIGGER_ACTION_START_RECORDING) {
+        if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING) {
             action = res.getString(R.string.trigger_type_start_recording);
-        } else if (actionType == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING) {
+        } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
             action = res.getString(R.string.trigger_type_stop_recording);
-        } else if (actionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
+        } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
             action = res.getString(R.string.trigger_type_note);
-        } else if (actionType == TriggerInformation.TRIGGER_ACTION_ALERT) {
+        } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
             action = res.getString(R.string.trigger_type_alert);
         }
         SensorAppearance appearance = AppSingleton.getInstance(activity)
@@ -157,17 +157,17 @@ public class TriggerHelper {
         String value = appearance.getNumberFormat().format(trigger.getValueToTrigger());
         String result = "";
         int when = trigger.getTriggerWhen();
-        if (when == TriggerInformation.TRIGGER_WHEN_AT) {
+        if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT) {
             result = res.getString(R.string.trigger_when_at_description, action, value, units);
-        } else if (when == TriggerInformation.TRIGGER_WHEN_RISES_ABOVE) {
+        } else if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE) {
             result = res.getString(R.string.trigger_when_rises_above_description, action, value,
                     units);
-        } else if (when == TriggerInformation.TRIGGER_WHEN_DROPS_BELOW) {
+        } else if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW) {
             result = res.getString(R.string.trigger_when_drops_below_description, action, value,
                     units);
-        } else if (when == TriggerInformation.TRIGGER_WHEN_ABOVE) {
+        } else if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_ABOVE) {
             result = res.getString(R.string.trigger_when_above_description, action, value, units);
-        } else if (when == TriggerInformation.TRIGGER_WHEN_BELOW) {
+        } else if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_BELOW) {
             result = res.getString(R.string.trigger_when_below_description, action, value, units);
         }
         return result;

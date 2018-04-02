@@ -105,13 +105,13 @@ public class RecorderControllerTest {
 
         GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
         layout.sensorId = "aa:bb:cc:dd";
-        layout.cardView = GoosciSensorLayout.SensorLayout.GRAPH;
+        layout.cardView = GoosciSensorLayout.SensorLayout.CardView.GRAPH;
         layout.audioEnabled = false;
         String loggingId = BleSensorSpec.TYPE;
 
         assertEquals("bluetooth_le|graph|audioOff", rc.getLayoutLoggingString(loggingId, layout));
 
-        layout.cardView = GoosciSensorLayout.SensorLayout.METER;
+        layout.cardView = GoosciSensorLayout.SensorLayout.CardView.METER;
         assertEquals("bluetooth_le|meter|audioOff", rc.getLayoutLoggingString(loggingId, layout));
 
         layout.audioEnabled = true;

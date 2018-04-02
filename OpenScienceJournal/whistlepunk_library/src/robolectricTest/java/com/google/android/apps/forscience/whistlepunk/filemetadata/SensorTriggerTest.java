@@ -37,43 +37,43 @@ import org.robolectric.annotation.Config;
 public class SensorTriggerTest {
     @Test
     public void testSetActionType_noChangeWhenEqual() {
-        SensorTrigger trigger = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
-        SensorTrigger same = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
-        trigger.setTriggerActionType(TriggerInformation.TRIGGER_ACTION_START_RECORDING);
+        SensorTrigger trigger = SensorTrigger.newTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
+        SensorTrigger same = SensorTrigger.newTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
+        trigger.setTriggerActionType(TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING);
         assertTrue(trigger.userSettingsEquals(same));
 
-        trigger = SensorTrigger.newAlertTypeTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
-                new int[]{TriggerInformation.TRIGGER_ALERT_VISUAL,
-                        TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
+        trigger = SensorTrigger.newAlertTypeTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                new int[]{TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
+                        TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO}, 10.);
         same = SensorTrigger.newAlertTypeTrigger("sensorId",
-                TriggerInformation.TRIGGER_WHEN_AT,
-                new int[]{TriggerInformation.TRIGGER_ALERT_VISUAL,
-                        TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
-        trigger.setTriggerActionType(TriggerInformation.TRIGGER_ACTION_ALERT);
+                TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                new int[]{TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
+                        TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO}, 10.);
+        trigger.setTriggerActionType(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
         assertTrue(trigger.userSettingsEquals(same));
     }
 
     @Test
     public void testSetActionType_clearsMetaDataWhenChanged() {
         SensorTrigger trigger = SensorTrigger.newAlertTypeTrigger("1",
-                TriggerInformation.TRIGGER_WHEN_AT,
-                new int[]{TriggerInformation.TRIGGER_ALERT_VISUAL,
-                        TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
+                TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                new int[]{TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
+                        TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO}, 10.);
         assertTrue(trigger.getNoteText().isEmpty());
         assertEquals(trigger.getAlertTypes().length, 2);
 
-        trigger.setTriggerActionType(TriggerInformation.TRIGGER_ACTION_NOTE);
+        trigger.setTriggerActionType(TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE);
         assertTrue(trigger.getNoteText().isEmpty());
         assertEquals(trigger.getAlertTypes().length, 0);
 
-        trigger = SensorTrigger.newNoteTypeTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
+        trigger = SensorTrigger.newNoteTypeTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
                 "text", 10.);
         assertTrue(trigger.getNoteText().equals("text"));
         assertEquals(trigger.getAlertTypes().length, 0);
 
-        trigger.setTriggerActionType(TriggerInformation.TRIGGER_ACTION_START_RECORDING);
+        trigger.setTriggerActionType(TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING);
         assertTrue(trigger.getNoteText().isEmpty());
         assertEquals(trigger.getAlertTypes().length, 0);
     }
@@ -81,8 +81,8 @@ public class SensorTriggerTest {
     @Test
     public void testIsTriggered_datapointAtUnequal() {
         SensorTrigger trigger = SensorTrigger.newTrigger("sensorId",
-                TriggerInformation.TRIGGER_WHEN_AT,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+                TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
         assertFalse(trigger.isTriggered(9.));
         assertTrue(trigger.isTriggered(10.));
     }
@@ -90,8 +90,8 @@ public class SensorTriggerTest {
     @Test
     public void testIsTriggered_datapointAtEquals() {
         SensorTrigger trigger = SensorTrigger.newTrigger("sensorId",
-                TriggerInformation.TRIGGER_WHEN_AT,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+                TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
         // Never trigger on the first point.
         assertFalse(trigger.isTriggered(10.));
 
@@ -114,8 +114,8 @@ public class SensorTriggerTest {
     @Test
     public void testIsTriggered_rising() {
         SensorTrigger trigger = SensorTrigger.newTrigger("sensorId",
-                TriggerInformation.TRIGGER_WHEN_RISES_ABOVE,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+                TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
         // The first point should aways be false because we have no comparison.
         assertFalse(trigger.isTriggered(10.));
         assertFalse(trigger.isTriggered(10.));
@@ -128,8 +128,8 @@ public class SensorTriggerTest {
     @Test
     public void testIsTriggered_falling() {
         SensorTrigger trigger = SensorTrigger.newTrigger("sensorId",
-                TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+                TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
         // The first point should aways be false because we have no comparison.
         assertFalse(trigger.isTriggered(10.));
         assertFalse(trigger.isTriggered(10.));
@@ -142,49 +142,49 @@ public class SensorTriggerTest {
     @Test
     public void testEquals() {
         SensorTrigger first = SensorTrigger.newTrigger("sensorId",
-                TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+                TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
         SensorTrigger second = SensorTrigger.newTrigger("sensorId",
-                TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+                TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
         assertTrue(first.userSettingsEquals(second));
         first.setLastUsed(2L);
         assertTrue(first.userSettingsEquals(second));
 
         second = SensorTrigger.newTrigger("otherSensorId",
-                TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+                TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
         assertFalse(first.userSettingsEquals(second));
 
-        second = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_RISES_ABOVE,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 10.);
+        second = SensorTrigger.newTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 10.);
         assertFalse(first.userSettingsEquals(second));
 
-        second = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_DROPS_BELOW,
-                TriggerInformation.TRIGGER_ACTION_STOP_RECORDING, 10.);
+        second = SensorTrigger.newTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING, 10.);
         assertFalse(first.userSettingsEquals(second));
 
-        second = SensorTrigger.newTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_RISES_ABOVE,
-                TriggerInformation.TRIGGER_ACTION_START_RECORDING, 11.);
+        second = SensorTrigger.newTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
+                TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING, 11.);
         assertFalse(first.userSettingsEquals(second));
 
         // Check ordering
-        first = SensorTrigger.newAlertTypeTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
-                new int[]{TriggerInformation.TRIGGER_ALERT_VISUAL,
-                        TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
-        second = SensorTrigger.newAlertTypeTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
-                new int[]{TriggerInformation.TRIGGER_ALERT_AUDIO,
-                        TriggerInformation.TRIGGER_ALERT_VISUAL}, 10.);
+        first = SensorTrigger.newAlertTypeTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                new int[]{TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
+                        TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO}, 10.);
+        second = SensorTrigger.newAlertTypeTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                new int[]{TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO,
+                        TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL}, 10.);
         assertTrue(first.userSettingsEquals(second));
 
-        second = SensorTrigger.newAlertTypeTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
-                new int[]{TriggerInformation.TRIGGER_ALERT_AUDIO}, 10.);
+        second = SensorTrigger.newAlertTypeTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+                new int[]{TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO}, 10.);
         assertFalse(first.userSettingsEquals(second));
 
-        first = SensorTrigger.newNoteTypeTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
+        first = SensorTrigger.newNoteTypeTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
                 "text", 10.);
         assertFalse(first.userSettingsEquals(second));
-        second = SensorTrigger.newNoteTypeTrigger("sensorId", TriggerInformation.TRIGGER_WHEN_AT,
+        second = SensorTrigger.newNoteTypeTrigger("sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
                 "text", 10.);
         assertTrue(first.userSettingsEquals(second));
 

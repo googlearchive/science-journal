@@ -57,9 +57,9 @@ public class CommandLineSpecs {
 
     private static int findCardView(String side) {
         if (Objects.equals(PARAM_METER, side)) {
-            return GoosciSensorLayout.SensorLayout.METER;
+            return GoosciSensorLayout.SensorLayout.CardView.METER;
         } else {
-            return GoosciSensorLayout.SensorLayout.GRAPH;
+            return GoosciSensorLayout.SensorLayout.CardView.GRAPH;
         }
     }
 

@@ -51,7 +51,7 @@ public class ExperimentTest {
         GoosciExperiment.Experiment result = new GoosciExperiment.Experiment();
         result.labels = new GoosciLabel.Label[labelTimes.length];
         for (int i = 0; i < labelTimes.length; i++) {
-            Label label = Label.newLabel(labelTimes[i], GoosciLabel.Label.TEXT);
+            Label label = Label.newLabel(labelTimes[i], GoosciLabel.Label.ValueType.TEXT);
             result.labels[i] = label.getLabelProto();
         }
         return result;
@@ -73,7 +73,7 @@ public class ExperimentTest {
                 .PictureLabelValue();
         GoosciLabel.Label labelProto = new GoosciLabel.Label();
         labelProto.protoData = MessageNano.toByteArray(labelValueProto);
-        labelProto.type = GoosciLabel.Label.PICTURE;
+        labelProto.type = GoosciLabel.Label.ValueType.PICTURE;
         experiment.getLabels().add(Label.fromLabel(labelProto));
         assertEquals(experiment.getLabelCount(), 1);
 
@@ -88,7 +88,7 @@ public class ExperimentTest {
                 experiment2.getLabels().get(0).getPictureLabelValue(), labelValueProto));
         assertEquals(experiment2.getLabelCount(), 1);
         List<Label> labels = experiment2.getLabels();
-        labels.add(Label.newLabel(20, GoosciLabel.Label.TEXT));
+        labels.add(Label.newLabel(20, GoosciLabel.Label.ValueType.TEXT));
         assertEquals(experiment2.getLabelCount(), 2);
 
         assertEquals(experiment2.getExperimentProto().labels.length, 2);

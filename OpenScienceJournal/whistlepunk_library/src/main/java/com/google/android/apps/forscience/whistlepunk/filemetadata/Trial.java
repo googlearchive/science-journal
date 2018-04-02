@@ -33,7 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaptio
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
@@ -128,7 +128,7 @@ public class Trial extends LabelListHolder {
 
     public GoosciPictureLabelValue.PictureLabelValue getCoverPictureLabelValue() {
         for (Label label : mLabels) {
-            if (label.getType() == GoosciLabel.Label.PICTURE) {
+            if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
                 return label.getPictureLabelValue();
             }
         }

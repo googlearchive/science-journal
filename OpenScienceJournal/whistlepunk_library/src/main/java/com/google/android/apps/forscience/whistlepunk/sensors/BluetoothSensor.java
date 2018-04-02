@@ -36,7 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ValueFilter;
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

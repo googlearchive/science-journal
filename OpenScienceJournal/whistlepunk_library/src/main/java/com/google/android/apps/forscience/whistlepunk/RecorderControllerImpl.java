@@ -255,7 +255,7 @@ public class RecorderControllerImpl implements RecorderController {
         // regarding start/stop recording and notes. Right now behavior may not seem repeatable
         // depending on timing of callbacks and order of triggers. b/
         boolean triggerWasFired = false;
-        if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_START_RECORDING &&
+        if (trigger.getActionType() == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING &&
             !isRecording() && getSelectedExperiment() != null) {
             if (!mRecordingStateChangeInProgress) {
                 triggerWasFired = true;
@@ -270,7 +270,7 @@ public class RecorderControllerImpl implements RecorderController {
                         TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_TRY_RECORDING_FROM_TRIGGER, null, 0);
             }
-        } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING &&
+        } else if (trigger.getActionType() == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING &&
                 isRecording()) {
             if (!mRecordingStateChangeInProgress) {
                 triggerWasFired = true;
@@ -283,17 +283,17 @@ public class RecorderControllerImpl implements RecorderController {
                         TrackerConstants.CATEGORY_RUNS,
                         TrackerConstants.ACTION_TRY_STOP_RECORDING_FROM_TRIGGER, null, 0);
             }
-        } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_NOTE) {
+        } else if (trigger.getActionType() == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
             triggerWasFired = true;
             addTriggerLabel(timestamp, trigger, sensorRegistry);
-        } else if (trigger.getActionType() == TriggerInformation.TRIGGER_ACTION_ALERT) {
+        } else if (trigger.getActionType() == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
             if (trigger.getAlertTypes().length > 0) {
                 triggerWasFired = true;
             }
-            if (trigger.hasAlertType(TriggerInformation.TRIGGER_ALERT_PHYSICAL)) {
+            if (trigger.hasAlertType(TriggerInformation.TriggerAlertType.TRIGGER_ALERT_PHYSICAL)) {
                 getTriggerHelper().doVibrateAlert(mContext);
             }
-            if (trigger.hasAlertType(TriggerInformation.TRIGGER_ALERT_AUDIO)) {
+            if (trigger.hasAlertType(TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO)) {
                 getTriggerHelper().doAudioAlert(mContext);
             }
             // Visual alerts are not covered in RecorderControllerImpl.
@@ -331,7 +331,7 @@ public class RecorderControllerImpl implements RecorderController {
         }
         labelValue.sensor = getSensorSpec(trigger.getSensorId(), sensorRegistry);
         final Label triggerLabel = Label.newLabelWithValue(timestamp,
-                GoosciLabel.Label.SENSOR_TRIGGER, labelValue, caption);
+                GoosciLabel.Label.ValueType.SENSOR_TRIGGER, labelValue, caption);
         if (isRecording()) {
             // Adds the label to the trial and saves the updated experiment.
             getSelectedExperiment().getTrial(mCurrentTrialId).addLabel(triggerLabel);
@@ -792,7 +792,7 @@ public class RecorderControllerImpl implements RecorderController {
         StringBuilder builder = new StringBuilder();
         builder.append(loggingId);
         builder.append("|");
-        builder.append(layout.cardView == GoosciSensorLayout.SensorLayout.METER ? "meter" :
+        builder.append(layout.cardView == GoosciSensorLayout.SensorLayout.CardView.METER ? "meter" :
                 "graph");
         builder.append("|");
         builder.append(layout.audioEnabled ? "audioOn" : "audioOff");

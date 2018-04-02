@@ -49,7 +49,7 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.UptimeClock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FrequencyOptionsPresenter
         .FilterChangeListener;
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import java.text.NumberFormat;
@@ -392,9 +392,9 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
                 super.stopRecording(trialToUpdate);
 
                 TrialStats trialStats = statsAccumulator.makeSaveableStats();
-                trialStats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT,
+                trialStats.putStat(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT,
                         zoomRecorder.countTiers());
-                trialStats.putStat(GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS,
+                trialStats.putStat(GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS,
                         mZoomLevelBetweenTiers);
                 if (trialToUpdate != null) {
                     trialToUpdate.setStats(trialStats);

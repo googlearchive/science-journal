@@ -28,8 +28,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.Version;
-import com.google.common.annotations.VisibleForTesting;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
+import androidx.annotation.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class Experiment extends LabelListHolder {
         proto.fileVersion.version = ExperimentCache.VERSION;
         proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION;
         proto.fileVersion.platformVersion = ExperimentCache.PLATFORM_VERSION;
-        proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.ANDROID;
+        proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
 
         return new Experiment(proto, experimentOverview);
     }
@@ -551,7 +551,7 @@ public class Experiment extends LabelListHolder {
             for (int i = mLabels.size() - 1; i >= 0; i--) {
                 Label other = mLabels.get(i);
                 if (!TextUtils.equals(other.getLabelId(), label.getLabelId()) &&
-                        other.getType() == GoosciLabel.Label.PICTURE) {
+                        other.getType() == GoosciLabel.Label.ValueType.PICTURE) {
                     mImagePath =
                             PictureUtils.getExperimentOverviewRelativeImagePath(getExperimentId(),
                                     other.getPictureLabelValue().filePath);

@@ -112,16 +112,16 @@ public class TrialUnitTest {
     public void testStats() {
         Trial trial = makeSimpleTrial(1000, "sensorId");
         TrialStats stats = new TrialStats("sensorId");
-        stats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
-        stats.putStat(GoosciTrial.SensorStat.AVERAGE, 42);
+        stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+        stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
         trial.setStats(stats);
 
         assertTrue(trial.getStatsForSensor("sensorId").statsAreValid());
 
         // Test replace works
         TrialStats newStats = new TrialStats("sensorId");
-        newStats.setStatStatus(GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
-        newStats.putStat(GoosciTrial.SensorStat.AVERAGE, 42);
+        newStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
+        newStats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
         trial.setStats(newStats);
 
         assertFalse(trial.getStatsForSensor("sensorId").statsAreValid());

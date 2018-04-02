@@ -229,7 +229,7 @@ public class ExperimentListFragment extends Fragment implements
                     .TextLabelValue();
             goosciTextLabel1.text = res.getString(R.string.first_experiment_second_text_note);
             Label textLabel1 = Label.newLabelWithValue(clock.getNow() - 1000,
-                    GoosciLabel.Label.TEXT, goosciTextLabel1, null);
+                    GoosciLabel.Label.ValueType.TEXT, goosciTextLabel1, null);
             e.addLabel(textLabel1);
 
             // Create a text label 2 seconds ago with default text.
@@ -237,7 +237,7 @@ public class ExperimentListFragment extends Fragment implements
                     .TextLabelValue();
             goosciTextLabel2.text = res.getString(R.string.first_experiment_text_note);
             Label textLabel2 = Label.newLabelWithValue(clock.getNow() - 2000,
-                    GoosciLabel.Label.TEXT, goosciTextLabel2, null);
+                    GoosciLabel.Label.ValueType.TEXT, goosciTextLabel2, null);
             e.addLabel(textLabel2);
 
             // Create a picture label 4 second ago with a default drawable and caption.
@@ -245,7 +245,7 @@ public class ExperimentListFragment extends Fragment implements
             caption.text = res.getString(R.string.first_experiment_picture_note_caption);
             caption.lastEditedTimestamp = clock.getNow() - 4000;
             Label pictureLabel = Label.newLabel(caption.lastEditedTimestamp,
-                    GoosciLabel.Label.PICTURE);
+                    GoosciLabel.Label.ValueType.PICTURE);
             File pictureFile = PictureUtils.createImageFile(getActivity(), e.getExperimentId(),
                     pictureLabel.getLabelId());
             PictureUtils.writeDrawableToFile(getActivity(), pictureFile, R.drawable.first_note);

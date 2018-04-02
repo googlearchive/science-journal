@@ -145,7 +145,7 @@ public class TextToolFragment extends PanesToolFragment {
             GoosciTextLabelValue.TextLabelValue labelValue =
                     new GoosciTextLabelValue.TextLabelValue();
             labelValue.text = mTextView.getText().toString();
-            Label result = Label.newLabelWithValue(timestamp, GoosciLabel.Label.TEXT, labelValue,
+            Label result = Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue,
                     null);
             getListener(addButton.getContext()).onTextLabelTaken(result);
 

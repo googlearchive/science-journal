@@ -43,7 +43,6 @@ import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
 
-
 public class CameraFragment extends PanesToolFragment {
     private final BehaviorSubject<Optional<ViewGroup>> mPreviewContainer = BehaviorSubject.create();
     private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
@@ -144,7 +143,7 @@ public class CameraFragment extends PanesToolFragment {
                                     new GoosciPictureLabelValue.PictureLabelValue();
                             labelValue.filePath = relativePicturePath;
                             Label label = Label.fromUuidAndValue(timestamp, uuid,
-                                    GoosciLabel.Label.PICTURE, labelValue);
+                                    GoosciLabel.Label.ValueType.PICTURE, labelValue);
                             mListener.onPictureLabelTaken(label);
                         }
                     });

@@ -20,7 +20,7 @@ import android.util.Log;
 
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 import com.google.protobuf.nano.MessageNano;
 
 import java.io.File;

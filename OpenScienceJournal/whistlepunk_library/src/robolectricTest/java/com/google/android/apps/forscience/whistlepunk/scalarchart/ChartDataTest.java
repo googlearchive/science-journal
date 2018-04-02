@@ -142,7 +142,7 @@ public class ChartDataTest {
         populatePointsList(3, data);
         chartData.setPoints(data);
 
-        Label label = Label.newLabel(-1, GoosciLabel.Label.TEXT);
+        Label label = Label.newLabel(-1, GoosciLabel.Label.ValueType.TEXT);
         assertFalse(chartData.tryAddingLabel(label));
         assertEquals(chartData.getLabelPoints().size(), 0);
     }
@@ -153,7 +153,7 @@ public class ChartDataTest {
         populatePointsList(3, data);
         chartData.setPoints(data);
 
-        Label label = Label.newLabel(3, GoosciLabel.Label.TEXT);
+        Label label = Label.newLabel(3, GoosciLabel.Label.ValueType.TEXT);
         assertFalse(chartData.tryAddingLabel(label));
         assertEquals(chartData.getLabelPoints().size(), 0);
     }
@@ -164,7 +164,7 @@ public class ChartDataTest {
         populatePointsList(3, data);
         chartData.setPoints(data);
 
-        Label label = Label.newLabel(1, GoosciLabel.Label.TEXT);
+        Label label = Label.newLabel(1, GoosciLabel.Label.ValueType.TEXT);
         assertTrue(chartData.tryAddingLabel(label));
         List<ChartData.DataPoint> labelPoints = chartData.getLabelPoints();
         assertEquals(labelPoints.size(), 1);
@@ -178,7 +178,7 @@ public class ChartDataTest {
         }
         chartData.setPoints(data);
 
-        Label label = Label.newLabel(1, GoosciLabel.Label.TEXT);
+        Label label = Label.newLabel(1, GoosciLabel.Label.ValueType.TEXT);
         assertTrue(chartData.tryAddingLabel(label));
         List<ChartData.DataPoint> labelPoints = chartData.getLabelPoints();
         assertEquals(labelPoints.size(), 1);

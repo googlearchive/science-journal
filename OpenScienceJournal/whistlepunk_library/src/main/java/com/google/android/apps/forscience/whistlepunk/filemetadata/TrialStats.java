@@ -59,7 +59,7 @@ public class TrialStats {
     }
 
     public boolean statsAreValid() {
-        return mTrialStats.statStatus == GoosciTrial.SensorTrialStats.VALID;
+        return mTrialStats.statStatus == GoosciTrial.SensorTrialStats.StatStatus.VALID;
     }
 
     public void setStatStatus(int status) {

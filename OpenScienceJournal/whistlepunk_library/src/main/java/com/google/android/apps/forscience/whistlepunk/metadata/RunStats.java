@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,15 +49,15 @@ public class RunStats {
     }
 
     private static void initializeKeyMap() {
-        keyMap.put(StatsAccumulator.KEY_AVERAGE, GoosciTrial.SensorStat.AVERAGE);
-        keyMap.put(StatsAccumulator.KEY_MIN, GoosciTrial.SensorStat.MINIMUM);
-        keyMap.put(StatsAccumulator.KEY_MAX, GoosciTrial.SensorStat.MAXIMUM);
-        keyMap.put(StatsAccumulator.KEY_NUM_DATA_POINTS, GoosciTrial.SensorStat.NUM_DATA_POINTS);
-        keyMap.put(StatsAccumulator.KEY_TOTAL_DURATION, GoosciTrial.SensorStat.TOTAL_DURATION);
+        keyMap.put(StatsAccumulator.KEY_AVERAGE, GoosciTrial.SensorStat.StatType.AVERAGE);
+        keyMap.put(StatsAccumulator.KEY_MIN, GoosciTrial.SensorStat.StatType.MINIMUM);
+        keyMap.put(StatsAccumulator.KEY_MAX, GoosciTrial.SensorStat.StatType.MAXIMUM);
+        keyMap.put(StatsAccumulator.KEY_NUM_DATA_POINTS, GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS);
+        keyMap.put(StatsAccumulator.KEY_TOTAL_DURATION, GoosciTrial.SensorStat.StatType.TOTAL_DURATION);
         keyMap.put(ZoomRecorder.STATS_KEY_TIER_COUNT,
-                GoosciTrial.SensorStat.ZOOM_PRESENTER_TIER_COUNT);
+                GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT);
         keyMap.put(ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS,
-                GoosciTrial.SensorStat.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS);
+                GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS);
     }
 
     public RunStats(String sensorId) {
@@ -93,9 +94,9 @@ public class RunStats {
 
     public void setStatus(int newStatus) {
         if (newStatus == StatsAccumulator.STATUS_NEEDS_UPDATE) {
-            mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.NEEDS_UPDATE);
+            mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
         } else if (newStatus == StatsAccumulator.STATUS_VALID) {
-            mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
+            mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
         }
     }
 

@@ -36,10 +36,10 @@ public class StatsAccumulatorTest {
         acc.updateRecordingStreamStats(1, 1);
         acc.updateRecordingStreamStats(2, 2);
         TrialStats stats = acc.makeSaveableStats();
-        assertEquals(0.0, stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 0.001);
-        assertEquals(1.0, stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 0.001);
-        assertEquals(2.0, stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, -1), 0.001);
-        assertEquals(3.0, stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 0.001);
-        assertEquals(2.0, stats.getStatValue(GoosciTrial.SensorStat.TOTAL_DURATION, -1), 0.001);
+        assertEquals(0.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, -1), 0.001);
+        assertEquals(1.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, -1), 0.001);
+        assertEquals(2.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, -1), 0.001);
+        assertEquals(3.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, -1), 0.001);
+        assertEquals(2.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.TOTAL_DURATION, -1), 0.001);
     }
 }

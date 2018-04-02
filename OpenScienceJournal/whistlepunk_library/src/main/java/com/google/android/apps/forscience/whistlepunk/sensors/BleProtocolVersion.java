@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
-import com.google.common.annotations.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 public class BleProtocolVersion {
     private final int mMajorVersion;

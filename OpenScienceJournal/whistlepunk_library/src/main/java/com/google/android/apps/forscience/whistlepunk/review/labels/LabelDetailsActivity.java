@@ -74,9 +74,9 @@ public class LabelDetailsActivity extends AppCompatActivity {
         int labelType = originalLabel.getType();
 
         // Update the theme if this is a text note before setting the view.
-        if (labelType == GoosciLabel.Label.TEXT) {
+        if (labelType == GoosciLabel.Label.ValueType.TEXT) {
             setTheme(R.style.text_label_details);
-        } else if (labelType == GoosciLabel.Label.PICTURE) {
+        } else if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
             setTheme(R.style.picture_label_details);
         }
 
@@ -89,16 +89,16 @@ public class LabelDetailsActivity extends AppCompatActivity {
 
         if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
             LabelDetailsFragment fragment;
-            if (labelType == GoosciLabel.Label.TEXT) {
+            if (labelType == GoosciLabel.Label.ValueType.TEXT) {
                 fragment = TextLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(),
                         originalLabel);
-            } else if (labelType == GoosciLabel.Label.PICTURE) {
+            } else if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
                 fragment = PictureLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(),
                         originalLabel);
-            } else if (labelType == GoosciLabel.Label.SENSOR_TRIGGER) {
+            } else if (labelType == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
                 fragment = TriggerLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(),
                         originalLabel);
-            } else if (labelType == GoosciLabel.Label.SNAPSHOT) {
+            } else if (labelType == GoosciLabel.Label.ValueType.SNAPSHOT) {
                 fragment = SnapshotLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(),
                         originalLabel);
             } else {

@@ -87,7 +87,7 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
     private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
     private static final String KEY_EXPERIMENT_ID = "experimentId";
 
-    private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.METER;
+    private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.CardView.METER;
     private static final boolean DEFAULT_AUDIO_ENABLED = false;
     private static final boolean DEFAULT_SHOW_STATS_OVERLAY = false;
 
@@ -945,7 +945,7 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
         refreshLabels(status);
         ensureUnarchived(mSelectedExperiment, getDataController());
         // Trigger labels are logged in RecorderControllerImpl.
-        if (!(label.getType() == GoosciLabel.Label.SENSOR_TRIGGER)) {
+        if (!(label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER)) {
             String trackerLabel = status.isRecording() ? TrackerConstants.LABEL_RECORD :
                     TrackerConstants.LABEL_OBSERVE;
             WhistlePunkApplication.getUsageTracker(getActivity())
@@ -1145,7 +1145,7 @@ public class RecordFragment extends PanesToolFragment implements Handler.Callbac
         presenter.onSensorTriggerFired();
 
         // Only need to do a snackbar for off-screen visual alerts.
-        if (!trigger.hasAlertType(TriggerInformation.TRIGGER_ALERT_VISUAL)) {
+        if (!trigger.hasAlertType(TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL)) {
             return;
         }
         // If a snackbar is already being shown, don't show a new one.

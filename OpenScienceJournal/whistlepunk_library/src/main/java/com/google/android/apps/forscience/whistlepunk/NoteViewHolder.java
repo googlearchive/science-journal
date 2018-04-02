@@ -65,7 +65,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setNote(Label label, String experimentId) {
-        if (label.getType() == GoosciLabel.Label.TEXT) {
+        if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
             String text = label.getTextLabelValue().text;
             image.setVisibility(View.GONE);
             // No caption, and no caption edit button.
@@ -86,7 +86,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
             setupCaption(label.getCaptionText());
         }
 
-        if (label.getType() == GoosciLabel.Label.PICTURE) {
+        if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
             GoosciPictureLabelValue.PictureLabelValue labelValue = label.getPictureLabelValue();
             image.setVisibility(View.VISIBLE);
             PictureUtils.loadExperimentImage(image.getContext(), image, experimentId,
@@ -96,14 +96,14 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
             image.setVisibility(View.GONE);
         }
 
-        if (label.getType() != GoosciLabel.Label.SENSOR_TRIGGER &&
-                label.getType() != GoosciLabel.Label.SNAPSHOT) {
+        if (label.getType() != GoosciLabel.Label.ValueType.SENSOR_TRIGGER &&
+                label.getType() != GoosciLabel.Label.ValueType.SNAPSHOT) {
             valuesList.setVisibility(View.GONE);
         } else {
-            if (label.getType() == GoosciLabel.Label.SENSOR_TRIGGER) {
+            if (label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
                 loadTriggerIntoList(valuesList, label);
             }
-            if (label.getType() == GoosciLabel.Label.SNAPSHOT) {
+            if (label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT) {
                 loadSnapshotsIntoList(valuesList, label);
             }
         }
@@ -234,12 +234,12 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
             return new ProtoSensorAppearance(appearance);
         }
         switch (iconPath.type) {
-            case GoosciIcon.IconPath.BUILTIN:
+            case GoosciIcon.IconPath.PathType.BUILTIN:
                 return appearanceProvider.getAppearance(iconPath.pathString);
-            case GoosciIcon.IconPath.LEGACY_ANDROID_BLE:
+            case GoosciIcon.IconPath.PathType.LEGACY_ANDROID_BLE:
                 return SensorTypeProvider.getSensorAppearance(Integer.valueOf(iconPath.pathString),
                         "");
-            case GoosciIcon.IconPath.PROTO:
+            case GoosciIcon.IconPath.PathType.PROTO:
                 return new ProtoSensorAppearance(appearance);
         }
         return null;

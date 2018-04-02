@@ -58,7 +58,7 @@ public class LabelValueTest {
     @Test
     public void testSnapshotLabelValue() {
         SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("sensorId",
-                GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
+                GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW, "note",
                 7.5);
         GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
         SensorTriggerLabelValue.populateLabelValue(value, trigger, "note");

@@ -71,9 +71,9 @@ public class BuiltInSensorAppearanceTest {
         assertEquals(nameStringId, (int) Integer.valueOf(appearance.getName(context)));
         assertEquals(firstParagraphStringId, (int) Integer.valueOf(
                 appearance.loadLearnMore(context).test().values().get(0).getFirstParagraph()));
-        assertEquals(GoosciIcon.IconPath.BUILTIN, appearance.getSmallIconPath().type);
+        assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, appearance.getSmallIconPath().type);
         assertEquals(sensorId, appearance.getSmallIconPath().pathString);
-        assertEquals(GoosciIcon.IconPath.BUILTIN, appearance.getLargeIconPath().type);
+        assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, appearance.getLargeIconPath().type);
         assertEquals(sensorId, appearance.getLargeIconPath().pathString);
         // TODO(saff): test all the other fields as well
     }

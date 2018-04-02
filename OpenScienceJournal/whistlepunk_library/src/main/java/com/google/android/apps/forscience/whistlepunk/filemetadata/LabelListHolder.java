@@ -70,7 +70,7 @@ public abstract class LabelListHolder {
     public void addLabel(Label label) {
         mLabels.add(label);
         sortLabels();
-        if (label.getType() == GoosciLabel.Label.PICTURE) {
+        if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
             onPictureLabelAdded(label);
         }
     }
@@ -92,7 +92,7 @@ public abstract class LabelListHolder {
     }
 
     protected void deleteLabelAssets(Label toDelete, Context context, String experimentId) {
-        if (toDelete.getType() == GoosciLabel.Label.PICTURE) {
+        if (toDelete.getType() == GoosciLabel.Label.ValueType.PICTURE) {
             beforeDeletingPictureLabel(toDelete);
         }
         toDelete.deleteAssets(context, experimentId);
