@@ -74,6 +74,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/NoBarTheme.MainActivity"
             android:launchMode = "singleTask"
@@ -121,6 +122,7 @@
         </activity>
         <activity
             android:name=".PanesActivity"
+            android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.Panes"
             android:launchMode="singleTask"
