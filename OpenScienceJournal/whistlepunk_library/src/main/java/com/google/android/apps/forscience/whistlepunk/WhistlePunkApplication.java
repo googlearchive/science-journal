@@ -22,6 +22,9 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
@@ -39,6 +42,8 @@ import javax.inject.Inject;
  */
 public abstract class WhistlePunkApplication extends Application {
     private RefWatcher mRefWatcher;
+
+    private static int versionCode;
 
     // TODO: create directly in subclasses, rather than dagger injection
 
@@ -126,6 +131,7 @@ public abstract class WhistlePunkApplication extends Application {
             return;
         }
         mRefWatcher = installLeakCanary();
+        versionCode = populateVersionCode();
         onCreateInjector();
         enableStrictMode();
         setupBackupAgent();
@@ -173,5 +179,21 @@ public abstract class WhistlePunkApplication extends Application {
                 return PanesActivity.launchIntent(context, experimentId);
             }
         };
+    }
+
+    private int populateVersionCode() {
+        PackageInfo packageInfo;
+        try {
+            packageInfo = getPackageManager().getPackageInfo(getPackageName(),
+                PackageManager.GET_META_DATA);
+        } catch (NameNotFoundException e) {
+            // A query for ourselves (getPackageName()) should never throw NameNotFoundException
+            throw new AssertionError(e);
+        }
+        return packageInfo.versionCode;
+    }
+
+    public static int getVersionCode() {
+        return versionCode;
     }
 }

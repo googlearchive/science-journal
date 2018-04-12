@@ -21,7 +21,6 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
@@ -58,7 +57,7 @@ class ExperimentCache {
     // will allow us to detect files written by buggy versions if needed.
     //
     // Increment this each time the file-writing logic changes.
-    protected static final int PLATFORM_VERSION = BuildConfig.PLATFORM_VERSION;
+    protected static final int PLATFORM_VERSION = WhistlePunkApplication.getVersionCode();
 
     // Write the experiment file no more than once per every WRITE_DELAY_MS.
     private static final long WRITE_DELAY_MS = 1000;
