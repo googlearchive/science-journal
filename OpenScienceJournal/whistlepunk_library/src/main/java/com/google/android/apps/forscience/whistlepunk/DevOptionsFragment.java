@@ -54,8 +54,7 @@ public class DevOptionsFragment extends PreferenceFragment {
         if (!isDebugVersion()) {
             return true;
         }
-        return Build.TYPE.equals("user") && !BuildConfig.DEBUG && !BuildConfig.BUILD_TYPE.equals(
-                "debug");
+        return Build.TYPE.equals("user") && !BuildConfig.DEBUG;
     }
 
     @Override
