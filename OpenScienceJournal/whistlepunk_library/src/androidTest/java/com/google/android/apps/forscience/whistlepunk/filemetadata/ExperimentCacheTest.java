@@ -23,7 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.Version;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.protobuf.nano.MessageNano;
 
 import java.io.File;

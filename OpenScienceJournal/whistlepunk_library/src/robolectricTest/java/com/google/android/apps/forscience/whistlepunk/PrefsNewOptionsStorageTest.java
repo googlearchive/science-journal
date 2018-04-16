@@ -27,7 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
 import com.google.common.collect.Sets;
 
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -41,7 +41,7 @@ import java.util.List;
 public class PrefsNewOptionsStorageTest {
     protected static final String PREF_FILE = "testPrefs";
 
-    @Before
+    @After
     public void tearDown() throws Exception {
         final SharedPreferences prefs = getSharedPreferences();
         prefs.edit().clear().apply();
