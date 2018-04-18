@@ -53,6 +53,7 @@
     <dimen name="cardview_margin">8dp</dimen>
     <dimen name="cardview_margin_sides">8dp</dimen>
     <dimen name="cardview_radius">2dp</dimen>
+    <dimen name="cardview_default_elevation">6dp</dimen>
 
     <dimen name="age_verifier_padding">16dp</dimen>
 
