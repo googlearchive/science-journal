@@ -56,6 +56,7 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
     private static final float OCTAVE_TEXT_SIZE_RATIO = 0.2f;
     private static final float OCTAVE_X_RATIO = 0.71f;
     private static final float OCTAVE_Y_RATIO = 0.71f;
+    private static final float HALF_PIXEL = 0.5f;
 
     private static final int SHADE_LOW_RED = 0x71;
     private static final int SHADE_LOW_GREEN = 0xCA;
@@ -269,6 +270,11 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
             // ellipse.
             float xDot = (float) (mIconCenterX + mEllipseRadius * Math.cos(mAngleOfDot));
             float yDot = (float) (mIconCenterY - mEllipseRadius * Math.sin(mAngleOfDot));
+            if (mAngleOfDot == ANGLE_TOP) {
+                // Because the drawable is an even number of pixels wide, the top circle is offset
+                // half a pixel to the right. This fixes the overlap issues.
+                xDot += HALF_PIXEL;
+            }
             canvas.drawCircle(xDot, yDot, mDotRadius, mPaintForDot);
         }
     }
