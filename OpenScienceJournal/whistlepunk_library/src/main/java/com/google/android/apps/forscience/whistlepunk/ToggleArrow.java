@@ -102,7 +102,7 @@ public class ToggleArrow extends AppCompatImageButton {
         } else {
             setContentDescription("");
         }
-        float desiredRotation = isBecomingActive ? 0 : -180;
+        float desiredRotation = isBecomingActive ? -180 : 0;
         if (animate) {
             animate()
                     .rotation(desiredRotation)
