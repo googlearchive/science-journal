@@ -601,7 +601,7 @@ public class SensorCardPresenter {
         final Context context = mCardViewHolder.getContext();
         Resources res = context.getResources();
         boolean showDevTools = DevOptionsFragment.isDevToolsEnabled(context);
-        mPopupMenu = new PopupMenu(context, mCardViewHolder.menuButton, Gravity.NO_GRAVITY,
+        mPopupMenu = new PopupMenu(context, mCardViewHolder.menuButton, Gravity.END,
                 R.attr.actionOverflowMenuStyle, 0);
         mPopupMenu.getMenuInflater().inflate(R.menu.menu_sensor_card, mPopupMenu.getMenu());
         final Menu menu = mPopupMenu.getMenu();
