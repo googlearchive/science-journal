@@ -30,20 +30,15 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvi
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
-
+import io.reactivex.observers.TestObserver;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.observers.TestObserver;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class RecordFragmentTest {
     @Test
     public void addSnapshotLabel() throws InterruptedException {

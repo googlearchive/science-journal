@@ -20,19 +20,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
-
+import java.util.Calendar;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.Calendar;
 
 /**
  * Tests for {@link com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier}.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class AgeVerifierTest {
     @Test
     public void testOver13_withSentinel() {

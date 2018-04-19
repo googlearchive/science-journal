@@ -20,14 +20,11 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class StatsAccumulatorTest {
     @Test
     public void testAllStats() {

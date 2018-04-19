@@ -16,21 +16,19 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.os.Build;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import android.os.Build;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 /**
  * Tests for Android Version Utils.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class AndroidVersionUtilsTest {
     @Config(sdk = Build.VERSION_CODES.LOLLIPOP)
     @Test

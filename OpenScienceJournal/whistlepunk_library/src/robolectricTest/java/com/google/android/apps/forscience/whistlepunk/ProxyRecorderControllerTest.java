@@ -23,7 +23,6 @@ import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.os.RemoteException;
-
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
@@ -42,19 +41,15 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDat
 import com.google.android.apps.forscience.whistlepunk.wireapi.TransportableSensorOptions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ProxyRecorderControllerTest {
     private static final TransportableSensorOptions BLANK_OPTIONS =
             new TransportableSensorOptions(Maps.<String, String>newHashMap());

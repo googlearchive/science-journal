@@ -17,13 +17,11 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import static junit.framework.Assert.assertEquals;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.Intent;
-
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
@@ -45,22 +43,17 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListen
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
-
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import io.reactivex.Maybe;
-import io.reactivex.Single;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class RecorderControllerTest {
     private final MockScheduler mScheduler = new MockScheduler();
     private String mSensorId = "sensorId";

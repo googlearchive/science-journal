@@ -21,17 +21,14 @@ import static org.junit.Assert.assertFalse;
 
 import com.google.android.apps.forscience.javalib.DataRefresher;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests for the Refresher and the DataRefresher classes.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class DataRefresherTest {
     // A stream consumer that can return the most recent data and timestamp it received.
     private class MockStreamConsumer implements StreamConsumer {

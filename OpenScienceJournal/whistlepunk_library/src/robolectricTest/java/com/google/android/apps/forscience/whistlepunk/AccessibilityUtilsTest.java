@@ -19,17 +19,14 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests for Accessibility Utils.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class AccessibilityUtilsTest {
     @Test
     public void testResizeRect_correctSize() {

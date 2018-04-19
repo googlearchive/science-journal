@@ -15,20 +15,17 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.BehaviorSubject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import io.reactivex.observers.TestObserver;
-import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * RxJava can have sometimes confusing documentation.  We can put tests here to make sure that we
  * get what we expect.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class RxJavaCharacterizationTests {
     @Test
     public void firstElementAsBehaviorSubjectChanges() {

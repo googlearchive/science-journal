@@ -19,14 +19,11 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.fail;
 
 import android.os.Bundle;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class BundleAssertTest {
     @Test
     public void testAssertBundlesEqualMissingKey() {

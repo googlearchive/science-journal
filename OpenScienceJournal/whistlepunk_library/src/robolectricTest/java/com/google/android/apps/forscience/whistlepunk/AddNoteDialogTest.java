@@ -15,15 +15,12 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import io.reactivex.Single;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import io.reactivex.Single;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class AddNoteDialogTest {
     @Test
     public void connectExperimentIdDirect() {

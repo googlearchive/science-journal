@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Color;
 import android.view.View;
-
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -41,18 +40,14 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDat
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
 import com.google.common.collect.Lists;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class SensorCardPresenterUnitTest {
     @Test public void rememberIdPassToStop() {
         DataViewOptions dataViewOptions = new DataViewOptions(Color.BLACK,
