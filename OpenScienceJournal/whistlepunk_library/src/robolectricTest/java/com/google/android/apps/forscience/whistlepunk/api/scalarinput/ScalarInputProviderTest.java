@@ -20,10 +20,8 @@ import static org.junit.Assert.assertNotNull;
 
 import android.os.RemoteException;
 import androidx.annotation.NonNull;
-
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
@@ -37,17 +35,13 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
-
+import java.util.List;
+import java.util.concurrent.Executor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.List;
-import java.util.concurrent.Executor;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ScalarInputProviderTest {
     private final RecordingSensorObserver mObserver = new RecordingSensorObserver();
     private final RecordingStatusListener mListener = new RecordingStatusListener();

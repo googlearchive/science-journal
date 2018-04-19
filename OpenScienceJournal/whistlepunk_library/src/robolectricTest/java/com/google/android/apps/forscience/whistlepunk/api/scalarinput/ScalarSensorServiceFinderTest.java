@@ -22,20 +22,14 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
+import java.util.HashMap;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.util.HashMap;
-import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ScalarSensorServiceFinderTest {
     @Test
     public void testUseFlattenedComponentName() {

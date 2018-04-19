@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
@@ -26,17 +25,13 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataMan
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
-
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ScalarSensorDumpReaderTest {
     private final MemoryMetadataManager mMetadata = new MemoryMetadataManager();
     private InMemorySensorDatabase mDb = new InMemorySensorDatabase();

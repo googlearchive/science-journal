@@ -20,18 +20,13 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ExpandableServiceAdapterTest {
     @Test
     public void hasSensorKeyIsCorrect() {

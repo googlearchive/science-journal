@@ -52,7 +52,6 @@ import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ScalarSensorTest {
     private final MemoryMetadataManager mMetadata = new MemoryMetadataManager();
     private InMemorySensorDatabase mDb = new InMemorySensorDatabase();

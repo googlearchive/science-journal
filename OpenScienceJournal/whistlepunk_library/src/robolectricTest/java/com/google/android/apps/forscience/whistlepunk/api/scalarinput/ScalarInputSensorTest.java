@@ -20,9 +20,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.RemoteException;
 import androidx.annotation.NonNull;
-
 import com.google.android.apps.forscience.javalib.Delay;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.TestData;
@@ -32,14 +30,11 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ScalarInputSensorTest {
     private final MockScheduler mScheduler = new MockScheduler();
     private final SensorBehavior mBehavior = new SensorBehavior();
