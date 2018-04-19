@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import android.os.Parcel;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
@@ -28,19 +26,15 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensor
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.protobuf.nano.MessageNano;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
 
 /**
  * Tests for labels.
  * Labels implement Parcelable so they need to be tested in AndroidTest.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class LabelTest {
     private GoosciLabel.Label makeGoosciLabel(int type, long timestamp) {
         GoosciLabel.Label goosciLabel = new GoosciLabel.Label();

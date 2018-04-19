@@ -17,21 +17,17 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static junit.framework.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests for deprecated LabelValue classes. These are used to make sure we can parse old LabelValues
  * correctly when pulling them out of the DB for upgrade.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class LabelValueTest {
     @Test
     public void testTextLabelValue() {

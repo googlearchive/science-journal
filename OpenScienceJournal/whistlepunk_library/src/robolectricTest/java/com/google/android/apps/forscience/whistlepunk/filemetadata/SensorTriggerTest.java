@@ -33,7 +33,6 @@ import org.robolectric.annotation.Config;
  * Tests for the SensorTrigger class.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class SensorTriggerTest {
     @Test
     public void testSetActionType_noChangeWhenEqual() {

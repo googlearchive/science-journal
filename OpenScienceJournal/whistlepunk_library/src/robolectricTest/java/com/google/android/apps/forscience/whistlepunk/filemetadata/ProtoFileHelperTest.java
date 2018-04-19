@@ -22,26 +22,20 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 import android.content.Context;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-
+import java.io.File;
+import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Tests for the ProtoFileHelper class.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ProtoFileHelperTest {
     private Context getContext() {
         return RuntimeEnvironment.application.getApplicationContext();

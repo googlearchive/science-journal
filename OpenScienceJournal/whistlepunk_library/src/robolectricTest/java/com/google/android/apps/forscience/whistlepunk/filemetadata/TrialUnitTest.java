@@ -22,8 +22,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
@@ -31,19 +29,15 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppe
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.Map;
 
 /**
  * Tests for the Trial class.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class TrialUnitTest {
     private static final GoosciSensorLayout.SensorLayout[]
             NO_LAYOUTS = new GoosciSensorLayout.SensorLayout[0];

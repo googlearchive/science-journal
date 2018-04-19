@@ -22,19 +22,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.media.AudioRecord;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
+import java.util.concurrent.CompletableFuture;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.util.concurrent.CompletableFuture;
-
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, shadows = {ShadowAudioRecord.class})
+@Config(shadows = {ShadowAudioRecord.class})
 public class AudioSourceTest {
     //TODO(nmulcahey) make this Shadow work within the test methods
     private AudioSource mAudioSource;
