@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
@@ -33,18 +32,15 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDat
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests for {@link CropHelper}
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class CropHelperTest {
     private DataControllerImpl mDataController;
     private MemoryMetadataManager mMetadataManager;

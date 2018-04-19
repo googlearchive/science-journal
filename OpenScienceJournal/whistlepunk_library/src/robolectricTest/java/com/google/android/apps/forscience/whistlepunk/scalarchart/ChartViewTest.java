@@ -18,18 +18,13 @@ package com.google.android.apps.forscience.whistlepunk.scalarchart;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.Arrays;
-import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ChartViewTest {
     private List<Double> initPoints() {
         return Arrays.asList(0., 2., 4., 6., 8., 10.);

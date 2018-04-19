@@ -27,9 +27,7 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
-
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -55,15 +53,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictur
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.collect.Lists;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
+import io.reactivex.Observable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,14 +61,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import io.reactivex.Observable;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 /**
  * Tests for {@link SimpleMetaDataManager}
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class SimpleMetaDataManagerTest {
 
     private SimpleMetaDataManager mMetaDataManager;

@@ -17,19 +17,14 @@ package com.google.android.apps.forscience.ble;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.common.collect.Lists;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class MyBleServiceTest {
     @Test
     public void testDontAskForSameServiceTwice() {

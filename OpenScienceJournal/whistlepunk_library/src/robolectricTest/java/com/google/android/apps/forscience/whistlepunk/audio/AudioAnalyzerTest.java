@@ -18,21 +18,16 @@ package com.google.android.apps.forscience.whistlepunk.audio;
 
 import static org.junit.Assert.*;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class AudioAnalyzerTest {
     private static final int SAMPLE_RATE_IN_HZ = 44100;
 

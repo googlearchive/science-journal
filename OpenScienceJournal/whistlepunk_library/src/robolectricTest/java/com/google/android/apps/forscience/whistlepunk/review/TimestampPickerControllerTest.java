@@ -19,21 +19,16 @@ package com.google.android.apps.forscience.whistlepunk.review;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeUtils;
-
+import java.util.Locale;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.Locale;
 
 /**
  * Tests for the TimestampPickerController class.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class TimestampPickerControllerTest {
 
     TimestampPickerController.OnTimestampErrorListener mErrorListener =

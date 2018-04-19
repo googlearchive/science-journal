@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
@@ -29,15 +28,12 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorO
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ZoomPresenterTest {
 
     private final InMemorySensorDatabase mDatabase = new InMemorySensorDatabase();

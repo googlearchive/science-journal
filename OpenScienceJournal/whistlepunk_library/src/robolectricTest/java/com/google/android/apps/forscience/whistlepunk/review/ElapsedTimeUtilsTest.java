@@ -18,19 +18,15 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeUtils;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Test for the elapsed time utils class.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ElapsedTimeUtilsTest {
     private static final long MS_IN_HOUR = ElapsedTimeUtils.SEC_IN_MIN *
             ElapsedTimeUtils.MIN_IN_HOUR * ElapsedTimeUtils.MS_IN_SEC;

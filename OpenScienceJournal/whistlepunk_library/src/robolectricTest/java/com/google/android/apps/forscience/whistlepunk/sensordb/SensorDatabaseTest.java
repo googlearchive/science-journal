@@ -20,33 +20,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
-
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
-
+import io.reactivex.Observable;
+import io.reactivex.observers.TestObserver;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.observers.TestObserver;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class SensorDatabaseTest {
     private static final String TEST_DATABASE_NAME = "test.db";
 

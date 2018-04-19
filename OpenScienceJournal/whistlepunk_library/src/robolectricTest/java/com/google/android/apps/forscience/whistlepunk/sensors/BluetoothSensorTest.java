@@ -22,8 +22,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
@@ -34,15 +32,12 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorO
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class BluetoothSensorTest {
     private static final BleServiceSpec SPEC =
             BluetoothSensor.ANNING_SERVICE_SPEC;

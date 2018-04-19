@@ -21,11 +21,9 @@ import static org.junit.Assert.assertNotSame;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
-
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
@@ -42,19 +40,15 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class DataControllerTest {
     public static String TAG = "DataControllerTest";
     // TODO: continue moving tests (as possible) to DataControllerUnitTest
