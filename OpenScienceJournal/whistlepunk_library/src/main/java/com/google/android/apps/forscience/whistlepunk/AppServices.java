@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
@@ -46,6 +47,11 @@ public interface AppServices {
         public ActivityNavigator getNavigator() {
             return ActivityNavigator.STUB;
         }
+
+        @Override
+        public AccountsProvider getAccountsProvider() {
+            return null;
+        }
     };
 
     RefWatcher getRefWatcher();
@@ -57,4 +63,6 @@ public interface AppServices {
     FeedbackProvider getFeedbackProvider();
 
     ActivityNavigator getNavigator();
+
+    AccountsProvider getAccountsProvider();
 }

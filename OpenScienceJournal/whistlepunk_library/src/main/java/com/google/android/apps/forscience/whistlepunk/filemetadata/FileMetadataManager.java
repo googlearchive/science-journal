@@ -36,6 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
@@ -129,7 +130,25 @@ public class FileMetadataManager {
                 .getIntArray(R.array.experiment_colors_array).length);
     }
 
+    /**
+     * Returns the files directory for the given account. This method should be used instead of
+     * context.getFilesDir().
+     */
+    public static File getFilesDir(AppAccount appAccount) {
+      return appAccount.getFilesDir();
+    }
+
+    /**
+     * Returns the files directory for the current account.
+     */
+    // TODO(b/78523388): Remove this method. Use getFilesDir(Context, AppAcount) instead.
+    public static File getFilesDir(Context context) {
+        return getFilesDir(WhistlePunkApplication.getAppServices(context)
+                .getAccountsProvider().getCurrentAccount());
+    }
+
     public static File getUserMetadataFile(Context context) {
+        // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(context).
         return new File(context.getFilesDir(), USER_METADATA_FILE);
     }
 
@@ -142,6 +161,7 @@ public class FileMetadataManager {
     }
 
     public static File getExperimentsRootDirectory(Context context) {
+        // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(context).
         return new File(context.getFilesDir(), "experiments");
     }
 
@@ -167,6 +187,7 @@ public class FileMetadataManager {
     }
 
     public static String getExperimentExportDirectory(Context context) throws IOException {
+        // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(context).
         File dir = new File(context.getFilesDir(), "exported_experiments");
         if (!dir.exists() && !dir.mkdir()) {
             throw new IOException("Can't create experiments directory");
@@ -240,6 +261,8 @@ public class FileMetadataManager {
 
                                         if (!experiment.getExperimentOverview().imagePath.isEmpty
                                                 ()) {
+                                            // TODO(lizlooney): Replace context.getFilesDir() with
+                                            // getFilesDir(context).
                                             File experimentImage = new File(context.getFilesDir(),
                                                     experiment.getExperimentOverview().imagePath);
                                             zipExperimentImage(experimentImage, zos);

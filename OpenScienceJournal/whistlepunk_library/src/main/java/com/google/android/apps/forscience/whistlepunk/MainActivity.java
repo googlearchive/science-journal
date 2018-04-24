@@ -29,14 +29,11 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ProgressBar;
-
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -44,9 +41,10 @@ import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 
-
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+/**
+ * The main activity.
+ */
+public class MainActivity extends ActivityWithNavigationView {
     private static final String TAG = "MainActivity";
     public static final String ARG_SELECTED_NAV_ITEM_ID = "selected_nav_item_id";
     public static final String ARG_USE_PANES = "use_panes";
@@ -62,7 +60,6 @@ public class MainActivity extends AppCompatActivity
     private MultiTouchDrawerLayout mDrawerLayout;
     private int mSelectedItemId = NO_SELECTED_ITEM;
     private boolean mIsRecording = false;
-    private ProgressBar mProgressBar;
 
     /** Receives an event every time the activity pauses */
     RxEvent mPause = new RxEvent();

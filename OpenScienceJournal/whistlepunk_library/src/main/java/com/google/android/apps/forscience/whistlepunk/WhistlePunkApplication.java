@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
@@ -57,12 +58,15 @@ public abstract class WhistlePunkApplication extends Application {
     FeedbackProvider mFeedbackProvider;
 
     @Inject
+    AccountsProvider mAccountsProvider;
+
+    @Inject
     Map<String, SensorDiscoverer> mSensorDiscoverers;
 
     @Inject
     PerfTrackerProvider mPerfTrackerProvider;
 
-    private AppServices mAppServices = new AppServices() {
+    private final AppServices mAppServices = new AppServices() {
         @Override
         public RefWatcher getRefWatcher() {
             return mRefWatcher;
@@ -85,6 +89,11 @@ public abstract class WhistlePunkApplication extends Application {
         @Override
         public ActivityNavigator getNavigator() {
             return WhistlePunkApplication.this.getNavigator();
+        }
+
+        @Override
+        public AccountsProvider getAccountsProvider() {
+            return mAccountsProvider;
         }
     };
 
