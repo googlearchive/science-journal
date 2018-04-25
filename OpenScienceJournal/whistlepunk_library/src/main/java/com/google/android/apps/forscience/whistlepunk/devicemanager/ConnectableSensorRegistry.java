@@ -231,7 +231,7 @@ public class ConnectableSensorRegistry {
         }
         final long timeout = clearDeviceCache ? 0 : ASSUME_GONE_TIMEOUT_MILLIS;
         final Set<String> keysSeen = new HashSet<>();
-
+        final String[] discovererTaskIds = mDiscoverers.keySet().toArray(new String[0]);
 
         final TaskPool pool = new TaskPool(() -> {
             long nowMillis = mClock.getNow();
@@ -249,7 +249,7 @@ public class ConnectableSensorRegistry {
                     iter.remove();
                 }
             }
-        });
+        }, discovererTaskIds);
 
         for (final Map.Entry<String, SensorDiscoverer> entry : mDiscoverers.entrySet()) {
             SensorDiscoverer discoverer = entry.getValue();
@@ -260,8 +260,6 @@ public class ConnectableSensorRegistry {
 
     private void startScanning(final String providerKey, SensorDiscoverer discoverer,
             final TaskPool pool, final Set<String> keysSeen, final boolean startSpinners) {
-        SensorProvider provider = discoverer.getProvider();
-        pool.addTask(providerKey);
 
         mUsageTracker.trackEvent(TrackerConstants.CATEGORY_SENSOR_MANAGEMENT,
                 TrackerConstants.ACTION_SCAN, providerKey, 0);
