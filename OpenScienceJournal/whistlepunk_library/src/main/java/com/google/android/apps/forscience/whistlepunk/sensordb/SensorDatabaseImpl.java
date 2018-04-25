@@ -23,7 +23,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Pair;
-
 import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
@@ -36,13 +35,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Range;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SensorDatabaseImpl implements SensorDatabase {
     private static class DbVersions {
@@ -327,6 +324,15 @@ public class SensorDatabaseImpl implements SensorDatabase {
             GoosciExperiment.Experiment experiment) {
         GoosciScalarSensorData.ScalarSensorData data =
                 new GoosciScalarSensorData.ScalarSensorData();
+    List<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList =
+        getScalarReadingProtosAsList(experiment);
+    data.sensors = sensorDataList.toArray(GoosciScalarSensorData.ScalarSensorDataDump.emptyArray());
+    return data;
+  }
+
+  @Override
+  public List<GoosciScalarSensorData.ScalarSensorDataDump> getScalarReadingProtosAsList(
+      GoosciExperiment.Experiment experiment) {
         ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList = new ArrayList<>();
         for (GoosciTrial.Trial trial : experiment.trials) {
             GoosciTrial.Range range = trial.recordingRange;
@@ -339,9 +345,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
                 }
             }
         }
-        data.sensors = sensorDataList.toArray(
-                GoosciScalarSensorData.ScalarSensorDataDump.emptyArray());
-        return data;
+    return sensorDataList;
     }
 
     // This method gets the protos for a single sensor/trialID combination in the given

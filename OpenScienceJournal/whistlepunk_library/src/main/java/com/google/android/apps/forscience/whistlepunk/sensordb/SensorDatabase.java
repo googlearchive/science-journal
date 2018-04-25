@@ -19,10 +19,8 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
-
-import java.util.List;
-
 import io.reactivex.Observable;
+import java.util.List;
 
 /**
  * Stores and retrieves sensor data from on-device storage.  All access should be be from a single
@@ -81,4 +79,10 @@ public interface SensorDatabase {
     GoosciScalarSensorData.ScalarSensorData getScalarReadingProtos(
             GoosciExperiment.Experiment experiment);
 
+  /**
+   * Get an ArrayList of ScalarSensorDataDump protos that contains all of the sensor data for the
+   * given experiment. Primarily used for drive sync.
+   */
+  List<GoosciScalarSensorData.ScalarSensorDataDump> getScalarReadingProtosAsList(
+      GoosciExperiment.Experiment experiment);
 }

@@ -17,13 +17,11 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import android.util.Log;
-
 import com.google.android.apps.forscience.whistlepunk.BatchDataController;
-import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
-
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -62,6 +60,37 @@ public class ScalarSensorDumpReader {
 
         }
     }
+
+  public void readData(List<GoosciScalarSensorData.ScalarSensorDataDump> scalarSensorData) {
+    int zoomBufferSize = mZoomLevelBetweenTiers * 2;
+    for (GoosciScalarSensorData.ScalarSensorDataDump sensor : scalarSensorData) {
+      ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.tag, zoomBufferSize, 1);
+      String trialId = sensor.trialId;
+      zoomRecorder.setTrialId(trialId);
+      try (BatchDataController batchController = new BatchDataController(mDataController)) {
+        addAllRows(sensor, zoomRecorder, trialId, batchController);
+        batchController.flushScalarReadings();
+      } catch (IOException ioe) {
+        Log.e(TAG, "Exception while flushing BatchDataController", ioe);
+      }
+      mLastDataTimestampMillis = NO_DATA_RECORDED;
+    }
+  }
+
+  public void readData(GoosciScalarSensorData.ScalarSensorDataDump sensor) {
+    int zoomBufferSize = mZoomLevelBetweenTiers * 2;
+
+    ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.tag, zoomBufferSize, 1);
+    String trialId = sensor.trialId;
+    zoomRecorder.setTrialId(trialId);
+    try (BatchDataController batchController = new BatchDataController(mDataController)) {
+      addAllRows(sensor, zoomRecorder, trialId, batchController);
+      batchController.flushScalarReadings();
+    } catch (IOException ioe) {
+      Log.e(TAG, "Exception while flushing BatchDataController", ioe);
+    }
+    mLastDataTimestampMillis = NO_DATA_RECORDED;
+  }
 
     private void addAllRows(GoosciScalarSensorData.ScalarSensorDataDump sensor,
             ZoomRecorder zoomRecorder, String trialId, RecordingDataController batchController) {

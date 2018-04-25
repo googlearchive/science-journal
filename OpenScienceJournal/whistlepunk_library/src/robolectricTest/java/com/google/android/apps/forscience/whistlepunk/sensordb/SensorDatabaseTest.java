@@ -377,6 +377,40 @@ public class SensorDatabaseTest {
         assertEquals(0, sensor.rows.length);
     }
 
+  @Test
+  public void testGetScalarReadingProtosAsList() {
+    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    long timestamp = Arbitrary.integer();
+    double value = Arbitrary.doubleFloat();
+
+    GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
+    GoosciTrial.Trial trial = new GoosciTrial.Trial();
+    GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
+    sensorLayout.sensorId = "foo";
+    GoosciTrial.Range range = new GoosciTrial.Range();
+    range.startMs = timestamp - 1;
+    range.endMs = timestamp + 3;
+    trial.recordingRange = range;
+    GoosciSensorLayout.SensorLayout[] layoutArray = new GoosciSensorLayout.SensorLayout[1];
+    layoutArray[0] = sensorLayout;
+    trial.sensorLayouts = layoutArray;
+    GoosciTrial.Trial[] trialArray = new GoosciTrial.Trial[1];
+    trialArray[0] = trial;
+    experiment.trials = trialArray;
+
+    db.addScalarReading(trial.trialId, "foo", 0, timestamp, value);
+    db.addScalarReading(trial.trialId, "foo", 1, timestamp + 1, value);
+    db.addScalarReading(trial.trialId, "foo", 0, timestamp + 2, value);
+    db.addScalarReading(trial.trialId, "bar", 0, timestamp + 2, value);
+    db.addScalarReading(trial.trialId, "foo", 0, timestamp + 4, value);
+
+    List<GoosciScalarSensorData.ScalarSensorDataDump> data =
+        db.getScalarReadingProtosAsList(experiment);
+    assertEquals("foo", data.get(0).tag);
+    assertEquals(2, data.get(0).rows.length);
+    assertEquals(trial.trialId, data.get(0).trialId);
+  }
+
     @Before
     public void setUp() throws Exception {
         File dbtest = getContext().getDatabasePath(TEST_DATABASE_NAME);

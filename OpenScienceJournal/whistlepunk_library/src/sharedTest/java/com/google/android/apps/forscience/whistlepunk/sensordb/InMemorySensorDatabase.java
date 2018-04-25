@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import androidx.annotation.NonNull;
-
+import androidx.annotation.VisibleForTesting;
 import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
@@ -30,17 +30,14 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalar
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
-import androidx.annotation.VisibleForTesting;
 import com.google.common.collect.Range;
 import com.google.common.util.concurrent.MoreExecutors;
-
+import io.reactivex.Observable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import io.reactivex.Observable;
 
 public class InMemorySensorDatabase implements SensorDatabase {
     private List<List<Reading>> mReadings = new ArrayList<>();
@@ -138,19 +135,27 @@ public class InMemorySensorDatabase implements SensorDatabase {
             GoosciExperiment.Experiment experiment) {
         GoosciScalarSensorData.ScalarSensorData data =
                 new GoosciScalarSensorData.ScalarSensorData();
-        ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList = new ArrayList<>();
-        for (GoosciTrial.Trial trial : experiment.trials) {
-            GoosciTrial.Range range = trial.recordingRange;
-            TimeRange timeRange = TimeRange.oldest(Range.closed(range.startMs, range.endMs));
-            for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
-                String tag = sensor.sensorId;
-                sensorDataList.add(getScalarReadingSensorProtos(tag, timeRange));
-            }
-        }
+        List<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList = getScalarReadingProtosAsList(experiment);
         data.sensors =
                 sensorDataList.toArray(GoosciScalarSensorData.ScalarSensorDataDump.emptyArray());
         return data;
     }
+
+  @Override
+  public List<GoosciScalarSensorData.ScalarSensorDataDump> getScalarReadingProtosAsList(
+      GoosciExperiment.Experiment experiment) {
+    ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList = new ArrayList<>();
+    for (GoosciTrial.Trial trial : experiment.trials) {
+      GoosciTrial.Range range = trial.recordingRange;
+      TimeRange timeRange = TimeRange.oldest(Range.closed(range.startMs, range.endMs));
+      for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
+        String tag = sensor.sensorId;
+        sensorDataList.add(getScalarReadingSensorProtos(tag, timeRange));
+      }
+    }
+
+    return sensorDataList;
+  }
 
     public GoosciScalarSensorData.ScalarSensorDataDump getScalarReadingSensorProtos(
             String sensorTag, TimeRange range) {
