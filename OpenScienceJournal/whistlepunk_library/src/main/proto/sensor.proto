@@ -24,12 +24,13 @@ option optimize_for = LITE_RUNTIME;
 
 // Common messages which can go Phone -> Device or Device -> Phone.
 
-message Empty { } // TODO(dek): replace with an import of empty.proto
+message Empty {
+}  // TODO(dek): replace with an import of empty.proto
 
 message Version {
-  // See https://docs.google.com/document/d/10SgMM-_myVyfZQZ_afLipPv_x4aq4gQG2FTrY3oktXM/edit# for
-  // version policy and implementation details.
-  // Encode new versions using
+  // See
+  // https://docs.google.com/document/d/10SgMM-_myVyfZQZ_afLipPv_x4aq4gQG2FTrY3oktXM/edit#
+  // for version policy and implementation details. Encode new versions using
   // https://goosci.googlesource.com/android/+/master/proto/version_codec.py
   enum VersionEnum {
     option allow_alias = true;
@@ -38,7 +39,6 @@ message Version {
     LATEST = 0x800;
   }
 }
-
 
 // Analog pin number refers to the numeric value in A0, A1, A2... use
 // this to request values from an analog pin on the Device.
@@ -77,12 +77,11 @@ message Pin {
   }
 };
 
-
 /// Phone -> Device requests
 
-// How many times, and how frequently the Device should return values for this request.  If count is
-// greater than 1, then the Device should return values every frequency
-// milliseconds until the count is exceeded.
+// How many times, and how frequently the Device should return values for this
+// request.  If count is greater than 1, then the Device should return values
+// every frequency milliseconds until the count is exceeded.
 message Interval {
   required int32 count = 1;
   optional int32 frequency = 2;
@@ -133,9 +132,9 @@ message Data {
   oneof value {
     AnalogValue analog_value = 10;
     DigitalValue digital_value = 11;
-    FloatValue float_value = 12;  // virtual type
-    IntValue int_value = 13;  // virtual type
-    StringValue string_value = 14;  // virtual type  
+    FloatValue float_value = 12;    // virtual type
+    IntValue int_value = 13;        // virtual type
+    StringValue string_value = 14;  // virtual type
   }
 };
 
@@ -145,7 +144,7 @@ message Data {
 // submessages are relative to the timestamp_key base.
 
 message Error {
-  required string error = 1; // Text description of error.
+  required string error = 1;  // Text description of error.
 };
 
 message SensorData {

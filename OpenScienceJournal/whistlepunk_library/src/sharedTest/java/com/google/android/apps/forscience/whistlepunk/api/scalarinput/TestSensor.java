@@ -18,26 +18,25 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.os.RemoteException;
 
 public class TestSensor {
-    private final String mSensorAddress;
-    private final String mSensorName;
-    private final SensorAppearanceResources mAppearance;
+  private final String mSensorAddress;
+  private final String mSensorName;
+  private final SensorAppearanceResources mAppearance;
 
-    public TestSensor(String sensorAddress, String sensorName,
-            SensorAppearanceResources appearance) {
-        mSensorAddress = sensorAddress;
-        mSensorName = sensorName;
-        mAppearance = appearance;
-    }
+  public TestSensor(String sensorAddress, String sensorName, SensorAppearanceResources appearance) {
+    mSensorAddress = sensorAddress;
+    mSensorName = sensorName;
+    mAppearance = appearance;
+  }
 
-    public void deliverTo(ISensorConsumer c) {
-        try {
-            c.onSensorFound(mSensorAddress, mSensorName, new SensorBehavior(), mAppearance);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+  public void deliverTo(ISensorConsumer c) {
+    try {
+      c.onSensorFound(mSensorAddress, mSensorName, new SensorBehavior(), mAppearance);
+    } catch (RemoteException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    public String getSensorAddress() {
-        return mSensorAddress;
-    }
+  public String getSensorAddress() {
+    return mSensorAddress;
+  }
 }

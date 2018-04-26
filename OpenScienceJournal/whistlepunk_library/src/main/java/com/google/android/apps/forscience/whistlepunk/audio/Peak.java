@@ -21,86 +21,75 @@ import java.util.List;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
-/**
- * Represents a peak in FFT (Fast Fourier Transform) output.
- */
+/** Represents a peak in FFT (Fast Fourier Transform) output. */
 class Peak {
-    private final int mFftIndex;
-    private final double mFrequencyEstimate;
-    private final double mFftValue;
-    private double mFrequency;
-    private final List<Harmonic> mHarmonics = new ArrayList<>();
+  private final int mFftIndex;
+  private final double mFrequencyEstimate;
+  private final double mFftValue;
+  private double mFrequency;
+  private final List<Harmonic> mHarmonics = new ArrayList<>();
 
-    Peak(int fftIndex, double frequencyEstimate, double fftMagnitude, double fftProminence) {
-        mFftIndex = fftIndex;
-        mFrequencyEstimate = frequencyEstimate;
-        mFftValue = fftMagnitude * fftProminence;
+  Peak(int fftIndex, double frequencyEstimate, double fftMagnitude, double fftProminence) {
+    mFftIndex = fftIndex;
+    mFrequencyEstimate = frequencyEstimate;
+    mFftValue = fftMagnitude * fftProminence;
+  }
+
+  /**
+   * Returns the FFT value for this peak. The FFT value is a value that determined by the FFT
+   * magnitude and the prominence of the peak.
+   */
+  double getFftValue() {
+    return mFftValue;
+  }
+
+  /**
+   * Returns the frequency estimate of this peak, based on which FFT bin corresponds to the peak.
+   */
+  double getFrequencyEstimate() {
+    return mFrequencyEstimate;
+  }
+
+  /** Returns the frequency as determined by applying a series of Goertzel filters. */
+  double getFrequency() {
+    return mFrequency;
+  }
+
+  /** Sets the frequency as determined by applying a series of Goertzel filters. */
+  void setFrequency(double frequency) {
+    mFrequency = frequency;
+  }
+
+  /** Adds the given harmonic relationship to the mHarmonics list. */
+  void addHarmonic(Harmonic harmonic) {
+    mHarmonics.add(harmonic);
+  }
+
+  /** Returns the set of harmonic ratio terms that have been identified for this peak. */
+  NavigableSet<Integer> getHarmonicTerms() {
+    TreeSet<Integer> terms = new TreeSet<>();
+    for (Harmonic harmonic : mHarmonics) {
+      terms.add(harmonic.getTermForPeak(this));
+    }
+    return terms;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
 
-    /**
-     * Returns the FFT value for this peak. The FFT value is a value that determined by the
-     * FFT magnitude and the prominence of the peak.
-     */
-    double getFftValue() {
-        return mFftValue;
+    if (!(obj instanceof Peak)) {
+      return false;
     }
 
-    /**
-     * Returns the frequency estimate of this peak, based on which FFT bin corresponds to the
-     * peak.
-     */
-    double getFrequencyEstimate() {
-        return mFrequencyEstimate;
-    }
+    Peak peak = (Peak) obj;
+    return mFftIndex == peak.mFftIndex;
+  }
 
-    /**
-     * Returns the frequency as determined by applying a series of Goertzel filters.
-     */
-    double getFrequency() {
-        return mFrequency;
-    }
-
-    /**
-     * Sets the frequency as determined by applying a series of Goertzel filters.
-     */
-    void setFrequency(double frequency) {
-        mFrequency = frequency;
-    }
-
-    /**
-     * Adds the given harmonic relationship to the mHarmonics list.
-     */
-    void addHarmonic(Harmonic harmonic) {
-        mHarmonics.add(harmonic);
-    }
-
-    /**
-     * Returns the set of harmonic ratio terms that have been identified for this peak.
-     */
-    NavigableSet<Integer> getHarmonicTerms() {
-        TreeSet<Integer> terms = new TreeSet<>();
-        for (Harmonic harmonic : mHarmonics) {
-            terms.add(harmonic.getTermForPeak(this));
-        }
-        return terms;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof Peak)) {
-            return false;
-        }
-
-        Peak peak = (Peak) obj;
-        return mFftIndex == peak.mFftIndex;
-    }
-
-    @Override
-    public int hashCode() {
-        return mFftIndex;
-    }
+  @Override
+  public int hashCode() {
+    return mFftIndex;
+  }
 }

@@ -20,86 +20,70 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
-
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleFlow;
-
+import io.reactivex.Single;
 import java.util.UUID;
 
-import io.reactivex.Single;
-
 public class FakeBleClient implements BleClient {
-    public String expectedAddress = null;
-    public String mostRecentAddress = null;
+  public String expectedAddress = null;
+  public String mostRecentAddress = null;
 
-    private Context mContext;
+  private Context mContext;
 
-    public FakeBleClient(Context context) {
-        this.mContext = context;
-    }
+  public FakeBleClient(Context context) {
+    this.mContext = context;
+  }
 
-    @Override
-    public BleFlow getFlowFor(String address) {
-        return createFlowFor(address);
-    }
+  @Override
+  public BleFlow getFlowFor(String address) {
+    return createFlowFor(address);
+  }
 
-    @Override
-    public BleFlow createFlowFor(String address) {
-        return BleFlow.getInstance(this, mContext, address);
-    }
+  @Override
+  public BleFlow createFlowFor(String address) {
+    return BleFlow.getInstance(this, mContext, address);
+  }
 
-    @Override
-    public boolean connectToAddress(String address) {
-        mostRecentAddress = address;
-        return address.equals(expectedAddress);
-    }
+  @Override
+  public boolean connectToAddress(String address) {
+    mostRecentAddress = address;
+    return address.equals(expectedAddress);
+  }
 
-    @Override
-    public void findServices(String address) {
+  @Override
+  public void findServices(String address) {}
 
-    }
+  @Override
+  public BluetoothGattService getService(String address, UUID serviceId) {
+    return null;
+  }
 
-    @Override
-    public BluetoothGattService getService(String address, UUID serviceId) {
-        return null;
-    }
+  @Override
+  public void readValue(String address, BluetoothGattCharacteristic theCharacteristic) {}
 
-    @Override
-    public void readValue(String address, BluetoothGattCharacteristic theCharacteristic) {
+  @Override
+  public void writeValue(
+      String address, BluetoothGattCharacteristic theCharacteristic, byte[] value) {}
 
-    }
+  @Override
+  public void disconnectDevice(String address) {}
 
-    @Override
-    public void writeValue(String address, BluetoothGattCharacteristic theCharacteristic,
-            byte[] value) {
+  @Override
+  public void writeValue(String address, BluetoothGattDescriptor currentDescriptor, byte[] value) {}
 
-    }
+  @Override
+  public boolean enableNotifications(String address, BluetoothGattCharacteristic characteristic) {
+    return false;
+  }
 
-    @Override
-    public void disconnectDevice(String address) {
+  @Override
+  public boolean disableNotifications(String address, BluetoothGattCharacteristic characteristic) {
+    return false;
+  }
 
-    }
-
-    @Override
-    public void writeValue(String address, BluetoothGattDescriptor currentDescriptor,
-            byte[] value) {
-
-    }
-
-    @Override
-    public boolean enableNotifications(String address,
-            BluetoothGattCharacteristic characteristic) {
-        return false;
-    }
-
-    @Override
-    public boolean disableNotifications(String address,
-            BluetoothGattCharacteristic characteristic) {
-        return false;
-    }
-
-    @Override
-    public Single<BleClient> whenConnected() {
-        return Single.just(this);
-    }
+  @Override
+  public Single<BleClient> whenConnected() {
+    return Single.just(this);
+  }
 }

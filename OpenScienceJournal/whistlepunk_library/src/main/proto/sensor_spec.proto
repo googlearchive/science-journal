@@ -28,15 +28,15 @@ import "gadget_info.proto";
 // Specification of an observable sensor.
 // Added in V2
 message SensorSpec {
-    // Provider, address, hostid, etc.
-    optional GadgetInfo info = 1;
+  // Provider, address, hostid, etc.
+  optional GadgetInfo info = 1;
 
-    // Opaque to Science Journal, but meaningful to each SensorDiscoverer.
-    // Each SensorDiscoverer can place whatever proto it wants here that contains all the
-    // information it needs, beyond the address, to connect to, configure,
-    // and relay data from a particular sensor in a particular configuration.
-    optional bytes config = 2;
+  // Opaque to Science Journal, but meaningful to each SensorDiscoverer.
+  // Each SensorDiscoverer can place whatever proto it wants here that contains
+  // all the information it needs, beyond the address, to connect to, configure,
+  // and relay data from a particular sensor in a particular configuration.
+  optional bytes config = 2;
 
-    // contains all of the data necessary to display a sensor as part of a trial
-    optional BasicSensorAppearance rememberedAppearance = 3;
+  // contains all of the data necessary to display a sensor as part of a trial
+  optional BasicSensorAppearance rememberedAppearance = 3;
 };

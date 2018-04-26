@@ -34,76 +34,80 @@ import "version.proto";
  * Added in V2.
  */
 message Experiment {
-    // The timestamp that this experiment was created.
-    optional int64 creationTimeMs = 1;
+  // The timestamp that this experiment was created.
+  optional int64 creationTimeMs = 1;
 
-    // The user-entered title of this experiment.
-    optional string title = 2;
+  // The user-entered title of this experiment.
+  optional string title = 2;
 
-    // The user-entered description of this experiment.
-    // This is deprecated in version 1.1, when old descriptions were turned into text notes.
-    optional string description = 3 [deprecated=true];
+  // The user-entered description of this experiment.
+  // This is deprecated in version 1.1, when old descriptions were turned into
+  // text notes.
+  optional string description = 3 [deprecated = true];
 
-    // SensorLayouts associated with this experiment.  (That is, the sensors that are currently
-    // shown in cards)
-    repeated SensorLayout sensorLayouts = 4;
+  // SensorLayouts associated with this experiment.  (That is, the sensors that
+  // are currently shown in cards)
+  repeated SensorLayout sensorLayouts = 4;
 
-    // Trials in this experiment.
-    repeated Trial trials = 5;
+  // Trials in this experiment.
+  repeated Trial trials = 5;
 
-    // Labels in this experiment.
-    repeated Label labels = 6;
+  // Labels in this experiment.
+  repeated Label labels = 6;
 
-    // Sensors included in or excluded from this experiment.
-    // (should use availableSensors instead; this field was never populated.)
-    repeated ExperimentSensor experimentSensors = 7 [deprecated = true];
+  // Sensors included in or excluded from this experiment.
+  // (should use availableSensors instead; this field was never populated.)
+  repeated ExperimentSensor experimentSensors = 7 [deprecated = true];
 
-    // Sensor triggers associated with sensors in this experiment.
-    repeated SensorTrigger sensorTriggers = 8;
+  // Sensor triggers associated with sensors in this experiment.
+  repeated SensorTrigger sensorTriggers = 8;
 
-    // Deprecated, use fileVersion below
-    optional int32 version = 9 [default = 1, deprecated = true];
+  // Deprecated, use fileVersion below
+  optional int32 version = 9 [default = 1, deprecated = true];
 
-    // Deprecated, use fileVersion below
-    optional int32 minorVersion = 10 [default = 1, deprecated = true];
+  // Deprecated, use fileVersion below
+  optional int32 minorVersion = 10 [default = 1, deprecated = true];
 
-    // Version 1.1: Added
-    message SensorEntry {
-      // The sensor ID associated with this within this experiment.
-      // This has no global uniqueness or parseable meaning outside this experiment
-      optional string sensorId = 1;
+  // Version 1.1: Added
+  message SensorEntry {
+    // The sensor ID associated with this within this experiment.
+    // This has no global uniqueness or parseable meaning outside this
+    // experiment
+    optional string sensorId = 1;
 
-      // The spec of the sensor with this id.
-      optional SensorSpec spec = 2;
-    }
+    // The spec of the sensor with this id.
+    optional SensorSpec spec = 2;
+  }
 
-    // Which sensors are currently shown as available in the sensor cards to be observed.
-    // If a host device is not able to observe sensors in availableSensors,
-    // perhaps because it loaded an experiment created from a different device,
-    // those sensors will be disabled in sensor cards.
-    repeated SensorEntry availableSensors = 11;
+  // Which sensors are currently shown as available in the sensor cards to be
+  // observed. If a host device is not able to observe sensors in
+  // availableSensors, perhaps because it loaded an experiment created from a
+  // different device, those sensors will be disabled in sensor cards.
+  repeated SensorEntry availableSensors = 11;
 
-    // Identifies the intended format version of this file, and the app that wrote it.
-    // See version.proto for details.
-    optional FileVersion fileVersion = 12;
+  // Identifies the intended format version of this file, and the app that wrote
+  // it. See version.proto for details.
+  optional FileVersion fileVersion = 12;
 
-    // The total number of trials ever made in this experiment. This is used to create unique
-    // names for untitled trials, i.e. "Recording 1", "Recording 2", etc, so that no two
-    // recordings in one experiment ever use the same name.
-    // This differs from GoosciUserMetadata.ExperimentOverview.trialCount because it is
-    // monotonically increasing, whereas trialCount will decrease when trials are deleted.
-    optional int32 totalTrials = 13;
+  // The total number of trials ever made in this experiment. This is used to
+  // create unique names for untitled trials, i.e. "Recording 1", "Recording 2",
+  // etc, so that no two recordings in one experiment ever use the same name.
+  // This differs from GoosciUserMetadata.ExperimentOverview.trialCount because
+  // it is monotonically increasing, whereas trialCount will decrease when
+  // trials are deleted.
+  optional int32 totalTrials = 13;
 };
 
 /*
  * Sensors included or excluded in an experiment.
- * TODO: Work with saff to figure out if other information needs to be included, such as
- * a name the user gives their device that represents the type of sensors.
+ * TODO: Work with saff to figure out if other information needs to be included,
+ * such as a name the user gives their device that represents the type of
+ * sensors.
  */
 message ExperimentSensor {
-    // The sensor ID
-    optional string sensorId = 1;
+  // The sensor ID
+  optional string sensorId = 1;
 
-    // Whether this sensor is included.
-    optional bool included = 2;
+  // Whether this sensor is included.
+  optional bool included = 2;
 }

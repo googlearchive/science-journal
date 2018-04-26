@@ -22,18 +22,22 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class AddNoteDialogTest {
-    @Test
-    public void connectExperimentIdDirect() {
-        AddNoteDialog.whenExperimentId("id", null).test().assertValue("id");
-    }
+  @Test
+  public void connectExperimentIdDirect() {
+    AddNoteDialog.whenExperimentId("id", null).test().assertValue("id");
+  }
 
-    @Test
-    public void connectExperimentIdIndirect() {
-        AddNoteDialog.whenExperimentId(null, new AddNoteDialog.AddNoteDialogListener() {
-            @Override
-            public Single<String> whenExperimentId() {
+  @Test
+  public void connectExperimentIdIndirect() {
+    AddNoteDialog.whenExperimentId(
+            null,
+            new AddNoteDialog.AddNoteDialogListener() {
+              @Override
+              public Single<String> whenExperimentId() {
                 return Single.just("b");
-            }
-        }).test().assertValue("b");
-    }
+              }
+            })
+        .test()
+        .assertValue("b");
+  }
 }

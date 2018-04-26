@@ -29,28 +29,26 @@ import org.robolectric.RobolectricTestRunner;
 // TODO: these could be unit tests.
 @RunWith(RobolectricTestRunner.class)
 public class RecorderListenerRegistryTest {
-    @Test
-    public void testImmediatelyUpdateStatus() {
-        RecorderListenerRegistry r = new RecorderListenerRegistry();
-        RecordingStatusListener beforeListener = new RecordingStatusListener();
-        r.putListeners("sensorId", new RecordingSensorObserver(), beforeListener);
-        assertFalse(beforeListener.mostRecentStatuses.containsKey("sensorId"));
+  @Test
+  public void testImmediatelyUpdateStatus() {
+    RecorderListenerRegistry r = new RecorderListenerRegistry();
+    RecordingStatusListener beforeListener = new RecordingStatusListener();
+    r.putListeners("sensorId", new RecordingSensorObserver(), beforeListener);
+    assertFalse(beforeListener.mostRecentStatuses.containsKey("sensorId"));
 
-        int status = Arbitrary.integer();
-        r.onSourceStatus("sensorId", status);
-        RecordingStatusListener afterListener = new RecordingStatusListener();
-        r.putListeners("sensorId", new RecordingSensorObserver(), afterListener);
-        assertEquals((Integer) status, afterListener.mostRecentStatuses.get("sensorId"));
-    }
+    int status = Arbitrary.integer();
+    r.onSourceStatus("sensorId", status);
+    RecordingStatusListener afterListener = new RecordingStatusListener();
+    r.putListeners("sensorId", new RecordingSensorObserver(), afterListener);
+    assertEquals((Integer) status, afterListener.mostRecentStatuses.get("sensorId"));
+  }
 
-    @Test
-    public void testConnectedClearsError() {
-        RecorderListenerRegistry r = new RecorderListenerRegistry();
-        r.onSourceError("sensorId", SensorStatusListener.ERROR_FAILED_TO_CONNECT,
-                "Failed to connect!");
-        assertTrue(r.getSourceHasError("sensorId"));
-        r.onSourceStatus("sensorId", SensorStatusListener.STATUS_CONNECTED);
-        assertFalse(r.getSourceHasError("sensorId"));
-    }
-
+  @Test
+  public void testConnectedClearsError() {
+    RecorderListenerRegistry r = new RecorderListenerRegistry();
+    r.onSourceError("sensorId", SensorStatusListener.ERROR_FAILED_TO_CONNECT, "Failed to connect!");
+    assertTrue(r.getSourceHasError("sensorId"));
+    r.onSourceStatus("sensorId", SensorStatusListener.STATUS_CONNECTED);
+    assertFalse(r.getSourceHasError("sensorId"));
+  }
 }

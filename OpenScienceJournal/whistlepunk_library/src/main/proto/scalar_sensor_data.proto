@@ -28,16 +28,16 @@ option optimize_for = LITE_RUNTIME;
  */
 
 message ScalarSensorData {
-    repeated ScalarSensorDataDump sensors = 1;
+  repeated ScalarSensorDataDump sensors = 1;
 }
 
 message ScalarSensorDataDump {
-    optional string tag = 1;
-    repeated ScalarSensorDataRow rows = 2;
-    optional string trialId = 3;
+  optional string tag = 1;
+  repeated ScalarSensorDataRow rows = 2;
+  optional string trialId = 3;
 }
 
 message ScalarSensorDataRow {
-    optional int64 timestampMillis = 1;
-    optional double value = 2;
+  optional int64 timestampMillis = 1;
+  optional double value = 2;
 }

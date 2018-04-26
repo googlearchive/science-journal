@@ -19,11 +19,10 @@ package com.google.android.apps.forscience.whistlepunk.sensors;
 import static com.google.android.apps.forscience.whistlepunk.audio.AudioSource.SAMPLE_RATE_IN_HZ;
 
 import android.content.Context;
-
-import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
-import com.google.android.apps.forscience.whistlepunk.audio.AudioSource.AudioReceiver;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.audio.AudioAnalyzer;
+import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
+import com.google.android.apps.forscience.whistlepunk.audio.AudioSource.AudioReceiver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
@@ -32,94 +31,104 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
-/**
- * A sensor that displays the pitch in Hertz (Hz).
- */
+/** A sensor that displays the pitch in Hertz (Hz). */
 public class PitchSensor extends ScalarSensor {
-    public static final String ID = "PitchSensor";
+  public static final String ID = "PitchSensor";
 
-    public PitchSensor() {
-        super(ID);
-    }
+  public PitchSensor() {
+    super(ID);
+  }
 
-    @Override
-    protected SensorRecorder makeScalarControl(final StreamConsumer c,
-            SensorEnvironment environment, Context context, final SensorStatusListener listener) {
-        final Clock clock = environment.getDefaultClock();
-        final AudioSource audioSource = environment.getAudioSource();
-        final AudioReceiver audioReceiver = new AudioReceiver() {
-            private final AudioAnalyzer mAudioAnalyzer = new AudioAnalyzer(SAMPLE_RATE_IN_HZ);
-            private final short[] audioAnalyzerBuffer = new short[AudioAnalyzer.BUFFER_SIZE];
-            private int audioAnalyzerBufferOffset;
-            private Double mPreviousFrequency;
+  @Override
+  protected SensorRecorder makeScalarControl(
+      final StreamConsumer c,
+      SensorEnvironment environment,
+      Context context,
+      final SensorStatusListener listener) {
+    final Clock clock = environment.getDefaultClock();
+    final AudioSource audioSource = environment.getAudioSource();
+    final AudioReceiver audioReceiver =
+        new AudioReceiver() {
+          private final AudioAnalyzer mAudioAnalyzer = new AudioAnalyzer(SAMPLE_RATE_IN_HZ);
+          private final short[] audioAnalyzerBuffer = new short[AudioAnalyzer.BUFFER_SIZE];
+          private int audioAnalyzerBufferOffset;
+          private Double mPreviousFrequency;
 
-            @Override
-            public void onReceiveAudio(short[] audioSourceBuffer) {
-                int audioSourceBufferOffset = 0;
-                while (audioSourceBufferOffset < audioSourceBuffer.length) {
-                    // Repeat the previous frequency value while we collect and analyze new data.
-                    if (mPreviousFrequency != null) {
-                        c.addData(clock.getNow(), mPreviousFrequency);
-                    }
+          @Override
+          public void onReceiveAudio(short[] audioSourceBuffer) {
+            int audioSourceBufferOffset = 0;
+            while (audioSourceBufferOffset < audioSourceBuffer.length) {
+              // Repeat the previous frequency value while we collect and analyze new data.
+              if (mPreviousFrequency != null) {
+                c.addData(clock.getNow(), mPreviousFrequency);
+              }
 
-                    int lengthToCopy = Math.min(audioSourceBuffer.length - audioSourceBufferOffset,
-                            audioAnalyzerBuffer.length - audioAnalyzerBufferOffset);
-                    System.arraycopy(audioSourceBuffer, audioSourceBufferOffset,
-                            audioAnalyzerBuffer, audioAnalyzerBufferOffset, lengthToCopy);
-                    audioAnalyzerBufferOffset += lengthToCopy;
-                    audioSourceBufferOffset += lengthToCopy;
+              int lengthToCopy =
+                  Math.min(
+                      audioSourceBuffer.length - audioSourceBufferOffset,
+                      audioAnalyzerBuffer.length - audioAnalyzerBufferOffset);
+              System.arraycopy(
+                  audioSourceBuffer,
+                  audioSourceBufferOffset,
+                  audioAnalyzerBuffer,
+                  audioAnalyzerBufferOffset,
+                  lengthToCopy);
+              audioAnalyzerBufferOffset += lengthToCopy;
+              audioSourceBufferOffset += lengthToCopy;
 
-                    // If audioAnalyzerBuffer is full, analyze it.
-                    if (audioAnalyzerBufferOffset == audioAnalyzerBuffer.length) {
-                        Double frequency = mAudioAnalyzer.detectFundamentalFrequency(audioAnalyzerBuffer);
-                        long timestampMillis = clock.getNow();
-                        if (frequency == null) {
-                            // Unable to detect frequency, likely due to low volume.
-                            c.addData(timestampMillis, 0);
-                        } else if (isDrasticSpike(frequency)) {
-                            // Avoid drastic changes that show as spikes in the graph between notes
-                            // being played on an instrument. If the new value is more than 50%
-                            // different from the previous value, skip it.
-                            // Note that since we set mPreviousFrequency to frequency below, we
-                            // will never skip two consecutive values.
-                            frequency = null;
-                        } else {
-                            c.addData(timestampMillis, frequency);
-                        }
-                        mPreviousFrequency = frequency;
-
-                        // Since we've analyzed that buffer, set the offset back to 0.
-                        audioAnalyzerBufferOffset = 0;
-                    }
+              // If audioAnalyzerBuffer is full, analyze it.
+              if (audioAnalyzerBufferOffset == audioAnalyzerBuffer.length) {
+                Double frequency = mAudioAnalyzer.detectFundamentalFrequency(audioAnalyzerBuffer);
+                long timestampMillis = clock.getNow();
+                if (frequency == null) {
+                  // Unable to detect frequency, likely due to low volume.
+                  c.addData(timestampMillis, 0);
+                } else if (isDrasticSpike(frequency)) {
+                  // Avoid drastic changes that show as spikes in the graph between notes
+                  // being played on an instrument. If the new value is more than 50%
+                  // different from the previous value, skip it.
+                  // Note that since we set mPreviousFrequency to frequency below, we
+                  // will never skip two consecutive values.
+                  frequency = null;
+                } else {
+                  c.addData(timestampMillis, frequency);
                 }
-            }
+                mPreviousFrequency = frequency;
 
-            private boolean isDrasticSpike(double frequency) {
-                return mPreviousFrequency != null &&
-                        Math.abs(frequency - mPreviousFrequency) / mPreviousFrequency > 0.50;
+                // Since we've analyzed that buffer, set the offset back to 0.
+                audioAnalyzerBufferOffset = 0;
+              }
             }
+          }
+
+          private boolean isDrasticSpike(double frequency) {
+            return mPreviousFrequency != null
+                && Math.abs(frequency - mPreviousFrequency) / mPreviousFrequency > 0.50;
+          }
         };
 
-        return new AbstractSensorRecorder() {
-            @Override
-            public void startObserving() {
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
-                if (!audioSource.registerAudioReceiver(audioReceiver)) {
-                    listener.onSourceError(getId(), SensorStatusListener.ERROR_FAILED_TO_CONNECT,
-                            "Could not connect to microphone");
-                }
-            }
+    return new AbstractSensorRecorder() {
+      @Override
+      public void startObserving() {
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+        if (!audioSource.registerAudioReceiver(audioReceiver)) {
+          listener.onSourceError(
+              getId(),
+              SensorStatusListener.ERROR_FAILED_TO_CONNECT,
+              "Could not connect to microphone");
+        }
+      }
 
-            @Override
-            public void stopObserving() {
-                audioSource.unregisterAudioReceiver(audioReceiver);
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
-            }
+      @Override
+      public void stopObserving() {
+        audioSource.unregisterAudioReceiver(audioReceiver);
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
+      }
 
-            @Override
-            public void applyOptions(ReadableSensorOptions settings) {
-                // do nothing, no settings apply to collection
-            }
-        };
-    }
+      @Override
+      public void applyOptions(ReadableSensorOptions settings) {
+        // do nothing, no settings apply to collection
+      }
+    };
+  }
 }

@@ -33,28 +33,33 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class SensorRegistryUnitTest {
-    @Test
-    public void addApiSensorsOnlyOnce() {
-        SensorRegistry registry = new SensorRegistry();
+  @Test
+  public void addApiSensorsOnlyOnce() {
+    SensorRegistry registry = new SensorRegistry();
 
-        ScalarInputSpec spec =
-                new ScalarInputSpec("name", "serviceId", "address", null, null, "devId");
-        ConnectableSensor.Connector connector =
-                new ConnectableSensor.Connector(EnumeratedDiscoverer.buildProviderMap(spec));
-        List<ConnectableSensor> sensors =
-                Lists.newArrayList(connector.connected(spec.asGoosciSpec(), "id"));
+    ScalarInputSpec spec = new ScalarInputSpec("name", "serviceId", "address", null, null, "devId");
+    ConnectableSensor.Connector connector =
+        new ConnectableSensor.Connector(EnumeratedDiscoverer.buildProviderMap(spec));
+    List<ConnectableSensor> sensors =
+        Lists.newArrayList(connector.connected(spec.asGoosciSpec(), "id"));
 
-        assertEquals(Lists.newArrayList("id"),
-                registry.updateExternalSensors(sensors, getProviders()));
-        assertEquals(Lists.newArrayList(), registry.updateExternalSensors(sensors, getProviders()));
-    }
+    assertEquals(Lists.newArrayList("id"), registry.updateExternalSensors(sensors, getProviders()));
+    assertEquals(Lists.newArrayList(), registry.updateExternalSensors(sensors, getProviders()));
+  }
 
-    private Map<String, SensorProvider> getProviders() {
-        Map<String, SensorProvider> providers = new HashMap<>();
+  private Map<String, SensorProvider> getProviders() {
+    Map<String, SensorProvider> providers = new HashMap<>();
 
-        providers.put(ScalarInputSpec.TYPE,
-                new ScalarInputDiscoverer(null, null, MoreExecutors.directExecutor(),
-                        new MockScheduler(), 100, new RecordingUsageTracker()).getProvider());
-        return providers;
-    }
+    providers.put(
+        ScalarInputSpec.TYPE,
+        new ScalarInputDiscoverer(
+                null,
+                null,
+                MoreExecutors.directExecutor(),
+                new MockScheduler(),
+                100,
+                new RecordingUsageTracker())
+            .getProvider());
+    return providers;
+  }
 }

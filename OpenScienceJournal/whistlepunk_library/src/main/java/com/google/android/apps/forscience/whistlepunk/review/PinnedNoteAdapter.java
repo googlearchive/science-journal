@@ -29,7 +29,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
@@ -40,285 +39,291 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
-/**
- * Adapter for a recycler view of pinned notes.
- */
+/** Adapter for a recycler view of pinned notes. */
 public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final String TAG = "PinnedNoteAdapter";
-    private static final int TYPE_TEXT_NOTE = 0;
-    private static final int TYPE_PICTURE_NOTE = 1;
-    private static final int TYPE_TRIGGER_NOTE = 2;
-    private static final int TYPE_SNAPSHOT_NOTE = 3;
-    private static final int TYPE_UNKNOWN = -1;
-    private static final int TYPE_ADD_LABEL = 4;
-    private static final int TYPE_CAPTION = 5;
+  private static final String TAG = "PinnedNoteAdapter";
+  private static final int TYPE_TEXT_NOTE = 0;
+  private static final int TYPE_PICTURE_NOTE = 1;
+  private static final int TYPE_TRIGGER_NOTE = 2;
+  private static final int TYPE_SNAPSHOT_NOTE = 3;
+  private static final int TYPE_UNKNOWN = -1;
+  private static final int TYPE_ADD_LABEL = 4;
+  private static final int TYPE_CAPTION = 5;
 
-    private PopupMenu mPopupMenu = null;
+  private PopupMenu mPopupMenu = null;
 
-    /**
-     * An interface for listening to when a pinned note should be edited or deleted.
-     */
-    public interface ListItemEditListener {
-        // When the user wants to edit a particular label's timestamp.
-        void onLabelEditTime(Label item);
+  /** An interface for listening to when a pinned note should be edited or deleted. */
+  public interface ListItemEditListener {
+    // When the user wants to edit a particular label's timestamp.
+    void onLabelEditTime(Label item);
 
-        // When a user deletes a particular label.
-        void onLabelDelete(Label item);
+    // When a user deletes a particular label.
+    void onLabelDelete(Label item);
 
-        // When the user makes a change to the caption -- needs to be saved.
-        void onCaptionEdit(String updatedCaption);
+    // When the user makes a change to the caption -- needs to be saved.
+    void onCaptionEdit(String updatedCaption);
+  }
+
+  /** An interface for listening to when a pinned note is clicked. */
+  public interface ListItemClickListener {
+    // Anywhere on the label was clicked.
+    void onLabelClicked(Label item);
+
+    // The add label button was clicked.
+    void onAddLabelButtonClicked();
+
+    // The label's timestamp section was clicked.
+    void onLabelTimestampClicked(Label item);
+  }
+
+  public class BlankViewHolder extends RecyclerView.ViewHolder {
+    public BlankViewHolder(View v) {
+      super(v);
+    }
+  }
+
+  private Trial mTrial;
+  private long mStartTimestamp;
+  private long mEndTimestamp;
+  private String mExperimentId;
+  private ListItemEditListener mEditListener;
+  private ListItemClickListener mClickListener;
+
+  public PinnedNoteAdapter(
+      Trial trial, long startTimestamp, long endTimestamp, String experimentId) {
+    mTrial = trial;
+    mStartTimestamp = startTimestamp;
+    mEndTimestamp = endTimestamp;
+    mExperimentId = experimentId;
+  }
+
+  public void updateRunTimestamps(long startTimestamp, long endTimestamp) {
+    mStartTimestamp = startTimestamp;
+    mEndTimestamp = endTimestamp;
+    notifyDataSetChanged();
+  }
+
+  public void setListItemModifyListener(ListItemEditListener editListener) {
+    mEditListener = editListener;
+  }
+
+  public void setListItemClickListener(ListItemClickListener clickListener) {
+    mClickListener = clickListener;
+  }
+
+  @Override
+  public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    switch (viewType) {
+      case TYPE_TEXT_NOTE:
+      case TYPE_PICTURE_NOTE:
+      case TYPE_TRIGGER_NOTE:
+      case TYPE_SNAPSHOT_NOTE:
+        View v =
+            LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.exp_card_pinned_note, parent, false);
+        return new NoteViewHolder(v);
+      case TYPE_ADD_LABEL:
+        v =
+            LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.add_label_button_item, parent, false);
+        return new BlankViewHolder(v);
+      case TYPE_CAPTION:
+        v = LayoutInflater.from(parent.getContext()).inflate(R.layout.caption_item, parent, false);
+        return new BlankViewHolder(v);
+      default:
+        return null;
+    }
+  }
+
+  @Override
+  public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    int viewType = getItemViewType(position);
+    if (viewType == TYPE_ADD_LABEL) {
+      holder.itemView.setOnClickListener(view -> mClickListener.onAddLabelButtonClicked());
+      return;
     }
 
-    /**
-     * An interface for listening to when a pinned note is clicked.
-     */
-    public interface ListItemClickListener {
-        // Anywhere on the label was clicked.
-        void onLabelClicked(Label item);
-
-        // The add label button was clicked.
-        void onAddLabelButtonClicked();
-
-        // The label's timestamp section was clicked.
-        void onLabelTimestampClicked(Label item);
+    if (viewType == TYPE_CAPTION) {
+      EditText editText = (EditText) holder.itemView.findViewById(R.id.caption);
+      editText.setText(mTrial.getCaptionText());
+      editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+      editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
+      RxTextView.afterTextChangeEvents(editText)
+          .subscribe(event -> mEditListener.onCaptionEdit(editText.getText().toString()));
+      return;
     }
 
-    public class BlankViewHolder extends RecyclerView.ViewHolder {
-        public BlankViewHolder(View v) {
-            super(v);
-        }
-    }
+    final NoteViewHolder noteHolder = (NoteViewHolder) holder;
+    final Label label = mTrial.getLabels().get(position - 1);
+    noteHolder.setNote(label, mExperimentId);
 
-    private Trial mTrial;
-    private long mStartTimestamp;
-    private long mEndTimestamp;
-    private String mExperimentId;
-    private ListItemEditListener mEditListener;
-    private ListItemClickListener mClickListener;
+    // Do work specific to RunReview.
+    noteHolder.relativeTimeView.setVisibility(View.GONE);
+    noteHolder.durationText.setText(getNoteTimeText(label, mStartTimestamp));
+    noteHolder.durationText.setContentDescription(
+        getNoteTimeContentDescription(
+            label.getTimeStamp(), mStartTimestamp, noteHolder.durationText.getContext()));
 
-    public PinnedNoteAdapter(Trial trial, long startTimestamp, long endTimestamp,
-            String experimentId) {
-        mTrial = trial;
-        mStartTimestamp = startTimestamp;
-        mEndTimestamp = endTimestamp;
-        mExperimentId = experimentId;
-    }
+    if (mEditListener != null) {
+      final Context context = noteHolder.menuButton.getContext();
+      final Intent shareIntent = getPhotoShareIntent(label, context);
+      noteHolder.menuButton.setOnClickListener(
+          v -> {
+            mPopupMenu =
+                new PopupMenu(
+                    context,
+                    noteHolder.menuButton,
+                    Gravity.NO_GRAVITY,
+                    R.attr.actionOverflowMenuStyle,
+                    0);
+            mPopupMenu.getMenuInflater().inflate(R.menu.menu_note, mPopupMenu.getMenu());
+            if (!label.canEditTimestamp()) {
+              mPopupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
+            }
+            mPopupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(shareIntent != null);
+            mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
+            mPopupMenu.setOnMenuItemClickListener(
+                item -> {
+                  int itemId = item.getItemId();
+                  if (itemId == R.id.btn_edit_note_time) {
+                    mEditListener.onLabelEditTime(label);
+                    return true;
+                  } else if (itemId == R.id.btn_delete_note) {
+                    mEditListener.onLabelDelete(label);
+                    return true;
+                  } else if (itemId == R.id.btn_share_photo) {
+                    context.startActivity(
+                        Intent.createChooser(
+                            shareIntent,
+                            context.getResources().getString(R.string.export_photo_chooser_title)));
 
-    public void updateRunTimestamps(long startTimestamp, long endTimestamp) {
-        mStartTimestamp = startTimestamp;
-        mEndTimestamp = endTimestamp;
-        notifyDataSetChanged();
-    }
-
-    public void setListItemModifyListener(ListItemEditListener editListener) {
-        mEditListener = editListener;
-    }
-
-    public void setListItemClickListener(ListItemClickListener clickListener) {
-        mClickListener = clickListener;
-    }
-
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        switch (viewType) {
-            case TYPE_TEXT_NOTE:
-            case TYPE_PICTURE_NOTE:
-            case TYPE_TRIGGER_NOTE:
-            case TYPE_SNAPSHOT_NOTE:
-                View v = LayoutInflater.from(parent.getContext()).inflate(
-                        R.layout.exp_card_pinned_note, parent, false);
-                return new NoteViewHolder(v);
-            case TYPE_ADD_LABEL:
-                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_label_button_item,
-                        parent, false);
-                return new BlankViewHolder(v);
-            case TYPE_CAPTION:
-                v = LayoutInflater.from(parent.getContext()).inflate(R.layout.caption_item,
-                        parent, false);
-                return new BlankViewHolder(v);
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        int viewType = getItemViewType(position);
-        if (viewType == TYPE_ADD_LABEL) {
-            holder.itemView.setOnClickListener(view -> mClickListener.onAddLabelButtonClicked());
-            return;
-        }
-
-        if (viewType == TYPE_CAPTION) {
-            EditText editText = (EditText) holder.itemView.findViewById(R.id.caption);
-            editText.setText(mTrial.getCaptionText());
-            editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
-            editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
-            RxTextView.afterTextChangeEvents(editText)
-                    .subscribe(event -> mEditListener.onCaptionEdit(editText.getText().toString()));
-            return;
-        }
-
-        final NoteViewHolder noteHolder = (NoteViewHolder) holder;
-        final Label label = mTrial.getLabels().get(position - 1);
-        noteHolder.setNote(label, mExperimentId);
-
-        // Do work specific to RunReview.
-        noteHolder.relativeTimeView.setVisibility(View.GONE);
-        noteHolder.durationText.setText(getNoteTimeText(label, mStartTimestamp));
-        noteHolder.durationText.setContentDescription(getNoteTimeContentDescription(
-                label.getTimeStamp(), mStartTimestamp, noteHolder.durationText.getContext()));
-
-
-        if (mEditListener != null) {
-            final Context context = noteHolder.menuButton.getContext();
-            final Intent shareIntent = getPhotoShareIntent(label, context);
-            noteHolder.menuButton.setOnClickListener(v -> {
-                mPopupMenu = new PopupMenu(context, noteHolder.menuButton, Gravity.NO_GRAVITY,
-                        R.attr.actionOverflowMenuStyle, 0);
-                mPopupMenu.getMenuInflater().inflate(R.menu.menu_note, mPopupMenu.getMenu());
-                if (!label.canEditTimestamp()) {
-                    mPopupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
-                }
-                mPopupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(shareIntent != null);
-                mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
-                mPopupMenu.setOnMenuItemClickListener(item -> {
-                    int itemId = item.getItemId();
-                    if (itemId == R.id.btn_edit_note_time) {
-                        mEditListener.onLabelEditTime(label);
-                        return true;
-                    } else if (itemId == R.id.btn_delete_note) {
-                        mEditListener.onLabelDelete(label);
-                        return true;
-                    } else if (itemId == R.id.btn_share_photo) {
-                        context.startActivity(
-                                Intent.createChooser(shareIntent, context.getResources().getString(
-                                        R.string.export_photo_chooser_title)));
-
-                        return true;
-                    }
-                    return false;
+                    return true;
+                  }
+                  return false;
                 });
-                mPopupMenu.show();
-            });
-        }
-        // Notes out of range are not clickable.
-        if (mStartTimestamp <= label.getTimeStamp() && label.getTimeStamp() < mEndTimestamp) {
-            noteHolder.durationText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mClickListener.onLabelTimestampClicked(label);
-                }
-            });
-            noteHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mClickListener.onLabelClicked(label);
-                }
-            });
-        }
+            mPopupMenu.show();
+          });
     }
-
-    private Intent getPhotoShareIntent(Label label, Context context) {
-        if (label.getType() != GoosciLabel.Label.ValueType.PICTURE) {
-            return null;
-        } else {
-            return FileMetadataManager.createPhotoShareIntent(context, mExperimentId,
-                    label.getPictureLabelValue().filePath, label.getCaptionText());
-        }
-    }
-
-    @Override
-    public int getItemCount() {
-        // The caption is temporarily removed per b/65063919 so the size is labels + 1.
-        return mTrial.getLabelCount() + 1;
-
-        /*
-        // We always show caption and add note button, making the size the labels + 2.
-        return mTrial.getLabelCount() + 2;
-        */
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position == 0) {
-            // First item always add label
-            return TYPE_ADD_LABEL;
-        }
-        if (position == mTrial.getLabelCount() + 1) {
-            // Last item always the caption
-            return TYPE_CAPTION;
-        }
-        int labelType = mTrial.getLabels().get(position - 1).getType();
-        if (labelType == GoosciLabel.Label.ValueType.TEXT) {
-            return TYPE_TEXT_NOTE;
-        }
-        if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
-            return TYPE_PICTURE_NOTE;
-        }
-        if (labelType == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
-            return TYPE_TRIGGER_NOTE;
-        }
-        if (labelType == GoosciLabel.Label.ValueType.SNAPSHOT) {
-            return TYPE_SNAPSHOT_NOTE;
-        }
-        return TYPE_UNKNOWN;
-    }
-
-    public void onLabelUpdated(Label label) {
-        // If the timestamp has changed, updating only the changed position is not enough because
-        // the labels have been rearranged.
-        // TODO: Is there a more efficient way to update only the labels which have moved?
-        notifyDataSetChanged();
-    }
-
-    public void onLabelAdded(Label label) {
-        if (mTrial.getLabelCount() == 1) {
-            notifyItemChanged(1); // First label at index 1 (0 is the "add note" button)
-        } else {
-            int position = findLabelIndexById(label.getLabelId());
-            if (position != -1) {
-                notifyItemInserted(position);
+    // Notes out of range are not clickable.
+    if (mStartTimestamp <= label.getTimeStamp() && label.getTimeStamp() < mEndTimestamp) {
+      noteHolder.durationText.setOnClickListener(
+          new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+              mClickListener.onLabelTimestampClicked(label);
             }
-        }
-    }
-
-    private int findLabelIndexById(String id) {
-        for (int i = 0; i < mTrial.getLabelCount(); i++) {
-            if (TextUtils.equals(mTrial.getLabels().get(i).getLabelId(), id)) {
-                // The 0th index item is "add note to timeline" button
-                return i + 1;
+          });
+      noteHolder.itemView.setOnClickListener(
+          new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              mClickListener.onLabelClicked(label);
             }
-        }
-        return -1;
+          });
     }
+  }
 
-    public static String getNoteTimeText(Label label, long startTimestamp) {
-        return getNoteTimeText(label.getTimeStamp(), startTimestamp);
+  private Intent getPhotoShareIntent(Label label, Context context) {
+    if (label.getType() != GoosciLabel.Label.ValueType.PICTURE) {
+      return null;
+    } else {
+      return FileMetadataManager.createPhotoShareIntent(
+          context, mExperimentId, label.getPictureLabelValue().filePath, label.getCaptionText());
     }
+  }
 
-    public static String getNoteTimeText(long labelTimestamp, long startTimestamp) {
-        long elapsedTimeSeconds = Math.round(
-                (labelTimestamp - startTimestamp) / RunReviewFragment.MILLIS_IN_A_SECOND);
-        if (elapsedTimeSeconds < 0) {
-            // TOOD: String resource: Localization for negative values?
-            return "-" + DateUtils.formatElapsedTime(-1 * elapsedTimeSeconds);
-        }
-        return DateUtils.formatElapsedTime(elapsedTimeSeconds);
-    }
+  @Override
+  public int getItemCount() {
+    // The caption is temporarily removed per b/65063919 so the size is labels + 1.
+    return mTrial.getLabelCount() + 1;
 
-    public static String getNoteTimeContentDescription(long currentTimestamp,
-            long runStartTimestamp, Context context) {
-        return ElapsedTimeFormatter.getInstance(context).formatForAccessibility(
-                (currentTimestamp - runStartTimestamp) / ExternalAxisController.MS_IN_SEC);
-    }
+    /*
+    // We always show caption and add note button, making the size the labels + 2.
+    return mTrial.getLabelCount() + 2;
+    */
+  }
 
-    public void onDestroy() {
-        mClickListener = null;
-        mEditListener = null;
-        if (mPopupMenu != null) {
-            mPopupMenu.dismiss();
-        }
+  @Override
+  public int getItemViewType(int position) {
+    if (position == 0) {
+      // First item always add label
+      return TYPE_ADD_LABEL;
     }
+    if (position == mTrial.getLabelCount() + 1) {
+      // Last item always the caption
+      return TYPE_CAPTION;
+    }
+    int labelType = mTrial.getLabels().get(position - 1).getType();
+    if (labelType == GoosciLabel.Label.ValueType.TEXT) {
+      return TYPE_TEXT_NOTE;
+    }
+    if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
+      return TYPE_PICTURE_NOTE;
+    }
+    if (labelType == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
+      return TYPE_TRIGGER_NOTE;
+    }
+    if (labelType == GoosciLabel.Label.ValueType.SNAPSHOT) {
+      return TYPE_SNAPSHOT_NOTE;
+    }
+    return TYPE_UNKNOWN;
+  }
+
+  public void onLabelUpdated(Label label) {
+    // If the timestamp has changed, updating only the changed position is not enough because
+    // the labels have been rearranged.
+    // TODO: Is there a more efficient way to update only the labels which have moved?
+    notifyDataSetChanged();
+  }
+
+  public void onLabelAdded(Label label) {
+    if (mTrial.getLabelCount() == 1) {
+      notifyItemChanged(1); // First label at index 1 (0 is the "add note" button)
+    } else {
+      int position = findLabelIndexById(label.getLabelId());
+      if (position != -1) {
+        notifyItemInserted(position);
+      }
+    }
+  }
+
+  private int findLabelIndexById(String id) {
+    for (int i = 0; i < mTrial.getLabelCount(); i++) {
+      if (TextUtils.equals(mTrial.getLabels().get(i).getLabelId(), id)) {
+        // The 0th index item is "add note to timeline" button
+        return i + 1;
+      }
+    }
+    return -1;
+  }
+
+  public static String getNoteTimeText(Label label, long startTimestamp) {
+    return getNoteTimeText(label.getTimeStamp(), startTimestamp);
+  }
+
+  public static String getNoteTimeText(long labelTimestamp, long startTimestamp) {
+    long elapsedTimeSeconds =
+        Math.round((labelTimestamp - startTimestamp) / RunReviewFragment.MILLIS_IN_A_SECOND);
+    if (elapsedTimeSeconds < 0) {
+      // TOOD: String resource: Localization for negative values?
+      return "-" + DateUtils.formatElapsedTime(-1 * elapsedTimeSeconds);
+    }
+    return DateUtils.formatElapsedTime(elapsedTimeSeconds);
+  }
+
+  public static String getNoteTimeContentDescription(
+      long currentTimestamp, long runStartTimestamp, Context context) {
+    return ElapsedTimeFormatter.getInstance(context)
+        .formatForAccessibility(
+            (currentTimestamp - runStartTimestamp) / ExternalAxisController.MS_IN_SEC);
+  }
+
+  public void onDestroy() {
+    mClickListener = null;
+    mEditListener = null;
+    if (mPopupMenu != null) {
+      mPopupMenu.dismiss();
+    }
+  }
 }

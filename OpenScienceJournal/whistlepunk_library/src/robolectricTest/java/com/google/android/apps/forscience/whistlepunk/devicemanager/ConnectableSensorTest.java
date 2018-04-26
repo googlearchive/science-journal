@@ -31,29 +31,31 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ConnectableSensorTest {
-    private ConnectableSensor.Connector mConnector =
-            new ConnectableSensor.Connector(new HashMap<>());
+  private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(new HashMap<>());
 
-    @Test
-    public void getNameExternal() {
-        InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "address", "name");
-        SensorAppearance appearance = new ConnectableSensor.Connector(
-                EnumeratedDiscoverer.buildProviderMap(spec)).disconnected(spec.asGoosciSpec())
-                                                            .getAppearance(null);
-        assertEquals("name", appearance.getName(null));
-    }
+  @Test
+  public void getNameExternal() {
+    InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "address", "name");
+    SensorAppearance appearance =
+        new ConnectableSensor.Connector(EnumeratedDiscoverer.buildProviderMap(spec))
+            .disconnected(spec.asGoosciSpec())
+            .getAppearance(null);
+    assertEquals("name", appearance.getName(null));
+  }
 
-    @Test
-    public void getNameInternal() {
-        final String sensorName = Arbitrary.string();
-        MemoryAppearanceProvider map = new MemoryAppearanceProvider();
-        map.putAppearance("sid", new EmptySensorAppearance() {
-            @Override
-            public String getName(Context context) {
-                return sensorName;
-            }
+  @Test
+  public void getNameInternal() {
+    final String sensorName = Arbitrary.string();
+    MemoryAppearanceProvider map = new MemoryAppearanceProvider();
+    map.putAppearance(
+        "sid",
+        new EmptySensorAppearance() {
+          @Override
+          public String getName(Context context) {
+            return sensorName;
+          }
         });
 
-        assertEquals(sensorName, mConnector.builtIn("sid", false).getAppearance(map).getName(null));
-    }
+    assertEquals(sensorName, mConnector.builtIn("sid", false).getAppearance(map).getName(null));
+  }
 }

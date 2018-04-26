@@ -21,11 +21,11 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 /**
  * Builds observable SensorChoice implementations from configurations loaded from the database.
  *
- * Has different implementations depending on whether the sensor is a built-in sensor, a bluetooth-
- * connected arduino, or discovered via the scalar API.
+ * <p>Has different implementations depending on whether the sensor is a built-in sensor, a
+ * bluetooth- connected arduino, or discovered via the scalar API.
  */
 public interface SensorProvider {
-    ExternalSensorSpec buildSensorSpec(String name, byte[] config);
+  ExternalSensorSpec buildSensorSpec(String name, byte[] config);
 
-    public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec);
+  public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec);
 }

@@ -27,28 +27,28 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ExportStreamConsumerTest {
-    @Test
-    public void dontStartAtZero() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        OutputStreamWriter writer = new OutputStreamWriter(baos);
-        ExportStreamConsumer consumer = new ExportStreamConsumer(writer, false, TestConsumers.expectingSuccess()
+  @Test
+  public void dontStartAtZero() throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    OutputStreamWriter writer = new OutputStreamWriter(baos);
+    ExportStreamConsumer consumer =
+        new ExportStreamConsumer(writer, false, TestConsumers.expectingSuccess());
 
-        );
-        consumer.addData(1000, 10);
-        consumer.addData(2000, 20);
-        writer.close();
-        assertEquals("1000,10.0\n2000,20.0\n", baos.toString());
-    }
+    consumer.addData(1000, 10);
+    consumer.addData(2000, 20);
+    writer.close();
+    assertEquals("1000,10.0\n2000,20.0\n", baos.toString());
+  }
 
-    @Test
-    public void startAtZero() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        OutputStreamWriter writer = new OutputStreamWriter(baos);
-        ExportStreamConsumer consumer = new ExportStreamConsumer(writer, true, TestConsumers.expectingSuccess()
-        );
-        consumer.addData(1000, 10);
-        consumer.addData(2000, 20);
-        writer.close();
-        assertEquals("0,10.0\n1000,20.0\n", baos.toString());
-    }
+  @Test
+  public void startAtZero() throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    OutputStreamWriter writer = new OutputStreamWriter(baos);
+    ExportStreamConsumer consumer =
+        new ExportStreamConsumer(writer, true, TestConsumers.expectingSuccess());
+    consumer.addData(1000, 10);
+    consumer.addData(2000, 20);
+    writer.close();
+    assertEquals("0,10.0\n1000,20.0\n", baos.toString());
+  }
 }

@@ -19,35 +19,31 @@ package com.google.android.apps.forscience.whistlepunk;
 import androidx.annotation.Nullable;
 import android.widget.RelativeLayout;
 
-/**
- * Defines sensor animation behavior for sensor cards.
- */
+/** Defines sensor animation behavior for sensor cards. */
 public interface SensorAnimationBehavior {
-    /**
-     * Initialize the icon.
-     *
-     * @param layout the layout that will contain the icon
-     * @param value the note view value, or null
-     */
-    void initializeLargeIcon(RelativeLayout layout, @Nullable Double value);
+  /**
+   * Initialize the icon.
+   *
+   * @param layout the layout that will contain the icon
+   * @param value the note view value, or null
+   */
+  void initializeLargeIcon(RelativeLayout layout, @Nullable Double value);
 
-    /**
-     * Reset the icon.
-     *
-     * @param layout the layout that contains the icon
-     */
-    void resetIcon(RelativeLayout layout);
+  /**
+   * Reset the icon.
+   *
+   * @param layout the layout that contains the icon
+   */
+  void resetIcon(RelativeLayout layout);
 
-    /**
-     * Returns whether the animation and text should be updated together.
-     */
-    boolean updateIconAndTextTogether();
+  /** Returns whether the animation and text should be updated together. */
+  boolean updateIconAndTextTogether();
 
-    /**
-     * Update the icon.
-     *
-     * @param layout the layout that contains the icon
-     */
-    void updateIcon(RelativeLayout layout, double newValue, double yMin, double yMax,
-            int screenOrientation);
+  /**
+   * Update the icon.
+   *
+   * @param layout the layout that contains the icon
+   */
+  void updateIcon(
+      RelativeLayout layout, double newValue, double yMin, double yMax, int screenOrientation);
 }

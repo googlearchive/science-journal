@@ -34,88 +34,82 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class NativeBleDiscovererTest {
-    @Test
-    public void testConnectableSensor() {
-        final String name = Arbitrary.string();
-        final String address = Arbitrary.string();
+  @Test
+  public void testConnectableSensor() {
+    final String name = Arbitrary.string();
+    final String address = Arbitrary.string();
 
-        NativeBleDiscoverer discoverer = new NativeBleDiscoverer(
-                RuntimeEnvironment.application.getApplicationContext()) {
-            @Override
-            protected DeviceDiscoverer createDiscoverer(Context context) {
-                return new DeviceDiscoverer(context) {
-                    @Override
-                    public void onStartScanning() {
-                        int rssi = Arbitrary.integer();
-                        addOrUpdateDevice(new WhistlepunkBleDevice() {
-                            @Override
-                            public String getName() {
-                                return name;
-                            }
+    NativeBleDiscoverer discoverer =
+        new NativeBleDiscoverer(RuntimeEnvironment.application.getApplicationContext()) {
+          @Override
+          protected DeviceDiscoverer createDiscoverer(Context context) {
+            return new DeviceDiscoverer(context) {
+              @Override
+              public void onStartScanning() {
+                int rssi = Arbitrary.integer();
+                addOrUpdateDevice(
+                    new WhistlepunkBleDevice() {
+                      @Override
+                      public String getName() {
+                        return name;
+                      }
 
-                            @Override
-                            public String getAddress() {
-                                return address;
-                            }
-                        }, rssi);
-                    }
+                      @Override
+                      public String getAddress() {
+                        return address;
+                      }
+                    },
+                    rssi);
+              }
 
-                    @Override
-                    public boolean canScan() {
-                        return true;
-                    }
-
-                    @Override
-                    public void onStopScanning() {
-
-                    }
-                };
-            }
-
-            @Override
-            protected boolean hasScanPermission() {
+              @Override
+              public boolean canScan() {
                 return true;
-            }
+              }
+
+              @Override
+              public void onStopScanning() {}
+            };
+          }
+
+          @Override
+          protected boolean hasScanPermission() {
+            return true;
+          }
         };
 
-        final AccumulatingConsumer<SensorDiscoverer.DiscoveredSensor> sensorsSeen =
-                new AccumulatingConsumer<>();
-        final RecordingRunnable onScanDone = new RecordingRunnable();
-        SensorDiscoverer.ScanListener listener =
-                new SensorDiscoverer.ScanListener() {
-                    @Override
-                    public void onServiceFound(SensorDiscoverer.DiscoveredService service) {
+    final AccumulatingConsumer<SensorDiscoverer.DiscoveredSensor> sensorsSeen =
+        new AccumulatingConsumer<>();
+    final RecordingRunnable onScanDone = new RecordingRunnable();
+    SensorDiscoverer.ScanListener listener =
+        new SensorDiscoverer.ScanListener() {
+          @Override
+          public void onServiceFound(SensorDiscoverer.DiscoveredService service) {}
 
-                    }
+          @Override
+          public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {}
 
-                    @Override
-                    public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {
+          @Override
+          public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
+            sensorsSeen.take(sensor);
+          }
 
-                    }
+          @Override
+          public void onServiceScanComplete(String serviceId) {}
 
-                    @Override
-                    public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
-                        sensorsSeen.take(sensor);
-                    }
-
-                    @Override
-                    public void onServiceScanComplete(String serviceId) {
-
-                    }
-
-                    @Override
-                    public void onScanDone() {
-                        onScanDone.run();
-                    }
-                };
-        discoverer.startScanning(listener, TestConsumers.expectingSuccess());
-        assertEquals(1, sensorsSeen.seen.size());
-        GoosciSensorSpec.SensorSpec sensor = sensorsSeen.seen.get(0).getSensorSpec();
-        assertEquals(name, sensor.rememberedAppearance.name);
-        assertEquals(address, sensor.info.address);
-        assertEquals(BleSensorSpec.TYPE, sensor.info.providerId);
-        assertFalse(onScanDone.hasRun);
-        discoverer.stopScanning();
-        assertTrue(onScanDone.hasRun);
-    }
+          @Override
+          public void onScanDone() {
+            onScanDone.run();
+          }
+        };
+    discoverer.startScanning(listener, TestConsumers.expectingSuccess());
+    assertEquals(1, sensorsSeen.seen.size());
+    GoosciSensorSpec.SensorSpec sensor = sensorsSeen.seen.get(0).getSensorSpec();
+    assertEquals(name, sensor.rememberedAppearance.name);
+    assertEquals(address, sensor.info.address);
+    assertEquals(BleSensorSpec.TYPE, sensor.info.providerId);
+    assertFalse(onScanDone.hasRun);
+    discoverer.stopScanning();
+    assertTrue(onScanDone.hasRun);
+  }
 }

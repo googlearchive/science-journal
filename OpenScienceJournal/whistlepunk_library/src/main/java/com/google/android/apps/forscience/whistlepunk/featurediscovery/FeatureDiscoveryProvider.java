@@ -19,41 +19,38 @@ package com.google.android.apps.forscience.whistlepunk.featurediscovery;
 import android.content.Context;
 import androidx.fragment.app.FragmentActivity;
 
-/**
- * An object which can show feature discovery to the user.
- */
+/** An object which can show feature discovery to the user. */
 public interface FeatureDiscoveryProvider {
-    public static FeatureDiscoveryProvider STUB = new FeatureDiscoveryProvider() {
+  public static FeatureDiscoveryProvider STUB =
+      new FeatureDiscoveryProvider() {
         @Override
         public boolean isEnabled(Context context, String feature) {
-            return false;
+          return false;
         }
 
         @Override
         public void show(FragmentActivity activity, String feature, String tag) {
-            // do nothing
+          // do nothing
         }
-    };
+      };
 
-    public static final String FEATURE_NEW_EXTERNAL_SENSOR = "fd_new_external_sensor";
+  public static final String FEATURE_NEW_EXTERNAL_SENSOR = "fd_new_external_sensor";
 
-    /**
-     * Amount of time in ms to delay showing the feature discovery dialog.
-     */
-    public static final long FEATURE_DISCOVERY_SHOW_DELAY_MS = 500;
+  /** Amount of time in ms to delay showing the feature discovery dialog. */
+  public static final long FEATURE_DISCOVERY_SHOW_DELAY_MS = 500;
 
-    /**
-     * Returns {@code true} if the given feature is available for discovery. It's expected that
-     * the provider will only show features the first time to the user.
-     */
-    public boolean isEnabled(Context context, String feature);
+  /**
+   * Returns {@code true} if the given feature is available for discovery. It's expected that the
+   * provider will only show features the first time to the user.
+   */
+  public boolean isEnabled(Context context, String feature);
 
-    /**
-     * Shows the feature discovery view to the user.
-     *
-     * @param activity    activity hosting the view
-     * @param feature     which feature to show
-     * @param tag         tag set on the view using View#setTag, used to find the view later
-     */
-    public void show(FragmentActivity activity, String feature, String tag);
+  /**
+   * Shows the feature discovery view to the user.
+   *
+   * @param activity activity hosting the view
+   * @param feature which feature to show
+   * @param tag tag set on the view using View#setTag, used to find the view later
+   */
+  public void show(FragmentActivity activity, String feature, String tag);
 }

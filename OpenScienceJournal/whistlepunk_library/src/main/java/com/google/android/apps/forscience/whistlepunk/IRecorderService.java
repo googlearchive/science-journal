@@ -18,8 +18,8 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Intent;
 
 interface IRecorderService {
-    void beginServiceRecording(String experimentName, Intent launchIntent);
+  void beginServiceRecording(String experimentName, Intent launchIntent);
 
-    void endServiceRecording(boolean notifyRecordingEnded, String runId, String experimentId,
-            String experimentTitle);
+  void endServiceRecording(
+      boolean notifyRecordingEnded, String runId, String experimentId, String experimentTitle);
 }

@@ -16,32 +16,23 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.util.SparseArray;
-
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class RecordingUsageTracker implements UsageTracker {
-    public List<TrackedEvent> events = new ArrayList<>();
+  public List<TrackedEvent> events = new ArrayList<>();
 
-    public void setOptOut(boolean optOut) {
+  public void setOptOut(boolean optOut) {}
 
-    }
+  @Override
+  public void trackScreenView(String screenName) {}
 
-    @Override
-    public void trackScreenView(String screenName) {
+  @Override
+  public void trackEvent(String category, String action, String label, long value) {
+    events.add(new TrackedEvent(category, action, label, value));
+  }
 
-    }
-
-    @Override
-    public void trackEvent(String category, String action, String label, long value) {
-        events.add(new TrackedEvent(category, action, label, value));
-    }
-
-    @Override
-    public void trackDimensionEvent(String category, String action,
-            SparseArray<String> dimensions) {
-
-    }
+  @Override
+  public void trackDimensionEvent(String category, String action, SparseArray<String> dimensions) {}
 }

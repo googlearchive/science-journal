@@ -26,25 +26,25 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class MyBleServiceTest {
-    @Test
-    public void testDontAskForSameServiceTwice() {
-        TestBleService mbs = new TestBleService();
+  @Test
+  public void testDontAskForSameServiceTwice() {
+    TestBleService mbs = new TestBleService();
 
-        mbs.discoverServices("address");
-        // make sure this doesn't actually deliver
-        mbs.discoverServices("address");
+    mbs.discoverServices("address");
+    // make sure this doesn't actually deliver
+    mbs.discoverServices("address");
 
-        // Should be only one discovery call
-        assertEquals(Lists.newArrayList("address"), mbs.addressesDiscovered);
+    // Should be only one discovery call
+    assertEquals(Lists.newArrayList("address"), mbs.addressesDiscovered);
+  }
+
+  private static class TestBleService extends MyBleService {
+    public List<String> addressesDiscovered = new ArrayList<>();
+
+    @Override
+    protected boolean internalDiscoverServices(String address) {
+      addressesDiscovered.add(address);
+      return true;
     }
-
-    private static class TestBleService extends MyBleService {
-        public List<String> addressesDiscovered = new ArrayList<>();
-
-        @Override
-        protected boolean internalDiscoverServices(String address) {
-            addressesDiscovered.add(address);
-            return true;
-        }
-    }
+  }
 }

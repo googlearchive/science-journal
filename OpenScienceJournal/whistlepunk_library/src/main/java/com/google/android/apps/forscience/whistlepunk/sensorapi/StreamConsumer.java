@@ -16,14 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-/**
- * Consumes new single-value time-series data points as they are generated.
- */
+/** Consumes new single-value time-series data points as they are generated. */
 public interface StreamConsumer {
-    /**
-     * A new value has been seen.  Caveat implementor: this may be called from any thread.
-     *
-     * @return true if data was successfully accepted by the consumer
-     */
-    boolean addData(long timestampMillis, double value);
+  /**
+   * A new value has been seen. Caveat implementor: this may be called from any thread.
+   *
+   * @return true if data was successfully accepted by the consumer
+   */
+  boolean addData(long timestampMillis, double value);
 }

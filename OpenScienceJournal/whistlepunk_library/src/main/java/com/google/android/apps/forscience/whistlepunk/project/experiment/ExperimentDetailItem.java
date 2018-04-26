@@ -26,99 +26,99 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayO
 
 /**
  * Represents a detail item: either a run or an experiment level label or a special card.
- * <p>
- * TODO: might be able to rework this when Run objects exist.
+ *
+ * <p>TODO: might be able to rework this when Run objects exist.
  */
 public class ExperimentDetailItem {
-    private final int mViewType;
-    private Trial mTrial;
-    private int mSensorTagIndex = -1;
-    private Label mLabel;
-    private long mTimestamp;
-    private ChartController mChartController;
+  private final int mViewType;
+  private Trial mTrial;
+  private int mSensorTagIndex = -1;
+  private Label mLabel;
+  private long mTimestamp;
+  private ChartController mChartController;
 
-    ExperimentDetailItem(Trial trial, ScalarDisplayOptions scalarDisplayOptions,
-            boolean isRecording) {
-        mTrial = trial;
-        mTimestamp = mTrial.getFirstTimestamp();
-        if (isRecording) {
-            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RECORDING;
-        } else {
-            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RUN_CARD;
-        }
-        mSensorTagIndex = mTrial.getSensorIds().size() > 0 ? 0 : -1;
-        if (trial.isValid()) {
-            mChartController = new ChartController(
-                    ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW,
-                    scalarDisplayOptions);
-        }
+  ExperimentDetailItem(
+      Trial trial, ScalarDisplayOptions scalarDisplayOptions, boolean isRecording) {
+    mTrial = trial;
+    mTimestamp = mTrial.getFirstTimestamp();
+    if (isRecording) {
+      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RECORDING;
+    } else {
+      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RUN_CARD;
     }
+    mSensorTagIndex = mTrial.getSensorIds().size() > 0 ? 0 : -1;
+    if (trial.isValid()) {
+      mChartController =
+          new ChartController(
+              ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW, scalarDisplayOptions);
+    }
+  }
 
-    ExperimentDetailItem(Label label) {
-        mLabel = label;
-        if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
-            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
-        } else if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
-        } else if (label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
-            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
-        } else if (label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT) {
-            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_SNAPSHOT_LABEL;
-        } else {
-            mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_UNKNOWN_LABEL;
-        }
-        mTimestamp = label.getTimeStamp();
+  ExperimentDetailItem(Label label) {
+    mLabel = label;
+    if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
+      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
+    } else if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
+    } else if (label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
+      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
+    } else if (label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT) {
+      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_SNAPSHOT_LABEL;
+    } else {
+      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_UNKNOWN_LABEL;
     }
+    mTimestamp = label.getTimeStamp();
+  }
 
-    ExperimentDetailItem(int viewType) {
-        mViewType = viewType;
-    }
+  ExperimentDetailItem(int viewType) {
+    mViewType = viewType;
+  }
 
-    int getViewType() {
-        return mViewType;
-    }
+  int getViewType() {
+    return mViewType;
+  }
 
-    long getTimestamp() {
-        return mTimestamp;
-    }
+  long getTimestamp() {
+    return mTimestamp;
+  }
 
-    Trial getTrial() {
-        return mTrial;
-    }
+  Trial getTrial() {
+    return mTrial;
+  }
 
-    int getSensorTagIndex() {
-        return mSensorTagIndex;
-    }
+  int getSensorTagIndex() {
+    return mSensorTagIndex;
+  }
 
-    GoosciSensorLayout.SensorLayout getSelectedSensorLayout() {
-        return mTrial.getSensorLayouts().get(mSensorTagIndex);
-    }
+  GoosciSensorLayout.SensorLayout getSelectedSensorLayout() {
+    return mTrial.getSensorLayouts().get(mSensorTagIndex);
+  }
 
-    String getNextSensorId() {
-        return mTrial.getSensorIds().get(mSensorTagIndex + 1);
-    }
+  String getNextSensorId() {
+    return mTrial.getSensorIds().get(mSensorTagIndex + 1);
+  }
 
-    String getPrevSensorId() {
-        return mTrial.getSensorIds().get(mSensorTagIndex - 1);
-    }
+  String getPrevSensorId() {
+    return mTrial.getSensorIds().get(mSensorTagIndex - 1);
+  }
 
-    void setSensorTagIndex(int index) {
-        mSensorTagIndex = index;
-    }
+  void setSensorTagIndex(int index) {
+    mSensorTagIndex = index;
+  }
 
-    ChartController getChartController() {
-        return mChartController;
-    }
+  ChartController getChartController() {
+    return mChartController;
+  }
 
-    public Label getLabel() {
-        return mLabel;
-    }
+  public Label getLabel() {
+    return mLabel;
+  }
 
-    public void setLabel(Label label) {
-        mLabel = label;
-    }
+  public void setLabel(Label label) {
+    mLabel = label;
+  }
 
-    public void setTrial(Trial trial) {
-        mTrial = trial;
-    }
+  public void setTrial(Trial trial) {
+    mTrial = trial;
+  }
 }

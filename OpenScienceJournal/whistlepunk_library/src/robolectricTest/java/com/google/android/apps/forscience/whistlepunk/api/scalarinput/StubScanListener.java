@@ -18,28 +18,18 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 
 public class StubScanListener implements SensorDiscoverer.ScanListener {
-    @Override
-    public void onServiceFound(SensorDiscoverer.DiscoveredService service) {
+  @Override
+  public void onServiceFound(SensorDiscoverer.DiscoveredService service) {}
 
-    }
+  @Override
+  public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {}
 
-    @Override
-    public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {
+  @Override
+  public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {}
 
-    }
+  @Override
+  public void onServiceScanComplete(String serviceId) {}
 
-    @Override
-    public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
-
-    }
-
-    @Override
-    public void onServiceScanComplete(String serviceId) {
-
-    }
-
-    @Override
-    public void onScanDone() {
-
-    }
+  @Override
+  public void onScanDone() {}
 }

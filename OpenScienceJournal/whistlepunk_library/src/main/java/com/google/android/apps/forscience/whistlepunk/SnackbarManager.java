@@ -17,47 +17,45 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.support.design.widget.Snackbar;
 
-/**
- * Allows us to only show one snackbar at a time.
- */
+/** Allows us to only show one snackbar at a time. */
 public class SnackbarManager {
-    private Snackbar mVisibleSnackbar = null;
+  private Snackbar mVisibleSnackbar = null;
 
-    public void showSnackbar(Snackbar bar) {
-        // TODO: UX asks for the Snackbar to be shown above the external axis...
-        // may need to do a custom snackbar class.
-        bar.setCallback(new Snackbar.Callback() {
+  public void showSnackbar(Snackbar bar) {
+    // TODO: UX asks for the Snackbar to be shown above the external axis...
+    // may need to do a custom snackbar class.
+    bar.setCallback(
+        new Snackbar.Callback() {
 
-            @Override
-            public void onDismissed(Snackbar snackbar, int event) {
-                mVisibleSnackbar = null;
-            }
+          @Override
+          public void onDismissed(Snackbar snackbar, int event) {
+            mVisibleSnackbar = null;
+          }
 
-            @Override
-            public void onShown(Snackbar snackbar) {
-            }
+          @Override
+          public void onShown(Snackbar snackbar) {}
         });
-        hideVisibleSnackbar();
-        bar.show();
-        mVisibleSnackbar = bar;
-    }
+    hideVisibleSnackbar();
+    bar.show();
+    mVisibleSnackbar = bar;
+  }
 
-    public boolean snackbarIsVisible() {
-        return mVisibleSnackbar != null;
-    }
+  public boolean snackbarIsVisible() {
+    return mVisibleSnackbar != null;
+  }
 
-    /**
-     * Call when the fragment/activity managing the snackbars is destroyed, and any snackbar should
-     * be dismissed.
-     */
-    public void onDestroy() {
-        hideVisibleSnackbar();
-        mVisibleSnackbar = null;
-    }
+  /**
+   * Call when the fragment/activity managing the snackbars is destroyed, and any snackbar should be
+   * dismissed.
+   */
+  public void onDestroy() {
+    hideVisibleSnackbar();
+    mVisibleSnackbar = null;
+  }
 
-    public void hideVisibleSnackbar() {
-        if (mVisibleSnackbar != null) {
-            mVisibleSnackbar.dismiss();
-        }
+  public void hideVisibleSnackbar() {
+    if (mVisibleSnackbar != null) {
+      mVisibleSnackbar.dismiss();
     }
+  }
 }

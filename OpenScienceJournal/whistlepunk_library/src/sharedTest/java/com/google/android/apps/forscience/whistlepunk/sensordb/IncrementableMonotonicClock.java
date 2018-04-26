@@ -18,19 +18,17 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import com.google.android.apps.forscience.whistlepunk.Clock;
 
-/**
- * A monotonic clock which only increments when requested.
- */
+/** A monotonic clock which only increments when requested. */
 public class IncrementableMonotonicClock implements Clock {
 
-    private long mNow = 0;
+  private long mNow = 0;
 
-    @Override
-    public long getNow() {
-        return mNow;
-    }
+  @Override
+  public long getNow() {
+    return mNow;
+  }
 
-    public void increment() {
-        mNow++;
-    }
+  public void increment() {
+    mNow++;
+  }
 }

@@ -18,14 +18,14 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 
 class SettableClock implements Clock {
-    private int mNow = 0;
+  private int mNow = 0;
 
-    public void setNow(int now) {
-        mNow = now;
-    }
+  public void setNow(int now) {
+    mNow = now;
+  }
 
-    @Override
-    public long getNow() {
-        return mNow;
-    }
+  @Override
+  public long getNow() {
+    return mNow;
+  }
 }

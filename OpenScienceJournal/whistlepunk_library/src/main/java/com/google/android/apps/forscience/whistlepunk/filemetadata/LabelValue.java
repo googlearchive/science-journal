@@ -17,30 +17,28 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 
-/**
- * Interprets a label
- */
+/** Interprets a label */
 // TODO: This will be deprecated. Rename to LegacyLabelValue, and rename classes that inherit
 // from it as well.
 @Deprecated
 public abstract class LabelValue {
-    GoosciLabelValue.LabelValue mValue;
+  GoosciLabelValue.LabelValue mValue;
 
-    public LabelValue(GoosciLabelValue.LabelValue value) {
-        mValue = value;
-    }
+  public LabelValue(GoosciLabelValue.LabelValue value) {
+    mValue = value;
+  }
 
-    public LabelValue() {
-        mValue = new GoosciLabelValue.LabelValue();
-    }
+  public LabelValue() {
+    mValue = new GoosciLabelValue.LabelValue();
+  }
 
-    public GoosciLabelValue.LabelValue getValue() {
-        return mValue;
-    }
+  public GoosciLabelValue.LabelValue getValue() {
+    return mValue;
+  }
 
-    protected void setValue(GoosciLabelValue.LabelValue value) {
-        mValue = value;
-    }
+  protected void setValue(GoosciLabelValue.LabelValue value) {
+    mValue = value;
+  }
 
-    public abstract boolean canEditTimestamp();
+  public abstract boolean canEditTimestamp();
 }

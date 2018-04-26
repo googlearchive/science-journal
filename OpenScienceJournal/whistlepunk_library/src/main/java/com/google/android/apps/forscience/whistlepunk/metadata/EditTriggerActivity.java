@@ -17,40 +17,39 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.apps.forscience.whistlepunk.R;
-
 import java.util.ArrayList;
 
-/**
- * Activity for adding and editing triggers.
- */
+/** Activity for adding and editing triggers. */
 public class EditTriggerActivity extends AppCompatActivity {
-    public static final String EXTRA_SENSOR_ID = "sensor_id";
-    public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
-    public static final String EXTRA_SENSOR_LAYOUT_BLOB = "sensor_layout_blob";
-    public static final String EXTRA_TRIGGER_ID = "trigger_id";
-    private static final String FRAGMENT_TAG = "fragment";
+  public static final String EXTRA_SENSOR_ID = "sensor_id";
+  public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
+  public static final String EXTRA_SENSOR_LAYOUT_BLOB = "sensor_layout_blob";
+  public static final String EXTRA_TRIGGER_ID = "trigger_id";
+  private static final String FRAGMENT_TAG = "fragment";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_trigger);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_edit_trigger);
 
-        Bundle extras = getIntent().getExtras();
+    Bundle extras = getIntent().getExtras();
 
-        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null && extras != null) {
-            String sensorId = extras.getString(EXTRA_SENSOR_ID, "");
-            String experimentId = extras.getString(EXTRA_EXPERIMENT_ID, "");
-            String triggerId = extras.getString(EXTRA_TRIGGER_ID, "");
-            byte[] sensorLayoutBlob = extras.getByteArray(EXTRA_SENSOR_LAYOUT_BLOB);
-            int position = extras.getInt(TriggerListActivity.EXTRA_LAYOUT_POSITION);
-            ArrayList<String> triggerOrder = extras.getStringArrayList(
-                    TriggerListActivity.EXTRA_TRIGGER_ORDER);
-            EditTriggerFragment fragment = EditTriggerFragment.newInstance(sensorId, experimentId,
-                    triggerId, sensorLayoutBlob, position, triggerOrder);
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment,
-                    FRAGMENT_TAG).commit();
-        }
+    if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null && extras != null) {
+      String sensorId = extras.getString(EXTRA_SENSOR_ID, "");
+      String experimentId = extras.getString(EXTRA_EXPERIMENT_ID, "");
+      String triggerId = extras.getString(EXTRA_TRIGGER_ID, "");
+      byte[] sensorLayoutBlob = extras.getByteArray(EXTRA_SENSOR_LAYOUT_BLOB);
+      int position = extras.getInt(TriggerListActivity.EXTRA_LAYOUT_POSITION);
+      ArrayList<String> triggerOrder =
+          extras.getStringArrayList(TriggerListActivity.EXTRA_TRIGGER_ORDER);
+      EditTriggerFragment fragment =
+          EditTriggerFragment.newInstance(
+              sensorId, experimentId, triggerId, sensorLayoutBlob, position, triggerOrder);
+      getSupportFragmentManager()
+          .beginTransaction()
+          .add(R.id.container, fragment, FRAGMENT_TAG)
+          .commit();
     }
+  }
 }

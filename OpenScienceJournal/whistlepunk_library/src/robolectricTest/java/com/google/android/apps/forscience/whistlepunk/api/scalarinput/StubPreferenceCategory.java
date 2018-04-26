@@ -18,40 +18,39 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.content.Context;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class StubPreferenceCategory extends PreferenceCategory {
-    public List<Preference> prefs = new ArrayList<>();
+  public List<Preference> prefs = new ArrayList<>();
 
-    public StubPreferenceCategory(Context context) {
-        super(context);
-    }
+  public StubPreferenceCategory(Context context) {
+    super(context);
+  }
 
-    @Override
-    public boolean addPreference(Preference preference) {
-        prefs.add(preference);
-        return true;
-    }
+  @Override
+  public boolean addPreference(Preference preference) {
+    prefs.add(preference);
+    return true;
+  }
 
-    @Override
-    public Preference findPreference(CharSequence key) {
-        for (Preference pref : prefs) {
-            if (pref.getKey().equals(key)) {
-                return pref;
-            }
-        }
-        return null;
+  @Override
+  public Preference findPreference(CharSequence key) {
+    for (Preference pref : prefs) {
+      if (pref.getKey().equals(key)) {
+        return pref;
+      }
     }
+    return null;
+  }
 
-    @Override
-    public boolean removePreference(Preference preference) {
-        return prefs.remove(preference);
-    }
+  @Override
+  public boolean removePreference(Preference preference) {
+    return prefs.remove(preference);
+  }
 
-    @Override
-    public void removeAll() {
-        prefs.clear();
-    }
+  @Override
+  public void removeAll() {
+    prefs.clear();
+  }
 }

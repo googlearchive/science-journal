@@ -26,12 +26,20 @@ import com.google.android.apps.forscience.whistlepunk.opensource.modules.Feature
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.FeedbackModule;
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.PerfTrackerModule;
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.UsageTrackerModule;
-
 import dagger.Component;
 
-@Component(modules = {FeatureDiscoveryModule.class, FeedbackModule.class, UsageTrackerModule.class,
-        NativeBleDiscovererModule.class, InputDeviceModule.class, ScalarInputDiscoveryModule.class,
-        ContextModule.class, PerfTrackerModule.class, NonSignedInAccountsModule.class})
+@Component(
+    modules = {
+      FeatureDiscoveryModule.class,
+      FeedbackModule.class,
+      UsageTrackerModule.class,
+      NativeBleDiscovererModule.class,
+      InputDeviceModule.class,
+      ScalarInputDiscoveryModule.class,
+      ContextModule.class,
+      PerfTrackerModule.class,
+      NonSignedInAccountsModule.class
+    })
 public interface OpenSourceComponent {
-    void inject(WhistlePunkApplication app);
+  void inject(WhistlePunkApplication app);
 }

@@ -23,7 +23,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
-
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
@@ -34,251 +33,255 @@ import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataMan
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabaseImpl;
 import com.google.common.base.Optional;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.PublishSubject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class AppSingleton {
-    private static final String SENSOR_DATABASE_NAME = "sensors.db";
-    private static final String TAG = "AppSingleton";
-    private static AppSingleton sInstance;
-    private final Context mApplicationContext;
-    private DataControllerImpl mDataController;
+  private static final String SENSOR_DATABASE_NAME = "sensors.db";
+  private static final String TAG = "AppSingleton";
+  private static AppSingleton sInstance;
+  private final Context mApplicationContext;
+  private DataControllerImpl mDataController;
 
-    private static Executor sUiThreadExecutor = null;
-    private SensorAppearanceProviderImpl mSensorAppearanceProvider;
-    private final Clock mCurrentTimeClock = new CurrentTimeClock();
-    private final AudioSource mAudioSource = new AudioSource();
-    private BleClientImpl mBleClient;
-    private RecorderController mRecorderController;
-    private SensorRegistry mSensorRegistry;
-    private PrefsSensorHistoryStorage mPrefsSensorHistoryStorage;
-    private Map<String, SensorProvider> mExternalSensorProviders;
-    private ConnectableSensor.Connector mSensorConnector;
-    private PublishSubject<Label> mLabelsAdded = PublishSubject.create();
-    private BehaviorSubject<Boolean> mExportServiceBusy = BehaviorSubject.create();
-    private BehaviorSubject<Optional<Activity>> mResumedActivity = BehaviorSubject.create();
+  private static Executor sUiThreadExecutor = null;
+  private SensorAppearanceProviderImpl mSensorAppearanceProvider;
+  private final Clock mCurrentTimeClock = new CurrentTimeClock();
+  private final AudioSource mAudioSource = new AudioSource();
+  private BleClientImpl mBleClient;
+  private RecorderController mRecorderController;
+  private SensorRegistry mSensorRegistry;
+  private PrefsSensorHistoryStorage mPrefsSensorHistoryStorage;
+  private Map<String, SensorProvider> mExternalSensorProviders;
+  private ConnectableSensor.Connector mSensorConnector;
+  private PublishSubject<Label> mLabelsAdded = PublishSubject.create();
+  private BehaviorSubject<Boolean> mExportServiceBusy = BehaviorSubject.create();
+  private BehaviorSubject<Optional<Activity>> mResumedActivity = BehaviorSubject.create();
 
-    private SensorEnvironment mSensorEnvironment = new SensorEnvironment() {
+  private SensorEnvironment mSensorEnvironment =
+      new SensorEnvironment() {
         @Override
         public RecordingDataController getDataController() {
-            return AppSingleton.this.getRecordingDataController();
+          return AppSingleton.this.getRecordingDataController();
         }
 
         @Override
         public Clock getDefaultClock() {
-            return AppSingleton.this.getDefaultClock();
+          return AppSingleton.this.getDefaultClock();
         }
 
         @Override
         public AudioSource getAudioSource() {
-            return AppSingleton.this.getAudioSource();
+          return AppSingleton.this.getAudioSource();
         }
 
         @Override
         public SensorHistoryStorage getSensorHistoryStorage() {
-            return AppSingleton.this.getPrefsSensorHistoryStorage();
+          return AppSingleton.this.getPrefsSensorHistoryStorage();
         }
 
         @Override
         public Single<BleClient> getConnectedBleClient() {
-            return AppSingleton.this.getConnectedBleClient();
+          return AppSingleton.this.getConnectedBleClient();
         }
-    };
-    private DeletedLabel mDeletedLabel;
-    private boolean mMostRecentOpenWasImport = false;
+      };
+  private DeletedLabel mDeletedLabel;
+  private boolean mMostRecentOpenWasImport = false;
 
-    @NonNull
-    public PrefsSensorHistoryStorage getPrefsSensorHistoryStorage() {
-        if (mPrefsSensorHistoryStorage == null) {
-            mPrefsSensorHistoryStorage = new PrefsSensorHistoryStorage(mApplicationContext);
-        }
-        return mPrefsSensorHistoryStorage;
+  @NonNull
+  public PrefsSensorHistoryStorage getPrefsSensorHistoryStorage() {
+    if (mPrefsSensorHistoryStorage == null) {
+      mPrefsSensorHistoryStorage = new PrefsSensorHistoryStorage(mApplicationContext);
     }
+    return mPrefsSensorHistoryStorage;
+  }
 
-    public static Executor getUiThreadExecutor() {
-        if (sUiThreadExecutor == null) {
-            final Handler handler = new Handler(Looper.getMainLooper());
-            sUiThreadExecutor = new Executor() {
-                @Override
-                public void execute(Runnable command) {
-                    handler.post(command);
-                }
-            };
-        }
-        return sUiThreadExecutor;
+  public static Executor getUiThreadExecutor() {
+    if (sUiThreadExecutor == null) {
+      final Handler handler = new Handler(Looper.getMainLooper());
+      sUiThreadExecutor =
+          new Executor() {
+            @Override
+            public void execute(Runnable command) {
+              handler.post(command);
+            }
+          };
     }
+    return sUiThreadExecutor;
+  }
 
-    public static AppSingleton getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new AppSingleton(context);
-        }
-        return sInstance;
+  public static AppSingleton getInstance(Context context) {
+    if (sInstance == null) {
+      sInstance = new AppSingleton(context);
     }
+    return sInstance;
+  }
 
-    private AppSingleton(Context context) {
-        mApplicationContext = context.getApplicationContext();
-    }
+  private AppSingleton(Context context) {
+    mApplicationContext = context.getApplicationContext();
+  }
 
-    public DataController getDataController() {
-        return internalGetDataController();
-    }
+  public DataController getDataController() {
+    return internalGetDataController();
+  }
 
-    @NonNull
-    private DataControllerImpl internalGetDataController() {
-        if (mDataController == null) {
-            mDataController = new DataControllerImpl(
-                    new SensorDatabaseImpl(mApplicationContext, SENSOR_DATABASE_NAME),
-                    getUiThreadExecutor(), Executors.newSingleThreadExecutor(),
-                    Executors.newSingleThreadExecutor(),
-                    new SimpleMetaDataManager(mApplicationContext), getDefaultClock(),
-                    getExternalSensorProviders(), getSensorConnector());
-        }
-        return mDataController;
+  @NonNull
+  private DataControllerImpl internalGetDataController() {
+    if (mDataController == null) {
+      mDataController =
+          new DataControllerImpl(
+              new SensorDatabaseImpl(mApplicationContext, SENSOR_DATABASE_NAME),
+              getUiThreadExecutor(),
+              Executors.newSingleThreadExecutor(),
+              Executors.newSingleThreadExecutor(),
+              new SimpleMetaDataManager(mApplicationContext),
+              getDefaultClock(),
+              getExternalSensorProviders(),
+              getSensorConnector());
     }
+    return mDataController;
+  }
 
-    public SensorAppearanceProvider getSensorAppearanceProvider() {
-        if (mSensorAppearanceProvider == null) {
-            mSensorAppearanceProvider = new SensorAppearanceProviderImpl(getDataController());
-        }
-        return mSensorAppearanceProvider;
+  public SensorAppearanceProvider getSensorAppearanceProvider() {
+    if (mSensorAppearanceProvider == null) {
+      mSensorAppearanceProvider = new SensorAppearanceProviderImpl(getDataController());
     }
+    return mSensorAppearanceProvider;
+  }
 
-    public SensorEnvironment getSensorEnvironment() {
-        return mSensorEnvironment;
-    }
+  public SensorEnvironment getSensorEnvironment() {
+    return mSensorEnvironment;
+  }
 
-    private RecordingDataController getRecordingDataController() {
-        return internalGetDataController();
-    }
+  private RecordingDataController getRecordingDataController() {
+    return internalGetDataController();
+  }
 
-    public Single<BleClient> getConnectedBleClient() {
-        if (mBleClient == null) {
-            mBleClient = new BleClientImpl(mApplicationContext);
-            mBleClient.create();
-        }
-        return mBleClient.whenConnected();
+  public Single<BleClient> getConnectedBleClient() {
+    if (mBleClient == null) {
+      mBleClient = new BleClientImpl(mApplicationContext);
+      mBleClient.create();
     }
+    return mBleClient.whenConnected();
+  }
 
-    private Clock getDefaultClock() {
-        return mCurrentTimeClock;
-    }
+  private Clock getDefaultClock() {
+    return mCurrentTimeClock;
+  }
 
-    public AudioSource getAudioSource() {
-        return mAudioSource;
-    }
+  public AudioSource getAudioSource() {
+    return mAudioSource;
+  }
 
-    public void destroyBleClient() {
-        if (mBleClient != null) {
-            mBleClient.destroy();
-            mBleClient = null;
-        }
+  public void destroyBleClient() {
+    if (mBleClient != null) {
+      mBleClient.destroy();
+      mBleClient = null;
     }
+  }
 
-    public RecorderController getRecorderController() {
-        if (mRecorderController == null) {
-            mRecorderController = new RecorderControllerImpl(mApplicationContext);
-        }
-        return mRecorderController;
+  public RecorderController getRecorderController() {
+    if (mRecorderController == null) {
+      mRecorderController = new RecorderControllerImpl(mApplicationContext);
     }
+    return mRecorderController;
+  }
 
-    // TODO: stop depending on this.  Each experiment should have its own registry
-    public SensorRegistry getSensorRegistry() {
-        if (mSensorRegistry == null) {
-            mSensorRegistry = SensorRegistry.createWithBuiltinSensors(mApplicationContext);
-            SharedPreferences prefs =
-                    PreferenceManager.getDefaultSharedPreferences(mApplicationContext);
-            prefs.registerOnSharedPreferenceChangeListener(
-                    (sprefs, key) -> mSensorRegistry.refreshBuiltinSensors(mApplicationContext));
-        }
-        return mSensorRegistry;
+  // TODO: stop depending on this.  Each experiment should have its own registry
+  public SensorRegistry getSensorRegistry() {
+    if (mSensorRegistry == null) {
+      mSensorRegistry = SensorRegistry.createWithBuiltinSensors(mApplicationContext);
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mApplicationContext);
+      prefs.registerOnSharedPreferenceChangeListener(
+          (sprefs, key) -> mSensorRegistry.refreshBuiltinSensors(mApplicationContext));
     }
+    return mSensorRegistry;
+  }
 
-    public Map<String,SensorProvider> getExternalSensorProviders() {
-        if (mExternalSensorProviders == null) {
-            mExternalSensorProviders = buildProviderMap(
-                    WhistlePunkApplication.getExternalSensorDiscoverers(mApplicationContext));
-        }
-        return mExternalSensorProviders;
+  public Map<String, SensorProvider> getExternalSensorProviders() {
+    if (mExternalSensorProviders == null) {
+      mExternalSensorProviders =
+          buildProviderMap(
+              WhistlePunkApplication.getExternalSensorDiscoverers(mApplicationContext));
     }
+    return mExternalSensorProviders;
+  }
 
-    @NonNull
-    public static Map<String, SensorProvider> buildProviderMap(
-            Map<String, SensorDiscoverer> discoverers) {
-        Map<String, SensorProvider> providers = new HashMap<>();
-        for (Map.Entry<String, SensorDiscoverer> entry : discoverers.entrySet()) {
-            providers.put(entry.getKey(), entry.getValue().getProvider());
-        }
-        return providers;
+  @NonNull
+  public static Map<String, SensorProvider> buildProviderMap(
+      Map<String, SensorDiscoverer> discoverers) {
+    Map<String, SensorProvider> providers = new HashMap<>();
+    for (Map.Entry<String, SensorDiscoverer> entry : discoverers.entrySet()) {
+      providers.put(entry.getKey(), entry.getValue().getProvider());
     }
+    return providers;
+  }
 
-    public ConnectableSensor.Connector getSensorConnector() {
-        if (mSensorConnector == null) {
-            mSensorConnector = new ConnectableSensor.Connector(getExternalSensorProviders());
-        }
-        return mSensorConnector;
+  public ConnectableSensor.Connector getSensorConnector() {
+    if (mSensorConnector == null) {
+      mSensorConnector = new ConnectableSensor.Connector(getExternalSensorProviders());
     }
+    return mSensorConnector;
+  }
 
-    public Observable<AddedLabelEvent> whenLabelsAdded() {
-        return mLabelsAdded.withLatestFrom(getRecorderController().watchRecordingStatus(),
-                AddedLabelEvent::new);
-    }
+  public Observable<AddedLabelEvent> whenLabelsAdded() {
+    return mLabelsAdded.withLatestFrom(
+        getRecorderController().watchRecordingStatus(), AddedLabelEvent::new);
+  }
 
-    public Observer<Label> onLabelsAdded() {
-        return mLabelsAdded;
-    }
+  public Observer<Label> onLabelsAdded() {
+    return mLabelsAdded;
+  }
 
-    public void pushDeletedLabelForUndo(DeletedLabel deletedLabel) {
-        mDeletedLabel = deletedLabel;
-    }
+  public void pushDeletedLabelForUndo(DeletedLabel deletedLabel) {
+    mDeletedLabel = deletedLabel;
+  }
 
-    public DeletedLabel popDeletedLabelForUndo() {
-        if (mDeletedLabel != null) {
-            DeletedLabel returnThis = mDeletedLabel;
-            mDeletedLabel = null;
-            return returnThis;
-        }
-        return null;
+  public DeletedLabel popDeletedLabelForUndo() {
+    if (mDeletedLabel != null) {
+      DeletedLabel returnThis = mDeletedLabel;
+      mDeletedLabel = null;
+      return returnThis;
     }
+    return null;
+  }
 
-    public void setMostRecentOpenWasImport(boolean mostRecentOpenWasImport) {
-        mMostRecentOpenWasImport = mostRecentOpenWasImport;
-    }
+  public void setMostRecentOpenWasImport(boolean mostRecentOpenWasImport) {
+    mMostRecentOpenWasImport = mostRecentOpenWasImport;
+  }
 
-    public boolean getAndClearMostRecentOpenWasImport() {
-        boolean returnThis = mMostRecentOpenWasImport;
-        mMostRecentOpenWasImport = false;
-        return returnThis;
-    }
+  public boolean getAndClearMostRecentOpenWasImport() {
+    boolean returnThis = mMostRecentOpenWasImport;
+    mMostRecentOpenWasImport = false;
+    return returnThis;
+  }
 
-    public void setExportServiceBusy(boolean b) {
-        mExportServiceBusy.onNext(b);
-    }
+  public void setExportServiceBusy(boolean b) {
+    mExportServiceBusy.onNext(b);
+  }
 
-    public Observable<Boolean> whenExportBusyChanges() {
-        return mExportServiceBusy;
-    }
+  public Observable<Boolean> whenExportBusyChanges() {
+    return mExportServiceBusy;
+  }
 
-    public Maybe<Activity> onNextActivity() {
-        return mResumedActivity.filter(Optional::isPresent).map(Optional::get).firstElement();
-    }
+  public Maybe<Activity> onNextActivity() {
+    return mResumedActivity.filter(Optional::isPresent).map(Optional::get).firstElement();
+  }
 
-    public void setResumedActivity(Activity activity) {
-        mResumedActivity.onNext(Optional.of(activity));
-    }
+  public void setResumedActivity(Activity activity) {
+    mResumedActivity.onNext(Optional.of(activity));
+  }
 
-    public void setNoLongerResumedActivity(Activity activity) {
-        if (activity.equals(mResumedActivity.getValue().orNull())) {
-            mResumedActivity.onNext(Optional.absent());
-        }
+  public void setNoLongerResumedActivity(Activity activity) {
+    if (activity.equals(mResumedActivity.getValue().orNull())) {
+      mResumedActivity.onNext(Optional.absent());
     }
- }
+  }
+}

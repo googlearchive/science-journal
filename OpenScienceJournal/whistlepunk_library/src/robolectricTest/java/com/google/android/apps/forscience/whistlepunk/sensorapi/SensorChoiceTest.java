@@ -25,13 +25,14 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class SensorChoiceTest {
-    @Test
-    public void testIdWithSlash() {
-        WriteableSensorOptions writeable = new ManualSensor("a/b", 1000,
-                10).getStorageForSensorDefaultOptions(
-                        RuntimeEnvironment.application.getApplicationContext()).load(
-                TestConsumers.expectingSuccess());
-        writeable.put("key", "value");
-        assertEquals("value", writeable.getReadOnly().getString("key", "default"));
-    }
+  @Test
+  public void testIdWithSlash() {
+    WriteableSensorOptions writeable =
+        new ManualSensor("a/b", 1000, 10)
+            .getStorageForSensorDefaultOptions(
+                RuntimeEnvironment.application.getApplicationContext())
+            .load(TestConsumers.expectingSuccess());
+    writeable.put("key", "value");
+    assertEquals("value", writeable.getReadOnly().getString("key", "default"));
+  }
 }

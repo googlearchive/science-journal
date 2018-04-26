@@ -23,30 +23,29 @@ import com.softsynth.shared.time.TimeStamp;
 
 /**
  * Base class to adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator using a scale.
- * <p>
- * Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator.
- * This implementation does nothing.
- * </p>
+ *
+ * <p>Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator. This implementation does
+ * nothing.
  */
 public class DataToScalePitchSimpleJsynUnitVoiceAdapter extends JsynUnitVoiceAdapter {
-    protected final int[] mPitches;
+  protected final int[] mPitches;
 
-    public DataToScalePitchSimpleJsynUnitVoiceAdapter(Synthesizer synth, int[] scale,
-                                                              int pitchMin, int pitchMax) {
-        mPitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
-        mVoice = new SimpleJsynUnitVoice();
-        synth.add(mVoice);
-    }
+  public DataToScalePitchSimpleJsynUnitVoiceAdapter(
+      Synthesizer synth, int[] scale, int pitchMin, int pitchMax) {
+    mPitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
+    mVoice = new SimpleJsynUnitVoice();
+    synth.add(mVoice);
+  }
 
-    public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
-        // Default implementation (or any implementation with no pitches) does nothing.
-        if (mPitches.length == 0) return;
-        // Range checking, in case min or max is higher or lower than value (respectively).
-        if (value < min) value = min;
-        if (value > max) value = max;
+  public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
+    // Default implementation (or any implementation with no pitches) does nothing.
+    if (mPitches.length == 0) return;
+    // Range checking, in case min or max is higher or lower than value (respectively).
+    if (value < min) value = min;
+    if (value > max) value = max;
 
-        int index = (int) Math.floor((value - min) / (max - min) * (mPitches.length-1));
-        double freq = AudioMath.pitchToFrequency(mPitches[index]);
-        mVoice.noteOn(freq, AMP_VALUE, timeStamp);
-    }
+    int index = (int) Math.floor((value - min) / (max - min) * (mPitches.length - 1));
+    double freq = AudioMath.pitchToFrequency(mPitches[index]);
+    mVoice.noteOn(freq, AMP_VALUE, timeStamp);
+  }
 }

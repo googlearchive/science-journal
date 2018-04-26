@@ -19,16 +19,17 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
- * Encapsulates decisions about which specific activity classes implement which features,
- * allowing different builds to use different specific activities.
+ * Encapsulates decisions about which specific activity classes implement which features, allowing
+ * different builds to use different specific activities.
  */
 public interface ActivityNavigator {
-    ActivityNavigator STUB = new ActivityNavigator() {
+  ActivityNavigator STUB =
+      new ActivityNavigator() {
         @Override
         public Intent launchIntentForPanesActivity(Context context, String experimentId) {
-            return null;
+          return null;
         }
-    };
+      };
 
-    Intent launchIntentForPanesActivity(Context context, String experimentId);
+  Intent launchIntentForPanesActivity(Context context, String experimentId);
 }

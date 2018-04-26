@@ -41,4 +41,3 @@ message ExperimentStatus {
   // Whether or not the experiment is locally downloaded.
   optional bool downloaded = 5;
 }
-

@@ -30,14 +30,19 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class MemoryRecorderControllerTest {
-    @Test public void basicMemoryRecorderControllerTest() {
-        MemoryRecorderController rc = new MemoryRecorderController();
-        String observerId = rc.startObserving("sensorId", Collections.<SensorTrigger>emptyList(),
-                new RecordingSensorObserver(), new StubStatusListener(),
-                AbstractReadableSensorOptions.makeTransportable(new BlankReadableSensorOptions()),
-                null);
-        assertEquals(Lists.newArrayList("sensorId"), rc.getCurrentObservedIds());
-        rc.stopObserving("sensorId", observerId);
-        assertEquals(Lists.newArrayList(), rc.getCurrentObservedIds());
-    }
+  @Test
+  public void basicMemoryRecorderControllerTest() {
+    MemoryRecorderController rc = new MemoryRecorderController();
+    String observerId =
+        rc.startObserving(
+            "sensorId",
+            Collections.<SensorTrigger>emptyList(),
+            new RecordingSensorObserver(),
+            new StubStatusListener(),
+            AbstractReadableSensorOptions.makeTransportable(new BlankReadableSensorOptions()),
+            null);
+    assertEquals(Lists.newArrayList("sensorId"), rc.getCurrentObservedIds());
+    rc.stopObserving("sensorId", observerId);
+    assertEquals(Lists.newArrayList(), rc.getCurrentObservedIds());
+  }
 }

@@ -23,93 +23,91 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
-/**
- * Coordinate touches between two seekbars so that they do not pass each other.
- */
+/** Coordinate touches between two seekbars so that they do not pass each other. */
 public class CoordinatedSeekbarViewGroup extends RelativeLayout {
-    private CropSeekBar mStartSeekBar;
-    private CropSeekBar mEndSeekBar;
-    private CropSeekBar mSelectedSeekbar = null;
+  private CropSeekBar mStartSeekBar;
+  private CropSeekBar mEndSeekBar;
+  private CropSeekBar mSelectedSeekbar = null;
 
-    public CoordinatedSeekbarViewGroup(Context context) {
-        super(context);
-    }
+  public CoordinatedSeekbarViewGroup(Context context) {
+    super(context);
+  }
 
-    public CoordinatedSeekbarViewGroup(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+  public CoordinatedSeekbarViewGroup(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
 
-    public CoordinatedSeekbarViewGroup(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
+  public CoordinatedSeekbarViewGroup(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+  }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public CoordinatedSeekbarViewGroup(Context context, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-    }
+  @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+  public CoordinatedSeekbarViewGroup(
+      Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    super(context, attrs, defStyleAttr, defStyleRes);
+  }
 
-    public void setSeekbarPair(CropSeekBar startSeekBar, CropSeekBar endSeekBar) {
-        mStartSeekBar = startSeekBar;
-        mEndSeekBar = endSeekBar;
+  public void setSeekbarPair(CropSeekBar startSeekBar, CropSeekBar endSeekBar) {
+    mStartSeekBar = startSeekBar;
+    mEndSeekBar = endSeekBar;
 
-        mStartSeekBar.setType(CropSeekBar.TYPE_START);
-        mEndSeekBar.setType(CropSeekBar.TYPE_END);
-        mStartSeekBar.setOtherSeekbar(mEndSeekBar);
-        mEndSeekBar.setOtherSeekbar(mStartSeekBar);
+    mStartSeekBar.setType(CropSeekBar.TYPE_START);
+    mEndSeekBar.setType(CropSeekBar.TYPE_END);
+    mStartSeekBar.setOtherSeekbar(mEndSeekBar);
+    mEndSeekBar.setOtherSeekbar(mStartSeekBar);
 
-        addView(mStartSeekBar);
-        addView(mEndSeekBar);
-        mStartSeekBar.setProgress(0);
-        mEndSeekBar.setProgress((int) GraphExploringSeekBar.SEEKBAR_MAX);
-    }
+    addView(mStartSeekBar);
+    addView(mEndSeekBar);
+    mStartSeekBar.setProgress(0);
+    mEndSeekBar.setProgress((int) GraphExploringSeekBar.SEEKBAR_MAX);
+  }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        // Always intercept touch events!
-        return true;
-    }
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent ev) {
+    // Always intercept touch events!
+    return true;
+  }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        final int action = ev.getActionMasked();
-        if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-            if (mSelectedSeekbar != null) {
-                mSelectedSeekbar.onTouchEvent(ev);
-                mSelectedSeekbar = null;
-            }
-            return true;
-        }
-        if (mSelectedSeekbar == null) {
-            // And send them to the children as appropriate -- based on which is closer!
-            // Need to make sure to pay attention to which one is active.
-            int startProgress = mStartSeekBar.getProgress();
-            int endProgress = mEndSeekBar.getProgress();
-            int touchProgress = (int) (ev.getX() / getWidth() * GraphExploringSeekBar.SEEKBAR_MAX);
-            if (Math.abs(touchProgress - startProgress) < Math.abs(touchProgress - endProgress)) {
-                mSelectedSeekbar = mStartSeekBar;
-            } else {
-                mSelectedSeekbar = mEndSeekBar;
-            }
-            // Make sure the accessibility focus is updated, so that announcements are generated
-            // for the correct view.
-            mSelectedSeekbar.requestFocus();
-        }
+  @Override
+  public boolean onTouchEvent(MotionEvent ev) {
+    final int action = ev.getActionMasked();
+    if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
+      if (mSelectedSeekbar != null) {
         mSelectedSeekbar.onTouchEvent(ev);
-
-        return true;
+        mSelectedSeekbar = null;
+      }
+      return true;
     }
-
-    public CropSeekBar getStartSeekBar() {
-        return mStartSeekBar;
+    if (mSelectedSeekbar == null) {
+      // And send them to the children as appropriate -- based on which is closer!
+      // Need to make sure to pay attention to which one is active.
+      int startProgress = mStartSeekBar.getProgress();
+      int endProgress = mEndSeekBar.getProgress();
+      int touchProgress = (int) (ev.getX() / getWidth() * GraphExploringSeekBar.SEEKBAR_MAX);
+      if (Math.abs(touchProgress - startProgress) < Math.abs(touchProgress - endProgress)) {
+        mSelectedSeekbar = mStartSeekBar;
+      } else {
+        mSelectedSeekbar = mEndSeekBar;
+      }
+      // Make sure the accessibility focus is updated, so that announcements are generated
+      // for the correct view.
+      mSelectedSeekbar.requestFocus();
     }
+    mSelectedSeekbar.onTouchEvent(ev);
 
-    public CropSeekBar getEndSeekBar() {
-        return mEndSeekBar;
-    }
+    return true;
+  }
 
-    public void setMillisecondsInRange(long millisecondsInRange) {
-        mStartSeekBar.setMillisecondsInRange(millisecondsInRange);
-        mEndSeekBar.setMillisecondsInRange(millisecondsInRange);
-    }
+  public CropSeekBar getStartSeekBar() {
+    return mStartSeekBar;
+  }
+
+  public CropSeekBar getEndSeekBar() {
+    return mEndSeekBar;
+  }
+
+  public void setMillisecondsInRange(long millisecondsInRange) {
+    mStartSeekBar.setMillisecondsInRange(millisecondsInRange);
+    mEndSeekBar.setMillisecondsInRange(millisecondsInRange);
+  }
 }

@@ -16,46 +16,46 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 public enum RecordingState {
-    //We are not yet connected to the RecorderController, and don't yet know the current state
-    UNCONNECTED,
+  // We are not yet connected to the RecorderController, and don't yet know the current state
+  UNCONNECTED,
 
-    // No current recording
-    INACTIVE {
-        @Override
-        public boolean shouldEnableRecordButton() {
-            return true;
-        }
-    },
-
-    // User has requested recording to start, but it hasn't yet
-    STARTING,
-
-    // Currently recording
-    ACTIVE {
-        @Override
-        public boolean shouldEnableRecordButton() {
-            return true;
-        }
-
-        @Override
-        public boolean shouldShowStopButton() {
-            return true;
-        }
-    },
-
-    // User has requested recording to stop, but it hasn't yet.
-    STOPPING {
-        @Override
-        public boolean shouldShowStopButton() {
-            return true;
-        }
-    };
-
+  // No current recording
+  INACTIVE {
+    @Override
     public boolean shouldEnableRecordButton() {
-        return false;
+      return true;
+    }
+  },
+
+  // User has requested recording to start, but it hasn't yet
+  STARTING,
+
+  // Currently recording
+  ACTIVE {
+    @Override
+    public boolean shouldEnableRecordButton() {
+      return true;
     }
 
+    @Override
     public boolean shouldShowStopButton() {
-        return false;
+      return true;
     }
+  },
+
+  // User has requested recording to stop, but it hasn't yet.
+  STOPPING {
+    @Override
+    public boolean shouldShowStopButton() {
+      return true;
+    }
+  };
+
+  public boolean shouldEnableRecordButton() {
+    return false;
+  }
+
+  public boolean shouldShowStopButton() {
+    return false;
+  }
 }

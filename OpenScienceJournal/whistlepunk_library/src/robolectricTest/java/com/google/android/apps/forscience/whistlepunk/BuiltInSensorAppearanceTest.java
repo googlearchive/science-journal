@@ -28,50 +28,62 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class BuiltInSensorAppearanceTest {
-    @Test
-    public void testCreate() {
-        int nameStringId = Arbitrary.integer();
-        int drawableId = Arbitrary.integer();
-        int unitsStringId = Arbitrary.integer();
-        int shortDescriptionId = Arbitrary.integer();
-        int firstParagraphStringId = Arbitrary.integer();
-        int secondParagraphStringId = Arbitrary.integer();
-        int infoDrawableId = Arbitrary.integer();
-        String sensorId = Arbitrary.string();
+  @Test
+  public void testCreate() {
+    int nameStringId = Arbitrary.integer();
+    int drawableId = Arbitrary.integer();
+    int unitsStringId = Arbitrary.integer();
+    int shortDescriptionId = Arbitrary.integer();
+    int firstParagraphStringId = Arbitrary.integer();
+    int secondParagraphStringId = Arbitrary.integer();
+    int infoDrawableId = Arbitrary.integer();
+    String sensorId = Arbitrary.string();
 
-        SensorAnimationBehavior behavior = ImageViewSensorAnimationBehavior.createDefault();
+    SensorAnimationBehavior behavior = ImageViewSensorAnimationBehavior.createDefault();
 
-        int pointsAfterDecimalInNumberFormat = BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL;
-        BuiltInSensorAppearance appearance =
-                BuiltInSensorAppearance.create(nameStringId, drawableId, unitsStringId,
-                        shortDescriptionId,
-                        firstParagraphStringId, secondParagraphStringId, infoDrawableId, behavior,
-                        pointsAfterDecimalInNumberFormat, sensorId);
+    int pointsAfterDecimalInNumberFormat = BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL;
+    BuiltInSensorAppearance appearance =
+        BuiltInSensorAppearance.create(
+            nameStringId,
+            drawableId,
+            unitsStringId,
+            shortDescriptionId,
+            firstParagraphStringId,
+            secondParagraphStringId,
+            infoDrawableId,
+            behavior,
+            pointsAfterDecimalInNumberFormat,
+            sensorId);
 
-        Context context = new StubContext() {
-            @Override
-            public Resources getResources() {
-                Resources appResources =
-                        RuntimeEnvironment.application.getApplicationContext().getResources();
-                return new Resources(appResources.getAssets(), appResources.getDisplayMetrics(),
-                        appResources.getConfiguration()) {
-                    @NonNull
-                    @Override
-                    public String getString(int id) throws NotFoundException {
-                        return String.valueOf(id);
-                    }
-                };
-            }
+    Context context =
+        new StubContext() {
+          @Override
+          public Resources getResources() {
+            Resources appResources =
+                RuntimeEnvironment.application.getApplicationContext().getResources();
+            return new Resources(
+                appResources.getAssets(),
+                appResources.getDisplayMetrics(),
+                appResources.getConfiguration()) {
+              @NonNull
+              @Override
+              public String getString(int id) throws NotFoundException {
+                return String.valueOf(id);
+              }
+            };
+          }
         };
 
-        assertEquals(nameStringId, (int) Integer.valueOf(appearance.getName(context)));
-        assertEquals(firstParagraphStringId, (int) Integer.valueOf(
+    assertEquals(nameStringId, (int) Integer.valueOf(appearance.getName(context)));
+    assertEquals(
+        firstParagraphStringId,
+        (int)
+            Integer.valueOf(
                 appearance.loadLearnMore(context).test().values().get(0).getFirstParagraph()));
-        assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, appearance.getSmallIconPath().type);
-        assertEquals(sensorId, appearance.getSmallIconPath().pathString);
-        assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, appearance.getLargeIconPath().type);
-        assertEquals(sensorId, appearance.getLargeIconPath().pathString);
-        // TODO(saff): test all the other fields as well
-    }
-
+    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, appearance.getSmallIconPath().type);
+    assertEquals(sensorId, appearance.getSmallIconPath().pathString);
+    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, appearance.getLargeIconPath().type);
+    assertEquals(sensorId, appearance.getLargeIconPath().pathString);
+    // TODO(saff): test all the other fields as well
+  }
 }

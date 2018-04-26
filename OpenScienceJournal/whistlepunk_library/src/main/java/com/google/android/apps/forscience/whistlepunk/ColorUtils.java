@@ -20,45 +20,39 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 
-/**
- * Utility class for coloring icons.
- */
+/** Utility class for coloring icons. */
 public class ColorUtils {
 
-    // TODO: Find all setColorFilter methods and update them to use this utility function.
+  // TODO: Find all setColorFilter methods and update them to use this utility function.
 
-    /**
-     * Copies and colors a white drawable with the color ID specified.
-     */
-    public static Drawable colorDrawable(Context context, Drawable drawable, int colorId) {
-        Drawable result = drawable.mutate();
-        result.setColorFilter(context.getResources().getColor(colorId), PorterDuff.Mode.MULTIPLY);
-        return result;
-    }
+  /** Copies and colors a white drawable with the color ID specified. */
+  public static Drawable colorDrawable(Context context, Drawable drawable, int colorId) {
+    Drawable result = drawable.mutate();
+    result.setColorFilter(context.getResources().getColor(colorId), PorterDuff.Mode.MULTIPLY);
+    return result;
+  }
 
-    /**
-     * Copies and colors a black drawable with the color ID specified.
-     */
-    public static Drawable colorBlackDrawable(Context context, Drawable drawable, int colorId) {
-        Drawable result = drawable.mutate();
-        result.setColorFilter(context.getResources().getColor(colorId), PorterDuff.Mode.SRC_IN);
-        return result;
-    }
+  /** Copies and colors a black drawable with the color ID specified. */
+  public static Drawable colorBlackDrawable(Context context, Drawable drawable, int colorId) {
+    Drawable result = drawable.mutate();
+    result.setColorFilter(context.getResources().getColor(colorId), PorterDuff.Mode.SRC_IN);
+    return result;
+  }
 
-    static int getSlightlyLighterColor(int color) {
-        float[] hsv = new float[3];
-        Color.colorToHSV(color, hsv);
-        hsv[2] *= 1.2;
-        return Color.HSVToColor(hsv);
-    }
+  static int getSlightlyLighterColor(int color) {
+    float[] hsv = new float[3];
+    Color.colorToHSV(color, hsv);
+    hsv[2] *= 1.2;
+    return Color.HSVToColor(hsv);
+  }
 
-    /**
-     * Copies and colors a white drawable with the color specified. Note that this is not the
-     * color ID, it should be the real color.
-     */
-    public static Drawable colorDrawableWithActual(Drawable drawable, int color) {
-        Drawable result = drawable.mutate();
-        result.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
-        return result;
-    }
+  /**
+   * Copies and colors a white drawable with the color specified. Note that this is not the color
+   * ID, it should be the real color.
+   */
+  public static Drawable colorDrawableWithActual(Drawable drawable, int color) {
+    Drawable result = drawable.mutate();
+    result.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+    return result;
+  }
 }

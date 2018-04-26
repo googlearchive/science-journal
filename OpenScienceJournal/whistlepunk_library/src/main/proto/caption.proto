@@ -24,7 +24,7 @@ option optimize_for = LITE_RUNTIME;
 
 // A user-added caption. This can be applied to trials and labels.
 message Caption {
-    optional string text = 1;
+  optional string text = 1;
 
-    optional int64 lastEditedTimestamp = 2;
+  optional int64 lastEditedTimestamp = 2;
 }

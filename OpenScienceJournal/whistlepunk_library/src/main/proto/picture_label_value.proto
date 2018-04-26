@@ -23,12 +23,13 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 /*
- * A value that can be stored in the proto_data field of label.proto, to store data about a picture.
- * Added in V2.
+ * A value that can be stored in the proto_data field of label.proto, to store
+ * data about a picture. Added in V2.
  */
 message PictureLabelValue {
-    // The path to the picture file. This is relative to the experiments folder, for example:
-    // if the filePath is "assets/picture.jpg", and the experiment is stored in folder
-    // "experiment_17", this means the picture can be loaded from "experiment_17/assets/picture.jpg"
-    optional string filePath = 1;
+  // The path to the picture file. This is relative to the experiments folder,
+  // for example: if the filePath is "assets/picture.jpg", and the experiment is
+  // stored in folder "experiment_17", this means the picture can be loaded from
+  // "experiment_17/assets/picture.jpg"
+  optional string filePath = 1;
 };

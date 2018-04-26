@@ -24,15 +24,13 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class PanesActivityTest {
-    @Test
-    public void selectedExperimentGiven() {
-        MemoryMetadataManager mmm = new MemoryMetadataManager();
-        DataController dc =
-                new InMemorySensorDatabase().makeSimpleController(mmm);
-        Experiment expected = mmm.newExperiment();
-        PanesActivity.whenSelectedExperiment(expected.getExperimentId(), dc)
-                     .test()
-                     .assertValue(
-                             actual -> actual.getExperimentId().equals(expected.getExperimentId()));
-    }
+  @Test
+  public void selectedExperimentGiven() {
+    MemoryMetadataManager mmm = new MemoryMetadataManager();
+    DataController dc = new InMemorySensorDatabase().makeSimpleController(mmm);
+    Experiment expected = mmm.newExperiment();
+    PanesActivity.whenSelectedExperiment(expected.getExperimentId(), dc)
+        .test()
+        .assertValue(actual -> actual.getExperimentId().equals(expected.getExperimentId()));
+  }
 }

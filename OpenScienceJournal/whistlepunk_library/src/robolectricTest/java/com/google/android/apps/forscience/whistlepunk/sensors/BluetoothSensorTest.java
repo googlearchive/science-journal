@@ -39,50 +39,54 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class BluetoothSensorTest {
-    private static final BleServiceSpec SPEC =
-            BluetoothSensor.ANNING_SERVICE_SPEC;
+  private static final BleServiceSpec SPEC = BluetoothSensor.ANNING_SERVICE_SPEC;
 
-    @Test
-    public void testGetFrequency() {
-        BleSensorSpec sensor = new BleSensorSpec("address", "name");
-        sensor.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
+  @Test
+  public void testGetFrequency() {
+    BleSensorSpec sensor = new BleSensorSpec("address", "name");
+    sensor.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
 
-        sensor.setCustomFrequencyEnabled(true);
-        assertTrue(new BluetoothSensor("sensorId", sensor, SPEC).getDefaultFrequencyChecked());
-        sensor.setCustomFrequencyEnabled(false);
-        assertFalse(new BluetoothSensor("sensorId", sensor, SPEC).getDefaultFrequencyChecked());
-    }
+    sensor.setCustomFrequencyEnabled(true);
+    assertTrue(new BluetoothSensor("sensorId", sensor, SPEC).getDefaultFrequencyChecked());
+    sensor.setCustomFrequencyEnabled(false);
+    assertFalse(new BluetoothSensor("sensorId", sensor, SPEC).getDefaultFrequencyChecked());
+  }
 
-    @Test
-    public void testGetScaleTransform() {
-        BleSensorSpec sensor = new BleSensorSpec("address", "name");
+  @Test
+  public void testGetScaleTransform() {
+    BleSensorSpec sensor = new BleSensorSpec("address", "name");
 
-        sensor.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
-        assertNull(new BluetoothSensor("sensorId", sensor, SPEC).getDefaultScaleTransform());
+    sensor.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
+    assertNull(new BluetoothSensor("sensorId", sensor, SPEC).getDefaultScaleTransform());
 
-        GoosciSensorConfig.BleSensorConfig.ScaleTransform transform = new GoosciSensorConfig
-                .BleSensorConfig.ScaleTransform();
-        sensor.setCustomScaleTransform(transform);
-        assertEquals(transform,
-                new BluetoothSensor("sensorId", sensor, SPEC).getDefaultScaleTransform());
-    }
+    GoosciSensorConfig.BleSensorConfig.ScaleTransform transform =
+        new GoosciSensorConfig.BleSensorConfig.ScaleTransform();
+    sensor.setCustomScaleTransform(transform);
+    assertEquals(
+        transform, new BluetoothSensor("sensorId", sensor, SPEC).getDefaultScaleTransform());
+  }
 
-    @Test
-    public void testConnect() {
-        BleSensorSpec sensor = new BleSensorSpec("address", "name");
-        FakeBleClient bleClient = new FakeBleClient(getContext());
-        bleClient.expectedAddress = "address";
-        MemorySensorEnvironment environment = new MemorySensorEnvironment(
-                new InMemorySensorDatabase().makeSimpleRecordingController(), bleClient,
-                new MemorySensorHistoryStorage(), null);
-        SensorRecorder recorder = new BluetoothSensor("sensorId", sensor, SPEC).createRecorder(
+  @Test
+  public void testConnect() {
+    BleSensorSpec sensor = new BleSensorSpec("address", "name");
+    FakeBleClient bleClient = new FakeBleClient(getContext());
+    bleClient.expectedAddress = "address";
+    MemorySensorEnvironment environment =
+        new MemorySensorEnvironment(
+            new InMemorySensorDatabase().makeSimpleRecordingController(),
+            bleClient,
+            new MemorySensorHistoryStorage(),
+            null);
+    SensorRecorder recorder =
+        new BluetoothSensor("sensorId", sensor, SPEC)
+            .createRecorder(
                 getContext(), new RecordingSensorObserver(), new StubStatusListener(), environment);
-        assertEquals(null, bleClient.mostRecentAddress);
-        recorder.startObserving();
-        assertEquals("address", bleClient.mostRecentAddress);
-    }
+    assertEquals(null, bleClient.mostRecentAddress);
+    recorder.startObserving();
+    assertEquals("address", bleClient.mostRecentAddress);
+  }
 
-    private Context getContext() {
-        return RuntimeEnvironment.application.getApplicationContext();
-    }
+  private Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
 }

@@ -19,13 +19,13 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.javalib.FailureListener;
 
 /**
- * FailureListenerFactory that returns listeners that throw uncaught exceptions on failures,
- * for more easily tracked test feedback.
+ * FailureListenerFactory that returns listeners that throw uncaught exceptions on failures, for
+ * more easily tracked test feedback.
  */
 public class ExplodingFactory {
-    public static FailureListener makeListener() {
-        return e -> {
-            throw new RuntimeException(e);
-        };
-    }
+  public static FailureListener makeListener() {
+    return e -> {
+      throw new RuntimeException(e);
+    };
+  }
 }

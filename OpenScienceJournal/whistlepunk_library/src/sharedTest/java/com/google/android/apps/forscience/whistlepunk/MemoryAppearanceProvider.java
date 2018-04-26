@@ -17,25 +17,23 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryAppearanceProvider implements SensorAppearanceProvider {
-    private Map<String, SensorAppearance> mAppearances = new HashMap<>();
+  private Map<String, SensorAppearance> mAppearances = new HashMap<>();
 
-    public void putAppearance(String sensorId, SensorAppearance appearance) {
-        mAppearances.put(sensorId, appearance);
-    }
+  public void putAppearance(String sensorId, SensorAppearance appearance) {
+    mAppearances.put(sensorId, appearance);
+  }
 
-    @Override
-    public void loadAppearances(MaybeConsumer<Success> onSuccess) {
-        onSuccess.success(Success.SUCCESS);
-    }
+  @Override
+  public void loadAppearances(MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
 
-    @Override
-    public SensorAppearance getAppearance(String sensorId) {
-        return mAppearances.get(sensorId);
-    }
-
+  @Override
+  public SensorAppearance getAppearance(String sensorId) {
+    return mAppearances.get(sensorId);
+  }
 }

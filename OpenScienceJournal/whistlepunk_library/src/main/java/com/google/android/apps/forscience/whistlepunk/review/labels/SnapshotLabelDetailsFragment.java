@@ -24,55 +24,52 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
-/**
- * Details view controller for a Snapshot label.
- */
+/** Details view controller for a Snapshot label. */
 public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
 
-    public static SnapshotLabelDetailsFragment newInstance(String experimentId,
-            String trialId, Label originalLabel) {
-        SnapshotLabelDetailsFragment result = new SnapshotLabelDetailsFragment();
-        Bundle args = new Bundle();
-        args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
-        args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
-        args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
-        result.setArguments(args);
-        return result;
-    }
+  public static SnapshotLabelDetailsFragment newInstance(
+      String experimentId, String trialId, Label originalLabel) {
+    SnapshotLabelDetailsFragment result = new SnapshotLabelDetailsFragment();
+    Bundle args = new Bundle();
+    args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
+    args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
+    args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
+    result.setArguments(args);
+    return result;
+  }
 
-    public SnapshotLabelDetailsFragment() {
-        // Required empty public constructor
-    }
+  public SnapshotLabelDetailsFragment() {
+    // Required empty public constructor
+  }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            final Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        View rootView = inflater.inflate(R.layout.sensor_readings_label_details_fragment, container,
-                false);
+  @Override
+  public View onCreateView(
+      LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
+    setHasOptionsMenu(true);
+    View rootView =
+        inflater.inflate(R.layout.sensor_readings_label_details_fragment, container, false);
 
-        // TODO: Consider using a ListView instead of inflating each view?
-        NoteViewHolder.loadSnapshotsIntoList(
-                (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), mOriginalLabel);
-        setupCaption(rootView);
-        setupDetails(rootView);
+    // TODO: Consider using a ListView instead of inflating each view?
+    NoteViewHolder.loadSnapshotsIntoList(
+        (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), mOriginalLabel);
+    setupCaption(rootView);
+    setupDetails(rootView);
 
-        return rootView;
-    }
+    return rootView;
+  }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_sensor_item_label_details, menu);
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.menu_sensor_item_label_details, menu);
 
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle(getActivity().getResources().getString(
-                R.string.snapshot_label_details_title));
+    ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+    actionBar.setTitle(
+        getActivity().getResources().getString(R.string.snapshot_label_details_title));
 
-        super.onCreateOptionsMenu(menu, inflater);
-    }
+    super.onCreateOptionsMenu(menu, inflater);
+  }
 }

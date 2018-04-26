@@ -16,10 +16,10 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 public class RecordingRunnable implements Runnable {
-    public boolean hasRun = false;
+  public boolean hasRun = false;
 
-    @Override
-    public void run() {
-        hasRun = true;
-    }
+  @Override
+  public void run() {
+    hasRun = true;
+  }
 }

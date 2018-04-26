@@ -17,13 +17,10 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
-
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 
-/**
- * An abstract base class for accounts providers.
- */
+/** An abstract base class for accounts providers. */
 abstract class AbstractAccountsProvider implements AccountsProvider {
   final Context applicationContext;
   final BehaviorSubject<AppAccount> observableCurrentAccount = BehaviorSubject.create();
@@ -43,9 +40,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   @Override
   public final AppAccount getCurrentAccount() {
     synchronized (lockCurrentAccount) {
-      return (currentAccountOverride != null)
-          ? currentAccountOverride
-          : currentAccount;
+      return (currentAccountOverride != null) ? currentAccountOverride : currentAccount;
     }
   }
 
@@ -82,8 +77,8 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   }
 
   /**
-   * Sets the current account and publishes it to observers if the current account override has
-   * not been set.
+   * Sets the current account and publishes it to observers if the current account override has not
+   * been set.
    */
   protected void setCurrentAccount(AppAccount currentAccount) {
     synchronized (lockCurrentAccount) {

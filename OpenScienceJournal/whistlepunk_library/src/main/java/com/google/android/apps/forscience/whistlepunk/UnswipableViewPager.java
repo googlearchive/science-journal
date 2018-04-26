@@ -27,21 +27,21 @@ import android.view.MotionEvent;
  */
 public class UnswipableViewPager extends ViewPager {
 
-    public UnswipableViewPager(Context context) {
-        super(context);
-    }
+  public UnswipableViewPager(Context context) {
+    super(context);
+  }
 
-    public UnswipableViewPager(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+  public UnswipableViewPager(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return false;
-    }
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    return false;
+  }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        return false;
-    }
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent event) {
+    return false;
+  }
 }

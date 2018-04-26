@@ -22,25 +22,23 @@ import com.softsynth.shared.time.TimeStamp;
 
 /**
  * Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator using pitch variation.
- * <p>
- * Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator.
- * This implementation maps the data from the range (min-max) linearly to the pitch range
- * FREQ_MIN-FREQ_MAX.
- * </p>
+ *
+ * <p>Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator. This implementation maps the
+ * data from the range (min-max) linearly to the pitch range FREQ_MIN-FREQ_MAX.
  */
 public class DefaultVoice extends JsynUnitVoiceAdapter {
 
-    public DefaultVoice(Synthesizer synth) {
-        mVoice = new SimpleJsynUnitVoice();
-        synth.add(mVoice);
-    }
+  public DefaultVoice(Synthesizer synth) {
+    mVoice = new SimpleJsynUnitVoice();
+    synth.add(mVoice);
+  }
 
-    public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
-        // Range checking, in case min or max is higher or lower than value (respectively).
-        if (value < min) value = min;
-        if (value > max) value = max;
+  public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
+    // Range checking, in case min or max is higher or lower than value (respectively).
+    if (value < min) value = min;
+    if (value > max) value = max;
 
-        double freq = (value - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
-        mVoice.noteOn(freq, AMP_VALUE, timeStamp);
-    }
+    double freq = (value - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
+    mVoice.noteOn(freq, AMP_VALUE, timeStamp);
+  }
 }

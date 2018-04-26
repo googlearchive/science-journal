@@ -16,52 +16,57 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import androidx.annotation.VisibleForTesting;
-
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-
 import io.reactivex.Single;
 
 public class Snapshotter {
-    private final RecorderController mRecorderController;
-    private final DataController mDataController;
-    private final SensorRegistry mSensorRegistry;
+  private final RecorderController mRecorderController;
+  private final DataController mDataController;
+  private final SensorRegistry mSensorRegistry;
 
-    public Snapshotter(RecorderController recorderController, DataController dataController,
-            SensorRegistry sensorRegistry) {
-        mRecorderController = recorderController;
-        mDataController = dataController;
-        mSensorRegistry = sensorRegistry;
-    }
+  public Snapshotter(
+      RecorderController recorderController,
+      DataController dataController,
+      SensorRegistry sensorRegistry) {
+    mRecorderController = recorderController;
+    mDataController = dataController;
+    mSensorRegistry = sensorRegistry;
+  }
 
-    public Single<Label> addSnapshotLabel(String experimentId, RecordingStatus status) {
-        // When experiment is loaded, add label
-        return RxDataController.getExperimentById(mDataController, experimentId).flatMap(e -> {
-            LabelListHolder holder =
-                    status.isRecording() ? e.getTrial(status.getCurrentRunId()) : e;
-            return addSnapshotLabelToHolder(e, holder);
-        });
-    }
+  public Single<Label> addSnapshotLabel(String experimentId, RecordingStatus status) {
+    // When experiment is loaded, add label
+    return RxDataController.getExperimentById(mDataController, experimentId)
+        .flatMap(
+            e -> {
+              LabelListHolder holder =
+                  status.isRecording() ? e.getTrial(status.getCurrentRunId()) : e;
+              return addSnapshotLabelToHolder(e, holder);
+            });
+  }
 
-    @VisibleForTesting
-    public Single<Label> addSnapshotLabelToHolder(final Experiment selectedExperiment,
-            final LabelListHolder labelListHolder) {
-        RecorderController rc = mRecorderController;
+  @VisibleForTesting
+  public Single<Label> addSnapshotLabelToHolder(
+      final Experiment selectedExperiment, final LabelListHolder labelListHolder) {
+    RecorderController rc = mRecorderController;
 
-        // get proto
-        return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), mSensorRegistry)
+    // get proto
+    return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), mSensorRegistry)
 
-                 // Make it into a label
-                 .map(snapshotValue -> Label.newLabelWithValue(rc.getNow(),
-                         GoosciLabel.Label.ValueType.SNAPSHOT, snapshotValue, null))
+        // Make it into a label
+        .map(
+            snapshotValue ->
+                Label.newLabelWithValue(
+                    rc.getNow(), GoosciLabel.Label.ValueType.SNAPSHOT, snapshotValue, null))
 
-                 // Make sure it's successfully added
-                 .flatMap(label -> {
-                     labelListHolder.addLabel(label);
-                     return RxDataController.updateExperiment(mDataController, selectedExperiment)
-                                            .andThen(Single.just(label));
-                 });
-    }
+        // Make sure it's successfully added
+        .flatMap(
+            label -> {
+              labelListHolder.addLabel(label);
+              return RxDataController.updateExperiment(mDataController, selectedExperiment)
+                  .andThen(Single.just(label));
+            });
+  }
 }

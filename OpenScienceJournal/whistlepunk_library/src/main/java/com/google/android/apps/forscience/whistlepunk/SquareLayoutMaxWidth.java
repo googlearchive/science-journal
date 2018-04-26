@@ -20,32 +20,30 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
-/**
- * A RelativeLayout that is a square, based on the available width.
- */
+/** A RelativeLayout that is a square, based on the available width. */
 public class SquareLayoutMaxWidth extends RelativeLayout {
-    public SquareLayoutMaxWidth(Context context) {
-        super(context);
-    }
+  public SquareLayoutMaxWidth(Context context) {
+    super(context);
+  }
 
-    public SquareLayoutMaxWidth(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+  public SquareLayoutMaxWidth(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
 
-    public SquareLayoutMaxWidth(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
+  public SquareLayoutMaxWidth(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+  }
 
-    @TargetApi(21)
-    public SquareLayoutMaxWidth(Context context, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-    }
+  @TargetApi(21)
+  public SquareLayoutMaxWidth(
+      Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    super(context, attrs, defStyleAttr, defStyleRes);
+  }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // Set the width and height to be the width, i.e. the view is as wide as it would like
-        // to be and the height is set to match.
-        super.onMeasure(widthMeasureSpec, widthMeasureSpec);
-    }
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    // Set the width and height to be the width, i.e. the view is as wide as it would like
+    // to be and the height is set to match.
+    super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+  }
 }

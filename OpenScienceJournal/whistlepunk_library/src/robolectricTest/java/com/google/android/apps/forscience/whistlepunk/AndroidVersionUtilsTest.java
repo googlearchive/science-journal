@@ -25,68 +25,65 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-/**
- * Tests for Android Version Utils.
- */
+/** Tests for Android Version Utils. */
 @RunWith(RobolectricTestRunner.class)
 public class AndroidVersionUtilsTest {
-    @Config(sdk = Build.VERSION_CODES.LOLLIPOP)
-    @Test
-    public void testIsApiLevel() {
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.CUR_DEVELOPMENT));
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.M));
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.LOLLIPOP));
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.KITKAT));
-    }
+  @Config(sdk = Build.VERSION_CODES.LOLLIPOP)
+  @Test
+  public void testIsApiLevel() {
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.CUR_DEVELOPMENT));
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.M));
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.LOLLIPOP));
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.KITKAT));
+  }
 
-    @Config(sdk = Build.VERSION_CODES.O)
-    @Test
-    public void testAgainstOreo() {
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastOreo());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastNougat());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
-    }
+  @Config(sdk = Build.VERSION_CODES.O)
+  @Test
+  public void testAgainstOreo() {
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastOreo());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastNougat());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
+  }
 
-    @Config(sdk = Build.VERSION_CODES.N)
-    @Test
-    public void testAgainstNougat() {
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastNougat());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
-    }
+  @Config(sdk = Build.VERSION_CODES.N)
+  @Test
+  public void testAgainstNougat() {
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastNougat());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
+  }
 
-    @Config(sdk = Build.VERSION_CODES.M)
-    @Test
-    public void testAgainstMarshmallow() {
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastNougat());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
-    }
+  @Config(sdk = Build.VERSION_CODES.M)
+  @Test
+  public void testAgainstMarshmallow() {
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastNougat());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
+  }
 
-    @Config(sdk = Build.VERSION_CODES.LOLLIPOP)
-    @Test
-    public void testAgainstLollipop() {
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastNougat());
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
-    }
+  @Config(sdk = Build.VERSION_CODES.LOLLIPOP)
+  @Test
+  public void testAgainstLollipop() {
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastNougat());
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
+  }
 
-    @Config(sdk = Build.VERSION_CODES.KITKAT)
-    @Test
-    public void testAgainstKitKat() {
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastNougat());
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-        assertFalse(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-        assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
-    }
-
+  @Config(sdk = Build.VERSION_CODES.KITKAT)
+  @Test
+  public void testAgainstKitKat() {
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastNougat());
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
+    assertFalse(AndroidVersionUtils.isApiLevelAtLeastLollipop());
+    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
+  }
 }

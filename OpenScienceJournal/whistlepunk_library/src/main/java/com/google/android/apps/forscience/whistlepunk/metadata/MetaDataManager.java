@@ -18,130 +18,94 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Loads and saves meta data.
- */
+/** Loads and saves meta data. */
 public interface MetaDataManager {
 
-    Experiment getExperimentById(String experimentId);
+  Experiment getExperimentById(String experimentId);
 
-    /**
-     * Creates a new experiment.
-     */
-    Experiment newExperiment();
+  /** Creates a new experiment. */
+  Experiment newExperiment();
 
-    /**
-     * Deletes the experiment and any associated trials and labels and their assets.
-     */
-    void deleteExperiment(Experiment experiment);
+  /** Deletes the experiment and any associated trials and labels and their assets. */
+  void deleteExperiment(Experiment experiment);
 
-    /**
-     * Updates experiment details, including the experiment's labels.
-     */
-    void updateExperiment(Experiment experiment);
+  /** Updates experiment details, including the experiment's labels. */
+  void updateExperiment(Experiment experiment);
 
-    /**
-     * Add an existing experiment.
-     */
-    Experiment importExperimentFromZip(Uri zipUri, ContentResolver resolver)
-            throws IOException;
+  /** Add an existing experiment. */
+  Experiment importExperimentFromZip(Uri zipUri, ContentResolver resolver) throws IOException;
 
-    /**
-     * @return the list of all experiments.
-     */
-    List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived);
+  /** @return the list of all experiments. */
+  List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived);
 
-    /**
-     * Gets all the external sensors previously saved.
-     */
-    Map<String, ExternalSensorSpec> getExternalSensors(
-            Map<String, SensorProvider> providerMap);
+  /** Gets all the external sensors previously saved. */
+  Map<String, ExternalSensorSpec> getExternalSensors(Map<String, SensorProvider> providerMap);
 
-    /**
-     * Gets the external sensor or {@null} if no sensor with that ID was added.
-     */
-    ExternalSensorSpec getExternalSensorById(String id,
-            Map<String, SensorProvider> providerMap);
+  /** Gets the external sensor or {@null} if no sensor with that ID was added. */
+  ExternalSensorSpec getExternalSensorById(String id, Map<String, SensorProvider> providerMap);
 
-    /**
-     *
-     * @param sensor
-     * @param providerMap
-     * @return
-     */
-    String addOrGetExternalSensor(ExternalSensorSpec sensor,
-            Map<String, SensorProvider> providerMap);
+  /**
+   * @param sensor
+   * @param providerMap
+   * @return
+   */
+  String addOrGetExternalSensor(ExternalSensorSpec sensor, Map<String, SensorProvider> providerMap);
 
-    /**
-     * Removes an external sensor from the database.
-     * <p>Note that this will also delete it from any experiments linked to that sensor which could
-     * affect display of saved experiments.
-     * </p>
-     */
-    void removeExternalSensor(String databaseTag);
+  /**
+   * Removes an external sensor from the database.
+   *
+   * <p>Note that this will also delete it from any experiments linked to that sensor which could
+   * affect display of saved experiments.
+   */
+  void removeExternalSensor(String databaseTag);
 
-    /**
-     * Adds a linkage between an experiment and a sensor, which could be external or internal.
-     */
-    void addSensorToExperiment(String databaseTag, String experimentId);
+  /** Adds a linkage between an experiment and a sensor, which could be external or internal. */
+  void addSensorToExperiment(String databaseTag, String experimentId);
 
-    /**
-     * Removes a linkage between an experiment and a sensor, which could be external or internal.
-     */
-    void removeSensorFromExperiment(String databaseTag, String experimentId);
+  /** Removes a linkage between an experiment and a sensor, which could be external or internal. */
+  void removeSensorFromExperiment(String databaseTag, String experimentId);
 
-    /**
-     * Gets all the external sensors which are linked to an experiment, in insertion order
-     */
-    ExperimentSensors getExperimentSensors(String experimentId,
-            Map<String, SensorProvider> providerMap,
-            ConnectableSensor.Connector connector);
+  /** Gets all the external sensors which are linked to an experiment, in insertion order */
+  ExperimentSensors getExperimentSensors(
+      String experimentId,
+      Map<String, SensorProvider> providerMap,
+      ConnectableSensor.Connector connector);
 
-    /**
-     * Adds this device as one to be remembered as "my device" in the manage devices screen from
-     * here on out.
-     */
-    void addMyDevice(InputDeviceSpec deviceSpec);
+  /**
+   * Adds this device as one to be remembered as "my device" in the manage devices screen from here
+   * on out.
+   */
+  void addMyDevice(InputDeviceSpec deviceSpec);
 
-    /**
-     * Removes this device from "my devices".
-     */
-    void removeMyDevice(InputDeviceSpec deviceSpec);
+  /** Removes this device from "my devices". */
+  void removeMyDevice(InputDeviceSpec deviceSpec);
 
-    /**
-     * @return all of "my devices", in insertion order
-     */
-    List<InputDeviceSpec> getMyDevices();
+  /** @return all of "my devices", in insertion order */
+  List<InputDeviceSpec> getMyDevices();
 
-    /**
-     * @returns Last used experiment.
-     */
-    Experiment getLastUsedUnarchivedExperiment();
+  /** @returns Last used experiment. */
+  Experiment getLastUsedUnarchivedExperiment();
 
-    /**
-     * Updates which experiment was last used. Does not save other parts of this experiment.
-     *
-     * This is deprecated -- any changes to the experiment should be done using updateExperiment
-     * on the main thread, and not here on the data thread.
-     */
-    @Deprecated
-    void setLastUsedExperiment(Experiment experiment);
+  /**
+   * Updates which experiment was last used. Does not save other parts of this experiment.
+   *
+   * <p>This is deprecated -- any changes to the experiment should be done using updateExperiment on
+   * the main thread, and not here on the data thread.
+   */
+  @Deprecated
+  void setLastUsedExperiment(Experiment experiment);
 
-    void close();
+  void close();
 
-    /**
-     * Any unsaved or cached data should be saved immediately.
-     */
-    void saveImmediately();
+  /** Any unsaved or cached data should be saved immediately. */
+  void saveImmediately();
 }

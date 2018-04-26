@@ -18,27 +18,17 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import java.io.File;
 
-/**
- * An interface which represents an account.
- */
+/** An interface which represents an account. */
 public interface AppAccount {
-  /**
-   * Returns true if this account is a signed-in account.
-   */
+  /** Returns true if this account is a signed-in account. */
   boolean isSignedIn();
 
-  /**
-   * Returns the root directory for this account.
-   */
+  /** Returns the root directory for this account. */
   File getFilesDir();
 
-  /**
-   * Returns the file name of the database with the given name for this account.
-   */
+  /** Returns the file name of the database with the given name for this account. */
   String getDatabaseFileName(String name);
 
-  /**
-   * Returns the preference key, combining the given prefKey with this account.
-   */
+  /** Returns the preference key, combining the given prefKey with this account. */
   String getPreferenceKey(String prefKey);
 }

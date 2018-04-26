@@ -16,140 +16,121 @@
 
 package com.google.android.apps.forscience.whistlepunk.audio;
 
-/**
- * Represents a harmonic relationship.
- */
+/** Represents a harmonic relationship. */
 class Harmonic {
-    private final Peak mPeakA;
-    private final Peak mPeakB;
-    private int mA; // Antecedent or "A" term in the ratio A:B.
-    private int mB; // Consequent or "B" term in the ratio A:B.
+  private final Peak mPeakA;
+  private final Peak mPeakB;
+  private int mA; // Antecedent or "A" term in the ratio A:B.
+  private int mB; // Consequent or "B" term in the ratio A:B.
 
-    private Harmonic(Peak peakA, Peak peakB, int a, int b) {
-        mPeakA = peakA;
-        mPeakB = peakB;
-        mA = a;
-        mB = b;
+  private Harmonic(Peak peakA, Peak peakB, int a, int b) {
+    mPeakA = peakA;
+    mPeakB = peakB;
+    mA = a;
+    mB = b;
+  }
+
+  /** Returns the peak that is associated with the antecedent term of this harmonic ratio. */
+  Peak getPeakA() {
+    return mPeakA;
+  }
+
+  /** Returns the peak that is associated with the consequent term of this harmonic ratio. */
+  Peak getPeakB() {
+    return mPeakB;
+  }
+
+  /** Returns the antecedent term of this harmonic ratio. */
+  int getA() {
+    return mA;
+  }
+
+  /** Returns the consequent term of this harmonic ratio. */
+  int getB() {
+    return mB;
+  }
+
+  /** Returns the term in this harmonic ratio that is associated with the given peak. */
+  int getTermForPeak(Peak peak) {
+    if (peak == mPeakA) {
+      return mA;
+    } else if (peak == mPeakB) {
+      return mB;
     }
+    throw new IllegalArgumentException("The given peak is not in this harmonic.");
+  }
 
-    /**
-     * Returns the peak that is associated with the antecedent term of this harmonic ratio.
-     */
-    Peak getPeakA() {
-        return mPeakA;
+  /** Adjusts the harmonic based on other harmonic relationships. */
+  void adjustHarmonic() {
+    // Check if the harmonic should be adjusted by multiplying both terms by a constant.
+    // For example, if the ratio of peakA to peakB is 1:2 and a ratio of peakA to another
+    // peak is 3:X or a ratio of peakB to another peak is 6:Y, then the ratio 1:2 should be
+    // adjusted to 3:6. The ratio is the same numeric value, but it indicates a different
+    // fundamental frequency.
+    Peak peakA = getPeakA();
+    Peak peakB = getPeakB();
+    int a = getA();
+    int b = getB();
+
+    int multiplier = 0;
+    for (int term : peakA.getHarmonicTerms().descendingSet()) {
+      if (term <= a) {
+        // We only care about terms larger than a.
+        break;
+      }
+      if (term % a == 0) {
+        multiplier = term / a;
+        break;
+      }
     }
-
-    /**
-     * Returns the peak that is associated with the consequent term of this harmonic ratio.
-     */
-    Peak getPeakB() {
-        return mPeakB;
-    }
-
-    /**
-     * Returns the antecedent term of this harmonic ratio.
-     */
-    int getA() {
-        return mA;
-    }
-
-    /**
-     * Returns the consequent term of this harmonic ratio.
-     */
-    int getB() {
-        return mB;
-    }
-
-    /**
-     * Returns the term in this harmonic ratio that is associated with the given peak.
-     */
-    int getTermForPeak(Peak peak) {
-        if (peak == mPeakA) {
-            return mA;
-        } else if (peak == mPeakB) {
-            return mB;
+    for (int term : peakB.getHarmonicTerms().descendingSet()) {
+      if (term <= b) {
+        // We only care about terms larger than b.
+        break;
+      }
+      if (term % b == 0) {
+        int m = term / b;
+        if (m > multiplier) {
+          multiplier = m;
         }
-        throw new IllegalArgumentException("The given peak is not in this harmonic.");
+        break;
+      }
+    }
+    if (multiplier != 0) {
+      multiply(multiplier);
+    }
+  }
+
+  /** Multiplies the antecedent and consequent of this harmonic ratio by the given multiplier. */
+  private void multiply(int multiplier) {
+    mA *= multiplier;
+    mB *= multiplier;
+  }
+
+  /** Creates a Harmonic for the given peaks and adds it to each peak. Returns the new harmonic. */
+  static Harmonic addHarmonic(Peak peakA, Peak peakB, int a, int b) {
+    Harmonic harmonic = new Harmonic(peakA, peakB, a, b);
+    peakA.addHarmonic(harmonic);
+    peakB.addHarmonic(harmonic);
+    return harmonic;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
 
-    /**
-     * Adjusts the harmonic based on other harmonic relationships.
-     */
-    void adjustHarmonic() {
-        // Check if the harmonic should be adjusted by multiplying both terms by a constant.
-        // For example, if the ratio of peakA to peakB is 1:2 and a ratio of peakA to another
-        // peak is 3:X or a ratio of peakB to another peak is 6:Y, then the ratio 1:2 should be
-        // adjusted to 3:6. The ratio is the same numeric value, but it indicates a different
-        // fundamental frequency.
-        Peak peakA = getPeakA();
-        Peak peakB = getPeakB();
-        int a = getA();
-        int b = getB();
-
-        int multiplier = 0;
-        for (int term : peakA.getHarmonicTerms().descendingSet()) {
-            if (term <= a) {
-                // We only care about terms larger than a.
-                break;
-            }
-            if (term % a == 0) {
-                multiplier = term / a;
-                break;
-            }
-        }
-        for (int term : peakB.getHarmonicTerms().descendingSet()) {
-            if (term <= b) {
-                // We only care about terms larger than b.
-                break;
-            }
-            if (term % b == 0) {
-                int m = term / b;
-                if (m > multiplier) {
-                    multiplier = m;
-                }
-                break;
-            }
-        }
-        if (multiplier != 0) {
-            multiply(multiplier);
-        }
+    if (!(obj instanceof Harmonic)) {
+      return false;
     }
 
-    /**
-     * Multiplies the antecedent and consequent of this harmonic ratio by the given multiplier.
-     */
-    private void multiply(int multiplier) {
-        mA *= multiplier;
-        mB *= multiplier;
-    }
+    Harmonic harmonic = (Harmonic) obj;
+    return mPeakA == harmonic.mPeakA && mPeakB == harmonic.mPeakB;
+  }
 
-    /**
-     * Creates a Harmonic for the given peaks and adds it to each peak. Returns the new harmonic.
-     */
-    static Harmonic addHarmonic(Peak peakA, Peak peakB, int a, int b) {
-        Harmonic harmonic = new Harmonic(peakA, peakB, a, b);
-        peakA.addHarmonic(harmonic);
-        peakB.addHarmonic(harmonic);
-        return harmonic;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof Harmonic)) {
-            return false;
-        }
-
-        Harmonic harmonic = (Harmonic) obj;
-        return mPeakA == harmonic.mPeakA
-                && mPeakB == harmonic.mPeakB;
-    }
-
-    @Override
-    public int hashCode() {
-        return mPeakA.hashCode() * 31 + mPeakB.hashCode();
-    }
+  @Override
+  public int hashCode() {
+    return mPeakA.hashCode() * 31 + mPeakB.hashCode();
+  }
 }

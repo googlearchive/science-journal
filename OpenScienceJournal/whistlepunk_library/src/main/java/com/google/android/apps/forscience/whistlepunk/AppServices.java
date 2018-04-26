@@ -22,47 +22,48 @@ import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.squareup.leakcanary.RefWatcher;
 
 public interface AppServices {
-    AppServices STUB = new AppServices() {
+  AppServices STUB =
+      new AppServices() {
         @Override
         public RefWatcher getRefWatcher() {
-            return RefWatcher.DISABLED;
+          return RefWatcher.DISABLED;
         }
 
         @Override
         public UsageTracker getUsageTracker() {
-            return UsageTracker.STUB;
+          return UsageTracker.STUB;
         }
 
         @Override
         public FeatureDiscoveryProvider getFeatureDiscoveryProvider() {
-            return FeatureDiscoveryProvider.STUB;
+          return FeatureDiscoveryProvider.STUB;
         }
 
         @Override
         public FeedbackProvider getFeedbackProvider() {
-            return FeedbackProvider.STUB;
+          return FeedbackProvider.STUB;
         }
 
         @Override
         public ActivityNavigator getNavigator() {
-            return ActivityNavigator.STUB;
+          return ActivityNavigator.STUB;
         }
 
         @Override
         public AccountsProvider getAccountsProvider() {
-            return null;
+          return null;
         }
-    };
+      };
 
-    RefWatcher getRefWatcher();
+  RefWatcher getRefWatcher();
 
-    UsageTracker getUsageTracker();
+  UsageTracker getUsageTracker();
 
-    FeatureDiscoveryProvider getFeatureDiscoveryProvider();
+  FeatureDiscoveryProvider getFeatureDiscoveryProvider();
 
-    FeedbackProvider getFeedbackProvider();
+  FeedbackProvider getFeedbackProvider();
 
-    ActivityNavigator getNavigator();
+  ActivityNavigator getNavigator();
 
-    AccountsProvider getAccountsProvider();
+  AccountsProvider getAccountsProvider();
 }

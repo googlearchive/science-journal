@@ -19,22 +19,21 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 
 class TestScanListener extends StubScanListener {
-    private final Consumer<SensorDiscoverer.DiscoveredSensor> onNewSensor;
-    private final Runnable mOnScanDone;
+  private final Consumer<SensorDiscoverer.DiscoveredSensor> onNewSensor;
+  private final Runnable mOnScanDone;
 
-    public TestScanListener(Consumer<SensorDiscoverer.DiscoveredSensor> c,
-            Runnable onScanDone) {
-        onNewSensor = c;
-        mOnScanDone = onScanDone;
-    }
+  public TestScanListener(Consumer<SensorDiscoverer.DiscoveredSensor> c, Runnable onScanDone) {
+    onNewSensor = c;
+    mOnScanDone = onScanDone;
+  }
 
-    @Override
-    public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
-        onNewSensor.take(sensor);
-    }
+  @Override
+  public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
+    onNewSensor.take(sensor);
+  }
 
-    @Override
-    public void onScanDone() {
-        mOnScanDone.run();
-    }
+  @Override
+  public void onScanDone() {
+    mOnScanDone.run();
+  }
 }

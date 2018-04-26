@@ -18,95 +18,86 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.content.Context;
 import android.text.TextUtils;
-
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-
+import io.reactivex.functions.Consumer;
 import java.util.Collections;
 import java.util.List;
 
-import io.reactivex.functions.Consumer;
-
-/**
- * Class which has a list of labels, and setters / getters / modifiers for those labels.
- */
+/** Class which has a list of labels, and setters / getters / modifiers for those labels. */
 public abstract class LabelListHolder {
-    // mLabels should be initialized by the class which implements this class in its constructor.
-    List<Label> mLabels;
+  // mLabels should be initialized by the class which implements this class in its constructor.
+  List<Label> mLabels;
 
-    public int getLabelCount() {
-        return mLabels.size();
+  public int getLabelCount() {
+    return mLabels.size();
+  }
+
+  /**
+   * Gets the current list of labels in this object, ordered by timestamp. Objects in this list
+   * should not be modified and expect that state to be saved, instead editing of labels should
+   * happen using updateLabel, addTrialLabel, removeLabel.
+   */
+  public List<Label> getLabels() {
+    return mLabels;
+  }
+
+  /** Updates a label in the list. Maintains label sort order. */
+  public void updateLabel(Label label) {
+    updateLabelWithoutSorting(label);
+    sortLabels();
+  }
+
+  public void updateLabelWithoutSorting(Label label) {
+    for (int i = 0; i < mLabels.size(); i++) {
+      Label next = mLabels.get(i);
+      if (!TextUtils.equals(label.getLabelId(), next.getLabelId())) {
+        continue;
+      }
+      mLabels.set(i, label);
     }
+  }
 
-    /**
-     * Gets the current list of labels in this object, ordered by timestamp.
-     * Objects in this list should not be modified and expect that state to be saved, instead
-     * editing of labels should happen using updateLabel, addTrialLabel, removeLabel.
-     */
-    public List<Label> getLabels() {
-        return mLabels;
+  /** Adds a label to the object's list of labels. The list will still be sorted by timestamp. */
+  public void addLabel(Label label) {
+    mLabels.add(label);
+    sortLabels();
+    if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+      onPictureLabelAdded(label);
     }
+  }
 
-    /**
-     * Updates a label in the list. Maintains label sort order.
-     */
-    public void updateLabel(Label label) {
-        updateLabelWithoutSorting(label);
-        sortLabels();
+  /**
+   * Deletes a label from this object.
+   *
+   * <p>Returns a Runnable that also deletes the assets this label referenced. This should be
+   * executed when the deletion is final (user opts not to undo).
+   */
+  public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label toDelete, String experimentId) {
+    for (Label label : mLabels) {
+      if (TextUtils.equals(label.getLabelId(), toDelete.getLabelId())) {
+        mLabels.remove(label);
+        break;
+      }
     }
+    return context -> deleteLabelAssets(toDelete, context, experimentId);
+  }
 
-    public void updateLabelWithoutSorting(Label label) {
-        for (int i = 0; i < mLabels.size(); i++) {
-            Label next = mLabels.get(i);
-            if (!TextUtils.equals(label.getLabelId(), next.getLabelId())) {
-                continue;
-            }
-            mLabels.set(i, label);
-        }
+  protected void deleteLabelAssets(Label toDelete, Context context, String experimentId) {
+    if (toDelete.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+      beforeDeletingPictureLabel(toDelete);
     }
+    toDelete.deleteAssets(context, experimentId);
+  }
 
-    /**
-     * Adds a label to the object's list of labels. The list will still be sorted by timestamp.
-     */
-    public void addLabel(Label label) {
-        mLabels.add(label);
-        sortLabels();
-        if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-            onPictureLabelAdded(label);
-        }
-    }
+  private void sortLabels() {
+    Collections.sort(mLabels, Label.COMPARATOR_BY_TIMESTAMP);
+  }
 
-    /**
-     * Deletes a label from this object.
-     *
-     * Returns a Runnable that also deletes the assets this label referenced.  This should be
-     * executed when the deletion is final (user opts not to undo).
-     */
-    public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label toDelete, String experimentId) {
-        for (Label label : mLabels) {
-            if (TextUtils.equals(label.getLabelId(), toDelete.getLabelId())) {
-                mLabels.remove(label);
-                break;
-            }
-        }
-        return context -> deleteLabelAssets(toDelete, context, experimentId);
-    }
+  protected void setLabels(List<Label> labels) {
+    mLabels = labels;
+  }
 
-    protected void deleteLabelAssets(Label toDelete, Context context, String experimentId) {
-        if (toDelete.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-            beforeDeletingPictureLabel(toDelete);
-        }
-        toDelete.deleteAssets(context, experimentId);
-    }
+  protected abstract void onPictureLabelAdded(Label label);
 
-    private void sortLabels() {
-        Collections.sort(mLabels, Label.COMPARATOR_BY_TIMESTAMP);
-    }
-
-    protected void setLabels(List<Label> labels) {
-        mLabels = labels;
-    }
-
-    protected abstract void onPictureLabelAdded(Label label);
-
-    protected abstract void beforeDeletingPictureLabel(Label label);
+  protected abstract void beforeDeletingPictureLabel(Label label);
 }

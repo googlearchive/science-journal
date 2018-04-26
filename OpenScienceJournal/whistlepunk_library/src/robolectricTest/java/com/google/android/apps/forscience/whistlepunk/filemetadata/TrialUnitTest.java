@@ -34,127 +34,125 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for the Trial class.
- */
+/** Tests for the Trial class. */
 @RunWith(RobolectricTestRunner.class)
 public class TrialUnitTest {
-    private static final GoosciSensorLayout.SensorLayout[]
-            NO_LAYOUTS = new GoosciSensorLayout.SensorLayout[0];
-    private SensorAppearanceProvider mFakeProvider = new FakeUnitAppearanceProvider();
+  private static final GoosciSensorLayout.SensorLayout[] NO_LAYOUTS =
+      new GoosciSensorLayout.SensorLayout[0];
+  private SensorAppearanceProvider mFakeProvider = new FakeUnitAppearanceProvider();
 
-    private Trial makeSimpleTrial(long startTime, String sensorId) {
-        GoosciSensorLayout.SensorLayout[] layouts = new GoosciSensorLayout.SensorLayout[]{
-                new GoosciSensorLayout.SensorLayout()};
-        layouts[0].sensorId = sensorId;
-        return Trial.newTrial(startTime, layouts, mFakeProvider, null);
-    }
+  private Trial makeSimpleTrial(long startTime, String sensorId) {
+    GoosciSensorLayout.SensorLayout[] layouts =
+        new GoosciSensorLayout.SensorLayout[] {new GoosciSensorLayout.SensorLayout()};
+    layouts[0].sensorId = sensorId;
+    return Trial.newTrial(startTime, layouts, mFakeProvider, null);
+  }
 
-    @Test
-    public void testTimestamps() {
-        Trial trial = makeSimpleTrial(1000, "sensorId");
-        trial.setRecordingEndTime(2000);
+  @Test
+  public void testTimestamps() {
+    Trial trial = makeSimpleTrial(1000, "sensorId");
+    trial.setRecordingEndTime(2000);
 
-        assertEquals(trial.getOriginalFirstTimestamp(), 1000);
-        assertEquals(trial.getOriginalLastTimestamp(), 2000);
-        assertEquals(trial.getFirstTimestamp(), 1000);
-        assertEquals(trial.getLastTimestamp(), 2000);
-        assertEquals(trial.elapsedSeconds(), 1);
-        assertTrue(trial.isValid());
-    }
+    assertEquals(trial.getOriginalFirstTimestamp(), 1000);
+    assertEquals(trial.getOriginalLastTimestamp(), 2000);
+    assertEquals(trial.getFirstTimestamp(), 1000);
+    assertEquals(trial.getLastTimestamp(), 2000);
+    assertEquals(trial.elapsedSeconds(), 1);
+    assertTrue(trial.isValid());
+  }
 
-    @Test
-    public void testTimestampsWithCrop() {
-        Trial trial = makeSimpleTrial(1000, "sensorId");
-        trial.setRecordingEndTime(4000);
+  @Test
+  public void testTimestampsWithCrop() {
+    Trial trial = makeSimpleTrial(1000, "sensorId");
+    trial.setRecordingEndTime(4000);
 
-        GoosciTrial.Range cropRange = new GoosciTrial.Range();
-        cropRange.startMs = 2000;
-        cropRange.endMs = 3000;
-        trial.setCropRange(cropRange);
+    GoosciTrial.Range cropRange = new GoosciTrial.Range();
+    cropRange.startMs = 2000;
+    cropRange.endMs = 3000;
+    trial.setCropRange(cropRange);
 
-        assertEquals(trial.getOriginalFirstTimestamp(), 1000);
-        assertEquals(trial.getOriginalLastTimestamp(), 4000);
-        assertEquals(trial.getFirstTimestamp(), 2000);
-        assertEquals(trial.getLastTimestamp(), 3000);
-        assertEquals(trial.elapsedSeconds(), 1);
-        assertTrue(trial.isValid());
-    }
+    assertEquals(trial.getOriginalFirstTimestamp(), 1000);
+    assertEquals(trial.getOriginalLastTimestamp(), 4000);
+    assertEquals(trial.getFirstTimestamp(), 2000);
+    assertEquals(trial.getLastTimestamp(), 3000);
+    assertEquals(trial.elapsedSeconds(), 1);
+    assertTrue(trial.isValid());
+  }
 
-    @Test
-    public void testInvalidTrial() {
-        Trial trial = makeSimpleTrial(1000, "sensorId");
-        assertFalse(trial.isValid());
+  @Test
+  public void testInvalidTrial() {
+    Trial trial = makeSimpleTrial(1000, "sensorId");
+    assertFalse(trial.isValid());
 
-        trial.setRecordingEndTime(999);
-        assertFalse(trial.isValid());
-        assertEquals(trial.elapsedSeconds(), 0);
+    trial.setRecordingEndTime(999);
+    assertFalse(trial.isValid());
+    assertEquals(trial.elapsedSeconds(), 0);
 
-        trial.setRecordingEndTime(2000);
-        assertTrue(trial.isValid());
-        assertEquals(trial.elapsedSeconds(), 1);
-    }
+    trial.setRecordingEndTime(2000);
+    assertTrue(trial.isValid());
+    assertEquals(trial.elapsedSeconds(), 1);
+  }
 
-    @Test
-    public void testGetSensorInfo() {
-        Trial trial = makeSimpleTrial(1000, "sensorId");
-        trial.setRecordingEndTime(2000);
-        assertTrue(trial.getSensorIds().contains("sensorId"));
-    }
+  @Test
+  public void testGetSensorInfo() {
+    Trial trial = makeSimpleTrial(1000, "sensorId");
+    trial.setRecordingEndTime(2000);
+    assertTrue(trial.getSensorIds().contains("sensorId"));
+  }
 
-    @Test
-    public void testStats() {
-        Trial trial = makeSimpleTrial(1000, "sensorId");
-        TrialStats stats = new TrialStats("sensorId");
-        stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
-        stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
-        trial.setStats(stats);
+  @Test
+  public void testStats() {
+    Trial trial = makeSimpleTrial(1000, "sensorId");
+    TrialStats stats = new TrialStats("sensorId");
+    stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+    stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
+    trial.setStats(stats);
 
-        assertTrue(trial.getStatsForSensor("sensorId").statsAreValid());
+    assertTrue(trial.getStatsForSensor("sensorId").statsAreValid());
 
-        // Test replace works
-        TrialStats newStats = new TrialStats("sensorId");
-        newStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
-        newStats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
-        trial.setStats(newStats);
+    // Test replace works
+    TrialStats newStats = new TrialStats("sensorId");
+    newStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
+    newStats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
+    trial.setStats(newStats);
 
-        assertFalse(trial.getStatsForSensor("sensorId").statsAreValid());
-    }
+    assertFalse(trial.getStatsForSensor("sensorId").statsAreValid());
+  }
 
-    @Test
-    public void testUniqueIds() {
-        Trial first = Trial.newTrial(10, NO_LAYOUTS, mFakeProvider, null);
-        Trial second = Trial.newTrial(10, NO_LAYOUTS, mFakeProvider, null);
-        assertNotEquals(first.getTrialId(), second.getTrialId());
+  @Test
+  public void testUniqueIds() {
+    Trial first = Trial.newTrial(10, NO_LAYOUTS, mFakeProvider, null);
+    Trial second = Trial.newTrial(10, NO_LAYOUTS, mFakeProvider, null);
+    assertNotEquals(first.getTrialId(), second.getTrialId());
 
-        Trial firstAgain = Trial.fromTrial(first.getTrialProto());
-        assertEquals(first.getTrialId(), firstAgain.getTrialId());
-    }
+    Trial firstAgain = Trial.fromTrial(first.getTrialProto());
+    assertEquals(first.getTrialId(), firstAgain.getTrialId());
+  }
 
-    @Test
-    public void testElapsedSeconds() {
-        Trial trial = Trial.newTrial(7, NO_LAYOUTS, mFakeProvider, null);
-        assertEquals(0, trial.elapsedSeconds());
+  @Test
+  public void testElapsedSeconds() {
+    Trial trial = Trial.newTrial(7, NO_LAYOUTS, mFakeProvider, null);
+    assertEquals(0, trial.elapsedSeconds());
 
-        trial.setRecordingEndTime(5007);
-        assertEquals(5, trial.elapsedSeconds());
-    }
+    trial.setRecordingEndTime(5007);
+    assertEquals(5, trial.elapsedSeconds());
+  }
 
-    @Test
-    public void testNewTrialWithAppearances() {
-        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-        layout.sensorId = "foo";
-        MemoryAppearanceProvider provider = new MemoryAppearanceProvider();
-        provider.putAppearance(layout.sensorId, new EmptySensorAppearance() {
-            @Override
-            public String getName(Context context) {
-                return "Fun name!";
-            }
+  @Test
+  public void testNewTrialWithAppearances() {
+    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+    layout.sensorId = "foo";
+    MemoryAppearanceProvider provider = new MemoryAppearanceProvider();
+    provider.putAppearance(
+        layout.sensorId,
+        new EmptySensorAppearance() {
+          @Override
+          public String getName(Context context) {
+            return "Fun name!";
+          }
         });
-        Trial trial =
-                Trial.newTrial(7, new GoosciSensorLayout.SensorLayout[]{layout}, provider, null);
-        Map<String, GoosciSensorAppearance.BasicSensorAppearance> appearances =
-                trial.getAppearances();
-        assertEquals("Fun name!", appearances.get("foo").name);
-    }
+    Trial trial = Trial.newTrial(7, new GoosciSensorLayout.SensorLayout[] {layout}, provider, null);
+    Map<String, GoosciSensorAppearance.BasicSensorAppearance> appearances = trial.getAppearances();
+    assertEquals("Fun name!", appearances.get("foo").name);
+  }
 }

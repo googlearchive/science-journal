@@ -1,13 +1,12 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
-
 import java.io.File;
 
 /**
  * An implementation of {@link AppAccount} representing a user with no signed-in account.
- * <p>
- * File data, database data, and user preferences for are stored in the same places as they were
+ *
+ * <p>File data, database data, and user preferences for are stored in the same places as they were
  * before accounts were supported.
  */
 public final class NonSignedInAccount implements AppAccount {

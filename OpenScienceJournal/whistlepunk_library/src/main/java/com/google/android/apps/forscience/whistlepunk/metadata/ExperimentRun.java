@@ -18,48 +18,47 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-
 import java.util.List;
 
 @Deprecated
 public class ExperimentRun {
-    private Trial mTrial;
-    private String mExperimentId;
+  private Trial mTrial;
+  private String mExperimentId;
 
-    private ExperimentRun(Trial trial, String experimentId, CropHelper.CropLabels unused) {
-        mTrial = trial;
-        mExperimentId = experimentId;
-    }
+  private ExperimentRun(Trial trial, String experimentId, CropHelper.CropLabels unused) {
+    mTrial = trial;
+    mExperimentId = experimentId;
+  }
 
-    public String getExperimentId() {
-        return mExperimentId;
-    }
+  public String getExperimentId() {
+    return mExperimentId;
+  }
 
-    public long getFirstTimestamp() {
-        return mTrial.getFirstTimestamp();
-    }
+  public long getFirstTimestamp() {
+    return mTrial.getFirstTimestamp();
+  }
 
-    public List<String> getSensorIds() {
-        return mTrial.getSensorIds();
-    }
+  public List<String> getSensorIds() {
+    return mTrial.getSensorIds();
+  }
 
-    public String getTrialId() {
-        return mTrial.getTrialId();
-    }
+  public String getTrialId() {
+    return mTrial.getTrialId();
+  }
 
-    public boolean isArchived() {
-        return mTrial.isArchived();
-    }
+  public boolean isArchived() {
+    return mTrial.isArchived();
+  }
 
-    public void setArchived(boolean isArchived) {
-        mTrial.setArchived(isArchived);
-    }
+  public void setArchived(boolean isArchived) {
+    mTrial.setArchived(isArchived);
+  }
 
-    public Trial getTrial() {
-        return mTrial;
-    }
+  public Trial getTrial() {
+    return mTrial;
+  }
 
-    public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
-        return mTrial.getSensorLayouts();
-    }
+  public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
+    return mTrial.getSensorLayouts();
+  }
 }

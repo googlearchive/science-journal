@@ -26,28 +26,30 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class DeviceRegistryTest {
-    @Test
-    public void differentTypesAreDifferentDevices() {
-        DeviceRegistry registry = new DeviceRegistry(null);
+  @Test
+  public void differentTypesAreDifferentDevices() {
+    DeviceRegistry registry = new DeviceRegistry(null);
 
-        assertEquals(0, registry.getDeviceCount());
-        registry.addDevice(new InputDeviceSpec("type1", "address", "name1"));
-        registry.addDevice(new InputDeviceSpec("type2", "address", "name2"));
+    assertEquals(0, registry.getDeviceCount());
+    registry.addDevice(new InputDeviceSpec("type1", "address", "name1"));
+    registry.addDevice(new InputDeviceSpec("type2", "address", "name2"));
 
-        assertEquals(2, registry.getDeviceCount());
-        assertEquals("name1", registry.getDevice("type1", "address").getName());
-        assertEquals("name2", registry.getDevice("type2", "address").getName());
-    }
+    assertEquals(2, registry.getDeviceCount());
+    assertEquals("name1", registry.getDevice("type1", "address").getName());
+    assertEquals("name2", registry.getDevice("type2", "address").getName());
+  }
 
-    @Test public void generateSyntheticDevice() {
-        DeviceRegistry registry = new DeviceRegistry(null);
-        assertEquals("name", registry.getDevice(new BleSensorSpec("address", "name")).getName());
-    }
+  @Test
+  public void generateSyntheticDevice() {
+    DeviceRegistry registry = new DeviceRegistry(null);
+    assertEquals("name", registry.getDevice(new BleSensorSpec("address", "name")).getName());
+  }
 
-    @Test public void useBuiltInDevice() {
-        String name = Arbitrary.string();
-        DeviceRegistry registry = new DeviceRegistry(
-                new InputDeviceSpec(InputDeviceSpec.TYPE, "address", name));
-        assertEquals(name, registry.getDevice(null).getName());
-    }
+  @Test
+  public void useBuiltInDevice() {
+    String name = Arbitrary.string();
+    DeviceRegistry registry =
+        new DeviceRegistry(new InputDeviceSpec(InputDeviceSpec.TYPE, "address", name));
+    assertEquals(name, registry.getDevice(null).getName());
+  }
 }

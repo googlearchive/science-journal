@@ -19,13 +19,10 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 import android.app.Activity;
 import android.content.Context;
 import androidx.fragment.app.FragmentActivity;
-
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
 import com.google.android.apps.forscience.whistlepunk.R;
 
-/**
- * An accounts provider which supports a user with no signed-in account.
- */
+/** An accounts provider which supports a user with no signed-in account. */
 public final class NonSignedInAccountsProvider extends AbstractAccountsProvider {
   public NonSignedInAccountsProvider(Context context) {
     super(context);
@@ -53,8 +50,7 @@ public final class NonSignedInAccountsProvider extends AbstractAccountsProvider 
   }
 
   @Override
-  public void onStop(ActivityWithNavigationView activity) {
-  }
+  public void onStop(ActivityWithNavigationView activity) {}
 
   @Override
   public void showAddAccountDialog(Activity activity) {

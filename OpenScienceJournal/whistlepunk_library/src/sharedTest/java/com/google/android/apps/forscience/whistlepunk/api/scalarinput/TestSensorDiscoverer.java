@@ -17,7 +17,6 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.os.RemoteException;
 import androidx.annotation.NonNull;
-
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
@@ -25,7 +24,6 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscov
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,153 +33,161 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
-    private final Executor mExecutor;
-    private String mServiceName;
-    private List<Device> mDevices = new ArrayList<>();
-    private Multimap<String, TestSensor> mSensors = HashMultimap.create();
+  private final Executor mExecutor;
+  private String mServiceName;
+  private List<Device> mDevices = new ArrayList<>();
+  private Multimap<String, TestSensor> mSensors = HashMultimap.create();
 
-    public TestSensorDiscoverer(String serviceName) {
-        this(serviceName, MoreExecutors.directExecutor());
-    }
+  public TestSensorDiscoverer(String serviceName) {
+    this(serviceName, MoreExecutors.directExecutor());
+  }
 
-    public TestSensorDiscoverer(String serviceName, Executor executor) {
-        mServiceName = serviceName;
-        mExecutor = executor;
-    }
+  public TestSensorDiscoverer(String serviceName, Executor executor) {
+    mServiceName = serviceName;
+    mExecutor = executor;
+  }
 
-    @NonNull
-    public ScalarInputDiscoverer makeScalarInputDiscoverer(final String serviceId,
-            Executor uiThread) {
-        return new ScalarInputDiscoverer(makeFinder(serviceId), new TestStringSource(), uiThread,
-                new MockScheduler(), 100, new RecordingUsageTracker());
-    }
+  @NonNull
+  public ScalarInputDiscoverer makeScalarInputDiscoverer(
+      final String serviceId, Executor uiThread) {
+    return new ScalarInputDiscoverer(
+        makeFinder(serviceId),
+        new TestStringSource(),
+        uiThread,
+        new MockScheduler(),
+        100,
+        new RecordingUsageTracker());
+  }
 
-    @NonNull
-    public Consumer<AppDiscoveryCallbacks> makeFinder(final String serviceId) {
-        return new Consumer<AppDiscoveryCallbacks>() {
-            @Override
-            public void take(AppDiscoveryCallbacks adc) {
-                adc.onServiceFound(serviceId, TestSensorDiscoverer.this);
-                adc.onDiscoveryDone();
-            }
-        };
-    }
+  @NonNull
+  public Consumer<AppDiscoveryCallbacks> makeFinder(final String serviceId) {
+    return new Consumer<AppDiscoveryCallbacks>() {
+      @Override
+      public void take(AppDiscoveryCallbacks adc) {
+        adc.onServiceFound(serviceId, TestSensorDiscoverer.this);
+        adc.onDiscoveryDone();
+      }
+    };
+  }
 
-    @Override
-    public String getName() throws RemoteException {
-        return mServiceName;
-    }
+  @Override
+  public String getName() throws RemoteException {
+    return mServiceName;
+  }
 
-    public void addDevice(String deviceId, String name) {
-        mDevices.add(new Device(deviceId, name));
-    }
+  public void addDevice(String deviceId, String name) {
+    mDevices.add(new Device(deviceId, name));
+  }
 
-    @Override
-    public void scanDevices(final IDeviceConsumer c) throws RemoteException {
-        for (final Device device : mDevices) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    device.deliverTo(c);
-                }
-            });
-        }
-        onDevicesDone(c);
-    }
-
-    protected void onDevicesDone(final IDeviceConsumer c) {
-        mExecutor.execute(new Runnable() {
+  @Override
+  public void scanDevices(final IDeviceConsumer c) throws RemoteException {
+    for (final Device device : mDevices) {
+      mExecutor.execute(
+          new Runnable() {
             @Override
             public void run() {
-                try {
-                    c.onScanDone();
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
+              device.deliverTo(c);
             }
-        });
+          });
     }
+    onDevicesDone(c);
+  }
 
-    public void addSensor(String deviceId, TestSensor sensor) {
-        mSensors.put(deviceId, sensor);
-    }
-
-    public void removeSensor(String deviceId, String address) {
-        Collection<TestSensor> testSensors = mSensors.get(deviceId);
-        Iterator<TestSensor> iter = testSensors.iterator();
-        while (iter.hasNext()) {
-            if (iter.next().getSensorAddress().equals(address)) {
-                iter.remove();
-            }
-        }
-    }
-
-    @Override
-    public void scanSensors(String deviceId, final ISensorConsumer c) throws RemoteException {
-        for (final TestSensor sensor : mSensors.get(deviceId)) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    sensor.deliverTo(c);
-                }
-            });
-        }
-        onSensorsDone(c);
-    }
-
-    protected void onSensorsDone(final ISensorConsumer c) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    c.onScanDone();
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-    }
-
-    @Override
-    public ISensorConnector getConnector() throws RemoteException {
-        return null;
-    }
-
-    @NonNull
-    public Map<String, SensorDiscoverer> makeDiscovererMap(String serviceId) {
-        ScalarInputDiscoverer sid = makeScalarInputDiscoverer(serviceId,
-                MoreExecutors.directExecutor());
-        Map<String, SensorDiscoverer> discoverers = new HashMap<>();
-        discoverers.put(ScalarInputSpec.TYPE, sid);
-        return discoverers;
-    }
-
-    @NonNull
-    public Map<String, SensorProvider> makeProviderMap(String serviceId) {
-        Map<String, SensorProvider> providers = new HashMap<>();
-        Map<String, SensorDiscoverer> discoverers = makeDiscovererMap(serviceId);
-        for (Map.Entry<String, SensorDiscoverer> entry : discoverers.entrySet()) {
-            providers.put(entry.getKey(), entry.getValue().getProvider());
-        }
-        return providers;
-    }
-
-    private class Device {
-        private final String mDeviceId;
-        private final String mName;
-
-        public Device(String deviceId, String name) {
-            mDeviceId = deviceId;
-            mName = name;
-        }
-
-        public void deliverTo(IDeviceConsumer c) {
+  protected void onDevicesDone(final IDeviceConsumer c) {
+    mExecutor.execute(
+        new Runnable() {
+          @Override
+          public void run() {
             try {
-                c.onDeviceFound(mDeviceId, mName, null);
+              c.onScanDone();
             } catch (RemoteException e) {
-                throw new RuntimeException(e);
+              throw new RuntimeException(e);
             }
-        }
+          }
+        });
+  }
+
+  public void addSensor(String deviceId, TestSensor sensor) {
+    mSensors.put(deviceId, sensor);
+  }
+
+  public void removeSensor(String deviceId, String address) {
+    Collection<TestSensor> testSensors = mSensors.get(deviceId);
+    Iterator<TestSensor> iter = testSensors.iterator();
+    while (iter.hasNext()) {
+      if (iter.next().getSensorAddress().equals(address)) {
+        iter.remove();
+      }
+    }
+  }
+
+  @Override
+  public void scanSensors(String deviceId, final ISensorConsumer c) throws RemoteException {
+    for (final TestSensor sensor : mSensors.get(deviceId)) {
+      mExecutor.execute(
+          new Runnable() {
+            @Override
+            public void run() {
+              sensor.deliverTo(c);
+            }
+          });
+    }
+    onSensorsDone(c);
+  }
+
+  protected void onSensorsDone(final ISensorConsumer c) {
+    mExecutor.execute(
+        new Runnable() {
+          @Override
+          public void run() {
+            try {
+              c.onScanDone();
+            } catch (RemoteException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        });
+  }
+
+  @Override
+  public ISensorConnector getConnector() throws RemoteException {
+    return null;
+  }
+
+  @NonNull
+  public Map<String, SensorDiscoverer> makeDiscovererMap(String serviceId) {
+    ScalarInputDiscoverer sid =
+        makeScalarInputDiscoverer(serviceId, MoreExecutors.directExecutor());
+    Map<String, SensorDiscoverer> discoverers = new HashMap<>();
+    discoverers.put(ScalarInputSpec.TYPE, sid);
+    return discoverers;
+  }
+
+  @NonNull
+  public Map<String, SensorProvider> makeProviderMap(String serviceId) {
+    Map<String, SensorProvider> providers = new HashMap<>();
+    Map<String, SensorDiscoverer> discoverers = makeDiscovererMap(serviceId);
+    for (Map.Entry<String, SensorDiscoverer> entry : discoverers.entrySet()) {
+      providers.put(entry.getKey(), entry.getValue().getProvider());
+    }
+    return providers;
+  }
+
+  private class Device {
+    private final String mDeviceId;
+    private final String mName;
+
+    public Device(String deviceId, String name) {
+      mDeviceId = deviceId;
+      mName = name;
     }
 
+    public void deliverTo(IDeviceConsumer c) {
+      try {
+        c.onDeviceFound(mDeviceId, mName, null);
+      } catch (RemoteException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
 }

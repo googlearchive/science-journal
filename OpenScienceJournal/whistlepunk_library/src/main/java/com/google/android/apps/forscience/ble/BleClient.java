@@ -19,33 +19,31 @@ package com.google.android.apps.forscience.ble;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
-
+import io.reactivex.Single;
 import java.util.UUID;
 
-import io.reactivex.Single;
-
 public interface BleClient {
-    boolean connectToAddress(String address);
+  boolean connectToAddress(String address);
 
-    void findServices(String address);
+  void findServices(String address);
 
-    BluetoothGattService getService(String address, UUID serviceId);
+  BluetoothGattService getService(String address, UUID serviceId);
 
-    void readValue(String address, BluetoothGattCharacteristic theCharacteristic);
+  void readValue(String address, BluetoothGattCharacteristic theCharacteristic);
 
-    void writeValue(String address, BluetoothGattCharacteristic theCharacteristic, byte[] value);
+  void writeValue(String address, BluetoothGattCharacteristic theCharacteristic, byte[] value);
 
-    BleFlow getFlowFor(String address);
+  BleFlow getFlowFor(String address);
 
-    BleFlow createFlowFor(String address);
+  BleFlow createFlowFor(String address);
 
-    void disconnectDevice(String address);
+  void disconnectDevice(String address);
 
-    void writeValue(String address, BluetoothGattDescriptor currentDescriptor, byte[] value);
+  void writeValue(String address, BluetoothGattDescriptor currentDescriptor, byte[] value);
 
-    boolean enableNotifications(String address, BluetoothGattCharacteristic characteristic);
+  boolean enableNotifications(String address, BluetoothGattCharacteristic characteristic);
 
-    boolean disableNotifications(String address, BluetoothGattCharacteristic characteristic);
+  boolean disableNotifications(String address, BluetoothGattCharacteristic characteristic);
 
-    Single<BleClient> whenConnected();
+  Single<BleClient> whenConnected();
 }

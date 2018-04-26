@@ -25,111 +25,109 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for the Refresher and the DataRefresher classes.
- */
+/** Tests for the Refresher and the DataRefresher classes. */
 @RunWith(RobolectricTestRunner.class)
 public class DataRefresherTest {
-    // A stream consumer that can return the most recent data and timestamp it received.
-    private class MockStreamConsumer implements StreamConsumer {
-        private long mTimestamp;
-        private double mValue;
-        private boolean mDataAdded = false;
+  // A stream consumer that can return the most recent data and timestamp it received.
+  private class MockStreamConsumer implements StreamConsumer {
+    private long mTimestamp;
+    private double mValue;
+    private boolean mDataAdded = false;
 
-        @Override
-        public boolean addData(long timestampMillis, double value) {
-            mTimestamp = timestampMillis;
-            mValue = value;
-            mDataAdded = true;
-            return true;
-        }
-
-        public long getLastTimestamp() {
-            return mTimestamp;
-        }
-
-        public double getLastValue() {
-            return mValue;
-        }
-
-        private boolean dataAdded() {
-            return mDataAdded;
-        }
+    @Override
+    public boolean addData(long timestampMillis, double value) {
+      mTimestamp = timestampMillis;
+      mValue = value;
+      mDataAdded = true;
+      return true;
     }
 
-    private MockStreamConsumer mStreamConsumer = new MockStreamConsumer();
-    private MockScheduler mScheduler = new MockScheduler();
-
-    @Test
-    public void testDataRefresherDoesNotRefreshWhenNotStreaming() {
-        DataRefresher dr = makeRefresher();
-        dr.setStreamConsumer(mStreamConsumer);
-        dr.setValue(2.718);
-        assertFalse(mStreamConsumer.dataAdded());
-
-        mScheduler.incrementTime(100);
-
-        assertFalse(mStreamConsumer.dataAdded());
-        dr.stopStreaming();
-        assertFalse(mStreamConsumer.dataAdded());
-
-        mScheduler.incrementTime(100);
-
-        assertFalse(mStreamConsumer.dataAdded());
+    public long getLastTimestamp() {
+      return mTimestamp;
     }
 
-    @Test
-    public void testDataRefresherUsesUpdatedValue() {
-        DataRefresher dr = makeRefresher();
-        dr.setStreamConsumer(mStreamConsumer);
-        assertFalse(mStreamConsumer.dataAdded());
-
-        dr.setValue(3.14159);
-        dr.startStreaming();
-        assertEquals(3.14159, mStreamConsumer.getLastValue(), 0.001);
-
-        dr.setValue(1.618);
-        mScheduler.incrementTime(100);
-
-        assertEquals(1.618, mStreamConsumer.getLastValue(), 0.001);
-
+    public double getLastValue() {
+      return mValue;
     }
 
-    @Test
-    public void testDataRefresherGetsValueWithOverridableGetValueFunction() {
-        DataRefresher dr = new DataRefresher(mScheduler, mScheduler.getClock()) {
-            @Override
-            public double getValue(long now) {
-                return 42d;
-            }
+    private boolean dataAdded() {
+      return mDataAdded;
+    }
+  }
+
+  private MockStreamConsumer mStreamConsumer = new MockStreamConsumer();
+  private MockScheduler mScheduler = new MockScheduler();
+
+  @Test
+  public void testDataRefresherDoesNotRefreshWhenNotStreaming() {
+    DataRefresher dr = makeRefresher();
+    dr.setStreamConsumer(mStreamConsumer);
+    dr.setValue(2.718);
+    assertFalse(mStreamConsumer.dataAdded());
+
+    mScheduler.incrementTime(100);
+
+    assertFalse(mStreamConsumer.dataAdded());
+    dr.stopStreaming();
+    assertFalse(mStreamConsumer.dataAdded());
+
+    mScheduler.incrementTime(100);
+
+    assertFalse(mStreamConsumer.dataAdded());
+  }
+
+  @Test
+  public void testDataRefresherUsesUpdatedValue() {
+    DataRefresher dr = makeRefresher();
+    dr.setStreamConsumer(mStreamConsumer);
+    assertFalse(mStreamConsumer.dataAdded());
+
+    dr.setValue(3.14159);
+    dr.startStreaming();
+    assertEquals(3.14159, mStreamConsumer.getLastValue(), 0.001);
+
+    dr.setValue(1.618);
+    mScheduler.incrementTime(100);
+
+    assertEquals(1.618, mStreamConsumer.getLastValue(), 0.001);
+  }
+
+  @Test
+  public void testDataRefresherGetsValueWithOverridableGetValueFunction() {
+    DataRefresher dr =
+        new DataRefresher(mScheduler, mScheduler.getClock()) {
+          @Override
+          public double getValue(long now) {
+            return 42d;
+          }
         };
-        dr.setStreamConsumer(mStreamConsumer);
-        dr.startStreaming();
-        assertEquals(42d, mStreamConsumer.getLastValue(), 0.001);
+    dr.setStreamConsumer(mStreamConsumer);
+    dr.startStreaming();
+    assertEquals(42d, mStreamConsumer.getLastValue(), 0.001);
 
-        mScheduler.incrementTime(100);
+    mScheduler.incrementTime(100);
 
-        assertEquals(42d, mStreamConsumer.getLastValue(), 0.001);
-    }
+    assertEquals(42d, mStreamConsumer.getLastValue(), 0.001);
+  }
 
-    @Test
-    public void testDataRefresherStopsUpdatingValuesOnStopStreaming() {
-        DataRefresher dr = makeRefresher();
-        dr.setStreamConsumer(mStreamConsumer);
-        dr.setValue(255d);
-        dr.startStreaming();
+  @Test
+  public void testDataRefresherStopsUpdatingValuesOnStopStreaming() {
+    DataRefresher dr = makeRefresher();
+    dr.setStreamConsumer(mStreamConsumer);
+    dr.setValue(255d);
+    dr.startStreaming();
 
-        assertEquals(255d, mStreamConsumer.getLastValue(), 0.001);
+    assertEquals(255d, mStreamConsumer.getLastValue(), 0.001);
 
-        dr.stopStreaming();
-        dr.setValue(254d);
-        mScheduler.incrementTime(100);
+    dr.stopStreaming();
+    dr.setValue(254d);
+    mScheduler.incrementTime(100);
 
-        // The value should not have been updated because we are not streaming.
-        assertEquals(255d, mStreamConsumer.getLastValue(), 0.001);
-    }
+    // The value should not have been updated because we are not streaming.
+    assertEquals(255d, mStreamConsumer.getLastValue(), 0.001);
+  }
 
-    private DataRefresher makeRefresher() {
-        return new DataRefresher(mScheduler, mScheduler.getClock());
-    }
+  private DataRefresher makeRefresher() {
+    return new DataRefresher(mScheduler, mScheduler.getClock());
+  }
 }

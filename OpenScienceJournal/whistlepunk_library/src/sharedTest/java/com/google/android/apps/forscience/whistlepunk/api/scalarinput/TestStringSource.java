@@ -16,13 +16,13 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 public class TestStringSource implements ScalarInputStringSource {
-    @Override
-    public String generateCouldNotFindServiceErrorMessage(String serviceId) {
-        return "No luck finding " + serviceId;
-    }
+  @Override
+  public String generateCouldNotFindServiceErrorMessage(String serviceId) {
+    return "No luck finding " + serviceId;
+  }
 
-    @Override
-    public String generateConnectionTimeoutMessage() {
-        return "Connection timeout";
-    }
+  @Override
+  public String generateConnectionTimeoutMessage() {
+    return "Connection timeout";
+  }
 }

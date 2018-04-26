@@ -18,42 +18,40 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import android.content.Context;
 import androidx.annotation.VisibleForTesting;
-
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 
 /**
- * Encapsulates information that a SensorChoice needs in order to choose how to graphically
- * display the data it has gathered.
+ * Encapsulates information that a SensorChoice needs in order to choose how to graphically display
+ * the data it has gathered.
  */
 public class DataViewOptions {
-    private final int mGraphColor;
-    private final ScalarDisplayOptions mOptions;
+  private final int mGraphColor;
+  private final ScalarDisplayOptions mOptions;
 
-    /**
-     * @param colorIndex index for "theme color" for this sensor data view. For example, if this is
-     *                   a line graph, this is the resource ID for the color in which the line
-     *                   should be drawn. (This is currently customized per-graph)
-     * @param options    settings that affect other aspects of how the line should be drawn,
-     *                   especially its shape.
-     *                   (This is currently shared between all graphs)
-     */
-    public DataViewOptions(int colorIndex, Context context, ScalarDisplayOptions options) {
-        mGraphColor = context.getResources().getIntArray(R.array.graph_colors_array)[colorIndex];
-        mOptions = options;
-    }
+  /**
+   * @param colorIndex index for "theme color" for this sensor data view. For example, if this is a
+   *     line graph, this is the resource ID for the color in which the line should be drawn. (This
+   *     is currently customized per-graph)
+   * @param options settings that affect other aspects of how the line should be drawn, especially
+   *     its shape. (This is currently shared between all graphs)
+   */
+  public DataViewOptions(int colorIndex, Context context, ScalarDisplayOptions options) {
+    mGraphColor = context.getResources().getIntArray(R.array.graph_colors_array)[colorIndex];
+    mOptions = options;
+  }
 
-    @VisibleForTesting
-    public DataViewOptions(int color, ScalarDisplayOptions options) {
-        mGraphColor = color;
-        mOptions = options;
-    }
+  @VisibleForTesting
+  public DataViewOptions(int color, ScalarDisplayOptions options) {
+    mGraphColor = color;
+    mOptions = options;
+  }
 
-    public int getGraphColor() {
-        return mGraphColor;
-    }
+  public int getGraphColor() {
+    return mGraphColor;
+  }
 
-    public ScalarDisplayOptions getLineGraphOptions() {
-        return mOptions;
-    }
+  public ScalarDisplayOptions getLineGraphOptions() {
+    return mOptions;
+  }
 }

@@ -15,16 +15,15 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class TestSensorDiscovererTest {
-    @Test
-    public void providerMap() {
-        TestSensorDiscoverer discoverer = new TestSensorDiscoverer("serviceName");
-        discoverer.makeProviderMap("serviceId").containsKey(ScalarInputSpec.TYPE);
-    }
+  @Test
+  public void providerMap() {
+    TestSensorDiscoverer discoverer = new TestSensorDiscoverer("serviceName");
+    discoverer.makeProviderMap("serviceId").containsKey(ScalarInputSpec.TYPE);
+  }
 }

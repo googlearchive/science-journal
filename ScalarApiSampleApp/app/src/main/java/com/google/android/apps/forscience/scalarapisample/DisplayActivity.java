@@ -23,11 +23,11 @@ import androidx.appcompat.app.AppCompatActivity;
  * determine whether the app is installed on a particular test device.
  */
 public class DisplayActivity extends AppCompatActivity {
-    private static final String TAG = "DisplayActivity";
+  private static final String TAG = "DisplayActivity";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display);
-    }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_display);
+  }
 }

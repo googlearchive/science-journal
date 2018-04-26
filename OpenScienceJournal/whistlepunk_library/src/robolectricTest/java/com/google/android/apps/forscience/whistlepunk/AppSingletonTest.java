@@ -27,14 +27,14 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class AppSingletonTest {
-    @Test
-    public void testHistoryStorage() {
-        SensorHistoryStorage storage = AppSingleton
-                .getInstance(RuntimeEnvironment.application.getApplicationContext())
-                .getSensorEnvironment()
-                .getSensorHistoryStorage();
-        ArrayList<String> ids = Lists.newArrayList(Arbitrary.string());
-        storage.setMostRecentSensorIds(ids);
-        assertEquals(ids, storage.getMostRecentSensorIds());
-    }
+  @Test
+  public void testHistoryStorage() {
+    SensorHistoryStorage storage =
+        AppSingleton.getInstance(RuntimeEnvironment.application.getApplicationContext())
+            .getSensorEnvironment()
+            .getSensorHistoryStorage();
+    ArrayList<String> ids = Lists.newArrayList(Arbitrary.string());
+    storage.setMostRecentSensorIds(ids);
+    assertEquals(ids, storage.getMostRecentSensorIds());
+  }
 }

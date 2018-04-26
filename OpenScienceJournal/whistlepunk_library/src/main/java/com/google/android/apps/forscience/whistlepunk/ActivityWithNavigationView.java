@@ -24,5 +24,4 @@ import androidx.appcompat.app.AppCompatActivity;
  * activity, and need the accounts provider to add the account switcher to the NavigationView.
  */
 public abstract class ActivityWithNavigationView extends AppCompatActivity
-    implements NavigationView.OnNavigationItemSelectedListener {
-}
+    implements NavigationView.OnNavigationItemSelectedListener {}

@@ -17,7 +17,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -31,152 +30,113 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMe
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
-
+import io.reactivex.Observable;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.Observable;
-
 /**
- * A DataController with empty implementations of all the methods, for tests to
- * extend and override only what they need.
+ * A DataController with empty implementations of all the methods, for tests to extend and override
+ * only what they need.
  */
 public class StubDataController implements DataController {
-    @Override
-    public void getScalarReadings(String trialId, String databaseTag, int resolutionTier,
-                                  TimeRange timeRange, int maxRecords,
-                                  MaybeConsumer<ScalarReadingList> onSuccess) {
+  @Override
+  public void getScalarReadings(
+      String trialId,
+      String databaseTag,
+      int resolutionTier,
+      TimeRange timeRange,
+      int maxRecords,
+      MaybeConsumer<ScalarReadingList> onSuccess) {}
 
-    }
+  @Override
+  public void getScalarReadingProtosInBackground(
+      GoosciExperiment.Experiment experiment,
+      MaybeConsumer<GoosciScalarSensorData.ScalarSensorData> onSuccess) {}
 
-    @Override
-    public void getScalarReadingProtosInBackground(GoosciExperiment.Experiment experiment,
-                          MaybeConsumer<GoosciScalarSensorData.ScalarSensorData> onSuccess) {
+  @Override
+  public Observable<ScalarReading> createScalarObservable(
+      String trialId, String[] sensorIds, TimeRange timeRange, int resolutionTier) {
+    return null;
+  }
 
-    }
+  @Override
+  public void deleteTrialData(Trial trial, MaybeConsumer<Success> onSuccess) {}
 
-    @Override
-    public Observable<ScalarReading> createScalarObservable(String trialId, String[] sensorIds,
-                                                            TimeRange timeRange,
-                                                            int resolutionTier) {
-        return null;
-    }
+  @Override
+  public void createExperiment(MaybeConsumer<Experiment> onSuccess) {}
 
-    @Override
-    public void deleteTrialData(Trial trial, MaybeConsumer<Success> onSuccess) {
+  @Override
+  public void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {}
 
-    }
+  @Override
+  public void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess) {}
 
-    @Override
-    public void createExperiment(MaybeConsumer<Experiment> onSuccess) {
+  @Override
+  public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {}
 
-    }
+  @Override
+  public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {}
 
-    @Override
-    public void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+  @Override
+  public void importExperimentFromZip(
+      Uri zipUri, ContentResolver resolver, MaybeConsumer<String> onSuccess) {}
 
-    }
+  @Override
+  public void saveImmediately(MaybeConsumer<Success> onSuccess) {}
 
-    @Override
-    public void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess) {
+  @Override
+  public String generateNewLabelId() {
+    return null;
+  }
 
-    }
+  @Override
+  public void getExperimentOverviews(
+      boolean includeArchived,
+      MaybeConsumer<List<GoosciUserMetadata.ExperimentOverview>> onSuccess) {}
 
-    @Override
-    public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {
+  @Override
+  public List<GoosciUserMetadata.ExperimentOverview> blockingGetExperimentOverviews(
+      boolean includeArchived) {
+    return null;
+  }
 
-    }
+  @Override
+  public void getLastUsedUnarchivedExperiment(MaybeConsumer<Experiment> onSuccess) {}
 
-    @Override
-    public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+  @Override
+  public void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess) {}
 
-    }
+  @Override
+  public void getExternalSensorsByExperiment(
+      String experimentId, MaybeConsumer<ExperimentSensors> onSuccess) {}
 
-    @Override
-    public void importExperimentFromZip(Uri zipUri, ContentResolver resolver,
-                                        MaybeConsumer<String> onSuccess) {
+  @Override
+  public void getExternalSensorById(String id, MaybeConsumer<ExternalSensorSpec> onSuccess) {}
 
-    }
+  @Override
+  public void addSensorToExperiment(
+      String experimentId, String sensorId, MaybeConsumer<Success> onSuccess) {}
 
-    @Override
-    public void saveImmediately(MaybeConsumer<Success> onSuccess) {
+  @Override
+  public void removeSensorFromExperiment(
+      String experimentId, String sensorId, MaybeConsumer<Success> onSuccess) {}
 
-    }
+  @Override
+  public void addOrGetExternalSensor(ExternalSensorSpec sensor, MaybeConsumer<String> onSensorId) {}
 
-    @Override
-    public String generateNewLabelId() {
-        return null;
-    }
+  @Override
+  public void replaceSensorInExperiment(
+      String experimentId,
+      String oldSensorId,
+      String newSensorId,
+      MaybeConsumer<Success> onSuccess) {}
 
-    @Override
-    public void getExperimentOverviews(boolean includeArchived,
-            MaybeConsumer<List<GoosciUserMetadata.ExperimentOverview>> onSuccess) {
+  @Override
+  public void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess) {}
 
-    }
+  @Override
+  public void forgetMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {}
 
-    @Override
-    public List<GoosciUserMetadata.ExperimentOverview> blockingGetExperimentOverviews(
-            boolean includeArchived) {
-        return null;
-    }
-
-    @Override
-    public void getLastUsedUnarchivedExperiment(MaybeConsumer<Experiment> onSuccess) {
-
-    }
-
-    @Override
-    public void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess) {
-
-    }
-
-    @Override
-    public void getExternalSensorsByExperiment(String experimentId,
-            MaybeConsumer<ExperimentSensors> onSuccess) {
-
-    }
-
-    @Override
-    public void getExternalSensorById(String id, MaybeConsumer<ExternalSensorSpec> onSuccess) {
-
-    }
-
-    @Override
-    public void addSensorToExperiment(String experimentId, String sensorId,
-            MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void removeSensorFromExperiment(String experimentId, String sensorId,
-            MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void addOrGetExternalSensor(ExternalSensorSpec sensor,
-            MaybeConsumer<String> onSensorId) {
-
-    }
-
-    @Override
-    public void replaceSensorInExperiment(String experimentId, String oldSensorId,
-            String newSensorId, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess) {
-
-    }
-
-    @Override
-    public void forgetMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {
-
-    }
-
-    @Override
-    public void addMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {
-
-    }
+  @Override
+  public void addMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {}
 }

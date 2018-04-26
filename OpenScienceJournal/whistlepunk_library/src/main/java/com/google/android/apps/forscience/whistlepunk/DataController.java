@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.ContentResolver;
 import android.net.Uri;
-
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -32,121 +31,115 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMe
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
-
+import io.reactivex.Observable;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.Observable;
-
 /**
- * Provides access to any data outside of the UI.  All methods should be called from the UI thread;
+ * Provides access to any data outside of the UI. All methods should be called from the UI thread;
  * callers can expect that methods will return quickly, and the provided callback will be called
  * later on the UI thread.
  */
 public interface DataController {
-    void getScalarReadings(String trialId, String databaseTag, final int resolutionTier,
-            TimeRange timeRange, int maxRecords,
-            MaybeConsumer<ScalarReadingList> onSuccess);
+  void getScalarReadings(
+      String trialId,
+      String databaseTag,
+      final int resolutionTier,
+      TimeRange timeRange,
+      int maxRecords,
+      MaybeConsumer<ScalarReadingList> onSuccess);
 
-    // TODO: refactor to remove the interface inconsistency here.
+  // TODO: refactor to remove the interface inconsistency here.
 
-    /**
-     * Unlike all other DataController methods, this one calls onSuccess on the background thread.
-     */
-    void getScalarReadingProtosInBackground(
-            GoosciExperiment.Experiment experiment,
-            final MaybeConsumer<GoosciScalarSensorData.ScalarSensorData> onSuccess);
+  /** Unlike all other DataController methods, this one calls onSuccess on the background thread. */
+  void getScalarReadingProtosInBackground(
+      GoosciExperiment.Experiment experiment,
+      final MaybeConsumer<GoosciScalarSensorData.ScalarSensorData> onSuccess);
 
-    Observable<ScalarReading> createScalarObservable(String trialId, String[] sensorIds,
-            TimeRange timeRange, final int resolutionTier);
+  Observable<ScalarReading> createScalarObservable(
+      String trialId, String[] sensorIds, TimeRange timeRange, final int resolutionTier);
 
-    void deleteTrialData(Trial trial, MaybeConsumer<Success> onSuccess);
+  void deleteTrialData(Trial trial, MaybeConsumer<Success> onSuccess);
 
-    void createExperiment(MaybeConsumer<Experiment> onSuccess);
+  void createExperiment(MaybeConsumer<Experiment> onSuccess);
 
-    void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
+  void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
-    void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess);
+  void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess);
 
-    void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess);
+  void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess);
 
-    void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
+  void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
-    void saveImmediately(MaybeConsumer<Success> onSuccess);
+  void saveImmediately(MaybeConsumer<Success> onSuccess);
 
-    String generateNewLabelId();
+  String generateNewLabelId();
 
-    void importExperimentFromZip(final Uri zipUri, ContentResolver resolver,
-            final MaybeConsumer<String> onSuccess);
+  void importExperimentFromZip(
+      final Uri zipUri, ContentResolver resolver, final MaybeConsumer<String> onSuccess);
 
-    /**
-     * Gets all experiment overviews.
-     */
-    void getExperimentOverviews(boolean includeArchived,
-            MaybeConsumer<List<GoosciUserMetadata.ExperimentOverview>> onSuccess);
+  /** Gets all experiment overviews. */
+  void getExperimentOverviews(
+      boolean includeArchived,
+      MaybeConsumer<List<GoosciUserMetadata.ExperimentOverview>> onSuccess);
 
-    /**
-     * Gets all experiment overviews on the same thread as the caller.
-     */
-    List<GoosciUserMetadata.ExperimentOverview> blockingGetExperimentOverviews(
-            boolean includeArchived);
+  /** Gets all experiment overviews on the same thread as the caller. */
+  List<GoosciUserMetadata.ExperimentOverview> blockingGetExperimentOverviews(
+      boolean includeArchived);
 
-    /**
-     * Gets the most recently used, unarchived experiment.
-     */
-    void getLastUsedUnarchivedExperiment(MaybeConsumer<Experiment> onSuccess);
+  /** Gets the most recently used, unarchived experiment. */
+  void getLastUsedUnarchivedExperiment(MaybeConsumer<Experiment> onSuccess);
 
-    void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess);
+  void getExternalSensors(MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess);
 
-    // TODO: fix docs, rename?
+  // TODO: fix docs, rename?
 
-    /**
-     * Passes to onSuccess a map from sensor ids to external sensor specs
-     */
-    void getExternalSensorsByExperiment(final String experimentId,
-            MaybeConsumer<ExperimentSensors> onSuccess);
+  /** Passes to onSuccess a map from sensor ids to external sensor specs */
+  void getExternalSensorsByExperiment(
+      final String experimentId, MaybeConsumer<ExperimentSensors> onSuccess);
 
-    /**
-     * Passes to onSuccess a map from sensor ids to external sensor specs
-     */
-    void getExternalSensorById(String id, MaybeConsumer<ExternalSensorSpec> onSuccess);
+  /** Passes to onSuccess a map from sensor ids to external sensor specs */
+  void getExternalSensorById(String id, MaybeConsumer<ExternalSensorSpec> onSuccess);
 
-    /**
-     * Adds the external sensor to the experiment.
-     *
-     * @return {@code true} to the consumer if the sensor was added, {@code false} if the sensor
-     * was already present.
-     */
-    void addSensorToExperiment(final String experimentId, String sensorId,
-            MaybeConsumer<Success> onSuccess);
+  /**
+   * Adds the external sensor to the experiment.
+   *
+   * @return {@code true} to the consumer if the sensor was added, {@code false} if the sensor was
+   *     already present.
+   */
+  void addSensorToExperiment(
+      final String experimentId, String sensorId, MaybeConsumer<Success> onSuccess);
 
-    /**
-     * Removes the external sensor from the experiment.
-     *
-     * @return {@code true} to the consumer if the sensor needed to be removed, {@code false} if
-     * the sensor was not already present.
-     */
-    void removeSensorFromExperiment(final String experimentId, final String sensorId,
-            MaybeConsumer<Success> onSuccess);
+  /**
+   * Removes the external sensor from the experiment.
+   *
+   * @return {@code true} to the consumer if the sensor needed to be removed, {@code false} if the
+   *     sensor was not already present.
+   */
+  void removeSensorFromExperiment(
+      final String experimentId, final String sensorId, MaybeConsumer<Success> onSuccess);
 
-    /**
-     * Makes sure there is an external sensor already registered in the database with the given
-     * spec, and returns its id to {@code onSensorId}
-     */
-    void addOrGetExternalSensor(ExternalSensorSpec sensor, MaybeConsumer<String> onSensorId);
+  /**
+   * Makes sure there is an external sensor already registered in the database with the given spec,
+   * and returns its id to {@code onSensorId}
+   */
+  void addOrGetExternalSensor(ExternalSensorSpec sensor, MaybeConsumer<String> onSensorId);
 
-    // TODO: layout and external sensor storage is redundant
+  // TODO: layout and external sensor storage is redundant
 
-    /**
-     * Replace oldSensorId with newSensorId in experiment.  All cards that were showing oldSensorId
-     * will now show newSensorId
-     */
-    void replaceSensorInExperiment(String experimentId, String oldSensorId, String newSensorId,
-            final MaybeConsumer<Success> onSuccess);
+  /**
+   * Replace oldSensorId with newSensorId in experiment. All cards that were showing oldSensorId
+   * will now show newSensorId
+   */
+  void replaceSensorInExperiment(
+      String experimentId,
+      String oldSensorId,
+      String newSensorId,
+      final MaybeConsumer<Success> onSuccess);
 
-    void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess);
+  void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess);
 
-    void forgetMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
+  void forgetMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
 
-    void addMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
+  void addMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
 }

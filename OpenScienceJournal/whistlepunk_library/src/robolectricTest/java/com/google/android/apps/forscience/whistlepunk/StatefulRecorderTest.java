@@ -29,40 +29,40 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class StatefulRecorderTest {
-    private final ManualSensor mSensor = new ManualSensor("sensorId", 100, 100);
-    private final RecordingDataController mDataController =
-            new InMemorySensorDatabase().makeSimpleRecordingController();
-    private final RecordingSensorObserver mObserver = new RecordingSensorObserver();
-    private final SensorRecorder mRecorder =
-            mSensor.createRecorder(null, mDataController, mObserver);
+  private final ManualSensor mSensor = new ManualSensor("sensorId", 100, 100);
+  private final RecordingDataController mDataController =
+      new InMemorySensorDatabase().makeSimpleRecordingController();
+  private final RecordingSensorObserver mObserver = new RecordingSensorObserver();
+  private final SensorRecorder mRecorder = mSensor.createRecorder(null, mDataController, mObserver);
 
-    @Test
-    public void doStartWhileStillRecording() {
-        StatefulRecorder sr = new StatefulRecorder(mRecorder, null, null);
+  @Test
+  public void doStartWhileStillRecording() {
+    StatefulRecorder sr = new StatefulRecorder(mRecorder, null, null);
 
-        sr.startObserving();
-        sr.startRecording("runId");
+    sr.startObserving();
+    sr.startRecording("runId");
 
-        // Something goes wrong
-        mSensor.simulateExternalEventPreventingObservation();
+    // Something goes wrong
+    mSensor.simulateExternalEventPreventingObservation();
 
-        // Try to reset
-        sr.reboot();
+    // Try to reset
+    sr.reboot();
 
-        // New value comes in.
-        mSensor.pushValue(0, 0);
+    // New value comes in.
+    mSensor.pushValue(0, 0);
 
-        new TestData().addPoint(0, 0).checkObserver(mObserver);
-    }
+    new TestData().addPoint(0, 0).checkObserver(mObserver);
+  }
 
-    @Test
-    public void stopObservingAfterStopRecording() {
-        StatefulRecorder sr = new StatefulRecorder(mRecorder, null, null);
-        sr.startObserving();
-        sr.startRecording("runId");
-        sr.stopObserving();
-        sr.stopRecording(Trial.newTrial(100, new GoosciSensorLayout.SensorLayout[0],
-                new FakeAppearanceProvider(), null));
-        assertFalse(mSensor.isObserving());
-    }
+  @Test
+  public void stopObservingAfterStopRecording() {
+    StatefulRecorder sr = new StatefulRecorder(mRecorder, null, null);
+    sr.startObserving();
+    sr.startRecording("runId");
+    sr.stopObserving();
+    sr.stopRecording(
+        Trial.newTrial(
+            100, new GoosciSensorLayout.SensorLayout[0], new FakeAppearanceProvider(), null));
+    assertFalse(mSensor.isObserving());
+  }
 }

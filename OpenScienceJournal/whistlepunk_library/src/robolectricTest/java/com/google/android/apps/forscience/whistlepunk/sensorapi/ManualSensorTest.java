@@ -24,9 +24,10 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ManualSensorTest {
-    @Test public void id() {
-        // silly test just to make sure that we're compiling and running ManualSensor correctly
-        ManualSensor sensor = new ManualSensor("sensorId", 100, 100);
-        assertEquals("sensorId", sensor.getId());
-    }
+  @Test
+  public void id() {
+    // silly test just to make sure that we're compiling and running ManualSensor correctly
+    ManualSensor sensor = new ManualSensor("sensorId", 100, 100);
+    assertEquals("sensorId", sensor.getId());
+  }
 }

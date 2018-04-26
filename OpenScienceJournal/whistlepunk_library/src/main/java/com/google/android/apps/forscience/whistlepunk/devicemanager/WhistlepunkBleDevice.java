@@ -16,7 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 public interface WhistlepunkBleDevice {
-    String getName();
+  String getName();
 
-    String getAddress();
+  String getAddress();
 }

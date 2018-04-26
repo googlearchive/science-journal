@@ -16,92 +16,90 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
-import androidx.annotation.VisibleForTesting;
-
-/**
- * Represents a project, which is a collection of experiments.
- */
+/** Represents a project, which is a collection of experiments. */
 public class Project {
 
-    private long mId;
-    private String mProjectId;
-    private String mTitle;
-    private String mDescription;
-    private String mCoverPhoto;
-    private boolean mArchived;
-    private long mLastUsedTime;
+  private long mId;
+  private String mProjectId;
+  private String mTitle;
+  private String mDescription;
+  private String mCoverPhoto;
+  private boolean mArchived;
+  private long mLastUsedTime;
 
-    @VisibleForTesting
-    public Project(long id) {
-        mId = id;
-    }
+  @VisibleForTesting
+  public Project(long id) {
+    mId = id;
+  }
 
-    /* package */ long getId() {
-        return mId;
-    }
+  /* package */ long getId() {
+    return mId;
+  }
 
-    /* package */ void setProjectId(String projectId) {
-        mProjectId = projectId;
-    }
+  /* package */ void setProjectId(String projectId) {
+    mProjectId = projectId;
+  }
 
-    public void setTitle(String title) {
-        this.mTitle = title;
-    }
+  public void setTitle(String title) {
+    this.mTitle = title;
+  }
 
-    public void setDescription(String description) {
-        mDescription = description;
-    }
+  public void setDescription(String description) {
+    mDescription = description;
+  }
 
-    public void setCoverPhoto(String coverPhoto) {
-        this.mCoverPhoto = coverPhoto;
-    }
+  public void setCoverPhoto(String coverPhoto) {
+    this.mCoverPhoto = coverPhoto;
+  }
 
-    public void setArchived(boolean archived) {
-        this.mArchived = archived;
-    }
+  public void setArchived(boolean archived) {
+    this.mArchived = archived;
+  }
 
-    public String getProjectId() {
-        return mProjectId;
-    }
+  public String getProjectId() {
+    return mProjectId;
+  }
 
-    public String getTitle() {
-        return mTitle;
-    }
+  public String getTitle() {
+    return mTitle;
+  }
 
-    public String getDescription() {
-        return mDescription;
-    }
+  public String getDescription() {
+    return mDescription;
+  }
 
-    public String getCoverPhoto() {
-        return mCoverPhoto;
-    }
+  public String getCoverPhoto() {
+    return mCoverPhoto;
+  }
 
-    public boolean isArchived() {
-        return mArchived;
-    }
+  public boolean isArchived() {
+    return mArchived;
+  }
 
-    public void setLastUsedTime(long lastUsedTime) {
-        mLastUsedTime = lastUsedTime;
-    }
+  public void setLastUsedTime(long lastUsedTime) {
+    mLastUsedTime = lastUsedTime;
+  }
 
-    public long getLastUsedTime() {
-        return mLastUsedTime;
-    }
+  public long getLastUsedTime() {
+    return mLastUsedTime;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        Project other = (Project) o;
-        if (other == null) {
-            return false;
-        }
-        boolean returnValue = mId == other.mId
-                && TextUtils.equals(mTitle, other.mTitle)
-                && mArchived == other.mArchived
-                && TextUtils.equals(mDescription, other.mDescription)
-                && TextUtils.equals(mCoverPhoto, other.mCoverPhoto)
-                && mLastUsedTime == other.mLastUsedTime;
-        return returnValue;
+  @Override
+  public boolean equals(Object o) {
+    Project other = (Project) o;
+    if (other == null) {
+      return false;
     }
+    boolean returnValue =
+        mId == other.mId
+            && TextUtils.equals(mTitle, other.mTitle)
+            && mArchived == other.mArchived
+            && TextUtils.equals(mDescription, other.mDescription)
+            && TextUtils.equals(mCoverPhoto, other.mCoverPhoto)
+            && mLastUsedTime == other.mLastUsedTime;
+    return returnValue;
+  }
 }

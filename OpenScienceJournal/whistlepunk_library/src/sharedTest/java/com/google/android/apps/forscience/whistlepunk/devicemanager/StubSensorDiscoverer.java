@@ -21,32 +21,30 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpe
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 
 class StubSensorDiscoverer implements SensorDiscoverer {
-    @Override
-    public boolean startScanning(ScanListener listener, FailureListener onScanError) {
-        return false;
-    }
+  @Override
+  public boolean startScanning(ScanListener listener, FailureListener onScanError) {
+    return false;
+  }
 
-    @Override
-    public void stopScanning() {
+  @Override
+  public void stopScanning() {}
 
-    }
-
-    @Override
-    public SensorProvider getProvider() {
-        return new SensorProvider() {
-            @Override
-            public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
-                return null;
-            }
-
-            @Override
-            public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
-                return StubSensorDiscoverer.this.buildSensorSpec(name, config);
-            }
-        };
-    }
-
-    protected ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
+  @Override
+  public SensorProvider getProvider() {
+    return new SensorProvider() {
+      @Override
+      public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
         return null;
-    }
+      }
+
+      @Override
+      public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
+        return StubSensorDiscoverer.this.buildSensorSpec(name, config);
+      }
+    };
+  }
+
+  protected ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
+    return null;
+  }
 }

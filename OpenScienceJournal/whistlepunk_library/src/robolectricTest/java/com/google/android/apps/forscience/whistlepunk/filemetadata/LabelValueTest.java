@@ -29,37 +29,40 @@ import org.robolectric.RobolectricTestRunner;
  */
 @RunWith(RobolectricTestRunner.class)
 public class LabelValueTest {
-    @Test
-    public void testTextLabelValue() {
-        TextLabelValue textLabelValue = TextLabelValue.fromText("potato");
-        assertEquals("potato", textLabelValue.getText());
+  @Test
+  public void testTextLabelValue() {
+    TextLabelValue textLabelValue = TextLabelValue.fromText("potato");
+    assertEquals("potato", textLabelValue.getText());
 
-        textLabelValue.setText("tomato");
-        assertEquals("tomato", textLabelValue.getText());
-    }
+    textLabelValue.setText("tomato");
+    assertEquals("tomato", textLabelValue.getText());
+  }
 
-    @Test
-    public void testPictureLabelValue() {
-        GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-        PictureLabelValue.populateLabelValue(value, "path/to/photo", "cheese!");
+  @Test
+  public void testPictureLabelValue() {
+    GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
+    PictureLabelValue.populateLabelValue(value, "path/to/photo", "cheese!");
 
-        assertEquals("path/to/photo", PictureLabelValue.getFilePath(value));
-        assertEquals("cheese!", PictureLabelValue.getCaption(value));
+    assertEquals("path/to/photo", PictureLabelValue.getFilePath(value));
+    assertEquals("cheese!", PictureLabelValue.getCaption(value));
 
-        PictureLabelValue labelValue = PictureLabelValue.fromPicture("path/to/photo", "cheese!");
-        assertEquals("path/to/photo", labelValue.getFilePath());
-        assertEquals("cheese!", labelValue.getCaption());
-    }
+    PictureLabelValue labelValue = PictureLabelValue.fromPicture("path/to/photo", "cheese!");
+    assertEquals("path/to/photo", labelValue.getFilePath());
+    assertEquals("cheese!", labelValue.getCaption());
+  }
 
-    @Test
-    public void testSnapshotLabelValue() {
-        SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("sensorId",
-                GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW, "note",
-                7.5);
-        GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-        SensorTriggerLabelValue.populateLabelValue(value, trigger, "note");
+  @Test
+  public void testSnapshotLabelValue() {
+    SensorTrigger trigger =
+        SensorTrigger.newNoteTypeTrigger(
+            "sensorId",
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+            "note",
+            7.5);
+    GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
+    SensorTriggerLabelValue.populateLabelValue(value, trigger, "note");
 
-        assertEquals("note", SensorTriggerLabelValue.getCustomText(value));
-        assertEquals("sensorId", SensorTriggerLabelValue.getSensorId(value));
-    }
+    assertEquals("note", SensorTriggerLabelValue.getCustomText(value));
+    assertEquals("sensorId", SensorTriggerLabelValue.getSensorId(value));
+  }
 }

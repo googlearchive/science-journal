@@ -17,58 +17,57 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BatchDataController implements RecordingDataController, Closeable {
-    private RecordingDataController mDataController;
-    private List<BatchInsertScalarReading> mReadings = new ArrayList<>();
+  private RecordingDataController mDataController;
+  private List<BatchInsertScalarReading> mReadings = new ArrayList<>();
 
-    public BatchDataController(RecordingDataController dataController) {
-        mDataController = dataController;
+  public BatchDataController(RecordingDataController dataController) {
+    mDataController = dataController;
+  }
+
+  public void addScalarReading(
+      String trialId,
+      String sensorId,
+      final int resolutionTier,
+      long timestampMillis,
+      double value) {
+    mReadings.add(
+        new BatchInsertScalarReading(trialId, sensorId, resolutionTier, timestampMillis, value));
+
+    if (mReadings.size() > 10000) {
+      flushScalarReadings();
     }
+  }
 
-    public void addScalarReading(String trialId, String sensorId, final int resolutionTier,
-            long timestampMillis, double value) {
-        mReadings.add(
-                new BatchInsertScalarReading(trialId, sensorId, resolutionTier, timestampMillis,
-                        value));
+  @Override
+  public void addScalarReadings(List<BatchInsertScalarReading> readings) {
+    mDataController.addScalarReadings(readings);
+  }
 
-        if (mReadings.size() > 10000) {
-            flushScalarReadings();
-        }
-    }
+  public void flushScalarReadings() {
+    mDataController.addScalarReadings(mReadings);
+    mReadings = new ArrayList<>();
+  }
 
-    @Override
-    public void addScalarReadings(List<BatchInsertScalarReading> readings) {
-        mDataController.addScalarReadings(readings);
-    }
+  /**
+   * If an error is encountered storing data or stats for {@code sensorId}, notify {@code listener}
+   */
+  public void setDataErrorListenerForSensor(String sensorId, FailureListener listener) {
+    mDataController.setDataErrorListenerForSensor(sensorId, listener);
+  }
 
-    public void flushScalarReadings() {
-        mDataController.addScalarReadings(mReadings);
-        mReadings = new ArrayList<>();
-    }
+  /** Clear listener set by earlier call to {@code setDataErrorListener} */
+  public void clearDataErrorListenerForSensor(String sensorId) {
+    mDataController.clearDataErrorListenerForSensor(sensorId);
+  }
 
-    /**
-     * If an error is encountered storing data or stats for {@code sensorId}, notify {@code
-     * listener}
-     */
-    public void setDataErrorListenerForSensor(String sensorId, FailureListener listener) {
-        mDataController.setDataErrorListenerForSensor(sensorId, listener);
-    }
-
-    /**
-     * Clear listener set by earlier call to {@code setDataErrorListener}
-     */
-    public void clearDataErrorListenerForSensor(String sensorId) {
-        mDataController.clearDataErrorListenerForSensor(sensorId);
-    }
-
-    @Override
-    public void close() throws IOException {
-        flushScalarReadings();
-    }
+  @Override
+  public void close() throws IOException {
+    flushScalarReadings();
+  }
 }

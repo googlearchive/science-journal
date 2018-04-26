@@ -18,19 +18,22 @@ package com.google.android.apps.forscience.whistlepunk;
 
 public class BatchInsertScalarReading {
 
-    public BatchInsertScalarReading(final String trialId, final String sensorId,
-            final int resolutionTier, final long timestampMillis,
-            final double value) {
-        this.trialId = trialId;
-        this.sensorId = sensorId;
-        this.resolutionTier = resolutionTier;
-        this.timestampMillis = timestampMillis;
-        this.value = value;
-    }
+  public BatchInsertScalarReading(
+      final String trialId,
+      final String sensorId,
+      final int resolutionTier,
+      final long timestampMillis,
+      final double value) {
+    this.trialId = trialId;
+    this.sensorId = sensorId;
+    this.resolutionTier = resolutionTier;
+    this.timestampMillis = timestampMillis;
+    this.value = value;
+  }
 
-    public final String trialId;
-    public final String sensorId;
-    public final int resolutionTier;
-    public final long timestampMillis;
-    public final double value;
+  public final String trialId;
+  public final String sensorId;
+  public final int resolutionTier;
+  public final long timestampMillis;
+  public final double value;
 }

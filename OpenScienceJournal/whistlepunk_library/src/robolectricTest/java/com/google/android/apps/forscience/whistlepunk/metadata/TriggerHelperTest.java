@@ -24,43 +24,41 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for the TriggerHelper class.
- */
+/** Tests for the TriggerHelper class. */
 @RunWith(RobolectricTestRunner.class)
 public class TriggerHelperTest {
-    @Test
-    public void testAddTrigger() {
-        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-        TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId");
-        assertEquals(layout.activeSensorTriggerIds.length, 1);
+  @Test
+  public void testAddTrigger() {
+    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+    TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId");
+    assertEquals(layout.activeSensorTriggerIds.length, 1);
 
-        TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId2");
-        assertEquals(layout.activeSensorTriggerIds.length, 2);
+    TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId2");
+    assertEquals(layout.activeSensorTriggerIds.length, 2);
 
-        // Doesn't double-add
-        TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId2");
-        assertEquals(layout.activeSensorTriggerIds.length, 2);
+    // Doesn't double-add
+    TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId2");
+    assertEquals(layout.activeSensorTriggerIds.length, 2);
+  }
+
+  @Test
+  public void testRemoveTrigger() {
+    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+
+    // No error if it doesn't exist
+    TriggerHelper.removeTriggerFromLayoutActiveTriggers(layout, "triggerId");
+    assertEquals(layout.activeSensorTriggerIds.length, 0);
+
+    TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId");
+    TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId2");
+    TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId3");
+    assertEquals(layout.activeSensorTriggerIds.length, 3);
+
+    // It deletes the right one
+    TriggerHelper.removeTriggerFromLayoutActiveTriggers(layout, "triggerId");
+    assertEquals(layout.activeSensorTriggerIds.length, 2);
+    for (int i = 0; i < layout.activeSensorTriggerIds.length; i++) {
+      assertFalse(TextUtils.equals(layout.activeSensorTriggerIds[i], "triggerId"));
     }
-
-    @Test
-    public void testRemoveTrigger() {
-        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-
-        // No error if it doesn't exist
-        TriggerHelper.removeTriggerFromLayoutActiveTriggers(layout, "triggerId");
-        assertEquals(layout.activeSensorTriggerIds.length, 0);
-
-        TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId");
-        TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId2");
-        TriggerHelper.addTriggerToLayoutActiveTriggers(layout, "triggerId3");
-        assertEquals(layout.activeSensorTriggerIds.length, 3);
-
-        // It deletes the right one
-        TriggerHelper.removeTriggerFromLayoutActiveTriggers(layout, "triggerId");
-        assertEquals(layout.activeSensorTriggerIds.length, 2);
-        for (int i = 0; i < layout.activeSensorTriggerIds.length; i++) {
-            assertFalse(TextUtils.equals(layout.activeSensorTriggerIds[i], "triggerId"));
-        }
-    }
+  }
 }

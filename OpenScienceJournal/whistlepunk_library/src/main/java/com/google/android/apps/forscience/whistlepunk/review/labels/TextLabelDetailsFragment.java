@@ -28,98 +28,98 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
-/**
- * Details view controller for TextLabel
- */
+/** Details view controller for TextLabel */
 public class TextLabelDetailsFragment extends LabelDetailsFragment {
-    private TextInputLayout mNoteTextLayout;
-    private TextInputEditText mNoteText;
+  private TextInputLayout mNoteTextLayout;
+  private TextInputEditText mNoteText;
 
-    public static TextLabelDetailsFragment newInstance(String experimentId,
-            String trialId, Label originalLabel) {
-        TextLabelDetailsFragment result = new TextLabelDetailsFragment();
-        Bundle args = new Bundle();
-        args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
-        args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
-        args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
-        result.setArguments(args);
-        return result;
-    }
+  public static TextLabelDetailsFragment newInstance(
+      String experimentId, String trialId, Label originalLabel) {
+    TextLabelDetailsFragment result = new TextLabelDetailsFragment();
+    Bundle args = new Bundle();
+    args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
+    args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
+    args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
+    result.setArguments(args);
+    return result;
+  }
 
-    public TextLabelDetailsFragment() {
-        // Required empty public constructor
-    }
+  public TextLabelDetailsFragment() {
+    // Required empty public constructor
+  }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            final Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        mNoteTextLayout = (TextInputLayout) inflater.inflate(R.layout.text_label_details_fragment,
-                container, false);
-        mNoteText = mNoteTextLayout.findViewById(R.id.note_text);
-        mNoteText.setText(mOriginalLabel.getTextLabelValue().text);
-        mNoteText.post(() -> mNoteText.setSelection(mNoteText.getText().toString().length()));
+  @Override
+  public View onCreateView(
+      LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
+    setHasOptionsMenu(true);
+    mNoteTextLayout =
+        (TextInputLayout) inflater.inflate(R.layout.text_label_details_fragment, container, false);
+    mNoteText = mNoteTextLayout.findViewById(R.id.note_text);
+    mNoteText.setText(mOriginalLabel.getTextLabelValue().text);
+    mNoteText.post(() -> mNoteText.setSelection(mNoteText.getText().toString().length()));
 
-        RxTextView.afterTextChangeEvents(mNoteText).subscribe(events -> {
-            verifyInput(mNoteText.getText().toString());
-        });
+    RxTextView.afterTextChangeEvents(mNoteText)
+        .subscribe(
+            events -> {
+              verifyInput(mNoteText.getText().toString());
+            });
 
-        // TODO: Transition
+    // TODO: Transition
 
-        return mNoteTextLayout;
-    }
+    return mNoteTextLayout;
+  }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_text_label_details, menu);
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.menu_text_label_details, menu);
 
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle(getActivity().getResources().getString(
-                R.string.text_label_details_title));
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
-        actionBar.setHomeActionContentDescription(android.R.string.cancel);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
+    ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+    actionBar.setTitle(getActivity().getResources().getString(R.string.text_label_details_title));
+    actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+    actionBar.setHomeActionContentDescription(android.R.string.cancel);
+    super.onCreateOptionsMenu(menu, inflater);
+  }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_save) {
-            mExperiment.firstElement().subscribe(experiment -> {
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.action_save) {
+      mExperiment
+          .firstElement()
+          .subscribe(
+              experiment -> {
                 if (mNoteTextLayout.isErrorEnabled()) {
-                    // No-op. Shows an error, doesn't exit.
-                    return;
+                  // No-op. Shows an error, doesn't exit.
+                  return;
                 }
                 saveTextChanges(mNoteText.getText().toString(), experiment);
                 returnToParent(false, null);
-            });
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+              });
+      return true;
     }
+    return super.onOptionsItemSelected(item);
+  }
 
-    private void saveTextChanges(String newText, Experiment experiment) {
-        GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
-        labelValue.text = newText;
-        mOriginalLabel.setLabelProtoData(labelValue);
-        saveUpdatedOriginalLabel(experiment);
-    }
+  private void saveTextChanges(String newText, Experiment experiment) {
+    GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
+    labelValue.text = newText;
+    mOriginalLabel.setLabelProtoData(labelValue);
+    saveUpdatedOriginalLabel(experiment);
+  }
 
-    private boolean verifyInput(String text) {
-        if (TextUtils.isEmpty(text)) {
-            mNoteTextLayout.setError(getActivity().getResources().getString(
-                    R.string.empty_text_note_error));
-            mNoteTextLayout.setErrorEnabled(true);
-            return false;
-        }
-        mNoteTextLayout.setErrorEnabled(false);
-        return true;
+  private boolean verifyInput(String text) {
+    if (TextUtils.isEmpty(text)) {
+      mNoteTextLayout.setError(
+          getActivity().getResources().getString(R.string.empty_text_note_error));
+      mNoteTextLayout.setErrorEnabled(true);
+      return false;
     }
+    mNoteTextLayout.setErrorEnabled(false);
+    return true;
+  }
 }

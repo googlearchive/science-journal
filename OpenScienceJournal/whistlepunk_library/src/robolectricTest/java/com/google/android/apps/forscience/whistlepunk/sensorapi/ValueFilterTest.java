@@ -25,10 +25,10 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ValueFilterTest {
-    @Test
-    public void testIdentity() {
-        double value = Arbitrary.doubleFloat();
-        long now = Arbitrary.longInteger();
-        assertEquals(value, ValueFilter.IDENTITY.filterValue(now, value), 0.01);
-    }
+  @Test
+  public void testIdentity() {
+    double value = Arbitrary.doubleFloat();
+    long now = Arbitrary.longInteger();
+    assertEquals(value, ValueFilter.IDENTITY.filterValue(now, value), 0.01);
+  }
 }

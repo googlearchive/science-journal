@@ -17,35 +17,33 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.os.Build;
 
-/**
- * Utility classes to determine current Android API level.
- */
+/** Utility classes to determine current Android API level. */
 public class AndroidVersionUtils {
-    public static boolean isApiLevelAtLeast(int apiLevel) {
-        return Build.VERSION.SDK_INT >= apiLevel;
-    }
+  public static boolean isApiLevelAtLeast(int apiLevel) {
+    return Build.VERSION.SDK_INT >= apiLevel;
+  }
 
-    public static boolean isApiLevelAtLeastOreo() {
-        return isApiLevelAtLeast(Build.VERSION_CODES.O);
-    }
+  public static boolean isApiLevelAtLeastOreo() {
+    return isApiLevelAtLeast(Build.VERSION_CODES.O);
+  }
 
-    public static boolean isApiLevelAtLeastNougat() {
-        return isApiLevelAtLeast(Build.VERSION_CODES.N);
-    }
+  public static boolean isApiLevelAtLeastNougat() {
+    return isApiLevelAtLeast(Build.VERSION_CODES.N);
+  }
 
-    public static boolean isApiLevelAtLeastMarshmallow() {
-        return isApiLevelAtLeast(Build.VERSION_CODES.M);
-    }
+  public static boolean isApiLevelAtLeastMarshmallow() {
+    return isApiLevelAtLeast(Build.VERSION_CODES.M);
+  }
 
-    public static boolean isApiLevelAtLeastLollipop() {
-        return isApiLevelAtLeast(Build.VERSION_CODES.LOLLIPOP);
-    }
+  public static boolean isApiLevelAtLeastLollipop() {
+    return isApiLevelAtLeast(Build.VERSION_CODES.LOLLIPOP);
+  }
 
-    public static boolean isApiLevelAtLeastKitKatWatch() {
-        return isApiLevelAtLeast(Build.VERSION_CODES.KITKAT_WATCH);
-    }
+  public static boolean isApiLevelAtLeastKitKatWatch() {
+    return isApiLevelAtLeast(Build.VERSION_CODES.KITKAT_WATCH);
+  }
 
-    public static boolean isApiLevelAtLeastKitKat() {
-        return isApiLevelAtLeast(Build.VERSION_CODES.KITKAT);
-    }
+  public static boolean isApiLevelAtLeastKitKat() {
+    return isApiLevelAtLeast(Build.VERSION_CODES.KITKAT);
+  }
 }

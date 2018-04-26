@@ -16,44 +16,38 @@
 
 package com.google.android.apps.forscience.whistlepunk.audio;
 
-/**
- * Computes moving average using a circular buffer.
- */
+/** Computes moving average using a circular buffer. */
 class MovingAverage {
-    private final int mBufferSize;
-    private final double[] buffer;
-    private double sum;
-    private int mSize;
-    private int mNext;
+  private final int mBufferSize;
+  private final double[] buffer;
+  private double sum;
+  private int mSize;
+  private int mNext;
 
-    MovingAverage(int size) {
-        mBufferSize = size;
-        buffer = new double[mBufferSize];
-    }
+  MovingAverage(int size) {
+    mBufferSize = size;
+    buffer = new double[mBufferSize];
+  }
 
-    /**
-     * Clears this MovingAverage of previous entries.
-     */
-    void clear() {
-        sum = 0;
-        mSize = 0;
-        mNext = 0;
-    }
+  /** Clears this MovingAverage of previous entries. */
+  void clear() {
+    sum = 0;
+    mSize = 0;
+    mNext = 0;
+  }
 
-    /**
-     * Inserts the given number and returns the moving average.
-     */
-    double insertAndReturnAverage(double n) {
-        if (mSize == mBufferSize) {
-            double removed = buffer[mNext];
-            sum = sum - removed;
-        }
-        buffer[mNext] = n;
-        sum += n;
-        mNext = (mNext + 1) % mBufferSize;
-        if (mSize < mBufferSize) {
-            mSize++;
-        }
-        return sum / mSize;
+  /** Inserts the given number and returns the moving average. */
+  double insertAndReturnAverage(double n) {
+    if (mSize == mBufferSize) {
+      double removed = buffer[mNext];
+      sum = sum - removed;
     }
+    buffer[mNext] = n;
+    sum += n;
+    mNext = (mNext + 1) % mBufferSize;
+    if (mSize < mBufferSize) {
+      mSize++;
+    }
+    return sum / mSize;
+  }
 }

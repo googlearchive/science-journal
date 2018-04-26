@@ -17,40 +17,28 @@
 package com.google.android.apps.forscience.whistlepunk.opensource.modules;
 
 import android.util.SparseArray;
-
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-
 import dagger.Module;
 import dagger.Provides;
 
-/**
- * Stub UsageTracker which does nothing.
- */
+/** Stub UsageTracker which does nothing. */
 @Module
 public class UsageTrackerModule {
-    @Provides
-    public UsageTracker provideUsageTracker() {
-        return new UsageTracker() {
-            @Override
-            public void setOptOut(boolean optOut) {
+  @Provides
+  public UsageTracker provideUsageTracker() {
+    return new UsageTracker() {
+      @Override
+      public void setOptOut(boolean optOut) {}
 
-            }
+      @Override
+      public void trackScreenView(String screenName) {}
 
-            @Override
-            public void trackScreenView(String screenName) {
+      @Override
+      public void trackEvent(String category, String action, String label, long value) {}
 
-            }
-
-            @Override
-            public void trackEvent(String category, String action, String label, long value) {
-
-            }
-
-            @Override
-            public void trackDimensionEvent(String category, String action,
-                    SparseArray<String> dimensions) {
-
-            }
-        };
-    }
+      @Override
+      public void trackDimensionEvent(
+          String category, String action, SparseArray<String> dimensions) {}
+    };
+  }
 }

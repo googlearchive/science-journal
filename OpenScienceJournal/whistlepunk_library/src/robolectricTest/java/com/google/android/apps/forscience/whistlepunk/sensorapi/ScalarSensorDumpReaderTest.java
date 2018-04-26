@@ -33,54 +33,54 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ScalarSensorDumpReaderTest {
-    private final MemoryMetadataManager mMetadata = new MemoryMetadataManager();
-    private InMemorySensorDatabase mDb = new InMemorySensorDatabase();
-    private final RecordingDataController mRecordingController = mDb.makeSimpleRecordingController(
-            mMetadata);
+  private final MemoryMetadataManager mMetadata = new MemoryMetadataManager();
+  private InMemorySensorDatabase mDb = new InMemorySensorDatabase();
+  private final RecordingDataController mRecordingController =
+      mDb.makeSimpleRecordingController(mMetadata);
 
-    @Test
-    public void testDataSuccessfullyWritten() {
-        GoosciScalarSensorData.ScalarSensorData scalarSensorData =
-                new GoosciScalarSensorData.ScalarSensorData();
-        GoosciScalarSensorData.ScalarSensorDataDump sensor =
-                new GoosciScalarSensorData.ScalarSensorDataDump();
-        sensor.tag = "foo";
-        sensor.trialId = "id";
-        ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> rowList = new ArrayList<>();
-        ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorList = new ArrayList<>();
-        HashMap<String, String> idMap = new HashMap<>();
-        idMap.put("id", "id");
-        for (int x = 1; x <= 10000; x++) {
-            GoosciScalarSensorData.ScalarSensorDataRow row =
-                    new GoosciScalarSensorData.ScalarSensorDataRow();
-            row.timestampMillis = x;
-            row.value = x * 100;
-            rowList.add(row);
-        }
-        sensor.rows = rowList.toArray(GoosciScalarSensorData.ScalarSensorDataRow.emptyArray());
-        sensorList.add(sensor);
-        scalarSensorData.sensors = sensorList.toArray(
-                GoosciScalarSensorData.ScalarSensorDataDump.emptyArray());
-
-        ScalarSensorDumpReader reader = new ScalarSensorDumpReader(mRecordingController);
-        reader.readData(scalarSensorData, idMap);
-
-        ScalarReadingList readings = mDb.getScalarReadings("id", "foo",
-                TimeRange.oldest(Range.all()), 0, 0);
-        assertEquals(10000, readings.size());
-
-        readings = mDb.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 1, 0);
-        assertEquals(500, readings.size());
-
-        readings = mDb.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 2, 0);
-        assertEquals(26, readings.size());
-
-        readings = mDb.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 3, 0);
-        assertEquals(2, readings.size());
-
-        readings = mDb.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 4, 0);
-        assertEquals(0, readings.size());
+  @Test
+  public void testDataSuccessfullyWritten() {
+    GoosciScalarSensorData.ScalarSensorData scalarSensorData =
+        new GoosciScalarSensorData.ScalarSensorData();
+    GoosciScalarSensorData.ScalarSensorDataDump sensor =
+        new GoosciScalarSensorData.ScalarSensorDataDump();
+    sensor.tag = "foo";
+    sensor.trialId = "id";
+    ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> rowList = new ArrayList<>();
+    ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorList = new ArrayList<>();
+    HashMap<String, String> idMap = new HashMap<>();
+    idMap.put("id", "id");
+    for (int x = 1; x <= 10000; x++) {
+      GoosciScalarSensorData.ScalarSensorDataRow row =
+          new GoosciScalarSensorData.ScalarSensorDataRow();
+      row.timestampMillis = x;
+      row.value = x * 100;
+      rowList.add(row);
     }
+    sensor.rows = rowList.toArray(GoosciScalarSensorData.ScalarSensorDataRow.emptyArray());
+    sensorList.add(sensor);
+    scalarSensorData.sensors =
+        sensorList.toArray(GoosciScalarSensorData.ScalarSensorDataDump.emptyArray());
+
+    ScalarSensorDumpReader reader = new ScalarSensorDumpReader(mRecordingController);
+    reader.readData(scalarSensorData, idMap);
+
+    ScalarReadingList readings =
+        mDb.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 0, 0);
+    assertEquals(10000, readings.size());
+
+    readings = mDb.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 1, 0);
+    assertEquals(500, readings.size());
+
+    readings = mDb.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 2, 0);
+    assertEquals(26, readings.size());
+
+    readings = mDb.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 3, 0);
+    assertEquals(2, readings.size());
+
+    readings = mDb.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 4, 0);
+    assertEquals(0, readings.size());
+  }
 
   @Test
   public void testDataSuccessfullyWrittenArrayList() {

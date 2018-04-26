@@ -25,52 +25,54 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ParallelTaskTest {
-    @Test
-    public void succeedLate() {
-        ParallelTask task = new ParallelTask();
-        MaybeConsumer<Success> a = task.addStep();
-        MaybeConsumer<Success> b = task.addStep();
-        MaybeConsumer<Success> c = task.addStep();
+  @Test
+  public void succeedLate() {
+    ParallelTask task = new ParallelTask();
+    MaybeConsumer<Success> a = task.addStep();
+    MaybeConsumer<Success> b = task.addStep();
+    MaybeConsumer<Success> c = task.addStep();
 
-        StoringConsumer<Success> whenDone = new StoringConsumer<>();
+    StoringConsumer<Success> whenDone = new StoringConsumer<>();
 
-        task.whenAllDone(whenDone);
-        assertEquals(null, whenDone.getValue());
+    task.whenAllDone(whenDone);
+    assertEquals(null, whenDone.getValue());
 
-        b.success(Success.SUCCESS);
-        assertEquals(null, whenDone.getValue());
+    b.success(Success.SUCCESS);
+    assertEquals(null, whenDone.getValue());
 
-        c.success(Success.SUCCESS);
-        assertEquals(null, whenDone.getValue());
+    c.success(Success.SUCCESS);
+    assertEquals(null, whenDone.getValue());
 
-        // don't be fooled by repeat successes
-        c.success(Success.SUCCESS);
-        assertEquals(null, whenDone.getValue());
+    // don't be fooled by repeat successes
+    c.success(Success.SUCCESS);
+    assertEquals(null, whenDone.getValue());
 
-        a.success(Success.SUCCESS);
-        assertEquals(Success.SUCCESS, whenDone.getValue());
-    }
+    a.success(Success.SUCCESS);
+    assertEquals(Success.SUCCESS, whenDone.getValue());
+  }
 
-    @Test public void succeedEarly() {
-        ParallelTask task = new ParallelTask();
-        MaybeConsumer<Success> a = task.addStep();
-        a.success(Success.SUCCESS);
+  @Test
+  public void succeedEarly() {
+    ParallelTask task = new ParallelTask();
+    MaybeConsumer<Success> a = task.addStep();
+    a.success(Success.SUCCESS);
 
-        MaybeConsumer<Success> b = task.addStep();
-        b.success(Success.SUCCESS);
+    MaybeConsumer<Success> b = task.addStep();
+    b.success(Success.SUCCESS);
 
-        MaybeConsumer<Success> c = task.addStep();
-        c.success(Success.SUCCESS);
+    MaybeConsumer<Success> c = task.addStep();
+    c.success(Success.SUCCESS);
 
-        StoringConsumer<Success> whenDone = new StoringConsumer<>();
+    StoringConsumer<Success> whenDone = new StoringConsumer<>();
 
-        task.whenAllDone(whenDone);
-        assertEquals(Success.SUCCESS, whenDone.getValue());
-    }
+    task.whenAllDone(whenDone);
+    assertEquals(Success.SUCCESS, whenDone.getValue());
+  }
 
-    @Test public void failure() {
-        ParallelTask task = new ParallelTask();
-        task.addStep().fail(new RuntimeException("oh no!"));
-        task.whenAllDone(TestConsumers.expectingFailureType(RuntimeException.class));
-    }
+  @Test
+  public void failure() {
+    ParallelTask task = new ParallelTask();
+    task.addStep().fail(new RuntimeException("oh no!"));
+    task.whenAllDone(TestConsumers.expectingFailureType(RuntimeException.class));
+  }
 }

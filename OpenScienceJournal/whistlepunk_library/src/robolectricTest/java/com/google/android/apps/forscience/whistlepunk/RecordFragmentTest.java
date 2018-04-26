@@ -40,42 +40,63 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class RecordFragmentTest {
-    @Test
-    public void addSnapshotLabel() throws InterruptedException {
-        InMemorySensorDatabase db = new InMemorySensorDatabase();
-        ManualSensorRegistry reg = new ManualSensorRegistry();
-        DataControllerImpl dc = db.makeSimpleController();
-        ManualSensor sensor = reg.addSensor("id", "name");
-        final long now = Math.abs(Arbitrary.longInteger());
+  @Test
+  public void addSnapshotLabel() throws InterruptedException {
+    InMemorySensorDatabase db = new InMemorySensorDatabase();
+    ManualSensorRegistry reg = new ManualSensorRegistry();
+    DataControllerImpl dc = db.makeSimpleController();
+    ManualSensor sensor = reg.addSensor("id", "name");
+    final long now = Math.abs(Arbitrary.longInteger());
 
-        MemorySensorEnvironment env =
-                new MemorySensorEnvironment(db.makeSimpleRecordingController(),
-                        new FakeBleClient(null), new MemorySensorHistoryStorage(), () -> now);
+    MemorySensorEnvironment env =
+        new MemorySensorEnvironment(
+            db.makeSimpleRecordingController(),
+            new FakeBleClient(null),
+            new MemorySensorHistoryStorage(),
+            () -> now);
 
-        final RecorderControllerImpl rc =
-                new RecorderControllerImpl(RuntimeEnvironment.application.getApplicationContext(),
-                        env, new RecorderListenerRegistry(), null, dc, null,
-                        Delay.ZERO, new FakeUnitAppearanceProvider());
+    final RecorderControllerImpl rc =
+        new RecorderControllerImpl(
+            RuntimeEnvironment.application.getApplicationContext(),
+            env,
+            new RecorderListenerRegistry(),
+            null,
+            dc,
+            null,
+            Delay.ZERO,
+            new FakeUnitAppearanceProvider());
 
-        rc.startObserving("id", new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
-                new RecordingStatusListener(), null, reg);
-        sensor.pushValue(now - 10, 55);
+    rc.startObserving(
+        "id",
+        new ArrayList<SensorTrigger>(),
+        new RecordingSensorObserver(),
+        new RecordingStatusListener(),
+        null,
+        reg);
+    sensor.pushValue(now - 10, 55);
 
-        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
-        dc.createExperiment(cExperiment);
-        Experiment exp = cExperiment.getValue();
+    StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+    dc.createExperiment(cExperiment);
+    Experiment exp = cExperiment.getValue();
 
-        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-        layout.sensorId = "id";
-        exp.getSensorLayouts().add(layout);
+    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+    layout.sensorId = "id";
+    exp.getSensorLayouts().add(layout);
 
-        TestObserver<Label> test =
-                new Snapshotter(rc, dc, reg).addSnapshotLabelToHolder(exp, exp).test();
-        assertTrue(test.await(2, TimeUnit.SECONDS));
-        test.assertComplete();
+    TestObserver<Label> test =
+        new Snapshotter(rc, dc, reg).addSnapshotLabelToHolder(exp, exp).test();
+    assertTrue(test.await(2, TimeUnit.SECONDS));
+    test.assertComplete();
 
-        assertEquals(55, exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0].value, .00001);
-        assertEquals("name", exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0]
-                .sensor.rememberedAppearance.name);
-    }
+    assertEquals(55, exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0].value, .00001);
+    assertEquals(
+        "name",
+        exp.getLabels()
+            .get(0)
+            .getSnapshotLabelValue()
+            .snapshots[0]
+            .sensor
+            .rememberedAppearance
+            .name);
+  }
 }

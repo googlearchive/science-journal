@@ -22,58 +22,55 @@ import android.app.backup.BackupManager;
 import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
-
 import java.io.IOException;
 
 /**
- * Backup agent to back up settings and whether the user has seen the tutorial and feature
- * discovery instances yet.
+ * Backup agent to back up settings and whether the user has seen the tutorial and feature discovery
+ * instances yet.
  */
 public class SimpleBackupAgent extends BackupAgentHelper {
-    // A key to uniquely identify the set of backup data
-    static final String PREFS_BACKUP_KEY = "default_prefs";
-    private static final String TAG = "SimpleBackupAgent";
+  // A key to uniquely identify the set of backup data
+  static final String PREFS_BACKUP_KEY = "default_prefs";
+  private static final String TAG = "SimpleBackupAgent";
 
-    // Allocate a helper and add it to the backup agent.
-    // This currently backs up all the default SharedPreferences.
-    // This assumption and code should be updated if we decide not to backup and restore the user's
-    // manually entered Birthday, or if we allow multiple sign-in and need to store
-    // SharedPreferences elsewhere.
-    @Override
-    public void onCreate() {
-        String prefsName = getDefaultStoredPreferencesName(getApplicationContext());
-        SharedPreferencesBackupHelper helper = new SharedPreferencesBackupHelper(this, prefsName);
-        addHelper(PREFS_BACKUP_KEY, helper);
-    }
+  // Allocate a helper and add it to the backup agent.
+  // This currently backs up all the default SharedPreferences.
+  // This assumption and code should be updated if we decide not to backup and restore the user's
+  // manually entered Birthday, or if we allow multiple sign-in and need to store
+  // SharedPreferences elsewhere.
+  @Override
+  public void onCreate() {
+    String prefsName = getDefaultStoredPreferencesName(getApplicationContext());
+    SharedPreferencesBackupHelper helper = new SharedPreferencesBackupHelper(this, prefsName);
+    addHelper(PREFS_BACKUP_KEY, helper);
+  }
 
-    private String getDefaultStoredPreferencesName(Context context) {
-        if (AndroidVersionUtils.isApiLevelAtLeastNougat()) {
-            return PreferenceManager.getDefaultSharedPreferencesName(context);
-        } else {
-            // The function getDefaultSharedPreferencesName was private until API N, but implemented
-            // the same way.
-            return context.getPackageName() + "_preferences";
-        }
+  private String getDefaultStoredPreferencesName(Context context) {
+    if (AndroidVersionUtils.isApiLevelAtLeastNougat()) {
+      return PreferenceManager.getDefaultSharedPreferencesName(context);
+    } else {
+      // The function getDefaultSharedPreferencesName was private until API N, but implemented
+      // the same way.
+      return context.getPackageName() + "_preferences";
     }
+  }
 
-    /**
-     * Schedule backups each time the preferences are modified.
-     */
-    public static SharedPreferences.OnSharedPreferenceChangeListener
-                registerOnSharedPreferencesChangeListener(Context applicationContext) {
-        SharedPreferences.OnSharedPreferenceChangeListener listener = (sharedPreferences, s) ->
-                BackupManager.dataChanged("com.google.android.apps.forscience.whistlepunk");
-        PreferenceManager.getDefaultSharedPreferences(applicationContext)
-                .registerOnSharedPreferenceChangeListener(listener);
-        return listener;
-    }
+  /** Schedule backups each time the preferences are modified. */
+  public static SharedPreferences.OnSharedPreferenceChangeListener
+      registerOnSharedPreferencesChangeListener(Context applicationContext) {
+    SharedPreferences.OnSharedPreferenceChangeListener listener =
+        (sharedPreferences, s) ->
+            BackupManager.dataChanged("com.google.android.apps.forscience.whistlepunk");
+    PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        .registerOnSharedPreferenceChangeListener(listener);
+    return listener;
+  }
 
-    @Override
-    public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState)
-            throws IOException {
-        super.onRestore(data, appVersionCode, newState);
-    }
+  @Override
+  public void onRestore(BackupDataInput data, int appVersionCode, ParcelFileDescriptor newState)
+      throws IOException {
+    super.onRestore(data, appVersionCode, newState);
+  }
 }

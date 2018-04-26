@@ -17,85 +17,81 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/**
- * Metadata object for the stats stored along with a trial
- */
+/** Metadata object for the stats stored along with a trial */
 public class TrialStats {
-    private GoosciTrial.SensorTrialStats mTrialStats;
+  private GoosciTrial.SensorTrialStats mTrialStats;
 
-    public static Map<String, TrialStats> fromTrial(GoosciTrial.Trial trial) {
-        Map<String, TrialStats> result = new HashMap<>();
-        for (GoosciTrial.SensorTrialStats stats : trial.trialStats) {
-            result.put(stats.sensorId, new TrialStats(stats));
-        }
-        return result;
+  public static Map<String, TrialStats> fromTrial(GoosciTrial.Trial trial) {
+    Map<String, TrialStats> result = new HashMap<>();
+    for (GoosciTrial.SensorTrialStats stats : trial.trialStats) {
+      result.put(stats.sensorId, new TrialStats(stats));
     }
+    return result;
+  }
 
-    public TrialStats(String sensorId) {
-        mTrialStats = new GoosciTrial.SensorTrialStats();
-        mTrialStats.sensorId = sensorId;
-    }
+  public TrialStats(String sensorId) {
+    mTrialStats = new GoosciTrial.SensorTrialStats();
+    mTrialStats.sensorId = sensorId;
+  }
 
-    public TrialStats(GoosciTrial.SensorTrialStats trialStats) {
-        mTrialStats = trialStats;
-    }
+  public TrialStats(GoosciTrial.SensorTrialStats trialStats) {
+    mTrialStats = trialStats;
+  }
 
-    public GoosciTrial.SensorTrialStats getSensorTrialStatsProto() {
-        return mTrialStats;
-    }
+  public GoosciTrial.SensorTrialStats getSensorTrialStatsProto() {
+    return mTrialStats;
+  }
 
-    public void copyFrom(TrialStats other) {
-        mTrialStats = other.getSensorTrialStatsProto();
-    }
+  public void copyFrom(TrialStats other) {
+    mTrialStats = other.getSensorTrialStatsProto();
+  }
 
-    public String getSensorId() {
-        return mTrialStats.sensorId;
-    }
+  public String getSensorId() {
+    return mTrialStats.sensorId;
+  }
 
-    public boolean statsAreValid() {
-        return mTrialStats.statStatus == GoosciTrial.SensorTrialStats.StatStatus.VALID;
-    }
+  public boolean statsAreValid() {
+    return mTrialStats.statStatus == GoosciTrial.SensorTrialStats.StatStatus.VALID;
+  }
 
-    public void setStatStatus(int status) {
-        mTrialStats.statStatus = status;
-    }
+  public void setStatStatus(int status) {
+    mTrialStats.statStatus = status;
+  }
 
-    public void putStat(int type, double value) {
-        for (GoosciTrial.SensorStat sensorStat : mTrialStats.sensorStats) {
-            if (sensorStat.statType == type) {
-                sensorStat.statValue = value;
-                return;
-            }
-        }
-        int newSize = mTrialStats.sensorStats.length + 1;
-        mTrialStats.sensorStats = Arrays.copyOf(mTrialStats.sensorStats, newSize);
-        GoosciTrial.SensorStat newStat = new GoosciTrial.SensorStat();
-        newStat.statType = type;
-        newStat.statValue = value;
-        mTrialStats.sensorStats[newSize - 1] = newStat;
+  public void putStat(int type, double value) {
+    for (GoosciTrial.SensorStat sensorStat : mTrialStats.sensorStats) {
+      if (sensorStat.statType == type) {
+        sensorStat.statValue = value;
+        return;
+      }
     }
+    int newSize = mTrialStats.sensorStats.length + 1;
+    mTrialStats.sensorStats = Arrays.copyOf(mTrialStats.sensorStats, newSize);
+    GoosciTrial.SensorStat newStat = new GoosciTrial.SensorStat();
+    newStat.statType = type;
+    newStat.statValue = value;
+    mTrialStats.sensorStats[newSize - 1] = newStat;
+  }
 
-    public double getStatValue(int type, double defaultValue) {
-        for (GoosciTrial.SensorStat sensorStat : mTrialStats.sensorStats) {
-            if (sensorStat.statType == type) {
-                return sensorStat.statValue;
-            }
-        }
-        return defaultValue;
+  public double getStatValue(int type, double defaultValue) {
+    for (GoosciTrial.SensorStat sensorStat : mTrialStats.sensorStats) {
+      if (sensorStat.statType == type) {
+        return sensorStat.statValue;
+      }
     }
+    return defaultValue;
+  }
 
-    public boolean hasStat(int type) {
-        for (GoosciTrial.SensorStat sensorStat : mTrialStats.sensorStats) {
-            if (sensorStat.statType == type) {
-                return true;
-            }
-        }
-        return false;
+  public boolean hasStat(int type) {
+    for (GoosciTrial.SensorStat sensorStat : mTrialStats.sensorStats) {
+      if (sensorStat.statType == type) {
+        return true;
+      }
     }
+    return false;
+  }
 }

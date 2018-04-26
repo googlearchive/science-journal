@@ -17,54 +17,57 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import com.google.android.apps.forscience.ble.BleClient;
-import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorHistoryStorage;
+import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
-
 import io.reactivex.Single;
 
 public class MemorySensorEnvironment implements SensorEnvironment {
-    private final RecordingDataController mDataController;
-    private final Clock mClock;
-    private final AudioSource mAudioSource = new AudioSource();
-    private FakeBleClient mBleClient;
-    private SensorHistoryStorage mHistoryStorage;
+  private final RecordingDataController mDataController;
+  private final Clock mClock;
+  private final AudioSource mAudioSource = new AudioSource();
+  private FakeBleClient mBleClient;
+  private SensorHistoryStorage mHistoryStorage;
 
-    public MemorySensorEnvironment(RecordingDataController dataController, FakeBleClient bleClient,
-            SensorHistoryStorage shs, Clock clock) {
-        mDataController = dataController != null ? dataController
-                : new InMemorySensorDatabase().makeSimpleRecordingController();
-        mBleClient = bleClient;
-        mHistoryStorage = shs != null ? shs : new MemorySensorHistoryStorage();
-        mClock = clock;
-    }
+  public MemorySensorEnvironment(
+      RecordingDataController dataController,
+      FakeBleClient bleClient,
+      SensorHistoryStorage shs,
+      Clock clock) {
+    mDataController =
+        dataController != null
+            ? dataController
+            : new InMemorySensorDatabase().makeSimpleRecordingController();
+    mBleClient = bleClient;
+    mHistoryStorage = shs != null ? shs : new MemorySensorHistoryStorage();
+    mClock = clock;
+  }
 
-    @Override
-    public RecordingDataController getDataController() {
-        return mDataController;
-    }
+  @Override
+  public RecordingDataController getDataController() {
+    return mDataController;
+  }
 
-    @Override
-    public Single<BleClient> getConnectedBleClient() {
-        return Single.just(mBleClient);
-    }
+  @Override
+  public Single<BleClient> getConnectedBleClient() {
+    return Single.just(mBleClient);
+  }
 
-    @Override
-    public Clock getDefaultClock() {
-        return mClock;
-    }
+  @Override
+  public Clock getDefaultClock() {
+    return mClock;
+  }
 
-    @Override
-    public AudioSource getAudioSource() {
-        return mAudioSource;
-    }
+  @Override
+  public AudioSource getAudioSource() {
+    return mAudioSource;
+  }
 
-    @Override
-    public SensorHistoryStorage getSensorHistoryStorage() {
-        return mHistoryStorage;
-    }
-
+  @Override
+  public SensorHistoryStorage getSensorHistoryStorage() {
+    return mHistoryStorage;
+  }
 }

@@ -17,9 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 /**
- * Channel Names for notifications. Android docs say that this value can be truncated if it is
- * "too long", but does not specify a limit. These values are namespaced to our package.
+ * Channel Names for notifications. Android docs say that this value can be truncated if it is "too
+ * long", but does not specify a limit. These values are namespaced to our package.
  */
 public class NotificationChannels {
-    public static final String NOTIFICATION_CHANNEL = "science_journal_notification_channel";
+  public static final String NOTIFICATION_CHANNEL = "science_journal_notification_channel";
 }

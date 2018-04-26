@@ -19,23 +19,21 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 
 public class FakeAppearanceProvider implements SensorAppearanceProvider {
-    private int mNameStringId;
+  private int mNameStringId;
 
-    public FakeAppearanceProvider() {
-        this(R.string.sensor_custom);
-    }
+  public FakeAppearanceProvider() {
+    this(R.string.sensor_custom);
+  }
 
-    public FakeAppearanceProvider(int nameStringId) {
-        mNameStringId = nameStringId;
-    }
+  public FakeAppearanceProvider(int nameStringId) {
+    mNameStringId = nameStringId;
+  }
 
-    @Override
-    public void loadAppearances(MaybeConsumer<Success> onSuccess) {
+  @Override
+  public void loadAppearances(MaybeConsumer<Success> onSuccess) {}
 
-    }
-
-    @Override
-    public SensorAppearance getAppearance(String sensorId) {
-        return new BuiltInSensorAppearance(mNameStringId, 0, "sensorId");
-    }
+  @Override
+  public SensorAppearance getAppearance(String sensorId) {
+    return new BuiltInSensorAppearance(mNameStringId, 0, "sensorId");
+  }
 }

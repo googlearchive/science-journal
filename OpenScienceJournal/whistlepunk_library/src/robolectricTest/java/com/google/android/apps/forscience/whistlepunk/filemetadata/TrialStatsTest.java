@@ -25,48 +25,46 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for the TrialStats class.
- */
+/** Tests for the TrialStats class. */
 @RunWith(RobolectricTestRunner.class)
 public class TrialStatsTest {
-    @Test
-    public void testGetAndSet() {
-        TrialStats stats = new TrialStats("sensorId");
-        stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
-        stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
-        stats.putStat(GoosciTrial.SensorStat.StatType.MINIMUM, 10);
+  @Test
+  public void testGetAndSet() {
+    TrialStats stats = new TrialStats("sensorId");
+    stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+    stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
+    stats.putStat(GoosciTrial.SensorStat.StatType.MINIMUM, 10);
 
-        assertTrue(stats.hasStat(GoosciTrial.SensorStat.StatType.AVERAGE));
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, 0), 42.0);
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0), 10.0);
+    assertTrue(stats.hasStat(GoosciTrial.SensorStat.StatType.AVERAGE));
+    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, 0), 42.0);
+    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0), 10.0);
 
-        // New values overwrite old values
-        stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 41);
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, 0), 41.0);
+    // New values overwrite old values
+    stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 41);
+    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, 0), 41.0);
 
-        // Check that missing information works properly.
-        assertFalse(stats.hasStat(GoosciTrial.SensorStat.StatType.MAXIMUM));
-        // Test default too
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 52.0), 52.0);
+    // Check that missing information works properly.
+    assertFalse(stats.hasStat(GoosciTrial.SensorStat.StatType.MAXIMUM));
+    // Test default too
+    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 52.0), 52.0);
 
-        // Put another one, just for fun.
-        stats.putStat(GoosciTrial.SensorStat.StatType.MAXIMUM, 52);
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0), 52.0);
-    }
+    // Put another one, just for fun.
+    stats.putStat(GoosciTrial.SensorStat.StatType.MAXIMUM, 52);
+    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0), 52.0);
+  }
 
-    @Test
-    public void testCopy() {
-        GoosciTrial.SensorTrialStats sensorTrialStats = new GoosciTrial.SensorTrialStats();
-        sensorTrialStats.sensorId = "sensorId";
-        sensorTrialStats.statStatus = GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE;
-        TrialStats initial = new TrialStats(sensorTrialStats);
+  @Test
+  public void testCopy() {
+    GoosciTrial.SensorTrialStats sensorTrialStats = new GoosciTrial.SensorTrialStats();
+    sensorTrialStats.sensorId = "sensorId";
+    sensorTrialStats.statStatus = GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE;
+    TrialStats initial = new TrialStats(sensorTrialStats);
 
-        TrialStats other = new TrialStats("sensorId");
-        other.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+    TrialStats other = new TrialStats("sensorId");
+    other.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
 
-        assertFalse(initial.statsAreValid());
-        initial.copyFrom(other);
-        assertTrue(initial.statsAreValid());
-    }
+    assertFalse(initial.statsAreValid());
+    initial.copyFrom(other);
+    assertTrue(initial.statsAreValid());
+  }
 }

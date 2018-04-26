@@ -32,67 +32,65 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
-/**
- * Tests for the ProtoFileHelper class.
- */
+/** Tests for the ProtoFileHelper class. */
 @RunWith(RobolectricTestRunner.class)
 public class ProtoFileHelperTest {
-    private Context getContext() {
-        return RuntimeEnvironment.application.getApplicationContext();
+  private Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private File getFile() {
+    return new File(getContext().getFilesDir() + "/file");
+  }
+
+  @After
+  public void cleanUp() {
+    getFile().delete();
+  }
+
+  @Test
+  public void testWriteAndRead() {
+    File file = getFile();
+    try {
+      file.createNewFile();
+    } catch (IOException ex) {
+      fail();
     }
 
-    private File getFile() {
-        return new File(getContext().getFilesDir() + "/file");
+    GoosciUserMetadata.UserMetadata metadata = new GoosciUserMetadata.UserMetadata();
+    metadata.version = 42;
+    ProtoFileHelper<GoosciUserMetadata.UserMetadata> helper = new ProtoFileHelper<>();
+    boolean success = helper.writeToFile(file, metadata, null);
+    assertTrue(success);
+
+    GoosciUserMetadata.UserMetadata result =
+        helper.readFromFile(file, GoosciUserMetadata.UserMetadata::parseFrom, null);
+    assertEquals(42, result.version);
+  }
+
+  @Test
+  public void testWriteFailsRevertsToPrevious() {
+    File file = getFile();
+    try {
+      file.createNewFile();
+    } catch (IOException ex) {
+      fail();
     }
 
-    @After
-    public void cleanUp() {
-        getFile().delete();
-    }
+    GoosciUserMetadata.UserMetadata metadata = new GoosciUserMetadata.UserMetadata();
+    metadata.version = 42;
+    ProtoFileHelper<GoosciUserMetadata.UserMetadata> helper = new ProtoFileHelper<>();
+    boolean success = helper.writeToFile(file, metadata, null);
+    assertTrue(success);
 
-    @Test
-    public void testWriteAndRead() {
-        File file = getFile();
-        try {
-            file.createNewFile();
-        } catch (IOException ex) {
-            fail();
-        }
+    metadata.version = 64;
+    // Fails to write a proto and the old version is put back
+    success = helper.writeToFile(file, metadata, true, UsageTracker.STUB);
+    assertFalse(success);
 
-        GoosciUserMetadata.UserMetadata metadata = new GoosciUserMetadata.UserMetadata();
-        metadata.version = 42;
-        ProtoFileHelper<GoosciUserMetadata.UserMetadata> helper = new ProtoFileHelper<>();
-        boolean success = helper.writeToFile(file, metadata, null);
-        assertTrue(success);
-
-        GoosciUserMetadata.UserMetadata result =
-                helper.readFromFile(file, GoosciUserMetadata.UserMetadata::parseFrom, null);
-        assertEquals(42, result.version);
-    }
-
-    @Test
-    public void testWriteFailsRevertsToPrevious() {
-        File file = getFile();
-        try {
-            file.createNewFile();
-        } catch (IOException ex) {
-            fail();
-        }
-
-        GoosciUserMetadata.UserMetadata metadata = new GoosciUserMetadata.UserMetadata();
-        metadata.version = 42;
-        ProtoFileHelper<GoosciUserMetadata.UserMetadata> helper = new ProtoFileHelper<>();
-        boolean success = helper.writeToFile(file, metadata, null);
-        assertTrue(success);
-
-        metadata.version = 64;
-        // Fails to write a proto and the old version is put back
-        success = helper.writeToFile(file, metadata, true, UsageTracker.STUB);
-        assertFalse(success);
-
-        // The old version should still be available.
-        GoosciUserMetadata.UserMetadata result =
-                helper.readFromFile(file, GoosciUserMetadata.UserMetadata::parseFrom, null);
-        assertEquals(42, result.version);
-    }
+    // The old version should still be available.
+    GoosciUserMetadata.UserMetadata result =
+        helper.readFromFile(file, GoosciUserMetadata.UserMetadata::parseFrom, null);
+    assertEquals(42, result.version);
+  }
 }

@@ -20,7 +20,6 @@ import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.Log;
-
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -34,7 +33,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.html.HtmlEscapers;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,171 +42,166 @@ import java.util.Map;
  * grouping of connectable sensors that live on the same physical piece of hardware, in order to
  * group things helpfully for users that live in the physical world.
  *
- * An input device, like an external sensor, has a name, address, and appearance, but it does
- * not allow one to actually create SensorChoices directly; SensorChoices are created from actual
- * sensor specs.
+ * <p>An input device, like an external sensor, has a name, address, and appearance, but it does not
+ * allow one to actually create SensorChoices directly; SensorChoices are created from actual sensor
+ * specs.
  */
 public class InputDeviceSpec extends ExternalSensorSpec {
-    public static SensorProvider PROVIDER = new SensorProvider() {
+  public static SensorProvider PROVIDER =
+      new SensorProvider() {
         @Override
         public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
-            // device entries are never actual streaming sensors
-            return null;
+          // device entries are never actual streaming sensors
+          return null;
         }
 
         @Override
         public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
-            return new InputDeviceSpec(name, config);
+          return new InputDeviceSpec(name, config);
         }
-    };
+      };
 
-    public static final SensorDiscoverer DISCOVERER = new SensorDiscoverer() {
+  public static final SensorDiscoverer DISCOVERER =
+      new SensorDiscoverer() {
         @Override
         public boolean startScanning(ScanListener listener, FailureListener onScanError) {
-            // These are only remembered from the database, never discovered by scanning
-            return false;
+          // These are only remembered from the database, never discovered by scanning
+          return false;
         }
 
         @Override
-        public void stopScanning() {
-
-        }
+        public void stopScanning() {}
 
         @Override
         public SensorProvider getProvider() {
-            return PROVIDER;
+          return PROVIDER;
         }
-    };
+      };
 
-    public static final String TYPE = "InputDevice";
-    private static final String TAG = "InputDeviceSpec";
-    public static Map<String, SensorProvider> PROVIDER_MAP = ImmutableMap.of(TYPE,
-            PROVIDER);
+  public static final String TYPE = "InputDevice";
+  private static final String TAG = "InputDeviceSpec";
+  public static Map<String, SensorProvider> PROVIDER_MAP = ImmutableMap.of(TYPE, PROVIDER);
 
-    /**
-     * The "address" given to the device on which the app is running.
-     */
-    public static final String BUILT_IN_DEVICE_ADDRESS = "BUILT_IN_DEVICE";
+  /** The "address" given to the device on which the app is running. */
+  public static final String BUILT_IN_DEVICE_ADDRESS = "BUILT_IN_DEVICE";
 
-    private String mName;
-    private InputDevice.InputDeviceConfig mConfig;
+  private String mName;
+  private InputDevice.InputDeviceConfig mConfig;
 
-    public static InputDeviceSpec fromProto(GoosciDeviceSpec.DeviceSpec proto) {
-        return new InputDeviceSpec(proto.info.providerId, proto.info.address, proto.name);
+  public static InputDeviceSpec fromProto(GoosciDeviceSpec.DeviceSpec proto) {
+    return new InputDeviceSpec(proto.info.providerId, proto.info.address, proto.name);
+  }
+
+  public InputDeviceSpec(String providerType, String deviceAddress, String deviceName) {
+    mConfig = new InputDevice.InputDeviceConfig();
+    mConfig.providerId = providerType;
+    mConfig.deviceAddress = Preconditions.checkNotNull(deviceAddress);
+    mName = deviceName;
+  }
+
+  public InputDeviceSpec(String name, byte[] config) {
+    mName = name;
+    mConfig = parse(config);
+  }
+
+  @Nullable
+  private InputDevice.InputDeviceConfig parse(byte[] config) {
+    try {
+      return InputDevice.InputDeviceConfig.parseFrom(config);
+    } catch (InvalidProtocolBufferNanoException e) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "error parsing config", e);
+      }
     }
+    return null;
+  }
 
-    public InputDeviceSpec(String providerType, String deviceAddress, String deviceName) {
-        mConfig = new InputDevice.InputDeviceConfig();
-        mConfig.providerId = providerType;
-        mConfig.deviceAddress = Preconditions.checkNotNull(deviceAddress);
-        mName = deviceName;
-    }
+  /**
+   * Given two arbitrary strings representing parts of an address, join them in a guaranteed-unique
+   * way, by HTML-escaping both parts and joining them with '&'
+   */
+  @NonNull
+  public static String joinAddresses(String firstPart, String secondPart) {
+    return escape(firstPart) + "&" + escape(secondPart);
+  }
 
-    public InputDeviceSpec(String name, byte[] config) {
-        mName = name;
-        mConfig = parse(config);
-    }
-
-
-    @Nullable
-    private InputDevice.InputDeviceConfig parse(byte[] config) {
-        try {
-            return InputDevice.InputDeviceConfig.parseFrom(config);
-        } catch (InvalidProtocolBufferNanoException e) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "error parsing config", e);
-            }
+  @Override
+  public SensorAppearance getSensorAppearance() {
+    return new EmptySensorAppearance() {
+      @Override
+      public Drawable getIconDrawable(Context context) {
+        if (getDeviceAddress().equals(BUILT_IN_DEVICE_ADDRESS)) {
+          return context.getResources().getDrawable(R.drawable.ic_phone_android_black_48dp);
         }
         return null;
-    }
+      }
 
-    /**
-     * Given two arbitrary strings representing parts of an address, join them in a
-     * guaranteed-unique way, by HTML-escaping both parts and joining them with '&'
-     */
-    @NonNull
-    public static String joinAddresses(String firstPart, String secondPart) {
-        return escape(firstPart) + "&" + escape(secondPart);
-    }
+      @Override
+      public String getName(Context context) {
+        return InputDeviceSpec.this.getName();
+      }
+    };
+  }
 
-    @Override
-    public SensorAppearance getSensorAppearance() {
-        return new EmptySensorAppearance() {
-            @Override
-            public Drawable getIconDrawable(Context context) {
-                if (getDeviceAddress().equals(BUILT_IN_DEVICE_ADDRESS)) {
-                    return context.getResources()
-                            .getDrawable(R.drawable.ic_phone_android_black_48dp);
-                }
-                return null;
-            }
+  @Override
+  public String getName() {
+    return mName;
+  }
 
-            @Override
-            public String getName(Context context) {
-                return InputDeviceSpec.this.getName();
-            }
-        };
-    }
+  @Override
+  public String getType() {
+    return TYPE;
+  }
 
-    @Override
-    public String getName() {
-        return mName;
-    }
+  @Override
+  public String getAddress() {
+    return joinAddresses("DEVICE", getDeviceAddress());
+  }
 
-    @Override
-    public String getType() {
-        return TYPE;
-    }
+  public static String escape(String string) {
+    return HtmlEscapers.htmlEscaper().escape(string);
+  }
 
-    @Override
-    public String getAddress() {
-        return joinAddresses("DEVICE", getDeviceAddress());
-    }
+  @Override
+  public byte[] getConfig() {
+    return getBytes(mConfig);
+  }
 
-    public static String escape(String string) {
-        return HtmlEscapers.htmlEscaper().escape(string);
-    }
+  @Override
+  public boolean shouldShowOptionsOnConnect() {
+    return false;
+  }
 
-    @Override
-    public byte[] getConfig() {
-        return getBytes(mConfig);
-    }
+  public String getDeviceAddress() {
+    return mConfig.deviceAddress;
+  }
 
-    @Override
-    public boolean shouldShowOptionsOnConnect() {
-        return false;
-    }
+  public static InputDeviceSpec builtInDevice(Context context) {
+    return new InputDeviceSpec(
+        TYPE, BUILT_IN_DEVICE_ADDRESS, context.getString(R.string.phone_sensors));
+  }
 
-    public String getDeviceAddress() {
-        return mConfig.deviceAddress;
-    }
+  public String getProviderType() {
+    return mConfig.providerId;
+  }
 
-    public static InputDeviceSpec builtInDevice(Context context) {
-        return new InputDeviceSpec(TYPE, BUILT_IN_DEVICE_ADDRESS,
-                context.getString(R.string.phone_sensors));
-    }
+  @Override
+  public String getGlobalDeviceAddress() {
+    return InputDeviceSpec.joinAddresses(getProviderType(), getDeviceAddress());
+  }
 
-    public String getProviderType() {
-        return mConfig.providerId;
-    }
+  public GoosciDeviceSpec.DeviceSpec asDeviceSpec() {
+    GoosciDeviceSpec.DeviceSpec deviceSpec = new GoosciDeviceSpec.DeviceSpec();
+    deviceSpec.info = getGadgetInfo(getDeviceAddress());
+    deviceSpec.name = getName();
+    return deviceSpec;
+  }
 
-    @Override
-    public String getGlobalDeviceAddress() {
-        return InputDeviceSpec.joinAddresses(getProviderType(), getDeviceAddress());
+  public static List<InputDeviceSpec> fromProtos(List<GoosciDeviceSpec.DeviceSpec> protos) {
+    List<InputDeviceSpec> specs = new ArrayList<>(protos.size());
+    for (GoosciDeviceSpec.DeviceSpec proto : protos) {
+      specs.add(InputDeviceSpec.fromProto(proto));
     }
-
-    public GoosciDeviceSpec.DeviceSpec asDeviceSpec() {
-        GoosciDeviceSpec.DeviceSpec deviceSpec = new GoosciDeviceSpec.DeviceSpec();
-        deviceSpec.info = getGadgetInfo(getDeviceAddress());
-        deviceSpec.name = getName();
-        return deviceSpec;
-    }
-
-    public static List<InputDeviceSpec> fromProtos(List<GoosciDeviceSpec.DeviceSpec> protos) {
-        List<InputDeviceSpec> specs = new ArrayList<>(protos.size());
-        for (GoosciDeviceSpec.DeviceSpec proto : protos) {
-            specs.add(InputDeviceSpec.fromProto(proto));
-        }
-        return specs;
-    }
+    return specs;
+  }
 }

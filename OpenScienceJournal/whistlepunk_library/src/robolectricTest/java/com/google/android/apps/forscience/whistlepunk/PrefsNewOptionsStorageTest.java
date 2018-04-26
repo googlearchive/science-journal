@@ -34,77 +34,77 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class PrefsNewOptionsStorageTest {
-    protected static final String PREF_FILE = "testPrefs";
+  protected static final String PREF_FILE = "testPrefs";
 
-    @After
-    public void tearDown() throws Exception {
-        final SharedPreferences prefs = getSharedPreferences();
-        prefs.edit().clear().apply();
-    }
+  @After
+  public void tearDown() throws Exception {
+    final SharedPreferences prefs = getSharedPreferences();
+    prefs.edit().clear().apply();
+  }
 
-    @Test
-    public void testRoundTripString() {
-        final String key = Arbitrary.string();
-        final String value = Arbitrary.string();
-        load().put(key, value);
-        assertEquals(value, load().getReadOnly().getString(key, null));
-    }
+  @Test
+  public void testRoundTripString() {
+    final String key = Arbitrary.string();
+    final String value = Arbitrary.string();
+    load().put(key, value);
+    assertEquals(value, load().getReadOnly().getString(key, null));
+  }
 
-    @Test
-    public void testRoundTripFloat() {
-        final String key = Arbitrary.string();
-        final float value = Arbitrary.singleFloat();
-        load().put(key, String.valueOf(value));
-        assertEquals(value, load().getReadOnly().getFloat(key, 0), 0.01);
-    }
+  @Test
+  public void testRoundTripFloat() {
+    final String key = Arbitrary.string();
+    final float value = Arbitrary.singleFloat();
+    load().put(key, String.valueOf(value));
+    assertEquals(value, load().getReadOnly().getFloat(key, 0), 0.01);
+  }
 
-    @Test
-    public void testRoundTripLong() {
-        final String key = Arbitrary.string();
-        final long value = Arbitrary.longInteger();
-        load().put(key, String.valueOf(value));
-        assertEquals(value, load().getReadOnly().getLong(key, 0));
-    }
+  @Test
+  public void testRoundTripLong() {
+    final String key = Arbitrary.string();
+    final long value = Arbitrary.longInteger();
+    load().put(key, String.valueOf(value));
+    assertEquals(value, load().getReadOnly().getLong(key, 0));
+  }
 
-    @Test
-    public void testRoundTripBoolean() {
-        final String key = Arbitrary.string();
-        final boolean value = Arbitrary.bool();
-        load().put(key, String.valueOf(value));
-        assertEquals(value, load().getReadOnly().getBoolean(key, !value));
-    }
+  @Test
+  public void testRoundTripBoolean() {
+    final String key = Arbitrary.string();
+    final boolean value = Arbitrary.bool();
+    load().put(key, String.valueOf(value));
+    assertEquals(value, load().getReadOnly().getBoolean(key, !value));
+  }
 
-    @Test
-    public void testRoundTripInt() {
-        final String key = Arbitrary.string();
-        final int value = Arbitrary.integer();
-        load().put(key, String.valueOf(value));
-        assertEquals(value, load().getReadOnly().getInt(key, 0));
-    }
+  @Test
+  public void testRoundTripInt() {
+    final String key = Arbitrary.string();
+    final int value = Arbitrary.integer();
+    load().put(key, String.valueOf(value));
+    assertEquals(value, load().getReadOnly().getInt(key, 0));
+  }
 
-    @Test
-    public void testNonDefaultKeys() {
-        List<String> keys = Arbitrary.distinctStrings(2);
-        load().put(keys.get(0), "1");
-        load().put(keys.get(1), "2");
-        assertEquals(Sets.newHashSet(keys),
-                Sets.<String>newHashSet(load().getReadOnly().getWrittenKeys()));
-    }
+  @Test
+  public void testNonDefaultKeys() {
+    List<String> keys = Arbitrary.distinctStrings(2);
+    load().put(keys.get(0), "1");
+    load().put(keys.get(1), "2");
+    assertEquals(
+        Sets.newHashSet(keys), Sets.<String>newHashSet(load().getReadOnly().getWrittenKeys()));
+  }
 
-    private WriteableSensorOptions load() {
-        return makeNewStorage().load(new StoringConsumer<>());
-    }
+  private WriteableSensorOptions load() {
+    return makeNewStorage().load(new StoringConsumer<>());
+  }
 
-    @NonNull
-    private NewOptionsStorage makeNewStorage() {
-        return new PrefsNewOptionsStorage(PREF_FILE, getContext());
-    }
+  @NonNull
+  private NewOptionsStorage makeNewStorage() {
+    return new PrefsNewOptionsStorage(PREF_FILE, getContext());
+  }
 
-    private SharedPreferences getSharedPreferences() {
-        return getContext().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
-    }
+  private SharedPreferences getSharedPreferences() {
+    return getContext().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE);
+  }
 
-    private Context getContext() {
-        return RuntimeEnvironment.application.getApplicationContext();
-    }
+  private Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
 }

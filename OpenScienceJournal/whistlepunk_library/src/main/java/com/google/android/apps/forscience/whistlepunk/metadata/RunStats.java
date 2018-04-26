@@ -18,9 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
-import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,92 +30,95 @@ import java.util.Set;
  * key/value pairs which can be read and written to the database.
  */
 public class RunStats {
-    private static final int TYPE_NOT_FOUND = -1;
-    private static final int DEFAULT_VALUE = 0;
-    private TrialStats mTrialStats;
-    private static Map<String, Integer> keyMap = new HashMap<>();
+  private static final int TYPE_NOT_FOUND = -1;
+  private static final int DEFAULT_VALUE = 0;
+  private TrialStats mTrialStats;
+  private static Map<String, Integer> keyMap = new HashMap<>();
 
-    public static RunStats fromTrialStats(TrialStats trialStats) {
-        if (keyMap.size() == 0) {
-            initializeKeyMap();
-        }
-        RunStats runStats = new RunStats(trialStats);
-        return runStats;
+  public static RunStats fromTrialStats(TrialStats trialStats) {
+    if (keyMap.size() == 0) {
+      initializeKeyMap();
     }
+    RunStats runStats = new RunStats(trialStats);
+    return runStats;
+  }
 
-    private RunStats(TrialStats trialStats) {
-        mTrialStats = trialStats;
-    }
+  private RunStats(TrialStats trialStats) {
+    mTrialStats = trialStats;
+  }
 
-    private static void initializeKeyMap() {
-        keyMap.put(StatsAccumulator.KEY_AVERAGE, GoosciTrial.SensorStat.StatType.AVERAGE);
-        keyMap.put(StatsAccumulator.KEY_MIN, GoosciTrial.SensorStat.StatType.MINIMUM);
-        keyMap.put(StatsAccumulator.KEY_MAX, GoosciTrial.SensorStat.StatType.MAXIMUM);
-        keyMap.put(StatsAccumulator.KEY_NUM_DATA_POINTS, GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS);
-        keyMap.put(StatsAccumulator.KEY_TOTAL_DURATION, GoosciTrial.SensorStat.StatType.TOTAL_DURATION);
-        keyMap.put(ZoomRecorder.STATS_KEY_TIER_COUNT,
-                GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT);
-        keyMap.put(ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS,
-                GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS);
-    }
+  private static void initializeKeyMap() {
+    keyMap.put(StatsAccumulator.KEY_AVERAGE, GoosciTrial.SensorStat.StatType.AVERAGE);
+    keyMap.put(StatsAccumulator.KEY_MIN, GoosciTrial.SensorStat.StatType.MINIMUM);
+    keyMap.put(StatsAccumulator.KEY_MAX, GoosciTrial.SensorStat.StatType.MAXIMUM);
+    keyMap.put(
+        StatsAccumulator.KEY_NUM_DATA_POINTS, GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS);
+    keyMap.put(StatsAccumulator.KEY_TOTAL_DURATION, GoosciTrial.SensorStat.StatType.TOTAL_DURATION);
+    keyMap.put(
+        ZoomRecorder.STATS_KEY_TIER_COUNT,
+        GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT);
+    keyMap.put(
+        ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS,
+        GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS);
+  }
 
-    public RunStats(String sensorId) {
-        mTrialStats = new TrialStats(sensorId);
-    }
+  public RunStats(String sensorId) {
+    mTrialStats = new TrialStats(sensorId);
+  }
 
-    public TrialStats getTrialStats() {
-        return mTrialStats;
-    }
+  public TrialStats getTrialStats() {
+    return mTrialStats;
+  }
 
-    public void putStat(String key, double value) {
-        int type = keyToType(key);
-        mTrialStats.putStat(type, value);
-    }
+  public void putStat(String key, double value) {
+    int type = keyToType(key);
+    mTrialStats.putStat(type, value);
+  }
 
-    public double getStat(String key) {
-        return getStat(key, DEFAULT_VALUE);
-    }
+  public double getStat(String key) {
+    return getStat(key, DEFAULT_VALUE);
+  }
 
-    public double getStat(String key, double defaultValue) {
-        return mTrialStats.getStatValue(keyToType(key), defaultValue);
-    }
+  public double getStat(String key, double defaultValue) {
+    return mTrialStats.getStatValue(keyToType(key), defaultValue);
+  }
 
-    public boolean hasStat(String key) {
-        return mTrialStats.hasStat(keyToType(key));
-    }
+  public boolean hasStat(String key) {
+    return mTrialStats.hasStat(keyToType(key));
+  }
 
-    public int getStatus() {
-        if (mTrialStats.statsAreValid()) {
-            return StatsAccumulator.STATUS_VALID;
-        }
-        return StatsAccumulator.STATUS_NEEDS_UPDATE;
+  public int getStatus() {
+    if (mTrialStats.statsAreValid()) {
+      return StatsAccumulator.STATUS_VALID;
     }
+    return StatsAccumulator.STATUS_NEEDS_UPDATE;
+  }
 
-    public void setStatus(int newStatus) {
-        if (newStatus == StatsAccumulator.STATUS_NEEDS_UPDATE) {
-            mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
-        } else if (newStatus == StatsAccumulator.STATUS_VALID) {
-            mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
-        }
+  public void setStatus(int newStatus) {
+    if (newStatus == StatsAccumulator.STATUS_NEEDS_UPDATE) {
+      mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
+    } else if (newStatus == StatsAccumulator.STATUS_VALID) {
+      mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
     }
+  }
 
-    public Set<String> getKeys() {
-        Set<String> result = new HashSet<>();
-        for (String key : keyMap.keySet()) {
-            if (mTrialStats.hasStat(keyToType(key))) {
-                result.add(key);
-            }
-        }
-        return result;
+  public Set<String> getKeys() {
+    Set<String> result = new HashSet<>();
+    for (String key : keyMap.keySet()) {
+      if (mTrialStats.hasStat(keyToType(key))) {
+        result.add(key);
+      }
     }
+    return result;
+  }
 
-    private static int keyToType(String key) {
-        if (keyMap.size() == 0) {
-            initializeKeyMap();
-        }
-        if (keyMap.containsKey(key)) {
-            return keyMap.get(key);
-        }
-        return TYPE_NOT_FOUND;
+  private static int keyToType(String key) {
+    if (keyMap.size() == 0) {
+      initializeKeyMap();
     }
+    if (keyMap.containsKey(key)) {
+      return keyMap.get(key);
+    }
+    return TYPE_NOT_FOUND;
+  }
 }

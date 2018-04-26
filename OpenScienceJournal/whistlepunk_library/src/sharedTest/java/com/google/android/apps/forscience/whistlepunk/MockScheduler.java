@@ -17,7 +17,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.Scheduler;
-
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -27,72 +26,72 @@ import java.util.TreeSet;
 // immediately.
 public class MockScheduler implements Scheduler {
 
-    class QueuedRunnable implements Comparable<QueuedRunnable> {
-        public long executeAfter;
-        public Runnable runnable;
-
-        @Override
-        public int compareTo(QueuedRunnable another) {
-            int timingDiff = Long.compare(executeAfter, another.executeAfter);
-            if (timingDiff != 0) {
-                return timingDiff;
-            }
-            // Don't let two operations compare identical just because they're scheduled at the
-            // same time.
-            return Integer.compare(System.identityHashCode(this), System.identityHashCode(another));
-        }
-    }
-
-    private long mCurrentTime = 0;
-    private TreeSet<QueuedRunnable> mRunnables = new TreeSet<>();
-    private int mScheduleCount = 0;
+  class QueuedRunnable implements Comparable<QueuedRunnable> {
+    public long executeAfter;
+    public Runnable runnable;
 
     @Override
-    public void schedule(Delay delay, Runnable doThis) {
-        mScheduleCount++;
-        if (delay.asMillis() == 0) {
-            doThis.run();
-        } else {
-            // Add to list of runnables
-            QueuedRunnable qr = new QueuedRunnable();
-            qr.executeAfter = delay.asMillis() + mCurrentTime;
-            qr.runnable = doThis;
-            mRunnables.add(qr);
-        }
+    public int compareTo(QueuedRunnable another) {
+      int timingDiff = Long.compare(executeAfter, another.executeAfter);
+      if (timingDiff != 0) {
+        return timingDiff;
+      }
+      // Don't let two operations compare identical just because they're scheduled at the
+      // same time.
+      return Integer.compare(System.identityHashCode(this), System.identityHashCode(another));
     }
+  }
 
-    @Override
-    public void unschedule(Runnable removeThis) {
-        Iterator<QueuedRunnable> iter = mRunnables.iterator();
-        while (iter.hasNext()) {
-            if (iter.next().runnable == removeThis) {
-                iter.remove();
-            }
-        }
+  private long mCurrentTime = 0;
+  private TreeSet<QueuedRunnable> mRunnables = new TreeSet<>();
+  private int mScheduleCount = 0;
+
+  @Override
+  public void schedule(Delay delay, Runnable doThis) {
+    mScheduleCount++;
+    if (delay.asMillis() == 0) {
+      doThis.run();
+    } else {
+      // Add to list of runnables
+      QueuedRunnable qr = new QueuedRunnable();
+      qr.executeAfter = delay.asMillis() + mCurrentTime;
+      qr.runnable = doThis;
+      mRunnables.add(qr);
     }
+  }
 
-    public int getScheduleCount() {
-        return mScheduleCount;
+  @Override
+  public void unschedule(Runnable removeThis) {
+    Iterator<QueuedRunnable> iter = mRunnables.iterator();
+    while (iter.hasNext()) {
+      if (iter.next().runnable == removeThis) {
+        iter.remove();
+      }
     }
+  }
 
-    public Clock getClock() {
-        return new Clock() {
-            @Override
-            public long getNow() {
-                return mCurrentTime;
-            }
-        };
+  public int getScheduleCount() {
+    return mScheduleCount;
+  }
+
+  public Clock getClock() {
+    return new Clock() {
+      @Override
+      public long getNow() {
+        return mCurrentTime;
+      }
+    };
+  }
+
+  public void incrementTime(long ms) {
+    long targetTime = mCurrentTime + ms;
+
+    while (!mRunnables.isEmpty() && mRunnables.first().executeAfter <= targetTime) {
+      QueuedRunnable first = mRunnables.first();
+      mRunnables.remove(first);
+      mCurrentTime = first.executeAfter;
+      first.runnable.run();
     }
-
-    public void incrementTime(long ms) {
-        long targetTime = mCurrentTime + ms;
-
-        while (!mRunnables.isEmpty() && mRunnables.first().executeAfter <= targetTime) {
-            QueuedRunnable first = mRunnables.first();
-            mRunnables.remove(first);
-            mCurrentTime = first.executeAfter;
-            first.runnable.run();
-        }
-        mCurrentTime = targetTime;
-    }
+    mCurrentTime = targetTime;
+  }
 }

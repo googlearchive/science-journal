@@ -18,64 +18,47 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.app.Activity;
 import androidx.fragment.app.FragmentActivity;
-
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
-
 import io.reactivex.Observable;
 
-
-/**
- * An interface which provides account management.
- */
+/** An interface which provides account management. */
 public interface AccountsProvider {
-  /**
-   * @return true if a signed-in account is supported; false otherwise
-   */
+  /** @return true if a signed-in account is supported; false otherwise */
   boolean supportSignedInAccount();
 
-  /**
-   * @return true if a signed-in account is required to use Science Journal; false otherwise
-   */
+  /** @return true if a signed-in account is required to use Science Journal; false otherwise */
   boolean requireSignedInAccount();
 
-  /**
-   * @return the number of accounts on the device.
-   */
+  /** @return the number of accounts on the device. */
   int getAccountCount();
 
   /**
-   * Sets the content view of the main activity and initializes the account switcher, if
-   * necessary. Must be called during onCreate of the main activity.
+   * Sets the content view of the main activity and initializes the account switcher, if necessary.
+   * Must be called during onCreate of the main activity.
    */
   void setContentView(ActivityWithNavigationView activity);
 
   /**
-   * Disconnects the account switcher, if necessary. Must be called during onStop of the
-   * main activity.
+   * Disconnects the account switcher, if necessary. Must be called during onStop of the main
+   * activity.
    */
   void onStop(ActivityWithNavigationView activity);
 
-  /**
-   * Shows the dialog where the user adds an account.
-   */
+  /** Shows the dialog where the user adds an account. */
   void showAddAccountDialog(Activity activity);
 
-  /**
-   * Shows the dialog where the user chooses an account.
-   */
+  /** Shows the dialog where the user chooses an account. */
   void showAccountSwitcherDialog(FragmentActivity fragmentActivity);
 
-  /**
-   * Returns true if the current account is a signed-in account.
-   */
+  /** Returns true if the current account is a signed-in account. */
   boolean isSignedIn();
 
   /**
    * Returns the current account.
-   * <p>
-   * Most callers that need the current account should use
-   * {@link #getObservableCurrentAccount} instead of this method. This method should only be used
-   * in cases where observing the current account is not feasible.
+   *
+   * <p>Most callers that need the current account should use {@link #getObservableCurrentAccount}
+   * instead of this method. This method should only be used in cases where observing the current
+   * account is not feasible.
    *
    * @return the current account
    */
@@ -84,26 +67,22 @@ public interface AccountsProvider {
 
   /**
    * Returns an {@link Observable} that publishes the current account.
-   * <p>
-   * This is the preferred way to access the current account.
+   *
+   * <p>This is the preferred way to access the current account.
    *
    * @return an {@link Observable} that publishes the current account.
    */
   Observable<AppAccount> getObservableCurrentAccount();
 
-  /**
-   * Sets whether claim experiments mode is on or off.
-   */
+  /** Sets whether claim experiments mode is on or off. */
   void setClaimExperimentsMode(boolean claimExperimentsMode);
 
-  /**
-   * @return whether claim experiments mode is on or off.
-   */
+  /** @return whether claim experiments mode is on or off. */
   boolean getClaimExperimentsMode();
 
   /**
    * @return the current account, ignoring whether claim experiments mode is on or off. This is
-   * intented to be used during the transition from non-signed-in to signed-in.
+   *     intented to be used during the transition from non-signed-in to signed-in.
    */
   AppAccount getCurrentAccountIgnoringClaimExperimentsMode();
 }

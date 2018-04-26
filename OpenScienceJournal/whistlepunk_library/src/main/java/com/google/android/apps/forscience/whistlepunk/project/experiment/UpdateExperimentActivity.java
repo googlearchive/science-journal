@@ -21,50 +21,50 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 
 public class UpdateExperimentActivity extends AppCompatActivity {
 
-    private static final String FRAGMENT_TAG = "fragment";
+  private static final String FRAGMENT_TAG = "fragment";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_experiment);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_update_experiment);
 
-        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
-            String experimentId = getIntent().getExtras().getString(
-                    UpdateExperimentFragment.ARG_EXPERIMENT_ID);
+    if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
+      String experimentId =
+          getIntent().getExtras().getString(UpdateExperimentFragment.ARG_EXPERIMENT_ID);
 
-            UpdateExperimentFragment fragment = UpdateExperimentFragment.newInstance(experimentId);
-            fragment.setRetainInstance(true);
+      UpdateExperimentFragment fragment = UpdateExperimentFragment.newInstance(experimentId);
+      fragment.setRetainInstance(true);
 
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment,
-                    FRAGMENT_TAG).commit();
-        }
-
+      getSupportFragmentManager()
+          .beginTransaction()
+          .add(R.id.container, fragment, FRAGMENT_TAG)
+          .commit();
     }
+  }
 
-    public static void launch(Context context, String experimentId) {
-        final Intent intent = getLaunchIntent(context, experimentId);
-        context.startActivity(intent);
-    }
+  public static void launch(Context context, String experimentId) {
+    final Intent intent = getLaunchIntent(context, experimentId);
+    context.startActivity(intent);
+  }
 
-    public static Intent getLaunchIntent(Context context, String experimentId) {
-        final Intent intent = new Intent(context, UpdateExperimentActivity.class);
-        intent.putExtra(UpdateExperimentFragment.ARG_EXPERIMENT_ID, experimentId);
-        return intent;
-    }
+  public static Intent getLaunchIntent(Context context, String experimentId) {
+    final Intent intent = new Intent(context, UpdateExperimentActivity.class);
+    intent.putExtra(UpdateExperimentFragment.ARG_EXPERIMENT_ID, experimentId);
+    return intent;
+  }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-        if (fragment != null && requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
-            fragment.onActivityResult(requestCode, resultCode, data);
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+    if (fragment != null && requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
+      fragment.onActivityResult(requestCode, resultCode, data);
+    } else {
+      super.onActivityResult(requestCode, resultCode, data);
     }
+  }
 }

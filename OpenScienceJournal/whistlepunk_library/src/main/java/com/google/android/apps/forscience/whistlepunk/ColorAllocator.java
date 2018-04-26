@@ -22,38 +22,38 @@ package com.google.android.apps.forscience.whistlepunk;
  */
 public class ColorAllocator {
 
-    private final int[] mColorIndexCounts;
+  private final int[] mColorIndexCounts;
 
-    public ColorAllocator(int listSize) {
-        mColorIndexCounts = new int[listSize];
+  public ColorAllocator(int listSize) {
+    mColorIndexCounts = new int[listSize];
+  }
+
+  /**
+   * Gets the next color that is least used from the master color array, based on the input used
+   * color array.
+   */
+  public int getNextColor(int[] usedColorIndexes) {
+    if (usedColorIndexes == null || usedColorIndexes.length == 0) {
+      return 0;
     }
-
-    /**
-     * Gets the next color that is least used from the master color array, based on the input used
-     * color array.
-     */
-    public int getNextColor(int[] usedColorIndexes) {
-        if (usedColorIndexes == null || usedColorIndexes.length == 0) {
-            return 0;
-        }
-        // Zero out the counts
-        for (int i = 0; i < mColorIndexCounts.length; i++) {
-            mColorIndexCounts[i] = 0;
-        }
-        // Count up the used color indexes
-        for (int index : usedColorIndexes) {
-            mColorIndexCounts[index]++;
-        }
-        int leastUsedCount = Integer.MAX_VALUE;
-        int leastUsedIndex = -1;
-
-        // Now start at the 0th index and move forward, keeping track of the smallest count item.
-        for (int index = 0; index < mColorIndexCounts.length; index++) {
-            if (mColorIndexCounts[index] < leastUsedCount) {
-                leastUsedIndex = index;
-                leastUsedCount = mColorIndexCounts[index];
-            }
-        }
-        return leastUsedIndex;
+    // Zero out the counts
+    for (int i = 0; i < mColorIndexCounts.length; i++) {
+      mColorIndexCounts[i] = 0;
     }
+    // Count up the used color indexes
+    for (int index : usedColorIndexes) {
+      mColorIndexCounts[index]++;
+    }
+    int leastUsedCount = Integer.MAX_VALUE;
+    int leastUsedIndex = -1;
+
+    // Now start at the 0th index and move forward, keeping track of the smallest count item.
+    for (int index = 0; index < mColorIndexCounts.length; index++) {
+      if (mColorIndexCounts[index] < leastUsedCount) {
+        leastUsedIndex = index;
+        leastUsedCount = mColorIndexCounts[index];
+      }
+    }
+    return leastUsedIndex;
+  }
 }

@@ -29,111 +29,108 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for the Experiment class.
- */
+/** Tests for the Experiment class. */
 @RunWith(RobolectricTestRunner.class)
 public class ExperimentUnitTest {
 
-    @Test
-    public void testNewExperiment() {
-        Experiment experiment = Experiment.newExperiment(10, "localId", 0);
-        assertEquals(experiment.getCreationTimeMs(), 10);
-        assertEquals(experiment.getLastUsedTime(), 10);
-        assertEquals(experiment.isArchived(), false);
-    }
+  @Test
+  public void testNewExperiment() {
+    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    assertEquals(experiment.getCreationTimeMs(), 10);
+    assertEquals(experiment.getLastUsedTime(), 10);
+    assertEquals(experiment.isArchived(), false);
+  }
 
-    @Test
-    public void testTriggers() {
-        // No triggers on creation
-        Experiment experiment = Experiment.newExperiment(10, "localId", 0);
-        assertEquals(experiment.getSensorTriggersForSensor("sensorId"),
-                Collections.<SensorTrigger>emptyList());
+  @Test
+  public void testTriggers() {
+    // No triggers on creation
+    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    assertEquals(
+        experiment.getSensorTriggersForSensor("sensorId"), Collections.<SensorTrigger>emptyList());
 
-        GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
-        triggerProto.sensorId = "sensorId";
-        SensorTrigger trigger = SensorTrigger.fromProto(triggerProto);
-        experiment.addSensorTrigger(trigger);
-        assertEquals(experiment.getSensorTriggersForSensor("sensorId").size(), 1);
-        assertEquals(experiment.getExperimentProto().sensorTriggers.length, 1);
-    }
+    GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
+    triggerProto.sensorId = "sensorId";
+    SensorTrigger trigger = SensorTrigger.fromProto(triggerProto);
+    experiment.addSensorTrigger(trigger);
+    assertEquals(experiment.getSensorTriggersForSensor("sensorId").size(), 1);
+    assertEquals(experiment.getExperimentProto().sensorTriggers.length, 1);
+  }
 
-    @Test
-    public void testLayouts() {
-        // No layouts on creation
-        Experiment experiment = Experiment.newExperiment(10, "localId", 0);
-        assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
+  @Test
+  public void testLayouts() {
+    // No layouts on creation
+    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
 
-        GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
-        sensorLayout.sensorId = "sensorId";
-        experiment.setSensorLayouts(Arrays.asList(sensorLayout));
+    GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
+    sensorLayout.sensorId = "sensorId";
+    experiment.setSensorLayouts(Arrays.asList(sensorLayout));
 
-        assertEquals(experiment.getSensorLayouts().size(), 1);
-        assertEquals(experiment.getExperimentProto().sensorLayouts.length, 1);
-    }
+    assertEquals(experiment.getSensorLayouts().size(), 1);
+    assertEquals(experiment.getExperimentProto().sensorLayouts.length, 1);
+  }
 
-    @Test
-    public void testLayoutsWithUpdate() {
-        // No layouts on creation
-        Experiment experiment = Experiment.newExperiment(10, "localId", 0);
-        assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
+  @Test
+  public void testLayoutsWithUpdate() {
+    // No layouts on creation
+    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
 
-        GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
-        sensorLayout.sensorId = "sensorId";
-        experiment.updateSensorLayout(0, sensorLayout);
+    GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
+    sensorLayout.sensorId = "sensorId";
+    experiment.updateSensorLayout(0, sensorLayout);
 
-        assertEquals(experiment.getSensorLayouts().size(), 1);
-        assertEquals(experiment.getExperimentProto().sensorLayouts.length, 1);
-    }
+    assertEquals(experiment.getSensorLayouts().size(), 1);
+    assertEquals(experiment.getExperimentProto().sensorLayouts.length, 1);
+  }
 
-    @Test
-    public void testExperimentSensors() {
-        // No sensors on creation
-        Experiment experiment = Experiment.newExperiment(10, "localId", 0);
-        assertEquals(experiment.getExperimentSensors(), Collections.emptyList());
+  @Test
+  public void testExperimentSensors() {
+    // No sensors on creation
+    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    assertEquals(experiment.getExperimentSensors(), Collections.emptyList());
 
-        GoosciExperiment.ExperimentSensor sensor = new GoosciExperiment.ExperimentSensor();
-        sensor.sensorId = "sensorId";
-        experiment.setExperimentSensors(Arrays.asList(sensor));
+    GoosciExperiment.ExperimentSensor sensor = new GoosciExperiment.ExperimentSensor();
+    sensor.sensorId = "sensorId";
+    experiment.setExperimentSensors(Arrays.asList(sensor));
 
-        assertEquals(experiment.getExperimentSensors().size(), 1);
-        assertEquals(experiment.getExperimentProto().experimentSensors.length, 1);
-    }
+    assertEquals(experiment.getExperimentSensors().size(), 1);
+    assertEquals(experiment.getExperimentProto().experimentSensors.length, 1);
+  }
 
-    @Test
-    public void testUpdatesProtoOnlyWhenNeeded() {
-        GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-        GoosciSensorLayout.SensorLayout layoutProto = new GoosciSensorLayout.SensorLayout();
-        layoutProto.sensorId = "sensorId";
-        proto.sensorLayouts = new GoosciSensorLayout.SensorLayout[]{layoutProto};
-        GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
-        triggerProto.sensorId = "sensorId";
-        proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[]{triggerProto};
-        GoosciExperiment.ExperimentSensor expSensorProto = new GoosciExperiment.ExperimentSensor();
-        expSensorProto.sensorId = "sensorId";
-        proto.experimentSensors = new GoosciExperiment.ExperimentSensor[]{expSensorProto};
+  @Test
+  public void testUpdatesProtoOnlyWhenNeeded() {
+    GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+    GoosciSensorLayout.SensorLayout layoutProto = new GoosciSensorLayout.SensorLayout();
+    layoutProto.sensorId = "sensorId";
+    proto.sensorLayouts = new GoosciSensorLayout.SensorLayout[] {layoutProto};
+    GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
+    triggerProto.sensorId = "sensorId";
+    proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[] {triggerProto};
+    GoosciExperiment.ExperimentSensor expSensorProto = new GoosciExperiment.ExperimentSensor();
+    expSensorProto.sensorId = "sensorId";
+    proto.experimentSensors = new GoosciExperiment.ExperimentSensor[] {expSensorProto};
 
-        GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata
-                .ExperimentOverview();
-        overview.experimentId = "cheese";
+    GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
+    overview.experimentId = "cheese";
 
-        Experiment experiment = Experiment.fromExperiment(proto, overview);
+    Experiment experiment = Experiment.fromExperiment(proto, overview);
 
-        // Try to get the proto *before* converting the objects into lists.
-        GoosciExperiment.Experiment result = experiment.getExperimentProto();
-        assertEquals(result.sensorLayouts.length, 1);
-        assertEquals(result.sensorTriggers.length, 1);
-        assertEquals(result.experimentSensors.length, 1);
+    // Try to get the proto *before* converting the objects into lists.
+    GoosciExperiment.Experiment result = experiment.getExperimentProto();
+    assertEquals(result.sensorLayouts.length, 1);
+    assertEquals(result.sensorTriggers.length, 1);
+    assertEquals(result.experimentSensors.length, 1);
 
-        List<GoosciSensorLayout.SensorLayout> layouts = experiment.getSensorLayouts();
-        GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
-        sensorLayout.sensorId = "secondSensorId";
-        layouts.add(sensorLayout);
+    List<GoosciSensorLayout.SensorLayout> layouts = experiment.getSensorLayouts();
+    GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
+    sensorLayout.sensorId = "secondSensorId";
+    layouts.add(sensorLayout);
 
-        // Now update the layouts and make sure it still works as expected.
-        experiment.setSensorLayouts(layouts);
-        result = experiment.getExperimentProto();
-        assertEquals(result.sensorLayouts.length, 2);
-        assertEquals(result.sensorLayouts[1].sensorId, "secondSensorId");
-    }
+    // Now update the layouts and make sure it still works as expected.
+    experiment.setSensorLayouts(layouts);
+    result = experiment.getExperimentProto();
+    assertEquals(result.sensorLayouts.length, 2);
+    assertEquals(result.sensorLayouts[1].sensorId, "secondSensorId");
+  }
 }

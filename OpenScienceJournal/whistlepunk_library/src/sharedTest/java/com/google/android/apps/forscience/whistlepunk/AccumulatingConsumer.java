@@ -18,24 +18,23 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * For test support: this consumer may receive one or more calls to {@link #take(Object)}.  All
+ * For test support: this consumer may receive one or more calls to {@link #take(Object)}. All
  * consumed items are stored in {@link #seen} to be examined by tests.
  */
 public class AccumulatingConsumer<T> extends Consumer<T> {
-    public List<T> seen = new ArrayList<>();
+  public List<T> seen = new ArrayList<>();
 
-    @Override
-    public void take(T t) {
-        seen.add(t);
-    }
+  @Override
+  public void take(T t) {
+    seen.add(t);
+  }
 
-    public T getOnlySeen() {
-        assertEquals(1, seen.size());
-        return seen.get(0);
-    }
+  public T getOnlySeen() {
+    assertEquals(1, seen.size());
+    return seen.get(0);
+  }
 }

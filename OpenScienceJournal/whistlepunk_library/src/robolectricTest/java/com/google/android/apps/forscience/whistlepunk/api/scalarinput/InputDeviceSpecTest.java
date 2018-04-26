@@ -25,26 +25,26 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class InputDeviceSpecTest {
-    @Test
-    public void getAddress() {
-        InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId",
-                "Device Name");
-        assertEquals("DEVICE&serviceId_deviceId", spec.getAddress());
-    }
+  @Test
+  public void getAddress() {
+    InputDeviceSpec spec =
+        new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId", "Device Name");
+    assertEquals("DEVICE&serviceId_deviceId", spec.getAddress());
+  }
 
-    @Test
-    public void getName() {
-        InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId",
-                "Device Name");
-        assertEquals("Device Name", spec.getSensorAppearance().getName(null));
-    }
+  @Test
+  public void getName() {
+    InputDeviceSpec spec =
+        new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId", "Device Name");
+    assertEquals("Device Name", spec.getSensorAppearance().getName(null));
+  }
 
-
-    @Test public void providerIdFromProto() {
-        GoosciDeviceSpec.DeviceSpec proto = new GoosciDeviceSpec.DeviceSpec();
-        proto.info = new GoosciGadgetInfo.GadgetInfo();
-        proto.info.providerId = "providerId";
-        InputDeviceSpec spec = InputDeviceSpec.fromProto(proto);
-        assertEquals("providerId", spec.getProviderType());
-    }
+  @Test
+  public void providerIdFromProto() {
+    GoosciDeviceSpec.DeviceSpec proto = new GoosciDeviceSpec.DeviceSpec();
+    proto.info = new GoosciGadgetInfo.GadgetInfo();
+    proto.info.providerId = "providerId";
+    InputDeviceSpec spec = InputDeviceSpec.fromProto(proto);
+    assertEquals("providerId", spec.getProviderType());
+  }
 }

@@ -20,67 +20,65 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 
-/**
- * BLE related events.
- */
+/** BLE related events. */
 public class BleEvents {
-    static final String BLE_UNSUPPORTED = "BLE_UNSUPPORTED";
-    static final String BLE_DISABLED = "BLE_DISABLED";
+  static final String BLE_UNSUPPORTED = "BLE_UNSUPPORTED";
+  static final String BLE_DISABLED = "BLE_DISABLED";
 
-    static final String GATT_CONNECT = "GATT_CONNECT";
-    static final String GATT_CONNECT_FAIL = "GATT_CONNECT_FAIL";
-    static final String GATT_DISCONNECT = "GATT_DISCONNECT";
-    static final String GATT_DISCONNECT_FAIL = "GATT_DISCONNECT_FAIL";
-    static final String SERVICES_OK = "SERVICES_OK";
-    static final String SERVICES_FAIL = "SERVICES_FAIL";
+  static final String GATT_CONNECT = "GATT_CONNECT";
+  static final String GATT_CONNECT_FAIL = "GATT_CONNECT_FAIL";
+  static final String GATT_DISCONNECT = "GATT_DISCONNECT";
+  static final String GATT_DISCONNECT_FAIL = "GATT_DISCONNECT_FAIL";
+  static final String SERVICES_OK = "SERVICES_OK";
+  static final String SERVICES_FAIL = "SERVICES_FAIL";
 
-    static final String READ_CHAR_OK = "READ_CHAR_OK";
-    static final String READ_CHAR_FAIL = "READ_CHAR_FAIL";
+  static final String READ_CHAR_OK = "READ_CHAR_OK";
+  static final String READ_CHAR_FAIL = "READ_CHAR_FAIL";
 
-    static final String WRITE_CHAR_OK = "WRITE_CHAR_OK";
-    static final String WRITE_CHAR_FAIL = "WRITE_CHAR_FAIL";
+  static final String WRITE_CHAR_OK = "WRITE_CHAR_OK";
+  static final String WRITE_CHAR_FAIL = "WRITE_CHAR_FAIL";
 
-    static final String READ_DESC_OK = "READ_DESC_OK";
-    static final String READ_DESC_FAIL = "READ_DESC_FAIL";
-    static final String WRITE_DESC_OK = "WRITE_DESC_OK";
-    static final String WRITE_DESC_FAIL = "WRITE_DESC_FAIL";
-    static final String CHAR_CHANGED = "CHAR_CHANGED";
+  static final String READ_DESC_OK = "READ_DESC_OK";
+  static final String READ_DESC_FAIL = "READ_DESC_FAIL";
+  static final String WRITE_DESC_OK = "WRITE_DESC_OK";
+  static final String WRITE_DESC_FAIL = "WRITE_DESC_FAIL";
+  static final String CHAR_CHANGED = "CHAR_CHANGED";
 
-    private static final String DATA_SCHEME = "sciencejournal";
+  private static final String DATA_SCHEME = "sciencejournal";
 
-    static IntentFilter createIntentFilter(String address) {
-        IntentFilter intent = new IntentFilter();
+  static IntentFilter createIntentFilter(String address) {
+    IntentFilter intent = new IntentFilter();
 
-        intent.addDataScheme(DATA_SCHEME);
-        intent.addDataAuthority(address, null);
+    intent.addDataScheme(DATA_SCHEME);
+    intent.addDataAuthority(address, null);
 
-        intent.addAction(BLE_UNSUPPORTED);
-        intent.addAction(BLE_DISABLED);
+    intent.addAction(BLE_UNSUPPORTED);
+    intent.addAction(BLE_DISABLED);
 
-        intent.addAction(GATT_CONNECT);
-        intent.addAction(GATT_CONNECT_FAIL);
-        intent.addAction(GATT_DISCONNECT);
-        intent.addAction(GATT_DISCONNECT_FAIL);
-        intent.addAction(SERVICES_OK);
-        intent.addAction(SERVICES_FAIL);
+    intent.addAction(GATT_CONNECT);
+    intent.addAction(GATT_CONNECT_FAIL);
+    intent.addAction(GATT_DISCONNECT);
+    intent.addAction(GATT_DISCONNECT_FAIL);
+    intent.addAction(SERVICES_OK);
+    intent.addAction(SERVICES_FAIL);
 
-        intent.addAction(READ_CHAR_OK);
-        intent.addAction(READ_CHAR_FAIL);
-        intent.addAction(WRITE_CHAR_OK);
-        intent.addAction(WRITE_CHAR_FAIL);
+    intent.addAction(READ_CHAR_OK);
+    intent.addAction(READ_CHAR_FAIL);
+    intent.addAction(WRITE_CHAR_OK);
+    intent.addAction(WRITE_CHAR_FAIL);
 
-        intent.addAction(CHAR_CHANGED);
+    intent.addAction(CHAR_CHANGED);
 
-        intent.addAction(READ_DESC_OK);
-        intent.addAction(READ_DESC_FAIL);
-        intent.addAction(WRITE_DESC_OK);
-        intent.addAction(WRITE_DESC_FAIL);
+    intent.addAction(READ_DESC_OK);
+    intent.addAction(READ_DESC_FAIL);
+    intent.addAction(WRITE_DESC_OK);
+    intent.addAction(WRITE_DESC_FAIL);
 
-        return intent;
-    }
+    return intent;
+  }
 
-    static Intent createIntent(String action, String address) {
-        Uri intentUri = new Uri.Builder().scheme(DATA_SCHEME).authority(address).build();
-        return new Intent(action, intentUri);
-    }
+  static Intent createIntent(String action, String address) {
+    Uri intentUri = new Uri.Builder().scheme(DATA_SCHEME).authority(address).build();
+    return new Intent(action, intentUri);
+  }
 }

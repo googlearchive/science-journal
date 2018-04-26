@@ -20,173 +20,170 @@ import android.app.Activity;
 import android.os.Handler;
 import androidx.fragment.app.Fragment;
 import android.view.View;
-
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A presenter for sensor triggers.
- */
+/** A presenter for sensor triggers. */
 public class CardTriggerPresenter {
 
-    private static final long TRIGGER_TEXT_SWITCHER_DELAY_MS = 3000;
+  private static final long TRIGGER_TEXT_SWITCHER_DELAY_MS = 3000;
 
-    public interface OnCardTriggerClickedListener {
-        void onCardTriggerIconClicked();
-    }
+  public interface OnCardTriggerClickedListener {
+    void onCardTriggerIconClicked();
+  }
 
-    private final OnCardTriggerClickedListener mListener;
-    private List<SensorTrigger> mSensorTriggers = Collections.emptyList();
-    private List<String> mTriggerText = new ArrayList<>();
-    private int mDisplayedTriggerTextIndex = 0;
-    private CardViewHolder mCardViewHolder;
-    private Activity mActivity;
-    private Handler mHandler;
-    private Runnable mTriggerRunnable;
+  private final OnCardTriggerClickedListener mListener;
+  private List<SensorTrigger> mSensorTriggers = Collections.emptyList();
+  private List<String> mTriggerText = new ArrayList<>();
+  private int mDisplayedTriggerTextIndex = 0;
+  private CardViewHolder mCardViewHolder;
+  private Activity mActivity;
+  private Handler mHandler;
+  private Runnable mTriggerRunnable;
 
-    public CardTriggerPresenter(OnCardTriggerClickedListener listener, Fragment fragment) {
-        mListener = listener;
-        // In tests, the fragment may be null.
-        mActivity = fragment != null ? fragment.getActivity() : null;
-    }
+  public CardTriggerPresenter(OnCardTriggerClickedListener listener, Fragment fragment) {
+    mListener = listener;
+    // In tests, the fragment may be null.
+    mActivity = fragment != null ? fragment.getActivity() : null;
+  }
 
-    public void setViews(CardViewHolder cardViewHolder) {
-        mCardViewHolder = cardViewHolder;
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.onCardTriggerIconClicked();
-            }
+  public void setViews(CardViewHolder cardViewHolder) {
+    mCardViewHolder = cardViewHolder;
+    View.OnClickListener listener =
+        new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            mListener.onCardTriggerIconClicked();
+          }
         };
-        // Put the click listener on both the check box button and the trigger icon button.
-        mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(listener);
-        mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(listener);
-        if (mSensorTriggers.size() > 0) {
-            trySettingUpTextSwitcher();
-        }
+    // Put the click listener on both the check box button and the trigger icon button.
+    mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(listener);
+    mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(listener);
+    if (mSensorTriggers.size() > 0) {
+      trySettingUpTextSwitcher();
     }
+  }
 
-    public void onViewRecycled() {
-        if (mCardViewHolder != null) {
-            mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(null);
-            mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(null);
-            mCardViewHolder.triggerFiredBackground.setAnimationListener(null);
-            mCardViewHolder = null;
-        }
-        if (mHandler != null) {
-            mHandler.removeCallbacks(mTriggerRunnable);
-            mHandler = null;
-        }
-        mTriggerRunnable = null;
+  public void onViewRecycled() {
+    if (mCardViewHolder != null) {
+      mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(null);
+      mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(null);
+      mCardViewHolder.triggerFiredBackground.setAnimationListener(null);
+      mCardViewHolder = null;
     }
-
-    public void onDestroy() {
-        if (mCardViewHolder != null) {
-            onViewRecycled();
-        }
-        mActivity = null;
+    if (mHandler != null) {
+      mHandler.removeCallbacks(mTriggerRunnable);
+      mHandler = null;
     }
+    mTriggerRunnable = null;
+  }
 
-    public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
-        mSensorTriggers = sensorTriggers;
-        if (mDisplayedTriggerTextIndex < mSensorTriggers.size()) {
-            mDisplayedTriggerTextIndex = 0;
-        }
-        createTextForTriggers();
-        if (mCardViewHolder != null) {
-            trySettingUpTextSwitcher();
-        }
+  public void onDestroy() {
+    if (mCardViewHolder != null) {
+      onViewRecycled();
     }
+    mActivity = null;
+  }
 
-    private void trySettingUpTextSwitcher() {
-        if (mTriggerText.size() == 0) {
-            mCardViewHolder.triggerTextSwitcher.setCurrentText("");
-            return;
-        }
-        if (mHandler == null) {
-            mHandler = new Handler();
-            mTriggerRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    if (mTriggerText.size() == 0 || mCardViewHolder == null) {
-                        return;
-                    }
-                    mDisplayedTriggerTextIndex =
-                            (++mDisplayedTriggerTextIndex) % mTriggerText.size();
-                    mCardViewHolder.triggerTextSwitcher.setText(
-                            mTriggerText.get(mDisplayedTriggerTextIndex));
-                    mHandler.postDelayed(mTriggerRunnable, TRIGGER_TEXT_SWITCHER_DELAY_MS);
-                }
-            };
-        }
-        mCardViewHolder.triggerFiredBackground.setAnimationListener(
-                new TriggerBackgroundView.TriggerAnimationListener() {
-                    @Override
-                    public void onAnimationStart() {
-                        mCardViewHolder.triggerFiredText.setVisibility(View.VISIBLE);
-                        mCardViewHolder.triggerTextSwitcher.setVisibility(View.INVISIBLE);
-                        mCardViewHolder.triggerIcon.showNext();
-                    }
-
-                    @Override
-                    public void onAnimationEnd() {
-                        if (mCardViewHolder != null) {
-                            mCardViewHolder.triggerFiredText.setVisibility(View.GONE);
-                            mCardViewHolder.triggerTextSwitcher.setVisibility(View.VISIBLE);
-                            mCardViewHolder.triggerIcon.showPrevious();
-                        }
-                    }
-                });
-        if (mTriggerText.size() == 1) {
-            // No need for a switcher with one trigger
-            mCardViewHolder.triggerTextSwitcher.setCurrentText(mTriggerText.get(0));
-        } else {
-            mCardViewHolder.triggerTextSwitcher.setCurrentText(mTriggerText.get(
-                    mDisplayedTriggerTextIndex));
-            mCardViewHolder.triggerTextSwitcher.setInAnimation(mCardViewHolder.getContext(),
-                    android.R.anim.fade_in);
-            mCardViewHolder.triggerTextSwitcher.setOutAnimation(mCardViewHolder.getContext(),
-                    android.R.anim.fade_out);
-            mTriggerRunnable.run();
-        }
-        mCardViewHolder.triggerLevelDrawableButton.setImageLevel(mTriggerText.size());
+  public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
+    mSensorTriggers = sensorTriggers;
+    if (mDisplayedTriggerTextIndex < mSensorTriggers.size()) {
+      mDisplayedTriggerTextIndex = 0;
     }
-
-    public List<SensorTrigger> getSensorTriggers() {
-        return mSensorTriggers;
+    createTextForTriggers();
+    if (mCardViewHolder != null) {
+      trySettingUpTextSwitcher();
     }
+  }
 
-    public void updateSensorTriggerUi() {
-        if (mSensorTriggers.size() == 0) {
-            mCardViewHolder.triggerSection.setVisibility(View.GONE);
-        } else {
-            mCardViewHolder.triggerSection.setVisibility(View.VISIBLE);
-        }
+  private void trySettingUpTextSwitcher() {
+    if (mTriggerText.size() == 0) {
+      mCardViewHolder.triggerTextSwitcher.setCurrentText("");
+      return;
     }
+    if (mHandler == null) {
+      mHandler = new Handler();
+      mTriggerRunnable =
+          new Runnable() {
+            @Override
+            public void run() {
+              if (mTriggerText.size() == 0 || mCardViewHolder == null) {
+                return;
+              }
+              mDisplayedTriggerTextIndex = (++mDisplayedTriggerTextIndex) % mTriggerText.size();
+              mCardViewHolder.triggerTextSwitcher.setText(
+                  mTriggerText.get(mDisplayedTriggerTextIndex));
+              mHandler.postDelayed(mTriggerRunnable, TRIGGER_TEXT_SWITCHER_DELAY_MS);
+            }
+          };
+    }
+    mCardViewHolder.triggerFiredBackground.setAnimationListener(
+        new TriggerBackgroundView.TriggerAnimationListener() {
+          @Override
+          public void onAnimationStart() {
+            mCardViewHolder.triggerFiredText.setVisibility(View.VISIBLE);
+            mCardViewHolder.triggerTextSwitcher.setVisibility(View.INVISIBLE);
+            mCardViewHolder.triggerIcon.showNext();
+          }
 
-    private void createTextForTriggers() {
-        mTriggerText.clear();
-        if (mActivity == null) {
-            return;
-        }
-        for (SensorTrigger trigger : mSensorTriggers) {
-            mTriggerText.add(TriggerHelper.buildDescription(trigger, mActivity));
-        }
+          @Override
+          public void onAnimationEnd() {
+            if (mCardViewHolder != null) {
+              mCardViewHolder.triggerFiredText.setVisibility(View.GONE);
+              mCardViewHolder.triggerTextSwitcher.setVisibility(View.VISIBLE);
+              mCardViewHolder.triggerIcon.showPrevious();
+            }
+          }
+        });
+    if (mTriggerText.size() == 1) {
+      // No need for a switcher with one trigger
+      mCardViewHolder.triggerTextSwitcher.setCurrentText(mTriggerText.get(0));
+    } else {
+      mCardViewHolder.triggerTextSwitcher.setCurrentText(
+          mTriggerText.get(mDisplayedTriggerTextIndex));
+      mCardViewHolder.triggerTextSwitcher.setInAnimation(
+          mCardViewHolder.getContext(), android.R.anim.fade_in);
+      mCardViewHolder.triggerTextSwitcher.setOutAnimation(
+          mCardViewHolder.getContext(), android.R.anim.fade_out);
+      mTriggerRunnable.run();
     }
+    mCardViewHolder.triggerLevelDrawableButton.setImageLevel(mTriggerText.size());
+  }
 
-    public void onSensorTriggerFired() {
-        // Whenever a trigger fires, we update the header to show an animation. Per UX, it does not
-        // matter, the type of trigger. All triggers show an animation, but visual alert triggers
-        // do nothing else.
-        if (mCardViewHolder == null ||
-                mCardViewHolder.triggerSection.getVisibility() == View.GONE ||
-                !mCardViewHolder.triggerSection.isAttachedToWindow()) {
-            return;
-        }
-        mCardViewHolder.triggerFiredBackground.onTriggerFired();
+  public List<SensorTrigger> getSensorTriggers() {
+    return mSensorTriggers;
+  }
+
+  public void updateSensorTriggerUi() {
+    if (mSensorTriggers.size() == 0) {
+      mCardViewHolder.triggerSection.setVisibility(View.GONE);
+    } else {
+      mCardViewHolder.triggerSection.setVisibility(View.VISIBLE);
     }
+  }
+
+  private void createTextForTriggers() {
+    mTriggerText.clear();
+    if (mActivity == null) {
+      return;
+    }
+    for (SensorTrigger trigger : mSensorTriggers) {
+      mTriggerText.add(TriggerHelper.buildDescription(trigger, mActivity));
+    }
+  }
+
+  public void onSensorTriggerFired() {
+    // Whenever a trigger fires, we update the header to show an animation. Per UX, it does not
+    // matter, the type of trigger. All triggers show an animation, but visual alert triggers
+    // do nothing else.
+    if (mCardViewHolder == null
+        || mCardViewHolder.triggerSection.getVisibility() == View.GONE
+        || !mCardViewHolder.triggerSection.isAttachedToWindow()) {
+      return;
+    }
+    mCardViewHolder.triggerFiredBackground.onTriggerFired();
+  }
 }

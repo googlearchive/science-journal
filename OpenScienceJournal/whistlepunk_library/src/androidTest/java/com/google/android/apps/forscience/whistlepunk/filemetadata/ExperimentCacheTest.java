@@ -18,330 +18,330 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import androidx.annotation.NonNull;
 import android.test.InstrumentationTestCase;
-
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.protobuf.nano.MessageNano;
-
 import java.io.File;
 
 /**
- * Tests for the ExperimentCache class.
- * Note: All experiments created should start with prefix "exp_" so that they can be cleaned up
- * automatically.
+ * Tests for the ExperimentCache class. Note: All experiments created should start with prefix
+ * "exp_" so that they can be cleaned up automatically.
  */
 public class ExperimentCacheTest extends InstrumentationTestCase {
-    private int mFailureCount = 0;
+  private int mFailureCount = 0;
 
-    private ExperimentCache.FailureListener getFailureFailsListener() {
-        return new ExperimentCache.FailureListener() {
-            @Override
-            public void onWriteFailed(Experiment experimentToWrite) {
-                throw new RuntimeException("Expected success");
-            }
+  private ExperimentCache.FailureListener getFailureFailsListener() {
+    return new ExperimentCache.FailureListener() {
+      @Override
+      public void onWriteFailed(Experiment experimentToWrite) {
+        throw new RuntimeException("Expected success");
+      }
 
-            @Override
-            public void onReadFailed(GoosciUserMetadata.ExperimentOverview experimentOverview) {
-                throw new RuntimeException("Expected success");
-            }
+      @Override
+      public void onReadFailed(GoosciUserMetadata.ExperimentOverview experimentOverview) {
+        throw new RuntimeException("Expected success");
+      }
 
-            @Override
-            public void onNewerVersionDetected(
-                    GoosciUserMetadata.ExperimentOverview experimentOverview) {
-                throw new RuntimeException("Expected success");
-            }
-        };
+      @Override
+      public void onNewerVersionDetected(GoosciUserMetadata.ExperimentOverview experimentOverview) {
+        throw new RuntimeException("Expected success");
+      }
+    };
+  }
+
+  private ExperimentCache.FailureListener getFailureExpectedListener() {
+    return new ExperimentCache.FailureListener() {
+      @Override
+      public void onWriteFailed(Experiment experimentToWrite) {
+        mFailureCount++;
+      }
+
+      @Override
+      public void onReadFailed(GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
+        mFailureCount++;
+      }
+
+      @Override
+      public void onNewerVersionDetected(GoosciUserMetadata.ExperimentOverview experimentOverview) {
+        mFailureCount++;
+      }
+    };
+  }
+
+  public void setUp() {
+    cleanUp();
+  }
+
+  public void tearDown() {
+    cleanUp();
+  }
+
+  private void cleanUp() {
+    File rootDirectory = getInstrumentation().getContext().getFilesDir();
+    for (File file : rootDirectory.listFiles()) {
+      if (file.getName().startsWith("exp_")) {
+        ExperimentCache.deleteRecursive(file);
+      }
     }
+    mFailureCount = 0;
+  }
 
-    private ExperimentCache.FailureListener getFailureExpectedListener() {
-        return new ExperimentCache.FailureListener() {
-            @Override
-            public void onWriteFailed(Experiment experimentToWrite) {
-                mFailureCount++;
-            }
+  public void testExperimentWriteRead() {
+    Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    cache.createNewExperiment(experiment);
+    cache.writeActiveExperimentFile();
 
-            @Override
-            public void onReadFailed(
-                    GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
-                mFailureCount++;
-            }
+    // Was it set correctly in the ExperimentCache?
+    assertTrue(
+        MessageNano.messageNanoEquals(
+            cache.getActiveExperimentForTests().getExperimentProto(),
+            experiment.getExperimentProto()));
 
-            @Override
-            public void onNewerVersionDetected(
-                    GoosciUserMetadata.ExperimentOverview experimentOverview) {
-                mFailureCount++;
-            }
-        };
-    }
+    // Force a load, make sure that's equal too.
+    cache.loadActiveExperimentFromFile(experiment.getExperimentOverview());
+    assertTrue(
+        MessageNano.messageNanoEquals(
+            cache.getActiveExperimentForTests().getExperimentProto(),
+            experiment.getExperimentProto()));
 
-    public void setUp() {
-        cleanUp();
-    }
+    // Clean up.
+    cache.deleteExperiment("exp_localId");
+    assertNull(cache.getActiveExperimentForTests());
+  }
 
-    public void tearDown() {
-        cleanUp();
-    }
+  public void testExperimentWithChanges() {
+    Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    cache.createNewExperiment(experiment);
+    assertTrue(cache.needsWrite());
 
-    private void cleanUp() {
-        File rootDirectory = getInstrumentation().getContext().getFilesDir();
-        for (File file : rootDirectory.listFiles()) {
-            if (file.getName().startsWith("exp_")) {
-                ExperimentCache.deleteRecursive(file);
-            }
-        }
-        mFailureCount = 0;
-    }
+    cache.writeActiveExperimentFile();
+    assertFalse(cache.needsWrite());
 
-    public void testExperimentWriteRead() {
-        Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        cache.createNewExperiment(experiment);
-        cache.writeActiveExperimentFile();
+    experiment.setTitle("Title");
+    cache.updateExperiment(experiment);
+    assertTrue(cache.needsWrite());
+    cache.writeActiveExperimentFile();
 
-        // Was it set correctly in the ExperimentCache?
-        assertTrue(MessageNano.messageNanoEquals(
-                cache.getActiveExperimentForTests().getExperimentProto(),
-                experiment.getExperimentProto()));
+    // Force a load, make sure that's got the new title.
+    cache.loadActiveExperimentFromFile(experiment.getExperimentOverview());
+    assertEquals("Title", cache.getActiveExperimentForTests().getTitle());
 
-        // Force a load, make sure that's equal too.
-        cache.loadActiveExperimentFromFile(experiment.getExperimentOverview());
-        assertTrue(MessageNano.messageNanoEquals(
-                cache.getActiveExperimentForTests().getExperimentProto(),
-                experiment.getExperimentProto()));
+    // Clean up.
+    cache.deleteExperiment("exp_localId");
+    assertNull(cache.getActiveExperimentForTests());
+  }
 
-        // Clean up.
-        cache.deleteExperiment("exp_localId");
-        assertNull(cache.getActiveExperimentForTests());
-    }
+  public void testChangingExperimentWritesOldOne() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
 
-    public void testExperimentWithChanges() {
-        Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        cache.createNewExperiment(experiment);
-        assertTrue(cache.needsWrite());
+    Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
+    cache.createNewExperiment(experiment);
+    assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 10);
+    experiment.setTitle("Title");
+    cache.updateExperiment(experiment);
 
-        cache.writeActiveExperimentFile();
-        assertFalse(cache.needsWrite());
+    Experiment second = Experiment.newExperiment(20, "exp_secondId", 0);
+    cache.createNewExperiment(second);
+    assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 20);
 
-        experiment.setTitle("Title");
-        cache.updateExperiment(experiment);
-        assertTrue(cache.needsWrite());
-        cache.writeActiveExperimentFile();
+    cache.getExperiment(experiment.getExperimentOverview());
+    assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 10);
+    assertEquals(cache.getActiveExperimentForTests().getTitle(), "Title");
+  }
 
-        // Force a load, make sure that's got the new title.
-        cache.loadActiveExperimentFromFile(experiment.getExperimentOverview());
-        assertEquals("Title", cache.getActiveExperimentForTests().getTitle());
+  public void testUpgradeStartsWriteTimer() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.version = 0;
+    proto.fileVersion.minorVersion = 0;
+    proto.fileVersion.platformVersion = 0;
+    cache.upgradeExperimentVersionIfNeeded(
+        proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
+    assertEquals(1, proto.fileVersion.version);
+    assertEquals(1, proto.fileVersion.minorVersion);
+    assertEquals(1, proto.fileVersion.platformVersion);
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
+    assertTrue(cache.needsWrite());
+  }
 
-        // Clean up.
-        cache.deleteExperiment("exp_localId");
-        assertNull(cache.getActiveExperimentForTests());
-    }
+  public void testUpgradeWhenVersionMissing() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion = null;
+    cache.upgradeExperimentVersionIfNeeded(
+        proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
+    assertEquals(1, proto.fileVersion.version);
+    assertEquals(1, proto.fileVersion.minorVersion);
+    assertEquals(1, proto.fileVersion.platformVersion);
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
+  }
 
-    public void testChangingExperimentWritesOldOne() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
+  public void testNoUpgradeDoesNotStartWriteTimer() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.version = 1;
+    proto.fileVersion.minorVersion = 1;
+    proto.fileVersion.platformVersion = 1;
+    cache.upgradeExperimentVersionIfNeeded(
+        proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
+    assertEquals(1, proto.fileVersion.version);
+    assertEquals(1, proto.fileVersion.minorVersion);
+    assertEquals(1, proto.fileVersion.platformVersion);
+    assertFalse(cache.needsWrite());
+  }
 
-        Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
-        cache.createNewExperiment(experiment);
-        assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 10);
-        experiment.setTitle("Title");
-        cache.updateExperiment(experiment);
+  public void testVersionTooNewThrowsError() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureExpectedListener());
 
-        Experiment second = Experiment.newExperiment(20, "exp_secondId", 0);
-        cache.createNewExperiment(second);
-        assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 20);
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.version = ExperimentCache.VERSION + 1;
+    proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION;
+    cache.upgradeExperimentVersionIfNeeded(
+        proto,
+        new GoosciUserMetadata.ExperimentOverview(),
+        ExperimentCache.VERSION,
+        ExperimentCache.MINOR_VERSION,
+        ExperimentCache.PLATFORM_VERSION);
+    assertEquals(1, mFailureCount);
+  }
 
-        cache.getExperiment(experiment.getExperimentOverview());
-        assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 10);
-        assertEquals(cache.getActiveExperimentForTests().getTitle(), "Title");
-    }
+  public void testOnlyUpgradesMinorVersion() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.version = 1;
+    proto.fileVersion.minorVersion = 0;
+    cache.upgradeExperimentVersionIfNeeded(
+        proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
+    assertEquals(proto.fileVersion.version, 1);
+    assertEquals(proto.fileVersion.minorVersion, 1);
+  }
 
-    public void testUpgradeStartsWriteTimer() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.version = 0;
-        proto.fileVersion.minorVersion = 0;
-        proto.fileVersion.platformVersion = 0;
-        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
-                1, 1, 1);
-        assertEquals(1, proto.fileVersion.version);
-        assertEquals(1, proto.fileVersion.minorVersion);
-        assertEquals(1, proto.fileVersion.platformVersion);
-        assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
-        assertTrue(cache.needsWrite());
-    }
+  public void testUpgradesToMinor2() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.version = 1;
+    proto.fileVersion.minorVersion = 1;
+    proto.fileVersion.platformVersion = 2;
+    proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
+    cache.upgradeExperimentVersionIfNeeded(
+        proto, new GoosciUserMetadata.ExperimentOverview(), 1, 2, 500);
+    assertEquals(proto.fileVersion.version, 1);
+    assertEquals(proto.fileVersion.minorVersion, 2);
+    assertEquals(proto.fileVersion.platformVersion, 500);
+    assertEquals(proto.fileVersion.platform, GoosciGadgetInfo.GadgetInfo.Platform.ANDROID);
+  }
 
-    public void testUpgradeWhenVersionMissing() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion = null;
-        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
-                1, 1, 1);
-        assertEquals(1, proto.fileVersion.version);
-        assertEquals(1, proto.fileVersion.minorVersion);
-        assertEquals(1, proto.fileVersion.platformVersion);
-        assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
-    }
+  public void testDontDowngradePlatform() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.version = 1;
+    proto.fileVersion.minorVersion = 2;
+    proto.fileVersion.platformVersion = 1000;
+    proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
+    cache.upgradeExperimentVersionIfNeeded(
+        proto, new GoosciUserMetadata.ExperimentOverview(), 1, 2, 500);
+    assertEquals(proto.fileVersion.version, 1);
+    assertEquals(proto.fileVersion.minorVersion, 2);
+    assertEquals(proto.fileVersion.platformVersion, 1000);
+    assertEquals(proto.fileVersion.platform, GoosciGadgetInfo.GadgetInfo.Platform.ANDROID);
+  }
 
-    public void testNoUpgradeDoesNotStartWriteTimer() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.version = 1;
-        proto.fileVersion.minorVersion = 1;
-        proto.fileVersion.platformVersion = 1;
-        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
-                1, 1, 1);
-        assertEquals(1, proto.fileVersion.version);
-        assertEquals(1, proto.fileVersion.minorVersion);
-        assertEquals(1, proto.fileVersion.platformVersion);
-        assertFalse(cache.needsWrite());
-    }
+  public void testChangePlatformToAndroid() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.version = 1;
+    proto.fileVersion.minorVersion = 1;
+    proto.fileVersion.platformVersion = 1000;
+    proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.IOS;
+    cache.upgradeExperimentVersionIfNeeded(
+        proto, new GoosciUserMetadata.ExperimentOverview(), 1, 2, 500);
+    assertEquals(proto.fileVersion.version, 1);
+    assertEquals(proto.fileVersion.minorVersion, 2);
+    assertEquals(proto.fileVersion.platformVersion, 500);
+    assertEquals(proto.fileVersion.platform, GoosciGadgetInfo.GadgetInfo.Platform.ANDROID);
+  }
 
-    public void testVersionTooNewThrowsError() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureExpectedListener());
+  public void testOnlyUpgradesPlatformVersion() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.version = 1;
+    proto.fileVersion.minorVersion = 1;
+    proto.fileVersion.platformVersion = 0;
+    cache.upgradeExperimentVersionIfNeeded(
+        proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
+    assertEquals(proto.fileVersion.version, 1);
+    assertEquals(proto.fileVersion.minorVersion, 1);
+    assertEquals(proto.fileVersion.platformVersion, 1);
+  }
 
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.version = ExperimentCache.VERSION + 1;
-        proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION;
-        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
-                ExperimentCache.VERSION, ExperimentCache.MINOR_VERSION,
-                ExperimentCache.PLATFORM_VERSION);
-        assertEquals(1, mFailureCount);
-    }
+  public void testCantWriteNewerVersion() {
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureExpectedListener());
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.version = ExperimentCache.VERSION;
+    proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION + 1;
+    GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
+    cache.upgradeExperimentVersionIfNeeded(
+        proto,
+        overview,
+        ExperimentCache.VERSION,
+        ExperimentCache.MINOR_VERSION,
+        ExperimentCache.PLATFORM_VERSION);
+    // Version should be unchanged -- don't upgrade minor version.
+    assertEquals(proto.fileVersion.version, ExperimentCache.VERSION);
+    assertEquals(proto.fileVersion.minorVersion, ExperimentCache.MINOR_VERSION + 1);
 
-    public void testOnlyUpgradesMinorVersion() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.version = 1;
-        proto.fileVersion.minorVersion = 0;
-        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
-                1, 1, 1);
-        assertEquals(proto.fileVersion.version, 1);
-        assertEquals(proto.fileVersion.minorVersion, 1);
-    }
+    // But no errors yet -- didn't try to save it.
+    assertEquals(0, mFailureCount);
 
-    public void testUpgradesToMinor2() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.version = 1;
-        proto.fileVersion.minorVersion = 1;
-        proto.fileVersion.platformVersion = 2;
-        proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
-        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
-                1, 2, 500);
-        assertEquals(proto.fileVersion.version, 1);
-        assertEquals(proto.fileVersion.minorVersion, 2);
-        assertEquals(proto.fileVersion.platformVersion, 500);
-        assertEquals(proto.fileVersion.platform, GoosciGadgetInfo.GadgetInfo.Platform.ANDROID);
-    }
+    Experiment experiment = Experiment.fromExperiment(proto, overview);
+    cache.updateExperiment(experiment); // Set this one to active so we can try to write it.
+    cache.writeActiveExperimentFile();
+    assertEquals(1, mFailureCount);
+  }
 
-    public void testDontDowngradePlatform() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.version = 1;
-        proto.fileVersion.minorVersion = 2;
-        proto.fileVersion.platformVersion = 1000;
-        proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
-        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
-                1, 2, 500);
-        assertEquals(proto.fileVersion.version, 1);
-        assertEquals(proto.fileVersion.minorVersion, 2);
-        assertEquals(proto.fileVersion.platformVersion, 1000);
-        assertEquals(proto.fileVersion.platform, GoosciGadgetInfo.GadgetInfo.Platform.ANDROID);
-    }
+  public void testPlatformVersion1To2() {
+    // From 1.1.1 to 1.1.2, we index the trials within the experiment.
+    ExperimentCache cache =
+        new ExperimentCache(getInstrumentation().getContext(), getFailureExpectedListener());
+    GoosciExperiment.Experiment proto = createExperimentProto();
+    proto.fileVersion.platformVersion = 1;
+    proto.fileVersion.version = 1;
+    proto.fileVersion.minorVersion = 1;
+    GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
+    GoosciTrial.Trial trial1 = new GoosciTrial.Trial();
+    GoosciTrial.Trial trial2 = new GoosciTrial.Trial();
+    proto.trials = new GoosciTrial.Trial[] {trial1, trial2};
 
-    public void testChangePlatformToAndroid() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.version = 1;
-        proto.fileVersion.minorVersion = 1;
-        proto.fileVersion.platformVersion = 1000;
-        proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.IOS;
-        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
-                1, 2, 500);
-        assertEquals(proto.fileVersion.version, 1);
-        assertEquals(proto.fileVersion.minorVersion, 2);
-        assertEquals(proto.fileVersion.platformVersion, 500);
-        assertEquals(proto.fileVersion.platform, GoosciGadgetInfo.GadgetInfo.Platform.ANDROID);
-    }
+    cache.upgradeExperimentVersionIfNeeded(proto, overview, 1, 1, 2);
+    assertEquals(0, mFailureCount);
+    assertEquals(2, proto.fileVersion.platformVersion);
+    assertEquals(2, proto.totalTrials);
+    assertEquals(1, proto.trials[0].trialNumberInExperiment);
+    assertEquals(2, proto.trials[1].trialNumberInExperiment);
+  }
 
-    public void testOnlyUpgradesPlatformVersion() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureFailsListener(), 0);
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.version = 1;
-        proto.fileVersion.minorVersion = 1;
-        proto.fileVersion.platformVersion = 0;
-        cache.upgradeExperimentVersionIfNeeded(proto, new GoosciUserMetadata.ExperimentOverview(),
-                1, 1, 1);
-        assertEquals(proto.fileVersion.version, 1);
-        assertEquals(proto.fileVersion.minorVersion, 1);
-        assertEquals(proto.fileVersion.platformVersion, 1);
-    }
-
-    public void testCantWriteNewerVersion() {
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureExpectedListener());
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.version = ExperimentCache.VERSION;
-        proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION + 1;
-        GoosciUserMetadata.ExperimentOverview overview =
-                new GoosciUserMetadata.ExperimentOverview();
-        cache.upgradeExperimentVersionIfNeeded(proto, overview,
-                ExperimentCache.VERSION, ExperimentCache.MINOR_VERSION,
-                ExperimentCache.PLATFORM_VERSION);
-        // Version should be unchanged -- don't upgrade minor version.
-        assertEquals(proto.fileVersion.version, ExperimentCache.VERSION);
-        assertEquals(proto.fileVersion.minorVersion, ExperimentCache.MINOR_VERSION + 1);
-
-        // But no errors yet -- didn't try to save it.
-        assertEquals(0, mFailureCount);
-
-        Experiment experiment = Experiment.fromExperiment(proto, overview);
-        cache.updateExperiment(experiment); // Set this one to active so we can try to write it.
-        cache.writeActiveExperimentFile();
-        assertEquals(1, mFailureCount);
-    }
-
-    public void testPlatformVersion1To2() {
-        // From 1.1.1 to 1.1.2, we index the trials within the experiment.
-        ExperimentCache cache = new ExperimentCache(getInstrumentation().getContext(),
-                getFailureExpectedListener());
-        GoosciExperiment.Experiment proto = createExperimentProto();
-        proto.fileVersion.platformVersion = 1;
-        proto.fileVersion.version = 1;
-        proto.fileVersion.minorVersion = 1;
-        GoosciUserMetadata.ExperimentOverview overview =
-                new GoosciUserMetadata.ExperimentOverview();
-        GoosciTrial.Trial trial1 = new GoosciTrial.Trial();
-        GoosciTrial.Trial trial2 = new GoosciTrial.Trial();
-        proto.trials = new GoosciTrial.Trial[]{trial1, trial2};
-
-        cache.upgradeExperimentVersionIfNeeded(proto, overview, 1, 1, 2);
-        assertEquals(0, mFailureCount);
-        assertEquals(2, proto.fileVersion.platformVersion);
-        assertEquals(2, proto.totalTrials);
-        assertEquals(1, proto.trials[0].trialNumberInExperiment);
-        assertEquals(2, proto.trials[1].trialNumberInExperiment);
-    }
-
-    @NonNull
-    private GoosciExperiment.Experiment createExperimentProto() {
-        GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-        proto.fileVersion = new Version.FileVersion();
-        return proto;
-    }
+  @NonNull
+  private GoosciExperiment.Experiment createExperimentProto() {
+    GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+    proto.fileVersion = new Version.FileVersion();
+    return proto;
+  }
 }

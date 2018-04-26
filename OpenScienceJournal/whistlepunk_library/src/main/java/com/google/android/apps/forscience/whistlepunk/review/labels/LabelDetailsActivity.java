@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -31,129 +30,138 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 
-/**
- * Activity managing a LabelDetails page
- */
+/** Activity managing a LabelDetails page */
 public class LabelDetailsActivity extends AppCompatActivity {
 
-    static final String ARG_EXPERIMENT_ID = "experiment_id";
-    static final String ARG_TRIAL_ID = "trial_id";
-    static final String ARG_LABEL = "label";
-    static final String ARG_PARENT_EXP_DETAILS = "from_exp_details";
-    static final String ARG_PARENT_RUN_REVIEW = "from_run_review";
-    private static final String FRAGMENT_TAG = "fragment";
+  static final String ARG_EXPERIMENT_ID = "experiment_id";
+  static final String ARG_TRIAL_ID = "trial_id";
+  static final String ARG_LABEL = "label";
+  static final String ARG_PARENT_EXP_DETAILS = "from_exp_details";
+  static final String ARG_PARENT_RUN_REVIEW = "from_run_review";
+  private static final String FRAGMENT_TAG = "fragment";
 
-    public static void launchFromExpDetails(Context context, String experimentId, Label label) {
-        final Intent intent = new Intent(context, LabelDetailsActivity.class);
-        intent.putExtra(ARG_EXPERIMENT_ID, experimentId);
-        intent.putExtra(ARG_LABEL, label);
-        intent.putExtra(ARG_PARENT_EXP_DETAILS, true);
-        context.startActivity(intent);
+  public static void launchFromExpDetails(Context context, String experimentId, Label label) {
+    final Intent intent = new Intent(context, LabelDetailsActivity.class);
+    intent.putExtra(ARG_EXPERIMENT_ID, experimentId);
+    intent.putExtra(ARG_LABEL, label);
+    intent.putExtra(ARG_PARENT_EXP_DETAILS, true);
+    context.startActivity(intent);
+  }
+
+  public static void launchFromRunReview(
+      Context context,
+      String experimentId,
+      String trialId,
+      int selectedSensor,
+      Label label,
+      boolean createTask,
+      boolean fromRecord) {
+    final Intent intent = new Intent(context, LabelDetailsActivity.class);
+    intent.putExtra(ARG_EXPERIMENT_ID, experimentId);
+    intent.putExtra(ARG_LABEL, label);
+    intent.putExtra(ARG_PARENT_RUN_REVIEW, true);
+    intent.putExtra(RunReviewActivity.EXTRA_CREATE_TASK, createTask);
+    intent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD, fromRecord);
+    intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, selectedSensor);
+    intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, trialId);
+    context.startActivity(intent);
+  }
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    Label originalLabel = getIntent().getExtras().getParcelable(ARG_LABEL);
+    if (originalLabel == null) {
+      finish();
+      return;
+    }
+    int labelType = originalLabel.getType();
+
+    // Update the theme if this is a text note before setting the view.
+    if (labelType == GoosciLabel.Label.ValueType.TEXT) {
+      setTheme(R.style.text_label_details);
+    } else if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
+      setTheme(R.style.picture_label_details);
     }
 
-    public static void launchFromRunReview(Context context, String experimentId, String trialId,
-            int selectedSensor, Label label, boolean createTask, boolean fromRecord) {
-        final Intent intent = new Intent(context, LabelDetailsActivity.class);
-        intent.putExtra(ARG_EXPERIMENT_ID, experimentId);
-        intent.putExtra(ARG_LABEL, label);
-        intent.putExtra(ARG_PARENT_RUN_REVIEW, true);
-        intent.putExtra(RunReviewActivity.EXTRA_CREATE_TASK, createTask);
-        intent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD, fromRecord);
-        intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, selectedSensor);
-        intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, trialId);
-        context.startActivity(intent);
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_label_details);
+
+    // TODO: Enable transitions between note views in the experiment or trial note list
+    // and these activities, similar to RunReview transition. This may involve
+    // supportPostponeEnterTransition();?
+
+    if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
+      LabelDetailsFragment fragment;
+      if (labelType == GoosciLabel.Label.ValueType.TEXT) {
+        fragment =
+            TextLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(), originalLabel);
+      } else if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
+        fragment =
+            PictureLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(), originalLabel);
+      } else if (labelType == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
+        fragment =
+            TriggerLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(), originalLabel);
+      } else if (labelType == GoosciLabel.Label.ValueType.SNAPSHOT) {
+        fragment =
+            SnapshotLabelDetailsFragment.newInstance(
+                getExperimentId(), getTrialId(), originalLabel);
+      } else {
+        // Unknown type
+        finish();
+        return;
+      }
+      getSupportFragmentManager()
+          .beginTransaction()
+          .add(R.id.container, fragment, FRAGMENT_TAG)
+          .commit();
+    }
+  }
+
+  public void returnToParent(boolean labelDeleted, DeletedLabel originalLabel) {
+    // Must return to the parent using all the appropriate args if the label was deleted.
+    // We would use NavUtils.getParentActivityIntent() instead of making a new intent, but it
+    // seems that each activity may only have one parent specified in the manifest, and two
+    // distinct activities (trial review and experiment details) may be parents of LabelDetails.
+    // Therefore we do "up" by programmatically remembering the parent activity intent and
+    // re-creating it.
+    Intent upIntent;
+    if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_EXP_DETAILS)) {
+      upIntent = WhistlePunkApplication.getLaunchIntentForPanesActivity(this, getExperimentId());
+    } else if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
+      upIntent = new Intent(this, RunReviewActivity.class);
+      upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, getExperimentId());
+      upIntent.putExtra(
+          RunReviewActivity.EXTRA_FROM_RECORD,
+          getIntent().getExtras().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD));
+      upIntent.putExtra(
+          RunReviewActivity.EXTRA_CREATE_TASK,
+          getIntent().getExtras().getBoolean(RunReviewActivity.EXTRA_CREATE_TASK));
+      upIntent.putExtra(
+          RunReviewFragment.ARG_SENSOR_INDEX,
+          getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX));
+      upIntent.putExtra(
+          RunReviewFragment.ARG_START_LABEL_ID,
+          getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID));
+    } else {
+      // unknown parent.
+      finish();
+      return;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        Label originalLabel = getIntent().getExtras().getParcelable(ARG_LABEL);
-        if (originalLabel == null) {
-            finish();
-            return;
-        }
-        int labelType = originalLabel.getType();
-
-        // Update the theme if this is a text note before setting the view.
-        if (labelType == GoosciLabel.Label.ValueType.TEXT) {
-            setTheme(R.style.text_label_details);
-        } else if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
-            setTheme(R.style.picture_label_details);
-        }
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_label_details);
-
-        // TODO: Enable transitions between note views in the experiment or trial note list
-        // and these activities, similar to RunReview transition. This may involve
-        // supportPostponeEnterTransition();?
-
-        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
-            LabelDetailsFragment fragment;
-            if (labelType == GoosciLabel.Label.ValueType.TEXT) {
-                fragment = TextLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(),
-                        originalLabel);
-            } else if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
-                fragment = PictureLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(),
-                        originalLabel);
-            } else if (labelType == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
-                fragment = TriggerLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(),
-                        originalLabel);
-            } else if (labelType == GoosciLabel.Label.ValueType.SNAPSHOT) {
-                fragment = SnapshotLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(),
-                        originalLabel);
-            } else {
-                // Unknown type
-                finish();
-                return;
-            }
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, fragment, FRAGMENT_TAG).commit();
-        }
+    if (labelDeleted) {
+      AppSingleton.getInstance(this).pushDeletedLabelForUndo(originalLabel);
     }
 
-    public void returnToParent(boolean labelDeleted, DeletedLabel originalLabel) {
-        // Must return to the parent using all the appropriate args if the label was deleted.
-        // We would use NavUtils.getParentActivityIntent() instead of making a new intent, but it
-        // seems that each activity may only have one parent specified in the manifest, and two
-        // distinct activities (trial review and experiment details) may be parents of LabelDetails.
-        // Therefore we do "up" by programmatically remembering the parent activity intent and
-        // re-creating it.
-        Intent upIntent;
-        if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_EXP_DETAILS)) {
-            upIntent =
-                    WhistlePunkApplication.getLaunchIntentForPanesActivity(this, getExperimentId());
-        } else if (getIntent().getExtras().getBoolean(
-                LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
-            upIntent = new Intent(this, RunReviewActivity.class);
-            upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, getExperimentId());
-            upIntent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD,
-                    getIntent().getExtras().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD));
-            upIntent.putExtra(RunReviewActivity.EXTRA_CREATE_TASK,
-                    getIntent().getExtras().getBoolean(RunReviewActivity.EXTRA_CREATE_TASK));
-            upIntent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, getIntent().getExtras().getInt(
-                    RunReviewFragment.ARG_SENSOR_INDEX));
-            upIntent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, getIntent().getExtras()
-                    .getString(RunReviewFragment.ARG_START_LABEL_ID));
-        } else {
-            // unknown parent.
-            finish();
-            return;
-        }
+    // TODO: nice transition!
 
-        if (labelDeleted) {
-            AppSingleton.getInstance(this).pushDeletedLabelForUndo(originalLabel);
-        }
+    NavUtils.navigateUpTo(this, upIntent);
+  }
 
-        // TODO: nice transition!
+  private String getExperimentId() {
+    return getIntent().getExtras().getString(ARG_EXPERIMENT_ID);
+  }
 
-        NavUtils.navigateUpTo(this, upIntent);
-    }
-
-    private String getExperimentId() {
-        return getIntent().getExtras().getString(ARG_EXPERIMENT_ID);
-    }
-
-    private String getTrialId() {
-        return getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID);
-    }
+  private String getTrialId() {
+    return getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID);
+  }
 }

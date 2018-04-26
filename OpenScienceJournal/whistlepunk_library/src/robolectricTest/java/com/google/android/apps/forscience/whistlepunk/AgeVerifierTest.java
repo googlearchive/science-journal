@@ -25,40 +25,38 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-/**
- * Tests for {@link com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier}.
- */
+/** Tests for {@link com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier}. */
 @RunWith(RobolectricTestRunner.class)
 public class AgeVerifierTest {
-    @Test
-    public void testOver13_withSentinel() {
-        Calendar calendar = Calendar.getInstance();
+  @Test
+  public void testOver13_withSentinel() {
+    Calendar calendar = Calendar.getInstance();
 
-        calendar.set(1980, 1, 1);
+    calendar.set(1980, 1, 1);
 
-        assertTrue(AgeVerifier.isOver13(calendar.getTimeInMillis()));
-    }
+    assertTrue(AgeVerifier.isOver13(calendar.getTimeInMillis()));
+  }
 
-    @Test
-    public void testOver13_withDynamic() {
-        Calendar nowCalendar = Calendar.getInstance();
+  @Test
+  public void testOver13_withDynamic() {
+    Calendar nowCalendar = Calendar.getInstance();
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        assertFalse(AgeVerifier.isOver13(calendar.getTimeInMillis()));
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(System.currentTimeMillis());
+    assertFalse(AgeVerifier.isOver13(calendar.getTimeInMillis()));
 
-        calendar.set(Calendar.YEAR, nowCalendar.get(Calendar.YEAR) - 12);
-        assertFalse(AgeVerifier.isOver13(calendar.getTimeInMillis()));
+    calendar.set(Calendar.YEAR, nowCalendar.get(Calendar.YEAR) - 12);
+    assertFalse(AgeVerifier.isOver13(calendar.getTimeInMillis()));
 
-        calendar.set(Calendar.YEAR, nowCalendar.get(Calendar.YEAR) - 13);
-        assertTrue(AgeVerifier.isOver13(calendar.getTimeInMillis()));
-        calendar.add(Calendar.HOUR, 1);
-        assertFalse(AgeVerifier.isOver13(calendar.getTimeInMillis()));
-        calendar.set(Calendar.YEAR, nowCalendar.get(Calendar.YEAR) - 13);
-        calendar.add(Calendar.HOUR, -1);
-        assertTrue(AgeVerifier.isOver13(calendar.getTimeInMillis()));
+    calendar.set(Calendar.YEAR, nowCalendar.get(Calendar.YEAR) - 13);
+    assertTrue(AgeVerifier.isOver13(calendar.getTimeInMillis()));
+    calendar.add(Calendar.HOUR, 1);
+    assertFalse(AgeVerifier.isOver13(calendar.getTimeInMillis()));
+    calendar.set(Calendar.YEAR, nowCalendar.get(Calendar.YEAR) - 13);
+    calendar.add(Calendar.HOUR, -1);
+    assertTrue(AgeVerifier.isOver13(calendar.getTimeInMillis()));
 
-        calendar.set(Calendar.YEAR, nowCalendar.get(Calendar.YEAR) - 14);
-        assertTrue(AgeVerifier.isOver13(calendar.getTimeInMillis()));
-    }
+    calendar.set(Calendar.YEAR, nowCalendar.get(Calendar.YEAR) - 14);
+    assertTrue(AgeVerifier.isOver13(calendar.getTimeInMillis()));
+  }
 }
