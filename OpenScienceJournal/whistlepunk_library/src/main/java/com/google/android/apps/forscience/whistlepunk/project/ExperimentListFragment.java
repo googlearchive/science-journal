@@ -53,6 +53,7 @@ import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
@@ -77,7 +78,7 @@ public class ExperimentListFragment extends Fragment
     implements DeleteMetadataItemDialog.DeleteDialogListener {
   private static final String TAG = "ExperimentListFragment";
 
-  /** Boolen extra for savedInstanceState with the state of includeArchived experiments. */
+  /** Boolean extra for savedInstanceState with the state of includeArchived experiments. */
   private static final String EXTRA_INCLUDE_ARCHIVED = "includeArchived";
 
   private static final String ARG_USE_PANES = "usePanes";
@@ -86,7 +87,9 @@ public class ExperimentListFragment extends Fragment
   private ExperimentListAdapter experimentListAdapter;
   private boolean includeArchived;
   private boolean progressBarVisible = false;
-  private RxEvent destroyed = new RxEvent();
+  private final RxEvent destroyed = new RxEvent();
+  private AppAccount currentAccount;
+  private final RxEvent paused = new RxEvent();
 
   public static ExperimentListFragment newInstance(boolean usePanes) {
     ExperimentListFragment fragment = new ExperimentListFragment();
@@ -126,13 +129,29 @@ public class ExperimentListFragment extends Fragment
   public void onResume() {
     super.onResume();
     setProgressBarVisible(progressBarVisible);
-    loadExperiments();
+    // The experiments for the current account need to be loaded now and whenever the current
+    // accounts changes.
+    WhistlePunkApplication.getAppServices(getActivity())
+        .getAccountsProvider()
+        .getObservableCurrentAccount()
+        .takeUntil(paused.happens())
+        .subscribe(
+            appAccount -> {
+              currentAccount = appAccount;
+              loadExperiments(appAccount);
+            });
   }
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putBoolean(EXTRA_INCLUDE_ARCHIVED, includeArchived);
+  }
+
+  @Override
+  public void onPause() {
+    paused.onHappened();
+    super.onPause();
   }
 
   @Override
@@ -193,7 +212,7 @@ public class ExperimentListFragment extends Fragment
         WhistlePunkApplication.getLaunchIntentForPanesActivity(context, experimentId));
   }
 
-  private void loadExperiments() {
+  private void loadExperiments(AppAccount appAccount) {
     PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
     PerfTrackerProvider.TimerToken loadExperimentTimer = perfTracker.startTimer();
     getDataController()
@@ -203,9 +222,12 @@ public class ExperimentListFragment extends Fragment
                 TAG, "Retrieve experiments") {
               @Override
               public void success(List<GoosciUserMetadata.ExperimentOverview> experiments) {
-                if (experiments.size() == 0
-                    && !PreferenceManager.getDefaultSharedPreferences(getActivity())
-                        .getBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, false)) {
+                // In case the account changes multiple times quickly, ignore the results if
+                // the account we just loaded is no longer the current account.
+                if (!appAccount.equals(currentAccount)) {
+                  return;
+                }
+                if (experiments.isEmpty() && !wasDefaultExperimentCreated()) {
                   // If there are no experiments and we've never made a default one,
                   // create the default experiment and set the boolean to true.
                   createDefaultExperiment();
@@ -219,6 +241,19 @@ public class ExperimentListFragment extends Fragment
                 perfTracker.onAppInteractive();
               }
             });
+  }
+
+  private boolean wasDefaultExperimentCreated() {
+    String prefKey = currentAccount.getPreferenceKey(KEY_DEFAULT_EXPERIMENT_CREATED);
+    return PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(prefKey, false);
+  }
+
+  private void setDefaultExperimentCreated() {
+    String prefKey = currentAccount.getPreferenceKey(KEY_DEFAULT_EXPERIMENT_CREATED);
+    PreferenceManager.getDefaultSharedPreferences(getActivity())
+        .edit()
+        .putBoolean(prefKey, true)
+        .apply();
   }
 
   private void createDefaultExperiment() {
@@ -277,11 +312,8 @@ public class ExperimentListFragment extends Fragment
               RxDataController.updateExperiment(getDataController(), e)
                   .subscribe(
                       () -> {
-                        PreferenceManager.getDefaultSharedPreferences(getActivity())
-                            .edit()
-                            .putBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, true)
-                            .apply();
-                        loadExperiments();
+                        setDefaultExperimentCreated();
+                        loadExperiments(currentAccount);
                       });
             });
   }
@@ -329,12 +361,12 @@ public class ExperimentListFragment extends Fragment
     }
     if (id == R.id.action_include_archived) {
       includeArchived = true;
-      loadExperiments();
+      loadExperiments(currentAccount);
       getActivity().invalidateOptionsMenu();
       return true;
     } else if (id == R.id.action_exclude_archived) {
       includeArchived = false;
-      loadExperiments();
+      loadExperiments(currentAccount);
       getActivity().invalidateOptionsMenu();
       return true;
     }
@@ -397,16 +429,16 @@ public class ExperimentListFragment extends Fragment
     static final int VIEW_TYPE_EMPTY = 1;
     static final int VIEW_TYPE_DATE = 2;
     private final Drawable placeHolderImage;
-    private DataController dataController;
+    private final DataController dataController;
 
-    private List<ExperimentListItem> items;
+    private final List<ExperimentListItem> items;
     private boolean includeArchived;
     private final Calendar calendar;
     private final int currentYear;
     private final String monthYearFormat;
 
     private final WeakReference<ExperimentListFragment> parentReference;
-    private SnackbarManager snackbarManager = new SnackbarManager();
+    private final SnackbarManager snackbarManager = new SnackbarManager();
     private PopupMenu popupMenu = null;
 
     public ExperimentListAdapter(ExperimentListFragment parent, DataController dc) {
@@ -465,7 +497,7 @@ public class ExperimentListFragment extends Fragment
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-      if (items.size() == 0) {
+      if (items.isEmpty()) {
         // Empty view holder doesn't need any binding logic.
         return;
       }
@@ -478,12 +510,12 @@ public class ExperimentListFragment extends Fragment
 
     @Override
     public int getItemCount() {
-      return items.size() == 0 ? 1 : items.size();
+      return items.isEmpty() ? 1 : items.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-      if (items.size() == 0) {
+      if (items.isEmpty()) {
         return VIEW_TYPE_EMPTY;
       } else {
         return items.get(position).viewType;
@@ -639,7 +671,7 @@ public class ExperimentListFragment extends Fragment
       } else {
         // It could be added back anywhere.
         if (parentReference.get() != null) {
-          parentReference.get().loadExperiments();
+          parentReference.get().loadExperiments(parentReference.get().currentAccount);
         }
       }
     }
