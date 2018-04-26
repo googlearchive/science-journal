@@ -174,7 +174,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public void setExperimentId(String experimentId) {
-    if (!Objects.equals(experimentId, mExperiment)) {
+    if (!Objects.equals(experimentId, mExperimentId)) {
       mExperimentId = experimentId;
       if (isResumed()) {
         // If not resumed, wait to load until next resume!
@@ -1718,3 +1718,4 @@ public class ExperimentDetailsFragment extends Fragment
     }
   }
 }
+

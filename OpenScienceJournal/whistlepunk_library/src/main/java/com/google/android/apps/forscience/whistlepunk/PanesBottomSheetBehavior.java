@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -26,7 +25,6 @@ import android.os.Parcelable;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import android.support.design.R;
 import android.support.design.widget.CoordinatorLayout;
@@ -95,7 +93,6 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
   public static final int STATE_MIDDLE = 5;
 
   /** @hide */
-  @RestrictTo(LIBRARY_GROUP)
   @IntDef({STATE_EXPANDED, STATE_COLLAPSED, STATE_DRAGGING, STATE_SETTLING, STATE_MIDDLE})
   @Retention(RetentionPolicy.SOURCE)
   public @interface State {}
@@ -833,3 +830,4 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
     }
   }
 }
+

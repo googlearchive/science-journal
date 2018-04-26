@@ -236,7 +236,7 @@ public abstract class ExternalAxisView extends View {
   }
 
   long getTimestampForOffset(float offset) {
-    return mXMin - (long) ((offset - mPaddingLeft) / widthWithoutPadding()) * (mXMax - mXMin);
+    return mXMin - ((long) ((offset - mPaddingLeft) / widthWithoutPadding())) * (mXMax - mXMin);
   }
 
   // Convenience function for timestamp formatting, so other classes can use the same
@@ -248,3 +248,4 @@ public abstract class ExternalAxisView extends View {
     return mFormat.format(timestamp);
   }
 }
+

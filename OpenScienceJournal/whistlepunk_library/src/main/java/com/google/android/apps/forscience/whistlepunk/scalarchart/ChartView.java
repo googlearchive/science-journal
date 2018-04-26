@@ -949,17 +949,17 @@ public class ChartView extends View {
         toDraw = mMinDrawable;
         toDraw.setBounds(
             startPadding,
-            yOffset - mStatDrawableWidth + (int) mStatLineWidth * 2,
+            yOffset - mStatDrawableWidth + ((int) mStatLineWidth) * 2,
             mStatDrawableWidth + startPadding,
-            yOffset + (int) mStatLineWidth * 2);
+            yOffset + ((int) mStatLineWidth) * 2);
         break;
       case StreamStat.TYPE_MAX:
         toDraw = mMaxDrawable;
         toDraw.setBounds(
             startPadding,
-            yOffset - (int) mStatLineWidth * 2,
+            yOffset - ((int) mStatLineWidth) * 2,
             mStatDrawableWidth + startPadding,
-            yOffset + mStatDrawableWidth - (int) mStatLineWidth * 2);
+            yOffset + mStatDrawableWidth - ((int) mStatLineWidth) * 2);
         break;
       case StreamStat.TYPE_AVERAGE:
         toDraw = mAvgDrawable;
@@ -1065,3 +1065,4 @@ public class ChartView extends View {
     }
   }
 }
+

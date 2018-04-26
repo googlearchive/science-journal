@@ -41,6 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import java.util.Arrays;
 
 public class DeviceOptionsViewController {
   private static String TAG = "DeviceOptionsViewC";
@@ -188,7 +189,7 @@ public class DeviceOptionsViewController {
         }
       }
       if (!found) {
-        Log.e(TAG, "Expected to find sensor type " + type + " in " + sensors);
+        Log.e(TAG, "Expected to find sensor type " + type + " in " + Arrays.toString(sensors));
       }
 
       mCustomPinSpinner.setSelection(findPinIndex(bleSensor.getCustomPin()));
@@ -209,7 +210,7 @@ public class DeviceOptionsViewController {
         return i;
       }
     }
-    Log.e(TAG, "Expected to find pin " + customPin + " in " + pins);
+    Log.e(TAG, "Expected to find pin " + customPin + " in " + Arrays.toString(pins));
     return 0;
   }
 
@@ -245,3 +246,4 @@ public class DeviceOptionsViewController {
     outState.putParcelable(KEY_FREQ_STATE, mFrequencyCheckbox.onSaveInstanceState());
   }
 }
+
