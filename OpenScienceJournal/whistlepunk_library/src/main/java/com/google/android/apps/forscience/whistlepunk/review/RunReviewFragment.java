@@ -130,38 +130,38 @@ public class RunReviewFragment extends Fragment
   private static final String KEY_CHART_AXIS_Y_MINIMUM = "chart_y_axis_max";
   private static final String KEY_TIMESTAMP_PICKER_UI_VISIBLE = "timestamp_picker_visible";
 
-  private int mLoadingStatus = GRAPH_LOAD_STATUS_IDLE;
+  private int loadingStatus = GRAPH_LOAD_STATUS_IDLE;
 
   public static final double MILLIS_IN_A_SECOND = 1000.0;
 
   public static final int LABEL_TYPE_TEXT = 0;
   public static final int LABEL_TYPE_PICTURE = 1;
 
-  private ImageButton mRunReviewPlaybackButton;
-  private AudioPlaybackController mAudioPlaybackController;
-  private boolean mWasPlayingBeforeTouch = false;
-  private boolean mAudioWasPlayingBeforePause = false;
+  private ImageButton runReviewPlaybackButton;
+  private AudioPlaybackController audioPlaybackController;
+  private boolean wasPlayingBeforeTouch = false;
+  private boolean audioWasPlayingBeforePause = false;
 
-  private String mTrialId;
-  private String mExperimentId;
-  private int mSelectedSensorIndex = 0;
-  private GraphOptionsController mGraphOptionsController;
-  private ScalarDisplayOptions mScalarDisplayOptions;
-  private ChartController mChartController;
-  private ExternalAxisController mExternalAxis;
-  private RunReviewOverlay mRunReviewOverlay;
-  private PinnedNoteAdapter mPinnedNoteAdapter;
-  private Experiment mExperiment;
-  private ActionMode mActionMode;
-  private TrialStats mCurrentSensorStats;
-  private boolean mShowStatsOverlay = false;
-  private BroadcastReceiver mBroadcastReceiver;
-  private Pair<Double, Double> mPreviousYPair;
-  private PerfTrackerProvider mPerfTracker;
+  private String trialId;
+  private String experimentId;
+  private int selectedSensorIndex = 0;
+  private GraphOptionsController graphOptionsController;
+  private ScalarDisplayOptions scalarDisplayOptions;
+  private ChartController chartController;
+  private ExternalAxisController externalAxis;
+  private RunReviewOverlay runReviewOverlay;
+  private PinnedNoteAdapter pinnedNoteAdapter;
+  private Experiment experiment;
+  private ActionMode actionMode;
+  private TrialStats currentSensorStats;
+  private boolean showStatsOverlay = false;
+  private BroadcastReceiver broadcastReceiver;
+  private Pair<Double, Double> previousYPair;
+  private PerfTrackerProvider perfTracker;
 
   // Save the savedInstanceState between onCreateView and loading the run data, in case
   // an onPause happens during that time.
-  private Bundle mSavedInstanceStateForLoad;
+  private Bundle savedInstanceStateForLoad;
 
   /**
    * Use this factory method to create a new instance of this fragment using the provided
@@ -210,22 +210,22 @@ public class RunReviewFragment extends Fragment
 
   @Override
   public void onDestroy() {
-    if (mAudioPlaybackController != null) {
+    if (audioPlaybackController != null) {
       clearAudioPlaybackController();
-      mAudioPlaybackController = null;
+      audioPlaybackController = null;
     }
-    mGraphOptionsController = null;
-    if (mExternalAxis != null) {
-      mExternalAxis.destroy();
+    graphOptionsController = null;
+    if (externalAxis != null) {
+      externalAxis.destroy();
     }
-    if (mPinnedNoteAdapter != null) {
-      mPinnedNoteAdapter.onDestroy();
+    if (pinnedNoteAdapter != null) {
+      pinnedNoteAdapter.onDestroy();
     }
-    if (mRunReviewOverlay != null) {
-      mRunReviewOverlay.onDestroy();
+    if (runReviewOverlay != null) {
+      runReviewOverlay.onDestroy();
     }
-    if (mChartController != null) {
-      mChartController.onDestroy();
+    if (chartController != null) {
+      chartController.onDestroy();
     }
     super.onDestroy();
   }
@@ -233,21 +233,21 @@ public class RunReviewFragment extends Fragment
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mPerfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
-    mPerfTracker.startGlobalTimer(TrackerConstants.PRIMES_RUN_LOADED);
+    perfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
+    perfTracker.startGlobalTimer(TrackerConstants.PRIMES_RUN_LOADED);
     if (getArguments() != null) {
-      mTrialId = getArguments().getString(ARG_START_LABEL_ID);
-      mSelectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
-      mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
+      trialId = getArguments().getString(ARG_START_LABEL_ID);
+      selectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
+      experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     }
     if (savedInstanceState != null) {
       if (savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
         // saved instance state is more recent than args, so it takes precedence.
-        mSelectedSensorIndex = savedInstanceState.getInt(KEY_SELECTED_SENSOR_INDEX);
+        selectedSensorIndex = savedInstanceState.getInt(KEY_SELECTED_SENSOR_INDEX);
       }
-      mShowStatsOverlay = savedInstanceState.getBoolean(KEY_STATS_OVERLAY_VISIBLE, false);
+      showStatsOverlay = savedInstanceState.getBoolean(KEY_STATS_OVERLAY_VISIBLE, false);
     }
-    mAudioPlaybackController =
+    audioPlaybackController =
         new AudioPlaybackController(
             new AudioPlaybackController.AudioPlaybackListener() {
               @Override
@@ -261,26 +261,26 @@ public class RunReviewFragment extends Fragment
                         TrackerConstants.ACTION_START_AUDIO_PLAYBACK,
                         TrackerConstants.LABEL_RUN_REVIEW,
                         0);
-                mRunReviewPlaybackButton.setImageDrawable(
+                runReviewPlaybackButton.setImageDrawable(
                     getResources().getDrawable(R.drawable.ic_pause_black_24dp));
-                mRunReviewPlaybackButton.setContentDescription(
+                runReviewPlaybackButton.setContentDescription(
                     getResources().getString(R.string.playback_button_pause));
               }
 
               @Override
               public void onTimestampUpdated(long activeTimestamp) {
-                mRunReviewOverlay.setActiveTimestamp(activeTimestamp);
+                runReviewOverlay.setActiveTimestamp(activeTimestamp);
               }
 
               @Override
               public void onAudioPlaybackStopped() {
-                mAudioPlaybackController.stopPlayback();
+                audioPlaybackController.stopPlayback();
                 if (!isAdded()) {
                   return;
                 }
-                mRunReviewPlaybackButton.setImageDrawable(
+                runReviewPlaybackButton.setImageDrawable(
                     getResources().getDrawable(R.drawable.ic_play_arrow_black_24dp));
-                mRunReviewPlaybackButton.setContentDescription(
+                runReviewPlaybackButton.setContentDescription(
                     getResources().getString(R.string.playback_button_play));
               }
             });
@@ -311,9 +311,9 @@ public class RunReviewFragment extends Fragment
   }
 
   private void unregisterBroadcastReceiver() {
-    if (mBroadcastReceiver != null) {
-      CropHelper.unregisterBroadcastReceiver(getActivity(), mBroadcastReceiver);
-      mBroadcastReceiver = null;
+    if (broadcastReceiver != null) {
+      CropHelper.unregisterBroadcastReceiver(getActivity(), broadcastReceiver);
+      broadcastReceiver = null;
     }
   }
 
@@ -324,56 +324,56 @@ public class RunReviewFragment extends Fragment
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
-    mSavedInstanceStateForLoad = savedInstanceState;
+    savedInstanceStateForLoad = savedInstanceState;
     final View rootView = inflater.inflate(R.layout.fragment_run_review, container, false);
     AppBarLayout appBarLayout = (AppBarLayout) rootView.findViewById(R.id.app_bar_layout);
     ExternalAxisView externalAxisView =
         (ExternalAxisView) rootView.findViewById(R.id.external_x_axis);
-    mExternalAxis =
+    externalAxis =
         new ExternalAxisController(
             externalAxisView,
             new ExternalAxisController.AxisUpdateListener() {
               @Override
               public void onAxisUpdated(long xMin, long xMax, boolean isPinnedToNow) {
-                mChartController.onGlobalXAxisChanged(
+                chartController.onGlobalXAxisChanged(
                     xMin, xMax, isPinnedToNow, getDataController());
               }
             }, /* IsLive */
             false,
             new CurrentTimeClock());
-    mRunReviewOverlay = (RunReviewOverlay) rootView.findViewById(R.id.run_review_chart_overlay);
-    mRunReviewOverlay.setGraphSeekBar(
+    runReviewOverlay = (RunReviewOverlay) rootView.findViewById(R.id.run_review_chart_overlay);
+    runReviewOverlay.setGraphSeekBar(
         (GraphExploringSeekBar) rootView.findViewById(R.id.external_axis_seekbar));
-    mRunReviewOverlay.setExternalAxisController(mExternalAxis);
-    mRunReviewOverlay.setOnSeekbarTouchListener(
+    runReviewOverlay.setExternalAxisController(externalAxis);
+    runReviewOverlay.setOnSeekbarTouchListener(
         new RunReviewOverlay.OnSeekbarTouchListener() {
 
           @Override
           public void onTouchStart() {
-            if (mAudioPlaybackController.isPlaying()) {
-              mWasPlayingBeforeTouch = true;
-              mAudioPlaybackController.stopPlayback();
+            if (audioPlaybackController.isPlaying()) {
+              wasPlayingBeforeTouch = true;
+              audioPlaybackController.stopPlayback();
             }
           }
 
           @Override
           public void onTouchStop() {
-            if (mWasPlayingBeforeTouch) {
+            if (wasPlayingBeforeTouch) {
               if (!isResumed()) {
                 return;
               }
-              mWasPlayingBeforeTouch = false;
-              mAudioPlaybackController.startPlayback(
+              wasPlayingBeforeTouch = false;
+              audioPlaybackController.startPlayback(
                   getDataController(),
                   getTrial().getFirstTimestamp(),
                   getTrial().getLastTimestamp(),
-                  mRunReviewOverlay.getTimestamp(),
+                  runReviewOverlay.getTimestamp(),
                   getRunId(),
                   getSensorId());
             }
           }
         });
-    mRunReviewOverlay.setOnLabelClickListener(
+    runReviewOverlay.setOnLabelClickListener(
         new RunReviewOverlay.OnLabelClickListener() {
 
           @Override
@@ -399,34 +399,34 @@ public class RunReviewFragment extends Fragment
     CropSeekBar secondSeekbar =
         (CropSeekBar) inflater.inflate(R.layout.crop_seek_bar, cropGroup, false);
     cropGroup.setSeekbarPair(firstSeekbar, secondSeekbar);
-    mRunReviewOverlay.setCropSeekBarGroup(cropGroup);
+    runReviewOverlay.setCropSeekBarGroup(cropGroup);
 
     View statsDrawer = rootView.findViewById(R.id.stats_drawer);
     statsDrawer.setOnClickListener(
         new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            if (mChartController != null) {
-              mShowStatsOverlay = !mShowStatsOverlay;
-              mChartController.setShowStatsOverlay(mShowStatsOverlay);
+            if (chartController != null) {
+              showStatsOverlay = !showStatsOverlay;
+              chartController.setShowStatsOverlay(showStatsOverlay);
             }
           }
         });
 
-    mRunReviewPlaybackButton = (ImageButton) rootView.findViewById(R.id.run_review_playback_button);
-    mRunReviewPlaybackButton.setOnClickListener(
+    runReviewPlaybackButton = (ImageButton) rootView.findViewById(R.id.run_review_playback_button);
+    runReviewPlaybackButton.setOnClickListener(
         new View.OnClickListener() {
           @Override
           public void onClick(View v) {
             // If playback is loading, don't do anything.
-            if (mAudioPlaybackController.isPlaying()) {
-              mAudioPlaybackController.stopPlayback();
-            } else if (mAudioPlaybackController.isNotPlaying()) {
-              mAudioPlaybackController.startPlayback(
+            if (audioPlaybackController.isPlaying()) {
+              audioPlaybackController.stopPlayback();
+            } else if (audioPlaybackController.isNotPlaying()) {
+              audioPlaybackController.startPlayback(
                   getDataController(),
                   getTrial().getFirstTimestamp(),
                   getTrial().getLastTimestamp(),
-                  mRunReviewOverlay.getTimestamp(),
+                  runReviewOverlay.getTimestamp(),
                   getRunId(),
                   getSensorId());
             }
@@ -440,30 +440,30 @@ public class RunReviewFragment extends Fragment
             new View.OnClickListener() {
               @Override
               public void onClick(View v) {
-                mRunReviewPlaybackButton.callOnClick();
+                runReviewPlaybackButton.callOnClick();
               }
             });
 
-    mScalarDisplayOptions = new ScalarDisplayOptions();
+    scalarDisplayOptions = new ScalarDisplayOptions();
 
-    mGraphOptionsController = new GraphOptionsController(getActivity());
-    mGraphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, rootView);
+    graphOptionsController = new GraphOptionsController(getActivity());
+    graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, rootView);
 
-    mChartController =
-        new ChartController(ChartOptions.ChartPlacementType.TYPE_RUN_REVIEW, mScalarDisplayOptions);
-    mChartController.setChartView((ChartView) rootView.findViewById(R.id.chart_view));
-    mChartController.setProgressView((ProgressBar) rootView.findViewById(R.id.chart_progress));
-    mChartController.setInteractionListener(mExternalAxis.getInteractionListener());
-    mChartController.setShowStatsOverlay(mShowStatsOverlay);
-    mRunReviewOverlay.setChartController(mChartController);
+    chartController =
+        new ChartController(ChartOptions.ChartPlacementType.TYPE_RUN_REVIEW, scalarDisplayOptions);
+    chartController.setChartView((ChartView) rootView.findViewById(R.id.chart_view));
+    chartController.setProgressView((ProgressBar) rootView.findViewById(R.id.chart_progress));
+    chartController.setInteractionListener(externalAxis.getInteractionListener());
+    chartController.setShowStatsOverlay(showStatsOverlay);
+    runReviewOverlay.setChartController(chartController);
 
     return rootView;
   }
 
   @Override
   public void onDestroyView() {
-    if (mChartController != null) {
-      mChartController.onViewRecycled();
+    if (chartController != null) {
+      chartController.onViewRecycled();
     }
     super.onDestroyView();
   }
@@ -479,7 +479,7 @@ public class RunReviewFragment extends Fragment
     menu.findItem(R.id.action_graph_options).setVisible(false); // b/29771945
 
     // Hide some menu buttons if the run isn't loaded yet.
-    if (mExperiment != null) {
+    if (experiment != null) {
       menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
       menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
 
@@ -523,12 +523,12 @@ public class RunReviewFragment extends Fragment
     //noinspection SimplifiableIfStatement
     if (id == android.R.id.home) {
       Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-      if (mExperiment != null) {
+      if (experiment != null) {
         // This should be the only one that matters, I think, but leaving the others
         // for potential legacy cases (b/66162829)
-        upIntent.putExtra(PanesActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
+        upIntent.putExtra(PanesActivity.EXTRA_EXPERIMENT_ID, experimentId);
 
-        upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, mExperimentId);
+        upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, experimentId);
         upIntent.putExtra(
             ExperimentDetailsFragment.ARG_CREATE_TASK,
             getArguments().getBoolean(ARG_CREATE_TASK, false));
@@ -542,35 +542,35 @@ public class RunReviewFragment extends Fragment
       }
       return true;
     } else if (id == R.id.action_graph_options) {
-      mGraphOptionsController.launchOptionsDialog(
-          mScalarDisplayOptions, new NewOptionsStorage.SnackbarFailureListener(getView()));
+      graphOptionsController.launchOptionsDialog(
+          scalarDisplayOptions, new NewOptionsStorage.SnackbarFailureListener(getView()));
     } else if (id == R.id.action_export) {
-      RxDataController.getExperimentById(getDataController(), mExperimentId)
-          .subscribe(experiment -> exportRun(experiment.getTrial(mTrialId)));
+      RxDataController.getExperimentById(getDataController(), experimentId)
+          .subscribe(experiment -> exportRun(experiment.getTrial(trialId)));
     } else if (id == R.id.action_run_review_crop) {
-      if (mExperiment != null) {
+      if (experiment != null) {
         launchCrop(getView());
       }
     } else if (id == R.id.action_run_review_delete) {
-      if (mExperiment != null) {
+      if (experiment != null) {
         deleteThisRun();
       }
     } else if (id == R.id.action_run_review_archive) {
-      if (mExperiment != null) {
+      if (experiment != null) {
         setArchived(true);
       }
     } else if (id == R.id.action_run_review_unarchive) {
-      if (mExperiment != null) {
+      if (experiment != null) {
         setArchived(false);
       }
     } else if (id == R.id.action_run_review_edit) {
-      UpdateRunActivity.launch(getActivity(), mTrialId, mExperimentId);
+      UpdateRunActivity.launch(getActivity(), trialId, experimentId);
     } else if (id == R.id.action_enable_auto_zoom) {
-      if (mExperiment != null) {
+      if (experiment != null) {
         setAutoZoomEnabled(true);
       }
     } else if (id == R.id.action_disable_auto_zoom) {
-      if (mExperiment != null) {
+      if (experiment != null) {
         setAutoZoomEnabled(false);
       }
     } else if (id == R.id.action_run_review_audio_settings) {
@@ -582,7 +582,7 @@ public class RunReviewFragment extends Fragment
   private void initializeData() {
     final DataController dc = getDataController();
     dc.getExperimentById(
-        mExperimentId,
+        experimentId,
         new LoggingConsumer<Experiment>(TAG, "load experiment") {
           @Override
           public void success(Experiment experiment) {
@@ -590,39 +590,39 @@ public class RunReviewFragment extends Fragment
               // This experiment no longer exists, finish.
               getActivity().finish();
             }
-            mExperiment = experiment;
-            attachToRun(experiment.getTrial(mTrialId));
-            mPerfTracker.stopGlobalTimer(TrackerConstants.PRIMES_RUN_LOADED);
-            mPerfTracker.onAppInteractive();
+            RunReviewFragment.this.experiment = experiment;
+            attachToRun(experiment.getTrial(trialId));
+            perfTracker.stopGlobalTimer(TrackerConstants.PRIMES_RUN_LOADED);
+            perfTracker.onAppInteractive();
           }
         });
   }
 
   private void pausePlaybackForLifecycleEvent() {
-    mAudioWasPlayingBeforePause = mAudioPlaybackController.isPlaying();
-    mAudioPlaybackController.stopPlayback();
+    audioWasPlayingBeforePause = audioPlaybackController.isPlaying();
+    audioPlaybackController.stopPlayback();
   }
 
   private void clearAudioPlaybackController() {
-    mAudioPlaybackController.stopPlayback();
-    mAudioPlaybackController.clearListener();
+    audioPlaybackController.stopPlayback();
+    audioPlaybackController.clearListener();
   }
 
   private void setAutoZoomEnabled(boolean enableAutoZoom) {
     getTrial().setAutoZoomEnabled(enableAutoZoom);
     getDataController()
         .updateExperiment(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Success>(TAG, "update auto zoom") {
               @Override
               public void success(Success value) {
-                if (mCurrentSensorStats == null) {
+                if (currentSensorStats == null) {
                   AccessibilityUtils.makeSnackbar(
                       getView(),
                       getResources().getString(R.string.autozoom_failed),
                       Snackbar.LENGTH_SHORT);
                 } else {
-                  mChartController.clearReviewYAxis();
+                  chartController.clearReviewYAxis();
                   adjustYAxis();
                 }
                 if (getActivity() != null) {
@@ -633,38 +633,38 @@ public class RunReviewFragment extends Fragment
   }
 
   private void adjustYAxis() {
-    if (mExperiment == null || mCurrentSensorStats == null || mAudioPlaybackController == null) {
+    if (experiment == null || currentSensorStats == null || audioPlaybackController == null) {
       return;
     }
-    double yMin = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0);
-    double yMax = mCurrentSensorStats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0);
+    double yMin = currentSensorStats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0);
+    double yMax = currentSensorStats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0);
     if (getTrial().getAutoZoomEnabled()) {
-      mChartController.setReviewYAxis(yMin, yMax, /* has buffer */ true);
+      chartController.setReviewYAxis(yMin, yMax, /* has buffer */ true);
     } else {
       GoosciSensorLayout.SensorLayout layout = getSensorLayout();
       // Don't zoom in more than the recorded data.
       // The layout's min/max y value may be too small to show the recorded data when
       // recording happened in the background and was stopped by a trigger.
-      mChartController.setReviewYAxis(
+      chartController.setReviewYAxis(
           Math.min(layout.minimumYAxisValue, yMin),
           Math.max(layout.maximumYAxisValue, yMax), /* no buffer */
           false);
     }
 
-    if (mPreviousYPair != null) {
-      mChartController.setYAxis(mPreviousYPair.first, mPreviousYPair.second);
-      mPreviousYPair = null;
+    if (previousYPair != null) {
+      chartController.setYAxis(previousYPair.first, previousYPair.second);
+      previousYPair = null;
     }
 
-    mChartController.refreshChartView();
+    chartController.refreshChartView();
     // TODO: What happens when we zoom the Y axis while audio is playing?
-    mAudioPlaybackController.setYAxisRange(
-        mChartController.getRenderedYMin(), mChartController.getRenderedYMax());
+    audioPlaybackController.setYAxisRange(
+        chartController.getRenderedYMin(), chartController.getRenderedYMax());
     // Redraw the thumb after the chart is updated.
-    mRunReviewOverlay.post(
+    runReviewOverlay.post(
         new Runnable() {
           public void run() {
-            mRunReviewOverlay.onYAxisAdjusted();
+            runReviewOverlay.onYAxisAdjusted();
           }
         });
   }
@@ -672,54 +672,53 @@ public class RunReviewFragment extends Fragment
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putInt(KEY_SELECTED_SENSOR_INDEX, mSelectedSensorIndex);
+    outState.putInt(KEY_SELECTED_SENSOR_INDEX, selectedSensorIndex);
     outState.putBoolean(
         KEY_TIMESTAMP_EDIT_UI_VISIBLE,
         getChildFragmentManager().findFragmentByTag(EditLabelTimeDialog.TAG) != null);
     outState.putBoolean(
         KEY_TIMESTAMP_PICKER_UI_VISIBLE,
         getChildFragmentManager().findFragmentByTag(EditTimestampDialog.TAG) != null);
-    if (mSavedInstanceStateForLoad != null) {
+    if (savedInstanceStateForLoad != null) {
       // We haven't finished loading the run from the database yet in onCreateView.
       // Go ahead and use the old savedInstanceState since we haven't reconstructed
       // everything yet.
       outState.putLong(
           KEY_EXTERNAL_AXIS_X_MINIMUM,
-          mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_X_MINIMUM));
+          savedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_X_MINIMUM));
       outState.putLong(
           KEY_EXTERNAL_AXIS_X_MAXIMUM,
-          mSavedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_X_MAXIMUM));
+          savedInstanceStateForLoad.getLong(KEY_EXTERNAL_AXIS_X_MAXIMUM));
       outState.putLong(
           KEY_RUN_REVIEW_OVERLAY_TIMESTAMP,
-          mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP));
+          savedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP));
       outState.putBoolean(
           KEY_STATS_OVERLAY_VISIBLE,
-          mSavedInstanceStateForLoad.getBoolean(KEY_STATS_OVERLAY_VISIBLE));
+          savedInstanceStateForLoad.getBoolean(KEY_STATS_OVERLAY_VISIBLE));
       outState.putBoolean(
-          KEY_AUDIO_PLAYBACK_ON, mSavedInstanceStateForLoad.getBoolean(KEY_AUDIO_PLAYBACK_ON));
+          KEY_AUDIO_PLAYBACK_ON, savedInstanceStateForLoad.getBoolean(KEY_AUDIO_PLAYBACK_ON));
       outState.putBoolean(
-          KEY_CROP_UI_VISIBLE, mSavedInstanceStateForLoad.getBoolean(KEY_CROP_UI_VISIBLE));
+          KEY_CROP_UI_VISIBLE, savedInstanceStateForLoad.getBoolean(KEY_CROP_UI_VISIBLE));
       outState.putLong(
-          KEY_CROP_START_TIMESTAMP, mSavedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP));
+          KEY_CROP_START_TIMESTAMP, savedInstanceStateForLoad.getLong(KEY_CROP_START_TIMESTAMP));
       outState.putLong(
-          KEY_CROP_END_TIMESTAMP, mSavedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP));
+          KEY_CROP_END_TIMESTAMP, savedInstanceStateForLoad.getLong(KEY_CROP_END_TIMESTAMP));
       outState.putDouble(
-          KEY_CHART_AXIS_Y_MAXIMUM, mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
+          KEY_CHART_AXIS_Y_MAXIMUM, savedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
       outState.putDouble(
-          KEY_CHART_AXIS_Y_MINIMUM, mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM));
+          KEY_CHART_AXIS_Y_MINIMUM, savedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM));
     } else {
-      outState.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM, mExternalAxis.getXMin());
-      outState.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, mExternalAxis.getXMax());
-      outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
-      outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE, mShowStatsOverlay);
+      outState.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM, externalAxis.getXMin());
+      outState.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, externalAxis.getXMax());
+      outState.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, runReviewOverlay.getTimestamp());
+      outState.putBoolean(KEY_STATS_OVERLAY_VISIBLE, showStatsOverlay);
       outState.putBoolean(
-          KEY_AUDIO_PLAYBACK_ON,
-          mAudioPlaybackController.isPlaying() || mAudioWasPlayingBeforePause);
-      outState.putBoolean(KEY_CROP_UI_VISIBLE, mRunReviewOverlay.getIsCropping());
-      outState.putLong(KEY_CROP_START_TIMESTAMP, mRunReviewOverlay.getCropStartTimestamp());
-      outState.putLong(KEY_CROP_END_TIMESTAMP, mRunReviewOverlay.getCropEndTimestamp());
-      double yMax = mChartController.getRenderedYMax();
-      double yMin = mChartController.getRenderedYMin();
+          KEY_AUDIO_PLAYBACK_ON, audioPlaybackController.isPlaying() || audioWasPlayingBeforePause);
+      outState.putBoolean(KEY_CROP_UI_VISIBLE, runReviewOverlay.getIsCropping());
+      outState.putLong(KEY_CROP_START_TIMESTAMP, runReviewOverlay.getCropStartTimestamp());
+      outState.putLong(KEY_CROP_END_TIMESTAMP, runReviewOverlay.getCropEndTimestamp());
+      double yMax = chartController.getRenderedYMax();
+      double yMin = chartController.getRenderedYMin();
       if (yMax > yMin) {
         outState.putDouble(KEY_CHART_AXIS_Y_MAXIMUM, yMax);
         outState.putDouble(KEY_CHART_AXIS_Y_MINIMUM, yMin);
@@ -735,7 +734,7 @@ public class RunReviewFragment extends Fragment
     }
 
     // Create a BroadcastReceiver for when the stats get updated.
-    mBroadcastReceiver =
+    broadcastReceiver =
         new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
@@ -750,7 +749,7 @@ public class RunReviewFragment extends Fragment
           }
         };
     CropHelper.registerStatsBroadcastReceiver(
-        getActivity().getApplicationContext(), mBroadcastReceiver);
+        getActivity().getApplicationContext(), broadcastReceiver);
 
     final View rootView = getView();
     if (rootView == null) {
@@ -762,10 +761,10 @@ public class RunReviewFragment extends Fragment
     layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
     pinnedNoteList.setLayoutManager(layoutManager);
 
-    mPinnedNoteAdapter =
+    pinnedNoteAdapter =
         new PinnedNoteAdapter(
-            trial, trial.getFirstTimestamp(), trial.getLastTimestamp(), mExperimentId);
-    mPinnedNoteAdapter.setListItemModifyListener(
+            trial, trial.getFirstTimestamp(), trial.getLastTimestamp(), experimentId);
+    pinnedNoteAdapter.setListItemModifyListener(
         new PinnedNoteAdapter.ListItemEditListener() {
           @Override
           public void onLabelEditTime(final Label item) {
@@ -785,19 +784,19 @@ public class RunReviewFragment extends Fragment
             getTrial().setCaption(caption);
             getDataController()
                 .updateExperiment(
-                    mExperimentId, LoggingConsumer.expectSuccess(TAG, "update caption"));
+                    experimentId, LoggingConsumer.expectSuccess(TAG, "update caption"));
           }
         });
 
-    mPinnedNoteAdapter.setListItemClickListener(
+    pinnedNoteAdapter.setListItemClickListener(
         new PinnedNoteAdapter.ListItemClickListener() {
           @Override
           public void onLabelClicked(Label item) {
             LabelDetailsActivity.launchFromRunReview(
                 getActivity(),
-                mExperimentId,
-                mTrialId,
-                mSelectedSensorIndex,
+                experimentId,
+                trialId,
+                selectedSensorIndex,
                 item,
                 getArguments().getBoolean(ARG_CREATE_TASK),
                 getArguments().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD));
@@ -805,20 +804,20 @@ public class RunReviewFragment extends Fragment
 
           @Override
           public void onAddLabelButtonClicked() {
-            if (mExperiment != null && !mRunReviewOverlay.getIsCropping()) {
+            if (experiment != null && !runReviewOverlay.getIsCropping()) {
               launchLabelAdd(
-                  null, Math.max(mRunReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
+                  null, Math.max(runReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
             }
           }
 
           @Override
           public void onLabelTimestampClicked(Label item) {
             // TODO: Animate to the active timestamp.
-            mRunReviewOverlay.setActiveTimestamp(item.getTimeStamp());
+            runReviewOverlay.setActiveTimestamp(item.getTimeStamp());
           }
         });
 
-    pinnedNoteList.setAdapter(mPinnedNoteAdapter);
+    pinnedNoteList.setAdapter(pinnedNoteAdapter);
 
     // Re-enable appropriate menu options.
     getActivity().invalidateOptionsMenu();
@@ -826,37 +825,37 @@ public class RunReviewFragment extends Fragment
     hookUpExperimentDetailsArea(trial, rootView);
 
     // Load the data for the first sensor only.
-    if (mSavedInstanceStateForLoad != null) {
-      if (mSavedInstanceStateForLoad.getBoolean(KEY_AUDIO_PLAYBACK_ON, false)) {
-        mAudioPlaybackController.setYAxisRange(
-            mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM),
-            mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
-        mAudioPlaybackController.startPlayback(
+    if (savedInstanceStateForLoad != null) {
+      if (savedInstanceStateForLoad.getBoolean(KEY_AUDIO_PLAYBACK_ON, false)) {
+        audioPlaybackController.setYAxisRange(
+            savedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM),
+            savedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
+        audioPlaybackController.startPlayback(
             getDataController(),
             getTrial().getFirstTimestamp(),
             getTrial().getLastTimestamp(),
-            mSavedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP),
+            savedInstanceStateForLoad.getLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP),
             getRunId(),
             getSensorId());
       }
       // If this isn't the first time we've made a view, check if the timepicker UI is up.
-      if (mSavedInstanceStateForLoad.getBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE)) {
+      if (savedInstanceStateForLoad.getBoolean(KEY_TIMESTAMP_EDIT_UI_VISIBLE)) {
         rootView.findViewById(R.id.embedded).setVisibility(View.VISIBLE);
         setTimepickerUi(rootView, true);
       }
       // Also check if the timestamp picker UI is up.
-      if (mSavedInstanceStateForLoad.getBoolean(KEY_TIMESTAMP_PICKER_UI_VISIBLE)) {
+      if (savedInstanceStateForLoad.getBoolean(KEY_TIMESTAMP_PICKER_UI_VISIBLE)) {
         setTimestampDialogListener(
             (EditTimestampDialog)
                 getChildFragmentManager().findFragmentByTag(EditTimestampDialog.TAG));
       }
-      mPreviousYPair =
+      previousYPair =
           new Pair<>(
-              mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM),
-              mSavedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
+              savedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MINIMUM),
+              savedInstanceStateForLoad.getDouble(KEY_CHART_AXIS_Y_MAXIMUM));
     }
-    setUpAxis(mSavedInstanceStateForLoad, rootView);
-    mSavedInstanceStateForLoad = null;
+    setUpAxis(savedInstanceStateForLoad, rootView);
+    savedInstanceStateForLoad = null;
 
     loadRunData(rootView);
     if (getActivity() != null) {
@@ -867,19 +866,19 @@ public class RunReviewFragment extends Fragment
   private void deleteLabel(Label item) {
     // Delete the item immediately.
     Consumer<Context> assetDeleter =
-        getTrial().deleteLabelAndReturnAssetDeleter(item, mExperimentId);
-    RxDataController.updateExperiment(getDataController(), mExperiment)
+        getTrial().deleteLabelAndReturnAssetDeleter(item, experimentId);
+    RxDataController.updateExperiment(getDataController(), experiment)
         .subscribe(() -> onLabelDelete(new DeletedLabel(item, assetDeleter)));
   }
 
   private void onLabelDelete(DeletedLabel item) {
     item.deleteAndDisplayUndoBar(
         getView(),
-        mExperimentId,
+        experimentId,
         getTrial(),
         () -> {
-          mPinnedNoteAdapter.onLabelAdded(item.getLabel());
-          mChartController.setLabels(getTrial().getLabels());
+          pinnedNoteAdapter.onLabelAdded(item.getLabel());
+          chartController.setLabels(getTrial().getLabels());
           WhistlePunkApplication.getUsageTracker(getActivity())
               .trackEvent(
                   TrackerConstants.CATEGORY_NOTES,
@@ -888,8 +887,8 @@ public class RunReviewFragment extends Fragment
                   TrackerConstants.getLabelValueType(item.getLabel()));
         });
 
-    mPinnedNoteAdapter.onLabelUpdated(item.getLabel());
-    mChartController.setLabels(getTrial().getLabels());
+    pinnedNoteAdapter.onLabelUpdated(item.getLabel());
+    chartController.setLabels(getTrial().getLabels());
 
     WhistlePunkApplication.getUsageTracker(getActivity())
         .trackEvent(
@@ -948,19 +947,19 @@ public class RunReviewFragment extends Fragment
     if (isCropping) {
       // Launching crop also sets the review data.
       launchCrop(rootView);
-      mRunReviewOverlay.setAllTimestamps(overlayTimestamp, cropStartTimestamp, cropEndTimestamp);
-      mExternalAxis.zoomTo(firstTimestamp, lastTimestamp);
+      runReviewOverlay.setAllTimestamps(overlayTimestamp, cropStartTimestamp, cropEndTimestamp);
+      externalAxis.zoomTo(firstTimestamp, lastTimestamp);
     } else {
-      mExternalAxis.setReviewData(runFirstTimestamp, runFirstTimestamp, reviewXMin, reviewXMax);
-      mRunReviewOverlay.setActiveTimestamp(overlayTimestamp);
+      externalAxis.setReviewData(runFirstTimestamp, runFirstTimestamp, reviewXMin, reviewXMax);
+      runReviewOverlay.setActiveTimestamp(overlayTimestamp);
       if (savedInstanceStateForLoad == null) {
-        mExternalAxis.zoomTo(reviewXMin, reviewXMax);
+        externalAxis.zoomTo(reviewXMin, reviewXMax);
       } else {
         // If we just cropped the run, the prev min and max will be too wide, so make sure
         // we clip to the current run size.
         long xMin = Math.max(reviewXMin, firstTimestamp);
         long xMax = Math.min(reviewXMax, lastTimestamp);
-        mExternalAxis.zoomTo(xMin, xMax);
+        externalAxis.zoomTo(xMin, xMax);
       }
     }
   }
@@ -976,7 +975,7 @@ public class RunReviewFragment extends Fragment
     getTrial().setArchived(archived);
     getDataController()
         .updateExperiment(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Success>(TAG, "Editing run archived state") {
               @Override
               public void success(Success value) {
@@ -1020,14 +1019,14 @@ public class RunReviewFragment extends Fragment
   }
 
   private void loadRunData(final View rootView) {
-    mAudioPlaybackController.stopPlayback();
+    audioPlaybackController.stopPlayback();
     final GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
     populateSensorViews(rootView, sensorLayout);
     updateSwitchSensorArrows(rootView, getTrial().getSensorIds(), sensorLayout.sensorId);
 
     String sonificationType = getSonificationType(sensorLayout);
-    mAudioPlaybackController.setSonificationType(sonificationType);
-    mCurrentSensorStats = null;
+    audioPlaybackController.setSonificationType(sonificationType);
+    currentSensorStats = null;
 
     loadStatsAndChart(sensorLayout, (StatsList) rootView.findViewById(R.id.stats_drawer));
   }
@@ -1039,7 +1038,7 @@ public class RunReviewFragment extends Fragment
     TrialStats stats = getTrial().getStatsForSensor(sensorLayout.sensorId);
     populateStats(stats, statsList, sensorLayout);
 
-    mChartController.loadRunData(
+    chartController.loadRunData(
         getTrial(),
         sensorLayout,
         dataController,
@@ -1058,12 +1057,12 @@ public class RunReviewFragment extends Fragment
             // because the underlying sensor being loaded may have
             // changed since that final var was declared, in the case
             // where the user switches sensors rapidly.
-            mRunReviewOverlay.updateColor(
+            runReviewOverlay.updateColor(
                 getActivity()
                     .getResources()
                     .getIntArray(R.array.graph_colors_array)[getSensorLayout().colorIndex]);
-            mRunReviewPlaybackButton.setVisibility(View.INVISIBLE);
-            mRunReviewOverlay.setVisibility(View.INVISIBLE);
+            runReviewPlaybackButton.setVisibility(View.INVISIBLE);
+            runReviewOverlay.setVisibility(View.INVISIBLE);
           }
         },
         getActivity());
@@ -1071,13 +1070,13 @@ public class RunReviewFragment extends Fragment
 
   private void populateStats(
       TrialStats trialStats, StatsList statsList, GoosciSensorLayout.SensorLayout layout) {
-    mCurrentSensorStats = trialStats;
+    currentSensorStats = trialStats;
     int color =
         getActivity().getResources().getIntArray(R.array.graph_colors_array)[layout.colorIndex];
     statsList.updateColor(color);
-    if (!mCurrentSensorStats.statsAreValid()) {
+    if (!currentSensorStats.statsAreValid()) {
       statsList.clearStats();
-      mChartController.updateStats(Collections.<StreamStat>emptyList());
+      chartController.updateStats(Collections.<StreamStat>emptyList());
     } else {
       NumberFormat numberFormat =
           ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
@@ -1088,7 +1087,7 @@ public class RunReviewFragment extends Fragment
       List<StreamStat> streamStats =
           new StatsAccumulator.StatsDisplay(numberFormat).updateStreamStats(trialStats);
       statsList.updateStats(streamStats);
-      mChartController.updateStats(streamStats);
+      chartController.updateStats(streamStats);
     }
   }
 
@@ -1114,10 +1113,10 @@ public class RunReviewFragment extends Fragment
 
   @Override
   public void requestDelete(Bundle extras) {
-    mExperiment.deleteTrial(getTrial(), getActivity());
+    experiment.deleteTrial(getTrial(), getActivity());
     getDataController()
         .updateExperiment(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Success>(TAG, "Deleting new trial") {
               @Override
               public void success(Success value) {
@@ -1131,16 +1130,16 @@ public class RunReviewFragment extends Fragment
   private void onDataLoaded() {
     // Add the labels after all the data is loaded
     // so that they are interpolated correctly.
-    mChartController.setLabels(getTrial().getLabels());
-    mChartController.setShowProgress(false);
+    chartController.setLabels(getTrial().getLabels());
+    chartController.setShowProgress(false);
 
-    mExternalAxis.updateAxis();
+    externalAxis.updateAxis();
     adjustYAxis();
 
-    if (mChartController.hasData()) {
+    if (chartController.hasData()) {
       // Show the replay play button
-      mRunReviewPlaybackButton.setVisibility(View.VISIBLE);
-      mRunReviewOverlay.setVisibility(View.VISIBLE);
+      runReviewPlaybackButton.setVisibility(View.VISIBLE);
+      runReviewOverlay.setVisibility(View.VISIBLE);
     }
   }
 
@@ -1192,7 +1191,7 @@ public class RunReviewFragment extends Fragment
           new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              mSelectedSensorIndex = position - 1;
+              selectedSensorIndex = position - 1;
               loadRunData(rootView);
             }
           });
@@ -1209,7 +1208,7 @@ public class RunReviewFragment extends Fragment
           new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              mSelectedSensorIndex = position + 1;
+              selectedSensorIndex = position + 1;
               loadRunData(rootView);
             }
           });
@@ -1248,7 +1247,7 @@ public class RunReviewFragment extends Fragment
         appearance.getIconDrawable(context),
         sensorIconImage,
         context.getResources().getIntArray(R.array.graph_colors_array)[sensorLayout.colorIndex]);
-    mRunReviewOverlay.setUnits(appearance.getUnits(context));
+    runReviewOverlay.setUnits(appearance.getUnits(context));
   }
 
   private void launchLabelAdd(Label editedLabel, long timestamp) {
@@ -1258,7 +1257,7 @@ public class RunReviewFragment extends Fragment
         AddNoteDialog.newInstance(
             timestamp,
             getTrial().getTrialId(),
-            mExperiment.getExperimentId(),
+            experiment.getExperimentId(),
             R.string.add_note_hint_text,
             labelTimeText,
             editedLabel,
@@ -1275,8 +1274,8 @@ public class RunReviewFragment extends Fragment
         return new LoggingConsumer<Label>(TAG, "add label") {
           @Override
           public void success(Label newLabel) {
-            mPinnedNoteAdapter.onLabelAdded(newLabel);
-            mChartController.setLabels(getTrial().getLabels());
+            pinnedNoteAdapter.onLabelAdded(newLabel);
+            chartController.setLabels(getTrial().getLabels());
             WhistlePunkApplication.getUsageTracker(getActivity())
                 .trackEvent(
                     TrackerConstants.CATEGORY_NOTES,
@@ -1303,20 +1302,20 @@ public class RunReviewFragment extends Fragment
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
         ft.commit();
-        mRunReviewOverlay.setActiveTimestamp(selectedTimestamp);
-        mRunReviewOverlay.setOnTimestampChangeListener(timeDialog);
+        runReviewOverlay.setActiveTimestamp(selectedTimestamp);
+        runReviewOverlay.setOnTimestampChangeListener(timeDialog);
         setTimepickerUi(getView(), true);
       }
 
       @Override
       public Single<String> whenExperimentId() {
-        return Single.just(mExperimentId);
+        return Single.just(experimentId);
       }
     };
   }
 
   private Trial getTrial() {
-    return mExperiment.getTrial(mTrialId);
+    return experiment.getTrial(trialId);
   }
 
   @Override
@@ -1333,9 +1332,9 @@ public class RunReviewFragment extends Fragment
     return new LoggingConsumer<Success>(TAG, "edit label") {
       @Override
       public void success(Success value) {
-        mPinnedNoteAdapter.onLabelUpdated(label);
+        pinnedNoteAdapter.onLabelUpdated(label);
         // The timestamp was edited, so also refresh the line graph presenter.
-        mChartController.setLabels(getTrial().getLabels());
+        chartController.setLabels(getTrial().getLabels());
         WhistlePunkApplication.getUsageTracker(getActivity())
             .trackEvent(
                 TrackerConstants.CATEGORY_NOTES,
@@ -1354,14 +1353,14 @@ public class RunReviewFragment extends Fragment
     FragmentTransaction ft = getChildFragmentManager().beginTransaction();
     ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
     ft.commit();
-    mRunReviewOverlay.setActiveTimestamp(label.getTimeStamp());
-    mRunReviewOverlay.setOnTimestampChangeListener(timeDialog);
+    runReviewOverlay.setActiveTimestamp(label.getTimeStamp());
+    runReviewOverlay.setOnTimestampChangeListener(timeDialog);
     setTimepickerUi(getView(), true);
   }
 
   private void setTimepickerUi(View rootView, boolean showTimepicker) {
     if (showTimepicker) {
-      mActionMode =
+      actionMode =
           ((AppCompatActivity) getActivity())
               .startSupportActionMode(
                   new ActionMode.Callback() {
@@ -1382,8 +1381,8 @@ public class RunReviewFragment extends Fragment
 
                     @Override
                     public void onDestroyActionMode(ActionMode mode) {
-                      if (mActionMode != null) {
-                        mActionMode = null;
+                      if (actionMode != null) {
+                        actionMode = null;
                         dismissEditTimeDialog();
                       }
                     }
@@ -1392,8 +1391,8 @@ public class RunReviewFragment extends Fragment
           (EditLabelTimeDialog)
               getChildFragmentManager().findFragmentByTag(EditLabelTimeDialog.TAG);
       if (dialog != null) {
-        mRunReviewOverlay.setActiveTimestamp(dialog.getCurrentTimestamp());
-        mRunReviewOverlay.setOnTimestampChangeListener(dialog);
+        runReviewOverlay.setActiveTimestamp(dialog.getCurrentTimestamp());
+        runReviewOverlay.setOnTimestampChangeListener(dialog);
       }
     }
     setUiForActionMode(rootView, showTimepicker);
@@ -1401,7 +1400,7 @@ public class RunReviewFragment extends Fragment
 
   private void setCropUi(View rootView, boolean showCrop) {
     if (showCrop) {
-      mActionMode =
+      actionMode =
           ((AppCompatActivity) getActivity())
               .startSupportActionMode(
                   new ActionMode.Callback() {
@@ -1436,8 +1435,8 @@ public class RunReviewFragment extends Fragment
 
                     @Override
                     public void onDestroyActionMode(ActionMode mode) {
-                      if (mActionMode != null) {
-                        mActionMode = null;
+                      if (actionMode != null) {
+                        actionMode = null;
                         completeCrop();
                       }
                     }
@@ -1450,10 +1449,10 @@ public class RunReviewFragment extends Fragment
     CropHelper helper = new CropHelper(getDataController());
     helper.cropTrial(
         getActivity().getApplicationContext(),
-        mExperiment,
-        mTrialId,
-        mRunReviewOverlay.getCropStartTimestamp(),
-        mRunReviewOverlay.getCropEndTimestamp(),
+        experiment,
+        trialId,
+        runReviewOverlay.getCropStartTimestamp(),
+        runReviewOverlay.getCropEndTimestamp(),
         new CropHelper.CropTrialListener() {
           @Override
           public void onCropCompleted() {
@@ -1470,7 +1469,7 @@ public class RunReviewFragment extends Fragment
                     Snackbar.LENGTH_SHORT)
                 .show();
             hookUpExperimentDetailsArea(getTrial(), getView());
-            mPinnedNoteAdapter.updateRunTimestamps(
+            pinnedNoteAdapter.updateRunTimestamps(
                 getTrial().getFirstTimestamp(), getTrial().getLastTimestamp());
             if (mode != null) {
               mode.finish();
@@ -1541,8 +1540,8 @@ public class RunReviewFragment extends Fragment
 
       notesOverlay.setVisibility(View.VISIBLE);
     } else {
-      if (mActionMode != null) {
-        mActionMode.finish();
+      if (actionMode != null) {
+        actionMode.finish();
       }
       setFrozen(rootView, false);
       rootView.findViewById(R.id.pinned_note_overlay).setVisibility(View.GONE);
@@ -1571,10 +1570,10 @@ public class RunReviewFragment extends Fragment
   public void onEditTimeDialogDismissedEdit(Label label, long selectedTimestamp) {
     setTimepickerUi(getView(), false);
     label.setTimestamp(selectedTimestamp);
-    Trial trial = mExperiment.getTrial(mTrialId);
+    Trial trial = experiment.getTrial(trialId);
     trial.updateLabel(label);
-    mExperiment.updateTrial(trial);
-    RxDataController.updateExperiment(getDataController(), mExperiment)
+    experiment.updateTrial(trial);
+    RxDataController.updateExperiment(getDataController(), experiment)
         .subscribe(MaybeConsumers.toCompletableObserver(onLabelEdit(label)));
   }
 
@@ -1585,7 +1584,7 @@ public class RunReviewFragment extends Fragment
   }
 
   private void launchAudioSettings() {
-    mAudioPlaybackController.stopPlayback();
+    audioPlaybackController.stopPlayback();
 
     List<GoosciSensorLayout.SensorLayout> sensorLayouts = getTrial().getSensorLayouts();
     int size = sensorLayouts.size();
@@ -1597,29 +1596,29 @@ public class RunReviewFragment extends Fragment
       sonificationTypes[i] = getSonificationType(layout);
     }
     AudioSettingsDialog dialog =
-        AudioSettingsDialog.newInstance(sonificationTypes, sensorIds, mSelectedSensorIndex);
+        AudioSettingsDialog.newInstance(sonificationTypes, sensorIds, selectedSensorIndex);
     dialog.show(getChildFragmentManager(), AudioSettingsDialog.TAG);
   }
 
   private void launchCrop(View rootView) {
     rootView.findViewById(R.id.run_review_playback_button_holder).setVisibility(View.GONE);
-    mAudioPlaybackController.stopPlayback();
+    audioPlaybackController.stopPlayback();
 
     long originalFirstTimestamp = getTrial().getOriginalFirstTimestamp();
     long lastTimestamp = getTrial().getOriginalLastTimestamp();
     // Load data even if it was previously cropped out of the graph
-    mChartController.setShowOriginalRun(true);
+    chartController.setShowOriginalRun(true);
 
-    mRunReviewOverlay.resetCropTimestamps();
-    mRunReviewOverlay.setCropModeOn(true);
+    runReviewOverlay.resetCropTimestamps();
+    runReviewOverlay.setCropModeOn(true);
 
     long buffer = ExternalAxisController.getReviewBuffer(originalFirstTimestamp, lastTimestamp);
-    mExternalAxis.setReviewData(
+    externalAxis.setReviewData(
         originalFirstTimestamp,
         getTrial().getFirstTimestamp(),
         originalFirstTimestamp - buffer,
         lastTimestamp + buffer);
-    mExternalAxis.updateAxis();
+    externalAxis.updateAxis();
 
     WhistlePunkApplication.getUsageTracker(getActivity())
         .trackEvent(TrackerConstants.CATEGORY_RUNS, TrackerConstants.ACTION_CROP_STARTED, "", 1);
@@ -1628,10 +1627,10 @@ public class RunReviewFragment extends Fragment
   }
 
   public void completeCrop() {
-    mChartController.setShowOriginalRun(false);
+    chartController.setShowOriginalRun(false);
     setCropUi(getView(), false);
     getView().findViewById(R.id.run_review_playback_button_holder).setVisibility(View.VISIBLE);
-    mRunReviewOverlay.setCropModeOn(false);
+    runReviewOverlay.setCropModeOn(false);
 
     // When we started cropping we may have changed the external axis review data. Reset that
     // now that the crop is not happening any more.
@@ -1642,8 +1641,8 @@ public class RunReviewFragment extends Fragment
     long idealRenderedXMax = runLastTimestamp + buffer;
     Bundle timestampBundle = new Bundle();
 
-    long currentRenderedXMin = mExternalAxis.getXMin();
-    long currentRenderedXMax = mExternalAxis.getXMax();
+    long currentRenderedXMin = externalAxis.getXMin();
+    long currentRenderedXMax = externalAxis.getXMax();
 
     long nextRenderedXMin;
     long nextRenderedXMax;
@@ -1666,7 +1665,7 @@ public class RunReviewFragment extends Fragment
 
     timestampBundle.putLong(KEY_EXTERNAL_AXIS_X_MINIMUM, nextRenderedXMin);
     timestampBundle.putLong(KEY_EXTERNAL_AXIS_X_MAXIMUM, nextRenderedXMax);
-    timestampBundle.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, mRunReviewOverlay.getTimestamp());
+    timestampBundle.putLong(KEY_RUN_REVIEW_OVERLAY_TIMESTAMP, runReviewOverlay.getTimestamp());
     setUpAxis(timestampBundle, getView());
 
     // TODO: Better way to throw out cropped (or out of range) data besides reloading,
@@ -1683,8 +1682,8 @@ public class RunReviewFragment extends Fragment
             getTrial().getOriginalLastTimestamp(),
             getTrial().getFirstTimestamp(),
             isStartCrop
-                ? mRunReviewOverlay.getCropStartTimestamp()
-                : mRunReviewOverlay.getCropEndTimestamp());
+                ? runReviewOverlay.getCropStartTimestamp()
+                : runReviewOverlay.getCropEndTimestamp());
     setTimestampDialogListener(timestampDialog);
     timestampDialog.show(getChildFragmentManager(), EditTimestampDialog.TAG);
   }
@@ -1695,7 +1694,7 @@ public class RunReviewFragment extends Fragment
           @Override
           public int isValidTimestamp(long timestamp, boolean isStartCrop) {
             // Is it too close to the other seekbar?
-            if (mRunReviewOverlay.isValidCropTimestamp(timestamp, isStartCrop)) {
+            if (runReviewOverlay.isValidCropTimestamp(timestamp, isStartCrop)) {
               return TimestampPickerController.NO_ERROR;
             } else {
               return R.string.timestamp_picker_crop_range_error;
@@ -1706,21 +1705,20 @@ public class RunReviewFragment extends Fragment
           public void onPickerTimestampChanged(long timestamp, boolean isStartCrop) {
             // Zoom out to show the new timestamp if needed.
             if (isStartCrop) {
-              if (timestamp < mExternalAxis.getXMin()) {
+              if (timestamp < externalAxis.getXMin()) {
                 long buffer =
-                    ExternalAxisController.getReviewBuffer(timestamp, mExternalAxis.getXMax());
-                mExternalAxis.zoomTo(timestamp - buffer, mExternalAxis.getXMax());
+                    ExternalAxisController.getReviewBuffer(timestamp, externalAxis.getXMax());
+                externalAxis.zoomTo(timestamp - buffer, externalAxis.getXMax());
               }
-              mRunReviewOverlay.setCropTimestamps(
-                  timestamp, mRunReviewOverlay.getCropEndTimestamp());
+              runReviewOverlay.setCropTimestamps(timestamp, runReviewOverlay.getCropEndTimestamp());
             } else {
-              if (timestamp > mExternalAxis.getXMax()) {
+              if (timestamp > externalAxis.getXMax()) {
                 long buffer =
-                    ExternalAxisController.getReviewBuffer(mExternalAxis.getXMin(), timestamp);
-                mExternalAxis.zoomTo(mExternalAxis.getXMin(), timestamp + buffer);
+                    ExternalAxisController.getReviewBuffer(externalAxis.getXMin(), timestamp);
+                externalAxis.zoomTo(externalAxis.getXMin(), timestamp + buffer);
               }
-              mRunReviewOverlay.setCropTimestamps(
-                  mRunReviewOverlay.getCropStartTimestamp(), timestamp);
+              runReviewOverlay.setCropTimestamps(
+                  runReviewOverlay.getCropStartTimestamp(), timestamp);
             }
           }
         });
@@ -1734,7 +1732,7 @@ public class RunReviewFragment extends Fragment
   @Override
   public void onAudioSettingsApplied(String[] newSonificationTypes, String[] sensorIds) {
     // Update the currently selected sonification type.
-    mAudioPlaybackController.setSonificationType(newSonificationTypes[mSelectedSensorIndex]);
+    audioPlaybackController.setSonificationType(newSonificationTypes[selectedSensorIndex]);
 
     // Save the new sonification types into their respective sensorLayouts.
     // Note that this uses the knowledge that the sensor ordering has not changed since
@@ -1754,7 +1752,7 @@ public class RunReviewFragment extends Fragment
     // Save the updated layouts to the DB.
     getDataController()
         .updateExperiment(
-            mExperimentId, LoggingConsumer.<Success>expectSuccess(TAG, "updating audio settings"));
+            experimentId, LoggingConsumer.<Success>expectSuccess(TAG, "updating audio settings"));
   }
 
   @Override
@@ -1769,23 +1767,23 @@ public class RunReviewFragment extends Fragment
   private void exportRun(final Trial trial) {
     ExportOptionsDialogFragment fragment =
         ExportOptionsDialogFragment.createOptionsDialog(
-            mExperiment.getExperimentId(), trial.getTrialId());
+            experiment.getExperimentId(), trial.getTrialId());
     fragment.show(((AppCompatActivity) getActivity()).getSupportFragmentManager(), "export");
   }
 
   @Override
   public int getGraphLoadStatus() {
-    return mLoadingStatus;
+    return loadingStatus;
   }
 
   @Override
   public void setGraphLoadStatus(int graphLoadStatus) {
-    mLoadingStatus = graphLoadStatus;
+    loadingStatus = graphLoadStatus;
   }
 
   @Override
   public String getRunId() {
-    return mTrialId;
+    return trialId;
   }
 
   @Override
@@ -1794,6 +1792,6 @@ public class RunReviewFragment extends Fragment
   }
 
   protected GoosciSensorLayout.SensorLayout getSensorLayout() {
-    return getTrial().getSensorLayouts().get(mSelectedSensorIndex);
+    return getTrial().getSensorLayouts().get(selectedSensorIndex);
   }
 }
