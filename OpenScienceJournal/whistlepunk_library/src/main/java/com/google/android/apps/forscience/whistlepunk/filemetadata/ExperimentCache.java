@@ -458,13 +458,11 @@ class ExperimentCache {
   }
 
   private File getExperimentFile(String localExperimentId) {
-    return new File(
-        mContext.getFilesDir() + "/experiments/" + localExperimentId,
-        FileMetadataManager.EXPERIMENT_FILE);
+    return new File(getExperimentDirectory(localExperimentId), FileMetadataManager.EXPERIMENT_FILE);
   }
 
   private File getExperimentDirectory(String localExperimentId) {
-    return new File(mContext.getFilesDir() + "/experiments/" + localExperimentId);
+    return FileMetadataManager.getExperimentDirectory(mContext, localExperimentId);
   }
 
   private File getAssetsDirectory(File experimentDirectory) {

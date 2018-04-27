@@ -62,7 +62,8 @@ import java.util.zip.ZipOutputStream;
 public class FileMetadataManager {
   public static final String COVER_IMAGE_FILE = "assets/ExperimentCoverImage.jpg";
   static final String ASSETS_DIRECTORY = "assets";
-  static final String EXPERIMENT_FILE = "experiment.proto";
+  public static final String EXPERIMENTS_DIRECTORY = "experiments";
+  public static final String EXPERIMENT_FILE = "experiment.proto";
   private static final String TAG = "FileMetadataManager";
   private static final String USER_METADATA_FILE = "user_metadata.proto";
 
@@ -134,14 +135,14 @@ public class FileMetadataManager {
   }
 
   /** Returns the files directory for the current account. */
-  // TODO(b/78523388): Remove this method. Use getFilesDir(Context, AppAcount) instead.
+  // TODO(b/78523388): Remove this method. Use getFilesDir(AppAccount) instead.
   public static File getFilesDir(Context context) {
     return getFilesDir(
         WhistlePunkApplication.getAppServices(context).getAccountsProvider().getCurrentAccount());
   }
 
   public static File getUserMetadataFile(Context context) {
-    // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(context).
+    // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(AppAccount).
     return new File(context.getFilesDir(), USER_METADATA_FILE);
   }
 
@@ -154,8 +155,8 @@ public class FileMetadataManager {
   }
 
   public static File getExperimentsRootDirectory(Context context) {
-    // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(context).
-    return new File(context.getFilesDir(), "experiments");
+    // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(AppAccount).
+    return new File(context.getFilesDir(), EXPERIMENTS_DIRECTORY);
   }
 
   public static File getExternalExperimentsDirectory(Context context) {
@@ -179,7 +180,7 @@ public class FileMetadataManager {
   }
 
   public static String getExperimentExportDirectory(Context context) throws IOException {
-    // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(context).
+    // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(AppAccount).
     File dir = new File(context.getFilesDir(), "exported_experiments");
     if (!dir.exists() && !dir.mkdir()) {
       throw new IOException("Can't create experiments directory");
@@ -197,7 +198,7 @@ public class FileMetadataManager {
    * the imagePath in UserMetadata.ExperimentOverview.
    */
   public static File getRelativePathInFilesDir(String experimentId, String relativePath) {
-    return new File(new File("experiments", experimentId), relativePath);
+    return new File(new File(EXPERIMENTS_DIRECTORY, experimentId), relativePath);
   }
 
   /**
@@ -255,7 +256,7 @@ public class FileMetadataManager {
 
                             if (!experiment.getExperimentOverview().imagePath.isEmpty()) {
                               // TODO(lizlooney): Replace context.getFilesDir() with
-                              // getFilesDir(context).
+                              // getFilesDir(AppAccount).
                               File experimentImage =
                                   new File(
                                       context.getFilesDir(),
@@ -539,7 +540,7 @@ public class FileMetadataManager {
     newExperiment.setTitle(proto.title);
     newExperiment.setLastUsedTime(mClock.getNow());
     if (containsExperimentImage) {
-      overview.imagePath = "experiments/" + experimentId + "/" + COVER_IMAGE_FILE;
+      overview.imagePath = EXPERIMENTS_DIRECTORY + "/" + experimentId + "/" + COVER_IMAGE_FILE;
     }
     updateExperiment(Experiment.fromExperiment(proto, overview));
     File dataFile = new File(externalPath, "sensorData.proto");
