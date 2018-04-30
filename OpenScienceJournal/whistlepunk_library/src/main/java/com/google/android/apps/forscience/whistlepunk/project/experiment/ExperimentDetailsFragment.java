@@ -1392,6 +1392,8 @@ public class ExperimentDetailsFragment extends Fragment
                   0 /* sensor index deprecated */,
                   false /* from record */,
                   false /* create task */,
+                  // TODO(lizlooney): set read only appropriately
+                  false /* read only */,
                   null));
     }
 
@@ -1413,6 +1415,8 @@ public class ExperimentDetailsFragment extends Fragment
               selectedSensorIndex,
               false /* from record */,
               false /* create task */,
+              // TODO(lizlooney): set read only appropriately
+              false /* read only */,
               null);
         }
       };
@@ -1718,4 +1722,3 @@ public class ExperimentDetailsFragment extends Fragment
     }
   }
 }
-

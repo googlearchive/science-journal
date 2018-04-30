@@ -470,6 +470,7 @@ public class MainActivity extends ActivityWithNavigationView {
       public void onRecordingSaved(String runId, Experiment experiment) {
         boolean fromRecord = true;
         boolean createTask = true;
+        boolean readOnly = false;
         RunReviewActivity.launch(
             MainActivity.this,
             runId,
@@ -477,6 +478,7 @@ public class MainActivity extends ActivityWithNavigationView {
             0,
             fromRecord,
             createTask,
+            readOnly,
             null);
       }
 

@@ -49,6 +49,7 @@ public class RunReviewActivity extends MetadataActivity {
       int activeSensorIndex,
       boolean fromRecord,
       boolean createTask,
+      boolean readOnly,
       Bundle options) {
     // TODO(saff): fancy schmancy material transition here (see specs)
     final Intent intent = new Intent(context, RunReviewActivity.class);
@@ -57,6 +58,7 @@ public class RunReviewActivity extends MetadataActivity {
     intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, activeSensorIndex);
     intent.putExtra(EXTRA_FROM_RECORD, fromRecord);
     intent.putExtra(EXTRA_CREATE_TASK, createTask);
+    intent.putExtra(RunReviewFragment.ARG_READ_ONLY, readOnly);
     context.startActivity(intent, options);
   }
 
@@ -66,14 +68,14 @@ public class RunReviewActivity extends MetadataActivity {
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
     setContentView(R.layout.activity_run_review);
     mFromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
-    boolean createTask = getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true);
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
       RunReviewFragment fragment =
           RunReviewFragment.newInstance(
               getIntent().getExtras().getString(RunReviewFragment.ARG_EXPERIMENT_ID),
               getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
               getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
-              createTask /* create a task when going up */);
+              getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true),
+              getIntent().getExtras().getBoolean(RunReviewFragment.ARG_READ_ONLY));
       getSupportFragmentManager()
           .beginTransaction()
           .add(R.id.container, fragment, FRAGMENT_TAG)

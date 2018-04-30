@@ -114,6 +114,7 @@ public class RunReviewFragment extends Fragment
   public static final String ARG_START_LABEL_ID = "start_label_id";
   public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
   public static final String ARG_CREATE_TASK = "create_task";
+  public static final String ARG_READ_ONLY = "read_only";
   private static final String TAG = "RunReviewFragment";
 
   private static final String KEY_SELECTED_SENSOR_INDEX = "selected_sensor_index";
@@ -145,6 +146,7 @@ public class RunReviewFragment extends Fragment
   private String trialId;
   private String experimentId;
   private int selectedSensorIndex = 0;
+  private boolean readOnly;
   private GraphOptionsController graphOptionsController;
   private ScalarDisplayOptions scalarDisplayOptions;
   private ChartController chartController;
@@ -170,16 +172,22 @@ public class RunReviewFragment extends Fragment
    * @param startLabelId the startLabelId that joins the labels identifying this run
    * @param sensorIndex the initial sensor to select in run review
    * @param createTask if {@code true}, will create tasks when navigating up
+   * @param readOnly if {@code true}, run cannot be modified
    * @return A new instance of fragment RunReviewFragment.
    */
   public static RunReviewFragment newInstance(
-      String experimentId, String startLabelId, int sensorIndex, boolean createTask) {
+      String experimentId,
+      String startLabelId,
+      int sensorIndex,
+      boolean createTask,
+      boolean readOnly) {
     RunReviewFragment fragment = new RunReviewFragment();
     Bundle args = new Bundle();
     args.putString(ARG_EXPERIMENT_ID, experimentId);
     args.putString(ARG_START_LABEL_ID, startLabelId);
     args.putInt(ARG_SENSOR_INDEX, sensorIndex);
     args.putBoolean(ARG_CREATE_TASK, createTask);
+    args.putBoolean(ARG_READ_ONLY, readOnly);
     fragment.setArguments(args);
     return fragment;
   }
@@ -239,6 +247,7 @@ public class RunReviewFragment extends Fragment
       trialId = getArguments().getString(ARG_START_LABEL_ID);
       selectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
       experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
+      readOnly = getArguments().getBoolean(ARG_READ_ONLY);
     }
     if (savedInstanceState != null) {
       if (savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
@@ -471,39 +480,43 @@ public class RunReviewFragment extends Fragment
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    inflater.inflate(R.menu.menu_run_review, menu);
+    if (!readOnly) {
+      inflater.inflate(R.menu.menu_run_review, menu);
+    }
   }
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
-    menu.findItem(R.id.action_graph_options).setVisible(false); // b/29771945
+    if (!readOnly) {
+      menu.findItem(R.id.action_graph_options).setVisible(false); // b/29771945
 
-    // Hide some menu buttons if the run isn't loaded yet.
-    if (experiment != null) {
-      menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
-      menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
+      // Hide some menu buttons if the run isn't loaded yet.
+      if (experiment != null) {
+        menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
+        menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
 
-      menu.findItem(R.id.action_disable_auto_zoom).setVisible(getTrial().getAutoZoomEnabled());
-      menu.findItem(R.id.action_enable_auto_zoom).setVisible(!getTrial().getAutoZoomEnabled());
+        menu.findItem(R.id.action_disable_auto_zoom).setVisible(getTrial().getAutoZoomEnabled());
+        menu.findItem(R.id.action_enable_auto_zoom).setVisible(!getTrial().getAutoZoomEnabled());
 
-      // You can only do a crop if the run length is long enough.
-      menu.findItem(R.id.action_run_review_crop)
-          .setEnabled(CropHelper.experimentIsLongEnoughForCrop(getTrial()));
+        // You can only do a crop if the run length is long enough.
+        menu.findItem(R.id.action_run_review_crop)
+            .setEnabled(CropHelper.experimentIsLongEnoughForCrop(getTrial()));
 
-      menu.findItem(R.id.action_export).setVisible(shouldShowExport());
-    } else {
-      menu.findItem(R.id.action_run_review_archive).setVisible(false);
-      menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
-      menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
-      menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
-      menu.findItem(R.id.action_run_review_delete).setVisible(false);
-      menu.findItem(R.id.action_run_review_crop).setVisible(false);
-      menu.findItem(R.id.action_export).setVisible(false);
-    }
+        menu.findItem(R.id.action_export).setVisible(shouldShowExport());
+      } else {
+        menu.findItem(R.id.action_run_review_archive).setVisible(false);
+        menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
+        menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
+        menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
+        menu.findItem(R.id.action_run_review_delete).setVisible(false);
+        menu.findItem(R.id.action_run_review_crop).setVisible(false);
+        menu.findItem(R.id.action_export).setVisible(false);
+      }
 
-    if (((RunReviewActivity) getActivity()).isFromRecord()) {
-      // If this is from record, always enable deletion.
-      menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+      if (((RunReviewActivity) getActivity()).isFromRecord()) {
+        // If this is from record, always enable deletion.
+        menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+      }
     }
 
     super.onPrepareOptionsMenu(menu);
@@ -764,58 +777,61 @@ public class RunReviewFragment extends Fragment
     pinnedNoteAdapter =
         new PinnedNoteAdapter(
             trial, trial.getFirstTimestamp(), trial.getLastTimestamp(), experimentId);
-    pinnedNoteAdapter.setListItemModifyListener(
-        new PinnedNoteAdapter.ListItemEditListener() {
-          @Override
-          public void onLabelEditTime(final Label item) {
-            onEditNoteTimestamp(item);
-          }
-
-          @Override
-          public void onLabelDelete(Label item) {
-            deleteLabel(item);
-          }
-
-          @Override
-          public void onCaptionEdit(String updatedCaption) {
-            GoosciCaption.Caption caption = new GoosciCaption.Caption();
-            caption.text = updatedCaption;
-            caption.lastEditedTimestamp = System.currentTimeMillis();
-            getTrial().setCaption(caption);
-            getDataController()
-                .updateExperiment(
-                    experimentId, LoggingConsumer.expectSuccess(TAG, "update caption"));
-          }
-        });
-
-    pinnedNoteAdapter.setListItemClickListener(
-        new PinnedNoteAdapter.ListItemClickListener() {
-          @Override
-          public void onLabelClicked(Label item) {
-            LabelDetailsActivity.launchFromRunReview(
-                getActivity(),
-                experimentId,
-                trialId,
-                selectedSensorIndex,
-                item,
-                getArguments().getBoolean(ARG_CREATE_TASK),
-                getArguments().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD));
-          }
-
-          @Override
-          public void onAddLabelButtonClicked() {
-            if (experiment != null && !runReviewOverlay.getIsCropping()) {
-              launchLabelAdd(
-                  null, Math.max(runReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
+    if (!readOnly) {
+      pinnedNoteAdapter.setListItemModifyListener(
+          new PinnedNoteAdapter.ListItemEditListener() {
+            @Override
+            public void onLabelEditTime(final Label item) {
+              onEditNoteTimestamp(item);
             }
-          }
 
-          @Override
-          public void onLabelTimestampClicked(Label item) {
-            // TODO: Animate to the active timestamp.
-            runReviewOverlay.setActiveTimestamp(item.getTimeStamp());
-          }
-        });
+            @Override
+            public void onLabelDelete(Label item) {
+              deleteLabel(item);
+            }
+
+            @Override
+            public void onCaptionEdit(String updatedCaption) {
+              GoosciCaption.Caption caption = new GoosciCaption.Caption();
+              caption.text = updatedCaption;
+              caption.lastEditedTimestamp = System.currentTimeMillis();
+              getTrial().setCaption(caption);
+              getDataController()
+                  .updateExperiment(
+                      experimentId, LoggingConsumer.expectSuccess(TAG, "update caption"));
+            }
+          });
+
+      pinnedNoteAdapter.setListItemClickListener(
+          new PinnedNoteAdapter.ListItemClickListener() {
+            @Override
+            public void onLabelClicked(Label item) {
+              LabelDetailsActivity.launchFromRunReview(
+                  getActivity(),
+                  experimentId,
+                  trialId,
+                  selectedSensorIndex,
+                  item,
+                  getArguments().getBoolean(ARG_CREATE_TASK),
+                  getArguments().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD));
+            }
+
+            @Override
+            public void onAddLabelButtonClicked() {
+              if (experiment != null && !runReviewOverlay.getIsCropping()) {
+                launchLabelAdd(
+                    null,
+                    Math.max(runReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
+              }
+            }
+
+            @Override
+            public void onLabelTimestampClicked(Label item) {
+              // TODO: Animate to the active timestamp.
+              runReviewOverlay.setActiveTimestamp(item.getTimeStamp());
+            }
+          });
+    }
 
     pinnedNoteList.setAdapter(pinnedNoteAdapter);
 

@@ -148,6 +148,7 @@ public class UpdateRunFragment extends Fragment {
     upIntent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD, false);
     upIntent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, mRunId);
     upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, mExperimentId);
+    upIntent.putExtra(RunReviewFragment.ARG_READ_ONLY, false);
     NavUtils.navigateUpTo(getActivity(), upIntent);
   }
 }
