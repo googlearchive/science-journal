@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.Context;
 import androidx.fragment.app.FragmentActivity;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
-import com.google.android.apps.forscience.whistlepunk.R;
 
 /** An accounts provider which supports a user with no signed-in account. */
 public final class NonSignedInAccountsProvider extends AbstractAccountsProvider {
@@ -45,12 +44,10 @@ public final class NonSignedInAccountsProvider extends AbstractAccountsProvider 
   }
 
   @Override
-  public void setContentView(ActivityWithNavigationView activity) {
-    activity.setContentView(R.layout.activity_main);
-  }
+  public void connectAccountSwitcher(ActivityWithNavigationView activity) {}
 
   @Override
-  public void onStop(ActivityWithNavigationView activity) {}
+  public void disconnectAccountSwitcher(ActivityWithNavigationView activity) {}
 
   @Override
   public void showAddAccountDialog(Activity activity) {

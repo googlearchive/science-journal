@@ -33,16 +33,16 @@ public interface AccountsProvider {
   int getAccountCount();
 
   /**
-   * Sets the content view of the main activity and initializes the account switcher, if necessary.
-   * Must be called during onCreate of the main activity.
+   * Connects the account switcher, if necessary. Must be called during onCreate of the main
+   * activity, after {@link Activity#setContentView}.
    */
-  void setContentView(ActivityWithNavigationView activity);
+  void connectAccountSwitcher(ActivityWithNavigationView activity);
 
   /**
    * Disconnects the account switcher, if necessary. Must be called during onStop of the main
    * activity.
    */
-  void onStop(ActivityWithNavigationView activity);
+  void disconnectAccountSwitcher(ActivityWithNavigationView activity);
 
   /** Shows the dialog where the user adds an account. */
   void showAddAccountDialog(Activity activity);
