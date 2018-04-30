@@ -22,7 +22,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import android.support.design.widget.NavigationView;
+import android.support.design.navigation.NavigationView;
 import android.support.design.widget.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
