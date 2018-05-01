@@ -259,6 +259,16 @@
         <service
             android:name=".ExportService"
             android:exported="false"></service>
+
+    <!-- Broadcast receiver that will be notified of account changes. -->
+    <receiver
+       android:name="com.google.android.apps.forscience.whistlepunk.accounts.AccountsChangedReceiver"
+       android:exported="true">
+       <intent-filter>
+         <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
+      </intent-filter>
+    </receiver>
+
     </application>
 
 </manifest>

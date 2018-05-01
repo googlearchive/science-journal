@@ -50,6 +50,9 @@ public final class NonSignedInAccountsProvider extends AbstractAccountsProvider 
   public void disconnectAccountSwitcher(ActivityWithNavigationView activity) {}
 
   @Override
+  public void onLoginAccountsChanged() {}
+
+  @Override
   public void showAddAccountDialog(Activity activity) {
     throw new IllegalStateException("Accounts not supported");
   }

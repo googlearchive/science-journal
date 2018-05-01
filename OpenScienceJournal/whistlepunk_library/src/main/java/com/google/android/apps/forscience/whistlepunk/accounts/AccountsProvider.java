@@ -44,6 +44,9 @@ public interface AccountsProvider {
    */
   void disconnectAccountSwitcher(ActivityWithNavigationView activity);
 
+  /** Called from AccountsChangedReceiver when we receive the LOGIN_ACCOUNTS_CHANGED_ACTION. */
+  void onLoginAccountsChanged();
+
   /** Shows the dialog where the user adds an account. */
   void showAddAccountDialog(Activity activity);
 
