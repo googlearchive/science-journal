@@ -114,6 +114,12 @@ public class AgeVerifier extends AppCompatActivity {
     if (DEBUG_AGE_VERIFIER) {
       return true;
     }
+    // If we require a signed-in account, we don't need to ask the user's age.
+    if (WhistlePunkApplication.getAppServices(context)
+        .getAccountsProvider()
+        .requireSignedInAccount()) {
+      return false;
+    }
     return !PreferenceManager.getDefaultSharedPreferences(context)
         .getBoolean(KEY_USER_AGE_SET, false);
   }
