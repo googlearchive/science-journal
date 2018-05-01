@@ -114,7 +114,7 @@
     <string name="temperature_units">\u00B0C</string>
 
     <!-- Display of a sensor header name with the units for that sensor [CHAR_LIMIT=10] -->
-    <string name="header_name_and_units"><xliff:g id="sensor_name">%1s</xliff:g> (<xliff:g id="sensor_units">%2s</xliff:g>)</string>
+    <string name="header_name_and_units"><xliff:g id="sensor_name">%1$s</xliff:g> (<xliff:g id="sensor_units">%2$s</xliff:g>)</string>
 
     <!-- Content description for experiment details button [CHAR_LIMIT=none] -->
     <string name="experiment_details">Experiment details</string>
@@ -213,25 +213,25 @@
     <string name="elapsed_time_short_format"><xliff:g id="seconds">%1d</xliff:g>s</string>
 
     <!-- The string formatting string used to display elapsed time greater or equal to 60 seconds [CHAR_LIMIT=5] -->
-    <string name="elapsed_time_long_format"><xliff:g id="minutes">%1d</xliff:g>min <xliff:g id="seconds">%2d</xliff:g>s</string>
+    <string name="elapsed_time_long_format"><xliff:g id="minutes">%1$d</xliff:g>min <xliff:g id="seconds">%2$d</xliff:g>s</string>
 
     <!-- The string formatting string used to describe elapsed time views less than 60 seconds [CHAR_LIMIT=NONE] -->
     <string name="accessible_elapsed_time_short_format"><xliff:g id="seconds">%1d</xliff:g> seconds</string>
 
     <!-- The string formatting string used to describe elapsed time views greater or equal to 60 seconds [CHAR_LIMIT=NONE] -->
-    <string name="accessible_elapsed_time_long_format"><xliff:g id="minutes">%1d</xliff:g> minutes <xliff:g id="seconds">%2d</xliff:g> seconds</string>
+    <string name="accessible_elapsed_time_long_format"><xliff:g id="minutes">%1$d</xliff:g> minutes <xliff:g id="seconds">%2$d</xliff:g> seconds</string>
 
     <!-- The string formatting string used to display elapsed time on the x axis less than 60 minutes [CHAR_LIMIT=3] -->
-    <string name="elapsed_time_axis_format_small"><xliff:g id="minutes">%1d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g></string>
+    <string name="elapsed_time_axis_format_small"><xliff:g id="minutes">%1$d</xliff:g>:<xliff:g id="seconds">%02$d</xliff:g></string>
 
     <!-- The string formatting string used to display elapsed time on the x axis for one hour or more [CHAR_LIMIT=3] -->
-    <string name="elapsed_time_axis_format_large"><xliff:g id="hours">%1d</xliff:g>:<xliff:g id="minutes">%02d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g></string>
+    <string name="elapsed_time_axis_format_large"><xliff:g id="hours">%1$d</xliff:g>:<xliff:g id="minutes">%02$d</xliff:g>:<xliff:g id="seconds">%02$d</xliff:g></string>
 
     <!-- The string formatting string used to display elapsed time less than 60 minutes down to the tenth of a second, like 12:34.5 for 12 minutes, 34.5 seconds. [CHAR_LIMIT=5] -->
-    <string name="elapsed_time_axis_format_small_tenths"><xliff:g id="minutes">%1d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
+    <string name="elapsed_time_axis_format_small_tenths"><xliff:g id="minutes">%1$d</xliff:g>:<xliff:g id="seconds">%02$d</xliff:g>.<xliff:g id="tenths">%1$d</xliff:g></string>
 
     <!-- The string formatting string used to display elapsed time greater than one hour down to the tenth of a second, like 1:23:45.6 for 1 hr, 23 minutes, 45.6 seconds. [CHAR_LIMIT=5] -->
-    <string name="elapsed_time_axis_format_large_tenths"><xliff:g id="hours">%1d</xliff:g>:<xliff:g id="minutes">%02d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
+    <string name="elapsed_time_axis_format_large_tenths"><xliff:g id="hours">%1$d</xliff:g>:<xliff:g id="minutes">%02$d</xliff:g>:<xliff:g id="seconds">%02$d</xliff:g>.<xliff:g id="tenths">%1$d</xliff:g></string>
 
     <!-- String formatting string for the accessibility description of the RunReview slider [CHAR_LIMIT=None] -->
     <string name="graph_exploring_seekbar_content_description"><xliff:g id="time">%1$s</xliff:g>, <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g>.</string>
@@ -535,7 +535,7 @@
     <string name="device_options_sensor_label_text">Sensor</string>
 
     <!-- Sensor name set for external devices. For example "Temperature - Device 1234" [CHAR_LIMIT=10]-->
-    <string name="external_sensor_appearance_name"><xliff:g id="sensor_name">%s</xliff:g> - <xliff:g id="device_name">%s</xliff:g></string>
+    <string name="external_sensor_appearance_name"><xliff:g id="sensor_name">%1$s</xliff:g> - <xliff:g id="device_name">%1$s</xliff:g></string>
 
     <!-- Device options dropdown item for preconfigured sensor with value in rotations per minute
         [CHAR_LIMIT=40] -->
@@ -1304,7 +1304,7 @@ Permissions notice:
     <string name="dev_tools_strict_mode_summary" translatable="false">Changes to this setting only take effect after closing the application.</string>
 
     <!-- Experiment title prefixed by project title, i.e. if the project is named "Airplanes" and the experiment is "Takeoff", this would be "Airplanes: Takeoff". CHAR_LIMIT=NONE]-->
-    <string name="project_experiment_title"><xliff:g id="project_name">%1s</xliff:g>: <xliff:g id="experiment_name">%1s</xliff:g></string>
+    <string name="project_experiment_title"><xliff:g id="project_name">%1$s</xliff:g>: <xliff:g id="experiment_name">%1$s</xliff:g></string>
 
     <string name="snapshot_button_text">snapshot</string>
 
@@ -1317,7 +1317,7 @@ Permissions notice:
     <string name="old_trigger_note_format">Triggered note: <xliff:g id="auto_text">%1s</xliff:g></string>
 
     <!-- Text format for old trigger notes. This includes the type of note (Trigger note), as well as the auto-genererated and user-generated strings [CHAR_LIMIT=NONE] -->
-    <string name="old_trigger_note_format_custom">Triggered note: <xliff:g id="user_text">%1s</xliff:g>; <xliff:g id="auto_text">%2s</xliff:g></string>
+    <string name="old_trigger_note_format_custom">Triggered note: <xliff:g id="user_text">%1$s</xliff:g>; <xliff:g id="auto_text">%2$s</xliff:g></string>
 
     <!-- Title of developer option to display a compass sensor [CHAR_LIMIT=35]-->
     <string name="enable_compass_sensor_title" translatable="false">Enable compass</string>
