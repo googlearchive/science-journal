@@ -247,6 +247,26 @@ public class ExperimentTest {
     assertEquals("Recording 3", experiment.getTrial(trial3.getTrialId()).getTitle(context));
   }
 
+  @Test
+  public void testSetGetImagePath() {
+    GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
+    Experiment experiment =
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
+    experiment.setImagePath("test.jpg");
+    String overviewImagePath = experiment.getExperimentOverview().imagePath;
+    String experimentImagePath = experiment.getExperimentProto().imagePath;
+
+    assertEquals("test.jpg", overviewImagePath);
+    assertEquals("test.jpg", experimentImagePath);
+
+    experiment.setImagePath("path.jpg");
+    overviewImagePath = experiment.getExperimentOverview().imagePath;
+    assertEquals("path.jpg", overviewImagePath);
+    
+    experimentImagePath = experiment.getExperimentProto().imagePath;
+    assertEquals("path.jpg", experimentImagePath);
+  }
+
   private Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
   }

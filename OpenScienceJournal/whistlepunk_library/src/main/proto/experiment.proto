@@ -105,6 +105,7 @@ message Experiment {
   // The path to an image to be used as the Experiment image in the experiment
   // list. Should be relative to the experiment directory.
   optional string imagePath = 14;
+
   // The list of changes that have been made to the experiment over time.
   repeated Change changes = 15;
 };

@@ -249,9 +249,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
       if (TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
         String path = label.getPictureLabelValue().filePath;
         if (!TextUtils.isEmpty(path)) {
-          experiment.getExperimentOverview().imagePath =
-              PictureUtils.getExperimentOverviewRelativeImagePath(
-                  experiment.getExperimentId(), path);
+          experiment.setImagePath(path);
         }
       }
     }

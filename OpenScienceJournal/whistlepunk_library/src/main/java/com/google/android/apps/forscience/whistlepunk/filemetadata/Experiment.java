@@ -109,7 +109,7 @@ public class Experiment extends LabelListHolder {
     mTitle = mProto.title;
     mDescription = mProto.description;
     mLastUsedTimeMs = mExperimentOverview.lastUsedTimeMs;
-    mImagePath = mExperimentOverview.imagePath;
+    mImagePath = mProto.imagePath;
     mIsArchived = mExperimentOverview.isArchived;
     mTotalTrials = mProto.totalTrials;
     mTrialCount = mExperimentOverview.trialCount;
@@ -513,7 +513,7 @@ public class Experiment extends LabelListHolder {
         mProto.labels[index++] = label.getLabelProto();
       }
     }
-
+    mProto.imagePath = getExperimentOverview().imagePath;
     mProto.title = mTitle;
     mProto.description = mDescription;
     mProto.totalTrials = mTotalTrials;
