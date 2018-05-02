@@ -22,6 +22,9 @@ option java_outer_classname = "GoosciSensorAppearance";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
+import "third_party/android/nanoproto/nano_descriptor.proto";
+option (proto2.nano.file_as_lite) = false;
+
 import "icon_path.proto";
 
 message BasicSensorAppearance {
