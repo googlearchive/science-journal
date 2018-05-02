@@ -49,16 +49,16 @@ public class MainActivity extends ActivityWithNavigationView {
   protected static final int NO_SELECTED_ITEM = -1;
 
   /** Used to store the last screen title. For use in {@link #restoreActionBar()}. */
-  private CharSequence mTitleToRestore;
+  private CharSequence titleToRestore;
 
-  private FeedbackProvider mFeedbackProvider;
-  private NavigationView mNavigationView;
-  private MultiTouchDrawerLayout mDrawerLayout;
-  private int mSelectedItemId = NO_SELECTED_ITEM;
-  private boolean mIsRecording = false;
+  private FeedbackProvider feedbackProvider;
+  private NavigationView navigationView;
+  private MultiTouchDrawerLayout drawerLayout;
+  private int selectedItemId = NO_SELECTED_ITEM;
+  private boolean isRecording = false;
 
   /** Receives an event every time the activity pauses */
-  RxEvent mPause = new RxEvent();
+  RxEvent pause = new RxEvent();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -79,17 +79,17 @@ public class MainActivity extends ActivityWithNavigationView {
       actionBar.setDisplayShowTitleEnabled(true);
     }
 
-    mDrawerLayout = (MultiTouchDrawerLayout) findViewById(R.id.drawer_layout);
-    mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.color_primary_dark));
-    mNavigationView = (NavigationView) findViewById(R.id.navigation);
-    mNavigationView.setNavigationItemSelectedListener(this);
+    drawerLayout = (MultiTouchDrawerLayout) findViewById(R.id.drawer_layout);
+    drawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.color_primary_dark));
+    navigationView = (NavigationView) findViewById(R.id.navigation);
+    navigationView.setNavigationItemSelectedListener(this);
 
     // Only show dev testing options for (1) user-debug devices (2) debug APK builds
     if (DevOptionsFragment.shouldHideTestingOptions(this)) {
-      mNavigationView.getMenu().removeItem(R.id.dev_testing_options);
+      navigationView.getMenu().removeItem(R.id.dev_testing_options);
     }
 
-    mFeedbackProvider = WhistlePunkApplication.getAppServices(this).getFeedbackProvider();
+    feedbackProvider = WhistlePunkApplication.getAppServices(this).getFeedbackProvider();
 
     Bundle extras = getIntent().getExtras();
     int selectedNavItemId = R.id.navigation_item_experiments;
@@ -100,12 +100,12 @@ public class MainActivity extends ActivityWithNavigationView {
     } else if (extras != null) {
       selectedNavItemId = extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
     }
-    MenuItem item = mNavigationView.getMenu().findItem(selectedNavItemId);
+    MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
     if (item == null) {
       selectedNavItemId = R.id.navigation_item_experiments;
-      item = mNavigationView.getMenu().findItem(selectedNavItemId);
+      item = navigationView.getMenu().findItem(selectedNavItemId);
     }
-    mNavigationView.setCheckedItem(selectedNavItemId);
+    navigationView.setCheckedItem(selectedNavItemId);
     onNavigationItemSelected(item);
 
     setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -124,7 +124,7 @@ public class MainActivity extends ActivityWithNavigationView {
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putInt(ARG_SELECTED_NAV_ITEM_ID, mSelectedItemId);
+    outState.putInt(ARG_SELECTED_NAV_ITEM_ID, selectedItemId);
   }
 
   @Override
@@ -132,7 +132,7 @@ public class MainActivity extends ActivityWithNavigationView {
     super.onResume();
     AppSingleton appSingleton = AppSingleton.getInstance(this);
     appSingleton.setResumedActivity(this);
-    mPause.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
+    pause.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
 
     if (showRequiredScreensIfNeeded()) {
       return;
@@ -158,7 +158,7 @@ public class MainActivity extends ActivityWithNavigationView {
               TrackerConstants.LABEL_EXPERIMENT_LIST,
               0);
 
-      if (!mIsRecording) {
+      if (!isRecording) {
         ExportService.handleExperimentImport(this, getIntent().getData());
       } else {
         AccessibilityUtils.makeSnackbar(
@@ -185,13 +185,13 @@ public class MainActivity extends ActivityWithNavigationView {
     }
     super.onNewIntent(intent);
 
-    if (mNavigationView != null && mNavigationView.getMenu() != null) {
+    if (navigationView != null && navigationView.getMenu() != null) {
       int desiredItemId = NO_SELECTED_ITEM;
       if (intent.getExtras() != null) {
         desiredItemId = intent.getExtras().getInt(ARG_SELECTED_NAV_ITEM_ID, NO_SELECTED_ITEM);
       }
-      if (desiredItemId != NO_SELECTED_ITEM && mSelectedItemId != desiredItemId) {
-        onNavigationItemSelected(mNavigationView.getMenu().findItem(desiredItemId));
+      if (desiredItemId != NO_SELECTED_ITEM && selectedItemId != desiredItemId) {
+        onNavigationItemSelected(navigationView.getMenu().findItem(desiredItemId));
       }
     }
   }
@@ -230,12 +230,12 @@ public class MainActivity extends ActivityWithNavigationView {
 
     // TODO: extract and test
     rc.watchRecordingStatus()
-        .takeUntil(mPause.happens())
+        .takeUntil(pause.happens())
         .subscribe(
             status -> {
-              mIsRecording = status.isRecording();
+              isRecording = status.isRecording();
               // TODO: Add experimentId to RecordingStatus
-              if (mIsRecording) {
+              if (isRecording) {
                 rememberAttemptingImport();
                 singleton
                     .getDataController()
@@ -257,7 +257,7 @@ public class MainActivity extends ActivityWithNavigationView {
   }
 
   private void updateRecorderControllerForPause() {
-    mPause.onHappened();
+    pause.onHappened();
   }
 
   /**
@@ -280,8 +280,8 @@ public class MainActivity extends ActivityWithNavigationView {
   // TODO: need a more principled way of keeping the action bar current
 
   public void restoreActionBar() {
-    if (mTitleToRestore != null) {
-      getSupportActionBar().setTitle(mTitleToRestore);
+    if (titleToRestore != null) {
+      getSupportActionBar().setTitle(titleToRestore);
     }
   }
 
@@ -303,16 +303,16 @@ public class MainActivity extends ActivityWithNavigationView {
       }
       adjustActivityForSelectedItem(itemId);
 
-      mTitleToRestore = getTitleToRestore(menuItem);
+      titleToRestore = getTitleToRestore(menuItem);
       transaction.replace(R.id.content_container, fragment, tag).commit();
       if (menuItem.isCheckable()) {
         menuItem.setChecked(true);
       }
-      mDrawerLayout.closeDrawers();
+      drawerLayout.closeDrawers();
       restoreActionBar();
-      mSelectedItemId = itemId;
+      selectedItemId = itemId;
     } else {
-      mDrawerLayout.closeDrawers();
+      drawerLayout.closeDrawers();
       // Launch intents
       Intent intent = null;
       int itemId = menuItem.getItemId();
@@ -332,7 +332,7 @@ public class MainActivity extends ActivityWithNavigationView {
             SettingsActivity.getLaunchIntent(
                 this, menuItem.getTitle(), SettingsActivity.TYPE_DEV_OPTIONS);
       } else if (itemId == R.id.navigation_item_feedback) {
-        mFeedbackProvider.sendFeedback(
+        feedbackProvider.sendFeedback(
             new LoggingConsumer<Boolean>(TAG, "Send feedback") {
               @Override
               public void success(Boolean value) {
@@ -369,7 +369,7 @@ public class MainActivity extends ActivityWithNavigationView {
   }
 
   private void adjustActivityForSelectedItem(int itemId) {
-    MenuItem menu = mNavigationView.getMenu().findItem(itemId);
+    MenuItem menu = navigationView.getMenu().findItem(itemId);
     setTitle(getString(R.string.title_activity_main, menu.getTitle()));
   }
 
@@ -378,7 +378,7 @@ public class MainActivity extends ActivityWithNavigationView {
     // Only show items in the action bar relevant to this screen
     // if the drawer is not showing. Otherwise, let the drawer
     // decide what to show in the action bar.
-    if (!mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+    if (!drawerLayout.isDrawerOpen(GravityCompat.START)) {
       restoreActionBar();
     }
     return super.onCreateOptionsMenu(menu);
@@ -393,10 +393,10 @@ public class MainActivity extends ActivityWithNavigationView {
 
     //noinspection SimplifiableIfStatement
     if (id == android.R.id.home) {
-      if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-        mDrawerLayout.closeDrawer(GravityCompat.START);
+      if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+        drawerLayout.closeDrawer(GravityCompat.START);
       } else {
-        mDrawerLayout.openDrawer(GravityCompat.START);
+        drawerLayout.openDrawer(GravityCompat.START);
       }
     }
     return super.onOptionsItemSelected(item);
