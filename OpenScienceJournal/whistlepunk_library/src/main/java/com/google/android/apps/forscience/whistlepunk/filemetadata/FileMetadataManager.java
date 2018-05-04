@@ -67,14 +67,14 @@ public class FileMetadataManager {
   private static final String TAG = "FileMetadataManager";
   private static final String USER_METADATA_FILE = "user_metadata.proto";
 
-  private Clock mClock;
+  private Clock clock;
 
-  private ExperimentCache mActiveExperimentCache;
-  private UserMetadataManager mUserMetadataManager;
-  private ColorAllocator mColorAllocator;
+  private ExperimentCache activeExperimentCache;
+  private UserMetadataManager userMetadataManager;
+  private ColorAllocator colorAllocator;
 
   public FileMetadataManager(Context applicationContext, Clock clock) {
-    mClock = clock;
+    this.clock = clock;
     // TODO: Probably pass failure listeners from a higher level in order to propagate them
     // up to the user. b/62373187.
     ExperimentCache.FailureListener failureListener =
@@ -119,9 +119,9 @@ public class FileMetadataManager {
             Log.d(TAG, "newer proto version detected than we can handle");
           }
         };
-    mActiveExperimentCache = new ExperimentCache(applicationContext, failureListener);
-    mUserMetadataManager = new UserMetadataManager(applicationContext, userMetadataListener);
-    mColorAllocator =
+    activeExperimentCache = new ExperimentCache(applicationContext, failureListener);
+    userMetadataManager = new UserMetadataManager(applicationContext, userMetadataListener);
+    colorAllocator =
         new ColorAllocator(
             applicationContext.getResources().getIntArray(R.array.experiment_colors_array).length);
   }
@@ -407,23 +407,23 @@ public class FileMetadataManager {
 
   public Experiment getExperimentById(String experimentId) {
     GoosciUserMetadata.ExperimentOverview overview =
-        mUserMetadataManager.getExperimentOverview(experimentId);
+        userMetadataManager.getExperimentOverview(experimentId);
     if (overview == null) {
       return null;
     }
-    return mActiveExperimentCache.getExperiment(overview);
+    return activeExperimentCache.getExperiment(overview);
   }
 
   public Experiment newExperiment() {
-    long timestamp = mClock.getNow();
+    long timestamp = clock.getNow();
     String localExperimentId = UUID.randomUUID().toString();
     List<GoosciUserMetadata.ExperimentOverview> overviews =
-        mUserMetadataManager.getExperimentOverviews(true);
+        userMetadataManager.getExperimentOverviews(true);
     int[] usedColors = new int[overviews.size()];
     for (int i = 0; i < overviews.size(); i++) {
       usedColors[i] = overviews.get(i).colorIndex;
     }
-    int colorIndex = mColorAllocator.getNextColor(usedColors);
+    int colorIndex = colorAllocator.getNextColor(usedColors);
     Experiment experiment = Experiment.newExperiment(timestamp, localExperimentId, colorIndex);
 
     addExperiment(experiment);
@@ -434,36 +434,36 @@ public class FileMetadataManager {
   // This should just be used for data migration and testing.
   public void addExperiment(Experiment experiment) {
     // Get ready to write the experiment to a file. Will write when the timer expires.
-    mActiveExperimentCache.createNewExperiment(experiment);
-    mUserMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
+    activeExperimentCache.createNewExperiment(experiment);
+    userMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
   }
 
   public void saveImmediately() {
-    mActiveExperimentCache.saveImmediately();
-    mUserMetadataManager.saveImmediately();
+    activeExperimentCache.saveImmediately();
+    userMetadataManager.saveImmediately();
   }
 
   public void deleteExperiment(Experiment experiment) {
-    mActiveExperimentCache.prepareExperimentForDeletion(experiment);
+    activeExperimentCache.prepareExperimentForDeletion(experiment);
     deleteExperiment(experiment.getExperimentId());
   }
 
   private void deleteExperiment(String experimentId) {
-    mActiveExperimentCache.deleteExperiment(experimentId);
-    mUserMetadataManager.deleteExperimentOverview(experimentId);
+    activeExperimentCache.deleteExperiment(experimentId);
+    userMetadataManager.deleteExperimentOverview(experimentId);
   }
 
   public void updateExperiment(Experiment experiment) {
-    mActiveExperimentCache.updateExperiment(experiment);
+    activeExperimentCache.updateExperiment(experiment);
 
     // TODO: Only do this if strictly necessary, instead of every time?
     // Or does updateExperiment mean the last updated time should change, and we need a clock?
-    mUserMetadataManager.updateExperimentOverview(experiment.getExperimentOverview());
+    userMetadataManager.updateExperimentOverview(experiment.getExperimentOverview());
   }
 
   public List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
       boolean includeArchived) {
-    return mUserMetadataManager.getExperimentOverviews(includeArchived);
+    return userMetadataManager.getExperimentOverviews(includeArchived);
   }
 
   public Experiment getLastUsedUnarchivedExperiment() {
@@ -477,7 +477,7 @@ public class FileMetadataManager {
       }
     }
     if (overviewToGet != null) {
-      return mActiveExperimentCache.getExperiment(overviewToGet);
+      return activeExperimentCache.getExperiment(overviewToGet);
     }
     return null;
   }
@@ -488,10 +488,10 @@ public class FileMetadataManager {
    */
   @Deprecated
   public void setLastUsedExperiment(Experiment experiment) {
-    long timestamp = mClock.getNow();
+    long timestamp = clock.getNow();
     experiment.setLastUsedTime(timestamp);
-    mActiveExperimentCache.onExperimentOverviewUpdated(experiment.getExperimentOverview());
-    mUserMetadataManager.updateExperimentOverview(experiment.getExperimentOverview());
+    activeExperimentCache.onExperimentOverviewUpdated(experiment.getExperimentOverview());
+    userMetadataManager.updateExperimentOverview(experiment.getExperimentOverview());
   }
 
   public void close() {
@@ -538,7 +538,7 @@ public class FileMetadataManager {
 
     updateLabels(proto, newExperiment);
     newExperiment.setTitle(proto.title);
-    newExperiment.setLastUsedTime(mClock.getNow());
+    newExperiment.setLastUsedTime(clock.getNow());
     if (containsExperimentImage) {
       overview.imagePath = EXPERIMENTS_DIRECTORY + "/" + experimentId + "/" + COVER_IMAGE_FILE;
     }
@@ -701,7 +701,7 @@ public class FileMetadataManager {
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     overview.title = proto.title;
     overview.trialCount = proto.totalTrials;
-    overview.lastUsedTimeMs = mClock.getNow();
+    overview.lastUsedTimeMs = clock.getNow();
     overview.experimentId = experimentId;
 
     return overview;
@@ -728,14 +728,14 @@ public class FileMetadataManager {
   }
 
   public void addMyDevice(GoosciDeviceSpec.DeviceSpec device) {
-    mUserMetadataManager.addMyDevice(device);
+    userMetadataManager.addMyDevice(device);
   }
 
   public void removeMyDevice(GoosciDeviceSpec.DeviceSpec device) {
-    mUserMetadataManager.removeMyDevice(device);
+    userMetadataManager.removeMyDevice(device);
   }
 
   public List<GoosciDeviceSpec.DeviceSpec> getMyDevices() {
-    return mUserMetadataManager.getMyDevices();
+    return userMetadataManager.getMyDevices();
   }
 }

@@ -47,23 +47,23 @@ import java.util.concurrent.Executors;
 public class AppSingleton {
   private static final String SENSOR_DATABASE_NAME = "sensors.db";
   private static final String TAG = "AppSingleton";
-  private static AppSingleton sInstance;
-  private final Context mApplicationContext;
-  private DataControllerImpl mDataController;
+  private static AppSingleton instance;
+  private final Context applicationContext;
+  private DataControllerImpl dataController;
 
-  private static Executor sUiThreadExecutor = null;
-  private SensorAppearanceProviderImpl mSensorAppearanceProvider;
-  private final Clock mCurrentTimeClock = new CurrentTimeClock();
-  private final AudioSource mAudioSource = new AudioSource();
-  private BleClientImpl mBleClient;
-  private RecorderController mRecorderController;
-  private SensorRegistry mSensorRegistry;
-  private PrefsSensorHistoryStorage mPrefsSensorHistoryStorage;
-  private Map<String, SensorProvider> mExternalSensorProviders;
-  private ConnectableSensor.Connector mSensorConnector;
-  private PublishSubject<Label> mLabelsAdded = PublishSubject.create();
-  private BehaviorSubject<Boolean> mExportServiceBusy = BehaviorSubject.create();
-  private BehaviorSubject<Optional<Activity>> mResumedActivity = BehaviorSubject.create();
+  private static Executor uiThreadExecutor = null;
+  private SensorAppearanceProviderImpl sensorAppearanceProvider;
+  private final Clock currentTimeClock = new CurrentTimeClock();
+  private final AudioSource audioSource = new AudioSource();
+  private BleClientImpl bleClient;
+  private RecorderController recorderController;
+  private SensorRegistry sensorRegistry;
+  private PrefsSensorHistoryStorage prefsSensorHistoryStorage;
+  private Map<String, SensorProvider> externalSensorProviders;
+  private ConnectableSensor.Connector sensorConnector;
+  private PublishSubject<Label> labelsAdded = PublishSubject.create();
+  private BehaviorSubject<Boolean> exportServiceBusy = BehaviorSubject.create();
+  private BehaviorSubject<Optional<Activity>> resumedActivity = BehaviorSubject.create();
 
   private SensorEnvironment mSensorEnvironment =
       new SensorEnvironment() {
@@ -97,16 +97,16 @@ public class AppSingleton {
 
   @NonNull
   public PrefsSensorHistoryStorage getPrefsSensorHistoryStorage() {
-    if (mPrefsSensorHistoryStorage == null) {
-      mPrefsSensorHistoryStorage = new PrefsSensorHistoryStorage(mApplicationContext);
+    if (prefsSensorHistoryStorage == null) {
+      prefsSensorHistoryStorage = new PrefsSensorHistoryStorage(applicationContext);
     }
-    return mPrefsSensorHistoryStorage;
+    return prefsSensorHistoryStorage;
   }
 
   public static Executor getUiThreadExecutor() {
-    if (sUiThreadExecutor == null) {
+    if (uiThreadExecutor == null) {
       final Handler handler = new Handler(Looper.getMainLooper());
-      sUiThreadExecutor =
+      uiThreadExecutor =
           new Executor() {
             @Override
             public void execute(Runnable command) {
@@ -114,18 +114,18 @@ public class AppSingleton {
             }
           };
     }
-    return sUiThreadExecutor;
+    return uiThreadExecutor;
   }
 
   public static AppSingleton getInstance(Context context) {
-    if (sInstance == null) {
-      sInstance = new AppSingleton(context);
+    if (instance == null) {
+      instance = new AppSingleton(context);
     }
-    return sInstance;
+    return instance;
   }
 
   private AppSingleton(Context context) {
-    mApplicationContext = context.getApplicationContext();
+    applicationContext = context.getApplicationContext();
   }
 
   public DataController getDataController() {
@@ -134,26 +134,26 @@ public class AppSingleton {
 
   @NonNull
   private DataControllerImpl internalGetDataController() {
-    if (mDataController == null) {
-      mDataController =
+    if (dataController == null) {
+      dataController =
           new DataControllerImpl(
-              new SensorDatabaseImpl(mApplicationContext, SENSOR_DATABASE_NAME),
+              new SensorDatabaseImpl(applicationContext, SENSOR_DATABASE_NAME),
               getUiThreadExecutor(),
               Executors.newSingleThreadExecutor(),
               Executors.newSingleThreadExecutor(),
-              new SimpleMetaDataManager(mApplicationContext),
+              new SimpleMetaDataManager(applicationContext),
               getDefaultClock(),
               getExternalSensorProviders(),
               getSensorConnector());
     }
-    return mDataController;
+    return dataController;
   }
 
   public SensorAppearanceProvider getSensorAppearanceProvider() {
-    if (mSensorAppearanceProvider == null) {
-      mSensorAppearanceProvider = new SensorAppearanceProviderImpl(getDataController());
+    if (sensorAppearanceProvider == null) {
+      sensorAppearanceProvider = new SensorAppearanceProviderImpl(getDataController());
     }
-    return mSensorAppearanceProvider;
+    return sensorAppearanceProvider;
   }
 
   public SensorEnvironment getSensorEnvironment() {
@@ -165,53 +165,52 @@ public class AppSingleton {
   }
 
   public Single<BleClient> getConnectedBleClient() {
-    if (mBleClient == null) {
-      mBleClient = new BleClientImpl(mApplicationContext);
-      mBleClient.create();
+    if (bleClient == null) {
+      bleClient = new BleClientImpl(applicationContext);
+      bleClient.create();
     }
-    return mBleClient.whenConnected();
+    return bleClient.whenConnected();
   }
 
   private Clock getDefaultClock() {
-    return mCurrentTimeClock;
+    return currentTimeClock;
   }
 
   public AudioSource getAudioSource() {
-    return mAudioSource;
+    return audioSource;
   }
 
   public void destroyBleClient() {
-    if (mBleClient != null) {
-      mBleClient.destroy();
-      mBleClient = null;
+    if (bleClient != null) {
+      bleClient.destroy();
+      bleClient = null;
     }
   }
 
   public RecorderController getRecorderController() {
-    if (mRecorderController == null) {
-      mRecorderController = new RecorderControllerImpl(mApplicationContext);
+    if (recorderController == null) {
+      recorderController = new RecorderControllerImpl(applicationContext);
     }
-    return mRecorderController;
+    return recorderController;
   }
 
   // TODO: stop depending on this.  Each experiment should have its own registry
   public SensorRegistry getSensorRegistry() {
-    if (mSensorRegistry == null) {
-      mSensorRegistry = SensorRegistry.createWithBuiltinSensors(mApplicationContext);
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mApplicationContext);
+    if (sensorRegistry == null) {
+      sensorRegistry = SensorRegistry.createWithBuiltinSensors(applicationContext);
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
       prefs.registerOnSharedPreferenceChangeListener(
-          (sprefs, key) -> mSensorRegistry.refreshBuiltinSensors(mApplicationContext));
+          (sprefs, key) -> sensorRegistry.refreshBuiltinSensors(applicationContext));
     }
-    return mSensorRegistry;
+    return sensorRegistry;
   }
 
   public Map<String, SensorProvider> getExternalSensorProviders() {
-    if (mExternalSensorProviders == null) {
-      mExternalSensorProviders =
-          buildProviderMap(
-              WhistlePunkApplication.getExternalSensorDiscoverers(mApplicationContext));
+    if (externalSensorProviders == null) {
+      externalSensorProviders =
+          buildProviderMap(WhistlePunkApplication.getExternalSensorDiscoverers(applicationContext));
     }
-    return mExternalSensorProviders;
+    return externalSensorProviders;
   }
 
   @NonNull
@@ -225,19 +224,19 @@ public class AppSingleton {
   }
 
   public ConnectableSensor.Connector getSensorConnector() {
-    if (mSensorConnector == null) {
-      mSensorConnector = new ConnectableSensor.Connector(getExternalSensorProviders());
+    if (sensorConnector == null) {
+      sensorConnector = new ConnectableSensor.Connector(getExternalSensorProviders());
     }
-    return mSensorConnector;
+    return sensorConnector;
   }
 
   public Observable<AddedLabelEvent> whenLabelsAdded() {
-    return mLabelsAdded.withLatestFrom(
+    return labelsAdded.withLatestFrom(
         getRecorderController().watchRecordingStatus(), AddedLabelEvent::new);
   }
 
   public Observer<Label> onLabelsAdded() {
-    return mLabelsAdded;
+    return labelsAdded;
   }
 
   public void pushDeletedLabelForUndo(DeletedLabel deletedLabel) {
@@ -264,24 +263,24 @@ public class AppSingleton {
   }
 
   public void setExportServiceBusy(boolean b) {
-    mExportServiceBusy.onNext(b);
+    exportServiceBusy.onNext(b);
   }
 
   public Observable<Boolean> whenExportBusyChanges() {
-    return mExportServiceBusy;
+    return exportServiceBusy;
   }
 
   public Maybe<Activity> onNextActivity() {
-    return mResumedActivity.filter(Optional::isPresent).map(Optional::get).firstElement();
+    return resumedActivity.filter(Optional::isPresent).map(Optional::get).firstElement();
   }
 
   public void setResumedActivity(Activity activity) {
-    mResumedActivity.onNext(Optional.of(activity));
+    resumedActivity.onNext(Optional.of(activity));
   }
 
   public void setNoLongerResumedActivity(Activity activity) {
-    if (activity.equals(mResumedActivity.getValue().orNull())) {
-      mResumedActivity.onNext(Optional.absent());
+    if (activity.equals(resumedActivity.getValue().orNull())) {
+      resumedActivity.onNext(Optional.absent());
     }
   }
 }
