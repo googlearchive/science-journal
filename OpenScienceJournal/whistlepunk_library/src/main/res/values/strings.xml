@@ -1557,6 +1557,15 @@ Permissions notice:
     <!-- Title for Dev Options preference to display user's birthday status -->
     <string name="age_status_under_13" translatable="false">User age is under 13</string>
 
+    <!-- Title for not signed in fragment [CHAR_LIMIT=NONE] -->
+    <string name="explore_your_world">Explore your world</string>
+
+    <!-- Text for not signed in fragment [CHAR_LIMIT=NONE] -->
+    <string name="use_science_journal">Use Science Journal to conduct\nexperiments on the world around you</string>
+
+    <!-- Button text for not signed in fragment [CHAR_LIMIT=NONE] -->
+    <string name="get_started">Get started</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

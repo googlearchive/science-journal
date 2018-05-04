@@ -63,6 +63,11 @@
         <item name="android:windowActionBar">false</item>
     </style>
 
+    <style name="AppTheme.NotSignedInYet">
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <!-- Subtitle style -->
     <style name="NoBarTheme.ActionBar.SubtitleTextStyle"
         parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle">
