@@ -101,7 +101,7 @@ public class FileMetadataManagerTest {
     assertEquals(third.getExperimentId(), fmm.getLastUsedUnarchivedExperiment().getExperimentId());
     assertEquals(3, fmm.getExperimentOverviews(false).size());
 
-    third.setArchived(true);
+    third.setArchived(getContext(), true);
     fmm.updateExperiment(third);
     assertEquals(second.getExperimentId(), fmm.getLastUsedUnarchivedExperiment().getExperimentId());
     assertEquals(2, fmm.getExperimentOverviews(false).size());

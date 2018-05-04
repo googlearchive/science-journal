@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
@@ -151,12 +152,15 @@ public class Experiment extends LabelListHolder {
     return mProto.creationTimeMs;
   }
 
-  public boolean isArchived() {
-    return mIsArchived;
+  public void setArchived(Context context, boolean archived) {
+    mIsArchived = archived;
+    AppSingleton.getInstance(context)
+        .getExperimentLibraryManager()
+        .setArchived(getExperimentId(), archived);
   }
 
-  public void setArchived(boolean archived) {
-    mIsArchived = archived;
+  public boolean isArchived() {
+    return mIsArchived;
   }
 
   public String getTitle() {

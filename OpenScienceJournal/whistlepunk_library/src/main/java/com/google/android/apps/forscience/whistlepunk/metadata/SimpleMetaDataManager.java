@@ -366,7 +366,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         boolean needsWrite = false;
         if (project.isArchived()) {
           // If the project is archived, the experiment should be archived.
-          experiment.setArchived(true);
+          experiment.setArchived(mContext, true);
           needsWrite = true;
         }
         if (!TextUtils.isEmpty(project.getTitle())) {

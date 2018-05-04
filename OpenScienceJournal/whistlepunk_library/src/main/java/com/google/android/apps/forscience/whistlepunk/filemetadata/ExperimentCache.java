@@ -21,6 +21,7 @@ import android.os.Handler;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
@@ -76,6 +77,8 @@ class ExperimentCache {
   private Experiment mActiveExperiment;
   private ProtoFileHelper<GoosciExperiment.Experiment> mExperimentProtoFileHelper;
   private boolean mActiveExperimentNeedsWrite = false;
+  private LocalSyncManager localSyncManager;
+  private ExperimentLibraryManager experimentLibraryManager;
   private final long mWriteDelayMs;
 
   private final Handler mHandler;
@@ -100,6 +103,9 @@ class ExperimentCache {
           }
         };
     mWriteDelayMs = writeDelayMs;
+
+    localSyncManager = AppSingleton.getInstance(mContext).getLocalSyncManager();
+    experimentLibraryManager = AppSingleton.getInstance(mContext).getExperimentLibraryManager();
   }
 
   @VisibleForTesting
@@ -125,6 +131,8 @@ class ExperimentCache {
     if (isDifferentFromActive(experiment.getExperimentOverview())) {
       immediateWriteIfActiveChanging(experiment.getExperimentOverview());
     }
+    experimentLibraryManager.setOpened(experiment.getExperimentId(), System.currentTimeMillis());
+    localSyncManager.setDirty(experiment.getExperimentId(), true);
     mActiveExperiment = experiment;
     startWriteTimer();
   }
@@ -141,7 +149,7 @@ class ExperimentCache {
   void onExperimentOverviewUpdated(GoosciUserMetadata.ExperimentOverview experimentOverview) {
     if (!isDifferentFromActive(experimentOverview)) {
       mActiveExperiment.setLastUsedTime(experimentOverview.lastUsedTimeMs);
-      mActiveExperiment.setArchived(experimentOverview.isArchived);
+      mActiveExperiment.setArchived(mContext, experimentOverview.isArchived);
       mActiveExperiment.getExperimentOverview().imagePath = experimentOverview.imagePath;
     }
   }
@@ -182,6 +190,7 @@ class ExperimentCache {
       mActiveExperiment = null;
       cancelWriteTimer();
       mActiveExperimentNeedsWrite = false;
+      experimentLibraryManager.setDeleted(localExperimentId, true);
     }
   }
 

@@ -28,7 +28,9 @@ import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabaseImpl;
@@ -50,6 +52,8 @@ public class AppSingleton {
   private static AppSingleton instance;
   private final Context applicationContext;
   private DataControllerImpl dataController;
+  private LocalSyncManager mLocalSyncManager;
+  private ExperimentLibraryManager mExperimentLibraryManager;
 
   private static Executor uiThreadExecutor = null;
   private SensorAppearanceProviderImpl sensorAppearanceProvider;
@@ -282,5 +286,19 @@ public class AppSingleton {
     if (activity.equals(resumedActivity.getValue().orNull())) {
       resumedActivity.onNext(Optional.absent());
     }
+  }
+
+  public LocalSyncManager getLocalSyncManager() {
+    if (mLocalSyncManager == null) {
+      mLocalSyncManager = new LocalSyncManager();
+    }
+    return mLocalSyncManager;
+  }
+
+  public ExperimentLibraryManager getExperimentLibraryManager() {
+    if (mExperimentLibraryManager == null) {
+      mExperimentLibraryManager = new ExperimentLibraryManager();
+    }
+    return mExperimentLibraryManager;
   }
 }

@@ -640,7 +640,8 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   private void setExperimentArchived(final boolean archived) {
-    mExperiment.setArchived(archived);
+    final Context context = getContext();
+    mExperiment.setArchived(context, archived);
     getDataController()
         .updateExperiment(
             mExperimentId,

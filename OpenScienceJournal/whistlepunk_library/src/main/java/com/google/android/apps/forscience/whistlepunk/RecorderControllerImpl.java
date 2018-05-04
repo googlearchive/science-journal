@@ -895,7 +895,7 @@ public class RecorderControllerImpl implements RecorderController {
 
   @VisibleForTesting
   void ensureUnarchived(Experiment experiment, DataController dc) {
-    RecordFragment.ensureUnarchived(experiment, dc);
+    RecordFragment.ensureUnarchived(mContext, experiment, dc);
   }
 
   @Override

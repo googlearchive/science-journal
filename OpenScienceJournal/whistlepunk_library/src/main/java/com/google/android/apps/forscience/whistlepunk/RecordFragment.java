@@ -968,7 +968,7 @@ public class RecordFragment extends PanesToolFragment
     Label label = event.getLabel();
     RecordingStatus status = event.getStatus();
     refreshLabels(status);
-    ensureUnarchived(mSelectedExperiment, getDataController());
+    ensureUnarchived(getActivity(), mSelectedExperiment, getDataController());
     // Trigger labels are logged in RecorderControllerImpl.
     if (!(label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER)) {
       String trackerLabel =
@@ -1325,10 +1325,10 @@ public class RecordFragment extends PanesToolFragment
    * Ensures that the experiment is unarchived, in case we make a new run or label. TODO: Find a
    * different home than RecordFragment.
    */
-  public static void ensureUnarchived(Experiment experiment, DataController dc) {
+  public static void ensureUnarchived(Context context, Experiment experiment, DataController dc) {
     if (experiment != null) {
       if (experiment.isArchived()) {
-        experiment.setArchived(false);
+        experiment.setArchived(context, false);
         dc.updateExperiment(
             experiment.getExperimentId(),
             LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving experiment"));

@@ -564,7 +564,6 @@ public class ExperimentListFragment extends Fragment
       Context context = holder.menuButton.getContext();
       boolean isShareIntentValid =
           FileMetadataManager.validateShareIntent(context, overview.experimentId);
-
       holder.menuButton.setOnClickListener(
           v -> {
             int position = items.indexOf(item);
@@ -636,11 +635,15 @@ public class ExperimentListFragment extends Fragment
 
     private void setExperimentArchived(
         GoosciUserMetadata.ExperimentOverview overview, final int position, boolean archived) {
+      if (parentReference.get() == null) {
+        return;
+      }
+      Context context = parentReference.get().getContext();
       overview.isArchived = archived;
       RxDataController.getExperimentById(dataController, overview.experimentId)
           .subscribe(
               fullExperiment -> {
-                fullExperiment.setArchived(archived);
+                fullExperiment.setArchived(context, archived);
                 dataController.updateExperiment(
                     overview.experimentId,
                     new LoggingConsumer<Success>(TAG, "set archived bit") {
