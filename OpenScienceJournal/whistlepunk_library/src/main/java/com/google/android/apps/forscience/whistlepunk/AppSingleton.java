@@ -52,8 +52,8 @@ public class AppSingleton {
   private static AppSingleton instance;
   private final Context applicationContext;
   private DataControllerImpl dataController;
-  private LocalSyncManager mLocalSyncManager;
-  private ExperimentLibraryManager mExperimentLibraryManager;
+  private LocalSyncManager localSyncManager;
+  private ExperimentLibraryManager experimentLibraryManager;
 
   private static Executor uiThreadExecutor = null;
   private SensorAppearanceProviderImpl sensorAppearanceProvider;
@@ -289,16 +289,16 @@ public class AppSingleton {
   }
 
   public LocalSyncManager getLocalSyncManager() {
-    if (mLocalSyncManager == null) {
-      mLocalSyncManager = new LocalSyncManager();
+    if (localSyncManager == null) {
+      localSyncManager = new LocalSyncManager();
     }
-    return mLocalSyncManager;
+    return localSyncManager;
   }
 
   public ExperimentLibraryManager getExperimentLibraryManager() {
-    if (mExperimentLibraryManager == null) {
-      mExperimentLibraryManager = new ExperimentLibraryManager();
+    if (experimentLibraryManager == null) {
+      experimentLibraryManager = new ExperimentLibraryManager();
     }
-    return mExperimentLibraryManager;
+    return experimentLibraryManager;
   }
 }
