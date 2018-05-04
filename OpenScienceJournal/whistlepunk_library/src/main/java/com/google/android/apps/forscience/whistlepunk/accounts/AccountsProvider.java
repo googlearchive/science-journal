@@ -51,7 +51,7 @@ public interface AccountsProvider {
   void showAddAccountDialog(Activity activity);
 
   /** Shows the dialog where the user chooses an account. */
-  void showAccountSwitcherDialog(FragmentActivity fragmentActivity);
+  void showAccountSwitcherDialog(FragmentActivity fragmentActivity, Runnable onFinishedCallback);
 
   /** Returns true if the current account is a signed-in account. */
   boolean isSignedIn();

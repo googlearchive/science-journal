@@ -58,7 +58,8 @@ public final class NonSignedInAccountsProvider extends AbstractAccountsProvider 
   }
 
   @Override
-  public void showAccountSwitcherDialog(FragmentActivity fragmentActivity) {
+  public void showAccountSwitcherDialog(
+      FragmentActivity fragmentActivity, Runnable onFinishedCallback) {
     throw new IllegalStateException("Accounts not supported");
   }
 }
