@@ -34,12 +34,12 @@ import io.reactivex.Observable;
  * starting recording, etc
  */
 class ControlBarController {
-  private final String mExperimentId;
-  private SnackbarManager mSnackbarManager;
+  private final String experimentId;
+  private SnackbarManager snackbarManager;
 
   public ControlBarController(String experimentId, SnackbarManager snackbarManager) {
-    mExperimentId = experimentId;
-    mSnackbarManager = snackbarManager;
+    this.experimentId = experimentId;
+    this.snackbarManager = snackbarManager;
   }
 
   public void attachSnapshotButton(View snapshotButton) {
@@ -56,7 +56,7 @@ class ControlBarController {
               .getRecorderController()
               .watchRecordingStatus()
               .firstElement()
-              .flatMapSingle(status -> snapshotter.addSnapshotLabel(mExperimentId, status))
+              .flatMapSingle(status -> snapshotter.addSnapshotLabel(experimentId, status))
               .subscribe(label -> singleton.onLabelsAdded().onNext(label));
         });
     TooltipCompat.setTooltipText(
@@ -164,17 +164,17 @@ class ControlBarController {
   }
 
   private void tryStartRecording(View anchorView) {
-    if (mExperimentId == null) {
+    if (experimentId == null) {
       return;
     }
 
     Intent launchIntent =
         WhistlePunkApplication.getLaunchIntentForPanesActivity(
-            anchorView.getContext(), mExperimentId);
+            anchorView.getContext(), experimentId);
 
     // This isn't currently used, but does ensure this intent doesn't match any other intent.
     // See b/31616891
-    launchIntent.setData(Uri.fromParts("observe", "experiment=" + mExperimentId, null));
+    launchIntent.setData(Uri.fromParts("observe", "experiment=" + experimentId, null));
     RecorderController rc =
         AppSingleton.getInstance(anchorView.getContext()).getRecorderController();
 
@@ -203,7 +203,7 @@ class ControlBarController {
     Snackbar bar =
         AccessibilityUtils.makeSnackbar(
             anchorView, anchorView.getResources().getString(stringId), Snackbar.LENGTH_LONG);
-    mSnackbarManager.showSnackbar(bar);
+    snackbarManager.showSnackbar(bar);
   }
 
   void attachRecordButtons(ViewGroup rootView, FragmentManager fragmentManager) {

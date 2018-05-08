@@ -61,49 +61,49 @@ public class PanesActivity extends AppCompatActivity
   public static final String EXTRA_EXPERIMENT_ID = "experimentId";
   private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
   private static final String KEY_DRAWER_STATE = "drawerState";
-  private final SnackbarManager mSnackbarManager;
+  private final SnackbarManager snackbarManager;
 
-  private ProgressBar mRecordingBar;
-  private int mSelectedTabIndex;
-  private PanesBottomSheetBehavior mBottomBehavior;
-  private boolean mTabsInitialized;
-  private BehaviorSubject<Integer> mActivityHeight = BehaviorSubject.create();
-  private BehaviorSubject<Integer> mBottomSheetState = BehaviorSubject.create();
-  private ImageButton mGrabber;
-  private ToolTab[] mToolTabs =
+  private ProgressBar recordingBar;
+  private int selectedTabIndex;
+  private PanesBottomSheetBehavior bottomBehavior;
+  private boolean tabsInitialized;
+  private BehaviorSubject<Integer> activityHeight = BehaviorSubject.create();
+  private BehaviorSubject<Integer> bottomSheetState = BehaviorSubject.create();
+  private ImageButton grabber;
+  private ToolTab[] toolTabs =
       new ToolTab[] {ToolTab.NOTES, ToolTab.OBSERVE, ToolTab.CAMERA, ToolTab.GALLERY};
-  private RxPermissions mPermissions;
-  private int mInitialDrawerState = -1;
-  private RxEvent mPaused = new RxEvent();
+  private RxPermissions permissions;
+  private int initialDrawerState = -1;
+  private RxEvent paused = new RxEvent();
 
   public PanesActivity() {
-    mSnackbarManager = new SnackbarManager();
+    snackbarManager = new SnackbarManager();
   }
 
   public static class DrawerLayoutState {
-    private final int mActivityHeight;
-    private final int mDrawerState;
-    private Experiment mExperiment;
+    private final int activityHeight;
+    private final int drawerState;
+    private Experiment experiment;
 
     private DrawerLayoutState(int activityHeight, int drawerState, Experiment experiment) {
-      mActivityHeight = activityHeight;
-      mDrawerState = drawerState;
-      mExperiment = experiment;
+      this.activityHeight = activityHeight;
+      this.drawerState = drawerState;
+      this.experiment = experiment;
     }
 
     public int getAvailableHeight() {
-      if (mExperiment.isArchived()) {
+      if (experiment.isArchived()) {
         // No matter the state, the control bar is hidden when archived.
         return 0;
       }
 
-      switch (mDrawerState) {
+      switch (drawerState) {
         case PanesBottomSheetBehavior.STATE_COLLAPSED:
           return 0;
         case PanesBottomSheetBehavior.STATE_EXPANDED:
-          return mActivityHeight;
+          return activityHeight;
         case PanesBottomSheetBehavior.STATE_MIDDLE:
-          return mActivityHeight / 2;
+          return activityHeight / 2;
       }
 
       // Filter out other states
@@ -111,7 +111,7 @@ public class PanesActivity extends AppCompatActivity
     }
 
     public int getDrawerState() {
-      return mDrawerState;
+      return drawerState;
     }
   }
 
@@ -202,28 +202,28 @@ public class PanesActivity extends AppCompatActivity
             return null;
           }
         };
-    private final int mContentDescriptionId;
-    private final int mIconId;
-    private final String mLoggingName;
+    private final int contentDescriptionId;
+    private final int iconId;
+    private final String loggingName;
 
     ToolTab(int contentDescriptionId, int iconId, String loggingName) {
-      mContentDescriptionId = contentDescriptionId;
-      mIconId = iconId;
-      mLoggingName = loggingName;
+      this.contentDescriptionId = contentDescriptionId;
+      this.iconId = iconId;
+      this.loggingName = loggingName;
     }
 
     public abstract Fragment createFragment(String experimentId, AppCompatActivity activity);
 
     public int getContentDescriptionId() {
-      return mContentDescriptionId;
+      return contentDescriptionId;
     }
 
     public int getIconId() {
-      return mIconId;
+      return iconId;
     }
 
     public String getLoggingName() {
-      return mLoggingName;
+      return loggingName;
     }
 
     /** @return a View to attempt to keep visible by resizing the drawer if possible */
@@ -246,22 +246,22 @@ public class PanesActivity extends AppCompatActivity
     return intent;
   }
 
-  private ExperimentDetailsFragment mExperimentFragment = null;
+  private ExperimentDetailsFragment experimentFragment = null;
 
   /**
    * SingleSubject remembers the loaded value (if any) and delivers it to any observers.
    *
-   * <p>TODO: use mActiveExperiment for other places that need an experiment in this class and
+   * <p>TODO: use activeExperiment for other places that need an experiment in this class and
    * fragments.
    */
-  private SingleSubject<Experiment> mActiveExperiment = SingleSubject.create();
+  private SingleSubject<Experiment> activeExperiment = SingleSubject.create();
 
-  private RxEvent mDestroyed = new RxEvent();
+  private RxEvent destroyed = new RxEvent();
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mPermissions = new RxPermissions(this);
+    permissions = new RxPermissions(this);
     PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(this);
     PerfTrackerProvider.TimerToken experimentLoad = perfTracker.startTimer();
     setContentView(R.layout.panes_layout);
@@ -271,23 +271,23 @@ public class PanesActivity extends AppCompatActivity
               int bottom = event.bottom();
               int top = event.top();
               int height = bottom - top;
-              mActivityHeight.onNext(height);
+              activityHeight.onNext(height);
             });
 
-    mRecordingBar = findViewById(R.id.recording_progress_bar);
-    mGrabber = findViewById(R.id.grabber);
+    recordingBar = findViewById(R.id.recording_progress_bar);
+    grabber = findViewById(R.id.grabber);
 
     String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
-    mSelectedTabIndex = 0;
+    selectedTabIndex = 0;
     if (savedInstanceState != null) {
-      mSelectedTabIndex = savedInstanceState.getInt(KEY_SELECTED_TAB_INDEX);
-      mInitialDrawerState = savedInstanceState.getInt(KEY_DRAWER_STATE);
+      selectedTabIndex = savedInstanceState.getInt(KEY_SELECTED_TAB_INDEX);
+      initialDrawerState = savedInstanceState.getInt(KEY_DRAWER_STATE);
     }
 
     // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
     // the experiment stream when this activity is destroyed.
-    mActiveExperiment.subscribe(
+    activeExperiment.subscribe(
         experiment -> {
           setupViews(experiment);
           setExperimentFragmentId(experiment);
@@ -300,7 +300,7 @@ public class PanesActivity extends AppCompatActivity
                     if (status.state == RecordingState.ACTIVE) {
                       showRecordingBar();
                       Log.d(TAG, "start recording");
-                      mExperimentFragment.onStartRecording(status.currentRecording.getRunId());
+                      experimentFragment.onStartRecording(status.currentRecording.getRunId());
                     } else {
                       hideRecordingBar();
                     }
@@ -311,11 +311,11 @@ public class PanesActivity extends AppCompatActivity
         });
 
     Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
-    exp.takeUntil(mDestroyed.happensNext()).subscribe(mActiveExperiment);
+    exp.takeUntil(destroyed.happensNext()).subscribe(activeExperiment);
 
     AppSingleton.getInstance(this)
         .whenLabelsAdded()
-        .takeUntil(mDestroyed.happens())
+        .takeUntil(destroyed.happens())
         .subscribe(event -> onLabelAdded(event.getTrialId()));
 
     View bottomControlBar = findViewById(R.id.bottom_control_bar);
@@ -343,16 +343,16 @@ public class PanesActivity extends AppCompatActivity
 
   @Override
   protected void onSaveInstanceState(Bundle outState) {
-    outState.putInt(KEY_SELECTED_TAB_INDEX, mSelectedTabIndex);
+    outState.putInt(KEY_SELECTED_TAB_INDEX, selectedTabIndex);
     outState.putInt(KEY_DRAWER_STATE, getBottomDrawerState());
     super.onSaveInstanceState(outState);
   }
 
   private int getBottomDrawerState() {
-    if (mBottomBehavior == null) {
+    if (bottomBehavior == null) {
       return PanesBottomSheetBehavior.STATE_MIDDLE;
     }
-    return mBottomBehavior.getState();
+    return bottomBehavior.getState();
   }
 
   @VisibleForTesting
@@ -372,11 +372,11 @@ public class PanesActivity extends AppCompatActivity
   private void updateGrabberContentDescription() {
     int state = getBottomDrawerState();
     if (state == PanesBottomSheetBehavior.STATE_COLLAPSED) {
-      mGrabber.setContentDescription(getResources().getString(R.string.btn_show_tools));
+      grabber.setContentDescription(getResources().getString(R.string.btn_show_tools));
     } else if (state == PanesBottomSheetBehavior.STATE_MIDDLE) {
-      mGrabber.setContentDescription(getResources().getString(R.string.btn_expand_tools));
+      grabber.setContentDescription(getResources().getString(R.string.btn_expand_tools));
     } else if (state == PanesBottomSheetBehavior.STATE_EXPANDED) {
-      mGrabber.setContentDescription(getResources().getString(R.string.btn_hide_tools));
+      grabber.setContentDescription(getResources().getString(R.string.btn_hide_tools));
     }
 
     // Leave unchanged when in interstitial states
@@ -384,7 +384,7 @@ public class PanesActivity extends AppCompatActivity
 
   private void setupViews(Experiment experiment) {
     ControlBarController controlBarController =
-        new ControlBarController(experiment.getExperimentId(), mSnackbarManager);
+        new ControlBarController(experiment.getExperimentId(), snackbarManager);
 
     ViewPager pager = findViewById(R.id.pager);
     View bottomSheet = findViewById(R.id.bottom);
@@ -420,14 +420,14 @@ public class PanesActivity extends AppCompatActivity
       controlBar.setVisibility(View.VISIBLE);
       bottomSheet.setVisibility(View.VISIBLE);
       findViewById(R.id.shadow).setVisibility(View.VISIBLE);
-      mBottomBehavior =
+      bottomBehavior =
           (PanesBottomSheetBehavior)
               ((CoordinatorLayout.LayoutParams) bottomSheet.getLayoutParams()).getBehavior();
-      mBottomBehavior.setBottomSheetCallback(
+      bottomBehavior.setBottomSheetCallback(
           new PanesBottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-              mBottomSheetState.onNext(newState);
+              bottomSheetState.onNext(newState);
               if (getBottomDrawerState() == PanesBottomSheetBehavior.STATE_COLLAPSED) {
                 // We no longer need to know what happens when the keyboard closes:
                 // Stay closed.
@@ -439,7 +439,7 @@ public class PanesActivity extends AppCompatActivity
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
           });
-      mBottomBehavior.setAllowHalfHeightDrawerInLandscape(
+      bottomBehavior.setAllowHalfHeightDrawerInLandscape(
           getResources().getBoolean(R.bool.allow_half_height_drawer_in_landscape));
 
       // TODO: could this be FragmentStatePagerAdapter?  Would the fragment lifecycle methods
@@ -447,12 +447,12 @@ public class PanesActivity extends AppCompatActivity
       final FragmentPagerAdapter adapter =
           new FragmentPagerAdapter(getSupportFragmentManager()) {
             // TODO: extract and test this.
-            private int mPreviousPrimary = -1;
-            private Runnable mOnLosingFocus = null;
+            private int previousPrimary = -1;
+            private Runnable onLosingFocus = null;
 
             @Override
             public Fragment getItem(int position) {
-              if (position >= mToolTabs.length) {
+              if (position >= toolTabs.length) {
                 return null;
               }
               return getToolTab(position)
@@ -460,22 +460,22 @@ public class PanesActivity extends AppCompatActivity
             }
 
             private ToolTab getToolTab(int position) {
-              return mToolTabs[position];
+              return toolTabs[position];
             }
 
             @Override
             public int getCount() {
-              return mToolTabs.length;
+              return toolTabs.length;
             }
 
             @Override
             public void setPrimaryItem(ViewGroup container, int position, Object object) {
-              if (position != mPreviousPrimary && mOnLosingFocus != null) {
-                mOnLosingFocus.run();
-                mOnLosingFocus = null;
+              if (position != previousPrimary && onLosingFocus != null) {
+                onLosingFocus.run();
+                onLosingFocus = null;
               }
               super.setPrimaryItem(container, position, object);
-              if (position != mPreviousPrimary) {
+              if (position != previousPrimary) {
                 ToolTab toolTab = getToolTab(position);
                 FrameLayout controlBar = findViewById(R.id.bottom_control_bar);
                 controlBar.removeAllViews();
@@ -484,16 +484,16 @@ public class PanesActivity extends AppCompatActivity
                     .whenNextView()
                     .subscribe(
                         v -> {
-                          mBottomBehavior.setScrollingChild(v);
+                          bottomBehavior.setScrollingChild(v);
 
                           View viewToKeepVisible =
                               toolTab.connectControls(
                                   fragment, controlBar, controlBarController, drawerLayoutState());
-                          mBottomBehavior.setViewToKeepVisibleIfPossible(viewToKeepVisible);
+                          bottomBehavior.setViewToKeepVisibleIfPossible(viewToKeepVisible);
                         });
                 fragment.onGainedFocus(PanesActivity.this);
-                mOnLosingFocus = () -> fragment.onLosingFocus();
-                mPreviousPrimary = position;
+                onLosingFocus = () -> fragment.onLosingFocus();
+                previousPrimary = position;
               }
             }
           };
@@ -524,16 +524,16 @@ public class PanesActivity extends AppCompatActivity
       ViewGroup.LayoutParams layoutParams = experimentPane.getLayoutParams();
       layoutParams.height = bottomSheet.getTop();
       experimentPane.setLayoutParams(layoutParams);
-      toolPicker.getTabAt(mSelectedTabIndex).select();
+      toolPicker.getTabAt(selectedTabIndex).select();
 
       // It's already initialized. Don't do it again!
       return;
     }
 
-    mBottomBehavior.setPeekHeight(
+    bottomBehavior.setPeekHeight(
         getResources().getDimensionPixelSize(R.dimen.panes_toolbar_height));
 
-    for (ToolTab tab : mToolTabs) {
+    for (ToolTab tab : toolTabs) {
       TabLayout.Tab layoutTab = toolPicker.newTab();
       layoutTab.setContentDescription(tab.getContentDescriptionId());
       layoutTab.setIcon(tab.getIconId());
@@ -545,8 +545,8 @@ public class PanesActivity extends AppCompatActivity
         new TabLayout.OnTabSelectedListener() {
           @Override
           public void onTabSelected(TabLayout.Tab tab) {
-            mSelectedTabIndex = tab.getPosition();
-            pager.setCurrentItem(mSelectedTabIndex, true);
+            selectedTabIndex = tab.getPosition();
+            pager.setCurrentItem(selectedTabIndex, true);
             openPaneIfNeeded();
           }
 
@@ -555,7 +555,7 @@ public class PanesActivity extends AppCompatActivity
 
           @Override
           public void onTabReselected(TabLayout.Tab tab) {
-            if (pager.getCurrentItem() != mSelectedTabIndex) {
+            if (pager.getCurrentItem() != selectedTabIndex) {
               // After archive/unarchive we can get a state where the tab is technically
               // selected but the pager has not updated properly. This forces the
               // update to the pager fragment.
@@ -566,25 +566,25 @@ public class PanesActivity extends AppCompatActivity
             }
           }
         });
-    mTabsInitialized = false;
-    toolPicker.getTabAt(mSelectedTabIndex).select();
+    tabsInitialized = false;
+    toolPicker.getTabAt(selectedTabIndex).select();
 
-    if (mInitialDrawerState >= 0) {
-      mBottomBehavior.setState(mInitialDrawerState);
+    if (initialDrawerState >= 0) {
+      bottomBehavior.setState(initialDrawerState);
     } else if (experiment.getLabelCount() > 0 || experiment.getTrialCount() > 0) {
-      mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_COLLAPSED);
+      bottomBehavior.setState(PanesBottomSheetBehavior.STATE_COLLAPSED);
     } else {
-      mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
+      bottomBehavior.setState(PanesBottomSheetBehavior.STATE_MIDDLE);
     }
     updateGrabberContentDescription();
-    mTabsInitialized = true;
+    tabsInitialized = true;
 
-    mBottomSheetState.onNext(getBottomDrawerState());
+    bottomSheetState.onNext(getBottomDrawerState());
   }
 
   private void setupGrabber() {
     if (AccessibilityUtils.isAccessibilityManagerEnabled(this)) {
-      mGrabber.setOnClickListener(
+      grabber.setOnClickListener(
           view -> {
             if (getBottomDrawerState() == PanesBottomSheetBehavior.STATE_COLLAPSED) {
               changeSheetState(
@@ -604,9 +604,9 @@ public class PanesActivity extends AppCompatActivity
   private Observable<DrawerLayoutState> drawerLayoutState() {
     // keep an eye on activity height, bottom sheet state, and experiment loading.
     return Observable.combineLatest(
-            mActivityHeight.distinctUntilChanged(),
-            mBottomSheetState.distinctUntilChanged(),
-            mActiveExperiment.toObservable(),
+            activityHeight.distinctUntilChanged(),
+            bottomSheetState.distinctUntilChanged(),
+            activeExperiment.toObservable(),
             DrawerLayoutState::new)
         .filter(state -> state.getAvailableHeight() >= 0);
   }
@@ -620,34 +620,31 @@ public class PanesActivity extends AppCompatActivity
   private void setExperimentFragmentId(Experiment experiment) {
     FragmentManager fragmentManager = getSupportFragmentManager();
 
-    if (mExperimentFragment == null) {
+    if (experimentFragment == null) {
       // If we haven't cached the fragment, go looking for it.
       ExperimentDetailsFragment oldFragment =
           (ExperimentDetailsFragment) fragmentManager.findFragmentById(R.id.experiment_pane);
       if (oldFragment != null
           && oldFragment.getExperimentId().equals(experiment.getExperimentId())) {
-        mExperimentFragment = oldFragment;
+        experimentFragment = oldFragment;
         return;
       }
     }
 
-    if (mExperimentFragment == null) {
+    if (experimentFragment == null) {
       boolean createTaskStack = true;
-      mExperimentFragment =
+      experimentFragment =
           ExperimentDetailsFragment.newInstance(experiment.getExperimentId(), createTaskStack);
 
-      fragmentManager
-          .beginTransaction()
-          .replace(R.id.experiment_pane, mExperimentFragment)
-          .commit();
+      fragmentManager.beginTransaction().replace(R.id.experiment_pane, experimentFragment).commit();
     } else {
-      mExperimentFragment.setExperimentId(experiment.getExperimentId());
+      experimentFragment.setExperimentId(experiment.getExperimentId());
     }
   }
 
   @Override
   protected void onDestroy() {
-    mDestroyed.onHappened();
+    destroyed.onHappened();
     super.onDestroy();
   }
 
@@ -656,7 +653,7 @@ public class PanesActivity extends AppCompatActivity
     super.onResume();
     AppSingleton appSingleton = AppSingleton.getInstance(this);
     appSingleton.setResumedActivity(this);
-    mPaused.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
+    paused.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
 
     if (!isMultiWindowEnabled()) {
       updateRecorderControllerForResume();
@@ -677,7 +674,7 @@ public class PanesActivity extends AppCompatActivity
       updateRecorderControllerForPause();
       logPanesState(TrackerConstants.ACTION_PAUSED);
     }
-    mPaused.happens();
+    paused.happens();
     super.onPause();
   }
 
@@ -700,11 +697,11 @@ public class PanesActivity extends AppCompatActivity
 
   private void logPanesState(String action) {
     SparseArray<String> dimensions = new SparseArray<>();
-    if (mTabsInitialized) {
+    if (tabsInitialized) {
       dimensions.append(
-          TrackerConstants.PANES_DRAWER_STATE, mBottomBehavior.getDrawerStateForLogging());
+          TrackerConstants.PANES_DRAWER_STATE, bottomBehavior.getDrawerStateForLogging());
       dimensions.append(
-          TrackerConstants.PANES_TOOL_NAME, mToolTabs[mSelectedTabIndex].getLoggingName());
+          TrackerConstants.PANES_TOOL_NAME, toolTabs[selectedTabIndex].getLoggingName());
     }
     WhistlePunkApplication.getUsageTracker(this)
         .trackDimensionEvent(TrackerConstants.CATEGORY_PANES, action, dimensions);
@@ -726,7 +723,7 @@ public class PanesActivity extends AppCompatActivity
 
   @Override
   public void onBackPressed() {
-    if (mExperimentFragment.handleOnBackPressed()) {
+    if (experimentFragment.handleOnBackPressed()) {
       return;
     }
     super.onBackPressed();
@@ -738,14 +735,14 @@ public class PanesActivity extends AppCompatActivity
       @Override
       void onRecordingSaved(String runId, Experiment experiment) {
         logPanesState(TrackerConstants.ACTION_RECORDED);
-        mExperimentFragment.loadExperimentData(experiment);
+        experimentFragment.loadExperimentData(experiment);
       }
 
       @Override
       public void onRecordingRequested(String experimentName, boolean userInitiated) {
         showRecordingBar();
         // We don't call expandSheet until after we've called
-        // mExperimentFragment.onStartRecording (below in onRecordingStart). Otherwise, the
+        // experimentFragment.onStartRecording (below in onRecordingStart). Otherwise, the
         // ExperimentFragment won't be able to scroll to the bottom because the details
         // lists's height will be zero. Scrolling doesn't work if a View's height is zero.
       }
@@ -758,11 +755,11 @@ public class PanesActivity extends AppCompatActivity
         }
         String trialId = recordingStatus.getCurrentRunId();
         if (!TextUtils.isEmpty(trialId)) {
-          mExperimentFragment.onStartRecording(trialId);
+          experimentFragment.onStartRecording(trialId);
         }
-        // Now that mExperimentFragment.onStartRecording has been called (and it has
+        // Now that experimentFragment.onStartRecording has been called (and it has
         // scrolled to the bottom), we can call expandSheet.
-        if (mTabsInitialized && recordingStatus.userInitiated) {
+        if (tabsInitialized && recordingStatus.userInitiated) {
           expandSheet();
         }
       }
@@ -770,7 +767,7 @@ public class PanesActivity extends AppCompatActivity
       @Override
       void onRecordingStopped() {
         hideRecordingBar();
-        mExperimentFragment.onStopRecording();
+        experimentFragment.onStopRecording();
         dropToHalfScreenIfNeeded();
       }
 
@@ -791,7 +788,7 @@ public class PanesActivity extends AppCompatActivity
     return new CameraFragment.CameraFragmentListener() {
       @Override
       public RxPermissions getPermissions() {
-        return mPermissions;
+        return permissions;
       }
 
       @Override
@@ -821,7 +818,7 @@ public class PanesActivity extends AppCompatActivity
 
       @Override
       public RxPermissions getPermissions() {
-        return mPermissions;
+        return permissions;
       }
     };
   }
@@ -833,10 +830,10 @@ public class PanesActivity extends AppCompatActivity
 
   private void addNewLabel(Label label) {
     // Get the most recent experiment, or wait if none has been loaded yet.
-    mActiveExperiment.subscribe(
+    activeExperiment.subscribe(
         e -> {
           // if it is recording, add it to the recorded trial instead!
-          String trialId = mExperimentFragment.getActiveRecordingId();
+          String trialId = experimentFragment.getActiveRecordingId();
           if (TextUtils.isEmpty(trialId)) {
             e.addLabel(label);
           } else {
@@ -853,18 +850,18 @@ public class PanesActivity extends AppCompatActivity
   }
 
   private void changeSheetState(int fromState, int toState) {
-    if (mBottomBehavior == null) {
+    if (bottomBehavior == null) {
       // Experiment is archived, there's no sheet to change
       return;
     }
     if (getBottomDrawerState() == fromState) {
-      mBottomBehavior.setState(toState);
+      bottomBehavior.setState(toState);
     }
   }
 
   private void expandSheet() {
     if (getBottomDrawerState() != PanesBottomSheetBehavior.STATE_EXPANDED) {
-      mBottomBehavior.setState(PanesBottomSheetBehavior.STATE_EXPANDED);
+      bottomBehavior.setState(PanesBottomSheetBehavior.STATE_EXPANDED);
     }
   }
 
@@ -872,9 +869,9 @@ public class PanesActivity extends AppCompatActivity
     logPanesState(TrackerConstants.ACTION_LABEL_ADDED);
     if (TextUtils.isEmpty(trialId)) {
       // TODO: is this expensive?  Should we trigger a more incremental update?
-      mExperimentFragment.reloadAndScrollToBottom();
+      experimentFragment.reloadAndScrollToBottom();
     } else {
-      mExperimentFragment.onRecordingTrialUpdated(trialId);
+      experimentFragment.onRecordingTrialUpdated(trialId);
     }
     dropToHalfScreenIfNeeded();
   }
@@ -890,12 +887,12 @@ public class PanesActivity extends AppCompatActivity
   }
 
   private void showRecordingBar() {
-    if (mRecordingBar != null) {
-      mRecordingBar.setVisibility(View.VISIBLE);
-      if (mBottomBehavior != null) {
-        mBottomBehavior.setPeekHeight(
-            mRecordingBar.getResources().getDimensionPixelSize(R.dimen.panes_toolbar_height)
-                + mRecordingBar
+    if (recordingBar != null) {
+      recordingBar.setVisibility(View.VISIBLE);
+      if (bottomBehavior != null) {
+        bottomBehavior.setPeekHeight(
+            recordingBar.getResources().getDimensionPixelSize(R.dimen.panes_toolbar_height)
+                + recordingBar
                     .getResources()
                     .getDimensionPixelSize(R.dimen.recording_indicator_height));
       }
@@ -903,12 +900,12 @@ public class PanesActivity extends AppCompatActivity
   }
 
   private void hideRecordingBar() {
-    if (mRecordingBar != null) {
-      mRecordingBar.setVisibility(View.GONE);
-      if (mBottomBehavior != null) {
+    if (recordingBar != null) {
+      recordingBar.setVisibility(View.GONE);
+      if (bottomBehavior != null) {
         // Null if we are in an archived experiment.
-        mBottomBehavior.setPeekHeight(
-            mRecordingBar.getResources().getDimensionPixelSize(R.dimen.panes_toolbar_height));
+        bottomBehavior.setPeekHeight(
+            recordingBar.getResources().getDimensionPixelSize(R.dimen.panes_toolbar_height));
       }
     }
   }
@@ -916,7 +913,7 @@ public class PanesActivity extends AppCompatActivity
   private void openPaneIfNeeded() {
     // Only do the work if it is initialized. This keeps the pane from jumping open and closed
     // when the views are first loaded.
-    if (mTabsInitialized) {
+    if (tabsInitialized) {
       // Clicking a tab raises the pane to middle if it was at the bottom.
       changeSheetState(
           PanesBottomSheetBehavior.STATE_COLLAPSED, PanesBottomSheetBehavior.STATE_MIDDLE);
@@ -924,7 +921,7 @@ public class PanesActivity extends AppCompatActivity
   }
 
   private Observable<String> getActiveExperimentId() {
-    return mActiveExperiment.map(e -> e.getExperimentId()).toObservable();
+    return activeExperiment.map(e -> e.getExperimentId()).toObservable();
   }
 
   private static class BottomDependentBehavior extends CoordinatorLayout.Behavior {
