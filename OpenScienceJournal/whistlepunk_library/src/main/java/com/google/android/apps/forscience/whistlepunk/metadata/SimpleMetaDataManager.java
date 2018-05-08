@@ -39,6 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
@@ -122,18 +123,19 @@ public class SimpleMetaDataManager implements MetaDataManager {
     String MY_DEVICES = "my_devices";
   }
 
-  public SimpleMetaDataManager(Context context) {
-    this(context, null /* default filename */, new CurrentTimeClock());
+  public SimpleMetaDataManager(Context context, AppAccount appAccount) {
+    this(context, appAccount, null /* default filename */, new CurrentTimeClock());
   }
 
   @VisibleForTesting
-  SimpleMetaDataManager(Context context, String filename, Clock clock) {
+  SimpleMetaDataManager(Context context, AppAccount appAccount, String filename, Clock clock) {
     mContext = context;
     mClock = clock;
-    mFileMetadataManager = new FileMetadataManager(mContext, mClock);
+    mFileMetadataManager = new FileMetadataManager(mContext, appAccount, mClock);
     mDbHelper =
         new DatabaseHelper(
             context,
+            appAccount,
             filename,
             new DatabaseHelper.MetadataDatabaseUpgradeCallback() {
               @Override
@@ -2086,7 +2088,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     String DEVICE_ID = "device_id";
   }
 
-  /** Manages the SQLite database backing the data for the entire app. */
+  /** Manages the SQLite database backing the data for the entire app (per account). */
   private static class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 22;
     private static final String DB_NAME = "main.db";
@@ -2105,8 +2107,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
     private MetadataDatabaseUpgradeCallback mUpgradeCallback;
 
     DatabaseHelper(
-        Context context, String filename, MetadataDatabaseUpgradeCallback upgradeCallback) {
-      super(context, filename != null ? filename : DB_NAME, null, DB_VERSION);
+        Context context,
+        AppAccount appAccount,
+        String filename,
+        MetadataDatabaseUpgradeCallback upgradeCallback) {
+      super(
+          context,
+          appAccount.getDatabaseFileName(filename != null ? filename : DB_NAME),
+          null,
+          DB_VERSION);
       mUpgradeCallback = upgradeCallback;
     }
 

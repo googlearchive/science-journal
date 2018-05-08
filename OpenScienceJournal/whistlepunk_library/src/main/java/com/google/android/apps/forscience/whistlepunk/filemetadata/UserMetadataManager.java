@@ -21,6 +21,7 @@ import android.os.Handler;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -71,10 +72,11 @@ public class UserMetadataManager {
   private ProtoFileHelper<GoosciUserMetadata.UserMetadata> mOverviewProtoFileHelper;
   private File mUserMetadataFile;
 
-  public UserMetadataManager(Context context, FailureListener failureListener) {
+  public UserMetadataManager(
+      Context context, AppAccount appAccount, FailureListener failureListener) {
     mFailureListener = failureListener;
     mOverviewProtoFileHelper = new ProtoFileHelper<>();
-    mUserMetadataFile = FileMetadataManager.getUserMetadataFile(context);
+    mUserMetadataFile = FileMetadataManager.getUserMetadataFile(appAccount);
     mBackgroundWriteThread = Executors.newSingleThreadExecutor();
     mHandler = new Handler();
     mWriteRunnable =

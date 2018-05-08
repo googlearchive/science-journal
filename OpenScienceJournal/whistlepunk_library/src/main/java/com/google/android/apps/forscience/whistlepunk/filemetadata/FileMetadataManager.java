@@ -67,13 +67,15 @@ public class FileMetadataManager {
   private static final String TAG = "FileMetadataManager";
   private static final String USER_METADATA_FILE = "user_metadata.proto";
 
+  private AppAccount appAccount;
   private Clock clock;
 
   private ExperimentCache activeExperimentCache;
   private UserMetadataManager userMetadataManager;
   private ColorAllocator colorAllocator;
 
-  public FileMetadataManager(Context applicationContext, Clock clock) {
+  public FileMetadataManager(Context applicationContext, AppAccount appAccount, Clock clock) {
+    this.appAccount = appAccount;
     this.clock = clock;
     // TODO: Probably pass failure listeners from a higher level in order to propagate them
     // up to the user. b/62373187.
@@ -119,8 +121,9 @@ public class FileMetadataManager {
             Log.d(TAG, "newer proto version detected than we can handle");
           }
         };
-    activeExperimentCache = new ExperimentCache(applicationContext, failureListener);
-    userMetadataManager = new UserMetadataManager(applicationContext, userMetadataListener);
+    activeExperimentCache = new ExperimentCache(applicationContext, appAccount, failureListener);
+    userMetadataManager =
+        new UserMetadataManager(applicationContext, appAccount, userMetadataListener);
     colorAllocator =
         new ColorAllocator(
             applicationContext.getResources().getIntArray(R.array.experiment_colors_array).length);
@@ -141,21 +144,35 @@ public class FileMetadataManager {
         WhistlePunkApplication.getAppServices(context).getAccountsProvider().getCurrentAccount());
   }
 
-  public static File getUserMetadataFile(Context context) {
-    // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(AppAccount).
-    return new File(context.getFilesDir(), USER_METADATA_FILE);
+  public static File getUserMetadataFile(AppAccount appAccount) {
+    return new File(getFilesDir(appAccount), USER_METADATA_FILE);
   }
 
+  public static File getAssetsDirectory(AppAccount appAccount, String experimentId) {
+    return new File(getExperimentDirectory(appAccount, experimentId), ASSETS_DIRECTORY);
+  }
+
+  // TODO(b/78523388): Remove this method. Use getAssetsDirectory(appAccount, experimentId) instead.
   public static File getAssetsDirectory(Context context, String experimentId) {
     return new File(getExperimentDirectory(context, experimentId), ASSETS_DIRECTORY);
   }
 
+  public static File getExperimentDirectory(AppAccount appAccount, String experimentId) {
+    return new File(getExperimentsRootDirectory(appAccount), experimentId);
+  }
+
+  // TODO(b/78523388): Remove this method. Use getExperimentDirectory(appAccount, experimentId)
+  // instead.
   public static File getExperimentDirectory(Context context, String experimentId) {
     return new File(getExperimentsRootDirectory(context), experimentId);
   }
 
+  public static File getExperimentsRootDirectory(AppAccount appAccount) {
+    return new File(getFilesDir(appAccount), EXPERIMENTS_DIRECTORY);
+  }
+
+  // TODO(b/78523388): Remove this method. Use getExperimentsRootDirectory(appAccount) instead.
   public static File getExperimentsRootDirectory(Context context) {
-    // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(AppAccount).
     return new File(context.getFilesDir(), EXPERIMENTS_DIRECTORY);
   }
 
@@ -179,8 +196,16 @@ public class FileMetadataManager {
     }
   }
 
+  public static String getExperimentExportDirectory(AppAccount appAccount) throws IOException {
+    File dir = new File(getFilesDir(appAccount), "exported_experiments");
+    if (!dir.exists() && !dir.mkdir()) {
+      throw new IOException("Can't create experiments directory");
+    }
+    return dir.toString();
+  }
+
+  // TODO(b/78523388): Remove this method. Use getExperimentExportDirectory(appAccount) instead.
   public static String getExperimentExportDirectory(Context context) throws IOException {
-    // TODO(lizlooney): Replace context.getFilesDir() with getFilesDir(AppAccount).
     File dir = new File(context.getFilesDir(), "exported_experiments");
     if (!dir.exists() && !dir.mkdir()) {
       throw new IOException("Can't create experiments directory");
@@ -189,13 +214,21 @@ public class FileMetadataManager {
   }
 
   /** Gets a file in an experiment from a relative path to that file within the experiment. */
+  public static File getExperimentFile(
+      AppAccount appAccount, String experimentId, String relativePath) {
+    return new File(getExperimentDirectory(appAccount, experimentId), relativePath);
+  }
+
+  // TODO(b/78523388): Remove this method. Use getExperimentFile(appAccount, experimentId,
+  // relativePath) instead.
+  /** Gets a file in an experiment from a relative path to that file within the experiment. */
   public static File getExperimentFile(Context context, String experimentId, String relativePath) {
     return new File(getExperimentDirectory(context, experimentId), relativePath);
   }
 
   /**
-   * Gets the relative path to the file from the user's files directory. This can be used to create
-   * the imagePath in UserMetadata.ExperimentOverview.
+   * Gets the relative path to the file from the accounts's files directory. This can be used to
+   * create the imagePath in UserMetadata.ExperimentOverview.
    */
   public static File getRelativePathInFilesDir(String experimentId, String relativePath) {
     return new File(new File(EXPERIMENTS_DIRECTORY, experimentId), relativePath);
@@ -513,7 +546,7 @@ public class FileMetadataManager {
       experimentId = newExperiment.getExperimentId();
       File externalFilesDir = getExternalExperimentsDirectory(context);
       externalPath = new File(externalFilesDir, experimentId);
-      File internalPath = getExperimentDirectory(context, experimentId);
+      File internalPath = getExperimentDirectory(appAccount, experimentId);
       // Blocking get is ok as this is already on a background thread.
       containsExperimentImage =
           unzipExperimentFile(appContext, data, resolver, externalPath, internalPath).blockingGet();

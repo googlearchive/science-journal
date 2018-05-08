@@ -33,6 +33,8 @@ import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
@@ -97,13 +99,14 @@ public class SimpleMetaDataManagerTest {
   @NonNull
   private SimpleMetaDataManager makeMetaDataManager() {
     mTestSystemClock = new TestSystemClock();
-    return new SimpleMetaDataManager(getContext(), "test.main.db", mTestSystemClock);
+    return new SimpleMetaDataManager(
+        getContext(), getAppAccount(), "test.main.db", mTestSystemClock);
   }
 
   @After
   public void tearDown() {
     getContext().getDatabasePath("test.main.db").delete();
-    File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getContext());
+    File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getAppAccount());
     sharedMetadataFile.delete();
   }
 
@@ -683,5 +686,9 @@ public class SimpleMetaDataManagerTest {
 
   private Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }

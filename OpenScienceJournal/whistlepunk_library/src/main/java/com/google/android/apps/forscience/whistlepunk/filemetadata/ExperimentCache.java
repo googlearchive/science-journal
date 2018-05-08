@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
@@ -74,6 +75,7 @@ class ExperimentCache {
 
   private FailureListener failureListener;
   private Context context;
+  private AppAccount appAccount;
   private Experiment activeExperiment;
   private ProtoFileHelper<GoosciExperiment.Experiment> experimentProtoFileHelper;
   private boolean activeExperimentNeedsWrite = false;
@@ -85,13 +87,15 @@ class ExperimentCache {
   private final ExecutorService backgroundWriteThread;
   private final Runnable writeRunnable;
 
-  public ExperimentCache(Context context, FailureListener failureListener) {
-    this(context, failureListener, WRITE_DELAY_MS);
+  public ExperimentCache(Context context, AppAccount appAccount, FailureListener failureListener) {
+    this(context, appAccount, failureListener, WRITE_DELAY_MS);
   }
 
   @VisibleForTesting
-  ExperimentCache(Context context, FailureListener failureListener, long writeDelayMs) {
+  ExperimentCache(
+      Context context, AppAccount appAccount, FailureListener failureListener, long writeDelayMs) {
     this.context = context;
+    this.appAccount = appAccount;
     this.failureListener = failureListener;
     experimentProtoFileHelper = new ProtoFileHelper<>();
     handler = new Handler();
@@ -471,7 +475,7 @@ class ExperimentCache {
   }
 
   private File getExperimentDirectory(String localExperimentId) {
-    return FileMetadataManager.getExperimentDirectory(context, localExperimentId);
+    return FileMetadataManager.getExperimentDirectory(appAccount, localExperimentId);
   }
 
   private File getAssetsDirectory(File experimentDirectory) {

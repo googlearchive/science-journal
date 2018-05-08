@@ -25,6 +25,8 @@ import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
@@ -51,16 +53,18 @@ public class AppSingleton {
   private static final String TAG = "AppSingleton";
   private static AppSingleton instance;
   private final Context applicationContext;
-  private DataControllerImpl dataController;
-  private LocalSyncManager localSyncManager;
-  private ExperimentLibraryManager experimentLibraryManager;
+  private final Map<AppAccount, DataControllerImpl> dataControllers = new HashMap<>();
+  private final Map<AppAccount, LocalSyncManager> localSyncManagers = new HashMap<>();
+  private final Map<AppAccount, ExperimentLibraryManager> experimentLibraryManagers =
+      new HashMap<>();
 
   private static Executor uiThreadExecutor = null;
-  private SensorAppearanceProviderImpl sensorAppearanceProvider;
+  private final Map<AppAccount, SensorAppearanceProviderImpl> sensorAppearanceProviders =
+      new HashMap<>();
   private final Clock currentTimeClock = new CurrentTimeClock();
   private final AudioSource audioSource = new AudioSource();
   private BleClientImpl bleClient;
-  private RecorderController recorderController;
+  private Map<AppAccount, RecorderControllerImpl> recorderControllers;
   private SensorRegistry sensorRegistry;
   private PrefsSensorHistoryStorage prefsSensorHistoryStorage;
   private Map<String, SensorProvider> externalSensorProviders;
@@ -133,11 +137,15 @@ public class AppSingleton {
   }
 
   public DataController getDataController() {
-    return internalGetDataController();
+    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
+    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
+
+    return internalGetDataController(appAccount);
   }
 
   @NonNull
-  private DataControllerImpl internalGetDataController() {
+  private DataControllerImpl internalGetDataController(AppAccount appAccount) {
+    DataControllerImpl dataController = dataControllers.get(appAccount);
     if (dataController == null) {
       dataController =
           new DataControllerImpl(
@@ -145,17 +153,25 @@ public class AppSingleton {
               getUiThreadExecutor(),
               Executors.newSingleThreadExecutor(),
               Executors.newSingleThreadExecutor(),
-              new SimpleMetaDataManager(applicationContext),
+              new SimpleMetaDataManager(applicationContext, appAccount),
               getDefaultClock(),
               getExternalSensorProviders(),
               getSensorConnector());
+      dataControllers.put(appAccount, dataController);
     }
     return dataController;
   }
 
   public SensorAppearanceProvider getSensorAppearanceProvider() {
+    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
+    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
+
+    SensorAppearanceProviderImpl sensorAppearanceProvider =
+        sensorAppearanceProviders.get(appAccount);
     if (sensorAppearanceProvider == null) {
-      sensorAppearanceProvider = new SensorAppearanceProviderImpl(getDataController());
+      sensorAppearanceProvider =
+          new SensorAppearanceProviderImpl(internalGetDataController(appAccount));
+      sensorAppearanceProviders.put(appAccount, sensorAppearanceProvider);
     }
     return sensorAppearanceProvider;
   }
@@ -165,7 +181,10 @@ public class AppSingleton {
   }
 
   private RecordingDataController getRecordingDataController() {
-    return internalGetDataController();
+    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
+    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
+
+    return internalGetDataController(appAccount);
   }
 
   public Single<BleClient> getConnectedBleClient() {
@@ -192,8 +211,13 @@ public class AppSingleton {
   }
 
   public RecorderController getRecorderController() {
+    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
+    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
+
+    RecorderControllerImpl recorderController = recorderControllers.get(appAccount);
     if (recorderController == null) {
       recorderController = new RecorderControllerImpl(applicationContext);
+      recorderControllers.put(appAccount, recorderController);
     }
     return recorderController;
   }
@@ -289,15 +313,25 @@ public class AppSingleton {
   }
 
   public LocalSyncManager getLocalSyncManager() {
+    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
+    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
+
+    LocalSyncManager localSyncManager = localSyncManagers.get(appAccount);
     if (localSyncManager == null) {
       localSyncManager = new LocalSyncManager();
+      localSyncManagers.put(appAccount, localSyncManager);
     }
     return localSyncManager;
   }
 
   public ExperimentLibraryManager getExperimentLibraryManager() {
+    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
+    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
+
+    ExperimentLibraryManager experimentLibraryManager = experimentLibraryManagers.get(appAccount);
     if (experimentLibraryManager == null) {
       experimentLibraryManager = new ExperimentLibraryManager();
+      experimentLibraryManagers.put(appAccount, experimentLibraryManager);
     }
     return experimentLibraryManager;
   }

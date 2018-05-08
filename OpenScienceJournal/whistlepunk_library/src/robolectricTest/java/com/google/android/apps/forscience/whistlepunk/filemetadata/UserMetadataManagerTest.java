@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import android.content.Context;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -85,21 +87,23 @@ public class UserMetadataManagerTest {
   }
 
   private void cleanUp() {
-    File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getContext());
+    File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getAppAccount());
     sharedMetadataFile.delete();
     mFailureCount = 0;
   }
 
   @Test
   public void testEmpty() {
-    UserMetadataManager smm = new UserMetadataManager(getContext(), getFailureFailsListener());
+    UserMetadataManager smm =
+        new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
     assertNull(smm.getExperimentOverview("doesNotExist"));
     assertEquals(0, smm.getExperimentOverviews(true).size());
   }
 
   @Test
   public void testReadAndWriteSingle() {
-    UserMetadataManager smm = new UserMetadataManager(getContext(), getFailureFailsListener());
+    UserMetadataManager smm =
+        new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     overview.experimentId = "expId";
     overview.lastUsedTimeMs = 42;
@@ -112,7 +116,8 @@ public class UserMetadataManagerTest {
 
   @Test
   public void testReadAndWriteMultiple() {
-    UserMetadataManager smm = new UserMetadataManager(getContext(), getFailureFailsListener());
+    UserMetadataManager smm =
+        new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
     GoosciUserMetadata.ExperimentOverview first = new GoosciUserMetadata.ExperimentOverview();
     first.experimentId = "exp1";
     first.lastUsedTimeMs = 1;
@@ -143,7 +148,8 @@ public class UserMetadataManagerTest {
   @Test
   public void testUpgrade() {
     // This test is not very interesting but more can be added as upgrades get more complex.
-    UserMetadataManager smm = new UserMetadataManager(getContext(), getFailureFailsListener());
+    UserMetadataManager smm =
+        new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     proto.version = 0;
     proto.minorVersion = 0;
@@ -154,7 +160,8 @@ public class UserMetadataManagerTest {
 
   @Test
   public void testNoUpgrade() {
-    UserMetadataManager smm = new UserMetadataManager(getContext(), getFailureFailsListener());
+    UserMetadataManager smm =
+        new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     proto.version = 1;
     proto.minorVersion = 1;
@@ -165,7 +172,8 @@ public class UserMetadataManagerTest {
 
   @Test
   public void testVersionTooNewThrowsError() {
-    UserMetadataManager smm = new UserMetadataManager(getContext(), getFailureExpectedListener());
+    UserMetadataManager smm =
+        new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
 
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     proto.version = 2;
@@ -176,7 +184,8 @@ public class UserMetadataManagerTest {
 
   @Test
   public void testOnlyUpgradesMinorVersion() {
-    UserMetadataManager smm = new UserMetadataManager(getContext(), getFailureFailsListener());
+    UserMetadataManager smm =
+        new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     proto.version = 1;
     proto.minorVersion = 0;
@@ -187,7 +196,8 @@ public class UserMetadataManagerTest {
 
   @Test
   public void testCantWriteNewerVersion() {
-    UserMetadataManager smm = new UserMetadataManager(getContext(), getFailureExpectedListener());
+    UserMetadataManager smm =
+        new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     smm.upgradeUserMetadataVersionIfNeeded(proto, 100, 0);
     assertEquals(1, mFailureCount);
@@ -195,7 +205,8 @@ public class UserMetadataManagerTest {
 
   @Test
   public void testAddAndRemoveMyDevice() {
-    UserMetadataManager smm = new UserMetadataManager(getContext(), getFailureExpectedListener());
+    UserMetadataManager smm =
+        new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
     GoosciDeviceSpec.DeviceSpec device = new GoosciDeviceSpec.DeviceSpec();
     device.info = new GoosciGadgetInfo.GadgetInfo();
     device.name = "Name";
@@ -212,5 +223,9 @@ public class UserMetadataManagerTest {
 
   private Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }

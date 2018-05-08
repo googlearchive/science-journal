@@ -21,6 +21,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
@@ -50,14 +52,14 @@ public class FileMetadataManagerTest {
   }
 
   private void cleanUp() {
-    File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getContext());
+    File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getAppAccount());
     sharedMetadataFile.delete();
   }
 
   @Test
   public void testSingleExperiment() {
     IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
-    FileMetadataManager fmm = new FileMetadataManager(getContext(), clock);
+    FileMetadataManager fmm = new FileMetadataManager(getContext(), getAppAccount(), clock);
     Experiment experiment = fmm.newExperiment();
     assertEquals(experiment.getCreationTimeMs(), clock.getNow());
     assertEquals(
@@ -90,7 +92,7 @@ public class FileMetadataManagerTest {
   @Test
   public void testMultipleExperiments() {
     IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
-    FileMetadataManager fmm = new FileMetadataManager(getContext(), clock);
+    FileMetadataManager fmm = new FileMetadataManager(getContext(), getAppAccount(), clock);
     Experiment first = fmm.newExperiment();
     clock.increment();
     Experiment second = fmm.newExperiment();
@@ -122,7 +124,8 @@ public class FileMetadataManagerTest {
 
   @Test
   public void testRelativePathFunctions() throws IOException {
-    File file = new File(getContext().getFilesDir() + "/experiments/experiment182/assets/cats.png");
+    File file =
+        new File(getAppAccount().getFilesDir() + "/experiments/experiment182/assets/cats.png");
     assertEquals(
         "assets/cats.png", FileMetadataManager.getRelativePathInExperiment("experiment182", file));
 
@@ -130,7 +133,7 @@ public class FileMetadataManagerTest {
     assertEquals("", FileMetadataManager.getRelativePathInExperiment("experiment42", file));
 
     File result =
-        FileMetadataManager.getExperimentFile(getContext(), "experiment182", "assets/cats.png");
+        FileMetadataManager.getExperimentFile(getAppAccount(), "experiment182", "assets/cats.png");
     assertEquals(file.getAbsolutePath(), result.getAbsolutePath());
 
     assertEquals(
@@ -138,10 +141,10 @@ public class FileMetadataManagerTest {
         FileMetadataManager.getRelativePathInFilesDir("experiment182", "assets/cats.png")
             .toString());
 
-    File exportDir = new File(getContext().getFilesDir().toString(), "/exported_experiments");
+    File exportDir = new File(getAppAccount().getFilesDir().toString(), "/exported_experiments");
     assertEquals(
         exportDir.getAbsolutePath().toString(),
-        FileMetadataManager.getExperimentExportDirectory(getContext()));
+        FileMetadataManager.getExperimentExportDirectory(getAppAccount()));
   }
 
   @Test
@@ -184,5 +187,9 @@ public class FileMetadataManagerTest {
 
   private Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }
