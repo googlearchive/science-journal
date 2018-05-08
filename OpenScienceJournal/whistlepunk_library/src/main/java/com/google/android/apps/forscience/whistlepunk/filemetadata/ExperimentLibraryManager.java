@@ -63,6 +63,7 @@ public class ExperimentLibraryManager {
         return experiment;
       }
     }
+
     return null;
   }
 
@@ -95,7 +96,12 @@ public class ExperimentLibraryManager {
    * @param archived Whether or not the experiment is locally archived.
    */
   public void setArchived(String experimentId, boolean archived) {
-    getExperiment(experimentId).archived = archived;
+    GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
+    // Remove these null checks and be sure to add every experiment to the Manager.
+    // TODO(b/79205044)
+    if (experiment != null) {
+      getExperiment(experimentId).archived = archived;
+    }
   }
 
   /**
@@ -106,7 +112,11 @@ public class ExperimentLibraryManager {
    */
   public void setDeleted(String experimentId, boolean deleted) {
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
-    experiment.deleted = deleted;
+    // Remove these null checks and be sure to add every experiment to the Manager.
+    // TODO(b/79205044)
+    if (experiment != null) {
+      experiment.deleted = deleted;
+    }
   }
 
   /**
@@ -126,7 +136,11 @@ public class ExperimentLibraryManager {
    */
   public void setOpened(String experimentId, long timeInMillis) {
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
-    experiment.lastOpened = timeInMillis;
+    // Remove these null checks and be sure to add every experiment to the Manager.
+    // TODO(b/79205044)
+    if (experiment != null) {
+      experiment.lastOpened = timeInMillis;
+    }
   }
 
   /**
@@ -146,6 +160,10 @@ public class ExperimentLibraryManager {
    */
   public void setModified(String experimentId, long timeInMillis) {
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
-    experiment.lastModified = timeInMillis;
+    // Remove these null checks and be sure to add every experiment to the Manager.
+    // TODO(b/79205044)
+    if (experiment != null) {
+      experiment.lastModified = timeInMillis;
+    }
   }
 }

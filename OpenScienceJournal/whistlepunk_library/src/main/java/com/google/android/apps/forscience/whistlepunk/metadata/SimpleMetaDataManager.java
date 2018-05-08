@@ -31,7 +31,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
 import android.text.TextUtils;
 import android.util.Log;
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
@@ -45,11 +44,9 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
@@ -99,8 +96,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
   private Clock mClock;
   private Object mLock = new Object();
   private FileMetadataManager mFileMetadataManager;
-  private final ExperimentLibraryManager experimentLibraryManager;
-  private final LocalSyncManager localSyncManager;
 
   public void close() {
     mDbHelper.close();
@@ -136,8 +131,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
     mContext = context;
     mClock = clock;
     mFileMetadataManager = new FileMetadataManager(mContext, mClock);
-    localSyncManager = AppSingleton.getInstance(mContext).getLocalSyncManager();
-    experimentLibraryManager = AppSingleton.getInstance(mContext).getExperimentLibraryManager();
     mDbHelper =
         new DatabaseHelper(
             context,
@@ -569,8 +562,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
     String experimentId = newStableId(STABLE_EXPERIMENT_ID_LENGTH);
     long timestamp = getCurrentTime();
     Experiment result = Experiment.newExperiment(timestamp, experimentId, 0);
-    localSyncManager.addExperiment(result.getExperimentId());
-    experimentLibraryManager.addExperiment(result.getExperimentId());
     ContentValues values = new ContentValues();
     values.put(ExperimentColumns.EXPERIMENT_ID, experimentId);
     values.put(ExperimentColumns.PROJECT_ID, projectId);

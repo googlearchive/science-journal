@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
@@ -56,8 +55,7 @@ public class ExperimentTest {
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
 
     // No labels on creation
-    Experiment experiment =
-        ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
+    Experiment experiment = Experiment.fromExperiment(proto, overview);
     assertEquals(experiment.getLabelCount(), 0);
     assertEquals(experiment.getLabels(), Collections.emptyList());
 
@@ -76,8 +74,7 @@ public class ExperimentTest {
     assertTrue(MessageNano.messageNanoEquals(experiment.getExperimentProto(), proto));
 
     // Try constructing an experiment from a proto that already has these fields.
-    Experiment experiment2 =
-        ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
+    Experiment experiment2 = Experiment.fromExperiment(proto, overview);
     assertTrue(
         MessageNano.messageNanoEquals(
             experiment2.getLabels().get(0).getPictureLabelValue(), labelValueProto));
@@ -93,8 +90,7 @@ public class ExperimentTest {
   public void testGetLabelsForRange() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {99, 100, 125, 201});
     Experiment experiment =
-        ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
 
     GoosciTrial.Range range = new GoosciTrial.Range();
     range.startMs = 0;
@@ -117,8 +113,7 @@ public class ExperimentTest {
 
     // No trials on creation
     Experiment experiment =
-        ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
     assertEquals(experiment.getTrialCount(), 0);
     assertEquals(experiment.getTrials(), Collections.emptyList());
 
@@ -133,8 +128,7 @@ public class ExperimentTest {
     proto.trials[0] = trialProto;
 
     Experiment experiment1 =
-        ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
     assertEquals(experiment1.getTrialCount(), 1);
 
     // Adding a new trial should work as expected.
@@ -157,8 +151,7 @@ public class ExperimentTest {
   public void testGetTrialsWithFilters() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
     Experiment experiment =
-        ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
 
     // New trials are invalid -- no end time.
     GoosciSensorLayout.SensorLayout[] noLayouts = new GoosciSensorLayout.SensorLayout[0];
@@ -207,8 +200,7 @@ public class ExperimentTest {
     proto.trials = new GoosciTrial.Trial[] {trialProto};
 
     Experiment experiment =
-        ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
 
     // Try to get the proto *before* converting the objects into lists.
     GoosciExperiment.Experiment result = experiment.getExperimentProto();
@@ -220,8 +212,7 @@ public class ExperimentTest {
   public void testTrialNameOrdering() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
     Experiment experiment =
-        ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
     GoosciTrial.Trial trialProto1 = new GoosciTrial.Trial();
     GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
     GoosciTrial.Trial trialProto3 = new GoosciTrial.Trial();
@@ -260,8 +251,7 @@ public class ExperimentTest {
   public void testSetGetImagePath() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
     Experiment experiment =
-        ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
     experiment.setImagePath("test.jpg");
     String overviewImagePath = experiment.getExperimentOverview().imagePath;
     String experimentImagePath = experiment.getExperimentProto().imagePath;
