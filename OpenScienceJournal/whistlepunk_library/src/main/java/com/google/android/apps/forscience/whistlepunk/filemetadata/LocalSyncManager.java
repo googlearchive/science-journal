@@ -90,11 +90,7 @@ public class LocalSyncManager {
    */
   public void setDirty(String experimentId, boolean dirty) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
-    // Remove these null checks and be sure to add every experiment to the Manager.
-    // TODO(b/79205044)
-    if (status != null) {
-      status.dirty = dirty;
-    }
+    status.dirty = dirty;
   }
 
   /**
@@ -106,12 +102,7 @@ public class LocalSyncManager {
    */
   public boolean getDirty(String experimentId) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
-    // Remove these null checks and be sure to add every experiment to the Manager.
-    // TODO(b/79205044)
-    if (status != null) {
-      return status.dirty;
-    }
-    return false;
+    return status.dirty;
   }
 
   /**
@@ -122,11 +113,7 @@ public class LocalSyncManager {
    */
   public void setLastSyncedVersion(String experimentId, long version) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
-    // Remove these null checks and be sure to add every experiment to the Manager.
-    // TODO(b/79205044)
-    if (status != null) {
-      status.lastSyncedVersion = version;
-    }
+    status.lastSyncedVersion = version;
   }
 
   /**
@@ -137,12 +124,7 @@ public class LocalSyncManager {
    */
   public long getLastSyncedVersion(String experimentId) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
-    // Remove these null checks and be sure to add every experiment to the Manager.
-    // TODO(b/79205044)
-    if (status != null) {
-      return status.lastSyncedVersion;
-    }
-    return -1;
+    return status.lastSyncedVersion;
   }
 
   /**
@@ -153,11 +135,7 @@ public class LocalSyncManager {
    */
   public void setServerArchived(String experimentId, boolean archived) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
-    // Remove these null checks and be sure to add every experiment to the Manager.
-    // TODO(b/79205044)
-    if (status != null) {
-      status.serverArchived = archived;
-    }
+    status.serverArchived = archived;
   }
 
   /**
@@ -168,12 +146,7 @@ public class LocalSyncManager {
    */
   public boolean getServerArchived(String experimentId) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
-    // Remove these null checks and be sure to add every experiment to the Manager.
-    // TODO(b/79205044)
-    if (status != null) {
-      return status.serverArchived;
-    }
-    return false;
+    return status.serverArchived;
   }
 
   /**
@@ -184,11 +157,7 @@ public class LocalSyncManager {
    */
   public void setDownloaded(String experimentId, boolean downloaded) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
-    // Remove these null checks and be sure to add every experiment to the Manager.
-    // TODO(b/79205044)
-    if (status != null) {
-      status.downloaded = downloaded;
-    }
+    status.downloaded = downloaded;
   }
 
   /**
@@ -199,11 +168,6 @@ public class LocalSyncManager {
    */
   public boolean getDownloaded(String experimentId) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
-    // Remove these null checks and be sure to add every experiment to the Manager.
-    // TODO(b/79205044)
-    if (status != null) {
-      return status.downloaded;
-    }
-    return false;
+    return status.downloaded;
   }
 }

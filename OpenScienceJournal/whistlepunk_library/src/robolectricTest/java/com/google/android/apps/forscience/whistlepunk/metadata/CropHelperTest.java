@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
+import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -36,6 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 /** Tests for {@link CropHelper} */
 @RunWith(RobolectricTestRunner.class)
@@ -108,7 +110,9 @@ public class CropHelperTest {
     trialProto.recordingRange.endMs = 10;
     Trial trial = Trial.fromTrial(trialProto);
 
-    Experiment experiment = Experiment.newExperiment(10, "experimentId", 0);
+    Experiment experiment =
+        ExperimentCreator.newExperimentForTesting(
+            RuntimeEnvironment.application.getApplicationContext(), 10, "experimentId", 0);
     experiment.addTrial(trial);
 
     CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), mDataController);

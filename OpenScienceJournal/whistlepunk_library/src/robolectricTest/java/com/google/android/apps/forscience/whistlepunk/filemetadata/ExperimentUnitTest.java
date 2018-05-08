@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static junit.framework.Assert.assertEquals;
 
+import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
@@ -28,6 +29,7 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 /** Tests for the Experiment class. */
 @RunWith(RobolectricTestRunner.class)
@@ -35,7 +37,9 @@ public class ExperimentUnitTest {
 
   @Test
   public void testNewExperiment() {
-    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    Experiment experiment =
+        ExperimentCreator.newExperimentForTesting(
+            RuntimeEnvironment.application.getApplicationContext(), 10, "localId", 0);
     assertEquals(experiment.getCreationTimeMs(), 10);
     assertEquals(experiment.getLastUsedTime(), 10);
     assertEquals(experiment.isArchived(), false);
@@ -44,7 +48,9 @@ public class ExperimentUnitTest {
   @Test
   public void testTriggers() {
     // No triggers on creation
-    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    Experiment experiment =
+        ExperimentCreator.newExperimentForTesting(
+            RuntimeEnvironment.application.getApplicationContext(), 10, "localId", 0);
     assertEquals(
         experiment.getSensorTriggersForSensor("sensorId"), Collections.<SensorTrigger>emptyList());
 
@@ -59,7 +65,9 @@ public class ExperimentUnitTest {
   @Test
   public void testLayouts() {
     // No layouts on creation
-    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    Experiment experiment =
+        ExperimentCreator.newExperimentForTesting(
+            RuntimeEnvironment.application.getApplicationContext(), 10, "localId", 0);
     assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
 
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
@@ -73,7 +81,9 @@ public class ExperimentUnitTest {
   @Test
   public void testLayoutsWithUpdate() {
     // No layouts on creation
-    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    Experiment experiment =
+        ExperimentCreator.newExperimentForTesting(
+            RuntimeEnvironment.application.getApplicationContext(), 10, "localId", 0);
     assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
 
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
@@ -87,7 +97,9 @@ public class ExperimentUnitTest {
   @Test
   public void testExperimentSensors() {
     // No sensors on creation
-    Experiment experiment = Experiment.newExperiment(10, "localId", 0);
+    Experiment experiment =
+        ExperimentCreator.newExperimentForTesting(
+            RuntimeEnvironment.application.getApplicationContext(), 10, "localId", 0);
     assertEquals(experiment.getExperimentSensors(), Collections.emptyList());
 
     GoosciExperiment.ExperimentSensor sensor = new GoosciExperiment.ExperimentSensor();
