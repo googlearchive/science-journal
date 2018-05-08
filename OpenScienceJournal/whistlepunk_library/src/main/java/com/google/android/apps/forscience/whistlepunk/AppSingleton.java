@@ -69,7 +69,7 @@ public class AppSingleton {
   private BehaviorSubject<Boolean> exportServiceBusy = BehaviorSubject.create();
   private BehaviorSubject<Optional<Activity>> resumedActivity = BehaviorSubject.create();
 
-  private SensorEnvironment mSensorEnvironment =
+  private SensorEnvironment sensorEnvironment =
       new SensorEnvironment() {
         @Override
         public RecordingDataController getDataController() {
@@ -96,8 +96,8 @@ public class AppSingleton {
           return AppSingleton.this.getConnectedBleClient();
         }
       };
-  private DeletedLabel mDeletedLabel;
-  private boolean mMostRecentOpenWasImport = false;
+  private DeletedLabel deletedLabel;
+  private boolean mostRecentOpenWasImport = false;
 
   @NonNull
   public PrefsSensorHistoryStorage getPrefsSensorHistoryStorage() {
@@ -161,7 +161,7 @@ public class AppSingleton {
   }
 
   public SensorEnvironment getSensorEnvironment() {
-    return mSensorEnvironment;
+    return sensorEnvironment;
   }
 
   private RecordingDataController getRecordingDataController() {
@@ -244,25 +244,25 @@ public class AppSingleton {
   }
 
   public void pushDeletedLabelForUndo(DeletedLabel deletedLabel) {
-    mDeletedLabel = deletedLabel;
+    this.deletedLabel = deletedLabel;
   }
 
   public DeletedLabel popDeletedLabelForUndo() {
-    if (mDeletedLabel != null) {
-      DeletedLabel returnThis = mDeletedLabel;
-      mDeletedLabel = null;
+    if (deletedLabel != null) {
+      DeletedLabel returnThis = deletedLabel;
+      deletedLabel = null;
       return returnThis;
     }
     return null;
   }
 
   public void setMostRecentOpenWasImport(boolean mostRecentOpenWasImport) {
-    mMostRecentOpenWasImport = mostRecentOpenWasImport;
+    this.mostRecentOpenWasImport = mostRecentOpenWasImport;
   }
 
   public boolean getAndClearMostRecentOpenWasImport() {
-    boolean returnThis = mMostRecentOpenWasImport;
-    mMostRecentOpenWasImport = false;
+    boolean returnThis = mostRecentOpenWasImport;
+    mostRecentOpenWasImport = false;
     return returnThis;
   }
 
