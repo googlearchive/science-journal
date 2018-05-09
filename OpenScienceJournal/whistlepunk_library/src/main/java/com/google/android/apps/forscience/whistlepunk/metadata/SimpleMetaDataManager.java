@@ -203,7 +203,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 descriptionValue,
                 null);
         experiment.setDescription("");
-        experiment.addLabel(descriptionLabel);
+        experiment.addLabel(experiment, descriptionLabel);
       }
       // Migrate assets
       for (int i = 0; i < experiment.getLabelCount(); i++) {
@@ -247,7 +247,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
   /** Migrates label picture assets, updating the Experiment Overview image if it is not yet set. */
   private void updateLabelPictureAssets(Experiment experiment, Label label) {
     if (migratePictureAssetsIfNeeded(experiment.getExperimentId(), label)) {
-      experiment.updateLabelWithoutSorting(label);
+      experiment.updateLabelWithoutSorting(experiment, label);
       if (TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
         String path = label.getPictureLabelValue().filePath;
         if (!TextUtils.isEmpty(path)) {

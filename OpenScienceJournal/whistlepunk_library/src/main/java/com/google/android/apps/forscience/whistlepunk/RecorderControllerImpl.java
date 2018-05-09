@@ -364,10 +364,12 @@ public class RecorderControllerImpl implements RecorderController {
             timestamp, GoosciLabel.Label.ValueType.SENSOR_TRIGGER, labelValue, caption);
     if (isRecording()) {
       // Adds the label to the trial and saves the updated experiment.
-      getSelectedExperiment().getTrial(mCurrentTrialId).addLabel(triggerLabel);
+      getSelectedExperiment()
+          .getTrial(mCurrentTrialId)
+          .addLabel(getSelectedExperiment(), triggerLabel);
     } else {
       // Adds the label to the experiment and saves the updated experiment.
-      getSelectedExperiment().addLabel(triggerLabel);
+      getSelectedExperiment().addLabel(getSelectedExperiment(), triggerLabel);
     }
     mDataController.updateExperiment(
         getSelectedExperiment().getExperimentId(),

@@ -36,7 +36,7 @@ public class RxDataController {
 
   public static Completable updateLabel(
       DataController dc, LabelListHolder h, Label l, Experiment e) {
-    h.updateLabel(l);
+    h.updateLabel(e, l);
     return updateExperiment(dc, e);
   }
 
@@ -67,7 +67,7 @@ public class RxDataController {
 
   public static Completable addTrialLabel(
       Label label, DataController dc, Experiment experiment, String trialId) {
-    experiment.getTrial(trialId).addLabel(label);
+    experiment.getTrial(trialId).addLabel(experiment, label);
     return updateExperiment(dc, experiment);
   }
 }

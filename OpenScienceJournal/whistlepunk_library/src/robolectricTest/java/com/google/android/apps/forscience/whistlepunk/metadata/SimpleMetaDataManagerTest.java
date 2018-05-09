@@ -144,7 +144,7 @@ public class SimpleMetaDataManagerTest {
 
     Label textLabel =
         Label.newLabelWithValue(1, GoosciLabel.Label.ValueType.TEXT, textLabelValue, null);
-    experiment.addLabel(textLabel);
+    experiment.addLabel(experiment, textLabel);
     File tmpFile;
     try {
       tmpFile = File.createTempFile("testfile_" + experiment.getExperimentId(), "png");
@@ -167,7 +167,7 @@ public class SimpleMetaDataManagerTest {
 
     Label pictureLabel =
         Label.newLabelWithValue(2, GoosciLabel.Label.ValueType.PICTURE, labelValue, caption);
-    experiment.addLabel(pictureLabel);
+    experiment.addLabel(experiment, pictureLabel);
 
     mMetaDataManager.updateExperiment(experiment);
 

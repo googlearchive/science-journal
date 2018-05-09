@@ -890,7 +890,7 @@ public class RunReviewFragment extends Fragment
   private void onLabelDelete(DeletedLabel item) {
     item.deleteAndDisplayUndoBar(
         getView(),
-        experimentId,
+        experiment,
         getTrial(),
         () -> {
           pinnedNoteAdapter.onLabelAdded(item.getLabel());
@@ -1587,7 +1587,7 @@ public class RunReviewFragment extends Fragment
     setTimepickerUi(getView(), false);
     label.setTimestamp(selectedTimestamp);
     Trial trial = experiment.getTrial(trialId);
-    trial.updateLabel(label);
+    trial.updateLabel(experiment, label);
     experiment.updateTrial(trial);
     RxDataController.updateExperiment(getDataController(), experiment)
         .subscribe(MaybeConsumers.toCompletableObserver(onLabelEdit(label)));

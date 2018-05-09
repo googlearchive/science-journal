@@ -108,6 +108,25 @@ public class ExperimentTest {
   }
 
   @Test
+  public void testChangesConstructedProperly() {
+    GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
+
+    // No changes on creation
+    Experiment experiment =
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
+    assertEquals(experiment.getChanges().size(), 0);
+
+    experiment.addChange(new Change());
+    experiment.addChange(new Change());
+    assertEquals(experiment.getChanges().size(), 2);
+
+    Experiment experiment2 =
+        Experiment.fromExperiment(
+            experiment.getExperimentProto(), new GoosciUserMetadata.ExperimentOverview());
+    assertEquals(experiment.getChanges().size(), 2);
+  }
+
+  @Test
   public void testTrials() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
 
@@ -265,6 +284,53 @@ public class ExperimentTest {
     
     experimentImagePath = experiment.getExperimentProto().imagePath;
     assertEquals("path.jpg", experimentImagePath);
+  }
+
+  @Test
+  public void testChangesAdded() {
+    GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
+    Experiment experiment =
+        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
+
+    assertEquals(0, experiment.getChanges().size());
+    experiment.setTitle("foo");
+    assertEquals(1, experiment.getChanges().size());
+
+    Label label = Label.newLabel(1000, GoosciLabel.Label.ValueType.TEXT);
+    experiment.addLabel(experiment, label);
+    assertEquals(2, experiment.getChanges().size());
+
+    label.setTimestamp(2000);
+    experiment.updateLabel(experiment, label);
+    assertEquals(3, experiment.getChanges().size());
+
+    label.setTimestamp(3000);
+    experiment.updateLabelWithoutSorting(experiment, label);
+    assertEquals(4, experiment.getChanges().size());
+
+    GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
+    trialProto.labels = new GoosciLabel.Label[1];
+    GoosciLabel.Label labelProto = new GoosciLabel.Label();
+    labelProto.labelId = "labelId";
+    labelProto.timestampMs = 1;
+    trialProto.labels[0] = labelProto;
+    Trial trial = Trial.fromTrial(trialProto);
+
+    experiment.addTrial(trial);
+
+    assertEquals(trial.getLabelCount(), 1);
+    assertEquals(5, experiment.getChanges().size());
+
+    Label label2 = trial.getLabels().get(0);
+    label2.setTimestamp(10);
+    trial.updateLabel(experiment, label2);
+    assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
+    assertEquals(6, experiment.getChanges().size());
+
+    label2.setTimestamp(20);
+    trial.updateLabelWithoutSorting(experiment, label2);
+    assertEquals(trial.getLabels().get(0).getTimeStamp(), 20);
+    assertEquals(7, experiment.getChanges().size());
   }
 
   private Context getContext() {

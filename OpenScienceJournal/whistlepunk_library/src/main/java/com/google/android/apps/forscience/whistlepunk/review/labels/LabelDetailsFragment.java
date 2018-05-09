@@ -131,7 +131,7 @@ abstract class LabelDetailsFragment extends Fragment {
           .subscribe(LoggingConsumer.observe(TAG, "update"));
     } else {
       Trial trial = experiment.getTrial(mTrialId);
-      trial.updateLabel(mOriginalLabel);
+      trial.updateLabel(experiment, mOriginalLabel);
       experiment.updateTrial(trial);
       RxDataController.updateExperiment(getDataController(), experiment)
           .subscribe(LoggingConsumer.observe(TAG, "update"));

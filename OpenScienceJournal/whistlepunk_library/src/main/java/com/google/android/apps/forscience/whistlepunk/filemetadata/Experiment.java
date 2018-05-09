@@ -51,6 +51,7 @@ public class Experiment extends LabelListHolder {
   private List<GoosciExperiment.ExperimentSensor> mExperimentSensors;
   private List<SensorTrigger> mSensorTriggers;
   private List<Trial> mTrials;
+  private final List<Change> mChanges;
   private String mTitle;
   private String mDescription;
   private String mImagePath;
@@ -107,6 +108,11 @@ public class Experiment extends LabelListHolder {
     for (GoosciSensorTrigger.SensorTrigger proto : mProto.sensorTriggers) {
       mSensorTriggers.add(SensorTrigger.fromProto(proto));
     }
+    mChanges = new ArrayList<>();
+    for (GoosciExperiment.Change proto : mProto.changes) {
+      addChange(Change.fromProto(proto));
+    }
+
     mTitle = mProto.title;
     mDescription = mProto.description;
     mLastUsedTimeMs = mExperimentOverview.lastUsedTimeMs;
@@ -169,6 +175,9 @@ public class Experiment extends LabelListHolder {
 
   public void setTitle(String title) {
     mTitle = title;
+    addChange(
+        Change.newModifyTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.EXPERIMENT, getExperimentId()));
   }
 
   public String getDisplayTitle(Context context) {
@@ -319,6 +328,9 @@ public class Experiment extends LabelListHolder {
     }
     // Update may involve crop, so re-sort just in case!
     sortTrials();
+    addChange(
+        Change.newModifyTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.TRIAL, trial.getTrialId()));
   }
 
   /**
@@ -331,13 +343,20 @@ public class Experiment extends LabelListHolder {
     mTrialCount = mTrials.size();
     trial.setTrialNumberInExperiment(++mTotalTrials);
     sortTrials();
+    addChange(
+        Change.newAddTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.TRIAL, trial.getTrialId()));
   }
 
   /** Removes a trial from the experiment. */
+  //TODO(b/79353972) Test this
   public void deleteTrial(Trial trial, Context context) {
     trial.deleteContents(context, getExperimentId());
     mTrials.remove(trial);
     mTrialCount = mTrials.size();
+    addChange(
+        Change.newDeleteTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.TRIAL, trial.getTrialId()));
   }
 
   /** Removes the assets from this experiment. */
@@ -517,7 +536,14 @@ public class Experiment extends LabelListHolder {
         mProto.labels[index++] = label.getLabelProto();
       }
     }
-    mProto.imagePath = getExperimentOverview().imagePath;
+    if (mChanges != null) {
+      mProto.changes = new GoosciExperiment.Change[mChanges.size()];
+      int index = 0;
+      for (Change change : mChanges) {
+        mProto.changes[index++] = change.getChangeProto();
+      }
+    }
+    mProto.imagePath = mImagePath;
     mProto.title = mTitle;
     mProto.description = mDescription;
     mProto.totalTrials = mTotalTrials;
@@ -563,6 +589,30 @@ public class Experiment extends LabelListHolder {
     }
   }
 
+  @Override
+  public void addLabel(Experiment experiment, Label label) {
+    addLabel(label);
+    addChange(
+        Change.newAddTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
+  }
+
+  @Override
+  public void updateLabel(Experiment experiment, Label label) {
+    updateLabel(label);
+    addChange(
+        Change.newModifyTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
+  }
+
+  @Override
+  public void updateLabelWithoutSorting(Experiment experiment, Label label) {
+    updateLabelWithoutSorting(label);
+    addChange(
+        Change.newModifyTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
+  }
+
   public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label item) {
     return deleteLabelAndReturnAssetDeleter(item, getExperimentId());
   }
@@ -573,6 +623,14 @@ public class Experiment extends LabelListHolder {
         && TextUtils.isEmpty(getExperimentOverview().imagePath)
         && TextUtils.isEmpty(getTitle())
         && !isArchived();
+  }
+
+  public void addChange(Change change) {
+    mChanges.add(change);
+  }
+
+  public List<Change> getChanges() {
+    return mChanges;
   }
 
   @VisibleForTesting

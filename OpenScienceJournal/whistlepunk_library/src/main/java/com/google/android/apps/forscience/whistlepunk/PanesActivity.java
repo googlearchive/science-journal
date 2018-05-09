@@ -835,9 +835,9 @@ public class PanesActivity extends AppCompatActivity
           // if it is recording, add it to the recorded trial instead!
           String trialId = experimentFragment.getActiveRecordingId();
           if (TextUtils.isEmpty(trialId)) {
-            e.addLabel(label);
+            e.addLabel(e, label);
           } else {
-            e.getTrial(trialId).addLabel(label);
+            e.getTrial(trialId).addLabel(e, label);
           }
           RxDataController.updateExperiment(getDataController(), e)
               .subscribe(() -> onLabelAdded(trialId));

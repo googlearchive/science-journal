@@ -42,12 +42,14 @@ public abstract class LabelListHolder {
   }
 
   /** Updates a label in the list. Maintains label sort order. */
-  public void updateLabel(Label label) {
+  void updateLabel(Label label) {
     updateLabelWithoutSorting(label);
     sortLabels();
   }
 
-  public void updateLabelWithoutSorting(Label label) {
+  public abstract void updateLabel(Experiment experiment, Label label);
+
+  void updateLabelWithoutSorting(Label label) {
     for (int i = 0; i < mLabels.size(); i++) {
       Label next = mLabels.get(i);
       if (!TextUtils.equals(label.getLabelId(), next.getLabelId())) {
@@ -57,14 +59,18 @@ public abstract class LabelListHolder {
     }
   }
 
+  public abstract void updateLabelWithoutSorting(Experiment experiment, Label label);
+
   /** Adds a label to the object's list of labels. The list will still be sorted by timestamp. */
-  public void addLabel(Label label) {
+  void addLabel(Label label) {
     mLabels.add(label);
     sortLabels();
     if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
       onPictureLabelAdded(label);
     }
   }
+
+  public abstract void addLabel(Experiment experiment, Label label);
 
   /**
    * Deletes a label from this object.

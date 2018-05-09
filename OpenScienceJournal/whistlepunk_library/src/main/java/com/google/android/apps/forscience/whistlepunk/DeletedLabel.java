@@ -19,6 +19,7 @@ import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import io.reactivex.Observable;
@@ -45,7 +46,10 @@ public class DeletedLabel {
   }
 
   public void deleteAndDisplayUndoBar(
-      View view, final String experimentId, LabelListHolder labelHolder, Runnable uiChangeOnUndo) {
+      View view,
+      final Experiment experiment,
+      LabelListHolder labelHolder,
+      Runnable uiChangeOnUndo) {
     Context context = view.getContext();
     final DataController dc = AppSingleton.getInstance(context).getDataController();
     Snackbar bar =
@@ -67,9 +71,10 @@ public class DeletedLabel {
             }
             undone.onHappened();
             mUndone = true;
-            labelHolder.addLabel(mLabel);
+            labelHolder.addLabel(experiment, mLabel);
+
             dc.updateExperiment(
-                experimentId,
+                experiment.getExperimentId(),
                 new LoggingConsumer<Success>(TAG, "re-add deleted label") {
                   @Override
                   public void success(Success value) {

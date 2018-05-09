@@ -711,7 +711,7 @@ public class ExperimentDetailsFragment extends Fragment
   private void onLabelDelete(DeletedLabel deletedLabel) {
     deletedLabel.deleteAndDisplayUndoBar(
         getView(),
-        mExperiment.getExperimentId(),
+        mExperiment,
         mExperiment,
         () -> {
           mAdapter.insertNote(deletedLabel.getLabel());

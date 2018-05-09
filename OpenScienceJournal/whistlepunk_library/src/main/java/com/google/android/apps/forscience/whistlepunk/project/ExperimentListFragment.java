@@ -275,7 +275,7 @@ public class ExperimentListFragment extends Fragment
                       GoosciLabel.Label.ValueType.TEXT,
                       goosciTextLabel1,
                       null);
-              e.addLabel(textLabel1);
+              e.addLabel(e, textLabel1);
 
               // Create a text label 2 seconds ago with default text.
               GoosciTextLabelValue.TextLabelValue goosciTextLabel2 =
@@ -287,7 +287,7 @@ public class ExperimentListFragment extends Fragment
                       GoosciLabel.Label.ValueType.TEXT,
                       goosciTextLabel2,
                       null);
-              e.addLabel(textLabel2);
+              e.addLabel(e, textLabel2);
 
               // Create a picture label 4 second ago with a default drawable and caption.
               GoosciCaption.Caption caption = new GoosciCaption.Caption();
@@ -305,7 +305,7 @@ public class ExperimentListFragment extends Fragment
                   FileMetadataManager.getRelativePathInExperiment(e.getExperimentId(), pictureFile);
               pictureLabel.setLabelProtoData(goosciPictureLabel);
               pictureLabel.setCaption(caption);
-              e.addLabel(pictureLabel);
+              e.addLabel(e, pictureLabel);
 
               // TODO: Add a recording item if required by b/64844798.
 

@@ -756,7 +756,7 @@ public class FileMetadataManager {
   private void updateLabels(GoosciExperiment.Experiment proto, Experiment newExperiment) {
     for (int i = 0; i < proto.labels.length; i++) {
       Label label = Label.fromLabel(proto.labels[i]);
-      newExperiment.addLabel(label);
+      newExperiment.addLabel(newExperiment, label);
     }
   }
 
