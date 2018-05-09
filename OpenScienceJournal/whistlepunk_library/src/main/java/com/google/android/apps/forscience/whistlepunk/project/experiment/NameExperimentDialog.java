@@ -45,9 +45,9 @@ public class NameExperimentDialog extends DialogFragment {
     void onTitleChangedFromDialog();
   }
 
-  private String mExperimentId;
-  private TextInputEditText mInput;
-  private TextInputLayout mInputLayout;
+  private String experimentId;
+  private TextInputEditText input;
+  private TextInputLayout inputLayout;
 
   public static NameExperimentDialog newInstance(String experimentId) {
     NameExperimentDialog dialog = new NameExperimentDialog();
@@ -70,17 +70,17 @@ public class NameExperimentDialog extends DialogFragment {
     if (savedInstanceState != null) {
       previousTitle = savedInstanceState.getString(KEY_SAVED_TITLE);
     }
-    mExperimentId = getArguments().getString(KEY_EXPERIMENT_ID);
+    experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
 
     final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
     ViewGroup rootView =
         (ViewGroup)
             LayoutInflater.from(getActivity()).inflate(R.layout.name_experiment_dialog, null);
-    mInput = (TextInputEditText) rootView.findViewById(R.id.title);
-    mInputLayout = (TextInputLayout) rootView.findViewById(R.id.title_input_layout);
-    mInput.setText(previousTitle);
+    input = (TextInputEditText) rootView.findViewById(R.id.title);
+    inputLayout = (TextInputLayout) rootView.findViewById(R.id.title_input_layout);
+    input.setText(previousTitle);
     if (savedInstanceState == null) {
-      mInput.selectAll();
+      input.selectAll();
     }
     // TODO: Max char count?
     // TODO: Pop up the keyboard immediately.
@@ -92,13 +92,13 @@ public class NameExperimentDialog extends DialogFragment {
     alertDialog.setPositiveButton(
         android.R.string.ok, (dialogInterface, i) -> saveNewTitle(alertDialog.getContext()));
     AlertDialog result = alertDialog.create();
-    RxTextView.afterTextChangeEvents(mInput)
+    RxTextView.afterTextChangeEvents(input)
         .subscribe(
             event -> {
               Button button = result.getButton(DialogInterface.BUTTON_POSITIVE);
-              if (mInput.getText().toString().length() == 0) {
+              if (input.getText().toString().length() == 0) {
                 if (getActivity() != null) {
-                  mInputLayout.setError(
+                  inputLayout.setError(
                       getActivity()
                           .getResources()
                           .getString(R.string.empty_experiment_title_error));
@@ -107,7 +107,7 @@ public class NameExperimentDialog extends DialogFragment {
                   button.setEnabled(false);
                 }
               } else if (button != null) {
-                mInputLayout.setErrorEnabled(false);
+                inputLayout.setErrorEnabled(false);
                 button.setEnabled(true);
               }
             });
@@ -117,7 +117,7 @@ public class NameExperimentDialog extends DialogFragment {
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
-    outState.putString(KEY_SAVED_TITLE, mInput.getText().toString());
+    outState.putString(KEY_SAVED_TITLE, input.getText().toString());
     super.onSaveInstanceState(outState);
   }
 
@@ -127,7 +127,7 @@ public class NameExperimentDialog extends DialogFragment {
       return;
     }
     DataController dc = AppSingleton.getInstance(getActivity()).getDataController();
-    RxDataController.getExperimentById(dc, mExperimentId)
+    RxDataController.getExperimentById(dc, experimentId)
         .subscribe(
             experiment -> {
               // Set the title to something so that we don't try to save it again later.
@@ -143,10 +143,10 @@ public class NameExperimentDialog extends DialogFragment {
 
   private void saveNewTitle(Context context) {
     DataController dc = AppSingleton.getInstance(context).getDataController();
-    RxDataController.getExperimentById(dc, mExperimentId)
+    RxDataController.getExperimentById(dc, experimentId)
         .subscribe(
             experiment -> {
-              String title = mInput.getText().toString().trim();
+              String title = input.getText().toString().trim();
               if (TextUtils.isEmpty(title)) {
                 title = getResources().getString(R.string.default_experiment_name);
               }

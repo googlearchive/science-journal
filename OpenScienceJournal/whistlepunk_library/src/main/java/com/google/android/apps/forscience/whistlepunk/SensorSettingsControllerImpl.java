@@ -29,11 +29,11 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 
 public class SensorSettingsControllerImpl extends ActiveSettingsController
     implements SensorSettingsController {
-  private Context mContext;
+  private Context context;
 
   public SensorSettingsControllerImpl(Context context) {
     super(context);
-    mContext = context;
+    this.context = context;
   }
 
   @Override
@@ -43,14 +43,14 @@ public class SensorSettingsControllerImpl extends ActiveSettingsController
       NewOptionsStorage storage,
       final OptionsListener commitListener,
       FailureListener failureListener) {
-    Resources resources = mContext.getResources();
+    Resources resources = context.getResources();
     String name = getSourceName(source);
     String optionsTitle = resources.getString(R.string.sensor_options);
     OptionsCallbacks callbacks =
         new OptionsCallbacks() {
           @Override
           public View buildOptionsView(ActiveBundle activeBundle) {
-            return presenter.getOptionsPresenter().buildOptionsView(activeBundle, mContext);
+            return presenter.getOptionsPresenter().buildOptionsView(activeBundle, context);
           }
 
           @Override
@@ -68,9 +68,9 @@ public class SensorSettingsControllerImpl extends ActiveSettingsController
   }
 
   private String getSourceName(SensorChoice source) {
-    return AppSingleton.getInstance(mContext)
+    return AppSingleton.getInstance(context)
         .getSensorAppearanceProvider()
         .getAppearance(source.getId())
-        .getName(mContext);
+        .getName(context);
   }
 }

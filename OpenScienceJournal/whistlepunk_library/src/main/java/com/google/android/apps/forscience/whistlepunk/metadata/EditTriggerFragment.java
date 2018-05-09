@@ -75,26 +75,26 @@ public class EditTriggerFragment extends Fragment {
   private static final String ARG_LAYOUT_POSITION = "sensor_layout_position";
   private static final int PERMISSION_VIBRATE = 1;
 
-  private String mSensorId;
-  private String mExperimentId;
-  private Experiment mExperiment;
-  private GoosciSensorLayout.SensorLayout mSensorLayout;
-  private SensorTrigger mTriggerToEdit;
-  private AppCompatSpinner mTypeSpinner;
-  private AppCompatSpinner mWhenSpinner;
-  private EditText mValue;
-  private EditText mNoteValue;
-  private SwitchCompat mAudioAlert;
-  private SwitchCompat mVisualAlert;
-  private SwitchCompat mHapticAlert;
-  private SwitchCompat mOnlyWhenRecording;
-  private int mSensorLayoutPosition;
-  private ViewGroup mNoteGroup;
-  private ViewGroup mAlertGroup;
-  private ViewGroup mOnlyWhenRecordingGroup;
-  private boolean mIsSavingNewTrigger = false;
-  private boolean mTriggerWasEdited = false;
-  private NumberFormat mNumberFormat;
+  private String sensorId;
+  private String experimentId;
+  private Experiment experiment;
+  private GoosciSensorLayout.SensorLayout sensorLayout;
+  private SensorTrigger triggerToEdit;
+  private AppCompatSpinner typeSpinner;
+  private AppCompatSpinner whenSpinner;
+  private EditText value;
+  private EditText noteValue;
+  private SwitchCompat audioAlert;
+  private SwitchCompat visualAlert;
+  private SwitchCompat hapticAlert;
+  private SwitchCompat onlyWhenRecording;
+  private int sensorLayoutPosition;
+  private ViewGroup noteGroup;
+  private ViewGroup alertGroup;
+  private ViewGroup onlyWhenRecordingGroup;
+  private boolean isSavingNewTrigger = false;
+  private boolean triggerWasEdited = false;
+  private NumberFormat numberFormat;
 
   public static EditTriggerFragment newInstance(
       String sensorId,
@@ -120,27 +120,27 @@ public class EditTriggerFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mSensorId = getArguments().getString(ARG_SENSOR_ID);
-    mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
+    sensorId = getArguments().getString(ARG_SENSOR_ID);
+    experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     try {
-      mSensorLayout =
+      sensorLayout =
           GoosciSensorLayout.SensorLayout.parseFrom(getArguments().getByteArray(ARG_SENSOR_LAYOUT));
     } catch (InvalidProtocolBufferNanoException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Error parsing the SensorLayout", e);
       }
-      mSensorLayout = RecordFragment.defaultLayout(0);
+      sensorLayout = RecordFragment.defaultLayout(0);
     }
-    mSensorLayoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
+    sensorLayoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
     getDataController()
         .getExperimentById(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Experiment>(TAG, "get experiment") {
               @Override
               public void success(Experiment value) {
-                mExperiment = value;
+                experiment = value;
                 String triggerId = getArguments().getString(ARG_TRIGGER_ID, "");
-                mTriggerToEdit = mExperiment.getSensorTrigger(triggerId);
+                triggerToEdit = experiment.getSensorTrigger(triggerId);
                 populateView(getView());
               }
             });
@@ -148,7 +148,7 @@ public class EditTriggerFragment extends Fragment {
 
   @Override
   public void onDestroy() {
-    if (mTriggerWasEdited) {
+    if (triggerWasEdited) {
       WhistlePunkApplication.getUsageTracker(getActivity())
           .trackEvent(TrackerConstants.CATEGORY_TRIGGERS, TrackerConstants.ACTION_EDITED, null, 0);
     }
@@ -175,25 +175,25 @@ public class EditTriggerFragment extends Fragment {
       return;
     }
 
-    mNoteGroup = (ViewGroup) view.findViewById(R.id.note_type_trigger_section);
-    mAlertGroup = (ViewGroup) view.findViewById(R.id.alert_type_trigger_section);
-    mOnlyWhenRecordingGroup = (ViewGroup) view.findViewById(R.id.only_when_recording_section);
+    noteGroup = (ViewGroup) view.findViewById(R.id.note_type_trigger_section);
+    alertGroup = (ViewGroup) view.findViewById(R.id.alert_type_trigger_section);
+    onlyWhenRecordingGroup = (ViewGroup) view.findViewById(R.id.only_when_recording_section);
 
-    mTypeSpinner = (AppCompatSpinner) view.findViewById(R.id.trigger_type_spinner);
+    typeSpinner = (AppCompatSpinner) view.findViewById(R.id.trigger_type_spinner);
     ArrayAdapter<CharSequence> typeAdapter =
         ArrayAdapter.createFromResource(
             getActivity(), R.array.trigger_type_list, android.R.layout.simple_spinner_item);
     typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    mTypeSpinner.setAdapter(typeAdapter);
+    typeSpinner.setAdapter(typeAdapter);
 
-    mWhenSpinner = (AppCompatSpinner) view.findViewById(R.id.trigger_when_spinner);
+    whenSpinner = (AppCompatSpinner) view.findViewById(R.id.trigger_when_spinner);
     ArrayAdapter<CharSequence> whenAdapter =
         ArrayAdapter.createFromResource(
             getActivity(), R.array.trigger_when_list, android.R.layout.simple_spinner_item);
     whenAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    mWhenSpinner.setAdapter(whenAdapter);
+    whenSpinner.setAdapter(whenAdapter);
 
-    mValue = (EditText) view.findViewById(R.id.value_input);
+    value = (EditText) view.findViewById(R.id.value_input);
 
     NumberFormat format = getValueNumberFormat();
     if (format instanceof DecimalFormat) {
@@ -201,50 +201,50 @@ public class EditTriggerFragment extends Fragment {
       // We can only dependably do this if the decimal separator is a fullstop.
       // http://b/8319249
       if (symbols.getDecimalSeparator() == '.') {
-        mValue.setInputType(
+        value.setInputType(
             InputType.TYPE_CLASS_NUMBER
                 | InputType.TYPE_NUMBER_FLAG_DECIMAL
                 | InputType.TYPE_NUMBER_FLAG_SIGNED);
       }
     }
 
-    mNoteValue = (EditText) view.findViewById(R.id.trigger_note_text);
-    mAudioAlert = (SwitchCompat) view.findViewById(R.id.alert_type_audio_selector);
-    mVisualAlert = (SwitchCompat) view.findViewById(R.id.alert_type_visual_selector);
-    mHapticAlert = (SwitchCompat) view.findViewById(R.id.alert_type_haptic_selector);
-    mHapticAlert.setEnabled(TriggerHelper.hasVibrator(getActivity()));
-    mOnlyWhenRecording = (SwitchCompat) view.findViewById(R.id.trigger_only_when_recording);
+    noteValue = (EditText) view.findViewById(R.id.trigger_note_text);
+    audioAlert = (SwitchCompat) view.findViewById(R.id.alert_type_audio_selector);
+    visualAlert = (SwitchCompat) view.findViewById(R.id.alert_type_visual_selector);
+    hapticAlert = (SwitchCompat) view.findViewById(R.id.alert_type_haptic_selector);
+    hapticAlert.setEnabled(TriggerHelper.hasVibrator(getActivity()));
+    onlyWhenRecording = (SwitchCompat) view.findViewById(R.id.trigger_only_when_recording);
 
     TextView unitsTextView = (TextView) view.findViewById(R.id.units);
     String units =
         AppSingleton.getInstance(getActivity())
             .getSensorAppearanceProvider()
-            .getAppearance(mSensorId)
+            .getAppearance(sensorId)
             .getUnits(getActivity());
     unitsTextView.setText(units);
 
     if (!isNewTrigger()) {
       // Populate the view with the trigger's data.
-      int actionType = mTriggerToEdit.getActionType();
-      mValue.setText(format.format(mTriggerToEdit.getValueToTrigger()));
-      mTypeSpinner.setSelection(actionType);
-      mWhenSpinner.setSelection(mTriggerToEdit.getTriggerWhen());
+      int actionType = triggerToEdit.getActionType();
+      value.setText(format.format(triggerToEdit.getValueToTrigger()));
+      typeSpinner.setSelection(actionType);
+      whenSpinner.setSelection(triggerToEdit.getTriggerWhen());
       if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
-        int[] alertTypes = mTriggerToEdit.getAlertTypes();
+        int[] alertTypes = triggerToEdit.getAlertTypes();
         for (int i = 0; i < alertTypes.length; i++) {
           int alertType = alertTypes[i];
           if (alertType == TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO) {
-            mAudioAlert.setChecked(true);
+            audioAlert.setChecked(true);
           } else if (alertType == TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL) {
-            mVisualAlert.setChecked(true);
+            visualAlert.setChecked(true);
           } else if (alertType == TriggerInformation.TriggerAlertType.TRIGGER_ALERT_PHYSICAL) {
-            mHapticAlert.setChecked(true);
+            hapticAlert.setChecked(true);
           }
         }
       } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
-        mNoteValue.setText(mTriggerToEdit.getNoteText());
+        noteValue.setText(triggerToEdit.getNoteText());
       }
-      mOnlyWhenRecording.setChecked(mTriggerToEdit.shouldTriggerOnlyWhenRecording());
+      onlyWhenRecording.setChecked(triggerToEdit.shouldTriggerOnlyWhenRecording());
       updateViewVisibilities(actionType);
 
       // Now add the save listeners if this is an edited trigger (not a new trigger).
@@ -261,9 +261,9 @@ public class EditTriggerFragment extends Fragment {
               saveTrigger();
             }
           };
-      mNoteValue.addTextChangedListener(watcher);
-      mValue.addTextChangedListener(watcher);
-      mWhenSpinner.setOnItemSelectedListener(
+      noteValue.addTextChangedListener(watcher);
+      value.addTextChangedListener(watcher);
+      whenSpinner.setOnItemSelectedListener(
           new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -280,29 +280,29 @@ public class EditTriggerFragment extends Fragment {
               saveTrigger();
             }
           };
-      mAudioAlert.setOnCheckedChangeListener(checkedChangeListener);
-      mVisualAlert.setOnCheckedChangeListener(checkedChangeListener);
+      audioAlert.setOnCheckedChangeListener(checkedChangeListener);
+      visualAlert.setOnCheckedChangeListener(checkedChangeListener);
     } else {
       // Default to an alert spinner that triggers "at" a value, and does a visual alert.
-      mTypeSpinner.setSelection(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
-      mWhenSpinner.setSelection(TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT);
-      mVisualAlert.setChecked(true);
-      mOnlyWhenRecording.setChecked(false);
+      typeSpinner.setSelection(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
+      whenSpinner.setSelection(TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT);
+      visualAlert.setChecked(true);
+      onlyWhenRecording.setChecked(false);
     }
 
-    mWhenSpinner.setOnItemSelectedListener(
+    whenSpinner.setOnItemSelectedListener(
         new AdapterView.OnItemSelectedListener() {
           @Override
           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             // Hide all but alert types if this is a ABOVE or BELOW.
             if (position == TriggerInformation.TriggerWhen.TRIGGER_WHEN_ABOVE
                 || position == TriggerInformation.TriggerWhen.TRIGGER_WHEN_BELOW) {
-              mTypeSpinner.setSelection(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
-              mTypeSpinner.setEnabled(false);
+              typeSpinner.setSelection(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
+              typeSpinner.setEnabled(false);
               updateViewVisibilities(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
               selectAlertTypeIfNeeded();
             } else {
-              mTypeSpinner.setEnabled(true);
+              typeSpinner.setEnabled(true);
             }
             if (!isNewTrigger()) {
               saveTrigger();
@@ -313,7 +313,7 @@ public class EditTriggerFragment extends Fragment {
           public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-    mTypeSpinner.setOnItemSelectedListener(
+    typeSpinner.setOnItemSelectedListener(
         new AdapterView.OnItemSelectedListener() {
           @Override
           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -323,7 +323,7 @@ public class EditTriggerFragment extends Fragment {
             }
             if (position == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING
                 || position == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
-              mOnlyWhenRecording.setChecked(false);
+              onlyWhenRecording.setChecked(false);
             }
             if (!isNewTrigger()) {
               saveTrigger();
@@ -334,7 +334,7 @@ public class EditTriggerFragment extends Fragment {
           public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-    mHapticAlert.setOnCheckedChangeListener(
+    hapticAlert.setOnCheckedChangeListener(
         new CompoundButton.OnCheckedChangeListener() {
           @Override
           public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -344,7 +344,7 @@ public class EditTriggerFragment extends Fragment {
           }
         });
 
-    mOnlyWhenRecording.setOnCheckedChangeListener(
+    onlyWhenRecording.setOnCheckedChangeListener(
         new CompoundButton.OnCheckedChangeListener() {
           @Override
           public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -357,35 +357,35 @@ public class EditTriggerFragment extends Fragment {
 
   @NonNull
   private NumberFormat getValueNumberFormat() {
-    if (mNumberFormat == null) {
-      mNumberFormat = NumberFormat.getNumberInstance(getResources().getConfiguration().locale);
-      mNumberFormat.setMaximumFractionDigits(100);
+    if (numberFormat == null) {
+      numberFormat = NumberFormat.getNumberInstance(getResources().getConfiguration().locale);
+      numberFormat.setMaximumFractionDigits(100);
     }
-    return mNumberFormat;
+    return numberFormat;
   }
 
   private void updateViewVisibilities(int actionType) {
     if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING
         || actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
-      mNoteGroup.setVisibility(View.GONE);
-      mAlertGroup.setVisibility(View.GONE);
-      mOnlyWhenRecordingGroup.setVisibility(View.GONE);
+      noteGroup.setVisibility(View.GONE);
+      alertGroup.setVisibility(View.GONE);
+      onlyWhenRecordingGroup.setVisibility(View.GONE);
     } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
-      mNoteGroup.setVisibility(View.GONE);
-      mAlertGroup.setVisibility(View.VISIBLE);
-      mOnlyWhenRecordingGroup.setVisibility(View.VISIBLE);
+      noteGroup.setVisibility(View.GONE);
+      alertGroup.setVisibility(View.VISIBLE);
+      onlyWhenRecordingGroup.setVisibility(View.VISIBLE);
     } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
-      mNoteGroup.setVisibility(View.VISIBLE);
-      mAlertGroup.setVisibility(View.GONE);
-      mOnlyWhenRecordingGroup.setVisibility(View.VISIBLE);
+      noteGroup.setVisibility(View.VISIBLE);
+      alertGroup.setVisibility(View.GONE);
+      onlyWhenRecordingGroup.setVisibility(View.VISIBLE);
     }
   }
 
   private void selectAlertTypeIfNeeded() {
     // Alert type triggers should have the visual alert field checked by default
     // when the user switches to this type.
-    if (!mHapticAlert.isChecked() && !mVisualAlert.isChecked() && !mAudioAlert.isChecked()) {
-      mVisualAlert.setChecked(true);
+    if (!hapticAlert.isChecked() && !visualAlert.isChecked() && !audioAlert.isChecked()) {
+      visualAlert.setChecked(true);
     }
   }
 
@@ -401,12 +401,12 @@ public class EditTriggerFragment extends Fragment {
     }
 
     menu.findItem(R.id.action_save).setVisible(isNewTrigger());
-    menu.findItem(R.id.action_save).setEnabled(!mIsSavingNewTrigger);
+    menu.findItem(R.id.action_save).setEnabled(!isSavingNewTrigger);
 
     SensorAppearance appearance =
         AppSingleton.getInstance(getActivity())
             .getSensorAppearanceProvider()
-            .getAppearance(mSensorId);
+            .getAppearance(sensorId);
     String triggerTitle =
         getString(
             isNewTrigger()
@@ -419,19 +419,19 @@ public class EditTriggerFragment extends Fragment {
 
   // Whether we are creating a new trigger or editing an existing trigger.
   private boolean isNewTrigger() {
-    return mTriggerToEdit == null;
+    return triggerToEdit == null;
   }
 
   // Calculates the current list of alert types based on which alert checkboxes are selected.
   private int[] getCurrentAlertTypes() {
     List<Integer> alertTypesList = new ArrayList<>();
-    if (mHapticAlert.isChecked()) {
+    if (hapticAlert.isChecked()) {
       alertTypesList.add(TriggerInformation.TriggerAlertType.TRIGGER_ALERT_PHYSICAL);
     }
-    if (mVisualAlert.isChecked()) {
+    if (visualAlert.isChecked()) {
       alertTypesList.add(TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL);
     }
-    if (mAudioAlert.isChecked()) {
+    if (audioAlert.isChecked()) {
       alertTypesList.add(TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO);
     }
     int[] alertTypes = new int[alertTypesList.size()];
@@ -456,16 +456,16 @@ public class EditTriggerFragment extends Fragment {
       return;
     }
     final DataController dc = getDataController();
-    int triggerType = mTypeSpinner.getSelectedItemPosition();
-    int triggerWhen = mWhenSpinner.getSelectedItemPosition();
-    boolean triggerOnlyWhenRecording = mOnlyWhenRecording.isChecked();
+    int triggerType = typeSpinner.getSelectedItemPosition();
+    int triggerWhen = whenSpinner.getSelectedItemPosition();
+    boolean triggerOnlyWhenRecording = onlyWhenRecording.isChecked();
     double triggerValue = 0;
     try {
       NumberFormat format = getValueNumberFormat();
-      Number number = format.parse(mValue.getText().toString());
+      Number number = format.parse(value.getText().toString());
       triggerValue = number.doubleValue();
     } catch (ParseException ex) {
-      mValue.setError(getActivity().getResources().getString(R.string.cannot_save_invalid_value));
+      value.setError(getActivity().getResources().getString(R.string.cannot_save_invalid_value));
       return;
     }
     if (isNewTrigger()) {
@@ -493,11 +493,11 @@ public class EditTriggerFragment extends Fragment {
       goToParent();
       return;
     }
-    mTriggerWasEdited = isUpdated;
-    TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, mTriggerToEdit.getTriggerId());
-    mExperiment.updateSensorTrigger(mTriggerToEdit);
+    triggerWasEdited = isUpdated;
+    TriggerHelper.addTriggerToLayoutActiveTriggers(sensorLayout, triggerToEdit.getTriggerId());
+    experiment.updateSensorTrigger(triggerToEdit);
     dc.updateExperiment(
-        mExperimentId,
+        experimentId,
         new LoggingConsumer<Success>(TAG, "update experiment's trigger") {
           @Override
           public void success(Success value) {
@@ -509,32 +509,32 @@ public class EditTriggerFragment extends Fragment {
   private boolean updateLocalTriggerIfChanged(
       int triggerType, int triggerWhen, double triggerValue, boolean triggerOnlyWhenRecording) {
     boolean isUpdated = false;
-    if (mTriggerToEdit.getTriggerWhen() != triggerWhen) {
-      mTriggerToEdit.setTriggerWhen(triggerWhen);
+    if (triggerToEdit.getTriggerWhen() != triggerWhen) {
+      triggerToEdit.setTriggerWhen(triggerWhen);
       isUpdated = true;
     }
-    if (mTriggerToEdit.getValueToTrigger() != triggerValue) {
-      mTriggerToEdit.setValueToTrigger(triggerValue);
+    if (triggerToEdit.getValueToTrigger() != triggerValue) {
+      triggerToEdit.setValueToTrigger(triggerValue);
       isUpdated = true;
     }
-    if (mTriggerToEdit.getActionType() != triggerType) {
-      mTriggerToEdit.setTriggerActionType(triggerType);
+    if (triggerToEdit.getActionType() != triggerType) {
+      triggerToEdit.setTriggerActionType(triggerType);
       isUpdated = true;
     }
-    if (mTriggerToEdit.shouldTriggerOnlyWhenRecording() != triggerOnlyWhenRecording) {
-      mTriggerToEdit.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
+    if (triggerToEdit.shouldTriggerOnlyWhenRecording() != triggerOnlyWhenRecording) {
+      triggerToEdit.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
       isUpdated = true;
     }
     if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
-      String noteText = String.valueOf(mNoteValue.getText());
-      if (!TextUtils.equals(noteText, mTriggerToEdit.getNoteText())) {
-        mTriggerToEdit.setNoteText(String.valueOf(mNoteValue.getText()));
+      String noteText = String.valueOf(noteValue.getText());
+      if (!TextUtils.equals(noteText, triggerToEdit.getNoteText())) {
+        triggerToEdit.setNoteText(String.valueOf(noteValue.getText()));
         isUpdated = true;
       }
     } else if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
       int[] alertTypes = getCurrentAlertTypes();
-      if (!SensorTrigger.hasSameAlertTypes(alertTypes, mTriggerToEdit.getAlertTypes())) {
-        mTriggerToEdit.setAlertTypes(alertTypes);
+      if (!SensorTrigger.hasSameAlertTypes(alertTypes, triggerToEdit.getAlertTypes())) {
+        triggerToEdit.setAlertTypes(alertTypes);
         isUpdated = true;
       }
     }
@@ -550,38 +550,38 @@ public class EditTriggerFragment extends Fragment {
       double triggerValue,
       boolean triggerOnlyWhenRecording) {
     // Now that the trigger is verified, make sure the save button can't be pushed again.
-    mIsSavingNewTrigger = true;
+    isSavingNewTrigger = true;
     getActivity().invalidateOptionsMenu();
     SensorTrigger triggerToAdd = null;
     if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING
         || triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
-      triggerToAdd = SensorTrigger.newTrigger(mSensorId, triggerWhen, triggerType, triggerValue);
+      triggerToAdd = SensorTrigger.newTrigger(sensorId, triggerWhen, triggerType, triggerValue);
     } else if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
       triggerToAdd =
           SensorTrigger.newNoteTypeTrigger(
-              mSensorId, triggerWhen, String.valueOf(mNoteValue.getText()), triggerValue);
+              sensorId, triggerWhen, String.valueOf(noteValue.getText()), triggerValue);
       triggerToAdd.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
     } else if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
       triggerToAdd =
           SensorTrigger.newAlertTypeTrigger(
-              mSensorId, triggerWhen, getCurrentAlertTypes(), triggerValue);
+              sensorId, triggerWhen, getCurrentAlertTypes(), triggerValue);
       triggerToAdd.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
     }
-    TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, triggerToAdd.getTriggerId());
-    mExperiment.addSensorTrigger(triggerToAdd);
+    TriggerHelper.addTriggerToLayoutActiveTriggers(sensorLayout, triggerToAdd.getTriggerId());
+    experiment.addSensorTrigger(triggerToAdd);
     dc.updateExperiment(
-        mExperimentId,
+        experimentId,
         new MaybeConsumer<Success>() {
           @Override
           public void fail(Exception e) {
-            mIsSavingNewTrigger = false;
+            isSavingNewTrigger = false;
             getActivity().invalidateOptionsMenu();
           }
 
           @Override
           public void success(Success value) {
             // Since we can only save the trigger once, no need to reset
-            // mIsSavingNewTrigger onSuccess.
+            // isSavingNewTrigger onSuccess.
             updateSensorLayoutAndGoToParent(true);
           }
         });
@@ -604,11 +604,11 @@ public class EditTriggerFragment extends Fragment {
   // Verifies that the user has entered valid input to the form.
   private boolean verifyInput() {
     // The user must enter a value at which the trigger happens.
-    if (TextUtils.isEmpty(mValue.getText())) {
-      mValue.setError(getActivity().getResources().getString(R.string.cannot_save_invalid_value));
+    if (TextUtils.isEmpty(value.getText())) {
+      value.setError(getActivity().getResources().getString(R.string.cannot_save_invalid_value));
       return false;
     }
-    if (mTypeSpinner.getSelectedItemPosition()
+    if (typeSpinner.getSelectedItemPosition()
             == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT
         && getCurrentAlertTypes().length == 0) {
       AccessibilityUtils.makeSnackbar(
@@ -625,10 +625,10 @@ public class EditTriggerFragment extends Fragment {
   // and added to the active triggers in the SensorLayout. Note that if no changes are made,
   // the trigger is not re-enabled in the SensorLayout.
   private void updateSensorLayoutAndGoToParent(final boolean goToParent) {
-    mExperiment.updateSensorLayout(mSensorLayoutPosition, mSensorLayout);
+    experiment.updateSensorLayout(sensorLayoutPosition, sensorLayout);
     getDataController()
         .updateExperiment(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Success>(TAG, "update experiment with layout") {
               @Override
               public void success(Success value) {
@@ -646,9 +646,9 @@ public class EditTriggerFragment extends Fragment {
     }
     // To restart the TriggerListActivity, need to pass back the trigger and layout info.
     Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
-    upIntent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, mSensorId);
-    upIntent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
-    upIntent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, mSensorLayoutPosition);
+    upIntent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, sensorId);
+    upIntent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, experimentId);
+    upIntent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, sensorLayoutPosition);
     upIntent.putExtra(
         TriggerListActivity.EXTRA_TRIGGER_ORDER,
         getArguments().getStringArrayList(TriggerListActivity.EXTRA_TRIGGER_ORDER));
@@ -671,7 +671,7 @@ public class EditTriggerFragment extends Fragment {
       return true;
     } else if (id == R.id.action_save) {
       // Only available for new triggers.
-      if (!mIsSavingNewTrigger) {
+      if (!isSavingNewTrigger) {
         // Don't allow multiple saves even if the DB is slow.
         saveTriggerAndReturn();
       }

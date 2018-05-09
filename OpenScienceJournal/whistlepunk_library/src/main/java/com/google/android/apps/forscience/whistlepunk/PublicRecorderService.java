@@ -32,7 +32,7 @@ public class PublicRecorderService extends Service
     implements FailureListener, ProxyRecorderController.BindingPolicy {
   private static final String TAG = "ExportedService";
 
-  private IRecorderController.Stub mController;
+  private IRecorderController.Stub controller;
 
   @Nullable
   @Override
@@ -41,10 +41,10 @@ public class PublicRecorderService extends Service
   }
 
   private IRecorderController.Stub getController() {
-    if (mController == null) {
-      mController = createController();
+    if (controller == null) {
+      controller = createController();
     }
-    return mController;
+    return controller;
   }
 
   // TODO: unit tests for this behavior

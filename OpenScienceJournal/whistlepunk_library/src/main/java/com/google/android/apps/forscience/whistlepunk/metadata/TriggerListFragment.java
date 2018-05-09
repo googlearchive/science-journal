@@ -67,14 +67,14 @@ public class TriggerListFragment extends Fragment {
   private static final String KEY_TRIGGER_ORDER = "trigger_order";
   private static final String TAG = "TriggerListFragment";
 
-  private static String mSensorId;
-  private String mExperimentId;
-  private GoosciSensorLayout.SensorLayout mSensorLayout;
-  private TriggerListAdapter mTriggerAdapter;
-  private int mLayoutPosition;
-  private ArrayList<String> mTriggerOrder;
-  private Experiment mExperiment;
-  private boolean mNeedsSave = false;
+  private static String sensorId;
+  private String experimentId;
+  private GoosciSensorLayout.SensorLayout sensorLayout;
+  private TriggerListAdapter triggerAdapter;
+  private int layoutPosition;
+  private ArrayList<String> triggerOrder;
+  private Experiment experiment;
+  private boolean needsSave = false;
 
   public static TriggerListFragment newInstance(
       String sensorId, String experimentId, int position, ArrayList<String> triggerOrder) {
@@ -91,13 +91,13 @@ public class TriggerListFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mSensorId = getArguments().getString(ARG_SENSOR_ID);
-    mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
-    mLayoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
+    sensorId = getArguments().getString(ARG_SENSOR_ID);
+    experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
+    layoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
     if (savedInstanceState != null) {
-      mTriggerOrder = savedInstanceState.getStringArrayList(KEY_TRIGGER_ORDER);
+      triggerOrder = savedInstanceState.getStringArrayList(KEY_TRIGGER_ORDER);
     } else {
-      mTriggerOrder = getArguments().getStringArrayList(ARG_TRIGGER_ORDER);
+      triggerOrder = getArguments().getStringArrayList(ARG_TRIGGER_ORDER);
     }
     setHasOptionsMenu(true);
   }
@@ -110,7 +110,7 @@ public class TriggerListFragment extends Fragment {
     String sensorName =
         AppSingleton.getInstance(getActivity())
             .getSensorAppearanceProvider()
-            .getAppearance(mSensorId)
+            .getAppearance(sensorId)
             .getName(getActivity());
     actionBar.setTitle(getString(R.string.title_fragment_trigger_list, sensorName));
 
@@ -132,10 +132,10 @@ public class TriggerListFragment extends Fragment {
 
   @Override
   public void onPause() {
-    if (mNeedsSave) {
+    if (needsSave) {
       getDataController()
           .updateExperiment(
-              mExperimentId,
+              experimentId,
               LoggingConsumer.<Success>expectSuccess(TAG, "updating sensor layout onPause"));
     }
     super.onPause();
@@ -145,7 +145,7 @@ public class TriggerListFragment extends Fragment {
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     saveTriggerOrder();
-    outState.putStringArrayList(KEY_TRIGGER_ORDER, mTriggerOrder);
+    outState.putStringArrayList(KEY_TRIGGER_ORDER, triggerOrder);
   }
 
   private DataController getDataController() {
@@ -165,8 +165,8 @@ public class TriggerListFragment extends Fragment {
     RecyclerView triggerList = (RecyclerView) view.findViewById(R.id.trigger_recycler_view);
     triggerList.setLayoutManager(
         new LinearLayoutManager(view.getContext(), LinearLayoutManager.VERTICAL, false));
-    mTriggerAdapter = new TriggerListAdapter(this);
-    triggerList.setAdapter(mTriggerAdapter);
+    triggerAdapter = new TriggerListAdapter(this);
+    triggerList.setAdapter(triggerAdapter);
 
     FloatingActionButton addButton =
         (FloatingActionButton) view.findViewById(R.id.add_trigger_button);
@@ -183,26 +183,26 @@ public class TriggerListFragment extends Fragment {
   private void loadExperiment() {
     getDataController()
         .getExperimentById(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Experiment>(TAG, "get experiment") {
               @Override
               public void success(Experiment experiment) {
-                mExperiment = experiment;
+                TriggerListFragment.this.experiment = experiment;
                 for (GoosciSensorLayout.SensorLayout layout : experiment.getSensorLayouts()) {
-                  if (TextUtils.equals(layout.sensorId, mSensorId)) {
-                    mSensorLayout = layout;
+                  if (TextUtils.equals(layout.sensorId, sensorId)) {
+                    sensorLayout = layout;
                   }
                 }
                 Comparator<SensorTrigger> cp;
-                if (mTriggerOrder != null) {
+                if (triggerOrder != null) {
                   // If this is not the first load, use the saved order to define a new
                   // order, but insert new triggers at the top.
                   cp =
                       new Comparator<SensorTrigger>() {
                         @Override
                         public int compare(SensorTrigger lhs, SensorTrigger rhs) {
-                          int lhsIndex = mTriggerOrder.indexOf(lhs.getTriggerId());
-                          int rhsIndex = mTriggerOrder.indexOf(rhs.getTriggerId());
+                          int lhsIndex = triggerOrder.indexOf(lhs.getTriggerId());
+                          int rhsIndex = triggerOrder.indexOf(rhs.getTriggerId());
                           if (lhsIndex == rhsIndex && lhsIndex == -1) {
                             // If they are both not found, they are both new.
                             return Long.compare(rhs.getLastUsed(), lhs.getLastUsed());
@@ -229,9 +229,9 @@ public class TriggerListFragment extends Fragment {
                       };
                 }
                 // Sort sensor triggers
-                List<SensorTrigger> triggers = experiment.getSensorTriggersForSensor(mSensorId);
+                List<SensorTrigger> triggers = experiment.getSensorTriggersForSensor(sensorId);
                 Collections.sort(triggers, cp);
-                mTriggerAdapter.setSensorTriggers(triggers);
+                triggerAdapter.setSensorTriggers(triggers);
               }
             });
   }
@@ -241,25 +241,25 @@ public class TriggerListFragment extends Fragment {
     if (trigger != null) {
       intent.putExtra(EditTriggerActivity.EXTRA_TRIGGER_ID, trigger.getTriggerId());
     }
-    intent.putExtra(EditTriggerActivity.EXTRA_EXPERIMENT_ID, mExperimentId);
-    intent.putExtra(EditTriggerActivity.EXTRA_SENSOR_ID, mSensorId);
+    intent.putExtra(EditTriggerActivity.EXTRA_EXPERIMENT_ID, experimentId);
+    intent.putExtra(EditTriggerActivity.EXTRA_SENSOR_ID, sensorId);
 
     // Also send the Sensor Layout and the position so that this fragment can be recreated on
     // completion, and the order in which the triggers are shown so that the order does not
     // change when the user gets back.
     intent.putExtra(
-        EditTriggerActivity.EXTRA_SENSOR_LAYOUT_BLOB, ProtoUtils.makeBlob(mSensorLayout));
-    intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, mLayoutPosition);
+        EditTriggerActivity.EXTRA_SENSOR_LAYOUT_BLOB, ProtoUtils.makeBlob(sensorLayout));
+    intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, layoutPosition);
     saveTriggerOrder();
-    intent.putExtra(TriggerListActivity.EXTRA_TRIGGER_ORDER, mTriggerOrder);
+    intent.putExtra(TriggerListActivity.EXTRA_TRIGGER_ORDER, triggerOrder);
 
     getActivity().startActivity(intent);
   }
 
   private void saveTriggerOrder() {
-    mTriggerOrder = new ArrayList<>();
-    for (SensorTrigger trigger : mTriggerAdapter.mSensorTriggers) {
-      mTriggerOrder.add(trigger.getTriggerId());
+    triggerOrder = new ArrayList<>();
+    for (SensorTrigger trigger : triggerAdapter.sensorTriggers) {
+      triggerOrder.add(trigger.getTriggerId());
     }
   }
 
@@ -276,29 +276,29 @@ public class TriggerListFragment extends Fragment {
     bar.setAction(
         R.string.snackbar_undo,
         new View.OnClickListener() {
-          boolean mUndone = false;
+          boolean undone = false;
 
           @Override
           public void onClick(View v) {
-            if (mUndone) {
+            if (undone) {
               return;
             }
-            mUndone = true;
-            mExperiment.addSensorTrigger(trigger);
+            undone = true;
+            experiment.addSensorTrigger(trigger);
             if (isActive) {
-              TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, trigger.getTriggerId());
-              mExperiment.updateSensorLayout(mLayoutPosition, mSensorLayout);
+              TriggerHelper.addTriggerToLayoutActiveTriggers(sensorLayout, trigger.getTriggerId());
+              experiment.updateSensorLayout(layoutPosition, sensorLayout);
             }
             dc.updateExperiment(
-                mExperimentId,
+                experimentId,
                 new LoggingConsumer<Success>(TAG, "update exp: re-add deleted trigger") {
                   @Override
                   public void success(Success value) {
                     if (isActive) {
                       // If it was active, re-add it to the Layout.
-                      mTriggerAdapter.addTriggerAtIndex(trigger, index);
+                      triggerAdapter.addTriggerAtIndex(trigger, index);
                     } else {
-                      mTriggerAdapter.addTriggerAtIndex(trigger, index);
+                      triggerAdapter.addTriggerAtIndex(trigger, index);
                     }
                   }
                 });
@@ -307,23 +307,23 @@ public class TriggerListFragment extends Fragment {
 
     // Do the deletion, first by removing it from the layout and next by removing it
     // from the trigger database.
-    TriggerHelper.removeTriggerFromLayoutActiveTriggers(mSensorLayout, trigger.getTriggerId());
-    mExperiment.removeSensorTrigger(trigger);
-    mExperiment.updateSensorLayout(mLayoutPosition, mSensorLayout);
+    TriggerHelper.removeTriggerFromLayoutActiveTriggers(sensorLayout, trigger.getTriggerId());
+    experiment.removeSensorTrigger(trigger);
+    experiment.updateSensorLayout(layoutPosition, sensorLayout);
     dc.updateExperiment(
-        mExperimentId,
+        experimentId,
         new LoggingConsumer<Success>(TAG, "delete trigger") {
           @Override
           public void success(Success value) {
             bar.show();
-            mTriggerAdapter.removeTrigger(trigger);
+            triggerAdapter.removeTrigger(trigger);
           }
         });
   }
 
   private boolean isTriggerActive(SensorTrigger trigger) {
-    for (int i = 0; i < mSensorLayout.activeSensorTriggerIds.length; i++) {
-      if (TextUtils.equals(trigger.getTriggerId(), mSensorLayout.activeSensorTriggerIds[i])) {
+    for (int i = 0; i < sensorLayout.activeSensorTriggerIds.length; i++) {
+      if (TextUtils.equals(trigger.getTriggerId(), sensorLayout.activeSensorTriggerIds[i])) {
         return true;
       }
     }
@@ -340,13 +340,13 @@ public class TriggerListFragment extends Fragment {
     // Unlike delete (which is updated immediately), and edit (where saving is handled in
     // another fragment), toggling the active state doesn't need to be written to the database
     // until we exit the fragment.
-    mNeedsSave = true;
+    needsSave = true;
     if (isActive) {
-      TriggerHelper.addTriggerToLayoutActiveTriggers(mSensorLayout, trigger.getTriggerId());
+      TriggerHelper.addTriggerToLayoutActiveTriggers(sensorLayout, trigger.getTriggerId());
     } else {
-      TriggerHelper.removeTriggerFromLayoutActiveTriggers(mSensorLayout, trigger.getTriggerId());
+      TriggerHelper.removeTriggerFromLayoutActiveTriggers(sensorLayout, trigger.getTriggerId());
     }
-    mExperiment.updateSensorLayout(mLayoutPosition, mSensorLayout);
+    experiment.updateSensorLayout(layoutPosition, sensorLayout);
     // Note: Last used time is not updated when the trigger is activated / deactivated, and the
     // list should not be resorted at this time.
   }
@@ -357,11 +357,11 @@ public class TriggerListFragment extends Fragment {
     private static final int VIEW_TYPE_TRIGGER = 0;
     private static final int VIEW_TYPE_EMPTY = 1;
 
-    List<SensorTrigger> mSensorTriggers = new ArrayList<>();
-    private final WeakReference<TriggerListFragment> mParentReference;
+    List<SensorTrigger> sensorTriggers = new ArrayList<>();
+    private final WeakReference<TriggerListFragment> parentReference;
 
     public TriggerListAdapter(TriggerListFragment parent) {
-      mParentReference = new WeakReference<TriggerListFragment>(parent);
+      parentReference = new WeakReference<TriggerListFragment>(parent);
     }
 
     @Override
@@ -381,12 +381,12 @@ public class TriggerListFragment extends Fragment {
       if (getItemViewType(position) == VIEW_TYPE_EMPTY) {
         return;
       }
-      final SensorTrigger trigger = mSensorTriggers.get(position);
-      if (mParentReference.get() == null) {
+      final SensorTrigger trigger = sensorTriggers.get(position);
+      if (parentReference.get() == null) {
         return;
       }
       holder.description.setText(
-          TriggerHelper.buildDescription(trigger, mParentReference.get().getActivity()));
+          TriggerHelper.buildDescription(trigger, parentReference.get().getActivity()));
 
       holder.menuButton.setOnClickListener(
           new View.OnClickListener() {
@@ -405,15 +405,15 @@ public class TriggerListFragment extends Fragment {
                   new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                       if (item.getItemId() == R.id.edit_trigger) {
-                        if (mParentReference.get() != null) {
-                          mParentReference.get().launchEditTriggerActivity(trigger);
+                        if (parentReference.get() != null) {
+                          parentReference.get().launchEditTriggerActivity(trigger);
                         }
                         return true;
                       } else if (item.getItemId() == R.id.delete_trigger) {
-                        if (mParentReference.get() != null) {
-                          mParentReference
+                        if (parentReference.get() != null) {
+                          parentReference
                               .get()
-                              .deleteTrigger(trigger, mSensorTriggers.indexOf(trigger));
+                              .deleteTrigger(trigger, sensorTriggers.indexOf(trigger));
                         }
                         return true;
                       }
@@ -425,13 +425,13 @@ public class TriggerListFragment extends Fragment {
           });
 
       holder.activationSwitch.setOnCheckedChangeListener(null);
-      holder.activationSwitch.setChecked(mParentReference.get().isTriggerActive(trigger));
+      holder.activationSwitch.setChecked(parentReference.get().isTriggerActive(trigger));
       holder.activationSwitch.setOnCheckedChangeListener(
           new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-              if (mParentReference.get() != null) {
-                mParentReference.get().setSensorTriggerActive(trigger, isChecked);
+              if (parentReference.get() != null) {
+                parentReference.get().setSensorTriggerActive(trigger, isChecked);
               }
             }
           });
@@ -449,44 +449,44 @@ public class TriggerListFragment extends Fragment {
 
     @Override
     public int getItemCount() {
-      return mSensorTriggers.size() == 0 ? 1 : mSensorTriggers.size();
+      return sensorTriggers.size() == 0 ? 1 : sensorTriggers.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-      if (position == 0 && mSensorTriggers.size() == 0) {
+      if (position == 0 && sensorTriggers.size() == 0) {
         return VIEW_TYPE_EMPTY;
       }
       return VIEW_TYPE_TRIGGER;
     }
 
     public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
-      mSensorTriggers = sensorTriggers;
+      this.sensorTriggers = sensorTriggers;
       notifyDataSetChanged();
     }
 
     public void removeTrigger(SensorTrigger trigger) {
-      if (mSensorTriggers.contains(trigger)) {
-        mSensorTriggers.remove(trigger);
+      if (sensorTriggers.contains(trigger)) {
+        sensorTriggers.remove(trigger);
       }
       notifyDataSetChanged();
     }
 
     public void addTriggerAtIndex(SensorTrigger trigger, int index) {
-      mSensorTriggers.add(index, trigger);
+      sensorTriggers.add(index, trigger);
       notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-      int mViewType;
+      int viewType;
       TextView description;
       ImageButton menuButton;
       SwitchCompat activationSwitch;
 
       public ViewHolder(View itemView, int viewType) {
         super(itemView);
-        mViewType = viewType;
-        if (mViewType == VIEW_TYPE_TRIGGER) {
+        this.viewType = viewType;
+        if (viewType == VIEW_TYPE_TRIGGER) {
           description = (TextView) itemView.findViewById(R.id.trigger_description);
           menuButton = (ImageButton) itemView.findViewById(R.id.btn_trigger_menu);
           activationSwitch = (SwitchCompat) itemView.findViewById(R.id.trigger_activation_switch);

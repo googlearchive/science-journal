@@ -51,17 +51,17 @@ import java.util.concurrent.Executor;
 
 public class DataControllerImpl implements DataController, RecordingDataController {
   private static final String TAG = "DataControllerImpl";
-  private final SensorDatabase mSensorDatabase;
-  private final Executor mUiThread;
-  private final Executor mMetaDataThread;
-  private final Executor mSensorDataThread;
-  private MetaDataManager mMetaDataManager;
-  private Clock mClock;
-  private Map<String, FailureListener> mSensorFailureListeners = new HashMap<>();
-  private final Map<String, SensorProvider> mProviderMap;
-  private long mPrevLabelTimestamp = 0;
-  private Map<String, WeakReference<Experiment>> mCachedExperiments = new HashMap<>();
-  private ConnectableSensor.Connector mConnector;
+  private final SensorDatabase sensorDatabase;
+  private final Executor uiThread;
+  private final Executor metaDataThread;
+  private final Executor sensorDataThread;
+  private MetaDataManager metaDataManager;
+  private Clock clock;
+  private Map<String, FailureListener> sensorFailureListeners = new HashMap<>();
+  private final Map<String, SensorProvider> providerMap;
+  private long prevLabelTimestamp = 0;
+  private Map<String, WeakReference<Experiment>> cachedExperiments = new HashMap<>();
+  private ConnectableSensor.Connector connector;
 
   public DataControllerImpl(
       SensorDatabase sensorDatabase,
@@ -72,14 +72,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       Clock clock,
       Map<String, SensorProvider> providerMap,
       ConnectableSensor.Connector connector) {
-    mSensorDatabase = sensorDatabase;
-    mUiThread = uiThread;
-    mMetaDataThread = metaDataThread;
-    mSensorDataThread = sensorDataThread;
-    mMetaDataManager = metaDataManager;
-    mClock = clock;
-    mProviderMap = providerMap;
-    mConnector = connector;
+    this.sensorDatabase = sensorDatabase;
+    this.uiThread = uiThread;
+    this.metaDataThread = metaDataThread;
+    this.sensorDataThread = sensorDataThread;
+    this.metaDataManager = metaDataManager;
+    this.clock = clock;
+    this.providerMap = providerMap;
+    this.connector = connector;
   }
 
   public void replaceSensorInExperiment(
@@ -96,14 +96,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
               public void take(final Experiment experiment) {
                 replaceIdInLayouts(experiment, oldSensorId, newSensorId);
                 background(
-                    mMetaDataThread,
+                    metaDataThread,
                     onSuccess,
                     new Callable<Success>() {
                       @Override
                       public Success call() throws Exception {
-                        mMetaDataManager.removeSensorFromExperiment(oldSensorId, experimentId);
-                        mMetaDataManager.addSensorToExperiment(newSensorId, experimentId);
-                        mMetaDataManager.updateExperiment(experiment);
+                        metaDataManager.removeSensorFromExperiment(oldSensorId, experimentId);
+                        metaDataManager.addSensorToExperiment(newSensorId, experimentId);
+                        metaDataManager.updateExperiment(experiment);
                         return Success.SUCCESS;
                       }
                     });
@@ -120,7 +120,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   private void removeTrialSensorData(final Trial trial) {
-    mSensorDataThread.execute(
+    sensorDataThread.execute(
         () -> {
           long firstTimestamp = trial.getOriginalFirstTimestamp();
           long lastTimestamp = trial.getOriginalLastTimestamp();
@@ -131,21 +131,21 @@ public class DataControllerImpl implements DataController, RecordingDataControll
           }
           TimeRange times = TimeRange.oldest(Range.closed(firstTimestamp, lastTimestamp));
           for (String tag : trial.getSensorIds()) {
-            mSensorDatabase.deleteScalarReadings(trial.getTrialId(), tag, times);
+            sensorDatabase.deleteScalarReadings(trial.getTrialId(), tag, times);
           }
         });
   }
 
   @Override
   public void addScalarReadings(List<BatchInsertScalarReading> readings) {
-    mSensorDataThread.execute(
+    sensorDataThread.execute(
         new Runnable() {
           @Override
           public void run() {
             try {
-              mSensorDatabase.addScalarReadings(readings);
+              sensorDatabase.addScalarReadings(readings);
             } catch (final Exception e) {
-              mUiThread.execute(
+              uiThread.execute(
                   new Runnable() {
                     @Override
                     public void run() {
@@ -164,15 +164,15 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       final int resolutionTier,
       final long timestampMillis,
       final double value) {
-    mSensorDataThread.execute(
+    sensorDataThread.execute(
         new Runnable() {
           @Override
           public void run() {
             try {
-              mSensorDatabase.addScalarReading(
+              sensorDatabase.addScalarReading(
                   trialId, sensorId, resolutionTier, timestampMillis, value);
             } catch (final Exception e) {
-              mUiThread.execute(
+              uiThread.execute(
                   new Runnable() {
                     @Override
                     public void run() {
@@ -185,7 +185,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   private void notifyFailureListener(String sensorId, Exception e) {
-    FailureListener listener = mSensorFailureListeners.get(sensorId);
+    FailureListener listener = sensorFailureListeners.get(sensorId);
     if (listener != null) {
       listener.fail(e);
     }
@@ -201,12 +201,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       final MaybeConsumer<ScalarReadingList> onSuccess) {
     Preconditions.checkNotNull(databaseTag);
     background(
-        mSensorDataThread,
+        sensorDataThread,
         onSuccess,
         new Callable<ScalarReadingList>() {
           @Override
           public ScalarReadingList call() throws Exception {
-            return mSensorDatabase.getScalarReadings(
+            return sensorDatabase.getScalarReadings(
                 trialId, databaseTag, timeRange, resolutionTier, maxRecords);
           }
         });
@@ -217,9 +217,9 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       GoosciExperiment.Experiment experiment,
       final MaybeConsumer<GoosciScalarSensorData.ScalarSensorData> onSuccess) {
     Preconditions.checkNotNull(experiment);
-    mSensorDataThread.execute(
+    sensorDataThread.execute(
         () -> {
-          onSuccess.success(mSensorDatabase.getScalarReadingProtos(experiment));
+          onSuccess.success(sensorDatabase.getScalarReadingProtos(experiment));
         });
   }
 
@@ -229,15 +229,15 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       final String[] sensorIds,
       final TimeRange timeRange,
       final int resolutionTier) {
-    return mSensorDatabase
+    return sensorDatabase
         .createScalarObservable(trialId, sensorIds, timeRange, resolutionTier)
-        .observeOn(Schedulers.from(mSensorDataThread));
+        .observeOn(Schedulers.from(sensorDataThread));
   }
 
   @Override
   public void deleteTrialData(final Trial trial, MaybeConsumer<Success> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<Success>() {
           @Override
@@ -261,12 +261,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
               }
             });
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccessWrapper,
         new Callable<Experiment>() {
           @Override
           public Experiment call() throws Exception {
-            Experiment experiment = mMetaDataManager.newExperiment();
+            Experiment experiment = metaDataManager.newExperiment();
             return experiment;
           }
         });
@@ -275,11 +275,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   @Override
   public void deleteExperiment(
       final Experiment experiment, final MaybeConsumer<Success> onSuccess) {
-    if (mCachedExperiments.containsKey(experiment.getExperimentId())) {
-      mCachedExperiments.remove(experiment.getExperimentId());
+    if (cachedExperiments.containsKey(experiment.getExperimentId())) {
+      cachedExperiments.remove(experiment.getExperimentId());
     }
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<Success>() {
 
@@ -293,14 +293,14 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
   private void deleteExperimentOnDataThread(Experiment experiment) {
     // TODO: delete invalid run data, as well (b/35794788)
-    mMetaDataManager.deleteExperiment(experiment);
+    metaDataManager.deleteExperiment(experiment);
   }
 
   @Override
   public void getExperimentById(
       final String experimentId, final MaybeConsumer<Experiment> onSuccess) {
-    if (mCachedExperiments.containsKey(experimentId)) {
-      Experiment experiment = mCachedExperiments.get(experimentId).get();
+    if (cachedExperiments.containsKey(experimentId)) {
+      Experiment experiment = cachedExperiments.get(experimentId).get();
       if (experiment != null) {
         // We are already caching this one
         onSuccess.success(experiment);
@@ -313,17 +313,17 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             new Consumer<Experiment>() {
               @Override
               public void take(Experiment experiment) {
-                mCachedExperiments.put(experimentId, new WeakReference<>(experiment));
+                cachedExperiments.put(experimentId, new WeakReference<>(experiment));
                 onSuccess.success(experiment);
               }
             });
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccessWrapper,
         new Callable<Experiment>() {
           @Override
           public Experiment call() throws Exception {
-            Experiment result = mMetaDataManager.getExperimentById(experimentId);
+            Experiment result = metaDataManager.getExperimentById(experimentId);
             if (result == null) {
               throw new IllegalArgumentException(
                   "Could not find experiment with id " + experimentId);
@@ -335,11 +335,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
   @Override
   public void updateExperiment(final String experimentId, MaybeConsumer<Success> onSuccess) {
-    if (!mCachedExperiments.containsKey(experimentId)) {
+    if (!cachedExperiments.containsKey(experimentId)) {
       onSuccess.fail(new Exception("Experiment not loaded"));
       return;
     }
-    final Experiment experiment = mCachedExperiments.get(experimentId).get();
+    final Experiment experiment = cachedExperiments.get(experimentId).get();
     if (experiment == null) {
       onSuccess.fail(new Exception("Experiment not loaded"));
       return;
@@ -351,46 +351,46 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   @Override
   public void saveImmediately(MaybeConsumer<Success> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         () -> {
-          mMetaDataManager.saveImmediately();
+          metaDataManager.saveImmediately();
           return Success.SUCCESS;
         });
   }
 
   @Override
   public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
-    if (!mCachedExperiments.containsKey(experiment.getExperimentId())) {
+    if (!cachedExperiments.containsKey(experiment.getExperimentId())) {
       throw new IllegalArgumentException(
           "Updating experiment not returned by DataController: " + experiment);
     }
 
-    if (mCachedExperiments.get(experiment.getExperimentId()).get() != experiment) {
+    if (cachedExperiments.get(experiment.getExperimentId()).get() != experiment) {
       throw new IllegalArgumentException(
           "Updating different instance of experiment than is managed by DataController: "
               + experiment);
     }
 
     // Every time we update the experiment, we can update its last used time.
-    experiment.setLastUsedTime(mClock.getNow());
+    experiment.setLastUsedTime(clock.getNow());
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         () -> {
-          mMetaDataManager.updateExperiment(experiment);
+          metaDataManager.updateExperiment(experiment);
           return Success.SUCCESS;
         });
   }
 
   @Override
   public String generateNewLabelId() {
-    long nextLabelTimestamp = mClock.getNow();
-    if (nextLabelTimestamp <= mPrevLabelTimestamp) {
+    long nextLabelTimestamp = clock.getNow();
+    if (nextLabelTimestamp <= prevLabelTimestamp) {
       // Make sure we never use the same label ID twice.
-      nextLabelTimestamp = mPrevLabelTimestamp + 1;
+      nextLabelTimestamp = prevLabelTimestamp + 1;
     }
-    mPrevLabelTimestamp = nextLabelTimestamp;
+    prevLabelTimestamp = nextLabelTimestamp;
     return "label_" + nextLabelTimestamp;
   }
 
@@ -399,12 +399,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       final boolean includeArchived,
       final MaybeConsumer<List<GoosciUserMetadata.ExperimentOverview>> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<List<GoosciUserMetadata.ExperimentOverview>>() {
           @Override
           public List<GoosciUserMetadata.ExperimentOverview> call() throws Exception {
-            return mMetaDataManager.getExperimentOverviews(includeArchived);
+            return metaDataManager.getExperimentOverviews(includeArchived);
           }
         });
   }
@@ -412,7 +412,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   @Override
   public List<GoosciUserMetadata.ExperimentOverview> blockingGetExperimentOverviews(
       boolean includeArchived) {
-    return mMetaDataManager.getExperimentOverviews(includeArchived);
+    return metaDataManager.getExperimentOverviews(includeArchived);
   }
 
   @Override
@@ -425,9 +425,9 @@ public class DataControllerImpl implements DataController, RecordingDataControll
               onSuccess.success(null);
               return;
             }
-            if (mCachedExperiments.containsKey(lastUsed.getExperimentId())) {
+            if (cachedExperiments.containsKey(lastUsed.getExperimentId())) {
               // Use the same object if it's already in the cache.
-              Experiment cached = mCachedExperiments.get(lastUsed.getExperimentId()).get();
+              Experiment cached = cachedExperiments.get(lastUsed.getExperimentId()).get();
               if (cached != null) {
                 onSuccess.success(cached);
                 return;
@@ -443,12 +443,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
           }
         };
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccessWrapper,
         new Callable<Experiment>() {
           @Override
           public Experiment call() throws Exception {
-            return mMetaDataManager.getLastUsedUnarchivedExperiment();
+            return metaDataManager.getLastUsedUnarchivedExperiment();
           }
         });
   }
@@ -457,12 +457,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   public void importExperimentFromZip(
       final Uri zipUri, ContentResolver resolver, final MaybeConsumer<String> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<String>() {
           @Override
           public String call() throws Exception {
-            Experiment experiment = mMetaDataManager.importExperimentFromZip(zipUri, resolver);
+            Experiment experiment = metaDataManager.importExperimentFromZip(zipUri, resolver);
             cacheExperiment(experiment);
             return experiment.getExperimentId();
           }
@@ -470,18 +470,18 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   private void cacheExperiment(Experiment experiment) {
-    mCachedExperiments.put(experiment.getExperimentId(), new WeakReference<>(experiment));
+    cachedExperiments.put(experiment.getExperimentId(), new WeakReference<>(experiment));
   }
 
   @Override
   public void getExternalSensors(final MaybeConsumer<Map<String, ExternalSensorSpec>> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<Map<String, ExternalSensorSpec>>() {
           @Override
           public Map<String, ExternalSensorSpec> call() throws Exception {
-            return mMetaDataManager.getExternalSensors(mProviderMap);
+            return metaDataManager.getExternalSensors(providerMap);
           }
         });
   }
@@ -490,12 +490,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   public void getExternalSensorsByExperiment(
       final String experimentId, final MaybeConsumer<ExperimentSensors> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<ExperimentSensors>() {
           @Override
           public ExperimentSensors call() throws Exception {
-            return mMetaDataManager.getExperimentSensors(experimentId, mProviderMap, mConnector);
+            return metaDataManager.getExperimentSensors(experimentId, providerMap, connector);
           }
         });
   }
@@ -504,12 +504,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   public void getExternalSensorById(
       final String id, final MaybeConsumer<ExternalSensorSpec> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<ExternalSensorSpec>() {
           @Override
           public ExternalSensorSpec call() throws Exception {
-            return mMetaDataManager.getExternalSensorById(id, mProviderMap);
+            return metaDataManager.getExternalSensorById(id, providerMap);
           }
         });
   }
@@ -518,12 +518,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   public void addSensorToExperiment(
       final String experimentId, final String sensorId, final MaybeConsumer<Success> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<Success>() {
           @Override
           public Success call() throws Exception {
-            mMetaDataManager.addSensorToExperiment(sensorId, experimentId);
+            metaDataManager.addSensorToExperiment(sensorId, experimentId);
             return Success.SUCCESS;
           }
         });
@@ -541,13 +541,13 @@ public class DataControllerImpl implements DataController, RecordingDataControll
               public void take(final Experiment experiment) {
                 replaceIdInLayouts(experiment, sensorId, "");
                 background(
-                    mMetaDataThread,
+                    metaDataThread,
                     onSuccess,
                     new Callable<Success>() {
                       @Override
                       public Success call() throws Exception {
-                        mMetaDataManager.removeSensorFromExperiment(sensorId, experimentId);
-                        mMetaDataManager.updateExperiment(experiment);
+                        metaDataManager.removeSensorFromExperiment(sensorId, experimentId);
+                        metaDataManager.updateExperiment(experiment);
                         return Success.SUCCESS;
                       }
                     });
@@ -557,24 +557,24 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
   @Override
   public void setDataErrorListenerForSensor(String sensorId, FailureListener listener) {
-    mSensorFailureListeners.put(sensorId, listener);
+    sensorFailureListeners.put(sensorId, listener);
   }
 
   @Override
   public void clearDataErrorListenerForSensor(String sensorId) {
-    mSensorFailureListeners.remove(sensorId);
+    sensorFailureListeners.remove(sensorId);
   }
 
   @Override
   public void addOrGetExternalSensor(
       final ExternalSensorSpec sensor, final MaybeConsumer<String> onSensorId) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSensorId,
         new Callable<String>() {
           @Override
           public String call() throws Exception {
-            return mMetaDataManager.addOrGetExternalSensor(sensor, mProviderMap);
+            return metaDataManager.addOrGetExternalSensor(sensor, providerMap);
           }
         });
   }
@@ -587,7 +587,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
           public void run() {
             try {
               final T result = job.call();
-              mUiThread.execute(
+              uiThread.execute(
                   new Runnable() {
                     @Override
                     public void run() {
@@ -595,7 +595,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                     }
                   });
             } catch (final Exception e) {
-              mUiThread.execute(
+              uiThread.execute(
                   new Runnable() {
                     @Override
                     public void run() {
@@ -610,12 +610,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   @Override
   public void getMyDevices(MaybeConsumer<List<InputDeviceSpec>> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<List<InputDeviceSpec>>() {
           @Override
           public List<InputDeviceSpec> call() throws Exception {
-            return mMetaDataManager.getMyDevices();
+            return metaDataManager.getMyDevices();
           }
         });
   }
@@ -623,12 +623,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   @Override
   public void addMyDevice(final InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<Success>() {
           @Override
           public Success call() throws Exception {
-            mMetaDataManager.addMyDevice(spec);
+            metaDataManager.addMyDevice(spec);
             return Success.SUCCESS;
           }
         });
@@ -637,12 +637,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   @Override
   public void forgetMyDevice(final InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {
     background(
-        mMetaDataThread,
+        metaDataThread,
         onSuccess,
         new Callable<Success>() {
           @Override
           public Success call() throws Exception {
-            mMetaDataManager.removeMyDevice(spec);
+            metaDataManager.removeMyDevice(spec);
             return Success.SUCCESS;
           }
         });

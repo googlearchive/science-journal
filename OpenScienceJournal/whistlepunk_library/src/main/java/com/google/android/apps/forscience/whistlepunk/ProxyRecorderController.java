@@ -38,23 +38,23 @@ public class ProxyRecorderController extends IRecorderController.Stub {
     public void checkBinderAllowed();
   }
 
-  private final BindingPolicy mBindingPolicy;
-  private final RecorderController mDelegate;
-  private final FailureListener mFailureListener;
-  private SensorRegistry mRegistry;
-  private String mSensorId = null;
-  private String mObserverId = null;
-  private Map<String, Disposable> mRecordListeners = new ArrayMap<>();
+  private final BindingPolicy bindingPolicy;
+  private final RecorderController delegate;
+  private final FailureListener failureListener;
+  private SensorRegistry registry;
+  private String sensorId = null;
+  private String observerId = null;
+  private Map<String, Disposable> recordListeners = new ArrayMap<>();
 
   public ProxyRecorderController(
       RecorderController delegate,
       BindingPolicy bindingPolicy,
       FailureListener failureListener,
       SensorRegistry registry) {
-    mBindingPolicy = bindingPolicy;
-    mDelegate = delegate;
-    mFailureListener = failureListener;
-    mRegistry = registry;
+    this.bindingPolicy = bindingPolicy;
+    this.delegate = delegate;
+    this.failureListener = failureListener;
+    this.registry = registry;
   }
 
   @Override
@@ -64,46 +64,46 @@ public class ProxyRecorderController extends IRecorderController.Stub {
       ISensorStatusListener listener,
       TransportableSensorOptions initialOptions)
       throws RemoteException {
-    mBindingPolicy.checkBinderAllowed();
+    bindingPolicy.checkBinderAllowed();
 
-    if (mObserverId != null) {
+    if (observerId != null) {
       throw new IllegalStateException("Already observing one sensor!");
     }
-    mSensorId = sensorId;
+    this.sensorId = sensorId;
     // TODO: enable more than one observer through the service
-    mObserverId =
-        mDelegate.startObserving(
+    observerId =
+        delegate.startObserving(
             sensorId,
             Collections.EMPTY_LIST,
             proxyObserver(observer),
-            proxyStatusListener(listener, mFailureListener),
+            proxyStatusListener(listener, failureListener),
             initialOptions,
-            mRegistry);
+            registry);
   }
 
   @Override
   public void stopObserving(String sensorId) {
-    if (!sensorId.equals(mSensorId)) {
+    if (!sensorId.equals(this.sensorId)) {
       throw new IllegalArgumentException("Didn't start this sensor!");
     }
-    mDelegate.stopObserving(sensorId, mObserverId);
-    mObserverId = null;
+    delegate.stopObserving(sensorId, observerId);
+    observerId = null;
   }
 
   private SensorObserver proxyObserver(final ISensorObserver observer) {
     return new SensorObserver() {
-      boolean mValid = true;
+      boolean valid = true;
 
       @Override
       public void onNewData(long timestamp, Data data) {
-        if (!mValid) {
+        if (!valid) {
           return;
         }
         try {
           observer.onNewData(timestamp, data.asBundle());
         } catch (RemoteException e) {
-          mFailureListener.fail(e);
-          mValid = false;
+          failureListener.fail(e);
+          valid = false;
         }
       }
     };
@@ -124,7 +124,7 @@ public class ProxyRecorderController extends IRecorderController.Stub {
 
   @Override
   public List<String> getMostRecentObservedSensorIds() throws RemoteException {
-    return mDelegate.getMostRecentObservedSensorIds();
+    return delegate.getMostRecentObservedSensorIds();
   }
 
   @Override
@@ -146,23 +146,23 @@ public class ProxyRecorderController extends IRecorderController.Stub {
   @Override
   public void addRecordingStateListener(String listenerId, IRecordingStateListener listener)
       throws RemoteException {
-    if (mRecordListeners.containsKey(listenerId)) {
+    if (recordListeners.containsKey(listenerId)) {
       throw new IllegalStateException("Already listening to id: " + listenerId);
     }
-    mRecordListeners.put(
+    recordListeners.put(
         listenerId,
-        mDelegate
+        delegate
             .watchRecordingStatus()
             .subscribe(
                 currentRecording -> {
                   try {
                     listener.onRecordingStateChanged(currentRecording.isRecording());
                   } catch (RemoteException e) {
-                    mFailureListener.fail(e);
+                    failureListener.fail(e);
                   }
                 }));
-    mDelegate.addObservedIdsListener(
-        listenerId, proxyObservedIdsListener(listener, mFailureListener));
+    delegate.addObservedIdsListener(
+        listenerId, proxyObservedIdsListener(listener, failureListener));
   }
 
   private RecorderController.ObservedIdsListener proxyObservedIdsListener(
@@ -181,11 +181,11 @@ public class ProxyRecorderController extends IRecorderController.Stub {
 
   @Override
   public void removeRecordingStateListener(String listenerId) throws RemoteException {
-    if (mRecordListeners.containsKey(listenerId)) {
-      mRecordListeners.get(listenerId).dispose();
-      mRecordListeners.remove(listenerId);
+    if (recordListeners.containsKey(listenerId)) {
+      recordListeners.get(listenerId).dispose();
+      recordListeners.remove(listenerId);
     }
-    mDelegate.removeObservedIdsListener(listenerId);
+    delegate.removeObservedIdsListener(listenerId);
   }
 
   private static SensorStatusListener proxyStatusListener(
