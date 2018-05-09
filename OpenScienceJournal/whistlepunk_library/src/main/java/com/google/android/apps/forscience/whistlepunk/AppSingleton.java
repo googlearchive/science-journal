@@ -64,7 +64,7 @@ public class AppSingleton {
   private final Clock currentTimeClock = new CurrentTimeClock();
   private final AudioSource audioSource = new AudioSource();
   private BleClientImpl bleClient;
-  private Map<AppAccount, RecorderControllerImpl> recorderControllers;
+  private final Map<AppAccount, RecorderControllerImpl> recorderControllers = new HashMap<>();
   private SensorRegistry sensorRegistry;
   private PrefsSensorHistoryStorage prefsSensorHistoryStorage;
   private Map<String, SensorProvider> externalSensorProviders;
