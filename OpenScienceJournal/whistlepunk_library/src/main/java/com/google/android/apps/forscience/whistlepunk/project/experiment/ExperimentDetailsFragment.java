@@ -125,20 +125,20 @@ public class ExperimentDetailsFragment extends Fragment
   /** Boolen extra for savedInstanceState with the state of includeArchived experiments. */
   private static final String EXTRA_INCLUDE_ARCHIVED = "includeArchived";
 
-  private RecyclerView mDetails;
-  private DetailsAdapter mAdapter;
+  private RecyclerView details;
+  private DetailsAdapter adapter;
 
-  private String mExperimentId;
-  private Experiment mExperiment;
-  private BehaviorSubject<Experiment> mLoadedExperiment = BehaviorSubject.create();
-  private ScalarDisplayOptions mScalarDisplayOptions;
-  private boolean mIncludeArchived;
-  private BroadcastReceiver mBroadcastReceiver;
-  private String mActiveTrialId;
-  private TextView mEmptyView;
-  private ProgressBar mProgressBar;
-  private boolean mProgressVisible = false;
-  private RxEvent mDestroyed = new RxEvent();
+  private String experimentId;
+  private Experiment experiment;
+  private BehaviorSubject<Experiment> loadedExperiment = BehaviorSubject.create();
+  private ScalarDisplayOptions scalarDisplayOptions;
+  private boolean includeArchived;
+  private BroadcastReceiver broadcastReceiver;
+  private String activeTrialId;
+  private TextView emptyView;
+  private ProgressBar progressBar;
+  private boolean progressVisible = false;
+  private RxEvent destroyed = new RxEvent();
 
   /**
    * Creates a new instance of this fragment.
@@ -164,18 +164,18 @@ public class ExperimentDetailsFragment extends Fragment
     super.onCreate(savedInstanceState);
     AppSingleton.getInstance(getContext())
         .whenExportBusyChanges()
-        .takeUntil(mDestroyed.happens())
+        .takeUntil(destroyed.happens())
         .subscribe(
             busy -> {
               setProgressBarVisible(busy);
             });
-    mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
+    experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     setHasOptionsMenu(true);
   }
 
   public void setExperimentId(String experimentId) {
-    if (!Objects.equals(experimentId, mExperimentId)) {
-      mExperimentId = experimentId;
+    if (!Objects.equals(experimentId, this.experimentId)) {
+      this.experimentId = experimentId;
       if (isResumed()) {
         // If not resumed, wait to load until next resume!
         reloadWithoutScroll();
@@ -195,28 +195,28 @@ public class ExperimentDetailsFragment extends Fragment
     super.onResume();
     reloadWithoutScroll();
     // Create a BroadcastReceiver for when the stats get updated.
-    mBroadcastReceiver =
+    broadcastReceiver =
         new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
             String statsRunId = intent.getStringExtra(CropHelper.EXTRA_TRIAL_ID);
-            mAdapter.onStatsBroadcastReceived(statsRunId, getDataController());
+            adapter.onStatsBroadcastReceived(statsRunId, getDataController());
           }
         };
     CropHelper.registerStatsBroadcastReceiver(
-        getActivity().getApplicationContext(), mBroadcastReceiver);
+        getActivity().getApplicationContext(), broadcastReceiver);
 
     DeletedLabel label = AppSingleton.getInstance(getActivity()).popDeletedLabelForUndo();
     if (label != null) {
       onLabelDelete(label);
     }
-    setProgressBarVisible(mProgressVisible);
+    setProgressBarVisible(progressVisible);
   }
 
   @Override
   public void onDestroy() {
-    mAdapter.onDestroy();
-    mDestroyed.onHappened();
+    adapter.onDestroy();
+    destroyed.onHappened();
     super.onDestroy();
   }
 
@@ -230,12 +230,12 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public Completable loadExperimentIfInitialized() {
-    if (mExperimentId == null) {
+    if (experimentId == null) {
       // We haven't initialized yet. Just wait for this to get called later during
       // initialization.
       return Completable.complete();
     }
-    return RxDataController.getExperimentById(getDataController(), mExperimentId)
+    return RxDataController.getExperimentById(getDataController(), experimentId)
         .doOnSuccess(
             experiment -> {
               if (experiment == null) {
@@ -252,10 +252,10 @@ public class ExperimentDetailsFragment extends Fragment
 
   @Override
   public void onPause() {
-    if (mBroadcastReceiver != null) {
+    if (broadcastReceiver != null) {
       CropHelper.unregisterBroadcastReceiver(
-          getActivity().getApplicationContext(), mBroadcastReceiver);
-      mBroadcastReceiver = null;
+          getActivity().getApplicationContext(), broadcastReceiver);
+      broadcastReceiver = null;
     }
     super.onPause();
   }
@@ -263,8 +263,8 @@ public class ExperimentDetailsFragment extends Fragment
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putBoolean(EXTRA_INCLUDE_ARCHIVED, mIncludeArchived);
-    mAdapter.onSaveInstanceState(outState);
+    outState.putBoolean(EXTRA_INCLUDE_ARCHIVED, includeArchived);
+    adapter.onSaveInstanceState(outState);
   }
 
   @Override
@@ -279,41 +279,41 @@ public class ExperimentDetailsFragment extends Fragment
       actionBar.setHomeButtonEnabled(true);
     }
 
-    mEmptyView = (TextView) view.findViewById(R.id.empty_list);
-    mEmptyView.setText(R.string.empty_experiment);
-    mEmptyView.setCompoundDrawablesRelativeWithIntrinsicBounds(
+    emptyView = (TextView) view.findViewById(R.id.empty_list);
+    emptyView.setText(R.string.empty_experiment);
+    emptyView.setCompoundDrawablesRelativeWithIntrinsicBounds(
         null, null, null, view.getResources().getDrawable(R.drawable.empty_run));
 
-    mProgressBar = (ProgressBar) view.findViewById(R.id.detailsIndeterminateBar);
+    progressBar = (ProgressBar) view.findViewById(R.id.detailsIndeterminateBar);
 
-    mDetails = (RecyclerView) view.findViewById(R.id.details_list);
-    mDetails.setLayoutManager(
+    details = (RecyclerView) view.findViewById(R.id.details_list);
+    details.setLayoutManager(
         new LinearLayoutManager(
             view.getContext(), LinearLayoutManager.VERTICAL, /* don't reverse layout */ false));
     DetailsAdapter adapter = new DetailsAdapter(this, savedInstanceState);
-    mLoadedExperiment.subscribe(
+    loadedExperiment.subscribe(
         experiment -> {
           boolean includeInvalidRuns = false;
-          adapter.setScalarDisplayOptions(mScalarDisplayOptions);
-          adapter.setData(experiment, experiment.getTrials(mIncludeArchived, includeInvalidRuns));
-          if (mActiveTrialId != null) {
-            adapter.addActiveRecording(experiment.getTrial(mActiveTrialId));
+          adapter.setScalarDisplayOptions(scalarDisplayOptions);
+          adapter.setData(experiment, experiment.getTrials(includeArchived, includeInvalidRuns));
+          if (activeTrialId != null) {
+            adapter.addActiveRecording(experiment.getTrial(activeTrialId));
           }
         });
-    mAdapter = adapter;
+    this.adapter = adapter;
 
-    mDetails.setAdapter(mAdapter);
+    details.setAdapter(adapter);
 
-    // TODO: Because mScalarDisplayOptions are static, if the options are changed during the
+    // TODO: Because scalarDisplayOptions are static, if the options are changed during the
     // time we are on this page it probably won't have an effect. Since graph options are
     // hidden from non-userdebug users, and not shown in the ExperimentDetails menu even when
     // enabled, this is OK for now.
-    mScalarDisplayOptions = new ScalarDisplayOptions();
+    scalarDisplayOptions = new ScalarDisplayOptions();
     GraphOptionsController graphOptionsController = new GraphOptionsController(getActivity());
-    graphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, view);
+    graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, view);
 
     if (savedInstanceState != null) {
-      mIncludeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
+      includeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
       getActivity().invalidateOptionsMenu();
     }
 
@@ -321,14 +321,14 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public void loadExperimentData(final Experiment experiment) {
-    mLoadedExperiment.onNext(experiment);
+    loadedExperiment.onNext(experiment);
   }
 
   public void onStartRecording(String trialId) {
-    mActiveTrialId = trialId;
-    if (mAdapter != null) {
-      RxDataController.getTrial(getDataController(), mExperimentId, trialId)
-          .subscribe(t -> mAdapter.addActiveRecording(t));
+    activeTrialId = trialId;
+    if (adapter != null) {
+      RxDataController.getTrial(getDataController(), experimentId, trialId)
+          .subscribe(t -> adapter.addActiveRecording(t));
     }
     if (getActivity() != null) {
       getActivity().invalidateOptionsMenu();
@@ -343,11 +343,11 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public void scrollToBottom() {
-    if (mDetails != null && mAdapter != null && mAdapter.getItemCount() > 0) {
+    if (details != null && adapter != null && adapter.getItemCount() > 0) {
       if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
-        mDetails.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+        details.smoothScrollToPosition(adapter.getItemCount() - 1);
       } else {
-        mDetails.scrollToPosition(mAdapter.getItemCount() - 1);
+        details.scrollToPosition(adapter.getItemCount() - 1);
       }
     }
   }
@@ -355,26 +355,26 @@ public class ExperimentDetailsFragment extends Fragment
   public void onRecordingTrialUpdated(String trialId) {
     // getTrialMaybe as workaround to avoid b/67008535; we can't live without a trial forever,
     // but the consequences of not having that trial are small here.
-    RxDataController.getTrialMaybe(getDataController(), mExperimentId, trialId)
+    RxDataController.getTrialMaybe(getDataController(), experimentId, trialId)
         .subscribe(
             t -> {
-              mAdapter.updateActiveRecording(t);
+              adapter.updateActiveRecording(t);
               scrollToBottom();
             });
   }
 
   public void onStopRecording() {
-    if (mActiveTrialId != null) {
-      RxDataController.getTrial(getDataController(), mExperimentId, mActiveTrialId)
-          .subscribe(t -> mAdapter.onRecordingEnded(t));
-      mActiveTrialId = null;
+    if (activeTrialId != null) {
+      RxDataController.getTrial(getDataController(), experimentId, activeTrialId)
+          .subscribe(t -> adapter.onRecordingEnded(t));
+      activeTrialId = null;
     }
     getActivity().invalidateOptionsMenu();
-    if (mDetails != null) {
+    if (details != null) {
       // We want to scroll to the bottom to show the new recording, but first check whether
       // the details list's height is more than zero. Scrolling doesn't work if a View's
       // height is zero.
-      if (mDetails.getHeight() > 0) {
+      if (details.getHeight() > 0) {
         scrollToBottom();
       } else {
         // Delay calling scrollToBottom until the details lists's height is no longer zero,
@@ -385,7 +385,7 @@ public class ExperimentDetailsFragment extends Fragment
             .takeUntil(done.happens())
             .subscribe(
                 n -> {
-                  if (mDetails.getHeight() > 0) {
+                  if (details.getHeight() > 0) {
                     scrollToBottom();
                     done.onHappened();
                   }
@@ -414,11 +414,11 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public String getActiveRecordingId() {
-    return mActiveTrialId;
+    return activeTrialId;
   }
 
   private void attachExperimentDetails(Experiment experiment) {
-    mExperiment = experiment;
+    this.experiment = experiment;
     final View rootView = getView();
     if (rootView == null) {
       return;
@@ -447,22 +447,22 @@ public class ExperimentDetailsFragment extends Fragment
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
     menu.findItem(R.id.action_archive_experiment)
-        .setVisible(mExperiment != null && !mExperiment.isArchived());
+        .setVisible(experiment != null && !experiment.isArchived());
     menu.findItem(R.id.action_unarchive_experiment)
-        .setVisible(mExperiment != null && mExperiment.isArchived());
+        .setVisible(experiment != null && experiment.isArchived());
     // Disable archive option when recording.
     menu.findItem(R.id.action_archive_experiment).setEnabled(!isRecording());
-    menu.findItem(R.id.action_delete_experiment).setEnabled(mExperiment != null && !isRecording());
-    menu.findItem(R.id.action_include_archived).setVisible(!mIncludeArchived);
-    menu.findItem(R.id.action_exclude_archived).setVisible(mIncludeArchived);
+    menu.findItem(R.id.action_delete_experiment).setEnabled(experiment != null && !isRecording());
+    menu.findItem(R.id.action_include_archived).setVisible(!includeArchived);
+    menu.findItem(R.id.action_exclude_archived).setVisible(includeArchived);
     menu.findItem(R.id.action_edit_experiment)
-        .setVisible(mExperiment != null && !mExperiment.isArchived());
+        .setVisible(experiment != null && !experiment.isArchived());
 
     boolean isShareIntentValid =
-        FileMetadataManager.validateShareIntent(getContext(), mExperimentId);
+        FileMetadataManager.validateShareIntent(getContext(), experimentId);
 
     menu.findItem(R.id.action_export_experiment)
-        .setVisible(mExperiment != null && !mExperiment.isArchived() && isShareIntentValid);
+        .setVisible(experiment != null && !experiment.isArchived() && isShareIntentValid);
     menu.findItem(R.id.action_export_experiment).setEnabled(!isRecording());
     setHomeButtonState(isRecording());
   }
@@ -470,7 +470,7 @@ public class ExperimentDetailsFragment extends Fragment
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     int itemId = item.getItemId();
-    if (mProgressVisible) {
+    if (progressVisible) {
       return true;
     }
     if (itemId == android.R.id.home) {
@@ -482,20 +482,20 @@ public class ExperimentDetailsFragment extends Fragment
       displayNamePromptOrGoUp();
       return true;
     } else if (itemId == R.id.action_edit_experiment) {
-      UpdateExperimentActivity.launch(getActivity(), mExperimentId);
+      UpdateExperimentActivity.launch(getActivity(), experimentId);
       return true;
     } else if (itemId == R.id.action_archive_experiment
         || itemId == R.id.action_unarchive_experiment) {
       setExperimentArchived(item.getItemId() == R.id.action_archive_experiment);
       return true;
     } else if (itemId == R.id.action_include_archived) {
-      mIncludeArchived = true;
-      loadExperimentData(mExperiment);
+      includeArchived = true;
+      loadExperimentData(experiment);
       getActivity().invalidateOptionsMenu();
       return true;
     } else if (itemId == R.id.action_exclude_archived) {
-      mIncludeArchived = false;
-      loadExperimentData(mExperiment);
+      includeArchived = false;
+      loadExperimentData(experiment);
       getActivity().invalidateOptionsMenu();
       return true;
     } else if (itemId == R.id.action_delete_experiment) {
@@ -508,31 +508,31 @@ public class ExperimentDetailsFragment extends Fragment
               TrackerConstants.LABEL_EXPERIMENT_DETAIL,
               0);
       setProgressBarVisible(true);
-      ExportService.handleExperimentExportClick(getContext(), mExperimentId);
+      ExportService.handleExperimentExportClick(getContext(), experimentId);
       return true;
     }
     return super.onOptionsItemSelected(item);
   }
 
   public void setProgressBarVisible(boolean visible) {
-    mProgressVisible = visible;
-    if (mProgressBar != null) {
+    progressVisible = visible;
+    if (progressBar != null) {
       if (visible) {
-        mProgressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
       } else {
-        mProgressBar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
       }
     }
   }
 
   // Prompt the user to name the experiment if they haven't yet.
   private void displayNamePromptOrGoUp() {
-    if (mExperiment.isEmpty()) {
+    if (experiment.isEmpty()) {
       // Experiment is empty. No reason to keep it.
       deleteCurrentExperiment();
       return;
     }
-    if (!TextUtils.isEmpty(mExperiment.getTitle()) || mExperiment.isArchived()) {
+    if (!TextUtils.isEmpty(experiment.getTitle()) || experiment.isArchived()) {
       goToExperimentList();
       return;
     }
@@ -540,7 +540,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   private void deleteCurrentExperiment() {
-    RxDataController.getExperimentById(getDataController(), mExperimentId)
+    RxDataController.getExperimentById(getDataController(), experimentId)
         .subscribe(
             fullExperiment -> {
               getDataController()
@@ -563,7 +563,7 @@ public class ExperimentDetailsFragment extends Fragment
 
   private void displayNamePrompt() {
     // The experiment needs a title still.
-    NameExperimentDialog dialog = NameExperimentDialog.newInstance(mExperimentId);
+    NameExperimentDialog dialog = NameExperimentDialog.newInstance(experimentId);
     dialog.show(getChildFragmentManager(), NameExperimentDialog.TAG);
   }
 
@@ -580,7 +580,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public boolean handleOnBackPressed() {
-    if (mProgressBar.getVisibility() == View.VISIBLE) {
+    if (progressBar.getVisibility() == View.VISIBLE) {
       return true;
     }
 
@@ -592,13 +592,13 @@ public class ExperimentDetailsFragment extends Fragment
       return true;
     }
 
-    if (mExperiment.isEmpty()) {
+    if (experiment.isEmpty()) {
       // Experiment is empty. No reason to keep it.
       deleteCurrentExperiment();
       return true;
     }
 
-    if (TextUtils.isEmpty(mExperiment.getTitle()) && !mExperiment.isArchived()) {
+    if (TextUtils.isEmpty(experiment.getTitle()) && !experiment.isArchived()) {
       displayNamePrompt();
       // We are handling this.
       return true;
@@ -612,7 +612,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   private boolean isRecording() {
-    return mActiveTrialId != null;
+    return activeTrialId != null;
   }
 
   private void goToExperimentList() {
@@ -641,22 +641,22 @@ public class ExperimentDetailsFragment extends Fragment
 
   private void setExperimentArchived(final boolean archived) {
     final Context context = getContext();
-    mExperiment.setArchived(context, archived);
+    experiment.setArchived(context, archived);
     getDataController()
         .updateExperiment(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Success>(TAG, "Editing experiment") {
               @Override
               public void success(Success value) {
-                setExperimentItemsOrder(mExperiment);
+                setExperimentItemsOrder(experiment);
                 FragmentActivity activity = getActivity();
                 if (activity instanceof ListenerProvider) {
                   ((ListenerProvider) activity)
                       .getExperimentDetailsFragmentListener()
-                      .onArchivedStateChanged(mExperiment);
+                      .onArchivedStateChanged(experiment);
                 }
                 // Reload the data to refresh experiment item and insert it if necessary.
-                loadExperimentData(mExperiment);
+                loadExperimentData(experiment);
                 WhistlePunkApplication.getUsageTracker(activity)
                     .trackEvent(
                         TrackerConstants.CATEGORY_EXPERIMENTS,
@@ -687,7 +687,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   private void setExperimentItemsOrder(Experiment experiment) {
-    mAdapter.setReverseLayout(!experiment.isArchived());
+    adapter.setReverseLayout(!experiment.isArchived());
   }
 
   @Override
@@ -702,8 +702,8 @@ public class ExperimentDetailsFragment extends Fragment
 
   void deleteLabel(Label label) {
     if (getActivity() != null) {
-      Consumer<Context> assetDeleter = mExperiment.deleteLabelAndReturnAssetDeleter(label);
-      RxDataController.updateExperiment(getDataController(), mExperiment)
+      Consumer<Context> assetDeleter = experiment.deleteLabelAndReturnAssetDeleter(label);
+      RxDataController.updateExperiment(getDataController(), experiment)
           .subscribe(() -> onLabelDelete(new DeletedLabel(label, assetDeleter)));
     }
   }
@@ -711,10 +711,10 @@ public class ExperimentDetailsFragment extends Fragment
   private void onLabelDelete(DeletedLabel deletedLabel) {
     deletedLabel.deleteAndDisplayUndoBar(
         getView(),
-        mExperiment,
-        mExperiment,
+        experiment,
+        experiment,
         () -> {
-          mAdapter.insertNote(deletedLabel.getLabel());
+          adapter.insertNote(deletedLabel.getLabel());
 
           WhistlePunkApplication.getUsageTracker(getActivity())
               .trackEvent(
@@ -724,7 +724,7 @@ public class ExperimentDetailsFragment extends Fragment
                   TrackerConstants.getLabelValueType(deletedLabel.getLabel()));
         });
 
-    mAdapter.deleteNote(deletedLabel.getLabel());
+    adapter.deleteNote(deletedLabel.getLabel());
 
     WhistlePunkApplication.getUsageTracker(getActivity())
         .trackEvent(
@@ -736,11 +736,11 @@ public class ExperimentDetailsFragment extends Fragment
 
   private void setTrialArchived(Trial trial, boolean toArchive) {
     trial.setArchived(toArchive);
-    mExperiment.updateTrial(trial);
-    RxDataController.updateExperiment(getDataController(), mExperiment)
+    experiment.updateTrial(trial);
+    RxDataController.updateExperiment(getDataController(), experiment)
         .subscribe(
             () -> {
-              mAdapter.onTrialArchivedStateChanged(trial, mIncludeArchived);
+              adapter.onTrialArchivedStateChanged(trial, includeArchived);
               WhistlePunkApplication.getUsageTracker(getActivity())
                   .trackEvent(
                       TrackerConstants.CATEGORY_RUNS,
@@ -773,13 +773,13 @@ public class ExperimentDetailsFragment extends Fragment
     String trialId = extras.getString(DeleteMetadataItemDialog.KEY_ITEM_ID);
     if (!TextUtils.isEmpty(trialId)) {
       // Then we were trying to delete a trial.
-      mExperiment.deleteTrial(mExperiment.getTrial(trialId), getActivity());
-      RxDataController.updateExperiment(getDataController(), mExperiment)
-          .subscribe(() -> mAdapter.onTrialDeleted(trialId));
+      experiment.deleteTrial(experiment.getTrial(trialId), getActivity());
+      RxDataController.updateExperiment(getDataController(), experiment)
+          .subscribe(() -> adapter.onTrialDeleted(trialId));
     } else {
       getDataController()
           .deleteExperiment(
-              mExperiment,
+              experiment,
               new LoggingConsumer<Success>(TAG, "Delete experiment") {
                 @Override
                 public void success(Success value) {
@@ -796,7 +796,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public String getExperimentId() {
-    return mExperimentId;
+    return experimentId;
   }
 
   public static class DetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -812,20 +812,20 @@ public class ExperimentDetailsFragment extends Fragment
     static final int VIEW_TYPE_UNKNOWN_LABEL = 6;
     static final int VIEW_TYPE_RECORDING = 7;
 
-    private final WeakReference<ExperimentDetailsFragment> mParentReference;
-    private Experiment mExperiment;
-    private List<ExperimentDetailItem> mItems;
-    private List<Integer> mSensorIndices = null;
-    private boolean mHasRunsOrLabels;
-    private ScalarDisplayOptions mScalarDisplayOptions;
-    private boolean mReverseOrder = true;
-    private PopupMenu mPopupMenu = null;
+    private final WeakReference<ExperimentDetailsFragment> parentReference;
+    private Experiment experiment;
+    private List<ExperimentDetailItem> items;
+    private List<Integer> sensorIndices = null;
+    private boolean hasRunsOrLabels;
+    private ScalarDisplayOptions scalarDisplayOptions;
+    private boolean reverseOrder = true;
+    private PopupMenu popupMenu = null;
 
     DetailsAdapter(ExperimentDetailsFragment parent, Bundle savedInstanceState) {
-      mItems = new ArrayList<>();
-      mParentReference = new WeakReference<ExperimentDetailsFragment>(parent);
+      items = new ArrayList<>();
+      parentReference = new WeakReference<ExperimentDetailsFragment>(parent);
       if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SAVED_SENSOR_INDICES)) {
-        mSensorIndices = savedInstanceState.getIntegerArrayList(KEY_SAVED_SENSOR_INDICES);
+        sensorIndices = savedInstanceState.getIntegerArrayList(KEY_SAVED_SENSOR_INDICES);
       }
     }
 
@@ -852,7 +852,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-      ExperimentDetailItem item = mItems.get(position);
+      ExperimentDetailItem item = items.get(position);
       int type = item.getViewType();
       if (type == VIEW_TYPE_RUN_CARD) {
         setupTrialHeader((DetailsViewHolder) holder, item);
@@ -868,10 +868,10 @@ public class ExperimentDetailsFragment extends Fragment
       boolean isTriggerLabel = type == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
       boolean isSnapshotLabel = type == VIEW_TYPE_SNAPSHOT_LABEL;
       if (isPictureLabel || isTextLabel || isTriggerLabel || isSnapshotLabel) {
-        final Label label = mItems.get(position).getLabel();
+        final Label label = items.get(position).getLabel();
 
         NoteViewHolder noteViewHolder = (NoteViewHolder) holder;
-        noteViewHolder.setNote(label, mExperiment.getExperimentId());
+        noteViewHolder.setNote(label, experiment.getExperimentId());
 
         // Work specific to ExperimentDetails
         noteViewHolder.relativeTimeView.setTime(label.getTimeStamp());
@@ -880,7 +880,7 @@ public class ExperimentDetailsFragment extends Fragment
         noteViewHolder.menuButton.setOnClickListener(
             view -> {
               Context context = noteViewHolder.menuButton.getContext();
-              mPopupMenu =
+              popupMenu =
                   new PopupMenu(
                       context,
                       noteViewHolder.menuButton,
@@ -888,26 +888,25 @@ public class ExperimentDetailsFragment extends Fragment
                       R.attr.actionOverflowMenuStyle,
                       0);
               setupNoteMenu(item);
-              mPopupMenu.show();
+              popupMenu.show();
             });
         holder.itemView.setOnClickListener(
             view -> {
               if (!isRecording()) {
                 // Can't click into details pages when recording.
                 LabelDetailsActivity.launchFromExpDetails(
-                    holder.itemView.getContext(), mExperiment.getExperimentId(), label);
+                    holder.itemView.getContext(), experiment.getExperimentId(), label);
               }
             });
       }
       if (type == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
         View archivedIndicator = holder.itemView.findViewById(R.id.archived_indicator);
-        archivedIndicator.setVisibility(mExperiment.isArchived() ? View.VISIBLE : View.GONE);
+        archivedIndicator.setVisibility(experiment.isArchived() ? View.VISIBLE : View.GONE);
       }
     }
 
     private boolean isRecording() {
-      return mParentReference.get() != null
-          && mParentReference.get().getActiveRecordingId() != null;
+      return parentReference.get() != null && parentReference.get().getActiveRecordingId() != null;
     }
 
     private void setupTrialHeader(DetailsViewHolder holder, final ExperimentDetailItem item) {
@@ -928,7 +927,7 @@ public class ExperimentDetailsFragment extends Fragment
       holder.menuButton.setOnClickListener(
           view -> {
             Context context = holder.menuButton.getContext();
-            mPopupMenu =
+            popupMenu =
                 new PopupMenu(
                     context,
                     holder.menuButton,
@@ -936,7 +935,7 @@ public class ExperimentDetailsFragment extends Fragment
                     R.attr.actionOverflowMenuStyle,
                     0);
             setupTrialMenu(item);
-            mPopupMenu.show();
+            popupMenu.show();
           });
     }
 
@@ -957,45 +956,45 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     private void setupTrialMenu(ExperimentDetailItem item) {
-      mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_trial, mPopupMenu.getMenu());
+      popupMenu.getMenuInflater().inflate(R.menu.menu_experiment_trial, popupMenu.getMenu());
       boolean archived = item.getTrial().isArchived();
-      mPopupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
-      mPopupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
-      mPopupMenu.setOnMenuItemClickListener(
+      popupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
+      popupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
+      popupMenu.setOnMenuItemClickListener(
           menuItem -> {
-            if (mParentReference.get() != null && mParentReference.get().isVisible()) {
+            if (parentReference.get() != null && parentReference.get().isVisible()) {
               if (menuItem.getItemId() == R.id.menu_item_archive) {
-                mParentReference.get().setTrialArchived(item.getTrial(), true);
+                parentReference.get().setTrialArchived(item.getTrial(), true);
                 return true;
               } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
-                mParentReference.get().setTrialArchived(item.getTrial(), false);
+                parentReference.get().setTrialArchived(item.getTrial(), false);
                 return true;
               } else if (menuItem.getItemId() == R.id.menu_item_delete) {
-                mParentReference.get().deleteTrial(item.getTrial());
+                parentReference.get().deleteTrial(item.getTrial());
                 return true;
               }
             }
             return false;
           });
-      mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
+      popupMenu.setOnDismissListener(menu -> popupMenu = null);
     }
 
     private void setupNoteMenu(ExperimentDetailItem item) {
-      mPopupMenu.getMenuInflater().inflate(R.menu.menu_experiment_note, mPopupMenu.getMenu());
+      popupMenu.getMenuInflater().inflate(R.menu.menu_experiment_note, popupMenu.getMenu());
       final Context context;
       final Intent shareIntent;
       if (item.getViewType() == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL) {
 
-        if (mParentReference.get() != null) {
-          context = mParentReference.get().getContext();
+        if (parentReference.get() != null) {
+          context = parentReference.get().getContext();
           shareIntent =
               FileMetadataManager.createPhotoShareIntent(
                   context,
-                  mExperiment.getExperimentId(),
+                  experiment.getExperimentId(),
                   item.getLabel().getPictureLabelValue().filePath,
                   item.getLabel().getCaptionText());
           if (shareIntent != null) {
-            mPopupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(true);
+            popupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(true);
           }
         } else {
           context = null;
@@ -1005,11 +1004,11 @@ public class ExperimentDetailsFragment extends Fragment
         context = null;
         shareIntent = null;
       }
-      mPopupMenu.setOnMenuItemClickListener(
+      popupMenu.setOnMenuItemClickListener(
           menuItem -> {
             if (menuItem.getItemId() == R.id.btn_delete_note) {
-              if (mParentReference.get() != null) {
-                mParentReference.get().deleteLabel(item.getLabel());
+              if (parentReference.get() != null) {
+                parentReference.get().deleteLabel(item.getLabel());
               }
               return true;
             }
@@ -1024,7 +1023,7 @@ public class ExperimentDetailsFragment extends Fragment
             }
             return false;
           });
-      mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
+      popupMenu.setOnDismissListener(menu -> popupMenu = null);
     }
 
     public void deleteNote(Label label) {
@@ -1032,7 +1031,7 @@ public class ExperimentDetailsFragment extends Fragment
       if (position == -1) {
         return;
       }
-      mItems.remove(position);
+      items.remove(position);
       updateEmptyView();
       notifyItemRemoved(position);
     }
@@ -1047,9 +1046,9 @@ public class ExperimentDetailsFragment extends Fragment
                       ? VIEW_TYPE_SNAPSHOT_LABEL
                       : VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
       int position = -1;
-      int size = mItems.size();
+      int size = items.size();
       for (int i = 0; i < size; i++) {
-        ExperimentDetailItem item = mItems.get(i);
+        ExperimentDetailItem item = items.get(i);
         if (item.getViewType() == expectedViewType) {
           if (TextUtils.equals(label.getLabelId(), item.getLabel().getLabelId())) {
             position = i;
@@ -1067,7 +1066,7 @@ public class ExperimentDetailsFragment extends Fragment
           notifyItemChanged(position);
         } else {
           // It shouldn't be in the list any more.
-          mItems.remove(position);
+          items.remove(position);
           notifyItemRemoved(position);
           updateEmptyView();
         }
@@ -1077,14 +1076,14 @@ public class ExperimentDetailsFragment extends Fragment
     public void onTrialDeleted(String trialId) {
       int position = findTrialIndex(trialId);
       if (position != -1) {
-        mItems.remove(position);
+        items.remove(position);
         notifyItemRemoved(position);
       }
     }
 
     private int findTrialIndex(String trialId) {
-      for (int i = 0; i < mItems.size(); i++) {
-        ExperimentDetailItem item = mItems.get(i);
+      for (int i = 0; i < items.size(); i++) {
+        ExperimentDetailItem item = items.get(i);
         if (item.getViewType() == VIEW_TYPE_RUN_CARD || item.getViewType() == VIEW_TYPE_RECORDING) {
           if (TextUtils.equals(item.getTrial().getTrialId(), trialId)) {
             return i;
@@ -1095,80 +1094,80 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void insertNote(Label label) {
-      int size = mItems.size();
+      int size = items.size();
       long timestamp = label.getTimeStamp();
       boolean inserted = false;
-      mHasRunsOrLabels = true;
+      hasRunsOrLabels = true;
       for (int i = 0; i < size; i++) {
-        ExperimentDetailItem item = mItems.get(i);
+        ExperimentDetailItem item = items.get(i);
         if (item.getViewType() == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
           continue;
         }
         if (timestamp < item.getTimestamp()) {
-          mItems.add(i, new ExperimentDetailItem(label));
+          items.add(i, new ExperimentDetailItem(label));
           notifyItemInserted(i);
           inserted = true;
           break;
         }
       }
       if (!inserted) {
-        mItems.add(size, new ExperimentDetailItem(label));
+        items.add(size, new ExperimentDetailItem(label));
         notifyItemInserted(size);
       }
-      mParentReference.get().mEmptyView.setVisibility(View.GONE);
+      parentReference.get().emptyView.setVisibility(View.GONE);
     }
 
     @Override
     public int getItemCount() {
-      return mItems.size();
+      return items.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-      return mItems.get(position).getViewType();
+      return items.get(position).getViewType();
     }
 
     public void onDestroy() {
-      if (mPopupMenu != null) {
-        mPopupMenu.dismiss();
+      if (popupMenu != null) {
+        popupMenu.dismiss();
       }
     }
 
     public void setScalarDisplayOptions(ScalarDisplayOptions scalarDisplayOptions) {
-      mScalarDisplayOptions = scalarDisplayOptions;
+      this.scalarDisplayOptions = scalarDisplayOptions;
     }
 
     public void setData(Experiment experiment, List<Trial> trials) {
-      mHasRunsOrLabels = false;
-      mExperiment = experiment;
+      hasRunsOrLabels = false;
+      this.experiment = experiment;
       // TODO: compare data and see if anything has changed. If so, don't reload at all.
-      mItems.clear();
-      // As a safety check, if mSensorIndices is not the same size as the run list,
+      items.clear();
+      // As a safety check, if sensorIndices is not the same size as the run list,
       // just ignore it.
-      if (mSensorIndices != null && mSensorIndices.size() != trials.size()) {
-        mSensorIndices = null;
+      if (sensorIndices != null && sensorIndices.size() != trials.size()) {
+        sensorIndices = null;
       }
       int i = 0;
-      String activeTrialId = mParentReference.get().getActiveRecordingId();
+      String activeTrialId = parentReference.get().getActiveRecordingId();
       for (Trial trial : trials) {
         ExperimentDetailItem item =
             new ExperimentDetailItem(
-                trial, mScalarDisplayOptions, TextUtils.equals(activeTrialId, trial.getTrialId()));
-        item.setSensorTagIndex(mSensorIndices != null ? mSensorIndices.get(i++) : 0);
-        mItems.add(item);
-        mHasRunsOrLabels = true;
+                trial, scalarDisplayOptions, TextUtils.equals(activeTrialId, trial.getTrialId()));
+        item.setSensorTagIndex(sensorIndices != null ? sensorIndices.get(i++) : 0);
+        items.add(item);
+        hasRunsOrLabels = true;
       }
       for (Label label : experiment.getLabels()) {
-        mItems.add(new ExperimentDetailItem(label));
-        mHasRunsOrLabels = true;
+        items.add(new ExperimentDetailItem(label));
+        hasRunsOrLabels = true;
       }
       sortItems();
 
       if (experiment.isArchived()) {
-        mItems.add(0, new ExperimentDetailItem(VIEW_TYPE_EXPERIMENT_ARCHIVED));
+        items.add(0, new ExperimentDetailItem(VIEW_TYPE_EXPERIMENT_ARCHIVED));
       }
 
-      mParentReference.get().mEmptyView.setVisibility(mHasRunsOrLabels ? View.GONE : View.VISIBLE);
+      parentReference.get().emptyView.setVisibility(hasRunsOrLabels ? View.GONE : View.VISIBLE);
 
       notifyDataSetChanged();
     }
@@ -1180,9 +1179,9 @@ public class ExperimentDetailsFragment extends Fragment
     private void updateEmptyView() {
       boolean hasRunsOrLabels = false;
 
-      final int count = mItems.size();
+      final int count = items.size();
       for (int index = 0; index < count; ++index) {
-        int viewType = mItems.get(index).getViewType();
+        int viewType = items.get(index).getViewType();
         switch (viewType) {
             // Most view types count as runs or labels.
             // However, the archived view type does not.
@@ -1202,8 +1201,8 @@ public class ExperimentDetailsFragment extends Fragment
         }
       }
 
-      mHasRunsOrLabels = hasRunsOrLabels;
-      mParentReference.get().mEmptyView.setVisibility(hasRunsOrLabels ? View.GONE : View.VISIBLE);
+      this.hasRunsOrLabels = hasRunsOrLabels;
+      parentReference.get().emptyView.setVisibility(hasRunsOrLabels ? View.GONE : View.VISIBLE);
     }
 
     void bindRun(final DetailsViewHolder holder, final ExperimentDetailItem item) {
@@ -1340,7 +1339,7 @@ public class ExperimentDetailsFragment extends Fragment
         PictureUtils.loadExperimentImage(
             noteView.getContext(),
             (ImageView) noteView.findViewById(R.id.note_image),
-            mExperiment.getExperimentId(),
+            experiment.getExperimentId(),
             labelValue.filePath);
       }
 
@@ -1389,7 +1388,7 @@ public class ExperimentDetailsFragment extends Fragment
               RunReviewActivity.launch(
                   noteHolder.getContext(),
                   runId,
-                  mExperiment.getExperimentId(),
+                  experiment.getExperimentId(),
                   0 /* sensor index deprecated */,
                   false /* from record */,
                   false /* create task */,
@@ -1412,7 +1411,7 @@ public class ExperimentDetailsFragment extends Fragment
           RunReviewActivity.launch(
               v.getContext(),
               runId,
-              mExperiment.getExperimentId(),
+              experiment.getExperimentId(),
               selectedSensorIndex,
               false /* from record */,
               false /* create task */,
@@ -1523,12 +1522,10 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     void sortItems() {
-      if (mReverseOrder) {
-        Collections.sort(
-            mItems, (lhs, rhs) -> Long.compare(lhs.getTimestamp(), rhs.getTimestamp()));
+      if (reverseOrder) {
+        Collections.sort(items, (lhs, rhs) -> Long.compare(lhs.getTimestamp(), rhs.getTimestamp()));
       } else {
-        Collections.sort(
-            mItems, (lhs, rhs) -> Long.compare(rhs.getTimestamp(), lhs.getTimestamp()));
+        Collections.sort(items, (lhs, rhs) -> Long.compare(rhs.getTimestamp(), lhs.getTimestamp()));
       }
     }
 
@@ -1537,7 +1534,7 @@ public class ExperimentDetailsFragment extends Fragment
       int size = getItemCount();
       for (int i = 0; i < size; i++) {
         if (getItemViewType(i) == VIEW_TYPE_RUN_CARD) {
-          selectedIndices.add(mItems.get(i).getSensorTagIndex());
+          selectedIndices.add(items.get(i).getSensorTagIndex());
         }
       }
       outState.putIntegerArrayList(KEY_SAVED_SENSOR_INDICES, selectedIndices);
@@ -1546,8 +1543,8 @@ public class ExperimentDetailsFragment extends Fragment
     public void onStatsBroadcastReceived(String statsRunId, DataController dc) {
       // Update the stats when this is received.
       // TODO: Optimize: only update the full view if the sensor ID that changed was visible?
-      for (int i = 0; i < mItems.size(); i++) {
-        Trial trial = mItems.get(i).getTrial();
+      for (int i = 0; i < items.size(); i++) {
+        Trial trial = items.get(i).getTrial();
         if (trial == null) {
           continue;
         }
@@ -1558,13 +1555,13 @@ public class ExperimentDetailsFragment extends Fragment
           // everywhere?
           final int trialIndex = i;
           dc.getExperimentById(
-              mExperiment.getExperimentId(),
+              experiment.getExperimentId(),
               new LoggingConsumer<Experiment>(TAG, "load experiment") {
                 @Override
                 public void success(final Experiment experiment) {
                   // Rebind the View Holder to reload the stats and graphs.
-                  mExperiment = experiment;
-                  mItems.get(trialIndex).setTrial(experiment.getTrial(trialId));
+                  DetailsAdapter.this.experiment = experiment;
+                  items.get(trialIndex).setTrial(experiment.getTrial(trialId));
                 }
               });
           return;
@@ -1575,8 +1572,8 @@ public class ExperimentDetailsFragment extends Fragment
     public void addActiveRecording(Trial trial) {
       if (findTrialIndex(trial.getTrialId()) == -1) {
         // active recording goes to end of list
-        mItems.add(new ExperimentDetailItem(trial, mScalarDisplayOptions, true));
-        notifyItemInserted(mItems.size() - 1);
+        items.add(new ExperimentDetailItem(trial, scalarDisplayOptions, true));
+        notifyItemInserted(items.size() - 1);
         updateEmptyView();
       }
     }
@@ -1586,7 +1583,7 @@ public class ExperimentDetailsFragment extends Fragment
       if (position == -1) {
         addActiveRecording(trial);
       } else {
-        mItems.get(position).setTrial(trial);
+        items.get(position).setTrial(trial);
         notifyItemChanged(position);
       }
     }
@@ -1599,17 +1596,17 @@ public class ExperimentDetailsFragment extends Fragment
       if (!trial.isValid()) {
         // Remove it if it is invalid
         // TODO: Ask the parent fragment if we are including invalid runs.
-        mItems.remove(position);
+        items.remove(position);
         notifyItemRemoved(position);
       } else {
-        mItems.set(position, new ExperimentDetailItem(trial, mScalarDisplayOptions, false));
+        items.set(position, new ExperimentDetailItem(trial, scalarDisplayOptions, false));
         notifyItemChanged(position);
       }
     }
 
     public void setReverseLayout(boolean reverseLayout) {
-      if (mReverseOrder != reverseLayout) {
-        mReverseOrder = reverseLayout;
+      if (reverseOrder != reverseLayout) {
+        reverseOrder = reverseLayout;
         sortItems();
         notifyDataSetChanged();
       }
@@ -1621,15 +1618,15 @@ public class ExperimentDetailsFragment extends Fragment
       static final int STATS_LOAD_STATUS_IDLE = 0;
       static final int STATS_LOAD_STATUS_LOADING = 1;
 
-      private int mGraphLoadStatus;
+      private int graphLoadStatus;
 
       // Keep track of the loading state and what should currently be displayed:
       // Loads are done on a background thread, so as cards are scrolled or sensors are
       // updated we need to track what needs to be reloaded.
-      private String mRunId;
-      private String mSensorId;
+      private String runId;
+      private String sensorId;
 
-      final int mViewType;
+      final int viewType;
 
       int statsLoadStatus = STATS_LOAD_STATUS_IDLE;
 
@@ -1657,8 +1654,8 @@ public class ExperimentDetailsFragment extends Fragment
 
       public DetailsViewHolder(View itemView, int viewType) {
         super(itemView);
-        mViewType = viewType;
-        if (mViewType == VIEW_TYPE_RUN_CARD) {
+        this.viewType = viewType;
+        if (viewType == VIEW_TYPE_RUN_CARD) {
           cardView = itemView.findViewById(R.id.card_view);
           runTitle = (TextView) itemView.findViewById(R.id.run_title_text);
           statsList = (StatsList) itemView.findViewById(R.id.stats_view);
@@ -1681,31 +1678,31 @@ public class ExperimentDetailsFragment extends Fragment
       }
 
       public void setRunId(String runId) {
-        this.mRunId = runId;
+        this.runId = runId;
       }
 
       public void setSensorId(String sensorId) {
-        this.mSensorId = sensorId;
+        this.sensorId = sensorId;
       }
 
       @Override
       public int getGraphLoadStatus() {
-        return mGraphLoadStatus;
+        return graphLoadStatus;
       }
 
       @Override
       public void setGraphLoadStatus(int graphLoadStatus) {
-        this.mGraphLoadStatus = graphLoadStatus;
+        this.graphLoadStatus = graphLoadStatus;
       }
 
       @Override
       public String getRunId() {
-        return mRunId;
+        return runId;
       }
 
       @Override
       public String getSensorId() {
-        return mSensorId;
+        return sensorId;
       }
     }
 
