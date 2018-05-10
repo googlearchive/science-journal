@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.google.android.apps.forscience.whistlepunk;
+package com.google.android.apps.forscience.whistlepunk.opensource.licenses;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -35,6 +35,9 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import com.google.android.apps.forscience.whistlepunk.LoadStaticHtmlTask;
+import com.google.android.apps.forscience.whistlepunk.opensource.R;
+import com.google.android.apps.forscience.whistlepunk.SettingsActivity;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

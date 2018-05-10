@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -54,11 +53,12 @@ public class SettingsFragment extends PreferenceFragment {
     if (type == SettingsActivity.TYPE_ABOUT) {
       addPreferencesFromResource(R.xml.about);
 
+      Context context = getContext();
       Preference licensePreference = findPreference(KEY_OPEN_SOURCE);
       licensePreference.setIntent(
-          new Intent(getActivity().getApplicationContext(), LicenseActivity.class));
+          WhistlePunkApplication.getAppServices(context).getLicenseProvider().getIntent(context));
 
-      loadVersion(getActivity());
+      loadVersion(context);
     } else if (type == SettingsActivity.TYPE_SETTINGS) {
       addPreferencesFromResource(R.xml.settings);
     } else {

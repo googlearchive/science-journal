@@ -19,6 +19,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
+import com.google.android.apps.forscience.whistlepunk.licenses.LicenseProvider;
 import com.squareup.leakcanary.RefWatcher;
 
 public interface AppServices {
@@ -53,6 +54,11 @@ public interface AppServices {
         public AccountsProvider getAccountsProvider() {
           return null;
         }
+
+        @Override
+        public LicenseProvider getLicenseProvider() {
+          return LicenseProvider.STUB;
+        }
       };
 
   RefWatcher getRefWatcher();
@@ -66,4 +72,6 @@ public interface AppServices {
   ActivityNavigator getNavigator();
 
   AccountsProvider getAccountsProvider();
+
+  LicenseProvider getLicenseProvider();
 }

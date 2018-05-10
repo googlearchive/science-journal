@@ -226,16 +226,6 @@
             android:exported="false"
             android:label="@string/navigation_item_settings"/>
         <activity
-            android:name=".LicenseActivity"
-            android:exported="false"
-            android:label="@string/settings_open_source_title"
-            android:theme="@style/AppTheme"
-            >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.SettingsActivity"/>
-        </activity>
-        <activity
             android:name=".accounts.NotSignedInYetActivity"
             android:theme="@style/AppTheme.NotSignedInYet"
             android:exported="false"

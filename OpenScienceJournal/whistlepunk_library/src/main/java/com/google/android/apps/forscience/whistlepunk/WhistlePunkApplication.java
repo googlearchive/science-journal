@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
+import com.google.android.apps.forscience.whistlepunk.licenses.LicenseProvider;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
@@ -54,6 +55,8 @@ public abstract class WhistlePunkApplication extends Application {
   @Inject Map<String, SensorDiscoverer> mSensorDiscoverers;
 
   @Inject PerfTrackerProvider mPerfTrackerProvider;
+
+  @Inject LicenseProvider licenseProvider;
 
   private final AppServices mAppServices =
       new AppServices() {
@@ -84,6 +87,11 @@ public abstract class WhistlePunkApplication extends Application {
         @Override
         public AccountsProvider getAccountsProvider() {
           return mAccountsProvider;
+        }
+
+        @Override
+        public LicenseProvider getLicenseProvider() {
+          return licenseProvider;
         }
       };
 
