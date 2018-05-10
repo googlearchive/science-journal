@@ -41,9 +41,9 @@ import io.reactivex.subjects.PublishSubject;
 import java.util.UUID;
 
 public class CameraFragment extends PanesToolFragment {
-  private final BehaviorSubject<Optional<ViewGroup>> mPreviewContainer = BehaviorSubject.create();
-  private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
-  private PublishSubject<Object> mWhenUserTakesPhoto = PublishSubject.create();
+  private final BehaviorSubject<Optional<ViewGroup>> previewContainer = BehaviorSubject.create();
+  private BehaviorSubject<Boolean> permissionGranted = BehaviorSubject.create();
+  private PublishSubject<Object> whenUserTakesPhoto = PublishSubject.create();
 
   public abstract static class CameraFragmentListener {
     static CameraFragmentListener NULL =
@@ -75,7 +75,7 @@ public class CameraFragment extends PanesToolFragment {
     CameraFragmentListener getCameraFragmentListener();
   }
 
-  private CameraFragmentListener mListener = CameraFragmentListener.NULL;
+  private CameraFragmentListener listener = CameraFragmentListener.NULL;
 
   public static CameraFragment newInstance() {
     return new CameraFragment();
@@ -85,14 +85,14 @@ public class CameraFragment extends PanesToolFragment {
     whenVisibilityGained()
         .subscribe(
             v -> {
-              mPreviewContainer
+              previewContainer
                   .filter(o -> o.isPresent())
                   .firstElement()
                   .subscribe(
                       opt -> {
                         ViewGroup container = opt.get();
 
-                        mPermissionGranted
+                        permissionGranted
                             .distinctUntilChanged()
                             .takeUntil(RxView.detaches(container))
                             .map(
@@ -138,7 +138,7 @@ public class CameraFragment extends PanesToolFragment {
         .takeUntil(RxView.detaches(preview))
         .subscribe(preview::setCurrentDrawerState);
 
-    mWhenUserTakesPhoto
+    whenUserTakesPhoto
         .takeUntil(whenVisibilityLost())
         .doOnComplete(
             () -> {
@@ -150,7 +150,7 @@ public class CameraFragment extends PanesToolFragment {
               final long timestamp = getTimestamp(preview.getContext());
               final String uuid = UUID.randomUUID().toString();
               preview.takePicture(
-                  mListener.getActiveExperimentId().firstElement(),
+                  listener.getActiveExperimentId().firstElement(),
                   uuid,
                   new LoggingConsumer<String>(TAG, "taking picture") {
                     @Override
@@ -161,7 +161,7 @@ public class CameraFragment extends PanesToolFragment {
                       Label label =
                           Label.fromUuidAndValue(
                               timestamp, uuid, GoosciLabel.Label.ValueType.PICTURE, labelValue);
-                      mListener.onPictureLabelTaken(label);
+                      listener.onPictureLabelTaken(label);
                     }
                   });
             });
@@ -169,22 +169,22 @@ public class CameraFragment extends PanesToolFragment {
 
   @Override
   public void onDetach() {
-    mListener = CameraFragmentListener.NULL;
+    listener = CameraFragmentListener.NULL;
     super.onDetach();
   }
 
   protected void panesOnAttach(Context context) {
     if (context instanceof ListenerProvider) {
-      mListener = ((ListenerProvider) context).getCameraFragmentListener();
+      listener = ((ListenerProvider) context).getCameraFragmentListener();
     }
     Fragment parentFragment = getParentFragment();
     if (parentFragment instanceof ListenerProvider) {
-      mListener = ((ListenerProvider) parentFragment).getCameraFragmentListener();
+      listener = ((ListenerProvider) parentFragment).getCameraFragmentListener();
     }
   }
 
   private void requestPermission() {
-    RxPermissions permissions = mListener.getPermissions();
+    RxPermissions permissions = listener.getPermissions();
     if (permissions == null) {
       return;
     }
@@ -192,7 +192,7 @@ public class CameraFragment extends PanesToolFragment {
         .request(Manifest.permission.CAMERA)
         .subscribe(
             granted -> {
-              mPermissionGranted.onNext(granted);
+              permissionGranted.onNext(granted);
             });
   }
 
@@ -201,20 +201,19 @@ public class CameraFragment extends PanesToolFragment {
   public View onCreatePanesView(
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     View inflated = inflater.inflate(R.layout.fragment_camera_tool, null);
-    mPreviewContainer.onNext(
-        Optional.of((ViewGroup) inflated.findViewById(R.id.preview_container)));
+    previewContainer.onNext(Optional.of((ViewGroup) inflated.findViewById(R.id.preview_container)));
     requestPermission();
     return inflated;
   }
 
   @Override
   public void onDestroyPanesView() {
-    mPreviewContainer.onNext(Optional.absent());
+    previewContainer.onNext(Optional.absent());
   }
 
   public void attachButtons(FrameLayout controlBar) {
     ImageButton addButton = (ImageButton) controlBar.findViewById(R.id.btn_add);
-    RxView.clicks(addButton).subscribe(click -> mWhenUserTakesPhoto.onNext(click));
+    RxView.clicks(addButton).subscribe(click -> whenUserTakesPhoto.onNext(click));
   }
 
   private long getTimestamp(Context context) {

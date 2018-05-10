@@ -63,13 +63,13 @@ public class GalleryFragment extends PanesToolFragment
   private static final String KEY_SELECTED_PHOTO = "selected_photo";
 
   // Same methods as the camera fragment, so share the listener code.
-  private Listener mListener;
-  private GalleryItemAdapter mGalleryAdapter;
-  private int mInitiallySelectedPhoto;
-  private SingleSubject<LoaderManager> mWhenLoaderManager = SingleSubject.create();
-  private BehaviorSubject<Boolean> mAddButtonEnabled = BehaviorSubject.create();
-  private BehaviorSubject<Boolean> mPermissionGranted = BehaviorSubject.create();
-  private RxEvent mDestroyed = new RxEvent();
+  private Listener listener;
+  private GalleryItemAdapter galleryAdapter;
+  private int initiallySelectedPhoto;
+  private SingleSubject<LoaderManager> whenLoaderManager = SingleSubject.create();
+  private BehaviorSubject<Boolean> addButtonEnabled = BehaviorSubject.create();
+  private BehaviorSubject<Boolean> permissionGranted = BehaviorSubject.create();
+  private RxEvent destroyed = new RxEvent();
 
   public interface Listener {
     Observable<String> getActiveExperimentId();
@@ -91,19 +91,19 @@ public class GalleryFragment extends PanesToolFragment
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    mInitiallySelectedPhoto =
+    initiallySelectedPhoto =
         savedInstanceState != null ? savedInstanceState.getInt(KEY_SELECTED_PHOTO) : -1;
 
-    mGalleryAdapter =
+    galleryAdapter =
         new GalleryItemAdapter(
             getActivity(),
             (image, selected) -> {
-              mAddButtonEnabled.onNext(selected && !TextUtils.isEmpty(image));
+              addButtonEnabled.onNext(selected && !TextUtils.isEmpty(image));
             });
 
-    mPermissionGranted
+    permissionGranted
         .distinctUntilChanged()
-        .takeUntil(mDestroyed.happens())
+        .takeUntil(destroyed.happens())
         .subscribe(
             granted -> {
               if (granted) {
@@ -113,7 +113,7 @@ public class GalleryFragment extends PanesToolFragment
               }
             });
 
-    mWhenLoaderManager.onSuccess(getLoaderManager());
+    whenLoaderManager.onSuccess(getLoaderManager());
   }
 
   @Override
@@ -124,11 +124,11 @@ public class GalleryFragment extends PanesToolFragment
   @Override
   protected void panesOnAttach(Context context) {
     if (context instanceof ListenerProvider) {
-      mListener = ((ListenerProvider) context).getGalleryListener();
+      listener = ((ListenerProvider) context).getGalleryListener();
     }
     Fragment parentFragment = getParentFragment();
     if (parentFragment instanceof ListenerProvider) {
-      mListener = ((ListenerProvider) parentFragment).getGalleryListener();
+      listener = ((ListenerProvider) parentFragment).getGalleryListener();
     }
 
     super.panesOnAttach(context);
@@ -136,7 +136,7 @@ public class GalleryFragment extends PanesToolFragment
 
   // TODO: duplicate logic with CameraFragment?
   private void requestPermission() {
-    RxPermissions permissions = mListener.getPermissions();
+    RxPermissions permissions = listener.getPermissions();
     if (permissions == null) {
       return;
     }
@@ -144,7 +144,7 @@ public class GalleryFragment extends PanesToolFragment
         .request(Manifest.permission.READ_EXTERNAL_STORAGE)
         .subscribe(
             granted -> {
-              mPermissionGranted.onNext(granted);
+              permissionGranted.onNext(granted);
             });
   }
 
@@ -161,7 +161,7 @@ public class GalleryFragment extends PanesToolFragment
             gallery.getContext().getResources().getInteger(R.integer.gallery_column_count));
     gallery.setLayoutManager(layoutManager);
     gallery.setItemAnimator(new DefaultItemAnimator());
-    gallery.setAdapter(mGalleryAdapter);
+    gallery.setAdapter(galleryAdapter);
 
     requestPermission();
     return rootView;
@@ -185,13 +185,13 @@ public class GalleryFragment extends PanesToolFragment
           final long timestamp = getTimestamp(addButton.getContext());
           GoosciPictureLabelValue.PictureLabelValue labelValue =
               new GoosciPictureLabelValue.PictureLabelValue();
-          String selectedImage = mGalleryAdapter.getSelectedImage();
+          String selectedImage = galleryAdapter.getSelectedImage();
           if (TextUtils.isEmpty(selectedImage)) {
             // TODO: Is this possible?
             return;
           }
 
-          mListener
+          listener
               .getActiveExperimentId()
               .firstElement()
               .subscribe(
@@ -214,21 +214,21 @@ public class GalleryFragment extends PanesToolFragment
                     }
 
                     result.setLabelProtoData(labelValue);
-                    mListener.onPictureLabelTaken(result);
-                    mGalleryAdapter.deselectImages();
+                    listener.onPictureLabelTaken(result);
+                    galleryAdapter.deselectImages();
                   });
         });
 
     // TODO: Need to update the content description if we are recording or not.
     addButton.setEnabled(false);
 
-    mAddButtonEnabled.subscribe(enabled -> addButton.setEnabled(enabled));
+    addButtonEnabled.subscribe(enabled -> addButton.setEnabled(enabled));
   }
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putInt(KEY_SELECTED_PHOTO, mGalleryAdapter.mSelectedIndex);
+    outState.putInt(KEY_SELECTED_PHOTO, galleryAdapter.selectedIndex);
   }
 
   private long getTimestamp(Context context) {
@@ -247,7 +247,7 @@ public class GalleryFragment extends PanesToolFragment
     }
 
     if (getActivity() != null) {
-      mWhenLoaderManager.subscribe(manager -> manager.initLoader(PHOTO_LOADER_INDEX, null, this));
+      whenLoaderManager.subscribe(manager -> manager.initLoader(PHOTO_LOADER_INDEX, null, this));
     }
   }
 
@@ -260,19 +260,19 @@ public class GalleryFragment extends PanesToolFragment
   public void onLoadFinished(
       Loader<List<PhotoAsyncLoader.Image>> loader, List<PhotoAsyncLoader.Image> images) {
 
-    mGalleryAdapter.setImages(images);
-    if (mInitiallySelectedPhoto != -1) {
+    galleryAdapter.setImages(images);
+    if (initiallySelectedPhoto != -1) {
       // Resume from saved state if needed.
-      mGalleryAdapter.setSelectedIndex(mInitiallySelectedPhoto);
-      String image = mGalleryAdapter.getSelectedImage();
-      mAddButtonEnabled.onNext(!TextUtils.isEmpty(image));
-      mInitiallySelectedPhoto = -1;
+      galleryAdapter.setSelectedIndex(initiallySelectedPhoto);
+      String image = galleryAdapter.getSelectedImage();
+      addButtonEnabled.onNext(!TextUtils.isEmpty(image));
+      initiallySelectedPhoto = -1;
     }
   }
 
   @Override
   public void onLoaderReset(Loader<List<PhotoAsyncLoader.Image>> loader) {
-    mGalleryAdapter.clearImages();
+    galleryAdapter.clearImages();
   }
 
   private static class GalleryItemAdapter
@@ -282,42 +282,42 @@ public class GalleryFragment extends PanesToolFragment
       void onImageClicked(String image, boolean selected);
     }
 
-    private List<PhotoAsyncLoader.Image> mImages;
-    private final Context mContext;
-    private final ImageClickListener mListener;
-    private int mSelectedIndex = -1;
-    private final String mContentDescriptionPrefix;
+    private List<PhotoAsyncLoader.Image> images;
+    private final Context context;
+    private final ImageClickListener listener;
+    private int selectedIndex = -1;
+    private final String contentDescriptionPrefix;
 
     public GalleryItemAdapter(Context context, ImageClickListener listener) {
-      mImages = new ArrayList<>();
-      mContext = context;
-      mListener = listener;
-      mContentDescriptionPrefix =
+      images = new ArrayList<>();
+      this.context = context;
+      this.listener = listener;
+      contentDescriptionPrefix =
           context.getResources().getString(R.string.gallery_image_content_description);
     }
 
     public void setImages(List<PhotoAsyncLoader.Image> images) {
-      mImages.clear();
-      mImages.addAll(images);
+      this.images.clear();
+      this.images.addAll(images);
       notifyDataSetChanged();
     }
 
     public void clearImages() {
-      mImages.clear();
+      images.clear();
       notifyDataSetChanged();
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-      View itemView = LayoutInflater.from(mContext).inflate(R.layout.gallery_image, parent, false);
+      View itemView = LayoutInflater.from(context).inflate(R.layout.gallery_image, parent, false);
       return new ViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-      String path = mImages.get(position).path;
+      String path = images.get(position).path;
 
-      GlideApp.with(mContext)
+      GlideApp.with(context)
           .load(path)
           .listener(
               new RequestListener<Drawable>() {
@@ -345,63 +345,63 @@ public class GalleryFragment extends PanesToolFragment
           .into(holder.image);
       holder.image.setContentDescription(
           String.format(
-              mContentDescriptionPrefix,
+              contentDescriptionPrefix,
               DateUtils.formatDateTime(
-                  mContext,
-                  mImages.get(position).timestampTaken,
+                  context,
+                  images.get(position).timestampTaken,
                   DateUtils.FORMAT_SHOW_DATE
                       | DateUtils.FORMAT_SHOW_TIME
                       | DateUtils.FORMAT_ABBREV_ALL)));
 
-      boolean selected = position == mSelectedIndex;
+      boolean selected = position == selectedIndex;
       holder.selectedIndicator.setVisibility(selected ? View.VISIBLE : View.GONE);
 
       holder.image.setOnClickListener(
           view -> {
-            boolean newlySelected = holder.getAdapterPosition() != mSelectedIndex;
+            boolean newlySelected = holder.getAdapterPosition() != selectedIndex;
             if (newlySelected) {
               // It was clicked for the first time.
               setSelectedIndex(holder.getAdapterPosition());
             } else {
               // A second click on the same image is a deselect.
-              mSelectedIndex = -1;
+              selectedIndex = -1;
             }
             holder.selectedIndicator.setVisibility(newlySelected ? View.VISIBLE : View.GONE);
-            mListener.onImageClicked(path, newlySelected);
+            listener.onImageClicked(path, newlySelected);
           });
     }
 
     @Override
     public void onViewRecycled(ViewHolder holder) {
-      holder.image.setBackgroundColor(mContext.getResources().getColor(R.color.background_color));
+      holder.image.setBackgroundColor(context.getResources().getColor(R.color.background_color));
       super.onViewRecycled(holder);
     }
 
     @Override
     public int getItemCount() {
-      return mImages.size();
+      return images.size();
     }
 
     public String getSelectedImage() {
-      if (mSelectedIndex == -1) {
+      if (selectedIndex == -1) {
         return null;
       }
-      return mImages.get(mSelectedIndex).path;
+      return images.get(selectedIndex).path;
     }
 
     public void deselectImages() {
-      int previous = mSelectedIndex;
-      mSelectedIndex = -1;
+      int previous = selectedIndex;
+      selectedIndex = -1;
       notifyItemChanged(previous);
     }
 
     public void setSelectedIndex(int indexToSelect) {
       deselectImages();
-      if (indexToSelect < mImages.size()) {
-        mSelectedIndex = indexToSelect;
+      if (indexToSelect < images.size()) {
+        selectedIndex = indexToSelect;
         notifyItemChanged(indexToSelect);
       } else {
-        mSelectedIndex = -1;
+        selectedIndex = -1;
       }
     }
 
