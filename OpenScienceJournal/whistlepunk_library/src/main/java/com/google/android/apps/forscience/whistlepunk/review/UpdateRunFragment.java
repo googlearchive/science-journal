@@ -48,10 +48,10 @@ public class UpdateRunFragment extends Fragment {
 
   public static final String ARG_EXP_ID = "exp_id";
 
-  private String mRunId;
-  private String mExperimentId;
-  private Experiment mExperiment;
-  private EditText mRunTitle;
+  private String runId;
+  private String experimentId;
+  private Experiment experiment;
+  private EditText runTitle;
 
   public UpdateRunFragment() {}
 
@@ -67,18 +67,18 @@ public class UpdateRunFragment extends Fragment {
   @Override
   public void onStart() {
     super.onStart();
-    mRunId = getArguments().getString(ARG_RUN_ID);
-    mExperimentId = getArguments().getString(ARG_EXP_ID);
+    runId = getArguments().getString(ARG_RUN_ID);
+    experimentId = getArguments().getString(ARG_EXP_ID);
 
     getDataController()
         .getExperimentById(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Experiment>(TAG, "retrieve run") {
               @Override
               public void success(Experiment experiment) {
-                mExperiment = experiment;
-                mRunTitle.setText(mExperiment.getTrial(mRunId).getTitle(getActivity()));
-                mRunTitle.selectAll();
+                UpdateRunFragment.this.experiment = experiment;
+                runTitle.setText(experiment.getTrial(runId).getTitle(getActivity()));
+                runTitle.selectAll();
               }
             });
     WhistlePunkApplication.getUsageTracker(getActivity())
@@ -95,7 +95,7 @@ public class UpdateRunFragment extends Fragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_update_run, container, false);
-    mRunTitle = (EditText) view.findViewById(R.id.run_title);
+    runTitle = (EditText) view.findViewById(R.id.run_title);
     return view;
   }
 
@@ -131,10 +131,10 @@ public class UpdateRunFragment extends Fragment {
   }
 
   private void saveAndReturn() {
-    mExperiment.getTrial(mRunId).setTitle(mRunTitle.getText().toString().trim());
+    experiment.getTrial(runId).setTitle(runTitle.getText().toString().trim());
     getDataController()
         .updateExperiment(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Success>(TAG, "updating run") {
               @Override
               public void success(Success value) {
@@ -146,8 +146,8 @@ public class UpdateRunFragment extends Fragment {
   private void returnToRunReview() {
     Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
     upIntent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD, false);
-    upIntent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, mRunId);
-    upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, mExperimentId);
+    upIntent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
+    upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, experimentId);
     upIntent.putExtra(RunReviewFragment.ARG_READ_ONLY, false);
     NavUtils.navigateUpTo(getActivity(), upIntent);
   }

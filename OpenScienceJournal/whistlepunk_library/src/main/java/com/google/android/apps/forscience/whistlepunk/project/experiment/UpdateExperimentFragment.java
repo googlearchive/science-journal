@@ -69,11 +69,11 @@ public class UpdateExperimentFragment extends Fragment {
 
   private static final String KEY_SAVED_PICTURE_PATH = "picture_path";
 
-  private String mExperimentId;
-  private BehaviorSubject<Experiment> mExperiment = BehaviorSubject.create();
-  private ImageView mPhotoPreview;
-  private String mPictureLabelPath = null;
-  private RxEvent mSaved = new RxEvent();
+  private String experimentId;
+  private BehaviorSubject<Experiment> experiment = BehaviorSubject.create();
+  private ImageView photoPreview;
+  private String pictureLabelPath = null;
+  private RxEvent saved = new RxEvent();
 
   public UpdateExperimentFragment() {}
 
@@ -88,13 +88,13 @@ public class UpdateExperimentFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mExperimentId = getArguments().getString(ARG_EXPERIMENT_ID);
+    experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     if (savedInstanceState != null) {
-      mPictureLabelPath = savedInstanceState.getString(KEY_SAVED_PICTURE_PATH);
+      pictureLabelPath = savedInstanceState.getString(KEY_SAVED_PICTURE_PATH);
     }
     getDataController()
         .getExperimentById(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Experiment>(TAG, "load experiment") {
               @Override
               public void success(Experiment experiment) {
@@ -119,7 +119,7 @@ public class UpdateExperimentFragment extends Fragment {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.action_save) {
-      mSaved.onHappened();
+      saved.onHappened();
       WhistlePunkApplication.getUsageTracker(getActivity())
           .trackEvent(
               TrackerConstants.CATEGORY_EXPERIMENTS,
@@ -134,7 +134,7 @@ public class UpdateExperimentFragment extends Fragment {
 
   @Override
   public void onDestroy() {
-    mSaved.onDoneHappening();
+    saved.onDoneHappening();
     super.onDestroy();
   }
 
@@ -150,23 +150,23 @@ public class UpdateExperimentFragment extends Fragment {
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_update_experiment, container, false);
     EditText title = (EditText) view.findViewById(R.id.experiment_title);
-    mPhotoPreview = (ImageView) view.findViewById(R.id.experiment_cover);
+    photoPreview = (ImageView) view.findViewById(R.id.experiment_cover);
     Button chooseButton = (Button) view.findViewById(R.id.btn_choose_photo);
     ImageButton takeButton = (ImageButton) view.findViewById(R.id.btn_take_photo);
 
     // Set the color of the placeholder drawable. This isn't used anywhere else
     // so we don't need to mutate() the drawable.
-    mPhotoPreview
+    photoPreview
         .getDrawable()
         .setColorFilter(
-            mPhotoPreview.getResources().getColor(R.color.text_color_light_grey),
+            photoPreview.getResources().getColor(R.color.text_color_light_grey),
             PorterDuff.Mode.SRC_IN);
 
-    mExperiment.subscribe(
+    experiment.subscribe(
         experiment -> {
           title.setText(experiment.getTitle());
 
-          mSaved
+          saved
               .happens()
               .subscribe(
                   o -> {
@@ -180,7 +180,7 @@ public class UpdateExperimentFragment extends Fragment {
           if (!TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
             // Load the current experiment photo
             PictureUtils.loadExperimentOverviewImage(
-                mPhotoPreview, experiment.getExperimentOverview().imagePath);
+                photoPreview, experiment.getExperimentOverview().imagePath);
           }
           chooseButton.setOnClickListener(
               new View.OnClickListener() {
@@ -200,9 +200,9 @@ public class UpdateExperimentFragment extends Fragment {
                       new PermissionUtils.PermissionListener() {
                         @Override
                         public void onPermissionGranted() {
-                          mPictureLabelPath =
+                          pictureLabelPath =
                               PictureUtils.capturePictureLabel(
-                                  getActivity(), mExperimentId, mExperimentId);
+                                  getActivity(), experimentId, experimentId);
                         }
 
                         @Override
@@ -246,7 +246,7 @@ public class UpdateExperimentFragment extends Fragment {
         // that file's path into the experiment.
 
         // Use the experiment ID to name the project image.
-        imageFile = PictureUtils.createImageFile(getActivity(), mExperimentId, mExperimentId);
+        imageFile = PictureUtils.createImageFile(getActivity(), experimentId, experimentId);
         copyUriToFile(getActivity(), data.getData(), imageFile);
         success = true;
       } catch (IOException e) {
@@ -254,23 +254,23 @@ public class UpdateExperimentFragment extends Fragment {
       }
       if (success) {
         String relativePathInExperiment =
-            FileMetadataManager.getRelativePathInExperiment(mExperimentId, imageFile);
+            FileMetadataManager.getRelativePathInExperiment(experimentId, imageFile);
         String overviewPath =
             PictureUtils.getExperimentOverviewRelativeImagePath(
-                mExperimentId, relativePathInExperiment);
+                experimentId, relativePathInExperiment);
         setImagePath(overviewPath);
-        PictureUtils.loadExperimentOverviewImage(mPhotoPreview, overviewPath);
+        PictureUtils.loadExperimentOverviewImage(photoPreview, overviewPath);
       }
       return;
     } else if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
       if (resultCode == Activity.RESULT_OK) {
         String overviewPath =
-            PictureUtils.getExperimentOverviewRelativeImagePath(mExperimentId, mPictureLabelPath);
+            PictureUtils.getExperimentOverviewRelativeImagePath(experimentId, pictureLabelPath);
         setImagePath(overviewPath);
         PictureUtils.loadExperimentImage(
-            getActivity(), mPhotoPreview, mExperimentId, mPictureLabelPath);
+            getActivity(), photoPreview, experimentId, pictureLabelPath);
       } else {
-        mPictureLabelPath = null;
+        pictureLabelPath = null;
       }
       // TODO: cancel doesn't restore old picture path.
       return;
@@ -279,7 +279,7 @@ public class UpdateExperimentFragment extends Fragment {
   }
 
   public void setImagePath(String overviewPath) {
-    mExperiment
+    experiment
         .firstElement()
         .subscribe(
             e -> {
@@ -290,7 +290,7 @@ public class UpdateExperimentFragment extends Fragment {
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
-    outState.putString(KEY_SAVED_PICTURE_PATH, mPictureLabelPath);
+    outState.putString(KEY_SAVED_PICTURE_PATH, pictureLabelPath);
     super.onSaveInstanceState(outState);
   }
 
@@ -309,7 +309,7 @@ public class UpdateExperimentFragment extends Fragment {
   }
 
   private void attachExperimentDetails(final Experiment experiment) {
-    mExperiment.onNext(experiment);
+    this.experiment.onNext(experiment);
   }
 
   private DataController getDataController() {
@@ -320,7 +320,7 @@ public class UpdateExperimentFragment extends Fragment {
   private void saveExperiment() {
     getDataController()
         .updateExperiment(
-            mExperimentId,
+            experimentId,
             new LoggingConsumer<Success>(TAG, "update experiment") {
               @Override
               public void fail(Exception e) {

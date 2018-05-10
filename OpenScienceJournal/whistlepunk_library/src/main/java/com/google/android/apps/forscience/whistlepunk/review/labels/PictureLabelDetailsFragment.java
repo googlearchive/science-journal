@@ -37,8 +37,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 /** Details view controller for PictureLabel */
 public class PictureLabelDetailsFragment extends LabelDetailsFragment {
 
-  private ImageView mImageView;
-  private Intent mShareIntent;
+  private ImageView imageView;
+  private Intent shareIntent;
 
   public static PictureLabelDetailsFragment newInstance(
       String experimentId, String trialId, Label originalLabel) {
@@ -68,7 +68,7 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
 
     setupCaption(rootView);
 
-    mImageView = (ImageView) rootView.findViewById(R.id.image);
+    imageView = (ImageView) rootView.findViewById(R.id.image);
 
     // TODO: Transition
 
@@ -80,20 +80,20 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
     super.onResume();
     // Load on resume in case edits have been made.
     PictureUtils.loadExperimentImage(
-        getActivity(), mImageView, mExperimentId, mOriginalLabel.getPictureLabelValue().filePath);
+        getActivity(), imageView, experimentId, originalLabel.getPictureLabelValue().filePath);
   }
 
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.menu_picture_label_details, menu);
     getContext();
-    mShareIntent =
+    shareIntent =
         FileMetadataManager.createPhotoShareIntent(
             getContext(),
-            mExperimentId,
-            mOriginalLabel.getPictureLabelValue().filePath,
-            mOriginalLabel.getCaptionText());
-    if (mShareIntent != null) {
+            experimentId,
+            originalLabel.getPictureLabelValue().filePath,
+            originalLabel.getCaptionText());
+    if (shareIntent != null) {
       menu.findItem(R.id.btn_share_photo).setVisible(true);
     }
 
@@ -107,14 +107,14 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.action_edit) {
       PictureUtils.launchExternalEditor(
-          getActivity(), mExperimentId, mOriginalLabel.getPictureLabelValue().filePath);
+          getActivity(), experimentId, originalLabel.getPictureLabelValue().filePath);
       return true;
     } else if (item.getItemId() == R.id.btn_share_photo) {
-      if (mShareIntent != null) {
+      if (shareIntent != null) {
         getContext()
             .startActivity(
                 Intent.createChooser(
-                    mShareIntent,
+                    shareIntent,
                     getContext().getResources().getString(R.string.export_photo_chooser_title)));
       }
       return true;

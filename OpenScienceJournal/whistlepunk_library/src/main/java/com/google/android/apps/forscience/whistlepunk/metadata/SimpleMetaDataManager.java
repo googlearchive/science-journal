@@ -92,14 +92,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
   private static final String UNKNOWN_LABEL_TAG = "label";
   private static final String DEFAULT_PROJECT_ID = "defaultProjectId";
 
-  private DatabaseHelper mDbHelper;
-  private Context mContext;
-  private Clock mClock;
-  private Object mLock = new Object();
-  private FileMetadataManager mFileMetadataManager;
+  private DatabaseHelper dbHelper;
+  private Context context;
+  private Clock clock;
+  private Object lock = new Object();
+  private FileMetadataManager fileMetadataManager;
 
   public void close() {
-    mDbHelper.close();
+    dbHelper.close();
     getFileMetadataManager().close();
   }
 
@@ -129,10 +129,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @VisibleForTesting
   SimpleMetaDataManager(Context context, AppAccount appAccount, String filename, Clock clock) {
-    mContext = context;
-    mClock = clock;
-    mFileMetadataManager = new FileMetadataManager(mContext, appAccount, mClock);
-    mDbHelper =
+    this.context = context;
+    this.clock = clock;
+    fileMetadataManager = new FileMetadataManager(context, appAccount, clock);
+    dbHelper =
         new DatabaseHelper(
             context,
             appAccount,
@@ -156,17 +156,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   private FileMetadataManager getFileMetadataManager() {
-    synchronized (mLock) {
+    synchronized (lock) {
       // Force upgrade if needed
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-      return mFileMetadataManager;
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
+      return fileMetadataManager;
     }
   }
 
   @VisibleForTesting
   void migrateExperimentsToFiles() {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       migrateExperimentsToFiles(db);
     }
   }
@@ -176,12 +176,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
     List<String> experimentIds = getAllExperimentIds(db);
 
     // Clean up if a previous migration was not successful / complete.
-    mFileMetadataManager.deleteAll(experimentIds);
+    fileMetadataManager.deleteAll(experimentIds);
 
     int colorIndex = 0;
-    int colorCount = mContext.getResources().getIntArray(R.array.experiment_colors_array).length;
+    int colorCount = context.getResources().getIntArray(R.array.experiment_colors_array).length;
     for (String experimentId : experimentIds) {
-      Experiment experiment = getDatabaseExperimentById(db, experimentId, mContext, true);
+      Experiment experiment = getDatabaseExperimentById(db, experimentId, context, true);
 
       // Assign a color. This is based on the order that experiments are retrieved from
       // the database so it might not be in any particular order.
@@ -189,7 +189,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
       colorIndex = (colorIndex + 1) % colorCount;
 
       // This prepares the file system for the new experiment.
-      mFileMetadataManager.addExperiment(experiment);
+      fileMetadataManager.addExperiment(experiment);
 
       // Remove experiment description, turn it into a text note.
       if (!TextUtils.isEmpty(experiment.getDescription())) {
@@ -218,17 +218,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
       }
 
       // Now that all the labels have their assets in the right place, we can save them.
-      mFileMetadataManager.updateExperiment(experiment);
-      mFileMetadataManager.saveImmediately();
+      fileMetadataManager.updateExperiment(experiment);
+      fileMetadataManager.saveImmediately();
 
-      deleteDatabaseExperiment(db, experiment, mContext);
+      deleteDatabaseExperiment(db, experiment, context);
     }
   }
 
   @VisibleForTesting
   public void migrateMyDevices() {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       migrateMyDevicesToProto(db);
     }
   }
@@ -239,7 +239,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
       String sensorId = getExternalSensorId(device, db);
       if (sensorId != null) {
         databaseRemoveMyDevice(sensorId, db);
-        mFileMetadataManager.addMyDevice(device.asDeviceSpec());
+        fileMetadataManager.addMyDevice(device.asDeviceSpec());
       }
     }
   }
@@ -279,7 +279,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     boolean success = false;
 
     try {
-      File newFile = PictureUtils.createImageFile(mContext, experimentId, label.getLabelId());
+      File newFile = PictureUtils.createImageFile(context, experimentId, label.getLabelId());
       pictureLabelValue.filePath =
           FileMetadataManager.getRelativePathInExperiment(experimentId, newFile);
       try (FileChannel input = new FileInputStream(oldFile).getChannel();
@@ -329,8 +329,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @VisibleForTesting
   void migrateProjectData() {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       migrateProjectData(db);
     }
   }
@@ -368,16 +368,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
         boolean needsWrite = false;
         if (project.isArchived()) {
           // If the project is archived, the experiment should be archived.
-          experiment.setArchived(mContext, true);
+          experiment.setArchived(context, true);
           needsWrite = true;
         }
         if (!TextUtils.isEmpty(project.getTitle())) {
           // Experiment title prefixed with Project title, unless project title is not set
           experiment.setTitle(
               String.format(
-                  mContext.getResources().getString(R.string.project_experiment_title),
+                  context.getResources().getString(R.string.project_experiment_title),
                   project.getTitle(),
-                  experiment.getDisplayTitle(mContext)));
+                  experiment.getDisplayTitle(context)));
           needsWrite = true;
         }
         if (needsWrite) {
@@ -439,8 +439,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @VisibleForTesting
   @Deprecated
   List<Project> getDatabaseProjects(boolean includeArchived) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       return getDatabaseProjects(db, includeArchived);
     }
   }
@@ -482,8 +482,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     String projectId = newStableId(STABLE_PROJECT_ID_LENGTH);
     ContentValues values = new ContentValues();
     values.put(ProjectColumns.PROJECT_ID, projectId);
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       long id = db.insert(Tables.PROJECTS, null, values);
       if (id != -1) {
         Project project = new Project(id);
@@ -497,8 +497,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @VisibleForTesting
   @Deprecated
   void updateProject(Project project) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       final ContentValues values = new ContentValues();
       values.put(ProjectColumns.TITLE, project.getTitle());
       values.put(ProjectColumns.DESCRIPTION, project.getDescription());
@@ -521,9 +521,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @VisibleForTesting
   Experiment getDatabaseExperimentById(String experimentId) {
     Experiment experiment = null;
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-      experiment = getDatabaseExperimentById(db, experimentId, mContext, false);
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
+      experiment = getDatabaseExperimentById(db, experimentId, context, false);
     }
     return experiment;
   }
@@ -568,8 +568,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     values.put(ExperimentColumns.EXPERIMENT_ID, experimentId);
     values.put(ExperimentColumns.PROJECT_ID, projectId);
     values.put(ExperimentColumns.TIMESTAMP, timestamp);
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       long id = db.insert(Tables.EXPERIMENTS, null, values);
       if (id != -1) {
         return result;
@@ -595,9 +595,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @VisibleForTesting
   void deleteDatabaseExperiment(Experiment experiment) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-      deleteDatabaseExperiment(db, experiment, mContext);
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
+      deleteDatabaseExperiment(db, experiment, context);
     }
   }
 
@@ -621,7 +621,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   private long getCurrentTime() {
-    return mClock.getNow();
+    return clock.getNow();
   }
 
   @Override
@@ -633,7 +633,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
   public Experiment importExperimentFromZip(Uri zipUri, ContentResolver resolver)
       throws IOException {
     FileMetadataManager manager = getFileMetadataManager();
-    return manager.importExperiment(mContext, zipUri, resolver);
+    return manager.importExperiment(context, zipUri, resolver);
   }
 
   @Override
@@ -664,8 +664,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   List<GoosciUserMetadata.ExperimentOverview> getDatabaseExperimentOverviews(
       boolean includeArchived) {
     List<GoosciUserMetadata.ExperimentOverview> experiments = new ArrayList<>();
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
 
       String selection = "";
       if (!includeArchived) {
@@ -788,7 +788,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         getDatabaseExperimentRunIds(
             experiment.getExperimentId(), /* include archived runs for indexing */ true);
     int runIndex = runIds.size();
-    synchronized (mLock) {
+    synchronized (lock) {
       insertTrial(trialId, runIndex);
       insertRunSensors(trialId, sensorLayouts);
     }
@@ -796,7 +796,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     // Can't use Trial.newTrial because runId must be the start label ID for this trial.
     // That method can be used after DB upgrade, however.
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-    trialProto.creationTimeMs = mClock.getNow();
+    trialProto.creationTimeMs = clock.getNow();
     trialProto.sensorLayouts =
         sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
     trialProto.trialId = trialId;
@@ -808,8 +808,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   private void insertTrial(String trialId, int runIndex) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       final ContentValues values = new ContentValues();
       values.put(RunsColumns.RUN_ID, trialId);
       values.put(RunsColumns.RUN_INDEX, runIndex);
@@ -822,8 +822,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   private void insertRunSensors(String runId, List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       final ContentValues values = new ContentValues();
       values.put(RunSensorsColumns.RUN_ID, runId);
       for (int i = 0; i < sensorLayouts.size(); i++) {
@@ -842,8 +842,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   private void updateTrialSensors(
       String runId, List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       final ContentValues values = new ContentValues();
       for (int i = 0; i < sensorLayouts.size(); i++) {
         GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(i);
@@ -860,9 +860,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @VisibleForTesting
   Trial getDatabaseTrial(String trialId, List<ApplicationLabel> applicationLabels) {
     Trial trial;
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
-      trial = getDatabaseTrial(db, trialId, applicationLabels, mContext);
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
+      trial = getDatabaseTrial(db, trialId, applicationLabels, context);
     }
     return trial;
   }
@@ -1001,8 +1001,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @VisibleForTesting
   void setExperimentSensorLayouts(
       String experimentId, List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       for (int i = 0; i < sensorLayouts.size(); i++) {
         ContentValues values = new ContentValues();
         values.put(ExperimentSensorLayoutColumns.EXPERIMENT_ID, experimentId);
@@ -1027,8 +1027,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @VisibleForTesting
   List<GoosciSensorLayout.SensorLayout> getDatabaseExperimentSensorLayouts(String experimentId) {
     List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
       layouts = getDatabaseExperimentSensorLayouts(db, experimentId);
     }
     return layouts;
@@ -1071,9 +1071,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @VisibleForTesting
   void deleteDatabaseTrial(String runId) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-      deleteDatabaseTrial(db, runId, mContext);
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
+      deleteDatabaseTrial(db, runId, context);
     }
   }
 
@@ -1094,8 +1094,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @Override
   public String addOrGetExternalSensor(
       ExternalSensorSpec sensor, Map<String, SensorProvider> providerMap) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
       String sensorId = getExternalSensorId(sensor, db);
       if (sensorId != null) {
         return sensorId;
@@ -1109,8 +1109,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     String sensorId = ExternalSensorSpec.getSensorId(sensor, suffix);
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       ContentValues values = getContentValuesFromSensor(sensor);
       values.put(SensorColumns.SENSOR_ID, sensorId);
       db.insert(Tables.EXTERNAL_SENSORS, null, values);
@@ -1142,8 +1142,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @VisibleForTesting
   void addDatabaseLabel(String experimentId, String trialId, Label label, LabelValue labelValue) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       addDatabaseLabel(db, experimentId, trialId, label, labelValue);
     }
   }
@@ -1181,8 +1181,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     values.put(LabelColumns.LABEL_ID, label.getLabelId());
     values.put(LabelColumns.START_LABEL_ID, label.getTrialId());
     values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(label.getValue()));
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       db.insert(Tables.LABELS, null, values);
     }
   }
@@ -1342,8 +1342,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @VisibleForTesting
   List<ApplicationLabel> getDatabaseApplicationLabelsWithStartId(String trialId) {
     List<ApplicationLabel> result;
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
       result = getDatabaseApplicationLabelsWithStartId(db, trialId);
     }
     return result;
@@ -1407,16 +1407,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
     for (String key : runStats.getKeys()) {
       values.put(RunStatsColumns.STAT_NAME, key);
       values.put(RunStatsColumns.STAT_VALUE, runStats.getStat(key));
-      synchronized (mLock) {
-        final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+      synchronized (lock) {
+        final SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.insert(Tables.RUN_STATS, null, values);
       }
     }
     // Add the status too
     values.put(RunStatsColumns.STAT_NAME, StatsAccumulator.KEY_STATUS);
     values.put(RunStatsColumns.STAT_VALUE, runStats.getStatus());
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       db.insert(Tables.RUN_STATS, null, values);
     }
   }
@@ -1455,8 +1455,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   List<String> getDatabaseExperimentRunIds(String experimentId, boolean includeArchived) {
     // TODO: use start index as offset.
     List<String> ids;
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
       ids = getDatabaseExperimentRunIds(db, experimentId, includeArchived);
     }
     return ids;
@@ -1507,8 +1507,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @VisibleForTesting
   void editApplicationLabel(ApplicationLabel updatedLabel) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       final ContentValues values = new ContentValues();
       values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(updatedLabel.getValue()));
       values.put(LabelColumns.TIMESTAMP, updatedLabel.getTimeStamp());
@@ -1542,8 +1542,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @Override
   public void removeExternalSensor(String databaseTag) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       db.delete(
           Tables.EXTERNAL_SENSORS, SensorColumns.SENSOR_ID + "=?", new String[] {databaseTag});
       db.delete(
@@ -1570,8 +1570,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
       Map<String, SensorProvider> providerMap) {
     Map<String, ExternalSensorSpec> sensors = new HashMap<>();
 
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
       Cursor c = null;
       try {
         c = db.query(Tables.EXTERNAL_SENSORS, SensorQuery.PROJECTION, null, null, null, null, null);
@@ -1596,8 +1596,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   public ExternalSensorSpec getExternalSensorById(
       String id, Map<String, SensorProvider> providerMap) {
     ExternalSensorSpec sensor = null;
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
       Cursor c = null;
       try {
         c =
@@ -1644,8 +1644,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   private void setSensorExperimentInclusion(
       String databaseTag, String experimentId, boolean included) {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
 
       // Because of legacy oddities, a databaseTag may be "included" multiple times.
       // Delete them all (and don't do that again).
@@ -1661,7 +1661,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             + ExperimentSensorColumns.EXPERIMENT_ID
             + "=?";
     String[] selectionArgs = new String[] {databaseTag, experimentId};
-    final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    final SQLiteDatabase db = dbHelper.getWritableDatabase();
     db.delete(Tables.EXPERIMENT_SENSORS, selection, selectionArgs);
   }
 
@@ -1682,8 +1682,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     List<ConnectableSensor> includedSensors = new ArrayList<>();
     Set<String> excludedTags = new ArraySet<>();
 
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
       Cursor c = null;
       List<String> tags = new ArrayList<>();
       try {
@@ -1729,7 +1729,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @Override
   public void addMyDevice(InputDeviceSpec deviceSpec) {
-    // TODO: don't use this, use mFileMetadataManager version instead
+    // TODO: don't use this, use fileMetadataManager version instead
     databaseAddMyDevice(deviceSpec);
   }
 
@@ -1738,22 +1738,22 @@ public class SimpleMetaDataManager implements MetaDataManager {
     String deviceId = addOrGetExternalSensor(deviceSpec, InputDeviceSpec.PROVIDER_MAP);
     ContentValues values = new ContentValues();
     values.put(MyDevicesColumns.DEVICE_ID, deviceId);
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       db.insert(Tables.MY_DEVICES, null, values);
     }
   }
 
   @Override
   public void removeMyDevice(InputDeviceSpec deviceSpec) {
-    // TODO: don't use this, use mFileMetadataManager version instead
+    // TODO: don't use this, use fileMetadataManager version instead
     databaseRemoveMyDevice(deviceSpec);
   }
 
   public void databaseRemoveMyDevice(InputDeviceSpec deviceSpec) {
     String deviceId = addOrGetExternalSensor(deviceSpec, InputDeviceSpec.PROVIDER_MAP);
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
       databaseRemoveMyDevice(deviceId, db);
     }
   }
@@ -1764,19 +1764,19 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @Override
   public List<InputDeviceSpec> getMyDevices() {
-    // TODO: don't use this, use mFileMetadataManager version instead
+    // TODO: don't use this, use fileMetadataManager version instead
     return databaseGetMyDevices();
   }
 
   @VisibleForTesting
   public List<GoosciDeviceSpec.DeviceSpec> fileGetMyDevices() {
-    return mFileMetadataManager.getMyDevices();
+    return fileMetadataManager.getMyDevices();
   }
 
   @NonNull
   public List<InputDeviceSpec> databaseGetMyDevices() {
-    synchronized (mLock) {
-      final SQLiteDatabase db = mDbHelper.getReadableDatabase();
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getReadableDatabase();
       return databaseGetMyDevices(db);
     }
   }
@@ -2104,7 +2104,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
       void onMigrateMyDevicesToProto(SQLiteDatabase db);
     }
 
-    private MetadataDatabaseUpgradeCallback mUpgradeCallback;
+    private MetadataDatabaseUpgradeCallback upgradeCallback;
 
     DatabaseHelper(
         Context context,
@@ -2116,7 +2116,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
           appAccount.getDatabaseFileName(filename != null ? filename : DB_NAME),
           null,
           DB_VERSION);
-      mUpgradeCallback = upgradeCallback;
+      this.upgradeCallback = upgradeCallback;
     }
 
     @Override
@@ -2365,13 +2365,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
       if (version == 20 && version < newVersion) {
         // Projects are no longer used; need to tell the metadata manager to integrate that
         // data into the experiment.
-        mUpgradeCallback.onMigrateProjectData(db);
+        upgradeCallback.onMigrateProjectData(db);
         version = 21;
       }
 
       if (version == 21 && version < newVersion) {
         // Migrate experiment data into file-based system.
-        mUpgradeCallback.onMigrateExperimentsToFiles(db);
+        upgradeCallback.onMigrateExperimentsToFiles(db);
         version = 22;
       }
 

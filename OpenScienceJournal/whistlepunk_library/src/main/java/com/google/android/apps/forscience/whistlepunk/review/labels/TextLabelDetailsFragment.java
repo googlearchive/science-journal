@@ -36,8 +36,8 @@ import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /** Details view controller for TextLabel */
 public class TextLabelDetailsFragment extends LabelDetailsFragment {
-  private TextInputLayout mNoteTextLayout;
-  private TextInputEditText mNoteText;
+  private TextInputLayout noteTextLayout;
+  private TextInputEditText noteText;
 
   public static TextLabelDetailsFragment newInstance(
       String experimentId, String trialId, Label originalLabel) {
@@ -58,21 +58,21 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
     setHasOptionsMenu(true);
-    mNoteTextLayout =
+    noteTextLayout =
         (TextInputLayout) inflater.inflate(R.layout.text_label_details_fragment, container, false);
-    mNoteText = mNoteTextLayout.findViewById(R.id.note_text);
-    mNoteText.setText(mOriginalLabel.getTextLabelValue().text);
-    mNoteText.post(() -> mNoteText.setSelection(mNoteText.getText().toString().length()));
+    noteText = noteTextLayout.findViewById(R.id.note_text);
+    noteText.setText(originalLabel.getTextLabelValue().text);
+    noteText.post(() -> noteText.setSelection(noteText.getText().toString().length()));
 
-    RxTextView.afterTextChangeEvents(mNoteText)
+    RxTextView.afterTextChangeEvents(noteText)
         .subscribe(
             events -> {
-              verifyInput(mNoteText.getText().toString());
+              verifyInput(noteText.getText().toString());
             });
 
     // TODO: Transition
 
-    return mNoteTextLayout;
+    return noteTextLayout;
   }
 
   @Override
@@ -89,15 +89,15 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.action_save) {
-      mExperiment
+      experiment
           .firstElement()
           .subscribe(
               experiment -> {
-                if (mNoteTextLayout.isErrorEnabled()) {
+                if (noteTextLayout.isErrorEnabled()) {
                   // No-op. Shows an error, doesn't exit.
                   return;
                 }
-                saveTextChanges(mNoteText.getText().toString(), experiment);
+                saveTextChanges(noteText.getText().toString(), experiment);
                 returnToParent(false, null);
               });
       return true;
@@ -108,18 +108,18 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
   private void saveTextChanges(String newText, Experiment experiment) {
     GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
     labelValue.text = newText;
-    mOriginalLabel.setLabelProtoData(labelValue);
+    originalLabel.setLabelProtoData(labelValue);
     saveUpdatedOriginalLabel(experiment);
   }
 
   private boolean verifyInput(String text) {
     if (TextUtils.isEmpty(text)) {
-      mNoteTextLayout.setError(
+      noteTextLayout.setError(
           getActivity().getResources().getString(R.string.empty_text_note_error));
-      mNoteTextLayout.setErrorEnabled(true);
+      noteTextLayout.setErrorEnabled(true);
       return false;
     }
-    mNoteTextLayout.setErrorEnabled(false);
+    noteTextLayout.setErrorEnabled(false);
     return true;
   }
 }

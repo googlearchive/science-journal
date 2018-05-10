@@ -52,38 +52,38 @@ import java.util.Locale;
 abstract class LabelDetailsFragment extends Fragment {
   private static final String KEY_SAVED_LABEL = "saved_label";
   private static final String TAG = "LabelDetails";
-  protected String mExperimentId;
-  private String mTrialId = null;
-  protected BehaviorSubject<Experiment> mExperiment = BehaviorSubject.create();
-  protected Label mOriginalLabel;
+  protected String experimentId;
+  private String trialId = null;
+  protected BehaviorSubject<Experiment> experiment = BehaviorSubject.create();
+  protected Label originalLabel;
 
-  private EditText mCaption;
-  private Clock mClock;
-  private RxEvent mSaved = new RxEvent();
+  private EditText caption;
+  private Clock clock;
+  private RxEvent saved = new RxEvent();
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    mExperimentId = getArguments().getString(LabelDetailsActivity.ARG_EXPERIMENT_ID);
-    mTrialId = getArguments().getString(LabelDetailsActivity.ARG_TRIAL_ID);
+    experimentId = getArguments().getString(LabelDetailsActivity.ARG_EXPERIMENT_ID);
+    trialId = getArguments().getString(LabelDetailsActivity.ARG_TRIAL_ID);
     if (savedInstanceState == null) {
-      mOriginalLabel = getArguments().getParcelable(LabelDetailsActivity.ARG_LABEL);
+      originalLabel = getArguments().getParcelable(LabelDetailsActivity.ARG_LABEL);
     } else {
       // Load the updated label
-      mOriginalLabel = savedInstanceState.getParcelable(KEY_SAVED_LABEL);
+      originalLabel = savedInstanceState.getParcelable(KEY_SAVED_LABEL);
     }
 
-    RxDataController.getExperimentById(getDataController(), mExperimentId)
+    RxDataController.getExperimentById(getDataController(), experimentId)
         .subscribe(this::attachExperiment);
-    mExperiment.firstElement().subscribe(experiment -> getActivity().invalidateOptionsMenu());
+    experiment.firstElement().subscribe(experiment -> getActivity().invalidateOptionsMenu());
 
-    mClock = AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock();
+    clock = AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock();
   }
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
-    outState.putParcelable(KEY_SAVED_LABEL, mOriginalLabel);
+    outState.putParcelable(KEY_SAVED_LABEL, originalLabel);
     super.onSaveInstanceState(outState);
   }
 
@@ -102,7 +102,7 @@ abstract class LabelDetailsFragment extends Fragment {
   public void onPrepareOptionsMenu(Menu menu) {
     MenuItem item = menu.findItem(R.id.action_delete);
     // Disable delete until the experiment is loaded.
-    item.setEnabled(mExperiment.hasValue());
+    item.setEnabled(experiment.hasValue());
     super.onPrepareOptionsMenu(menu);
   }
 
@@ -110,12 +110,12 @@ abstract class LabelDetailsFragment extends Fragment {
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
     if (id == android.R.id.home) {
-      mSaved.onDoneHappening();
+      saved.onDoneHappening();
       boolean labelDeleted = false;
       returnToParent(labelDeleted, null);
       return true;
     } else if (id == R.id.action_save) {
-      mSaved.onHappened();
+      saved.onHappened();
       returnToParent(false, null);
     } else if (id == R.id.action_delete) {
       deleteAndReturnToParent();
@@ -126,12 +126,12 @@ abstract class LabelDetailsFragment extends Fragment {
 
   protected void saveUpdatedOriginalLabel(Experiment experiment) {
     // TODO: Log analytics here? That would send an event per keystroke.
-    if (TextUtils.isEmpty(mTrialId)) {
-      RxDataController.updateLabel(getDataController(), experiment, mOriginalLabel, experiment)
+    if (TextUtils.isEmpty(trialId)) {
+      RxDataController.updateLabel(getDataController(), experiment, originalLabel, experiment)
           .subscribe(LoggingConsumer.observe(TAG, "update"));
     } else {
-      Trial trial = experiment.getTrial(mTrialId);
-      trial.updateLabel(experiment, mOriginalLabel);
+      Trial trial = experiment.getTrial(trialId);
+      trial.updateLabel(experiment, originalLabel);
       experiment.updateTrial(trial);
       RxDataController.updateExperiment(getDataController(), experiment)
           .subscribe(LoggingConsumer.observe(TAG, "update"));
@@ -139,7 +139,7 @@ abstract class LabelDetailsFragment extends Fragment {
   }
 
   private void attachExperiment(Experiment experiment) {
-    mExperiment.onNext(experiment);
+    this.experiment.onNext(experiment);
   }
 
   protected DataController getDataController() {
@@ -150,17 +150,17 @@ abstract class LabelDetailsFragment extends Fragment {
     if (getActivity() == null) {
       return;
     }
-    if (!mExperiment.hasValue()) {
+    if (!experiment.hasValue()) {
       // We didn't load yet, just go back.
       getActivity().onBackPressed();
     }
     // Need to either fake a back button or send the right args
     ((LabelDetailsActivity) getActivity())
-        .returnToParent(labelDeleted, new DeletedLabel(mOriginalLabel, assetDeleter));
+        .returnToParent(labelDeleted, new DeletedLabel(originalLabel, assetDeleter));
   }
 
   protected void deleteAndReturnToParent() {
-    mExperiment
+    experiment
         .firstElement()
         .flatMap(
             experiment -> {
@@ -174,56 +174,56 @@ abstract class LabelDetailsFragment extends Fragment {
   }
 
   private Consumer<Context> deleteLabelFromExperiment(Experiment experiment) {
-    if (TextUtils.isEmpty(mTrialId)) {
-      return experiment.deleteLabelAndReturnAssetDeleter(mOriginalLabel);
+    if (TextUtils.isEmpty(trialId)) {
+      return experiment.deleteLabelAndReturnAssetDeleter(originalLabel);
     } else {
       return experiment
-          .getTrial(mTrialId)
-          .deleteLabelAndReturnAssetDeleter(mOriginalLabel, mExperimentId);
+          .getTrial(trialId)
+          .deleteLabelAndReturnAssetDeleter(originalLabel, experimentId);
     }
   }
 
   // Most types of labels have a caption. This sets up the text watcher / autosave for that.
   protected void setupCaption(View rootView) {
-    mCaption = (EditText) rootView.findViewById(R.id.caption);
-    mCaption.setText(mOriginalLabel.getCaptionText());
-    mCaption.setImeOptions(EditorInfo.IME_ACTION_DONE);
-    mCaption.setRawInputType(InputType.TYPE_CLASS_TEXT);
-    mCaption.setOnEditorActionListener(
+    caption = (EditText) rootView.findViewById(R.id.caption);
+    caption.setText(originalLabel.getCaptionText());
+    caption.setImeOptions(EditorInfo.IME_ACTION_DONE);
+    caption.setRawInputType(InputType.TYPE_CLASS_TEXT);
+    caption.setOnEditorActionListener(
         (textView, i, keyEvent) -> {
           if (i == EditorInfo.IME_ACTION_DONE) {
-            mCaption.clearFocus();
-            mCaption.setFocusable(false);
+            caption.clearFocus();
+            caption.setFocusable(false);
           }
           return false;
         });
-    mCaption.setOnTouchListener(
+    caption.setOnTouchListener(
         (v, motionEvent) -> {
-          mCaption.setFocusableInTouchMode(true);
-          mCaption.requestFocus();
+          caption.setFocusableInTouchMode(true);
+          caption.requestFocus();
           return false;
         });
 
-    mCaption.setEnabled(false);
-    mExperiment
+    caption.setEnabled(false);
+    experiment
         .firstElement()
         .subscribe(
             experiment -> {
-              mCaption.setEnabled(true);
+              caption.setEnabled(true);
               // Move the cursor to the end
-              mCaption.post(() -> mCaption.setSelection(mCaption.getText().toString().length()));
+              caption.post(() -> caption.setSelection(caption.getText().toString().length()));
 
-              mSaved
+              saved
                   .happens()
-                  .subscribe(o -> saveCaptionChanges(experiment, mCaption.getText().toString()));
+                  .subscribe(o -> saveCaptionChanges(experiment, caption.getText().toString()));
             });
   }
 
   private void saveCaptionChanges(Experiment experiment, String newText) {
     GoosciCaption.Caption caption = new GoosciCaption.Caption();
     caption.text = newText;
-    caption.lastEditedTimestamp = mClock.getNow();
-    mOriginalLabel.setCaption(caption);
+    caption.lastEditedTimestamp = clock.getNow();
+    originalLabel.setCaption(caption);
     saveUpdatedOriginalLabel(experiment);
   }
 
@@ -234,7 +234,7 @@ abstract class LabelDetailsFragment extends Fragment {
     TextView time = (TextView) rootView.findViewById(R.id.time);
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", locale);
     SimpleDateFormat timeFormat = new SimpleDateFormat("EEEE h:mm a", locale);
-    date.setText(dateFormat.format(mOriginalLabel.getTimeStamp()));
-    time.setText(timeFormat.format(mOriginalLabel.getTimeStamp()));
+    date.setText(dateFormat.format(originalLabel.getTimeStamp()));
+    time.setText(timeFormat.format(originalLabel.getTimeStamp()));
   }
 }

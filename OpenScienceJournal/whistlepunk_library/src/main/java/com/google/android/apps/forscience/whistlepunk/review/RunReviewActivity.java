@@ -30,7 +30,7 @@ public class RunReviewActivity extends MetadataActivity {
   public static final String EXTRA_FROM_RECORD = "from_record_activity";
   public static final String EXTRA_CREATE_TASK = "create_task";
   private static final String FRAGMENT_TAG = "fragment";
-  private boolean mFromRecord;
+  private boolean fromRecord;
 
   /**
    * Launches a new run review activity
@@ -67,7 +67,7 @@ public class RunReviewActivity extends MetadataActivity {
     super.onCreate(savedInstanceState);
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
     setContentView(R.layout.activity_run_review);
-    mFromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
+    fromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
       RunReviewFragment fragment =
           RunReviewFragment.newInstance(
@@ -120,6 +120,6 @@ public class RunReviewActivity extends MetadataActivity {
   }
 
   boolean isFromRecord() {
-    return mFromRecord;
+    return fromRecord;
   }
 }

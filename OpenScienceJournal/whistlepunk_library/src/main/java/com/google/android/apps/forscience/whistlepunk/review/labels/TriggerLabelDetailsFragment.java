@@ -57,7 +57,7 @@ public class TriggerLabelDetailsFragment extends LabelDetailsFragment {
         inflater.inflate(R.layout.sensor_readings_label_details_fragment, container, false);
 
     NoteViewHolder.loadTriggerIntoList(
-        (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), mOriginalLabel);
+        (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), originalLabel);
 
     setupCaption(rootView);
     setupDetails(rootView);

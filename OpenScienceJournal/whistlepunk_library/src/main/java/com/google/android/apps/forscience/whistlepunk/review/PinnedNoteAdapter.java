@@ -51,7 +51,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   private static final int TYPE_ADD_LABEL = 4;
   private static final int TYPE_CAPTION = 5;
 
-  private PopupMenu mPopupMenu = null;
+  private PopupMenu popupMenu = null;
 
   /** An interface for listening to when a pinned note should be edited or deleted. */
   public interface ListItemEditListener {
@@ -83,33 +83,33 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
   }
 
-  private Trial mTrial;
-  private long mStartTimestamp;
-  private long mEndTimestamp;
-  private String mExperimentId;
-  private ListItemEditListener mEditListener;
-  private ListItemClickListener mClickListener;
+  private Trial trial;
+  private long startTimestamp;
+  private long endTimestamp;
+  private String experimentId;
+  private ListItemEditListener editListener;
+  private ListItemClickListener clickListener;
 
   public PinnedNoteAdapter(
       Trial trial, long startTimestamp, long endTimestamp, String experimentId) {
-    mTrial = trial;
-    mStartTimestamp = startTimestamp;
-    mEndTimestamp = endTimestamp;
-    mExperimentId = experimentId;
+    this.trial = trial;
+    this.startTimestamp = startTimestamp;
+    this.endTimestamp = endTimestamp;
+    this.experimentId = experimentId;
   }
 
   public void updateRunTimestamps(long startTimestamp, long endTimestamp) {
-    mStartTimestamp = startTimestamp;
-    mEndTimestamp = endTimestamp;
+    this.startTimestamp = startTimestamp;
+    this.endTimestamp = endTimestamp;
     notifyDataSetChanged();
   }
 
   public void setListItemModifyListener(ListItemEditListener editListener) {
-    mEditListener = editListener;
+    this.editListener = editListener;
   }
 
   public void setListItemClickListener(ListItemClickListener clickListener) {
-    mClickListener = clickListener;
+    this.clickListener = clickListener;
   }
 
   @Override
@@ -140,57 +140,57 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
     int viewType = getItemViewType(position);
     if (viewType == TYPE_ADD_LABEL) {
-      holder.itemView.setOnClickListener(view -> mClickListener.onAddLabelButtonClicked());
+      holder.itemView.setOnClickListener(view -> clickListener.onAddLabelButtonClicked());
       return;
     }
 
     if (viewType == TYPE_CAPTION) {
       EditText editText = (EditText) holder.itemView.findViewById(R.id.caption);
-      editText.setText(mTrial.getCaptionText());
+      editText.setText(trial.getCaptionText());
       editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
       editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
       RxTextView.afterTextChangeEvents(editText)
-          .subscribe(event -> mEditListener.onCaptionEdit(editText.getText().toString()));
+          .subscribe(event -> editListener.onCaptionEdit(editText.getText().toString()));
       return;
     }
 
     final NoteViewHolder noteHolder = (NoteViewHolder) holder;
-    final Label label = mTrial.getLabels().get(position - 1);
-    noteHolder.setNote(label, mExperimentId);
+    final Label label = trial.getLabels().get(position - 1);
+    noteHolder.setNote(label, experimentId);
 
     // Do work specific to RunReview.
     noteHolder.relativeTimeView.setVisibility(View.GONE);
-    noteHolder.durationText.setText(getNoteTimeText(label, mStartTimestamp));
+    noteHolder.durationText.setText(getNoteTimeText(label, startTimestamp));
     noteHolder.durationText.setContentDescription(
         getNoteTimeContentDescription(
-            label.getTimeStamp(), mStartTimestamp, noteHolder.durationText.getContext()));
+            label.getTimeStamp(), startTimestamp, noteHolder.durationText.getContext()));
 
-    if (mEditListener != null) {
+    if (editListener != null) {
       final Context context = noteHolder.menuButton.getContext();
       final Intent shareIntent = getPhotoShareIntent(label, context);
       noteHolder.menuButton.setOnClickListener(
           v -> {
-            mPopupMenu =
+            popupMenu =
                 new PopupMenu(
                     context,
                     noteHolder.menuButton,
                     Gravity.NO_GRAVITY,
                     R.attr.actionOverflowMenuStyle,
                     0);
-            mPopupMenu.getMenuInflater().inflate(R.menu.menu_note, mPopupMenu.getMenu());
+            popupMenu.getMenuInflater().inflate(R.menu.menu_note, popupMenu.getMenu());
             if (!label.canEditTimestamp()) {
-              mPopupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
+              popupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
             }
-            mPopupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(shareIntent != null);
-            mPopupMenu.setOnDismissListener(menu -> mPopupMenu = null);
-            mPopupMenu.setOnMenuItemClickListener(
+            popupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(shareIntent != null);
+            popupMenu.setOnDismissListener(menu -> popupMenu = null);
+            popupMenu.setOnMenuItemClickListener(
                 item -> {
                   int itemId = item.getItemId();
                   if (itemId == R.id.btn_edit_note_time) {
-                    mEditListener.onLabelEditTime(label);
+                    editListener.onLabelEditTime(label);
                     return true;
                   } else if (itemId == R.id.btn_delete_note) {
-                    mEditListener.onLabelDelete(label);
+                    editListener.onLabelDelete(label);
                     return true;
                   } else if (itemId == R.id.btn_share_photo) {
                     context.startActivity(
@@ -202,23 +202,23 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                   }
                   return false;
                 });
-            mPopupMenu.show();
+            popupMenu.show();
           });
     }
     // Notes out of range are not clickable.
-    if (mStartTimestamp <= label.getTimeStamp() && label.getTimeStamp() < mEndTimestamp) {
+    if (startTimestamp <= label.getTimeStamp() && label.getTimeStamp() < endTimestamp) {
       noteHolder.durationText.setOnClickListener(
           new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              mClickListener.onLabelTimestampClicked(label);
+              clickListener.onLabelTimestampClicked(label);
             }
           });
       noteHolder.itemView.setOnClickListener(
           new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              mClickListener.onLabelClicked(label);
+              clickListener.onLabelClicked(label);
             }
           });
     }
@@ -229,18 +229,18 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       return null;
     } else {
       return FileMetadataManager.createPhotoShareIntent(
-          context, mExperimentId, label.getPictureLabelValue().filePath, label.getCaptionText());
+          context, experimentId, label.getPictureLabelValue().filePath, label.getCaptionText());
     }
   }
 
   @Override
   public int getItemCount() {
     // The caption is temporarily removed per b/65063919 so the size is labels + 1.
-    return mTrial.getLabelCount() + 1;
+    return trial.getLabelCount() + 1;
 
     /*
     // We always show caption and add note button, making the size the labels + 2.
-    return mTrial.getLabelCount() + 2;
+    return trial.getLabelCount() + 2;
     */
   }
 
@@ -250,11 +250,11 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       // First item always add label
       return TYPE_ADD_LABEL;
     }
-    if (position == mTrial.getLabelCount() + 1) {
+    if (position == trial.getLabelCount() + 1) {
       // Last item always the caption
       return TYPE_CAPTION;
     }
-    int labelType = mTrial.getLabels().get(position - 1).getType();
+    int labelType = trial.getLabels().get(position - 1).getType();
     if (labelType == GoosciLabel.Label.ValueType.TEXT) {
       return TYPE_TEXT_NOTE;
     }
@@ -278,7 +278,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   }
 
   public void onLabelAdded(Label label) {
-    if (mTrial.getLabelCount() == 1) {
+    if (trial.getLabelCount() == 1) {
       notifyItemChanged(1); // First label at index 1 (0 is the "add note" button)
     } else {
       int position = findLabelIndexById(label.getLabelId());
@@ -289,8 +289,8 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   }
 
   private int findLabelIndexById(String id) {
-    for (int i = 0; i < mTrial.getLabelCount(); i++) {
-      if (TextUtils.equals(mTrial.getLabels().get(i).getLabelId(), id)) {
+    for (int i = 0; i < trial.getLabelCount(); i++) {
+      if (TextUtils.equals(trial.getLabels().get(i).getLabelId(), id)) {
         // The 0th index item is "add note to timeline" button
         return i + 1;
       }
@@ -320,10 +320,10 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   }
 
   public void onDestroy() {
-    mClickListener = null;
-    mEditListener = null;
-    if (mPopupMenu != null) {
-      mPopupMenu.dismiss();
+    clickListener = null;
+    editListener = null;
+    if (popupMenu != null) {
+      popupMenu.dismiss();
     }
   }
 }

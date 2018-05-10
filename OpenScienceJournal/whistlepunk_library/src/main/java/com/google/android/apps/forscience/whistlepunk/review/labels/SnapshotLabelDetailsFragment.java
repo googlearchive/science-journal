@@ -55,7 +55,7 @@ public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
 
     // TODO: Consider using a ListView instead of inflating each view?
     NoteViewHolder.loadSnapshotsIntoList(
-        (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), mOriginalLabel);
+        (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), originalLabel);
     setupCaption(rootView);
     setupDetails(rootView);
 

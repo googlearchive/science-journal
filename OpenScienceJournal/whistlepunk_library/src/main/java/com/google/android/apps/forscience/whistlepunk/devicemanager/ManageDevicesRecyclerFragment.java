@@ -52,11 +52,11 @@ public class ManageDevicesRecyclerFragment extends Fragment
   private static final String KEY_MY_DEVICES = "state_key_my_devices";
   private static final String KEY_AVAILABLE_DEVICES = "state_key_available_devices";
 
-  private ExpandableDeviceAdapter mMyDevices;
-  private ExpandableServiceAdapter mAvailableDevices;
-  private Menu mMainMenu;
-  private ConnectableSensorRegistry mRegistry;
-  private SensorRegistry mSensorRegistry;
+  private ExpandableDeviceAdapter myDevices;
+  private ExpandableServiceAdapter availableDevices;
+  private Menu mainMenu;
+  private ConnectableSensorRegistry registry;
+  private SensorRegistry sensorRegistry;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class ManageDevicesRecyclerFragment extends Fragment
     SensorAppearanceProvider appearanceProvider = appSingleton.getSensorAppearanceProvider();
 
     UsageTracker tracker = WhistlePunkApplication.getUsageTracker(getActivity());
-    mRegistry =
+    registry =
         new ConnectableSensorRegistry(
             dc,
             discoverers,
@@ -82,20 +82,15 @@ public class ManageDevicesRecyclerFragment extends Fragment
             appearanceProvider,
             tracker,
             appSingleton.getSensorConnector());
-    mSensorRegistry = appSingleton.getSensorRegistry();
+    sensorRegistry = appSingleton.getSensorRegistry();
 
-    mMyDevices =
+    myDevices =
         ExpandableDeviceAdapter.createEmpty(
-            mRegistry, deviceRegistry, appearanceProvider, mSensorRegistry, 0);
+            registry, deviceRegistry, appearanceProvider, sensorRegistry, 0);
 
-    mAvailableDevices =
+    availableDevices =
         ExpandableServiceAdapter.createEmpty(
-            mSensorRegistry,
-            mRegistry,
-            1,
-            deviceRegistry,
-            getFragmentManager(),
-            appearanceProvider);
+            sensorRegistry, registry, 1, deviceRegistry, getFragmentManager(), appearanceProvider);
     setHasOptionsMenu(true);
   }
 
@@ -111,11 +106,11 @@ public class ManageDevicesRecyclerFragment extends Fragment
     HeaderAdapter availableHeader =
         new HeaderAdapter(R.layout.device_header, R.string.available_devices);
     if (savedInstanceState != null) {
-      mMyDevices.onRestoreInstanceState(savedInstanceState.getBundle(KEY_MY_DEVICES));
-      mAvailableDevices.onRestoreInstanceState(savedInstanceState.getBundle(KEY_AVAILABLE_DEVICES));
+      myDevices.onRestoreInstanceState(savedInstanceState.getBundle(KEY_MY_DEVICES));
+      availableDevices.onRestoreInstanceState(savedInstanceState.getBundle(KEY_AVAILABLE_DEVICES));
     }
     CompositeRecyclerAdapter adapter =
-        new CompositeRecyclerAdapter(myHeader, mMyDevices, availableHeader, mAvailableDevices);
+        new CompositeRecyclerAdapter(myHeader, myDevices, availableHeader, availableDevices);
     adapter.setHasStableIds(true);
     recyclerView.setAdapter(adapter);
     recyclerView.setLayoutManager(
@@ -138,11 +133,11 @@ public class ManageDevicesRecyclerFragment extends Fragment
     super.onSaveInstanceState(outState);
 
     Bundle myDeviceState = new Bundle();
-    mMyDevices.onSaveInstanceState(myDeviceState);
+    myDevices.onSaveInstanceState(myDeviceState);
     outState.putBundle(KEY_MY_DEVICES, myDeviceState);
 
     Bundle availableState = new Bundle();
-    mAvailableDevices.onSaveInstanceState(availableState);
+    availableDevices.onSaveInstanceState(availableState);
     outState.putBundle(KEY_AVAILABLE_DEVICES, availableState);
   }
 
@@ -155,9 +150,9 @@ public class ManageDevicesRecyclerFragment extends Fragment
   @Override
   public void onDestroy() {
     stopScanning();
-    mMainMenu = null;
-    mMyDevices.onDestroy();
-    mMyDevices = null;
+    mainMenu = null;
+    myDevices.onDestroy();
+    myDevices = null;
     super.onDestroy();
 
     // Make sure we don't leak this fragment.
@@ -167,14 +162,14 @@ public class ManageDevicesRecyclerFragment extends Fragment
 
   @Override
   public boolean isDestroyed() {
-    return mMyDevices == null;
+    return myDevices == null;
   }
 
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     inflater.inflate(R.menu.menu_manage_devices, menu);
     super.onCreateOptionsMenu(menu, inflater);
-    mMainMenu = menu;
+    mainMenu = menu;
     refreshScanningUI();
   }
 
@@ -188,7 +183,7 @@ public class ManageDevicesRecyclerFragment extends Fragment
   }
 
   private void refresh(boolean clearSensorCache) {
-    mRegistry.refresh(clearSensorCache, mSensorRegistry);
+    registry.refresh(clearSensorCache, sensorRegistry);
   }
 
   public void refreshAfterLoad() {
@@ -196,7 +191,7 @@ public class ManageDevicesRecyclerFragment extends Fragment
   }
 
   private void setExperimentId(String experimentId) {
-    mRegistry.setExperimentId(experimentId, mSensorRegistry);
+    registry.setExperimentId(experimentId, sensorRegistry);
     AppSingleton.getInstance(getActivity())
         .getDataController()
         .getExperimentById(
@@ -216,15 +211,15 @@ public class ManageDevicesRecyclerFragment extends Fragment
   }
 
   private void stopScanning() {
-    mRegistry.stopScanningInDiscoverers();
+    registry.stopScanningInDiscoverers();
   }
 
   @Override
   public void refreshScanningUI() {
-    boolean isScanning = mRegistry.isScanning();
+    boolean isScanning = registry.isScanning();
 
-    if (mMainMenu != null) {
-      MenuItem refresh = mMainMenu.findItem(R.id.action_refresh);
+    if (mainMenu != null) {
+      MenuItem refresh = mainMenu.findItem(R.id.action_refresh);
       refresh.setEnabled(!isScanning);
       if (getActivity() != null) {
         refresh
@@ -253,12 +248,12 @@ public class ManageDevicesRecyclerFragment extends Fragment
 
   @Override
   public SensorGroup getPairedSensorGroup() {
-    return mMyDevices;
+    return myDevices;
   }
 
   @Override
   public SensorGroup getAvailableSensorGroup() {
-    return mAvailableDevices;
+    return availableDevices;
   }
 
   @Override
