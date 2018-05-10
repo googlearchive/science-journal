@@ -17,6 +17,9 @@
 syntax = "proto2";
 
 package goosci;
+import "third_party/android/nanoproto/nano_descriptor.proto";
+option (proto2.nano.file_as_lite) = false;
+
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciCaption";
 option objc_class_prefix = "GSJ";
