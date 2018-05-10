@@ -15,12 +15,8 @@
  */
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import android.content.Context;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 
 /**
@@ -40,10 +36,6 @@ public class SensorTriggerLabelValue extends LabelValue {
   public SensorTriggerLabelValue(GoosciLabelValue.LabelValue value) {
     super(value);
     mValue.type = GoosciLabelValue.LabelValue.ValueType.SENSOR_TRIGGER;
-  }
-
-  public static SensorTriggerLabelValue fromTrigger(SensorTrigger trigger, Context context) {
-    return new SensorTriggerLabelValue(createLabelValue(trigger, context));
   }
 
   @Override
@@ -124,40 +116,11 @@ public class SensorTriggerLabelValue extends LabelValue {
     value.data[INDEX_SENSOR_ID].value = trigger.getSensorId();
   }
 
-  private static GoosciLabelValue.LabelValue createLabelValue(
-      SensorTrigger trigger, Context context) {
-    GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-    createDataFields(value);
-    String noteText = generateAutoNoteText(trigger, context);
-    populateLabelValue(value, trigger, noteText);
-    return value;
-  }
-
   private static void createDataFields(GoosciLabelValue.LabelValue value) {
     value.type = GoosciLabelValue.LabelValue.ValueType.SENSOR_TRIGGER;
     value.data = new GoosciLabelValue.LabelValue.DataEntry[NUM_FIELDS];
     value.data[INDEX_CUSTOM_STRING] = new GoosciLabelValue.LabelValue.DataEntry();
     value.data[INDEX_AUTOGEN_STRING] = new GoosciLabelValue.LabelValue.DataEntry();
     value.data[INDEX_SENSOR_ID] = new GoosciLabelValue.LabelValue.DataEntry();
-  }
-
-  public static String generateAutoNoteText(SensorTrigger trigger, Context context) {
-    SensorAppearance appearance =
-        AppSingleton.getInstance(context)
-            .getSensorAppearanceProvider()
-            .getAppearance(trigger.getSensorId());
-    String units = appearance.getUnits(context);
-    String sensorName = appearance.getName(context);
-    String triggerWhenText =
-        context.getResources()
-            .getStringArray(R.array.trigger_when_list_note_text)[trigger.getTriggerWhen()];
-    return context
-        .getResources()
-        .getString(
-            R.string.trigger_label_auto_text,
-            sensorName,
-            triggerWhenText,
-            trigger.getValueToTrigger(),
-            units);
   }
 }
