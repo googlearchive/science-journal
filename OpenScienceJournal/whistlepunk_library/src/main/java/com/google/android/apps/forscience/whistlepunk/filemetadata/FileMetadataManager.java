@@ -126,9 +126,9 @@ public class FileMetadataManager {
     activeExperimentCache = new ExperimentCache(applicationContext, appAccount, failureListener);
     userMetadataManager =
         new UserMetadataManager(applicationContext, appAccount, userMetadataListener);
-    localSyncManager = AppSingleton.getInstance(applicationContext).getLocalSyncManager();
+    localSyncManager = AppSingleton.getInstance(applicationContext).getLocalSyncManager(appAccount);
     experimentLibraryManager =
-        AppSingleton.getInstance(applicationContext).getExperimentLibraryManager();
+        AppSingleton.getInstance(applicationContext).getExperimentLibraryManager(appAccount);
     colorAllocator =
         new ColorAllocator(
             applicationContext.getResources().getIntArray(R.array.experiment_colors_array).length);
@@ -142,13 +142,6 @@ public class FileMetadataManager {
     return appAccount.getFilesDir();
   }
 
-  /** Returns the files directory for the current account. */
-  // TODO(b/78523388): Remove this method. Use getFilesDir(AppAccount) instead.
-  public static File getFilesDir(Context context) {
-    return getFilesDir(
-        WhistlePunkApplication.getAppServices(context).getAccountsProvider().getCurrentAccount());
-  }
-
   public static File getUserMetadataFile(AppAccount appAccount) {
     return new File(getFilesDir(appAccount), USER_METADATA_FILE);
   }
@@ -157,28 +150,12 @@ public class FileMetadataManager {
     return new File(getExperimentDirectory(appAccount, experimentId), ASSETS_DIRECTORY);
   }
 
-  // TODO(b/78523388): Remove this method. Use getAssetsDirectory(appAccount, experimentId) instead.
-  public static File getAssetsDirectory(Context context, String experimentId) {
-    return new File(getExperimentDirectory(context, experimentId), ASSETS_DIRECTORY);
-  }
-
   public static File getExperimentDirectory(AppAccount appAccount, String experimentId) {
     return new File(getExperimentsRootDirectory(appAccount), experimentId);
   }
 
-  // TODO(b/78523388): Remove this method. Use getExperimentDirectory(appAccount, experimentId)
-  // instead.
-  public static File getExperimentDirectory(Context context, String experimentId) {
-    return new File(getExperimentsRootDirectory(context), experimentId);
-  }
-
   public static File getExperimentsRootDirectory(AppAccount appAccount) {
     return new File(getFilesDir(appAccount), EXPERIMENTS_DIRECTORY);
-  }
-
-  // TODO(b/78523388): Remove this method. Use getExperimentsRootDirectory(appAccount) instead.
-  public static File getExperimentsRootDirectory(Context context) {
-    return new File(context.getFilesDir(), EXPERIMENTS_DIRECTORY);
   }
 
   public static File getExternalExperimentsDirectory(Context context) {
@@ -209,26 +186,10 @@ public class FileMetadataManager {
     return dir.toString();
   }
 
-  // TODO(b/78523388): Remove this method. Use getExperimentExportDirectory(appAccount) instead.
-  public static String getExperimentExportDirectory(Context context) throws IOException {
-    File dir = new File(context.getFilesDir(), "exported_experiments");
-    if (!dir.exists() && !dir.mkdir()) {
-      throw new IOException("Can't create experiments directory");
-    }
-    return dir.toString();
-  }
-
   /** Gets a file in an experiment from a relative path to that file within the experiment. */
   public static File getExperimentFile(
       AppAccount appAccount, String experimentId, String relativePath) {
     return new File(getExperimentDirectory(appAccount, experimentId), relativePath);
-  }
-
-  // TODO(b/78523388): Remove this method. Use getExperimentFile(appAccount, experimentId,
-  // relativePath) instead.
-  /** Gets a file in an experiment from a relative path to that file within the experiment. */
-  public static File getExperimentFile(Context context, String experimentId, String relativePath) {
-    return new File(getExperimentDirectory(context, experimentId), relativePath);
   }
 
   /**
@@ -244,7 +205,7 @@ public class FileMetadataManager {
    * starts the Export Service to produce an SJ file.
    */
   public static Single<File> getFileForExport(
-      Context context, Experiment experiment, DataController dc) {
+      Context context, AppAccount appAccount, Experiment experiment, DataController dc) {
     return Single.create(
         s -> {
           dc.saveImmediately(
@@ -252,7 +213,7 @@ public class FileMetadataManager {
                 @Override
                 public void success(Success result) {
                   String sensorProtoFileName =
-                      getExperimentDirectory(context, experiment.getExperimentId())
+                      getExperimentDirectory(appAccount, experiment.getExperimentId())
                           + "/sensorData.proto";
 
                   File zipFile;
@@ -264,7 +225,7 @@ public class FileMetadataManager {
                   try {
                     zipFile =
                         new File(
-                            getExperimentExportDirectory(context),
+                            getExperimentExportDirectory(appAccount),
                             ExportService.truncate(experimentName, 70) + ".sj");
                   } catch (IOException ioException) {
                     s.onError(ioException);
@@ -289,15 +250,13 @@ public class FileMetadataManager {
                           try (FileOutputStream fos = new FileOutputStream(zipFile);
                               ZipOutputStream zos = new ZipOutputStream(fos); ) {
                             File experimentDirectory =
-                                getExperimentDirectory(context, experiment.getExperimentId());
+                                getExperimentDirectory(appAccount, experiment.getExperimentId());
                             zipDirectory(experimentDirectory, zos, "");
 
                             if (!experiment.getExperimentOverview().imagePath.isEmpty()) {
-                              // TODO(lizlooney): Replace context.getFilesDir() with
-                              // getFilesDir(AppAccount).
                               File experimentImage =
                                   new File(
-                                      context.getFilesDir(),
+                                      getFilesDir(appAccount),
                                       experiment.getExperimentOverview().imagePath);
                               zipExperimentImage(experimentImage, zos);
                             }
@@ -373,14 +332,15 @@ public class FileMetadataManager {
     fis.close();
   }
 
-  public static boolean validateShareIntent(Context context, String experimentId) {
+  public static boolean validateShareIntent(
+      Context context, AppAccount appAccount, String experimentId) {
     // Get a low-cost known-good file to test if anything can handle our intent.
     // This won't be used for the actual intent.
     Uri experimentProto =
         FileProvider.getUriForFile(
             context,
             context.getPackageName(),
-            FileMetadataManager.getExperimentFile(context, experimentId, "experiment.proto"));
+            FileMetadataManager.getExperimentFile(appAccount, experimentId, "experiment.proto"));
     return FileMetadataManager.getShareIntent(context, experimentProto) != null;
   }
 
@@ -407,7 +367,11 @@ public class FileMetadataManager {
   }
 
   public static Intent createPhotoShareIntent(
-      Context context, String experimentId, String imageName, String imageCaption) {
+      Context context,
+      AppAccount appAccount,
+      String experimentId,
+      String imageName,
+      String imageCaption) {
 
     if (!AgeVerifier.isOver13(AgeVerifier.getUserAge(context))) {
       return null;
@@ -416,7 +380,7 @@ public class FileMetadataManager {
     Intent shareIntent = new Intent(Intent.ACTION_SEND);
     shareIntent.setType("image/*");
     File imageFile =
-        new File(FileMetadataManager.getExperimentDirectory(context, experimentId), imageName);
+        new File(FileMetadataManager.getExperimentDirectory(appAccount, experimentId), imageName);
     Uri uri = FileProvider.getUriForFile(context, context.getPackageName(), imageFile);
 
     shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -599,7 +563,9 @@ public class FileMetadataManager {
       if (dataProto != null) {
         ScalarSensorDumpReader dumpReader =
             new ScalarSensorDumpReader(
-                AppSingleton.getInstance(context).getSensorEnvironment().getDataController());
+                AppSingleton.getInstance(context)
+                    .getSensorEnvironment()
+                    .getDataController(appAccount));
         dumpReader.readData(dataProto, trialIdMap);
       }
     }

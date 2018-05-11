@@ -33,6 +33,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.signature.ObjectKey;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,10 +50,11 @@ public class PictureUtils {
   private static final String PICTURE_NAME_TEMPLATE = "%s.jpg";
 
   // From http://developer.android.com/training/camera/photobasics.html.
-  public static File createImageFile(Context context, String experimentId, String uuid) {
+  public static File createImageFile(
+      Context context, AppAccount appAccount, String experimentId, String uuid) {
     // Create an image file name using the uuid of the item it is attached to.
     String imageFileName = String.format(PICTURE_NAME_TEMPLATE, uuid);
-    File storageDir = FileMetadataManager.getAssetsDirectory(context, experimentId);
+    File storageDir = FileMetadataManager.getAssetsDirectory(appAccount, experimentId);
     File imageFile = new File(storageDir, imageFileName);
     return imageFile;
   }
@@ -63,9 +65,10 @@ public class PictureUtils {
    * @return The relative path to the picture in the experiment.
    */
   public static String capturePictureLabel(
-      final Activity activity, String experimentId, String uuid) {
+      final Activity activity, AppAccount appAccount, String experimentId, String uuid) {
     return capturePictureLabel(
         activity,
+        appAccount,
         experimentId,
         uuid,
         new IStartable() {
@@ -78,11 +81,15 @@ public class PictureUtils {
 
   // From http://developer.android.com/training/camera/photobasics.html.
   private static String capturePictureLabel(
-      Context context, String experimentId, String uuid, IStartable startable) {
+      Context context,
+      AppAccount appAccount,
+      String experimentId,
+      String uuid,
+      IStartable startable) {
     // Starts a picture intent.
     Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
     if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
-      File photoFile = PictureUtils.createImageFile(context, experimentId, uuid);
+      File photoFile = PictureUtils.createImageFile(context, appAccount, experimentId, uuid);
       if (photoFile != null) {
         Uri contentUri = FileProvider.getUriForFile(context, context.getPackageName(), photoFile);
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
@@ -103,8 +110,8 @@ public class PictureUtils {
   }
 
   public static void launchExternalEditor(
-      Activity activity, String experimentId, String relativeFilePath) {
-    File file = FileMetadataManager.getExperimentFile(activity, experimentId, relativeFilePath);
+      Activity activity, AppAccount appAccount, String experimentId, String relativeFilePath) {
+    File file = FileMetadataManager.getExperimentFile(appAccount, experimentId, relativeFilePath);
     String extension = MimeTypeMap.getFileExtensionFromUrl(file.getAbsolutePath());
     String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     if (!TextUtils.isEmpty(type)) {
@@ -131,7 +138,11 @@ public class PictureUtils {
   }
 
   public static void loadExperimentImage(
-      Context context, ImageView view, String experimentId, String relativeFilePath) {
+      Context context,
+      ImageView view,
+      AppAccount appAccount,
+      String experimentId,
+      String relativeFilePath) {
     if (isDestroyed(context)) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Trying to load image for destroyed context");
@@ -140,7 +151,7 @@ public class PictureUtils {
       return;
     }
 
-    File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
+    File file = FileMetadataManager.getExperimentFile(appAccount, experimentId, relativeFilePath);
     // Use last modified time as part of the signature to force a glide cache refresh.
     GlideApp.with(context)
         .load(file.getAbsolutePath())
@@ -164,8 +175,8 @@ public class PictureUtils {
   }
 
   public static String getExperimentImagePath(
-      Context context, String experimentId, String relativeFilePath) {
-    File file = FileMetadataManager.getExperimentFile(context, experimentId, relativeFilePath);
+      Context context, AppAccount appAccount, String experimentId, String relativeFilePath) {
+    File file = FileMetadataManager.getExperimentFile(appAccount, experimentId, relativeFilePath);
     return file.getAbsolutePath();
   }
 
@@ -180,17 +191,17 @@ public class PictureUtils {
    * function prepends the root directory of internal storage to that relative path.
    */
   private static String getExperimentOverviewFullImagePath(
-      Context context, String relativeFilePath) {
-    return context.getFilesDir() + "/" + relativeFilePath;
+      AppAccount appAccount, String relativeFilePath) {
+    return FileMetadataManager.getFilesDir(appAccount) + "/" + relativeFilePath;
   }
 
   public static void loadExperimentOverviewImage(
-      ImageView imageView, String experimentOverviewFilePath) {
+      AppAccount appAccount, ImageView imageView, String experimentOverviewFilePath) {
     imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-    Context context = imageView.getContext();
     String fullPath =
-        PictureUtils.getExperimentOverviewFullImagePath(context, experimentOverviewFilePath);
+        PictureUtils.getExperimentOverviewFullImagePath(appAccount, experimentOverviewFilePath);
     File file = new File(fullPath);
+    Context context = imageView.getContext();
     GlideApp.with(context)
         .load(fullPath)
         // Create a signature based on the last modified time so that cached images will

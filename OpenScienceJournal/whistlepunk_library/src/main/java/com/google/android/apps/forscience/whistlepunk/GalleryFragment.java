@@ -40,6 +40,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -59,6 +60,9 @@ import java.util.List;
 public class GalleryFragment extends PanesToolFragment
     implements LoaderManager.LoaderCallbacks<List<PhotoAsyncLoader.Image>> {
   private static final String TAG = "GalleryFragment";
+
+  private static final String KEY_ACCOUNT_KEY = "accountKey";
+
   private static final int PHOTO_LOADER_INDEX = 1;
   private static final String KEY_SELECTED_PHOTO = "selected_photo";
 
@@ -83,8 +87,12 @@ public class GalleryFragment extends PanesToolFragment
     Listener getGalleryListener();
   }
 
-  public static Fragment newInstance() {
-    return new GalleryFragment();
+  public static Fragment newInstance(AppAccount appAccount) {
+    GalleryFragment fragment = new GalleryFragment();
+    Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
+    fragment.setArguments(args);
+    return fragment;
   }
 
   @Override
@@ -167,6 +175,10 @@ public class GalleryFragment extends PanesToolFragment
     return rootView;
   }
 
+  private AppAccount getAppAccount() {
+    return WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
+  }
+
   private void complainPermissions() {
     View rootView = getView();
     if (rootView != null) {
@@ -199,7 +211,7 @@ public class GalleryFragment extends PanesToolFragment
                     Label result = Label.newLabel(timestamp, GoosciLabel.Label.ValueType.PICTURE);
                     File imageFile =
                         PictureUtils.createImageFile(
-                            getActivity(), experimentId, result.getLabelId());
+                            getActivity(), getAppAccount(), experimentId, result.getLabelId());
 
                     try {
                       UpdateExperimentFragment.copyUriToFile(

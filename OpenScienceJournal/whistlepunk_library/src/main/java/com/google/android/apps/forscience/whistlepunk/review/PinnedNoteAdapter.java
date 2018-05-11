@@ -33,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
@@ -83,6 +84,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
   }
 
+  private AppAccount appAccount;
   private Trial trial;
   private long startTimestamp;
   private long endTimestamp;
@@ -91,7 +93,12 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   private ListItemClickListener clickListener;
 
   public PinnedNoteAdapter(
-      Trial trial, long startTimestamp, long endTimestamp, String experimentId) {
+      AppAccount appAccount,
+      Trial trial,
+      long startTimestamp,
+      long endTimestamp,
+      String experimentId) {
+    this.appAccount = appAccount;
     this.trial = trial;
     this.startTimestamp = startTimestamp;
     this.endTimestamp = endTimestamp;
@@ -156,7 +163,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     final NoteViewHolder noteHolder = (NoteViewHolder) holder;
     final Label label = trial.getLabels().get(position - 1);
-    noteHolder.setNote(label, experimentId);
+    noteHolder.setNote(label, appAccount, experimentId);
 
     // Do work specific to RunReview.
     noteHolder.relativeTimeView.setVisibility(View.GONE);
@@ -229,7 +236,11 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       return null;
     } else {
       return FileMetadataManager.createPhotoShareIntent(
-          context, experimentId, label.getPictureLabelValue().filePath, label.getCaptionText());
+          context,
+          appAccount,
+          experimentId,
+          label.getPictureLabelValue().filePath,
+          label.getCaptionText());
     }
   }
 

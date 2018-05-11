@@ -35,6 +35,7 @@ import androidx.core.content.FileProvider;
 import androidx.collection.ArrayMap;
 import android.util.Log;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
@@ -60,9 +61,9 @@ import java.util.zip.ZipException;
 /**
  * Service for importing and exporting trial and experiment data with different options. Can be
  * bound for status updates using {@link #bind(Context)}. Export trial data using {@link
- * #exportTrial(Context, String, String, boolean, String[])} Export experiment data using {@link
- * #exportExperiment(Context, String)} Import experiment data using {@link
- * #importExperiment(Context, Uri)} TODO: Rename to ImportExportService
+ * #exportTrial(Context, AppAccount, String, String, boolean, String[])} Export experiment data
+ * using {@link #exportExperiment(Context, AppAccount, String)} Import experiment data using {@link
+ * #importExperiment(Context, AppAccount, Uri)} TODO: Rename to ImportExportService
  */
 public class ExportService extends Service {
   private static final String TAG = "ExportService";
@@ -76,6 +77,11 @@ public class ExportService extends Service {
   private static final String ACTION_IMPORT_EXPERIMENT =
       "com.google.android.apps.forscience.whistlepunk.action.IMPORT_EXPERIMENT";
 
+  private static final String ACTION_CLEAN_OLD_FILES =
+      "com.google.android.apps.forscience.whistlepunk.action.CLEAN_OLD_FILES";
+
+  private static final String EXTRA_ACCOUNT_KEY =
+      "com.google.android.apps.forscience.whistlepunk.extra.ACCOUNT_KEY";
   private static final String EXTRA_EXPERIMENT_ID =
       "com.google.android.apps.forscience.whistlepunk.extra.EXPERIMENT_ID";
   private static final String EXTRA_TRIAL_ID =
@@ -86,9 +92,6 @@ public class ExportService extends Service {
       "com.google.android.apps.forscience.whistlepunk.extra.SENSOR_IDS";
   private static final String EXTRA_IMPORT_URI =
       "com.google.android.apps.forscience.whistlepunk.extra.IMPORT_URI";
-
-  private static final String ACTION_CLEAN_OLD_FILES =
-      "com.google.android.apps.forscience.whistlepunk.action.CLEAN_OLD_FILES";
 
   private final IBinder binder = new ExportServiceBinder();
 
@@ -143,12 +146,14 @@ public class ExportService extends Service {
    */
   public static void exportTrial(
       Context context,
+      AppAccount appAccount,
       String experimentId,
       String trialId,
       boolean relativeTime,
       String[] sensorIds) {
     Intent intent = new Intent(context, ExportService.class);
     intent.setAction(ACTION_EXPORT_TRIAL);
+    intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
     intent.putExtra(EXTRA_TRIAL_ID, trialId);
     intent.putExtra(EXTRA_RELATIVE_TIME, relativeTime);
@@ -160,9 +165,10 @@ public class ExportService extends Service {
    * Starts this service to perform action export experiment with the given parameters. If the
    * service is already performing a task this action will be queued.
    */
-  public static void exportExperiment(Context context, String experimentId) {
+  public static void exportExperiment(Context context, AppAccount appAccount, String experimentId) {
     Intent intent = new Intent(context, ExportService.class);
     intent.setAction(ACTION_EXPORT_EXPERIMENT);
+    intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
     context.startService(intent);
   }
@@ -171,37 +177,48 @@ public class ExportService extends Service {
    * Starts this service to perform action import experiment with the given parameters. If the
    * service is already performing a task this action will be queued.
    */
-  public static void importExperiment(Context context, Uri file) {
+  public static void importExperiment(Context context, AppAccount appAccount, Uri file) {
     Intent intent = new Intent(context, ExportService.class);
     intent.setAction(ACTION_IMPORT_EXPERIMENT);
+    intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(EXTRA_IMPORT_URI, file.toString());
     context.startService(intent);
   }
 
   /** Starts this service to clean up old files. */
-  public static void cleanOldFiles(Context context) {
+  public static void cleanOldFiles(Context context, AppAccount appAccount) {
     Intent intent = new Intent(context, ExportService.class);
     intent.setAction(ACTION_CLEAN_OLD_FILES);
+    intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     context.startService(intent);
+  }
+
+  private AppAccount getAppAccount(Intent intent) {
+    return WhistlePunkApplication.getAccount(getApplicationContext(), intent, EXTRA_ACCOUNT_KEY);
   }
 
   private void onHandleIntent(Intent intent, int startId) {
     if (intent != null) {
       final String action = intent.getAction();
       if (ACTION_EXPORT_TRIAL.equals(action)) {
+        AppAccount appAccount = getAppAccount(intent);
         final String experimentId = intent.getStringExtra(EXTRA_EXPERIMENT_ID);
         final String trialId = intent.getStringExtra(EXTRA_TRIAL_ID);
         final boolean relativeTime = intent.getBooleanExtra(EXTRA_RELATIVE_TIME, false);
         final String[] sensorIds = intent.getStringArrayExtra(EXTRA_SENSOR_IDS);
-        handleActionExportTrial(experimentId, trialId, relativeTime, sensorIds, startId);
+        handleActionExportTrial(
+            appAccount, experimentId, trialId, relativeTime, sensorIds, startId);
       } else if (ACTION_EXPORT_EXPERIMENT.equals(action)) {
+        AppAccount appAccount = getAppAccount(intent);
         final String experimentId = intent.getStringExtra(EXTRA_EXPERIMENT_ID);
-        handleActionExportExperiment(experimentId, startId);
+        handleActionExportExperiment(appAccount, experimentId, startId);
       } else if (ACTION_CLEAN_OLD_FILES.equals(action)) {
-        handleCleanOldFiles(startId);
+        AppAccount appAccount = getAppAccount(intent);
+        handleCleanOldFiles(appAccount, startId);
       } else if (ACTION_IMPORT_EXPERIMENT.equals(action)) {
+        AppAccount appAccount = getAppAccount(intent);
         final Uri file = Uri.parse(intent.getStringExtra(EXTRA_IMPORT_URI));
-        handleActionImportExperiment(file, startId);
+        handleActionImportExperiment(appAccount, file, startId);
       }
     }
   }
@@ -321,9 +338,14 @@ public class ExportService extends Service {
 
   /** Handle action export trial in the provided background thread with the provided parameters. */
   private void handleActionExportTrial(
-      String experimentId, String trialId, boolean relativeTime, String[] sensorIds, int startId) {
+      AppAccount appAccount,
+      String experimentId,
+      String trialId,
+      boolean relativeTime,
+      String[] sensorIds,
+      int startId) {
     // Blocking gets OK: this is already background threaded.
-    DataController dc = getDataController().blockingGet();
+    DataController dc = getDataController(appAccount).blockingGet();
     Experiment experiment = RxDataController.getExperimentById(dc, experimentId).blockingGet();
     Trial trial = experiment.getTrial(trialId);
 
@@ -348,23 +370,26 @@ public class ExportService extends Service {
   /**
    * Handle action export experiment in the provided background thread with the provided parameters.
    */
-  private void handleActionExportExperiment(String experimentId, int startId) {
+  private void handleActionExportExperiment(
+      AppAccount appAccount, String experimentId, int startId) {
     // Blocking gets OK: this is already background threaded.
-    DataController dc = getDataController().blockingGet();
+    DataController dc = getDataController(appAccount).blockingGet();
     Experiment experiment = RxDataController.getExperimentById(dc, experimentId).blockingGet();
     File file =
-        FileMetadataManager.getFileForExport(getApplicationContext(), experiment, dc).blockingGet();
+        FileMetadataManager.getFileForExport(getApplicationContext(), appAccount, experiment, dc)
+            .blockingGet();
 
-    updateProgress(ExportProgress.getComplete(experimentId, getExperimentFileUri(file.getName())));
+    updateProgress(
+        ExportProgress.getComplete(experimentId, getExperimentFileUri(appAccount, file.getName())));
   }
 
   /**
    * Handle action import experiment in the provided background thread with the provided parameters.
    */
-  private void handleActionImportExperiment(Uri fileUri, int startId) {
+  private void handleActionImportExperiment(AppAccount appAccount, Uri fileUri, int startId) {
     // Blocking gets OK: this is already background threaded.
     AppSingleton.getInstance(getApplicationContext())
-        .getDataController()
+        .getDataController(appAccount)
         .importExperimentFromZip(
             fileUri,
             getApplicationContext().getContentResolver(),
@@ -401,8 +426,12 @@ public class ExportService extends Service {
             });
   }
 
-  private Single<DataController> getDataController() {
-    return DataService.bind(this).map(AppSingleton::getDataController);
+  private Single<DataController> getDataController(AppAccount appAccount) {
+    return DataService.bind(this)
+        .map(
+            appSingleton -> {
+              return appSingleton.getDataController(appAccount);
+            });
   }
 
   @NonNull
@@ -447,13 +476,12 @@ public class ExportService extends Service {
     return Uri.parse("content://" + getPackageName() + "/exported_runs/" + Uri.encode(fileName));
   }
 
-  private Uri getExperimentFileUri(String fileName) {
+  private Uri getExperimentFileUri(AppAccount appAccount, String fileName) {
     try {
       return FileProvider.getUriForFile(
           getApplicationContext(),
           getPackageName(),
-          new File(
-              FileMetadataManager.getExperimentExportDirectory(getApplicationContext()), fileName));
+          new File(FileMetadataManager.getExperimentExportDirectory(appAccount), fileName));
     } catch (IOException ioe) {
       Log.e(TAG, "Error getting export file", ioe);
       return null;
@@ -461,7 +489,7 @@ public class ExportService extends Service {
   }
 
   /** Removes old exported run files on the IO thread and then stops when done. */
-  private void handleCleanOldFiles(int startId) {
+  private void handleCleanOldFiles(AppAccount appAccount, int startId) {
     Observable.just(startId)
         .observeOn(Schedulers.io())
         .doOnComplete(() -> stopSelf(startId))
@@ -471,8 +499,7 @@ public class ExportService extends Service {
               deleteAllFiles(storageDir);
 
               File exportExperimentDir =
-                  new File(
-                      FileMetadataManager.getExperimentExportDirectory(getApplicationContext()));
+                  new File(FileMetadataManager.getExperimentExportDirectory(appAccount));
               deleteAllFiles(exportExperimentDir);
             });
   }
@@ -485,7 +512,8 @@ public class ExportService extends Service {
     }
   }
 
-  public static void handleExperimentExportClick(Context context, String experimentId) {
+  public static void handleExperimentExportClick(
+      Context context, AppAccount appAccount, String experimentId) {
     AppSingleton appSingleton = AppSingleton.getInstance(context);
     appSingleton.setExportServiceBusy(true);
     ExportService.bind(context)
@@ -510,7 +538,7 @@ public class ExportService extends Service {
                   .subscribe(activity -> launchExportChooser(activity, fileUri));
             });
 
-    ExportService.exportExperiment(context, experimentId);
+    ExportService.exportExperiment(context, appAccount, experimentId);
   }
 
   public static void launchExportChooser(Context context, Uri fileUri) {
@@ -522,7 +550,8 @@ public class ExportService extends Service {
             context.getResources().getString(R.string.export_experiment_chooser_title)));
   }
 
-  public static void handleExperimentImport(Context context, Uri experimentFile) {
+  public static void handleExperimentImport(
+      Context context, AppAccount appAccount, Uri experimentFile) {
     AppSingleton.getInstance(context).setExportServiceBusy(true);
     ExportService.bind(context)
         // Only look at events for this uri or the default value
@@ -548,11 +577,11 @@ public class ExportService extends Service {
                       activity -> {
                         activity.startActivity(
                             WhistlePunkApplication.getLaunchIntentForPanesActivity(
-                                context, progress.getId()));
+                                context, appAccount, progress.getId()));
                       });
             });
 
-    ExportService.importExperiment(context, experimentFile);
+    ExportService.importExperiment(context, appAccount, experimentFile);
   }
 
   private class TrialDataWriter implements Observer<ScalarReading> {

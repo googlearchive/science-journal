@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.jakewharton.rxbinding2.view.RxView;
 import io.reactivex.Observable;
 
@@ -34,10 +35,13 @@ import io.reactivex.Observable;
  * starting recording, etc
  */
 class ControlBarController {
+  private final AppAccount appAccount;
   private final String experimentId;
   private SnackbarManager snackbarManager;
 
-  public ControlBarController(String experimentId, SnackbarManager snackbarManager) {
+  public ControlBarController(
+      AppAccount appAccount, String experimentId, SnackbarManager snackbarManager) {
+    this.appAccount = appAccount;
     this.experimentId = experimentId;
     this.snackbarManager = snackbarManager;
   }
@@ -49,11 +53,11 @@ class ControlBarController {
         v -> {
           Snapshotter snapshotter =
               new Snapshotter(
-                  singleton.getRecorderController(),
-                  singleton.getDataController(),
+                  singleton.getRecorderController(appAccount),
+                  singleton.getDataController(appAccount),
                   singleton.getSensorRegistry());
           singleton
-              .getRecorderController()
+              .getRecorderController(appAccount)
               .watchRecordingStatus()
               .firstElement()
               .flatMapSingle(status -> snapshotter.addSnapshotLabel(experimentId, status))
@@ -84,7 +88,7 @@ class ControlBarController {
   public void attachRecordButton(ImageButton recordButton, FragmentManager fragmentManager) {
     Observable<RecordingStatus> recordingStatus =
         AppSingleton.getInstance(recordButton.getContext())
-            .getRecorderController()
+            .getRecorderController(appAccount)
             .watchRecordingStatus();
 
     recordButton.setVisibility(View.VISIBLE);
@@ -122,7 +126,7 @@ class ControlBarController {
 
   private void tryStopRecording(View anchorView, FragmentManager fragmentManager) {
     AppSingleton singleton = AppSingleton.getInstance(anchorView.getContext());
-    RecorderController rc = singleton.getRecorderController();
+    RecorderController rc = singleton.getRecorderController(appAccount);
     SensorRegistry sensorRegistry = singleton.getSensorRegistry();
 
     rc.stopRecording(sensorRegistry)
@@ -170,13 +174,13 @@ class ControlBarController {
 
     Intent launchIntent =
         WhistlePunkApplication.getLaunchIntentForPanesActivity(
-            anchorView.getContext(), experimentId);
+            anchorView.getContext(), appAccount, experimentId);
 
     // This isn't currently used, but does ensure this intent doesn't match any other intent.
     // See b/31616891
     launchIntent.setData(Uri.fromParts("observe", "experiment=" + experimentId, null));
     RecorderController rc =
-        AppSingleton.getInstance(anchorView.getContext()).getRecorderController();
+        AppSingleton.getInstance(anchorView.getContext()).getRecorderController(appAccount);
 
     rc.startRecording(launchIntent, /* user initiated */ true)
         .subscribe(
@@ -218,7 +222,7 @@ class ControlBarController {
     TextView elapsedTime = (TextView) rootView.findViewById(R.id.recorded_time);
     Observable<RecordingStatus> recordingStatus =
         AppSingleton.getInstance(elapsedTime.getContext())
-            .getRecorderController()
+            .getRecorderController(appAccount)
             .watchRecordingStatus();
     recordingStatus
         .takeUntil(RxView.detaches(elapsedTime))

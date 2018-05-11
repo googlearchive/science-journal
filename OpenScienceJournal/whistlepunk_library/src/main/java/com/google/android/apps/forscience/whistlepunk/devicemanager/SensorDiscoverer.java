@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 
@@ -28,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec
 public interface SensorDiscoverer {
   public interface SettingsInterface {
     public void show(
+        AppAccount appAccount,
         String experimentId,
         String sensorId,
         FragmentManager fragmentManager,

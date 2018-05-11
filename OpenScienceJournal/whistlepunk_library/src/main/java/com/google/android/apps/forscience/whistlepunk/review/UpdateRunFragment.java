@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
@@ -43,11 +44,14 @@ public class UpdateRunFragment extends Fragment {
 
   private static final String TAG = "UpdateRunFragment";
 
+  /** Account key for the AppAccount */
+  public static final String ARG_ACCOUNT_KEY = "account_key";
   /** Run ID (start label ID) for the run to update. */
   public static final String ARG_RUN_ID = "run_id";
 
   public static final String ARG_EXP_ID = "exp_id";
 
+  private AppAccount appAccount;
   private String runId;
   private String experimentId;
   private Experiment experiment;
@@ -55,9 +59,11 @@ public class UpdateRunFragment extends Fragment {
 
   public UpdateRunFragment() {}
 
-  public static UpdateRunFragment newInstance(String runId, String experimentId) {
+  public static UpdateRunFragment newInstance(
+      AppAccount appAccount, String runId, String experimentId) {
     UpdateRunFragment fragment = new UpdateRunFragment();
     Bundle args = new Bundle();
+    args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(ARG_RUN_ID, runId);
     args.putString(ARG_EXP_ID, experimentId);
     fragment.setArguments(args);
@@ -67,6 +73,7 @@ public class UpdateRunFragment extends Fragment {
   @Override
   public void onStart() {
     super.onStart();
+    appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
     runId = getArguments().getString(ARG_RUN_ID);
     experimentId = getArguments().getString(ARG_EXP_ID);
 
@@ -100,7 +107,7 @@ public class UpdateRunFragment extends Fragment {
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController();
+    return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
   @Override
@@ -146,6 +153,7 @@ public class UpdateRunFragment extends Fragment {
   private void returnToRunReview() {
     Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
     upIntent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD, false);
+    upIntent.putExtra(RunReviewFragment.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     upIntent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
     upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, experimentId);
     upIntent.putExtra(RunReviewFragment.ARG_READ_ONLY, false);

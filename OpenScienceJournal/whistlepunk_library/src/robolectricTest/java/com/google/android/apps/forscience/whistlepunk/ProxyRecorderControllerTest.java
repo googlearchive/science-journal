@@ -28,6 +28,8 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -343,7 +345,8 @@ public class ProxyRecorderControllerTest {
   private class RecorderControllerTestImpl extends RecorderControllerImpl {
     RecorderControllerTestImpl(RecorderListenerRegistry listenerRegistry) {
       super(
-          RuntimeEnvironment.application.getApplicationContext(),
+          getContext(),
+          ProxyRecorderControllerTest.getAppAccount(),
           environment,
           listenerRegistry,
           null,
@@ -381,5 +384,13 @@ public class ProxyRecorderControllerTest {
       StatefulRecorder sr = getRecorders().get(sensorId);
       sr.forceHasDataForTesting(hasData);
     }
+  }
+
+  private static Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }

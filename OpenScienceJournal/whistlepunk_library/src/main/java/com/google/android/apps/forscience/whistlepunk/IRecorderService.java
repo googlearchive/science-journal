@@ -16,10 +16,15 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Intent;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 
 interface IRecorderService {
   void beginServiceRecording(String experimentName, Intent launchIntent);
 
   void endServiceRecording(
-      boolean notifyRecordingEnded, String runId, String experimentId, String experimentTitle);
+      AppAccount appAccount,
+      boolean notifyRecordingEnded,
+      String runId,
+      String experimentId,
+      String experimentTitle);
 }

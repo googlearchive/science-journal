@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
@@ -43,6 +44,8 @@ public class ManageDevicesActivity extends AppCompatActivity
 
   private static final String TAG = "ManageDevices";
 
+  /** String extra which stores the account key that launched this activity. */
+  public static final String EXTRA_ACCOUNT_KEY = "account_key";
   /** String extra which stores the experiment ID that launched this activity. */
   public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
 
@@ -59,14 +62,15 @@ public class ManageDevicesActivity extends AppCompatActivity
     }
   }
 
-  public static void launch(Context context, String experimentId) {
-    context.startActivity(launchIntent(context, experimentId));
+  public static void launch(Context context, AppAccount appAccount, String experimentId) {
+    context.startActivity(launchIntent(context, appAccount, experimentId));
   }
 
   @NonNull
-  public static Intent launchIntent(Context context, String experimentId) {
+  public static Intent launchIntent(Context context, AppAccount appAccount, String experimentId) {
     Intent intent = new Intent(context, ManageDevicesActivity.class);
     if (experimentId != null) {
+      intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
       intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
     }
     return intent;
@@ -76,7 +80,8 @@ public class ManageDevicesActivity extends AppCompatActivity
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_manage_devices);
-    dataController = AppSingleton.getInstance(this).getDataController();
+    AppAccount appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
+    dataController = AppSingleton.getInstance(this).getDataController(appAccount);
   }
 
   @Override
@@ -122,6 +127,7 @@ public class ManageDevicesActivity extends AppCompatActivity
     } else {
       manageFragment = new ManageDevicesRecyclerFragment();
       Bundle args = new Bundle();
+      args.putString(EXTRA_ACCOUNT_KEY, getIntent().getStringExtra(EXTRA_ACCOUNT_KEY));
       args.putString(EXTRA_EXPERIMENT_ID, getIntent().getStringExtra(EXTRA_EXPERIMENT_ID));
       manageFragment.setArguments(args);
       FragmentTransaction ft = fragmentManager.beginTransaction();

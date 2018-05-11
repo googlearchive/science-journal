@@ -20,6 +20,7 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
@@ -142,4 +143,6 @@ public interface DataController {
   void forgetMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
 
   void addMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
+
+  AppAccount getAppAccount();
 }

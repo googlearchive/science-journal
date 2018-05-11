@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 
 public class UpdateRunActivity extends AppCompatActivity {
 
@@ -32,9 +34,11 @@ public class UpdateRunActivity extends AppCompatActivity {
     setContentView(R.layout.activity_update_run);
 
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
+      AppAccount appAccount =
+          WhistlePunkApplication.getAccount(this, getIntent(), UpdateRunFragment.ARG_ACCOUNT_KEY);
       String runId = getIntent().getExtras().getString(UpdateRunFragment.ARG_RUN_ID);
       String experimentId = getIntent().getExtras().getString(UpdateRunFragment.ARG_EXP_ID);
-      UpdateRunFragment fragment = UpdateRunFragment.newInstance(runId, experimentId);
+      UpdateRunFragment fragment = UpdateRunFragment.newInstance(appAccount, runId, experimentId);
       fragment.setRetainInstance(true);
 
       getSupportFragmentManager()
@@ -44,8 +48,10 @@ public class UpdateRunActivity extends AppCompatActivity {
     }
   }
 
-  public static void launch(Context context, String runId, String experimentId) {
+  public static void launch(
+      Context context, AppAccount appAccount, String runId, String experimentId) {
     final Intent intent = new Intent(context, UpdateRunActivity.class);
+    intent.putExtra(UpdateRunFragment.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(UpdateRunFragment.ARG_RUN_ID, runId);
     intent.putExtra(UpdateRunFragment.ARG_EXP_ID, experimentId);
     context.startActivity(intent);

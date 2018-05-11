@@ -30,12 +30,14 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 
 /** Presents dialog options for external devices. */
 public class DeviceOptionsDialog extends DialogFragment {
   private static final String TAG = "DeviceOptionsDialog";
+  private static final String KEY_ACCOUNT_KEY = "account_key";
   private static final String KEY_EXPERIMENT_ID = "experiment_id";
   private static final String KEY_SENSOR_ID = "sensor_id";
   private static final String KEY_SETTINGS_INTENT = "settings_intent";
@@ -72,11 +74,13 @@ public class DeviceOptionsDialog extends DialogFragment {
   private DeviceOptionsViewController viewController;
 
   public static DeviceOptionsDialog newInstance(
+      AppAccount appAccount,
       String experimentId,
       String sensorId,
       PendingIntent externalSettingsIntent,
       boolean showForgetButton) {
     Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(KEY_EXPERIMENT_ID, experimentId);
     args.putString(KEY_SENSOR_ID, sensorId);
     args.putParcelable(KEY_SETTINGS_INTENT, externalSettingsIntent);
@@ -171,7 +175,7 @@ public class DeviceOptionsDialog extends DialogFragment {
   }
 
   private void setupControllers() {
-    dataController = AppSingleton.getInstance(getActivity()).getDataController();
+    dataController = AppSingleton.getInstance(getActivity()).getDataController(getAppAccount());
     viewController =
         new DeviceOptionsViewController(getActivity(), dataController, getExperimentId());
   }
@@ -189,6 +193,10 @@ public class DeviceOptionsDialog extends DialogFragment {
       ((DeviceOptionsListener) getActivity())
           .onRemoveSensorFromExperiment(getExperimentId(), getArguments().getString(KEY_SENSOR_ID));
     }
+  }
+
+  private AppAccount getAppAccount() {
+    return WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
   }
 
   private String getExperimentId() {

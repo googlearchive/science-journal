@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.content.Intent;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 
 /**
  * Encapsulates decisions about which specific activity classes implement which features, allowing
@@ -26,10 +27,11 @@ public interface ActivityNavigator {
   ActivityNavigator STUB =
       new ActivityNavigator() {
         @Override
-        public Intent launchIntentForPanesActivity(Context context, String experimentId) {
+        public Intent launchIntentForPanesActivity(
+            Context context, AppAccount appAccount, String experimentId) {
           return null;
         }
       };
 
-  Intent launchIntentForPanesActivity(Context context, String experimentId);
+  Intent launchIntentForPanesActivity(Context context, AppAccount appAccount, String experimentId);
 }

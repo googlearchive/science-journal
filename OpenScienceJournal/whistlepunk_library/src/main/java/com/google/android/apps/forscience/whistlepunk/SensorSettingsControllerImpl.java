@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ActiveBundle;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.OptionsListener;
@@ -30,10 +31,12 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorPresenter;
 public class SensorSettingsControllerImpl extends ActiveSettingsController
     implements SensorSettingsController {
   private Context context;
+  private AppAccount appAccount;
 
-  public SensorSettingsControllerImpl(Context context) {
+  public SensorSettingsControllerImpl(Context context, AppAccount appAccount) {
     super(context);
     this.context = context;
+    this.appAccount = appAccount;
   }
 
   @Override
@@ -69,7 +72,7 @@ public class SensorSettingsControllerImpl extends ActiveSettingsController
 
   private String getSourceName(SensorChoice source) {
     return AppSingleton.getInstance(context)
-        .getSensorAppearanceProvider()
+        .getSensorAppearanceProvider(appAccount)
         .getAppearance(source.getId())
         .getName(context);
   }

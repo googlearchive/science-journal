@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
@@ -158,10 +159,10 @@ public class Experiment extends LabelListHolder {
     return proto.creationTimeMs;
   }
 
-  public void setArchived(Context context, boolean archived) {
+  public void setArchived(Context context, AppAccount appAccount, boolean archived) {
     isArchived = archived;
     AppSingleton.getInstance(context)
-        .getExperimentLibraryManager()
+        .getExperimentLibraryManager(appAccount)
         .setArchived(getExperimentId(), archived);
   }
 
@@ -349,9 +350,9 @@ public class Experiment extends LabelListHolder {
   }
 
   /** Removes a trial from the experiment. */
-  //TODO(b/79353972) Test this
-  public void deleteTrial(Trial trial, Context context) {
-    trial.deleteContents(context, getExperimentId());
+  // TODO(b/79353972) Test this
+  public void deleteTrial(Trial trial, Context context, AppAccount appAccount) {
+    trial.deleteContents(context, appAccount, getExperimentId());
     trials.remove(trial);
     trialCount = trials.size();
     addChange(
@@ -360,12 +361,12 @@ public class Experiment extends LabelListHolder {
   }
 
   /** Removes the assets from this experiment. */
-  public void deleteContents(Context context) {
+  public void deleteContents(Context context, AppAccount appAccount) {
     for (Label label : getLabels()) {
-      deleteLabelAssets(label, context, getExperimentId());
+      deleteLabelAssets(label, context, appAccount, getExperimentId());
     }
     for (Trial trial : getTrials()) {
-      trial.deleteContents(context, getExperimentId());
+      trial.deleteContents(context, appAccount, getExperimentId());
     }
   }
 
@@ -613,8 +614,8 @@ public class Experiment extends LabelListHolder {
             GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
   }
 
-  public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label item) {
-    return deleteLabelAndReturnAssetDeleter(item, getExperimentId());
+  public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label item, AppAccount appAccount) {
+    return deleteLabelAndReturnAssetDeleter(item, appAccount, getExperimentId());
   }
 
   public boolean isEmpty() {

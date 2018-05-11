@@ -34,6 +34,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -51,6 +54,9 @@ public class MainActivity extends ActivityWithNavigationView {
   /** Used to store the last screen title. For use in {@link #restoreActionBar()}. */
   private CharSequence titleToRestore;
 
+  private AccountsProvider accountsProvider;
+  private AppAccount currentAccount;
+  private final RxEvent paused = new RxEvent();
   private FeedbackProvider feedbackProvider;
   private NavigationView navigationView;
   private MultiTouchDrawerLayout drawerLayout;
@@ -64,6 +70,7 @@ public class MainActivity extends ActivityWithNavigationView {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
+    accountsProvider = WhistlePunkApplication.getAppServices(this).getAccountsProvider();
     if (showRequiredScreensIfNeeded()) {
       return;
     }
@@ -110,7 +117,7 @@ public class MainActivity extends ActivityWithNavigationView {
 
     setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-    ExportService.cleanOldFiles(this);
+    currentAccount = NonSignedInAccount.getInstance(this);
   }
 
   private int getSavedItemId(Bundle savedInstanceState) {
@@ -137,6 +144,16 @@ public class MainActivity extends ActivityWithNavigationView {
     if (showRequiredScreensIfNeeded()) {
       return;
     }
+    accountsProvider
+        .getObservableCurrentAccount()
+        .takeUntil(pause.happens())
+        .subscribe(
+            appAccount -> {
+              currentAccount = appAccount;
+              // Clean up old files from previous exports.
+              ExportService.cleanOldFiles(this, currentAccount);
+            });
+
     if (!isMultiWindowEnabled()) {
       updateRecorderControllerForResume();
     }
@@ -159,7 +176,7 @@ public class MainActivity extends ActivityWithNavigationView {
               0);
 
       if (!isRecording) {
-        ExportService.handleExperimentImport(this, getIntent().getData());
+        ExportService.handleExperimentImport(this, currentAccount, getIntent().getData());
       } else {
         AccessibilityUtils.makeSnackbar(
                 findViewById(R.id.drawer_layout),
@@ -198,6 +215,7 @@ public class MainActivity extends ActivityWithNavigationView {
 
   @Override
   protected void onPause() {
+    paused.onHappened();
     if (!isMultiWindowEnabled()) {
       updateRecorderControllerForPause();
     }
@@ -226,7 +244,7 @@ public class MainActivity extends ActivityWithNavigationView {
 
   private void updateRecorderControllerForResume() {
     AppSingleton singleton = AppSingleton.getInstance(this);
-    RecorderController rc = singleton.getRecorderController();
+    RecorderController rc = singleton.getRecorderController(currentAccount);
 
     // TODO: extract and test
     rc.watchRecordingStatus()
@@ -238,14 +256,16 @@ public class MainActivity extends ActivityWithNavigationView {
               if (isRecording) {
                 rememberAttemptingImport();
                 singleton
-                    .getDataController()
+                    .getDataController(currentAccount)
                     .getLastUsedUnarchivedExperiment(
                         new LoggingConsumer<Experiment>(TAG, "getting last used experiment") {
                           @Override
                           public void success(Experiment experiment) {
                             startActivity(
                                 WhistlePunkApplication.getLaunchIntentForPanesActivity(
-                                    MainActivity.this, experiment.getExperimentId()));
+                                    MainActivity.this,
+                                    currentAccount,
+                                    experiment.getExperimentId()));
                           }
                         });
               }
@@ -473,6 +493,7 @@ public class MainActivity extends ActivityWithNavigationView {
         boolean readOnly = false;
         RunReviewActivity.launch(
             MainActivity.this,
+            currentAccount,
             runId,
             experiment.getExperimentId(),
             0,

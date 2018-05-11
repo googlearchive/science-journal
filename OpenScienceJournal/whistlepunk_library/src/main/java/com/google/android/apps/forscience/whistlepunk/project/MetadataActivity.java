@@ -19,17 +19,20 @@ package com.google.android.apps.forscience.whistlepunk.project;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 
 /** Activity which should not be usable if we are currently recording. */
-public class MetadataActivity extends AppCompatActivity {
+public abstract class MetadataActivity extends AppCompatActivity {
   private static final String TAG = "MetadataActivity";
+
+  protected abstract AppAccount getAppAccount();
 
   @Override
   protected void onResume() {
     super.onResume();
 
     final RecorderController recorderController =
-        AppSingleton.getInstance(this).getRecorderController();
+        AppSingleton.getInstance(this).getRecorderController(getAppAccount());
 
     recorderController
         .watchRecordingStatus()

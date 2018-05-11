@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.StubAppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
@@ -69,6 +70,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
   private DataControllerImpl makeDataControllerImpl(
       MemoryMetadataManager manager, Map<String, SensorProvider> providerMap, Clock clock) {
     return new DataControllerImpl(
+        StubAppAccount.getInstance(),
         this,
         MoreExecutors.directExecutor(),
         MoreExecutors.directExecutor(),

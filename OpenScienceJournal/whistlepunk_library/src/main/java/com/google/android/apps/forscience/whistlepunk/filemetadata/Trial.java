@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProviderImpl;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
@@ -286,12 +287,12 @@ public class Trial extends LabelListHolder {
    * Deletes the trial and any assets associated with it, including labels and label pictures, run
    * data, etc.
    */
-  public void deleteContents(Context context, String experimentId) {
+  public void deleteContents(Context context, AppAccount appAccount, String experimentId) {
     for (Label label : labels) {
-      deleteLabelAssets(label, context, experimentId);
+      deleteLabelAssets(label, context, appAccount, experimentId);
     }
     AppSingleton.getInstance(context)
-        .getDataController()
+        .getDataController(appAccount)
         .deleteTrialData(
             this,
             MaybeConsumers.expectSuccess(

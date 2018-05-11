@@ -33,11 +33,14 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /** Dialog prompting a user to name an experiment. */
 public class NameExperimentDialog extends DialogFragment {
   public static final String TAG = "NameExperimentDialog";
+  private static final String KEY_ACCOUNT_KEY = "account_key";
   private static final String KEY_EXPERIMENT_ID = "experiment_id";
   private static final String KEY_SAVED_TITLE = "saved_title";
 
@@ -45,13 +48,15 @@ public class NameExperimentDialog extends DialogFragment {
     void onTitleChangedFromDialog();
   }
 
+  private AppAccount appAccount;
   private String experimentId;
   private TextInputEditText input;
   private TextInputLayout inputLayout;
 
-  public static NameExperimentDialog newInstance(String experimentId) {
+  public static NameExperimentDialog newInstance(AppAccount appAccount, String experimentId) {
     NameExperimentDialog dialog = new NameExperimentDialog();
     Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(KEY_EXPERIMENT_ID, experimentId);
     dialog.setArguments(args);
     return dialog;
@@ -70,6 +75,9 @@ public class NameExperimentDialog extends DialogFragment {
     if (savedInstanceState != null) {
       previousTitle = savedInstanceState.getString(KEY_SAVED_TITLE);
     }
+
+    appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
+
     experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
 
     final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
@@ -126,7 +134,7 @@ public class NameExperimentDialog extends DialogFragment {
     if (getActivity() == null) {
       return;
     }
-    DataController dc = AppSingleton.getInstance(getActivity()).getDataController();
+    DataController dc = AppSingleton.getInstance(getActivity()).getDataController(appAccount);
     RxDataController.getExperimentById(dc, experimentId)
         .subscribe(
             experiment -> {
@@ -142,7 +150,7 @@ public class NameExperimentDialog extends DialogFragment {
   }
 
   private void saveNewTitle(Context context) {
-    DataController dc = AppSingleton.getInstance(context).getDataController();
+    DataController dc = AppSingleton.getInstance(context).getDataController(appAccount);
     RxDataController.getExperimentById(dc, experimentId)
         .subscribe(
             experiment -> {

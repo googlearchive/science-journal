@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.content.Context;
 import android.text.TextUtils;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import io.reactivex.functions.Consumer;
 import java.util.Collections;
@@ -78,21 +79,23 @@ public abstract class LabelListHolder {
    * <p>Returns a Runnable that also deletes the assets this label referenced. This should be
    * executed when the deletion is final (user opts not to undo).
    */
-  public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label toDelete, String experimentId) {
+  public Consumer<Context> deleteLabelAndReturnAssetDeleter(
+      Label toDelete, AppAccount appAccount, String experimentId) {
     for (Label label : labels) {
       if (TextUtils.equals(label.getLabelId(), toDelete.getLabelId())) {
         labels.remove(label);
         break;
       }
     }
-    return context -> deleteLabelAssets(toDelete, context, experimentId);
+    return context -> deleteLabelAssets(toDelete, context, appAccount, experimentId);
   }
 
-  protected void deleteLabelAssets(Label toDelete, Context context, String experimentId) {
+  protected void deleteLabelAssets(
+      Label toDelete, Context context, AppAccount appAccount, String experimentId) {
     if (toDelete.getType() == GoosciLabel.Label.ValueType.PICTURE) {
       beforeDeletingPictureLabel(toDelete);
     }
-    toDelete.deleteAssets(context, experimentId);
+    toDelete.deleteAssets(context, appAccount, experimentId);
   }
 
   private void sortLabels() {

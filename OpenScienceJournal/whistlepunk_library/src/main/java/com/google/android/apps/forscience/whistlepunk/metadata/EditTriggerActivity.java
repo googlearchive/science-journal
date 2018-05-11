@@ -18,11 +18,14 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import java.util.ArrayList;
 
 /** Activity for adding and editing triggers. */
 public class EditTriggerActivity extends AppCompatActivity {
   public static final String EXTRA_SENSOR_ID = "sensor_id";
+  public static final String EXTRA_ACCOUNT_KEY = "account_key";
   public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
   public static final String EXTRA_SENSOR_LAYOUT_BLOB = "sensor_layout_blob";
   public static final String EXTRA_TRIGGER_ID = "trigger_id";
@@ -37,6 +40,8 @@ public class EditTriggerActivity extends AppCompatActivity {
 
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null && extras != null) {
       String sensorId = extras.getString(EXTRA_SENSOR_ID, "");
+      // TODO(lizlooney): figure out if extras is ever null or if EXTRA_ACCOUNT_KEY is ever not set?
+      AppAccount appAccount = WhistlePunkApplication.getAccount(this, extras, EXTRA_ACCOUNT_KEY);
       String experimentId = extras.getString(EXTRA_EXPERIMENT_ID, "");
       String triggerId = extras.getString(EXTRA_TRIGGER_ID, "");
       byte[] sensorLayoutBlob = extras.getByteArray(EXTRA_SENSOR_LAYOUT_BLOB);
@@ -45,7 +50,13 @@ public class EditTriggerActivity extends AppCompatActivity {
           extras.getStringArrayList(TriggerListActivity.EXTRA_TRIGGER_ORDER);
       EditTriggerFragment fragment =
           EditTriggerFragment.newInstance(
-              sensorId, experimentId, triggerId, sensorLayoutBlob, position, triggerOrder);
+              appAccount,
+              sensorId,
+              experimentId,
+              triggerId,
+              sensorLayoutBlob,
+              position,
+              triggerOrder);
       getSupportFragmentManager()
           .beginTransaction()
           .add(R.id.container, fragment, FRAGMENT_TAG)

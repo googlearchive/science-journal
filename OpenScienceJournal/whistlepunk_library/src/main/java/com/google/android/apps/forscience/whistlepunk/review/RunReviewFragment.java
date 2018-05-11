@@ -75,6 +75,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
@@ -110,6 +111,7 @@ public class RunReviewFragment extends Fragment
         DeleteMetadataItemDialog.DeleteDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener,
         ChartController.ChartLoadingStatus {
+  public static final String ARG_ACCOUNT_KEY = "accountKey";
   public static final String ARG_EXPERIMENT_ID = "experimentId";
   public static final String ARG_START_LABEL_ID = "start_label_id";
   public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
@@ -143,6 +145,7 @@ public class RunReviewFragment extends Fragment
   private boolean wasPlayingBeforeTouch = false;
   private boolean audioWasPlayingBeforePause = false;
 
+  private AppAccount appAccount;
   private String trialId;
   private String experimentId;
   private int selectedSensorIndex = 0;
@@ -176,6 +179,7 @@ public class RunReviewFragment extends Fragment
    * @return A new instance of fragment RunReviewFragment.
    */
   public static RunReviewFragment newInstance(
+      AppAccount appAccount,
       String experimentId,
       String startLabelId,
       int sensorIndex,
@@ -183,6 +187,7 @@ public class RunReviewFragment extends Fragment
       boolean readOnly) {
     RunReviewFragment fragment = new RunReviewFragment();
     Bundle args = new Bundle();
+    args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(ARG_EXPERIMENT_ID, experimentId);
     args.putString(ARG_START_LABEL_ID, startLabelId);
     args.putInt(ARG_SENSOR_INDEX, sensorIndex);
@@ -244,6 +249,7 @@ public class RunReviewFragment extends Fragment
     perfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
     perfTracker.startGlobalTimer(TrackerConstants.PRIMES_RUN_LOADED);
     if (getArguments() != null) {
+      appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
       trialId = getArguments().getString(ARG_START_LABEL_ID);
       selectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
       experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
@@ -537,10 +543,13 @@ public class RunReviewFragment extends Fragment
     if (id == android.R.id.home) {
       Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
       if (experiment != null) {
+        String accountKey = appAccount.getAccountKey();
+        upIntent.putExtra(PanesActivity.EXTRA_ACCOUNT_KEY, accountKey);
         // This should be the only one that matters, I think, but leaving the others
         // for potential legacy cases (b/66162829)
         upIntent.putExtra(PanesActivity.EXTRA_EXPERIMENT_ID, experimentId);
 
+        upIntent.putExtra(ExperimentDetailsFragment.ARG_ACCOUNT_KEY, accountKey);
         upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, experimentId);
         upIntent.putExtra(
             ExperimentDetailsFragment.ARG_CREATE_TASK,
@@ -577,7 +586,7 @@ public class RunReviewFragment extends Fragment
         setArchived(false);
       }
     } else if (id == R.id.action_run_review_edit) {
-      UpdateRunActivity.launch(getActivity(), trialId, experimentId);
+      UpdateRunActivity.launch(getActivity(), appAccount, trialId, experimentId);
     } else if (id == R.id.action_enable_auto_zoom) {
       if (experiment != null) {
         setAutoZoomEnabled(true);
@@ -776,7 +785,7 @@ public class RunReviewFragment extends Fragment
 
     pinnedNoteAdapter =
         new PinnedNoteAdapter(
-            trial, trial.getFirstTimestamp(), trial.getLastTimestamp(), experimentId);
+            appAccount, trial, trial.getFirstTimestamp(), trial.getLastTimestamp(), experimentId);
     if (!readOnly) {
       pinnedNoteAdapter.setListItemModifyListener(
           new PinnedNoteAdapter.ListItemEditListener() {
@@ -808,6 +817,7 @@ public class RunReviewFragment extends Fragment
             public void onLabelClicked(Label item) {
               LabelDetailsActivity.launchFromRunReview(
                   getActivity(),
+                  appAccount,
                   experimentId,
                   trialId,
                   selectedSensorIndex,
@@ -882,7 +892,7 @@ public class RunReviewFragment extends Fragment
   private void deleteLabel(Label item) {
     // Delete the item immediately.
     Consumer<Context> assetDeleter =
-        getTrial().deleteLabelAndReturnAssetDeleter(item, experimentId);
+        getTrial().deleteLabelAndReturnAssetDeleter(item, appAccount, experimentId);
     RxDataController.updateExperiment(getDataController(), experiment)
         .subscribe(() -> onLabelDelete(new DeletedLabel(item, assetDeleter)));
   }
@@ -890,6 +900,7 @@ public class RunReviewFragment extends Fragment
   private void onLabelDelete(DeletedLabel item) {
     item.deleteAndDisplayUndoBar(
         getView(),
+        appAccount,
         experiment,
         getTrial(),
         () -> {
@@ -1098,7 +1109,7 @@ public class RunReviewFragment extends Fragment
           ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
                   getTrial().getAppearances().get(layout.sensorId),
                   layout.sensorId,
-                  AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider())
+                  AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider(appAccount))
               .getNumberFormat();
       List<StreamStat> streamStats =
           new StatsAccumulator.StatsDisplay(numberFormat).updateStreamStats(trialStats);
@@ -1129,7 +1140,7 @@ public class RunReviewFragment extends Fragment
 
   @Override
   public void requestDelete(Bundle extras) {
-    experiment.deleteTrial(getTrial(), getActivity());
+    experiment.deleteTrial(getTrial(), getActivity(), appAccount);
     getDataController()
         .updateExperiment(
             experimentId,
@@ -1217,6 +1228,7 @@ public class RunReviewFragment extends Fragment
           R.string.run_review_switch_sensor_btn_prev,
           prevSensorId,
           getActivity(),
+          appAccount,
           getTrial());
     }
     if (hasNextButton) {
@@ -1234,17 +1246,23 @@ public class RunReviewFragment extends Fragment
           R.string.run_review_switch_sensor_btn_next,
           nextSensorId,
           getActivity(),
+          appAccount,
           getTrial());
     }
   }
 
   public static void updateContentDescription(
-      ImageButton button, int stringId, String sensorId, Context context, Trial trial) {
+      ImageButton button,
+      int stringId,
+      String sensorId,
+      Context context,
+      AppAccount appAccount,
+      Trial trial) {
     String content =
         ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
                 trial.getAppearances().get(sensorId),
                 sensorId,
-                AppSingleton.getInstance(context).getSensorAppearanceProvider())
+                AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount))
             .getName(context);
     button.setContentDescription(content);
   }
@@ -1258,7 +1276,7 @@ public class RunReviewFragment extends Fragment
         ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
             getTrial().getAppearances().get(sensorLayout.sensorId),
             sensorLayout.sensorId,
-            AppSingleton.getInstance(context).getSensorAppearanceProvider());
+            AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount));
     Appearances.applyDrawableToImageView(
         appearance.getIconDrawable(context),
         sensorIconImage,
@@ -1271,6 +1289,7 @@ public class RunReviewFragment extends Fragment
         PinnedNoteAdapter.getNoteTimeText(timestamp, getTrial().getFirstTimestamp());
     AddNoteDialog dialog =
         AddNoteDialog.newInstance(
+            appAccount,
             timestamp,
             getTrial().getTrialId(),
             experiment.getExperimentId(),
@@ -1612,7 +1631,8 @@ public class RunReviewFragment extends Fragment
       sonificationTypes[i] = getSonificationType(layout);
     }
     AudioSettingsDialog dialog =
-        AudioSettingsDialog.newInstance(sonificationTypes, sensorIds, selectedSensorIndex);
+        AudioSettingsDialog.newInstance(
+            appAccount, sonificationTypes, sensorIds, selectedSensorIndex);
     dialog.show(getChildFragmentManager(), AudioSettingsDialog.TAG);
   }
 
@@ -1777,13 +1797,13 @@ public class RunReviewFragment extends Fragment
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController();
+    return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
   private void exportRun(final Trial trial) {
     ExportOptionsDialogFragment fragment =
         ExportOptionsDialogFragment.createOptionsDialog(
-            experiment.getExperimentId(), trial.getTrialId());
+            appAccount, experiment.getExperimentId(), trial.getTrialId());
     fragment.show(((AppCompatActivity) getActivity()).getSupportFragmentManager(), "export");
   }
 

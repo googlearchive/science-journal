@@ -18,12 +18,15 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
 import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.TestData;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
@@ -33,6 +36,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class ScalarInputSensorTest {
@@ -229,6 +233,7 @@ public class ScalarInputSensorTest {
   private SensorRecorder makeRecorder(ScalarInputSensor sis) {
     return sis.createRecorder(
         null,
+        getAppAccount(),
         observer,
         listener,
         new MemorySensorEnvironment(
@@ -236,5 +241,10 @@ public class ScalarInputSensorTest {
             null,
             null,
             scheduler.getClock()));
+  }
+
+  private static AppAccount getAppAccount() {
+    Context context = RuntimeEnvironment.application.getApplicationContext();
+    return NonSignedInAccount.getInstance(context);
   }
 }

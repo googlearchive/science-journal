@@ -392,7 +392,7 @@ public class SensorCardPresenter {
     } else {
       triggers = experiment.getActiveSensorTriggers(layout);
     }
-    cardTriggerPresenter.setSensorTriggers(triggers);
+    cardTriggerPresenter.setSensorTriggers(triggers, recorderController.getAppAccount());
     observerId =
         recorderController.startObserving(
             currentSource.getId(),
@@ -513,7 +513,8 @@ public class SensorCardPresenter {
     RxView.clicks(cardViewHolder.sensorSettingsGear)
         .subscribe(
             click -> {
-              ManageDevicesActivity.launch(cardViewHolder.getContext(), experimentId);
+              ManageDevicesActivity.launch(
+                  cardViewHolder.getContext(), recorderController.getAppAccount(), experimentId);
             });
 
     // Force setActive whenever the views are reset, as previously used views might be already
@@ -558,6 +559,9 @@ public class SensorCardPresenter {
           v -> {
             Context context = v.getContext();
             Intent intent = new Intent(context, SensorInfoActivity.class);
+            intent.putExtra(
+                SensorInfoActivity.EXTRA_ACCOUNT_KEY,
+                recorderController.getAppAccount().getAccountKey());
             intent.putExtra(SensorInfoActivity.EXTRA_SENSOR_ID, sensorId);
             intent.putExtra(SensorInfoActivity.EXTRA_COLOR_ID, dataViewOptions.getGraphColor());
             context.startActivity(intent);
@@ -685,7 +689,10 @@ public class SensorCardPresenter {
                           SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
               AudioSettingsDialog dialog =
                   AudioSettingsDialog.newInstance(
-                      new String[] {currentSonificationType}, new String[] {sensorId}, 0);
+                      recorderController.getAppAccount(),
+                      new String[] {currentSonificationType},
+                      new String[] {sensorId},
+                      0);
               dialog.show(parentFragment.getChildFragmentManager(), AudioSettingsDialog.TAG);
               return true;
             } else if (itemId == R.id.btn_sensor_card_set_triggers) {
@@ -693,6 +700,9 @@ public class SensorCardPresenter {
                 return false;
               }
               Intent intent = new Intent(parentFragment.getActivity(), TriggerListActivity.class);
+              intent.putExtra(
+                  TriggerListActivity.EXTRA_ACCOUNT_KEY,
+                  recorderController.getAppAccount().getAccountKey());
               intent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, sensorId);
               intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, experimentId);
               intent.putExtra(
@@ -730,7 +740,8 @@ public class SensorCardPresenter {
   }
 
   public void onSensorTriggersCleared() {
-    cardTriggerPresenter.setSensorTriggers(Collections.<SensorTrigger>emptyList());
+    cardTriggerPresenter.setSensorTriggers(
+        Collections.<SensorTrigger>emptyList(), recorderController.getAppAccount());
     sensorPresenter.setTriggers(Collections.<SensorTrigger>emptyList());
     updateSensorTriggerUi();
   }
@@ -740,6 +751,8 @@ public class SensorCardPresenter {
       return false;
     }
     Intent intent = new Intent(parentFragment.getActivity(), TriggerListActivity.class);
+    intent.putExtra(
+        TriggerListActivity.EXTRA_ACCOUNT_KEY, recorderController.getAppAccount().getAccountKey());
     intent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, sensorId);
     intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, experimentId);
     intent.putExtra(
@@ -878,7 +891,8 @@ public class SensorCardPresenter {
       // Clear the active sensor triggers when changing sensors.
       if (!TextUtils.equals(layout.sensorId, newSensorId)) {
         layout.activeSensorTriggerIds = new String[] {};
-        cardTriggerPresenter.setSensorTriggers(Collections.<SensorTrigger>emptyList());
+        cardTriggerPresenter.setSensorTriggers(
+            Collections.<SensorTrigger>emptyList(), recorderController.getAppAccount());
         updateSensorTriggerUi();
       }
       onSensorClickListener.onSensorClicked(newSensorId);

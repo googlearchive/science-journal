@@ -23,6 +23,8 @@ import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 
 public class UpdateExperimentActivity extends AppCompatActivity {
 
@@ -34,10 +36,14 @@ public class UpdateExperimentActivity extends AppCompatActivity {
     setContentView(R.layout.activity_update_experiment);
 
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
+      AppAccount appAccount =
+          WhistlePunkApplication.getAccount(
+              this, getIntent(), UpdateExperimentFragment.ARG_ACCOUNT_KEY);
       String experimentId =
           getIntent().getExtras().getString(UpdateExperimentFragment.ARG_EXPERIMENT_ID);
 
-      UpdateExperimentFragment fragment = UpdateExperimentFragment.newInstance(experimentId);
+      UpdateExperimentFragment fragment =
+          UpdateExperimentFragment.newInstance(appAccount, experimentId);
       fragment.setRetainInstance(true);
 
       getSupportFragmentManager()
@@ -47,13 +53,15 @@ public class UpdateExperimentActivity extends AppCompatActivity {
     }
   }
 
-  public static void launch(Context context, String experimentId) {
-    final Intent intent = getLaunchIntent(context, experimentId);
+  public static void launch(Context context, AppAccount appAccount, String experimentId) {
+    final Intent intent = getLaunchIntent(context, appAccount, experimentId);
     context.startActivity(intent);
   }
 
-  public static Intent getLaunchIntent(Context context, String experimentId) {
+  public static Intent getLaunchIntent(
+      Context context, AppAccount appAccount, String experimentId) {
     final Intent intent = new Intent(context, UpdateExperimentActivity.class);
+    intent.putExtra(UpdateExperimentFragment.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(UpdateExperimentFragment.ARG_EXPERIMENT_ID, experimentId);
     return intent;
   }

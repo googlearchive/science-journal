@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
@@ -129,7 +130,8 @@ public class TriggerHelper {
     }
   }
 
-  public static String buildDescription(SensorTrigger trigger, Activity activity) {
+  public static String buildDescription(
+      SensorTrigger trigger, Activity activity, AppAccount appAccount) {
     Resources res = activity.getResources();
     int actionType = trigger.getActionType();
     String action = "";
@@ -144,7 +146,7 @@ public class TriggerHelper {
     }
     SensorAppearance appearance =
         AppSingleton.getInstance(activity)
-            .getSensorAppearanceProvider()
+            .getSensorAppearanceProvider(appAccount)
             .getAppearance(trigger.getSensorId());
     String units = appearance.getUnits(activity);
     String value = appearance.getNumberFormat().format(trigger.getValueToTrigger());

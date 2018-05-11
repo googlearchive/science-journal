@@ -18,7 +18,10 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
 import com.google.android.apps.forscience.javalib.Delay;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -57,7 +60,8 @@ public class RecordFragmentTest {
 
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
-            RuntimeEnvironment.application.getApplicationContext(),
+            getContext(),
+            getAppAccount(),
             env,
             new RecorderListenerRegistry(),
             null,
@@ -98,5 +102,13 @@ public class RecordFragmentTest {
             .sensor
             .rememberedAppearance
             .name);
+  }
+
+  private static Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }

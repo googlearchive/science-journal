@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.content.Intent;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import org.robolectric.RuntimeEnvironment;
 
 /** Stubb of RecorderService for tests. */
@@ -35,7 +36,11 @@ public class MockRecorderService extends RecorderService {
 
   @Override
   public void endServiceRecording(
-      boolean notifyRecordingEnded, String runId, String experimentId, String experimentTitle) {
+      AppAccount appAccount,
+      boolean notifyRecordingEnded,
+      String runId,
+      String experimentId,
+      String experimentTitle) {
     // Do nothing.
   }
 }

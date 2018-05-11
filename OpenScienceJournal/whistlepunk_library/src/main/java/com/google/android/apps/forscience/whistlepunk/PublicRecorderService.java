@@ -22,7 +22,11 @@ import android.os.Binder;
 import androidx.annotation.Nullable;
 import android.util.Log;
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.wireapi.IRecorderController;
+
+// TODO(b/79583008): Remove this class.
 
 /**
  * Exports the current main-thread RecorderController as a service that other applications can bind
@@ -49,7 +53,8 @@ public class PublicRecorderService extends Service
 
   // TODO: unit tests for this behavior
   private IRecorderController.Stub createController() {
-    final RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
+    AppAccount appAccount = NonSignedInAccount.getInstance(this);
+    final RecorderController rc = AppSingleton.getInstance(this).getRecorderController(appAccount);
     final SensorRegistry registry = AppSingleton.getInstance(this).getSensorRegistry();
     return new ProxyRecorderController(rc, this, this, registry);
   }

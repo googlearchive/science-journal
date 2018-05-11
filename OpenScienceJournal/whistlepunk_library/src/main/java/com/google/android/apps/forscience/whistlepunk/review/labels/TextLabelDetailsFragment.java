@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
@@ -40,9 +41,10 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
   private TextInputEditText noteText;
 
   public static TextLabelDetailsFragment newInstance(
-      String experimentId, String trialId, Label originalLabel) {
+      AppAccount appAccount, String experimentId, String trialId, Label originalLabel) {
     TextLabelDetailsFragment result = new TextLabelDetailsFragment();
     Bundle args = new Bundle();
+    args.putString(LabelDetailsActivity.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
     args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
     args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);

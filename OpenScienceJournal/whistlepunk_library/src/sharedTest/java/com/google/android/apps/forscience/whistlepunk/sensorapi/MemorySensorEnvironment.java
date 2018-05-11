@@ -21,6 +21,7 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorHistoryStorage;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import io.reactivex.Single;
@@ -47,7 +48,7 @@ public class MemorySensorEnvironment implements SensorEnvironment {
   }
 
   @Override
-  public RecordingDataController getDataController() {
+  public RecordingDataController getDataController(AppAccount appAccount) {
     return dataController;
   }
 

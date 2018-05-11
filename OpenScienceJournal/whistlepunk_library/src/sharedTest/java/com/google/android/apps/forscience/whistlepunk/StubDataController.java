@@ -19,6 +19,7 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
@@ -139,4 +140,9 @@ public class StubDataController implements DataController {
 
   @Override
   public void addMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess) {}
+
+  @Override
+  public AppAccount getAppAccount() {
+    return null;
+  }
 }

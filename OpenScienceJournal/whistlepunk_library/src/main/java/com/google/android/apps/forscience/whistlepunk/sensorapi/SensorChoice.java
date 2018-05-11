@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.PrefsNewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.common.net.UrlEscapers;
 import java.text.NumberFormat;
 
@@ -67,6 +68,7 @@ public abstract class SensorChoice {
    */
   public abstract SensorRecorder createRecorder(
       Context context,
+      AppAccount appAccount,
       SensorObserver observer,
       SensorStatusListener listener,
       SensorEnvironment environment);

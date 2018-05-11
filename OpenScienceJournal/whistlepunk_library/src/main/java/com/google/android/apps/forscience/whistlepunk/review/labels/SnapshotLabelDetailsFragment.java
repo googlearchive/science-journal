@@ -26,15 +26,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
 /** Details view controller for a Snapshot label. */
 public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
 
   public static SnapshotLabelDetailsFragment newInstance(
-      String experimentId, String trialId, Label originalLabel) {
+      AppAccount appAccount, String experimentId, String trialId, Label originalLabel) {
     SnapshotLabelDetailsFragment result = new SnapshotLabelDetailsFragment();
     Bundle args = new Bundle();
+    args.putString(LabelDetailsActivity.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
     args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
     args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
@@ -55,7 +57,7 @@ public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
 
     // TODO: Consider using a ListView instead of inflating each view?
     NoteViewHolder.loadSnapshotsIntoList(
-        (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), originalLabel);
+        (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), originalLabel, appAccount);
     setupCaption(rootView);
     setupDetails(rootView);
 

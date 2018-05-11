@@ -232,13 +232,14 @@ public class DataControllerTest {
     IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
     DataController dc =
         new DataControllerImpl(
-            null,
-            null,
-            null,
-            null,
-            null,
+            null, // appAccount
+            null, // sensorDatabase
+            null, // uiThread
+            null, // metaDataThread
+            null, // sensorDataThread
+            null, // metaDataManager
             clock,
-            null,
+            null, // providerMap
             new ConnectableSensor.Connector(new HashMap<>()));
     clock.increment();
 

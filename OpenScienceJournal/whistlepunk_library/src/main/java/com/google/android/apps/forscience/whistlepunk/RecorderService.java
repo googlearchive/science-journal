@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 
@@ -72,12 +73,16 @@ public class RecorderService extends Service implements IRecorderService {
    */
   @Override
   public void endServiceRecording(
-      boolean notifyRecordingEnded, String runId, String experimentId, String experimentTitle) {
+      AppAccount appAccount,
+      boolean notifyRecordingEnded,
+      String runId,
+      String experimentId,
+      String experimentTitle) {
     // Remove the recording notification before notifying that recording has stopped, so that
     // Science Journal only has one notification at a time.
     clearNotification(getApplicationContext(), NotificationIds.RECORDER_SERVICE);
     if (notifyRecordingEnded) {
-      notifyRecordingEnded(runId, experimentId, experimentTitle);
+      notifyRecordingEnded(appAccount, runId, experimentId, experimentTitle);
     }
     stopForeground(true);
     WhistlePunkApplication.getPerfTrackerProvider(getApplicationContext())
@@ -85,9 +90,11 @@ public class RecorderService extends Service implements IRecorderService {
     stopSelf();
   }
 
-  private void notifyRecordingEnded(String runId, String experimentId, String experimentTitle) {
+  private void notifyRecordingEnded(
+      AppAccount appAccount, String runId, String experimentId, String experimentTitle) {
     Intent intent = new Intent(getApplicationContext(), RunReviewActivity.class);
 
+    intent.putExtra(RunReviewFragment.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, experimentId);
     intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
     intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, 0);

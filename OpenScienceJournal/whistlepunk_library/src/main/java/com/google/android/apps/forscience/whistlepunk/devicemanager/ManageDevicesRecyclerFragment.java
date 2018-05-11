@@ -38,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -52,6 +53,7 @@ public class ManageDevicesRecyclerFragment extends Fragment
   private static final String KEY_MY_DEVICES = "state_key_my_devices";
   private static final String KEY_AVAILABLE_DEVICES = "state_key_available_devices";
 
+  private AppAccount appAccount;
   private ExpandableDeviceAdapter myDevices;
   private ExpandableServiceAdapter availableDevices;
   private Menu mainMenu;
@@ -61,13 +63,17 @@ public class ManageDevicesRecyclerFragment extends Fragment
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    appAccount =
+        WhistlePunkApplication.getAccount(
+            getContext(), getArguments(), ManageDevicesActivity.EXTRA_ACCOUNT_KEY);
     AppSingleton appSingleton = AppSingleton.getInstance(getActivity());
-    DataController dc = appSingleton.getDataController();
+    DataController dc = appSingleton.getDataController(appAccount);
     Map<String, SensorDiscoverer> discoverers =
         WhistlePunkApplication.getExternalSensorDiscoverers(getActivity());
     DeviceRegistry deviceRegistry =
         new DeviceRegistry(InputDeviceSpec.builtInDevice(getActivity()));
-    SensorAppearanceProvider appearanceProvider = appSingleton.getSensorAppearanceProvider();
+    SensorAppearanceProvider appearanceProvider =
+        appSingleton.getSensorAppearanceProvider(appAccount);
 
     UsageTracker tracker = WhistlePunkApplication.getUsageTracker(getActivity());
     registry =
@@ -193,7 +199,7 @@ public class ManageDevicesRecyclerFragment extends Fragment
   private void setExperimentId(String experimentId) {
     registry.setExperimentId(experimentId, sensorRegistry);
     AppSingleton.getInstance(getActivity())
-        .getDataController()
+        .getDataController(appAccount)
         .getExperimentById(
             experimentId,
             new LoggingConsumer<Experiment>(TAG, "load experiment for name") {
@@ -243,7 +249,7 @@ public class ManageDevicesRecyclerFragment extends Fragment
       //       up on resume.
       return;
     }
-    settings.show(experimentId, sensorId, getFragmentManager(), false);
+    settings.show(appAccount, experimentId, sensorId, getFragmentManager(), false);
   }
 
   @Override

@@ -25,6 +25,8 @@ import android.content.Intent;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
@@ -73,12 +75,13 @@ public class RecorderControllerTest {
   public void multipleObservers() {
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
-            null,
+            null, // context
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
-            null,
-            null,
-            null,
+            null, // connectionSupplier
+            null, // dataController
+            null, // scheduler
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
     RecordingSensorObserver observer1 = new RecordingSensorObserver();
@@ -117,6 +120,7 @@ public class RecorderControllerTest {
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
             null,
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             null,
@@ -150,6 +154,7 @@ public class RecorderControllerTest {
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
             null,
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             null,
@@ -205,6 +210,7 @@ public class RecorderControllerTest {
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
             null,
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             null,
@@ -229,6 +235,7 @@ public class RecorderControllerTest {
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
             null,
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             null,
@@ -253,7 +260,8 @@ public class RecorderControllerTest {
   public void takeSnapshotText() {
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
-            RuntimeEnvironment.application.getApplicationContext(),
+            getContext(),
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             null,
@@ -281,7 +289,8 @@ public class RecorderControllerTest {
     // TODO: produce framework to cut down on test duplication here?
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
-            RuntimeEnvironment.application.getApplicationContext(),
+            getContext(),
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             null,
@@ -317,7 +326,8 @@ public class RecorderControllerTest {
   public void snapshotWithNoSensors() {
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
-            RuntimeEnvironment.application.getApplicationContext(),
+            getContext(),
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             null,
@@ -338,7 +348,8 @@ public class RecorderControllerTest {
 
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
-            RuntimeEnvironment.application.getApplicationContext(),
+            getContext(),
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             null,
@@ -387,7 +398,8 @@ public class RecorderControllerTest {
   public void dontCacheSensorValuesBetweenObservation() {
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
-            RuntimeEnvironment.application.getApplicationContext(),
+            getContext(),
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             null,
@@ -429,7 +441,8 @@ public class RecorderControllerTest {
   public void storeAppearances() throws InterruptedException {
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
-            RuntimeEnvironment.application.getApplicationContext(),
+            getContext(),
+            getAppAccount(),
             environment,
             new RecorderListenerRegistry(),
             connectionSupplier(),
@@ -507,6 +520,7 @@ public class RecorderControllerTest {
 
                       @Override
                       public void endServiceRecording(
+                          AppAccount appAccount,
                           boolean notifyRecordingEnded,
                           String runId,
                           String experimentId,
@@ -551,5 +565,13 @@ public class RecorderControllerTest {
       testCount++;
       return false;
     }
+  }
+
+  private static Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }

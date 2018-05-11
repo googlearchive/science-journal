@@ -28,10 +28,15 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+
+// TODO(b/79543793): Rewrite this class so that it properly represents the storage with separate
+// accounts.
 
 /** Provides pictures for access outside the SJ app. TODO: Add thumbnails. */
 public class ScienceJournalDocsProvider extends DocumentsProvider {
@@ -90,13 +95,15 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
   @Override
   public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder)
       throws FileNotFoundException {
+    // TODO(lizlooney): Use the AppAccount associated with the parent document.
+    AppAccount appAccount = NonSignedInAccount.getInstance(getContext());
     final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
     if (TextUtils.equals(parentDocumentId, ROOT_DIRECTORY_ID)) {
       // The sub-directories are all experiments. Use their experiment ID as document ID.
       // TODO: Use notifyChange to load data off-thread and update only when it is available.
       List<GoosciUserMetadata.ExperimentOverview> overviews =
           AppSingleton.getInstance(getContext())
-              .getDataController()
+              .getDataController(appAccount)
               .blockingGetExperimentOverviews(true);
       for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
         MatrixCursor.RowBuilder row = result.newRow();
@@ -105,7 +112,7 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       }
     } else {
       // The sub-files are all within the assets folder of this experiment
-      File assetsDir = FileMetadataManager.getAssetsDirectory(getContext(), parentDocumentId);
+      File assetsDir = FileMetadataManager.getAssetsDirectory(appAccount, parentDocumentId);
       for (File file : assetsDir.listFiles()) {
         MatrixCursor.RowBuilder row = result.newRow();
         row.add(
@@ -119,6 +126,9 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
 
   @Override
   public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
+    // TODO(lizlooney): Use the AppAccount associated with the parent document.
+    AppAccount appAccount = NonSignedInAccount.getInstance(getContext());
+
     // Create a cursor with the requested projection, or the default projection.
     final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
     MatrixCursor.RowBuilder row = result.newRow();
@@ -135,7 +145,7 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       // TODO: Use notifyChange to load data off-thread and update only when it is available.
       List<GoosciUserMetadata.ExperimentOverview> overviews =
           AppSingleton.getInstance(getContext())
-              .getDataController()
+              .getDataController(appAccount)
               .blockingGetExperimentOverviews(true);
       for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
         if (TextUtils.equals(overview.experimentId, documentId)) {
@@ -147,8 +157,7 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
     } else {
       // It is a file
       File file =
-          new File(
-              FileMetadataManager.getExperimentsRootDirectory(getContext()) + "/" + documentId);
+          new File(FileMetadataManager.getExperimentsRootDirectory(appAccount) + "/" + documentId);
       addAssetToRow(row, file);
     }
     return result;
@@ -162,8 +171,11 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       throws FileNotFoundException {
     Log.v(TAG, "openDocument, mode: " + mode);
 
+    // TODO(lizlooney): Use the AppAccount associated with the document.
+    AppAccount appAccount = NonSignedInAccount.getInstance(getContext());
+
     final File file =
-        new File(FileMetadataManager.getExperimentsRootDirectory(getContext()) + "/" + documentId);
+        new File(FileMetadataManager.getExperimentsRootDirectory(appAccount) + "/" + documentId);
     final boolean isWrite = (mode.indexOf('w') != -1);
     if (isWrite) {
       return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE);

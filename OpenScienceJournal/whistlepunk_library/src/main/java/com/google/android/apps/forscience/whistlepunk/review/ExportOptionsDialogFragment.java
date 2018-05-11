@@ -28,12 +28,13 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataService;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExportService.ExportProgress;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -43,6 +44,7 @@ import java.util.Objects;
 /** Shows options for exporting. */
 public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
 
+  private static final String KEY_ACCOUNT_KEY = "account_key";
   private static final String KEY_EXPERIMENT_ID = "experiment_id";
   private static final String KEY_TRIAL_ID = "trial_id";
   private String trialId;
@@ -53,8 +55,9 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
   private Disposable untilStop;
 
   public static ExportOptionsDialogFragment createOptionsDialog(
-      String experimentId, String trialId) {
+      AppAccount appAccount, String experimentId, String trialId) {
     Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(KEY_EXPERIMENT_ID, experimentId);
     args.putString(KEY_TRIAL_ID, trialId);
     ExportOptionsDialogFragment fragment = new ExportOptionsDialogFragment();
@@ -140,10 +143,15 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
               // ExportService.
               dismiss();
             });
+    AppAccount appAccount =
+        WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
     final String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
     final String trialId = getArguments().getString(KEY_TRIAL_ID);
     DataService.bind(getActivity())
-        .map(AppSingleton::getDataController)
+        .map(
+            appSingleton -> {
+              return appSingleton.getDataController(appAccount);
+            })
         .flatMap(dc -> RxDataController.getExperimentById(dc, experimentId))
         .subscribe(
             experiment -> {
@@ -156,6 +164,7 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
         v -> {
           ExportService.exportTrial(
               getActivity(),
+              appAccount,
               experimentId,
               trialId,
               relativeTime.isChecked(),

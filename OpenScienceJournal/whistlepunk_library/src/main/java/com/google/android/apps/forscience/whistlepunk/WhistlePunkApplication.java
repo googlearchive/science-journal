@@ -24,7 +24,9 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
@@ -123,10 +125,11 @@ public abstract class WhistlePunkApplication extends Application {
     return app.perfTrackerProvider;
   }
 
-  public static Intent getLaunchIntentForPanesActivity(Context context, String experimentId) {
+  public static Intent getLaunchIntentForPanesActivity(
+      Context context, AppAccount appAccount, String experimentId) {
     return getAppServices(context)
         .getNavigator()
-        .launchIntentForPanesActivity(context, experimentId);
+        .launchIntentForPanesActivity(context, appAccount, experimentId);
   }
 
   @Override
@@ -182,8 +185,9 @@ public abstract class WhistlePunkApplication extends Application {
   public ActivityNavigator getNavigator() {
     return new ActivityNavigator() {
       @Override
-      public Intent launchIntentForPanesActivity(Context context, String experimentId) {
-        return PanesActivity.launchIntent(context, experimentId);
+      public Intent launchIntentForPanesActivity(
+          Context context, AppAccount appAccount, String experimentId) {
+        return PanesActivity.launchIntent(context, appAccount, experimentId);
       }
     };
   }
@@ -202,5 +206,14 @@ public abstract class WhistlePunkApplication extends Application {
 
   public static int getVersionCode() {
     return versionCode;
+  }
+
+  public static AppAccount getAccount(Context context, Bundle arguments, String key) {
+    String accountKey = arguments.getString(key);
+    return getAppServices(context).getAccountsProvider().getAccountByKey(accountKey);
+  }
+
+  public static AppAccount getAccount(Context context, Intent intent, String key) {
+    return getAccount(context, intent.getExtras(), key);
   }
 }

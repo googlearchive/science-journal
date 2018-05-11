@@ -40,6 +40,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.PanesBottomSheetBehavior;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import io.reactivex.Maybe;
 import java.io.ByteArrayInputStream;
@@ -341,18 +342,26 @@ public class CameraPreview extends SurfaceView {
   }
 
   public void takePicture(
-      Maybe<String> maybeExperimentId, String uuid, final MaybeConsumer<String> onSuccess) {
+      AppAccount appAccount,
+      Maybe<String> maybeExperimentId,
+      String uuid,
+      final MaybeConsumer<String> onSuccess) {
     // TODO: better strategy (RxJava?) to avoid these null checks
     if (camera == null) {
       onSuccess.fail(new IllegalStateException("No camera loaded in CameraPreview"));
     }
     maybeExperimentId.subscribe(
-        experimentId -> takePicture(experimentId, uuid, shouldChopPictures, onSuccess));
+        experimentId -> takePicture(appAccount, experimentId, uuid, shouldChopPictures, onSuccess));
   }
 
   private void takePicture(
-      String experimentId, String uuid, boolean chopInHalf, MaybeConsumer<String> onSuccess) {
-    final File photoFile = PictureUtils.createImageFile(getContext(), experimentId, uuid);
+      AppAccount appAccount,
+      String experimentId,
+      String uuid,
+      boolean chopInHalf,
+      MaybeConsumer<String> onSuccess) {
+    final File photoFile =
+        PictureUtils.createImageFile(getContext(), appAccount, experimentId, uuid);
 
     try {
       this.camera.takePicture(

@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
@@ -76,8 +75,8 @@ public class AppSingleton {
   private SensorEnvironment sensorEnvironment =
       new SensorEnvironment() {
         @Override
-        public RecordingDataController getDataController() {
-          return AppSingleton.this.getRecordingDataController();
+        public RecordingDataController getDataController(AppAccount appAccount) {
+          return AppSingleton.this.getRecordingDataController(appAccount);
         }
 
         @Override
@@ -136,10 +135,7 @@ public class AppSingleton {
     applicationContext = context.getApplicationContext();
   }
 
-  public DataController getDataController() {
-    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
-    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
-
+  public DataController getDataController(AppAccount appAccount) {
     return internalGetDataController(appAccount);
   }
 
@@ -149,6 +145,7 @@ public class AppSingleton {
     if (dataController == null) {
       dataController =
           new DataControllerImpl(
+              appAccount,
               new SensorDatabaseImpl(applicationContext, SENSOR_DATABASE_NAME),
               getUiThreadExecutor(),
               Executors.newSingleThreadExecutor(),
@@ -162,10 +159,7 @@ public class AppSingleton {
     return dataController;
   }
 
-  public SensorAppearanceProvider getSensorAppearanceProvider() {
-    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
-    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
-
+  public SensorAppearanceProvider getSensorAppearanceProvider(AppAccount appAccount) {
     SensorAppearanceProviderImpl sensorAppearanceProvider =
         sensorAppearanceProviders.get(appAccount);
     if (sensorAppearanceProvider == null) {
@@ -180,10 +174,7 @@ public class AppSingleton {
     return sensorEnvironment;
   }
 
-  private RecordingDataController getRecordingDataController() {
-    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
-    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
-
+  private RecordingDataController getRecordingDataController(AppAccount appAccount) {
     return internalGetDataController(appAccount);
   }
 
@@ -210,13 +201,10 @@ public class AppSingleton {
     }
   }
 
-  public RecorderController getRecorderController() {
-    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
-    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
-
+  public RecorderController getRecorderController(AppAccount appAccount) {
     RecorderControllerImpl recorderController = recorderControllers.get(appAccount);
     if (recorderController == null) {
-      recorderController = new RecorderControllerImpl(applicationContext);
+      recorderController = new RecorderControllerImpl(applicationContext, appAccount);
       recorderControllers.put(appAccount, recorderController);
     }
     return recorderController;
@@ -258,9 +246,9 @@ public class AppSingleton {
     return sensorConnector;
   }
 
-  public Observable<AddedLabelEvent> whenLabelsAdded() {
+  public Observable<AddedLabelEvent> whenLabelsAdded(AppAccount appAccount) {
     return labelsAdded.withLatestFrom(
-        getRecorderController().watchRecordingStatus(), AddedLabelEvent::new);
+        getRecorderController(appAccount).watchRecordingStatus(), AddedLabelEvent::new);
   }
 
   public Observer<Label> onLabelsAdded() {
@@ -312,10 +300,7 @@ public class AppSingleton {
     }
   }
 
-  public LocalSyncManager getLocalSyncManager() {
-    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
-    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
-
+  public LocalSyncManager getLocalSyncManager(AppAccount appAccount) {
     LocalSyncManager localSyncManager = localSyncManagers.get(appAccount);
     if (localSyncManager == null) {
       localSyncManager = new LocalSyncManager();
@@ -324,10 +309,7 @@ public class AppSingleton {
     return localSyncManager;
   }
 
-  public ExperimentLibraryManager getExperimentLibraryManager() {
-    // TODO(lizlooney): Make appAccount a parameter, instead of using the NonSignedInAccount.
-    AppAccount appAccount = NonSignedInAccount.getInstance(applicationContext);
-
+  public ExperimentLibraryManager getExperimentLibraryManager(AppAccount appAccount) {
     ExperimentLibraryManager experimentLibraryManager = experimentLibraryManagers.get(appAccount);
     if (experimentLibraryManager == null) {
       experimentLibraryManager = new ExperimentLibraryManager();

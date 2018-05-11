@@ -108,8 +108,9 @@ class ExperimentCache {
         };
     this.writeDelayMs = writeDelayMs;
 
-    localSyncManager = AppSingleton.getInstance(context).getLocalSyncManager();
-    experimentLibraryManager = AppSingleton.getInstance(context).getExperimentLibraryManager();
+    localSyncManager = AppSingleton.getInstance(context).getLocalSyncManager(appAccount);
+    experimentLibraryManager =
+        AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount);
   }
 
   @VisibleForTesting
@@ -153,7 +154,7 @@ class ExperimentCache {
   void onExperimentOverviewUpdated(GoosciUserMetadata.ExperimentOverview experimentOverview) {
     if (!isDifferentFromActive(experimentOverview)) {
       activeExperiment.setLastUsedTime(experimentOverview.lastUsedTimeMs);
-      activeExperiment.setArchived(context, experimentOverview.isArchived);
+      activeExperiment.setArchived(context, appAccount, experimentOverview.isArchived);
       activeExperiment.getExperimentOverview().imagePath = experimentOverview.imagePath;
     }
   }
@@ -203,7 +204,7 @@ class ExperimentCache {
    * data. This is not reversable.
    */
   public void prepareExperimentForDeletion(Experiment experiment) {
-    experiment.deleteContents(context);
+    experiment.deleteContents(context, appAccount);
   }
 
   /**

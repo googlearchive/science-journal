@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import java.util.Arrays;
 
@@ -41,6 +42,7 @@ public class AudioSettingsDialog extends DialogFragment {
   }
 
   public static final String TAG = "AudioSettingsDialog";
+  private static final String KEY_ACCOUNT_KEY = "account_key";
   private static final String KEY_SONIFICATION_TYPES = "sonification_types";
   private static final String KEY_SENSOR_ID = "sensor_id";
   private static final String KEY_ACTIVE_SENSOR_INDEX = "active_sensor_index";
@@ -53,6 +55,7 @@ public class AudioSettingsDialog extends DialogFragment {
   /**
    * Gets a new instance of the AudioSettingsDialog.
    *
+   * @param appAccount the app account
    * @param sonificationTypes A list of currently selected sonification types.
    * @param sensorIds A list of sensor IDs. This must be in the same order as the sonification
    *     types: This class assumes that each sensorID has a matching sonificationType
@@ -60,9 +63,13 @@ public class AudioSettingsDialog extends DialogFragment {
    * @return
    */
   public static AudioSettingsDialog newInstance(
-      String[] sonificationTypes, String[] sensorIds, int activeSensorIndex) {
+      AppAccount appAccount,
+      String[] sonificationTypes,
+      String[] sensorIds,
+      int activeSensorIndex) {
     AudioSettingsDialog dialog = new AudioSettingsDialog();
     Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putStringArray(KEY_SONIFICATION_TYPES, sonificationTypes);
     args.putStringArray(KEY_SENSOR_ID, sensorIds);
     args.putInt(KEY_ACTIVE_SENSOR_INDEX, activeSensorIndex);
@@ -164,8 +171,10 @@ public class AudioSettingsDialog extends DialogFragment {
       rootView.findViewById(R.id.audio_settings_sensor_selector_title).setVisibility(View.GONE);
     } else {
       String[] sensorNames = new String[sensorIds.length];
+      AppAccount appAccount =
+          WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
       SensorAppearanceProvider appearanceProvider =
-          AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider();
+          AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider(appAccount);
       for (int i = 0; i < sensorIds.length; i++) {
         sensorNames[i] = appearanceProvider.getAppearance(sensorIds[i]).getName(getActivity());
       }

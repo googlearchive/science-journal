@@ -25,6 +25,9 @@ import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.StubAppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
@@ -79,7 +82,11 @@ public class ManualSensor extends ScalarSensor {
   public SensorRecorder createRecorder(
       Context context, RecordingDataController rdc, RecordingSensorObserver observer) {
     return createRecorder(
-        context, observer, new StubStatusListener(), makeSensorEnvironment(context, rdc));
+        context,
+        getAppAccount(context),
+        observer,
+        new StubStatusListener(),
+        makeSensorEnvironment(context, rdc));
   }
 
   /**
@@ -182,7 +189,11 @@ public class ManualSensor extends ScalarSensor {
       Context context, RecordingDataController rc, String runId) {
     SensorPresenter presenter = createPresenter();
     createRecorder(
-            context, presenter, new RecordingStatusListener(), makeSensorEnvironment(context, rc))
+            context,
+            getAppAccount(context),
+            presenter,
+            new RecordingStatusListener(),
+            makeSensorEnvironment(context, rc))
         .startRecording(runId);
     presenter.onRecordingStateChange(true, 0);
     return presenter;
@@ -225,5 +236,11 @@ public class ManualSensor extends ScalarSensor {
 
   public boolean isObserving() {
     return consumer != null;
+  }
+
+  private AppAccount getAppAccount(Context context) {
+    return (context != null)
+        ? NonSignedInAccount.getInstance(context)
+        : StubAppAccount.getInstance();
   }
 }

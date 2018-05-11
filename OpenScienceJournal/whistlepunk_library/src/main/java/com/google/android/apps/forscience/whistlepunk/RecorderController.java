@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Intent;
 import androidx.annotation.IntDef;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -191,4 +192,6 @@ public interface RecorderController {
   Experiment getSelectedExperiment();
 
   long getNow();
+
+  AppAccount getAppAccount();
 }

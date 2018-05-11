@@ -37,6 +37,7 @@ import android.view.ViewGroup;
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
@@ -79,6 +80,7 @@ public class RecordFragment extends PanesToolFragment
 
   private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
   private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
+  private static final String KEY_ACCOUNT_KEY = "accountKey";
   private static final String KEY_EXPERIMENT_ID = "experimentId";
 
   private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.CardView.METER;
@@ -171,9 +173,10 @@ public class RecordFragment extends PanesToolFragment
   RxEvent uiStop = new RxEvent();
   RxEvent contextDetach = new RxEvent();
 
-  public static RecordFragment newInstance(String experimentId) {
+  public static RecordFragment newInstance(AppAccount appAccount, String experimentId) {
     RecordFragment fragment = new RecordFragment();
     Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(KEY_EXPERIMENT_ID, experimentId);
     fragment.setArguments(args);
     return fragment;
@@ -230,7 +233,7 @@ public class RecordFragment extends PanesToolFragment
   }
 
   private SensorAppearanceProvider getSensorAppearanceProvider() {
-    return AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider();
+    return AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider(getAppAccount());
   }
 
   @Override
@@ -299,7 +302,7 @@ public class RecordFragment extends PanesToolFragment
     rc.watchRecordingStatus().takeUntil(uiStop.happens()).subscribe(this::onNewRecordingStatus);
 
     AppSingleton.getInstance(getActivity())
-        .whenLabelsAdded()
+        .whenLabelsAdded(getAppAccount())
         .takeUntil(uiStop.happens())
         .subscribe(event -> processAddedLabel(event));
 
@@ -500,6 +503,10 @@ public class RecordFragment extends PanesToolFragment
     if (externalAxis != null) {
       externalAxis.setRecordingTimeUpdateListener(listener);
     }
+  }
+
+  private AppAccount getAppAccount() {
+    return WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
   }
 
   private String getExperimentId() {
@@ -996,7 +1003,7 @@ public class RecordFragment extends PanesToolFragment
     super.onAttach(activity);
 
     graphOptionsController = new GraphOptionsController(activity);
-    sensorSettingsController = new SensorSettingsControllerImpl(activity);
+    sensorSettingsController = new SensorSettingsControllerImpl(activity, getAppAccount());
     uICallbacks = getUiCallbacks(activity);
   }
 
@@ -1099,7 +1106,7 @@ public class RecordFragment extends PanesToolFragment
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController();
+    return AppSingleton.getInstance(getActivity()).getDataController(getAppAccount());
   }
 
   private void startSensorCardObserving(
@@ -1123,7 +1130,7 @@ public class RecordFragment extends PanesToolFragment
             // TODO: should dataViewOptions go into sensorCardPresenter?
             NumberFormat numberFormat =
                 AppSingleton.getInstance(context)
-                    .getSensorAppearanceProvider()
+                    .getSensorAppearanceProvider(getAppAccount())
                     .getAppearance(sensorId)
                     .getNumberFormat();
             final SensorPresenter sensorPresenter =
@@ -1194,7 +1201,7 @@ public class RecordFragment extends PanesToolFragment
 
       SensorAppearance appearance =
           AppSingleton.getInstance(getActivity())
-              .getSensorAppearanceProvider()
+              .getSensorAppearanceProvider(getAppAccount())
               .getAppearance(trigger.getSensorId());
       String units = appearance.getUnits(getActivity());
       String sensorName = appearance.getName(getActivity());
@@ -1317,7 +1324,7 @@ public class RecordFragment extends PanesToolFragment
 
   private RecorderController getRecorderController() {
     // TODO: don't depend on activity here?
-    return AppSingleton.getInstance(getActivity()).getRecorderController();
+    return AppSingleton.getInstance(getActivity()).getRecorderController(getAppAccount());
   }
 
   /**
@@ -1327,7 +1334,7 @@ public class RecordFragment extends PanesToolFragment
   public static void ensureUnarchived(Context context, Experiment experiment, DataController dc) {
     if (experiment != null) {
       if (experiment.isArchived()) {
-        experiment.setArchived(context, false);
+        experiment.setArchived(context, dc.getAppAccount(), false);
         dc.updateExperiment(
             experiment.getExperimentId(),
             LoggingConsumer.<Success>expectSuccess(TAG, "Unarchiving experiment"));

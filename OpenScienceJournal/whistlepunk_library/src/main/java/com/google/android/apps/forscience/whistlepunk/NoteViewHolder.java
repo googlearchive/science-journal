@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
@@ -61,7 +62,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     relativeTimeView = (RelativeTimeTextView) itemView.findViewById(R.id.relative_time_text);
   }
 
-  public void setNote(Label label, String experimentId) {
+  public void setNote(Label label, AppAccount appAccount, String experimentId) {
     if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
       String text = label.getTextLabelValue().text;
       image.setVisibility(View.GONE);
@@ -86,7 +87,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       GoosciPictureLabelValue.PictureLabelValue labelValue = label.getPictureLabelValue();
       image.setVisibility(View.VISIBLE);
       PictureUtils.loadExperimentImage(
-          image.getContext(), image, experimentId, labelValue.filePath);
+          image.getContext(), image, appAccount, experimentId, labelValue.filePath);
     } else {
       PictureUtils.clearImage(image);
       image.setVisibility(View.GONE);
@@ -97,10 +98,10 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       valuesList.setVisibility(View.GONE);
     } else {
       if (label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
-        loadTriggerIntoList(valuesList, label);
+        loadTriggerIntoList(valuesList, label, appAccount);
       }
       if (label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT) {
-        loadSnapshotsIntoList(valuesList, label);
+        loadSnapshotsIntoList(valuesList, label, appAccount);
       }
     }
 
@@ -121,7 +122,8 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     }
   }
 
-  public static void loadSnapshotsIntoList(ViewGroup valuesList, Label label) {
+  public static void loadSnapshotsIntoList(
+      ViewGroup valuesList, Label label, AppAccount appAccount) {
     Context context = valuesList.getContext();
     GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot[] snapshots =
         label.getSnapshotLabelValue().snapshots;
@@ -136,6 +138,9 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     } else if (childCount > snapshots.length) {
       valuesList.removeViews(0, childCount - snapshots.length);
     }
+
+    SensorAppearanceProvider sensorAppearanceProvider =
+        AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount);
 
     String valueFormat = context.getResources().getString(R.string.data_with_units);
     for (int i = 0; i < snapshots.length; i++) {
@@ -152,15 +157,11 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       ((TextView) snapshotLayout.findViewById(R.id.sensor_value))
           .setText(String.format(valueFormat, value, appearance.units));
 
-      loadLargeDrawable(
-          appearance,
-          AppSingleton.getInstance(context).getSensorAppearanceProvider(),
-          snapshotLayout,
-          snapshot.value);
+      loadLargeDrawable(appearance, sensorAppearanceProvider, snapshotLayout, snapshot.value);
     }
   }
 
-  public static void loadTriggerIntoList(ViewGroup valuesList, Label label) {
+  public static void loadTriggerIntoList(ViewGroup valuesList, Label label, AppAccount appAccount) {
     Context context = valuesList.getContext();
 
     valuesList.setVisibility(View.VISIBLE);
@@ -207,7 +208,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         .setText(String.format(valueFormat, value, appearance.units));
     loadLargeDrawable(
         appearance,
-        AppSingleton.getInstance(context).getSensorAppearanceProvider(),
+        AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount),
         valuesList,
         labelValue.triggerInformation.valueToTrigger);
   }

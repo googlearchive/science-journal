@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
@@ -33,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 /** Activity managing a LabelDetails page */
 public class LabelDetailsActivity extends AppCompatActivity {
 
+  static final String ARG_ACCOUNT_KEY = "account_key";
   static final String ARG_EXPERIMENT_ID = "experiment_id";
   static final String ARG_TRIAL_ID = "trial_id";
   static final String ARG_LABEL = "label";
@@ -40,8 +42,10 @@ public class LabelDetailsActivity extends AppCompatActivity {
   static final String ARG_PARENT_RUN_REVIEW = "from_run_review";
   private static final String FRAGMENT_TAG = "fragment";
 
-  public static void launchFromExpDetails(Context context, String experimentId, Label label) {
+  public static void launchFromExpDetails(
+      Context context, AppAccount appAccount, String experimentId, Label label) {
     final Intent intent = new Intent(context, LabelDetailsActivity.class);
+    intent.putExtra(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(ARG_EXPERIMENT_ID, experimentId);
     intent.putExtra(ARG_LABEL, label);
     intent.putExtra(ARG_PARENT_EXP_DETAILS, true);
@@ -50,6 +54,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
 
   public static void launchFromRunReview(
       Context context,
+      AppAccount appAccount,
       String experimentId,
       String trialId,
       int selectedSensor,
@@ -57,6 +62,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
       boolean createTask,
       boolean fromRecord) {
     final Intent intent = new Intent(context, LabelDetailsActivity.class);
+    intent.putExtra(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(ARG_EXPERIMENT_ID, experimentId);
     intent.putExtra(ARG_LABEL, label);
     intent.putExtra(ARG_PARENT_RUN_REVIEW, true);
@@ -94,17 +100,20 @@ public class LabelDetailsActivity extends AppCompatActivity {
       LabelDetailsFragment fragment;
       if (labelType == GoosciLabel.Label.ValueType.TEXT) {
         fragment =
-            TextLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(), originalLabel);
+            TextLabelDetailsFragment.newInstance(
+                getAppAccount(), getExperimentId(), getTrialId(), originalLabel);
       } else if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
         fragment =
-            PictureLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(), originalLabel);
+            PictureLabelDetailsFragment.newInstance(
+                getAppAccount(), getExperimentId(), getTrialId(), originalLabel);
       } else if (labelType == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
         fragment =
-            TriggerLabelDetailsFragment.newInstance(getExperimentId(), getTrialId(), originalLabel);
+            TriggerLabelDetailsFragment.newInstance(
+                getAppAccount(), getExperimentId(), getTrialId(), originalLabel);
       } else if (labelType == GoosciLabel.Label.ValueType.SNAPSHOT) {
         fragment =
             SnapshotLabelDetailsFragment.newInstance(
-                getExperimentId(), getTrialId(), originalLabel);
+                getAppAccount(), getExperimentId(), getTrialId(), originalLabel);
       } else {
         // Unknown type
         finish();
@@ -126,9 +135,13 @@ public class LabelDetailsActivity extends AppCompatActivity {
     // re-creating it.
     Intent upIntent;
     if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_EXP_DETAILS)) {
-      upIntent = WhistlePunkApplication.getLaunchIntentForPanesActivity(this, getExperimentId());
+      upIntent =
+          WhistlePunkApplication.getLaunchIntentForPanesActivity(
+              this, getAppAccount(), getExperimentId());
     } else if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
       upIntent = new Intent(this, RunReviewActivity.class);
+      upIntent.putExtra(
+          RunReviewFragment.ARG_ACCOUNT_KEY, getIntent().getExtras().getString(ARG_ACCOUNT_KEY));
       upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, getExperimentId());
       upIntent.putExtra(
           RunReviewActivity.EXTRA_FROM_RECORD,
@@ -155,6 +168,10 @@ public class LabelDetailsActivity extends AppCompatActivity {
     // TODO: nice transition!
 
     NavUtils.navigateUpTo(this, upIntent);
+  }
+
+  private AppAccount getAppAccount() {
+    return WhistlePunkApplication.getAccount(this, getIntent(), ARG_ACCOUNT_KEY);
   }
 
   private String getExperimentId() {

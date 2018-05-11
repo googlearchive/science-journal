@@ -49,6 +49,7 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
@@ -64,11 +65,16 @@ public class UpdateExperimentFragment extends Fragment {
 
   private static final String TAG = "UpdateExperimentFrag";
 
+  /**
+   * Indicates the account key for the account that owns the experiment we're currently updating.
+   */
+  public static final String ARG_ACCOUNT_KEY = "account_key";
   /** Indicates the experiment ID we're currently updating. */
   public static final String ARG_EXPERIMENT_ID = "experiment_id";
 
   private static final String KEY_SAVED_PICTURE_PATH = "picture_path";
 
+  private AppAccount appAccount;
   private String experimentId;
   private BehaviorSubject<Experiment> experiment = BehaviorSubject.create();
   private ImageView photoPreview;
@@ -77,9 +83,10 @@ public class UpdateExperimentFragment extends Fragment {
 
   public UpdateExperimentFragment() {}
 
-  public static UpdateExperimentFragment newInstance(String experimentId) {
+  public static UpdateExperimentFragment newInstance(AppAccount appAccount, String experimentId) {
     UpdateExperimentFragment fragment = new UpdateExperimentFragment();
     Bundle args = new Bundle();
+    args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(ARG_EXPERIMENT_ID, experimentId);
     fragment.setArguments(args);
     return fragment;
@@ -88,6 +95,8 @@ public class UpdateExperimentFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     if (savedInstanceState != null) {
       pictureLabelPath = savedInstanceState.getString(KEY_SAVED_PICTURE_PATH);
@@ -180,7 +189,7 @@ public class UpdateExperimentFragment extends Fragment {
           if (!TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
             // Load the current experiment photo
             PictureUtils.loadExperimentOverviewImage(
-                photoPreview, experiment.getExperimentOverview().imagePath);
+                appAccount, photoPreview, experiment.getExperimentOverview().imagePath);
           }
           chooseButton.setOnClickListener(
               new View.OnClickListener() {
@@ -202,7 +211,7 @@ public class UpdateExperimentFragment extends Fragment {
                         public void onPermissionGranted() {
                           pictureLabelPath =
                               PictureUtils.capturePictureLabel(
-                                  getActivity(), experimentId, experimentId);
+                                  getActivity(), appAccount, experimentId, experimentId);
                         }
 
                         @Override
@@ -246,7 +255,8 @@ public class UpdateExperimentFragment extends Fragment {
         // that file's path into the experiment.
 
         // Use the experiment ID to name the project image.
-        imageFile = PictureUtils.createImageFile(getActivity(), experimentId, experimentId);
+        imageFile =
+            PictureUtils.createImageFile(getActivity(), appAccount, experimentId, experimentId);
         copyUriToFile(getActivity(), data.getData(), imageFile);
         success = true;
       } catch (IOException e) {
@@ -259,7 +269,7 @@ public class UpdateExperimentFragment extends Fragment {
             PictureUtils.getExperimentOverviewRelativeImagePath(
                 experimentId, relativePathInExperiment);
         setImagePath(overviewPath);
-        PictureUtils.loadExperimentOverviewImage(photoPreview, overviewPath);
+        PictureUtils.loadExperimentOverviewImage(appAccount, photoPreview, overviewPath);
       }
       return;
     } else if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
@@ -268,7 +278,7 @@ public class UpdateExperimentFragment extends Fragment {
             PictureUtils.getExperimentOverviewRelativeImagePath(experimentId, pictureLabelPath);
         setImagePath(overviewPath);
         PictureUtils.loadExperimentImage(
-            getActivity(), photoPreview, experimentId, pictureLabelPath);
+            getActivity(), photoPreview, appAccount, experimentId, pictureLabelPath);
       } else {
         pictureLabelPath = null;
       }
@@ -313,7 +323,7 @@ public class UpdateExperimentFragment extends Fragment {
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController();
+    return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
   /** Save the experiment */

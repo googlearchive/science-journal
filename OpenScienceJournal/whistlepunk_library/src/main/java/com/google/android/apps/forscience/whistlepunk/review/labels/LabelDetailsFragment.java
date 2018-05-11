@@ -38,6 +38,8 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
@@ -52,6 +54,7 @@ import java.util.Locale;
 abstract class LabelDetailsFragment extends Fragment {
   private static final String KEY_SAVED_LABEL = "saved_label";
   private static final String TAG = "LabelDetails";
+  protected AppAccount appAccount;
   protected String experimentId;
   private String trialId = null;
   protected BehaviorSubject<Experiment> experiment = BehaviorSubject.create();
@@ -65,6 +68,9 @@ abstract class LabelDetailsFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    appAccount =
+        WhistlePunkApplication.getAccount(
+            getContext(), getArguments(), LabelDetailsActivity.ARG_ACCOUNT_KEY);
     experimentId = getArguments().getString(LabelDetailsActivity.ARG_EXPERIMENT_ID);
     trialId = getArguments().getString(LabelDetailsActivity.ARG_TRIAL_ID);
     if (savedInstanceState == null) {
@@ -143,7 +149,7 @@ abstract class LabelDetailsFragment extends Fragment {
   }
 
   protected DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController();
+    return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
   protected void returnToParent(boolean labelDeleted, Consumer<Context> assetDeleter) {
@@ -175,11 +181,11 @@ abstract class LabelDetailsFragment extends Fragment {
 
   private Consumer<Context> deleteLabelFromExperiment(Experiment experiment) {
     if (TextUtils.isEmpty(trialId)) {
-      return experiment.deleteLabelAndReturnAssetDeleter(originalLabel);
+      return experiment.deleteLabelAndReturnAssetDeleter(originalLabel, appAccount);
     } else {
       return experiment
           .getTrial(trialId)
-          .deleteLabelAndReturnAssetDeleter(originalLabel, experimentId);
+          .deleteLabelAndReturnAssetDeleter(originalLabel, appAccount, experimentId);
     }
   }
 

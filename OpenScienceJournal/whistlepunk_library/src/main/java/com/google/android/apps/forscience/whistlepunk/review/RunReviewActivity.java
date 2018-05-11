@@ -24,6 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderService;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
 
 public class RunReviewActivity extends MetadataActivity {
@@ -31,6 +32,7 @@ public class RunReviewActivity extends MetadataActivity {
   public static final String EXTRA_CREATE_TASK = "create_task";
   private static final String FRAGMENT_TAG = "fragment";
   private boolean fromRecord;
+  private AppAccount appAccount;
 
   /**
    * Launches a new run review activity
@@ -44,6 +46,7 @@ public class RunReviewActivity extends MetadataActivity {
    */
   public static void launch(
       Context context,
+      AppAccount appAccount,
       String startLabelId,
       String experimentId,
       int activeSensorIndex,
@@ -53,6 +56,7 @@ public class RunReviewActivity extends MetadataActivity {
       Bundle options) {
     // TODO(saff): fancy schmancy material transition here (see specs)
     final Intent intent = new Intent(context, RunReviewActivity.class);
+    intent.putExtra(RunReviewFragment.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, experimentId);
     intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, startLabelId);
     intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, activeSensorIndex);
@@ -67,10 +71,15 @@ public class RunReviewActivity extends MetadataActivity {
     super.onCreate(savedInstanceState);
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
     setContentView(R.layout.activity_run_review);
+
     fromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
+    appAccount =
+        WhistlePunkApplication.getAccount(this, getIntent(), RunReviewFragment.ARG_ACCOUNT_KEY);
+
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
       RunReviewFragment fragment =
           RunReviewFragment.newInstance(
+              appAccount,
               getIntent().getExtras().getString(RunReviewFragment.ARG_EXPERIMENT_ID),
               getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
               getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
@@ -117,6 +126,11 @@ public class RunReviewActivity extends MetadataActivity {
       }
     }
     super.onBackPressed();
+  }
+
+  @Override
+  protected AppAccount getAppAccount() {
+    return appAccount;
   }
 
   boolean isFromRecord() {

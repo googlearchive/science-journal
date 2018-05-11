@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.os.Handler;
 import androidx.fragment.app.Fragment;
 import android.view.View;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import java.util.ArrayList;
@@ -88,12 +89,12 @@ public class CardTriggerPresenter {
     activity = null;
   }
 
-  public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
+  public void setSensorTriggers(List<SensorTrigger> sensorTriggers, AppAccount appAccount) {
     this.sensorTriggers = sensorTriggers;
     if (displayedTriggerTextIndex < this.sensorTriggers.size()) {
       displayedTriggerTextIndex = 0;
     }
-    createTextForTriggers();
+    createTextForTriggers(appAccount);
     if (cardViewHolder != null) {
       trySettingUpTextSwitcher();
     }
@@ -164,13 +165,13 @@ public class CardTriggerPresenter {
     }
   }
 
-  private void createTextForTriggers() {
+  private void createTextForTriggers(AppAccount appAccount) {
     triggerText.clear();
     if (activity == null) {
       return;
     }
     for (SensorTrigger trigger : sensorTriggers) {
-      triggerText.add(TriggerHelper.buildDescription(trigger, activity));
+      triggerText.add(TriggerHelper.buildDescription(trigger, activity, appAccount));
     }
   }
 

@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
@@ -327,6 +328,7 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
                         return new SettingsInterface() {
                           @Override
                           public void show(
+                              AppAccount appAccount,
                               String experimentId,
                               String sensorId,
                               FragmentManager fragmentManager,

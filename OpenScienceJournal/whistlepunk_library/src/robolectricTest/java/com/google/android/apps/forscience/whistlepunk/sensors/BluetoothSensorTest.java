@@ -23,6 +23,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -80,13 +82,21 @@ public class BluetoothSensorTest {
     SensorRecorder recorder =
         new BluetoothSensor("sensorId", sensor, SPEC)
             .createRecorder(
-                getContext(), new RecordingSensorObserver(), new StubStatusListener(), environment);
+                getContext(),
+                getAppAccount(),
+                new RecordingSensorObserver(),
+                new StubStatusListener(),
+                environment);
     assertEquals(null, bleClient.mostRecentAddress);
     recorder.startObserving();
     assertEquals("address", bleClient.mostRecentAddress);
   }
 
-  private Context getContext() {
+  private static Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }

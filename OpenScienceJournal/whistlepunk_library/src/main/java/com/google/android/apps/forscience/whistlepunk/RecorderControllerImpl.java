@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.javalib.FallibleConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
@@ -93,6 +94,7 @@ public class RecorderControllerImpl implements RecorderController {
   // To disable delayed stop, comment out the above line, and uncomment this one.
   private static final Delay DEFAULT_STOP_DELAY = Delay.ZERO;
 
+  private final AppAccount appAccount;
   private DataController dataController;
   private final Scheduler scheduler;
   private final Clock clock;
@@ -125,20 +127,22 @@ public class RecorderControllerImpl implements RecorderController {
   /** The latest recorded value for each sensor */
   private Map<String, BehaviorSubject<ScalarReading>> latestValues = new HashMap<>();
 
-  public RecorderControllerImpl(Context context) {
-    this(context, AppSingleton.getInstance(context).getDataController());
+  public RecorderControllerImpl(Context context, AppAccount appAccount) {
+    this(context, appAccount, AppSingleton.getInstance(context).getDataController(appAccount));
   }
 
-  private RecorderControllerImpl(Context context, DataController dataController) {
+  private RecorderControllerImpl(
+      Context context, AppAccount appAccount, DataController dataController) {
     this(
         context,
+        appAccount,
         AppSingleton.getInstance(context).getSensorEnvironment(),
         new RecorderListenerRegistry(),
         productionConnectionSupplier(context),
         dataController,
         new SystemScheduler(),
         DEFAULT_STOP_DELAY,
-        AppSingleton.getInstance(context).getSensorAppearanceProvider());
+        AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount));
   }
 
   // TODO: use builder?
@@ -149,6 +153,7 @@ public class RecorderControllerImpl implements RecorderController {
   @VisibleForTesting
   public RecorderControllerImpl(
       final Context context,
+      AppAccount appAccount,
       SensorEnvironment sensorEnvironment,
       RecorderListenerRegistry listenerRegistry,
       Supplier<RecorderServiceConnection> connectionSupplier,
@@ -157,6 +162,7 @@ public class RecorderControllerImpl implements RecorderController {
       Delay stopDelay,
       SensorAppearanceProvider appearanceProvider) {
     this.context = context;
+    this.appAccount = appAccount;
     this.sensorEnvironment = sensorEnvironment;
     registry = listenerRegistry;
     this.connectionSupplier = connectionSupplier;
@@ -201,6 +207,7 @@ public class RecorderControllerImpl implements RecorderController {
               final SensorRecorder recorder =
                   sensor.createRecorder(
                       context,
+                      appAccount,
                       registry.makeObserverForRecorder(sensorId),
                       registry,
                       sensorEnvironment);
@@ -799,7 +806,7 @@ public class RecorderControllerImpl implements RecorderController {
     withBoundRecorderService(
         recorderService -> {
           recorderService.endServiceRecording(
-              false, "", getSelectedExperiment().getExperimentId(), "");
+              appAccount, false, "", getSelectedExperiment().getExperimentId(), "");
           recordingStateChangeInProgress = false;
         });
     cleanUpUnusedRecorders();
@@ -922,6 +929,7 @@ public class RecorderControllerImpl implements RecorderController {
                 // to be the last thing to happen!
                 Experiment exp = getSelectedExperiment();
                 recorderService.endServiceRecording(
+                    appAccount,
                     !activityInForeground,
                     trialId,
                     exp.getExperimentId(),
@@ -930,5 +938,10 @@ public class RecorderControllerImpl implements RecorderController {
             });
       }
     };
+  }
+
+  @Override
+  public AppAccount getAppAccount() {
+    return appAccount;
   }
 }

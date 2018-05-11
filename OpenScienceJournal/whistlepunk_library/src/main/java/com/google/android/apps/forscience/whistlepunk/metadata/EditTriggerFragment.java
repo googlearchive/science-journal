@@ -51,6 +51,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -68,6 +69,7 @@ import java.util.List;
 public class EditTriggerFragment extends Fragment {
   private static final String TAG = "EditTriggerFragment";
 
+  private static final String ARG_ACCOUNT_KEY = "account_key";
   private static final String ARG_SENSOR_ID = "sensor_id";
   private static final String ARG_EXPERIMENT_ID = "experiment_id";
   private static final String ARG_SENSOR_LAYOUT = "sensor_layout";
@@ -75,6 +77,7 @@ public class EditTriggerFragment extends Fragment {
   private static final String ARG_LAYOUT_POSITION = "sensor_layout_position";
   private static final int PERMISSION_VIBRATE = 1;
 
+  private AppAccount appAccount;
   private String sensorId;
   private String experimentId;
   private Experiment experiment;
@@ -97,6 +100,7 @@ public class EditTriggerFragment extends Fragment {
   private NumberFormat numberFormat;
 
   public static EditTriggerFragment newInstance(
+      AppAccount appAccount,
       String sensorId,
       String experimentId,
       String triggerId,
@@ -105,6 +109,7 @@ public class EditTriggerFragment extends Fragment {
       ArrayList<String> triggerOrder) {
     EditTriggerFragment result = new EditTriggerFragment();
     Bundle args = new Bundle();
+    args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(ARG_SENSOR_ID, sensorId);
     args.putString(ARG_EXPERIMENT_ID, experimentId);
     args.putString(ARG_TRIGGER_ID, triggerId);
@@ -120,6 +125,7 @@ public class EditTriggerFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
     sensorId = getArguments().getString(ARG_SENSOR_ID);
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     try {
@@ -218,7 +224,7 @@ public class EditTriggerFragment extends Fragment {
     TextView unitsTextView = (TextView) view.findViewById(R.id.units);
     String units =
         AppSingleton.getInstance(getActivity())
-            .getSensorAppearanceProvider()
+            .getSensorAppearanceProvider(appAccount)
             .getAppearance(sensorId)
             .getUnits(getActivity());
     unitsTextView.setText(units);
@@ -405,7 +411,7 @@ public class EditTriggerFragment extends Fragment {
 
     SensorAppearance appearance =
         AppSingleton.getInstance(getActivity())
-            .getSensorAppearanceProvider()
+            .getSensorAppearanceProvider(appAccount)
             .getAppearance(sensorId);
     String triggerTitle =
         getString(
@@ -598,7 +604,7 @@ public class EditTriggerFragment extends Fragment {
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController();
+    return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
   // Verifies that the user has entered valid input to the form.
@@ -646,6 +652,7 @@ public class EditTriggerFragment extends Fragment {
     }
     // To restart the TriggerListActivity, need to pass back the trigger and layout info.
     Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
+    upIntent.putExtra(TriggerListActivity.EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     upIntent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, sensorId);
     upIntent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, experimentId);
     upIntent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, sensorLayoutPosition);

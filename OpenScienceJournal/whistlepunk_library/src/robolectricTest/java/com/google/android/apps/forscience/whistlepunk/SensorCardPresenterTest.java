@@ -24,6 +24,8 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
@@ -174,7 +176,7 @@ public class SensorCardPresenterTest {
   private SensorCardPresenter createSCP(GoosciSensorLayout.SensorLayout layout) {
     return new SensorCardPresenter(
         new DataViewOptions(0, getContext(), new ScalarDisplayOptions()),
-        new SensorSettingsControllerImpl(getContext()),
+        new SensorSettingsControllerImpl(getContext(), getAppAccount()),
         getRecorderController(),
         layout,
         "",
@@ -188,6 +190,7 @@ public class SensorCardPresenterTest {
       recorderController =
           new RecorderControllerImpl(
               getContext(),
+              getAppAccount(),
               new MemorySensorEnvironment(null, null, null, null),
               new RecorderListenerRegistry(),
               null,
@@ -212,7 +215,11 @@ public class SensorCardPresenterTest {
     return sensorRegistry;
   }
 
-  private Context getContext() {
+  private static Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }

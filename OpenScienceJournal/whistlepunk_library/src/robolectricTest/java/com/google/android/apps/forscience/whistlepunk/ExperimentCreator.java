@@ -16,6 +16,8 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -56,11 +58,12 @@ public class ExperimentCreator {
   }
 
   private static void addToManagers(Context context, Experiment experiment) {
+    AppAccount appAccount = NonSignedInAccount.getInstance(context);
     AppSingleton.getInstance(context)
-        .getExperimentLibraryManager()
+        .getExperimentLibraryManager(appAccount)
         .addExperiment(experiment.getExperimentId());
     AppSingleton.getInstance(context)
-        .getLocalSyncManager()
+        .getLocalSyncManager(appAccount)
         .addExperiment(experiment.getExperimentId());
   }
 }

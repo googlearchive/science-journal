@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
@@ -41,9 +42,10 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
   private Intent shareIntent;
 
   public static PictureLabelDetailsFragment newInstance(
-      String experimentId, String trialId, Label originalLabel) {
+      AppAccount appAccount, String experimentId, String trialId, Label originalLabel) {
     PictureLabelDetailsFragment result = new PictureLabelDetailsFragment();
     Bundle args = new Bundle();
+    args.putString(LabelDetailsActivity.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
     args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
     args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
@@ -80,7 +82,11 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
     super.onResume();
     // Load on resume in case edits have been made.
     PictureUtils.loadExperimentImage(
-        getActivity(), imageView, experimentId, originalLabel.getPictureLabelValue().filePath);
+        getActivity(),
+        imageView,
+        appAccount,
+        experimentId,
+        originalLabel.getPictureLabelValue().filePath);
   }
 
   @Override
@@ -90,6 +96,7 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
     shareIntent =
         FileMetadataManager.createPhotoShareIntent(
             getContext(),
+            appAccount,
             experimentId,
             originalLabel.getPictureLabelValue().filePath,
             originalLabel.getCaptionText());
@@ -107,7 +114,7 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.action_edit) {
       PictureUtils.launchExternalEditor(
-          getActivity(), experimentId, originalLabel.getPictureLabelValue().filePath);
+          getActivity(), appAccount, experimentId, originalLabel.getPictureLabelValue().filePath);
       return true;
     } else if (item.getItemId() == R.id.btn_share_photo) {
       if (shareIntent != null) {

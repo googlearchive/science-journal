@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -201,12 +202,14 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
             return new SettingsInterface() {
               @Override
               public void show(
+                  AppAccount appAccount,
                   String experimentId,
                   String sensorId,
                   FragmentManager fragmentManager,
                   boolean showForgetButton) {
                 DeviceOptionsDialog dialog =
-                    DeviceOptionsDialog.newInstance(experimentId, sensorId, null, showForgetButton);
+                    DeviceOptionsDialog.newInstance(
+                        appAccount, experimentId, sensorId, null, showForgetButton);
                 dialog.show(fragmentManager, "edit_device");
               }
             };

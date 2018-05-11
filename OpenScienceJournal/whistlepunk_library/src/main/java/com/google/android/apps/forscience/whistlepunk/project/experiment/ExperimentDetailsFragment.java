@@ -71,6 +71,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -118,6 +119,7 @@ public class ExperimentDetailsFragment extends Fragment
     Listener getExperimentDetailsFragmentListener();
   }
 
+  public static final String ARG_ACCOUNT_KEY = "account_key";
   public static final String ARG_EXPERIMENT_ID = "experiment_id";
   public static final String ARG_CREATE_TASK = "create_task";
   private static final String TAG = "ExperimentDetails";
@@ -128,6 +130,7 @@ public class ExperimentDetailsFragment extends Fragment
   private RecyclerView details;
   private DetailsAdapter adapter;
 
+  private AppAccount appAccount;
   private String experimentId;
   private Experiment experiment;
   private BehaviorSubject<Experiment> loadedExperiment = BehaviorSubject.create();
@@ -143,14 +146,16 @@ public class ExperimentDetailsFragment extends Fragment
   /**
    * Creates a new instance of this fragment.
    *
+   * @param appAccount the account that owns the experiment
    * @param experimentId Experiment ID to display
    * @param createTaskStack If {@code true}, then navigating home requires building a task stack up
    *     to the experiment list. If {@code false}, use the default navigation.
    */
   public static ExperimentDetailsFragment newInstance(
-      String experimentId, boolean createTaskStack) {
+      AppAccount appAccount, String experimentId, boolean createTaskStack) {
     ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
     Bundle args = new Bundle();
+    args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(ARG_EXPERIMENT_ID, experimentId);
     args.putBoolean(ARG_CREATE_TASK, createTaskStack);
     fragment.setArguments(args);
@@ -169,11 +174,15 @@ public class ExperimentDetailsFragment extends Fragment
             busy -> {
               setProgressBarVisible(busy);
             });
+
+    appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     setHasOptionsMenu(true);
   }
 
   public void setExperimentId(String experimentId) {
+    // TODO(lizlooney): Investigate where this is called to see if we also need to set the
+    // AppAccount.
     if (!Objects.equals(experimentId, this.experimentId)) {
       this.experimentId = experimentId;
       if (isResumed()) {
@@ -435,7 +444,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController();
+    return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
   @Override
@@ -459,7 +468,7 @@ public class ExperimentDetailsFragment extends Fragment
         .setVisible(experiment != null && !experiment.isArchived());
 
     boolean isShareIntentValid =
-        FileMetadataManager.validateShareIntent(getContext(), experimentId);
+        FileMetadataManager.validateShareIntent(getContext(), appAccount, experimentId);
 
     menu.findItem(R.id.action_export_experiment)
         .setVisible(experiment != null && !experiment.isArchived() && isShareIntentValid);
@@ -482,7 +491,7 @@ public class ExperimentDetailsFragment extends Fragment
       displayNamePromptOrGoUp();
       return true;
     } else if (itemId == R.id.action_edit_experiment) {
-      UpdateExperimentActivity.launch(getActivity(), experimentId);
+      UpdateExperimentActivity.launch(getActivity(), appAccount, experimentId);
       return true;
     } else if (itemId == R.id.action_archive_experiment
         || itemId == R.id.action_unarchive_experiment) {
@@ -508,7 +517,7 @@ public class ExperimentDetailsFragment extends Fragment
               TrackerConstants.LABEL_EXPERIMENT_DETAIL,
               0);
       setProgressBarVisible(true);
-      ExportService.handleExperimentExportClick(getContext(), experimentId);
+      ExportService.handleExperimentExportClick(getContext(), appAccount, experimentId);
       return true;
     }
     return super.onOptionsItemSelected(item);
@@ -563,7 +572,7 @@ public class ExperimentDetailsFragment extends Fragment
 
   private void displayNamePrompt() {
     // The experiment needs a title still.
-    NameExperimentDialog dialog = NameExperimentDialog.newInstance(experimentId);
+    NameExperimentDialog dialog = NameExperimentDialog.newInstance(appAccount, experimentId);
     dialog.show(getChildFragmentManager(), NameExperimentDialog.TAG);
   }
 
@@ -641,7 +650,7 @@ public class ExperimentDetailsFragment extends Fragment
 
   private void setExperimentArchived(final boolean archived) {
     final Context context = getContext();
-    experiment.setArchived(context, archived);
+    experiment.setArchived(context, appAccount, archived);
     getDataController()
         .updateExperiment(
             experimentId,
@@ -702,7 +711,8 @@ public class ExperimentDetailsFragment extends Fragment
 
   void deleteLabel(Label label) {
     if (getActivity() != null) {
-      Consumer<Context> assetDeleter = experiment.deleteLabelAndReturnAssetDeleter(label);
+      Consumer<Context> assetDeleter =
+          experiment.deleteLabelAndReturnAssetDeleter(label, appAccount);
       RxDataController.updateExperiment(getDataController(), experiment)
           .subscribe(() -> onLabelDelete(new DeletedLabel(label, assetDeleter)));
     }
@@ -711,6 +721,7 @@ public class ExperimentDetailsFragment extends Fragment
   private void onLabelDelete(DeletedLabel deletedLabel) {
     deletedLabel.deleteAndDisplayUndoBar(
         getView(),
+        appAccount,
         experiment,
         experiment,
         () -> {
@@ -773,7 +784,7 @@ public class ExperimentDetailsFragment extends Fragment
     String trialId = extras.getString(DeleteMetadataItemDialog.KEY_ITEM_ID);
     if (!TextUtils.isEmpty(trialId)) {
       // Then we were trying to delete a trial.
-      experiment.deleteTrial(experiment.getTrial(trialId), getActivity());
+      experiment.deleteTrial(experiment.getTrial(trialId), getActivity(), appAccount);
       RxDataController.updateExperiment(getDataController(), experiment)
           .subscribe(() -> adapter.onTrialDeleted(trialId));
     } else {
@@ -871,7 +882,8 @@ public class ExperimentDetailsFragment extends Fragment
         final Label label = items.get(position).getLabel();
 
         NoteViewHolder noteViewHolder = (NoteViewHolder) holder;
-        noteViewHolder.setNote(label, experiment.getExperimentId());
+        noteViewHolder.setNote(
+            label, parentReference.get().appAccount, experiment.getExperimentId());
 
         // Work specific to ExperimentDetails
         noteViewHolder.relativeTimeView.setTime(label.getTimeStamp());
@@ -895,7 +907,10 @@ public class ExperimentDetailsFragment extends Fragment
               if (!isRecording()) {
                 // Can't click into details pages when recording.
                 LabelDetailsActivity.launchFromExpDetails(
-                    holder.itemView.getContext(), experiment.getExperimentId(), label);
+                    holder.itemView.getContext(),
+                    parentReference.get().appAccount,
+                    experiment.getExperimentId(),
+                    label);
               }
             });
       }
@@ -990,6 +1005,7 @@ public class ExperimentDetailsFragment extends Fragment
           shareIntent =
               FileMetadataManager.createPhotoShareIntent(
                   context,
+                  parentReference.get().appAccount,
                   experiment.getExperimentId(),
                   item.getLabel().getPictureLabelValue().filePath,
                   item.getLabel().getCaptionText());
@@ -1339,6 +1355,7 @@ public class ExperimentDetailsFragment extends Fragment
         PictureUtils.loadExperimentImage(
             noteView.getContext(),
             (ImageView) noteView.findViewById(R.id.note_image),
+            parentReference.get().appAccount,
             experiment.getExperimentId(),
             labelValue.filePath);
       }
@@ -1349,12 +1366,16 @@ public class ExperimentDetailsFragment extends Fragment
       } else {
         if (label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
           NoteViewHolder.loadTriggerIntoList(
-              (ViewGroup) noteView.findViewById(R.id.snapshot_values_list), label);
+              (ViewGroup) noteView.findViewById(R.id.snapshot_values_list),
+              label,
+              parentReference.get().appAccount);
         }
 
         if (label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT) {
           NoteViewHolder.loadSnapshotsIntoList(
-              (ViewGroup) noteView.findViewById(R.id.snapshot_values_list), label);
+              (ViewGroup) noteView.findViewById(R.id.snapshot_values_list),
+              label,
+              parentReference.get().appAccount);
         }
       }
 
@@ -1371,7 +1392,7 @@ public class ExperimentDetailsFragment extends Fragment
       int inactiveColor = context.getResources().getColor(R.color.archived_background_color);
 
       AppSingleton.getInstance(context)
-          .getRecorderController()
+          .getRecorderController(parentReference.get().appAccount)
           .watchRecordingStatus()
           .takeUntil(RxView.detaches(button))
           .subscribe(
@@ -1387,6 +1408,7 @@ public class ExperimentDetailsFragment extends Fragment
           view ->
               RunReviewActivity.launch(
                   noteHolder.getContext(),
+                  parentReference.get().appAccount,
                   runId,
                   experiment.getExperimentId(),
                   0 /* sensor index deprecated */,
@@ -1410,6 +1432,7 @@ public class ExperimentDetailsFragment extends Fragment
           String runId = (String) v.getTag(R.id.run_title_text);
           RunReviewActivity.launch(
               v.getContext(),
+              parentReference.get().appAccount,
               runId,
               experiment.getExperimentId(),
               selectedSensorIndex,
@@ -1436,7 +1459,8 @@ public class ExperimentDetailsFragment extends Fragment
           ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
               trial.getAppearances().get(sensorId),
               sensorId,
-              AppSingleton.getInstance(appContext).getSensorAppearanceProvider());
+              AppSingleton.getInstance(appContext)
+                  .getSensorAppearanceProvider(parentReference.get().appAccount));
       final NumberFormat numberFormat = appearance.getNumberFormat();
       holder.sensorName.setText(Appearances.getSensorDisplayName(appearance, appContext));
       final GoosciSensorLayout.SensorLayout sensorLayout = item.getSelectedSensorLayout();
@@ -1456,6 +1480,7 @@ public class ExperimentDetailsFragment extends Fragment
             R.string.run_review_switch_sensor_btn_next,
             item.getNextSensorId(),
             appContext,
+            parentReference.get().appAccount,
             trial);
       }
       if (hasPrevButton) {
@@ -1464,6 +1489,7 @@ public class ExperimentDetailsFragment extends Fragment
             R.string.run_review_switch_sensor_btn_prev,
             item.getPrevSensorId(),
             appContext,
+            parentReference.get().appAccount,
             trial);
       }
 
@@ -1482,7 +1508,8 @@ public class ExperimentDetailsFragment extends Fragment
       chartController.setChartView(holder.chartView);
       chartController.setProgressView(holder.progressView);
       holder.setSensorId(sensorLayout.sensorId);
-      DataController dc = AppSingleton.getInstance(appContext).getDataController();
+      DataController dc =
+          AppSingleton.getInstance(appContext).getDataController(parentReference.get().appAccount);
       chartController.loadRunData(
           trial,
           sensorLayout,

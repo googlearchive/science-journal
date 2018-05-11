@@ -47,6 +47,7 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -60,6 +61,7 @@ import java.util.List;
 /** The fragment for displaying a list of triggers. */
 public class TriggerListFragment extends Fragment {
 
+  private static final String ARG_ACCOUNT_KEY = "account_key";
   private static final String ARG_SENSOR_ID = "sensor_id";
   private static final String ARG_EXPERIMENT_ID = "experiment_id";
   private static final String ARG_LAYOUT_POSITION = "layout_position";
@@ -68,6 +70,7 @@ public class TriggerListFragment extends Fragment {
   private static final String TAG = "TriggerListFragment";
 
   private static String sensorId;
+  private AppAccount appAccount;
   private String experimentId;
   private GoosciSensorLayout.SensorLayout sensorLayout;
   private TriggerListAdapter triggerAdapter;
@@ -77,9 +80,14 @@ public class TriggerListFragment extends Fragment {
   private boolean needsSave = false;
 
   public static TriggerListFragment newInstance(
-      String sensorId, String experimentId, int position, ArrayList<String> triggerOrder) {
+      AppAccount appAccount,
+      String sensorId,
+      String experimentId,
+      int position,
+      ArrayList<String> triggerOrder) {
     TriggerListFragment fragment = new TriggerListFragment();
     Bundle args = new Bundle();
+    args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(ARG_SENSOR_ID, sensorId);
     args.putString(ARG_EXPERIMENT_ID, experimentId);
     args.putInt(ARG_LAYOUT_POSITION, position);
@@ -91,6 +99,7 @@ public class TriggerListFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
     sensorId = getArguments().getString(ARG_SENSOR_ID);
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     layoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
@@ -109,7 +118,7 @@ public class TriggerListFragment extends Fragment {
 
     String sensorName =
         AppSingleton.getInstance(getActivity())
-            .getSensorAppearanceProvider()
+            .getSensorAppearanceProvider(appAccount)
             .getAppearance(sensorId)
             .getName(getActivity());
     actionBar.setTitle(getString(R.string.title_fragment_trigger_list, sensorName));
@@ -149,7 +158,7 @@ public class TriggerListFragment extends Fragment {
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController();
+    return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
   @Override
@@ -241,6 +250,7 @@ public class TriggerListFragment extends Fragment {
     if (trigger != null) {
       intent.putExtra(EditTriggerActivity.EXTRA_TRIGGER_ID, trigger.getTriggerId());
     }
+    intent.putExtra(EditTriggerActivity.EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(EditTriggerActivity.EXTRA_EXPERIMENT_ID, experimentId);
     intent.putExtra(EditTriggerActivity.EXTRA_SENSOR_ID, sensorId);
 
@@ -386,7 +396,8 @@ public class TriggerListFragment extends Fragment {
         return;
       }
       holder.description.setText(
-          TriggerHelper.buildDescription(trigger, parentReference.get().getActivity()));
+          TriggerHelper.buildDescription(
+              trigger, parentReference.get().getActivity(), parentReference.get().appAccount));
 
       holder.menuButton.setOnClickListener(
           new View.OnClickListener() {

@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
@@ -51,6 +52,7 @@ import java.util.concurrent.Executor;
 
 public class DataControllerImpl implements DataController, RecordingDataController {
   private static final String TAG = "DataControllerImpl";
+  private final AppAccount appAccount;
   private final SensorDatabase sensorDatabase;
   private final Executor uiThread;
   private final Executor metaDataThread;
@@ -64,6 +66,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   private ConnectableSensor.Connector connector;
 
   public DataControllerImpl(
+      AppAccount appAccount,
       SensorDatabase sensorDatabase,
       Executor uiThread,
       Executor metaDataThread,
@@ -72,6 +75,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       Clock clock,
       Map<String, SensorProvider> providerMap,
       ConnectableSensor.Connector connector) {
+    this.appAccount = appAccount;
     this.sensorDatabase = sensorDatabase;
     this.uiThread = uiThread;
     this.metaDataThread = metaDataThread;
@@ -646,5 +650,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             return Success.SUCCESS;
           }
         });
+  }
+
+  @Override
+  public AppAccount getAppAccount() {
+    return appAccount;
   }
 }

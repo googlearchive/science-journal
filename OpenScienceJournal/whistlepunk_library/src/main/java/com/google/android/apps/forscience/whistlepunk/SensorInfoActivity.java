@@ -22,17 +22,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 
 /** Activity to display static information about a sensor. */
 public class SensorInfoActivity extends AppCompatActivity {
 
+  public static final String EXTRA_ACCOUNT_KEY = "account_key";
   public static final String EXTRA_SENSOR_ID = "sensor_id";
   public static final String EXTRA_COLOR_ID = "color_id";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    AppAccount appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
     final String sensorId = getIntent().getStringExtra(EXTRA_SENSOR_ID);
     final int color = getIntent().getIntExtra(EXTRA_COLOR_ID, R.color.color_primary);
     setContentView(R.layout.activity_sensor_info);
@@ -61,7 +64,9 @@ public class SensorInfoActivity extends AppCompatActivity {
     final ImageView imageView = (ImageView) findViewById(R.id.info_image);
 
     final SensorAppearance appearance =
-        AppSingleton.getInstance(this).getSensorAppearanceProvider().getAppearance(sensorId);
+        AppSingleton.getInstance(this)
+            .getSensorAppearanceProvider(appAccount)
+            .getAppearance(sensorId);
     if (appearance == null) {
       firstParagraph.setText(getResources().getString(R.string.unknown_sensor));
       secondParagraph.setText("");

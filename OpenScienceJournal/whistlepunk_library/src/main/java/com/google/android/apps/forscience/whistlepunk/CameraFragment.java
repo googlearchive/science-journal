@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
@@ -41,6 +42,8 @@ import io.reactivex.subjects.PublishSubject;
 import java.util.UUID;
 
 public class CameraFragment extends PanesToolFragment {
+  private static final String KEY_ACCOUNT_KEY = "accountKey";
+
   private final BehaviorSubject<Optional<ViewGroup>> previewContainer = BehaviorSubject.create();
   private BehaviorSubject<Boolean> permissionGranted = BehaviorSubject.create();
   private PublishSubject<Object> whenUserTakesPhoto = PublishSubject.create();
@@ -77,8 +80,12 @@ public class CameraFragment extends PanesToolFragment {
 
   private CameraFragmentListener listener = CameraFragmentListener.NULL;
 
-  public static CameraFragment newInstance() {
-    return new CameraFragment();
+  public static CameraFragment newInstance(AppAccount appAccount) {
+    CameraFragment fragment = new CameraFragment();
+    Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
+    fragment.setArguments(args);
+    return fragment;
   }
 
   public CameraFragment() {
@@ -116,6 +123,10 @@ public class CameraFragment extends PanesToolFragment {
             });
   }
 
+  private AppAccount getAppAccount() {
+    return WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
+  }
+
   private void complainCameraPermissions(ViewGroup container) {
     LayoutInflater inflater = LayoutInflater.from(container.getContext());
     View view = inflater.inflate(R.layout.camera_complaint, container, false);
@@ -150,6 +161,7 @@ public class CameraFragment extends PanesToolFragment {
               final long timestamp = getTimestamp(preview.getContext());
               final String uuid = UUID.randomUUID().toString();
               preview.takePicture(
+                  getAppAccount(),
                   listener.getActiveExperimentId().firstElement(),
                   uuid,
                   new LoggingConsumer<String>(TAG, "taking picture") {

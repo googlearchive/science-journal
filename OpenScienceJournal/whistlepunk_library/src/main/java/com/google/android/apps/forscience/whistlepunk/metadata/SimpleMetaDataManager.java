@@ -97,6 +97,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   private DatabaseHelper dbHelper;
   private Context context;
+  private AppAccount appAccount;
   private Clock clock;
   private Object lock = new Object();
   private FileMetadataManager fileMetadataManager;
@@ -135,10 +136,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @VisibleForTesting
   SimpleMetaDataManager(Context context, AppAccount appAccount, String filename, Clock clock) {
     this.context = context;
+    this.appAccount = appAccount;
     this.clock = clock;
     fileMetadataManager = new FileMetadataManager(context, appAccount, clock);
-    localSyncManager = AppSingleton.getInstance(context).getLocalSyncManager();
-    experimentLibraryManager = AppSingleton.getInstance(context).getExperimentLibraryManager();
+    localSyncManager = AppSingleton.getInstance(context).getLocalSyncManager(appAccount);
+    experimentLibraryManager =
+        AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount);
     dbHelper =
         new DatabaseHelper(
             context,
@@ -286,7 +289,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     boolean success = false;
 
     try {
-      File newFile = PictureUtils.createImageFile(context, experimentId, label.getLabelId());
+      File newFile =
+          PictureUtils.createImageFile(context, appAccount, experimentId, label.getLabelId());
       pictureLabelValue.filePath =
           FileMetadataManager.getRelativePathInExperiment(experimentId, newFile);
       try (FileChannel input = new FileInputStream(oldFile).getChannel();
@@ -375,7 +379,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         boolean needsWrite = false;
         if (project.isArchived()) {
           // If the project is archived, the experiment should be archived.
-          experiment.setArchived(context, true);
+          experiment.setArchived(context, appAccount, true);
           needsWrite = true;
         }
         if (!TextUtils.isEmpty(project.getTitle())) {

@@ -130,9 +130,7 @@ public class AccountsUtils {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(namespace), "namespace is null or empty!");
     Preconditions.checkArgument(
         !Strings.isNullOrEmpty(accountName), "accountName is null or empty!");
-    return namespace
-        + ":"
-        + Hashing.md5().hashString(accountName, StandardCharsets.UTF_8);
+    return namespace + ":" + Hashing.md5().hashString(accountName, StandardCharsets.UTF_8);
   }
 
   /**

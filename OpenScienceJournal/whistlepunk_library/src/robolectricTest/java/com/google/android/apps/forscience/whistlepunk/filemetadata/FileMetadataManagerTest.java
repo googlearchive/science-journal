@@ -103,7 +103,7 @@ public class FileMetadataManagerTest {
     assertEquals(third.getExperimentId(), fmm.getLastUsedUnarchivedExperiment().getExperimentId());
     assertEquals(3, fmm.getExperimentOverviews(false).size());
 
-    third.setArchived(getContext(), true);
+    third.setArchived(getContext(), getAppAccount(), true);
     fmm.updateExperiment(third);
     assertEquals(second.getExperimentId(), fmm.getLastUsedUnarchivedExperiment().getExperimentId());
     assertEquals(2, fmm.getExperimentOverviews(false).size());
@@ -185,11 +185,11 @@ public class FileMetadataManagerTest {
     assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
   }
 
-  private Context getContext() {
+  private static Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
   }
 
-  private AppAccount getAppAccount() {
+  private static AppAccount getAppAccount() {
     return NonSignedInAccount.getInstance(getContext());
   }
 }

@@ -16,7 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.Context;
 import android.content.Intent;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -32,6 +35,7 @@ import io.reactivex.Single;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.robolectric.RuntimeEnvironment;
 
 class MemoryRecorderController implements RecorderController {
   private Map<String, String> currentObserverIds = new HashMap<>();
@@ -137,6 +141,12 @@ class MemoryRecorderController implements RecorderController {
 
   @Override
   public void clearSensorTriggers(String sensorId, SensorRegistry sensorRegistry) {}
+
+  @Override
+  public AppAccount getAppAccount() {
+    Context context = RuntimeEnvironment.application.getApplicationContext();
+    return NonSignedInAccount.getInstance(context);
+  }
 
   public List<String> getCurrentObservedIds() {
     return Lists.newArrayList(currentObserverIds.keySet());

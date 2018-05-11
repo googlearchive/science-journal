@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.content.Context;
 import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.Consumer;
@@ -26,6 +27,8 @@ import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.TestData;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
@@ -40,6 +43,7 @@ import java.util.concurrent.Executor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class ScalarInputProviderTest {
@@ -198,12 +202,17 @@ public class ScalarInputProviderTest {
   }
 
   private SensorRecorder createRecorder(SensorChoice sensor) {
-    return sensor.createRecorder(null, observer, listener, createEnvironment());
+    return sensor.createRecorder(null, getAppAccount(), observer, listener, createEnvironment());
   }
 
   @NonNull
   private MemorySensorEnvironment createEnvironment() {
     return new MemorySensorEnvironment(
         new InMemorySensorDatabase().makeSimpleRecordingController(), null, null, null);
+  }
+
+  private static AppAccount getAppAccount() {
+    Context context = RuntimeEnvironment.application.getApplicationContext();
+    return NonSignedInAccount.getInstance(context);
   }
 }

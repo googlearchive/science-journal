@@ -138,7 +138,7 @@ public class ExperimentListFragment extends Fragment
         .subscribe(
             appAccount -> {
               currentAccount = appAccount;
-              loadExperiments(appAccount);
+              loadExperiments();
             });
   }
 
@@ -168,7 +168,7 @@ public class ExperimentListFragment extends Fragment
     View view = inflater.inflate(R.layout.fragment_experiment_list, container, false);
     final RecyclerView detailList = (RecyclerView) view.findViewById(R.id.details);
 
-    experimentListAdapter = new ExperimentListAdapter(this, getDataController());
+    experimentListAdapter = new ExperimentListAdapter(this);
     // TODO: Adjust the column count based on breakpoint specs when available.
     int column_count = 2;
     GridLayoutManager manager = new GridLayoutManager(getActivity(), column_count);
@@ -200,19 +200,22 @@ public class ExperimentListFragment extends Fragment
                                 TrackerConstants.ACTION_CREATE,
                                 TrackerConstants.LABEL_EXPERIMENT_LIST,
                                 0);
-                        launchPanesActivity(v.getContext(), experiment.getExperimentId());
+                        launchPanesActivity(
+                            v.getContext(), currentAccount, experiment.getExperimentId());
                       }
                     }));
 
     return view;
   }
 
-  public static void launchPanesActivity(Context context, String experimentId) {
+  public static void launchPanesActivity(
+      Context context, AppAccount appAccount, String experimentId) {
     context.startActivity(
-        WhistlePunkApplication.getLaunchIntentForPanesActivity(context, experimentId));
+        WhistlePunkApplication.getLaunchIntentForPanesActivity(context, appAccount, experimentId));
   }
 
-  private void loadExperiments(AppAccount appAccount) {
+  private void loadExperiments() {
+    AppAccount appAccount = currentAccount;
     PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
     PerfTrackerProvider.TimerToken loadExperimentTimer = perfTracker.startTimer();
     getDataController()
@@ -257,7 +260,8 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void createDefaultExperiment() {
-    RxDataController.createExperiment(getDataController())
+    DataController dataController = getDataController();
+    RxDataController.createExperiment(dataController)
         .subscribe(
             e -> {
               Resources res = getActivity().getResources();
@@ -297,7 +301,10 @@ public class ExperimentListFragment extends Fragment
                   Label.newLabel(caption.lastEditedTimestamp, GoosciLabel.Label.ValueType.PICTURE);
               File pictureFile =
                   PictureUtils.createImageFile(
-                      getActivity(), e.getExperimentId(), pictureLabel.getLabelId());
+                      getActivity(),
+                      dataController.getAppAccount(),
+                      e.getExperimentId(),
+                      pictureLabel.getLabelId());
               PictureUtils.writeDrawableToFile(getActivity(), pictureFile, R.drawable.first_note);
               GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
                   new GoosciPictureLabelValue.PictureLabelValue();
@@ -309,11 +316,11 @@ public class ExperimentListFragment extends Fragment
 
               // TODO: Add a recording item if required by b/64844798.
 
-              RxDataController.updateExperiment(getDataController(), e)
+              RxDataController.updateExperiment(dataController, e)
                   .subscribe(
                       () -> {
                         setDefaultExperimentCreated();
-                        loadExperiments(currentAccount);
+                        loadExperiments();
                       });
             });
   }
@@ -327,7 +334,7 @@ public class ExperimentListFragment extends Fragment
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController();
+    return AppSingleton.getInstance(getActivity()).getDataController(currentAccount);
   }
 
   public void setProgressBarVisible(boolean visible) {
@@ -361,12 +368,12 @@ public class ExperimentListFragment extends Fragment
     }
     if (id == R.id.action_include_archived) {
       includeArchived = true;
-      loadExperiments(currentAccount);
+      loadExperiments();
       getActivity().invalidateOptionsMenu();
       return true;
     } else if (id == R.id.action_exclude_archived) {
       includeArchived = false;
-      loadExperiments(currentAccount);
+      loadExperiments();
       getActivity().invalidateOptionsMenu();
       return true;
     }
@@ -385,24 +392,24 @@ public class ExperimentListFragment extends Fragment
   @Override
   public void requestDelete(Bundle extras) {
     String experimentId = extras.getString(DeleteMetadataItemDialog.KEY_ITEM_ID);
-    RxDataController.getExperimentById(getDataController(), experimentId)
+    DataController dataController = getDataController();
+    RxDataController.getExperimentById(dataController, experimentId)
         .subscribe(
             fullExperiment -> {
-              getDataController()
-                  .deleteExperiment(
-                      fullExperiment,
-                      new LoggingConsumer<Success>(TAG, "delete experiment") {
-                        @Override
-                        public void success(Success value) {
-                          experimentListAdapter.onExperimentDeleted(experimentId);
-                          WhistlePunkApplication.getUsageTracker(getActivity())
-                              .trackEvent(
-                                  TrackerConstants.CATEGORY_EXPERIMENTS,
-                                  TrackerConstants.ACTION_DELETED,
-                                  TrackerConstants.LABEL_EXPERIMENT_LIST,
-                                  0);
-                        }
-                      });
+              dataController.deleteExperiment(
+                  fullExperiment,
+                  new LoggingConsumer<Success>(TAG, "delete experiment") {
+                    @Override
+                    public void success(Success value) {
+                      experimentListAdapter.onExperimentDeleted(experimentId);
+                      WhistlePunkApplication.getUsageTracker(getActivity())
+                          .trackEvent(
+                              TrackerConstants.CATEGORY_EXPERIMENTS,
+                              TrackerConstants.ACTION_DELETED,
+                              TrackerConstants.LABEL_EXPERIMENT_LIST,
+                              0);
+                    }
+                  });
             });
   }
 
@@ -429,7 +436,6 @@ public class ExperimentListFragment extends Fragment
     static final int VIEW_TYPE_EMPTY = 1;
     static final int VIEW_TYPE_DATE = 2;
     private final Drawable placeHolderImage;
-    private final DataController dataController;
 
     private final List<ExperimentListItem> items;
     private boolean includeArchived;
@@ -441,11 +447,10 @@ public class ExperimentListFragment extends Fragment
     private final SnackbarManager snackbarManager = new SnackbarManager();
     private PopupMenu popupMenu = null;
 
-    public ExperimentListAdapter(ExperimentListFragment parent, DataController dc) {
+    public ExperimentListAdapter(ExperimentListFragment parent) {
       items = new ArrayList<>();
       placeHolderImage =
           parent.getActivity().getResources().getDrawable(R.drawable.experiment_card_placeholder);
-      dataController = dc;
       calendar =
           Calendar.getInstance(parent.getActivity().getResources().getConfiguration().locale);
       currentYear = calendar.get(Calendar.YEAR);
@@ -557,13 +562,15 @@ public class ExperimentListFragment extends Fragment
       holder.cardView.setOnClickListener(
           v -> {
             if (!parentReference.get().progressBarVisible) {
-              launchPanesActivity(v.getContext(), overview.experimentId);
+              launchPanesActivity(
+                  v.getContext(), parentReference.get().currentAccount, overview.experimentId);
             }
           });
 
       Context context = holder.menuButton.getContext();
       boolean isShareIntentValid =
-          FileMetadataManager.validateShareIntent(context, overview.experimentId);
+          FileMetadataManager.validateShareIntent(
+              context, parentReference.get().currentAccount, overview.experimentId);
       holder.menuButton.setOnClickListener(
           v -> {
             int position = items.indexOf(item);
@@ -608,7 +615,8 @@ public class ExperimentListFragment extends Fragment
                             TrackerConstants.LABEL_EXPERIMENT_LIST,
                             0);
                     parentReference.get().setProgressBarVisible(true);
-                    ExportService.handleExperimentExportClick(context, overview.experimentId);
+                    ExportService.handleExperimentExportClick(
+                        context, parentReference.get().currentAccount, overview.experimentId);
                     return true;
                   }
                   return false;
@@ -618,7 +626,8 @@ public class ExperimentListFragment extends Fragment
           });
 
       if (!TextUtils.isEmpty(overview.imagePath)) {
-        PictureUtils.loadExperimentOverviewImage(holder.experimentImage, overview.imagePath);
+        PictureUtils.loadExperimentOverviewImage(
+            parentReference.get().currentAccount, holder.experimentImage, overview.imagePath);
       } else {
         // Make sure the scale type is correct for the placeholder
         holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -640,10 +649,11 @@ public class ExperimentListFragment extends Fragment
       }
       Context context = parentReference.get().getContext();
       overview.isArchived = archived;
+      DataController dataController = parentReference.get().getDataController();
       RxDataController.getExperimentById(dataController, overview.experimentId)
           .subscribe(
               fullExperiment -> {
-                fullExperiment.setArchived(context, archived);
+                fullExperiment.setArchived(context, dataController.getAppAccount(), archived);
                 dataController.updateExperiment(
                     overview.experimentId,
                     new LoggingConsumer<Success>(TAG, "set archived bit") {
@@ -674,7 +684,7 @@ public class ExperimentListFragment extends Fragment
       } else {
         // It could be added back anywhere.
         if (parentReference.get() != null) {
-          parentReference.get().loadExperiments(parentReference.get().currentAccount);
+          parentReference.get().loadExperiments();
         }
       }
     }

@@ -19,6 +19,7 @@ import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
@@ -47,11 +48,12 @@ public class DeletedLabel {
 
   public void deleteAndDisplayUndoBar(
       View view,
+      AppAccount appAccount,
       final Experiment experiment,
       LabelListHolder labelHolder,
       Runnable uiChangeOnUndo) {
     Context context = view.getContext();
-    final DataController dc = AppSingleton.getInstance(context).getDataController();
+    final DataController dc = AppSingleton.getInstance(context).getDataController(appAccount);
     Snackbar bar =
         AccessibilityUtils.makeSnackbar(
             view, context.getResources().getString(R.string.snackbar_note_deleted), UNDO_DELAY_MS);

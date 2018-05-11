@@ -34,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsListener;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
@@ -361,12 +362,13 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
   @Override
   public SensorRecorder createRecorder(
       final Context context,
+      AppAccount appAccount,
       final SensorObserver observer,
       SensorStatusListener listener,
       final SensorEnvironment environment) {
     final StatsAccumulator statsAccumulator = new StatsAccumulator(getId());
     final RecordingDataController dataController =
-        Preconditions.checkNotNull(environment.getDataController());
+        Preconditions.checkNotNull(environment.getDataController(appAccount));
 
     // We need twice the buffer as the zoom level, because in this implementation of zoom, we
     // decided to store min and max data points at each level.

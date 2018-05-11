@@ -44,6 +44,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
@@ -63,6 +64,7 @@ public class AddNoteDialog extends DialogFragment {
 
   private static final String KEY_SAVED_INPUT_TEXT = "savedInputText";
   private static final String KEY_SAVED_PICTURE_PATH = "savedPicturePath";
+  private static final String KEY_SAVED_ACCOUNT_KEY = "savedAccountKey";
   private static final String KEY_SAVED_TIMESTAMP = "savedTimestamp";
   private static final String KEY_SAVED_RUN_ID = "savedRunId";
   private static final String KEY_SAVED_EXPERIMENT_ID = "savedExperimentId";
@@ -119,11 +121,13 @@ public class AddNoteDialog extends DialogFragment {
   private String pictureLabelPath;
   private TextInputEditText input;
   private TextInputLayout inputLayout;
+  private AppAccount appAccount;
   private String experimentId;
 
   CompositeDisposable untilDestroyed = new CompositeDisposable();
 
   public static AddNoteDialog newInstance(
+      AppAccount appAccount,
       long timestamp,
       String currentRunId,
       String experimentId,
@@ -134,6 +138,7 @@ public class AddNoteDialog extends DialogFragment {
     AddNoteDialog dialog = new AddNoteDialog();
 
     Bundle args = new Bundle();
+    args.putString(KEY_SAVED_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putLong(KEY_SAVED_TIMESTAMP, timestamp);
     args.putString(KEY_SAVED_RUN_ID, currentRunId);
     args.putString(KEY_SAVED_EXPERIMENT_ID, experimentId);
@@ -235,6 +240,8 @@ public class AddNoteDialog extends DialogFragment {
       Bundle savedInstanceState, LayoutInflater inflater, boolean nativeSaveButton) {
     String text = "";
     if (getArguments() != null) {
+      appAccount =
+          WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_SAVED_ACCOUNT_KEY);
       timestamp = getArguments().getLong(KEY_SAVED_TIMESTAMP, -1);
       hintTextId = getArguments().getInt(KEY_HINT_TEXT_ID, hintTextId);
       labelTimeText = getArguments().getString(KEY_LABEL_TIME_TEXT, "");
@@ -343,7 +350,8 @@ public class AddNoteDialog extends DialogFragment {
 
     setViewVisibilities(takePictureBtn, imageView, !hasPicture());
     if (pictureLabelPath != null) {
-      PictureUtils.loadExperimentImage(getActivity(), imageView, experimentId, pictureLabelPath);
+      PictureUtils.loadExperimentImage(
+          getActivity(), imageView, appAccount, experimentId, pictureLabelPath);
     }
 
     takePictureBtn.setOnClickListener(
@@ -356,7 +364,8 @@ public class AddNoteDialog extends DialogFragment {
                 public void onPermissionGranted() {
                   uuid = UUID.randomUUID().toString();
                   pictureLabelPath =
-                      PictureUtils.capturePictureLabel(getActivity(), experimentId, uuid);
+                      PictureUtils.capturePictureLabel(
+                          getActivity(), appAccount, experimentId, uuid);
                 }
 
                 @Override
@@ -434,7 +443,7 @@ public class AddNoteDialog extends DialogFragment {
   }
 
   private DataController getDataController(Context context) {
-    return AppSingleton.getInstance(context).getDataController();
+    return AppSingleton.getInstance(context).getDataController(appAccount);
   }
 
   private boolean addPictureLabel(Experiment experiment) {
@@ -474,7 +483,8 @@ public class AddNoteDialog extends DialogFragment {
       Dialog dialog = getDialog();
       ImageView imageView = (ImageView) dialog.findViewById(R.id.picture_note_preview_image);
       if (resultCode == Activity.RESULT_OK) {
-        PictureUtils.loadExperimentImage(getActivity(), imageView, experimentId, pictureLabelPath);
+        PictureUtils.loadExperimentImage(
+            getActivity(), imageView, appAccount, experimentId, pictureLabelPath);
       } else {
         pictureLabelPath = null;
       }

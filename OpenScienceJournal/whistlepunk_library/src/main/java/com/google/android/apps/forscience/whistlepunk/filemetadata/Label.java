@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
@@ -262,12 +263,12 @@ public class Label implements Parcelable {
   }
 
   /** Deletes any assets associated with this label */
-  public void deleteAssets(Context context, String experimentId) {
+  public void deleteAssets(Context context, AppAccount appAccount, String experimentId) {
     if (label.type == GoosciLabel.Label.ValueType.PICTURE) {
       File file =
           new File(
               PictureUtils.getExperimentImagePath(
-                  context, experimentId, getPictureLabelValue().filePath));
+                  context, appAccount, experimentId, getPictureLabelValue().filePath));
       boolean deleted = file.delete();
       if (!deleted && Log.isLoggable(TAG, Log.WARN)) {
         Log.w(TAG, "Could not delete " + file.toString());

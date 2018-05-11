@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -52,7 +54,9 @@ public class TrialTest {
     trial.addLabel(second);
     assertEquals(trial.getLabelCount(), 2);
 
-    trial.deleteLabelAndReturnAssetDeleter(label, "experimentId").accept(getContext());
+    trial
+        .deleteLabelAndReturnAssetDeleter(label, getAppAccount(), "experimentId")
+        .accept(getContext());
     assertEquals(trial.getLabelCount(), 1);
   }
 
@@ -84,7 +88,11 @@ public class TrialTest {
     assertEquals(trial.getLabels().get(2).getTimeStamp(), 40);
   }
 
-  private Context getContext() {
+  private static Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }

@@ -38,6 +38,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -58,6 +59,7 @@ public class PanesActivity extends AppCompatActivity
         PanesToolFragment.EnvProvider,
         ExperimentDetailsFragment.ListenerProvider {
   private static final String TAG = "PanesActivity";
+  public static final String EXTRA_ACCOUNT_KEY = "accountKey";
   public static final String EXTRA_EXPERIMENT_ID = "experimentId";
   private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
   private static final String KEY_DRAWER_STATE = "drawerState";
@@ -75,6 +77,7 @@ public class PanesActivity extends AppCompatActivity
   private RxPermissions permissions;
   private int initialDrawerState = -1;
   private RxEvent paused = new RxEvent();
+  private AppAccount appAccount;
 
   public PanesActivity() {
     snackbarManager = new SnackbarManager();
@@ -119,7 +122,8 @@ public class PanesActivity extends AppCompatActivity
     private static ToolTab NOTES =
         new ToolTab(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp, "NOTES") {
           @Override
-          public Fragment createFragment(String experimentId, AppCompatActivity activity) {
+          public Fragment createFragment(
+              AppAccount appAccount, String experimentId, AppCompatActivity activity) {
             return TextToolFragment.newInstance();
           }
 
@@ -141,8 +145,9 @@ public class PanesActivity extends AppCompatActivity
     private static ToolTab OBSERVE =
         new ToolTab(R.string.tab_description_observe, R.drawable.sensortab_white_24dp, "OBSERVE") {
           @Override
-          public Fragment createFragment(String experimentId, AppCompatActivity activity) {
-            return RecordFragment.newInstance(experimentId);
+          public Fragment createFragment(
+              AppAccount appAccount, String experimentId, AppCompatActivity activity) {
+            return RecordFragment.newInstance(appAccount, experimentId);
           }
 
           @Override
@@ -163,8 +168,9 @@ public class PanesActivity extends AppCompatActivity
     private static ToolTab CAMERA =
         new ToolTab(R.string.tab_description_camera, R.drawable.ic_camera_white_24dp, "CAMERA") {
           @Override
-          public Fragment createFragment(String experimentId, AppCompatActivity activity) {
-            return CameraFragment.newInstance();
+          public Fragment createFragment(
+              AppAccount appAccount, String experimentId, AppCompatActivity activity) {
+            return CameraFragment.newInstance(appAccount);
           }
 
           @Override
@@ -184,8 +190,9 @@ public class PanesActivity extends AppCompatActivity
     private static ToolTab GALLERY =
         new ToolTab(R.string.tab_description_gallery, R.drawable.ic_photo_white_24dp, "GALLERY") {
           @Override
-          public Fragment createFragment(String experimentId, AppCompatActivity activity) {
-            return GalleryFragment.newInstance();
+          public Fragment createFragment(
+              AppAccount appAccount, String experimentId, AppCompatActivity activity) {
+            return GalleryFragment.newInstance(appAccount);
           }
 
           @Override
@@ -212,7 +219,8 @@ public class PanesActivity extends AppCompatActivity
       this.loggingName = loggingName;
     }
 
-    public abstract Fragment createFragment(String experimentId, AppCompatActivity activity);
+    public abstract Fragment createFragment(
+        AppAccount appAccount, String experimentId, AppCompatActivity activity);
 
     public int getContentDescriptionId() {
       return contentDescriptionId;
@@ -234,14 +242,15 @@ public class PanesActivity extends AppCompatActivity
         Observable<DrawerLayoutState> layoutState);
   }
 
-  public static void launch(Context context, String experimentId) {
-    Intent intent = launchIntent(context, experimentId);
+  public static void launch(Context context, AppAccount appAccount, String experimentId) {
+    Intent intent = launchIntent(context, appAccount, experimentId);
     context.startActivity(intent);
   }
 
   @NonNull
-  public static Intent launchIntent(Context context, String experimentId) {
+  public static Intent launchIntent(Context context, AppAccount appAccount, String experimentId) {
     Intent intent = new Intent(context, PanesActivity.class);
+    intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
     return intent;
   }
@@ -277,6 +286,7 @@ public class PanesActivity extends AppCompatActivity
     recordingBar = findViewById(R.id.recording_progress_bar);
     grabber = findViewById(R.id.grabber);
 
+    appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
     String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
     selectedTabIndex = 0;
@@ -292,7 +302,7 @@ public class PanesActivity extends AppCompatActivity
           setupViews(experiment);
           setExperimentFragmentId(experiment);
           AppSingleton.getInstance(this)
-              .getRecorderController()
+              .getRecorderController(appAccount)
               .watchRecordingStatus()
               .firstElement()
               .subscribe(
@@ -314,7 +324,7 @@ public class PanesActivity extends AppCompatActivity
     exp.takeUntil(destroyed.happensNext()).subscribe(activeExperiment);
 
     AppSingleton.getInstance(this)
-        .whenLabelsAdded()
+        .whenLabelsAdded(appAccount)
         .takeUntil(destroyed.happens())
         .subscribe(event -> onLabelAdded(event.getTrialId()));
 
@@ -384,7 +394,7 @@ public class PanesActivity extends AppCompatActivity
 
   private void setupViews(Experiment experiment) {
     ControlBarController controlBarController =
-        new ControlBarController(experiment.getExperimentId(), snackbarManager);
+        new ControlBarController(appAccount, experiment.getExperimentId(), snackbarManager);
 
     ViewPager pager = findViewById(R.id.pager);
     View bottomSheet = findViewById(R.id.bottom);
@@ -456,7 +466,7 @@ public class PanesActivity extends AppCompatActivity
                 return null;
               }
               return getToolTab(position)
-                  .createFragment(experiment.getExperimentId(), PanesActivity.this);
+                  .createFragment(appAccount, experiment.getExperimentId(), PanesActivity.this);
             }
 
             private ToolTab getToolTab(int position) {
@@ -634,7 +644,8 @@ public class PanesActivity extends AppCompatActivity
     if (experimentFragment == null) {
       boolean createTaskStack = true;
       experimentFragment =
-          ExperimentDetailsFragment.newInstance(experiment.getExperimentId(), createTaskStack);
+          ExperimentDetailsFragment.newInstance(
+              appAccount, experiment.getExperimentId(), createTaskStack);
 
       fragmentManager.beginTransaction().replace(R.id.experiment_pane, experimentFragment).commit();
     } else {
@@ -712,12 +723,12 @@ public class PanesActivity extends AppCompatActivity
   }
 
   private void updateRecorderControllerForResume() {
-    RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
+    RecorderController rc = AppSingleton.getInstance(this).getRecorderController(appAccount);
     rc.setRecordActivityInForeground(true);
   }
 
   private void updateRecorderControllerForPause() {
-    RecorderController rc = AppSingleton.getInstance(this).getRecorderController();
+    RecorderController rc = AppSingleton.getInstance(this).getRecorderController(appAccount);
     rc.setRecordActivityInForeground(false);
   }
 
@@ -877,7 +888,7 @@ public class PanesActivity extends AppCompatActivity
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(PanesActivity.this).getDataController();
+    return AppSingleton.getInstance(PanesActivity.this).getDataController(appAccount);
   }
 
   @Override
