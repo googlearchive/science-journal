@@ -335,6 +335,8 @@ class ExperimentCache {
     if (proto != null) {
       upgradeExperimentVersionIfNeeded(proto, experimentOverview);
       activeExperiment = Experiment.fromExperiment(proto, experimentOverview);
+      localSyncManager.addExperiment(activeExperiment.getExperimentId());
+      experimentLibraryManager.addExperiment(activeExperiment.getExperimentId());
     } else {
       // Or maybe pass a FailureListener into the load instead of failing here.
       failureListener.onReadFailed(experimentOverview);

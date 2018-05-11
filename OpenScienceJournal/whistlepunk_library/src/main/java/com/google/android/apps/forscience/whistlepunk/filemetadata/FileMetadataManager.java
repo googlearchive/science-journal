@@ -72,6 +72,8 @@ public class FileMetadataManager {
 
   private ExperimentCache activeExperimentCache;
   private UserMetadataManager userMetadataManager;
+  private final LocalSyncManager localSyncManager;
+  private final ExperimentLibraryManager experimentLibraryManager;
   private ColorAllocator colorAllocator;
 
   public FileMetadataManager(Context applicationContext, AppAccount appAccount, Clock clock) {
@@ -124,6 +126,9 @@ public class FileMetadataManager {
     activeExperimentCache = new ExperimentCache(applicationContext, appAccount, failureListener);
     userMetadataManager =
         new UserMetadataManager(applicationContext, appAccount, userMetadataListener);
+    localSyncManager = AppSingleton.getInstance(applicationContext).getLocalSyncManager();
+    experimentLibraryManager =
+        AppSingleton.getInstance(applicationContext).getExperimentLibraryManager();
     colorAllocator =
         new ColorAllocator(
             applicationContext.getResources().getIntArray(R.array.experiment_colors_array).length);
@@ -458,7 +463,8 @@ public class FileMetadataManager {
     }
     int colorIndex = colorAllocator.getNextColor(usedColors);
     Experiment experiment = Experiment.newExperiment(timestamp, localExperimentId, colorIndex);
-
+    localSyncManager.addExperiment(experiment.getExperimentId());
+    experimentLibraryManager.addExperiment(experiment.getExperimentId());
     addExperiment(experiment);
     return experiment;
   }
@@ -469,6 +475,8 @@ public class FileMetadataManager {
     // Get ready to write the experiment to a file. Will write when the timer expires.
     activeExperimentCache.createNewExperiment(experiment);
     userMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
+    localSyncManager.addExperiment(experiment.getExperimentId());
+    experimentLibraryManager.addExperiment(experiment.getExperimentId());
   }
 
   public void saveImmediately() {
@@ -484,6 +492,7 @@ public class FileMetadataManager {
   private void deleteExperiment(String experimentId) {
     activeExperimentCache.deleteExperiment(experimentId);
     userMetadataManager.deleteExperimentOverview(experimentId);
+    experimentLibraryManager.setDeleted(experimentId, true);
   }
 
   public void updateExperiment(Experiment experiment) {

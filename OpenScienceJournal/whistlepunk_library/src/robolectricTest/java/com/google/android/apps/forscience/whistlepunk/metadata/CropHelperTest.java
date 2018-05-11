@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataControllerImpl;
+import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -108,7 +109,7 @@ public class CropHelperTest {
     trialProto.recordingRange.endMs = 10;
     Trial trial = Trial.fromTrial(trialProto);
 
-    Experiment experiment = Experiment.newExperiment(10, "experimentId", 0);
+    Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "experimentId", 0);
     experiment.addTrial(trial);
 
     CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), dataController);
