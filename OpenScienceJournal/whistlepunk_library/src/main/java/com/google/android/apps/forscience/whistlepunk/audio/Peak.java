@@ -23,16 +23,16 @@ import java.util.TreeSet;
 
 /** Represents a peak in FFT (Fast Fourier Transform) output. */
 class Peak {
-  private final int mFftIndex;
-  private final double mFrequencyEstimate;
-  private final double mFftValue;
-  private double mFrequency;
-  private final List<Harmonic> mHarmonics = new ArrayList<>();
+  private final int fftIndex;
+  private final double frequencyEstimate;
+  private final double fftValue;
+  private double frequency;
+  private final List<Harmonic> harmonics = new ArrayList<>();
 
   Peak(int fftIndex, double frequencyEstimate, double fftMagnitude, double fftProminence) {
-    mFftIndex = fftIndex;
-    mFrequencyEstimate = frequencyEstimate;
-    mFftValue = fftMagnitude * fftProminence;
+    this.fftIndex = fftIndex;
+    this.frequencyEstimate = frequencyEstimate;
+    fftValue = fftMagnitude * fftProminence;
   }
 
   /**
@@ -40,35 +40,35 @@ class Peak {
    * magnitude and the prominence of the peak.
    */
   double getFftValue() {
-    return mFftValue;
+    return fftValue;
   }
 
   /**
    * Returns the frequency estimate of this peak, based on which FFT bin corresponds to the peak.
    */
   double getFrequencyEstimate() {
-    return mFrequencyEstimate;
+    return frequencyEstimate;
   }
 
   /** Returns the frequency as determined by applying a series of Goertzel filters. */
   double getFrequency() {
-    return mFrequency;
+    return frequency;
   }
 
   /** Sets the frequency as determined by applying a series of Goertzel filters. */
   void setFrequency(double frequency) {
-    mFrequency = frequency;
+    this.frequency = frequency;
   }
 
-  /** Adds the given harmonic relationship to the mHarmonics list. */
+  /** Adds the given harmonic relationship to the harmonics list. */
   void addHarmonic(Harmonic harmonic) {
-    mHarmonics.add(harmonic);
+    harmonics.add(harmonic);
   }
 
   /** Returns the set of harmonic ratio terms that have been identified for this peak. */
   NavigableSet<Integer> getHarmonicTerms() {
     TreeSet<Integer> terms = new TreeSet<>();
-    for (Harmonic harmonic : mHarmonics) {
+    for (Harmonic harmonic : harmonics) {
       terms.add(harmonic.getTermForPeak(this));
     }
     return terms;
@@ -85,11 +85,11 @@ class Peak {
     }
 
     Peak peak = (Peak) obj;
-    return mFftIndex == peak.mFftIndex;
+    return fftIndex == peak.fftIndex;
   }
 
   @Override
   public int hashCode() {
-    return mFftIndex;
+    return fftIndex;
   }
 }

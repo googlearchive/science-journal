@@ -24,16 +24,16 @@ public class RecordingMetadata implements Parcelable {
   public static final int NOT_RECORDING = -1;
 
   protected RecordingMetadata(Parcel in) {
-    mStartTime = in.readLong();
-    mRunId = in.readString();
-    mExperimentName = in.readString();
+    startTime = in.readLong();
+    runId = in.readString();
+    experimentName = in.readString();
   }
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeLong(mStartTime);
-    dest.writeString(mRunId);
-    dest.writeString(mExperimentName);
+    dest.writeLong(startTime);
+    dest.writeString(runId);
+    dest.writeString(experimentName);
   }
 
   @Override
@@ -58,38 +58,38 @@ public class RecordingMetadata implements Parcelable {
     return recording != null ? recording.getStartTime() : NOT_RECORDING;
   }
 
-  private long mStartTime;
-  private String mRunId;
-  private String mExperimentName;
+  private long startTime;
+  private String runId;
+  private String experimentName;
 
   public RecordingMetadata(long startTime, String runId, String experimentName) {
-    mStartTime = startTime;
-    mRunId = runId;
-    mExperimentName = experimentName;
+    this.startTime = startTime;
+    this.runId = runId;
+    this.experimentName = experimentName;
   }
 
   public long getStartTime() {
-    return mStartTime;
+    return startTime;
   }
 
   public String getRunId() {
-    return mRunId;
+    return runId;
   }
 
   public String getExperimentName() {
-    return mExperimentName;
+    return experimentName;
   }
 
   @Override
   public String toString() {
     return "RecordingMetadata{"
         + "mStartTime="
-        + mStartTime
+        + startTime
         + ", mRunId='"
-        + mRunId
+        + runId
         + '\''
         + ", mExperimentName='"
-        + mExperimentName
+        + experimentName
         + '\''
         + '}';
   }

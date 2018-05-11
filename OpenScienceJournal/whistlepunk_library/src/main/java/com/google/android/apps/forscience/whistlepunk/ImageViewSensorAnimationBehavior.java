@@ -50,8 +50,8 @@ public class ImageViewSensorAnimationBehavior implements SensorAnimationBehavior
   public static final int TYPE_ROTATION = 5;
   public static final int TYPE_ACCELEROMETER_SCALE_ROTATES = 6;
 
-  private final int mBehaviorType;
-  private int mLevelDrawableId;
+  private final int behaviorType;
+  private int levelDrawableId;
 
   public static ImageViewSensorAnimationBehavior createDefault() {
     // TODO: Replace bluetooth_level_drawable with a default sensor icon from UX.
@@ -62,8 +62,8 @@ public class ImageViewSensorAnimationBehavior implements SensorAnimationBehavior
   // For now, assume that drawableIds is size 1 for static, size 5 for accelerometer, size 4
   // for relative scale, or size 1 for rotation.
   public ImageViewSensorAnimationBehavior(int levelDrawableId, @BehaviorType int behaviorType) {
-    mBehaviorType = behaviorType;
-    mLevelDrawableId = levelDrawableId;
+    this.behaviorType = behaviorType;
+    this.levelDrawableId = levelDrawableId;
   }
 
   private ImageView getImageView(RelativeLayout layout) {
@@ -85,12 +85,12 @@ public class ImageViewSensorAnimationBehavior implements SensorAnimationBehavior
   public void updateIcon(
       RelativeLayout layout, double newValue, double yMin, double yMax, int screenOrientation) {
     ImageView view = getImageView(layout);
-    if (mBehaviorType == TYPE_ROTATION) {
+    if (behaviorType == TYPE_ROTATION) {
       float delta = getScreenRotationDelta(screenOrientation);
       view.setRotation((float) (-1.0 * (newValue + delta)));
       view.setImageLevel(0);
     } else {
-      if (mBehaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
+      if (behaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
         float delta = getScreenRotationDelta(screenOrientation);
         view.setRotation(-1 * delta);
       } else {
@@ -107,10 +107,10 @@ public class ImageViewSensorAnimationBehavior implements SensorAnimationBehavior
 
   private int getUpdatedLevel(double newValue, double yMin, double yMax) {
     int index;
-    if (mBehaviorType == TYPE_STATIC_ICON) {
+    if (behaviorType == TYPE_STATIC_ICON) {
       index = 0;
-    } else if (mBehaviorType == TYPE_ACCELEROMETER_SCALE
-        || mBehaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
+    } else if (behaviorType == TYPE_ACCELEROMETER_SCALE
+        || behaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
       if (newValue > 3.0) {
         index = 4;
       } else if (newValue > 0.5) {
@@ -124,11 +124,11 @@ public class ImageViewSensorAnimationBehavior implements SensorAnimationBehavior
       }
     } else {
       double scaled;
-      if (mBehaviorType == TYPE_POSITIVE_RELATIVE_SCALE) {
+      if (behaviorType == TYPE_POSITIVE_RELATIVE_SCALE) {
         double minVal = Math.max(yMin, 0);
         scaled = (newValue - minVal) / (yMax - minVal);
       } else {
-        // Assume mBehaviorType == TYPE_RELATIVE_SCALE
+        // Assume behaviorType == TYPE_RELATIVE_SCALE
         scaled = (newValue - yMin) / (yMax - yMin);
       }
       if (scaled > .75) {
@@ -163,7 +163,7 @@ public class ImageViewSensorAnimationBehavior implements SensorAnimationBehavior
 
   private Drawable getLevelDrawable(Context context) {
     LevelListDrawable drawable =
-        (LevelListDrawable) context.getResources().getDrawable(mLevelDrawableId);
+        (LevelListDrawable) context.getResources().getDrawable(levelDrawableId);
     drawable.setLevel(0);
     return drawable;
   }
@@ -180,12 +180,12 @@ public class ImageViewSensorAnimationBehavior implements SensorAnimationBehavior
     largeIcon.setImageDrawable(getLevelDrawable(largeIcon.getContext()));
     largeIcon.setRotation(0.0f);
     // Icon level depends on type -- we want to pick something in the middle to look reasonable.
-    if (mBehaviorType == TYPE_ACCELEROMETER_SCALE
-        || mBehaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
+    if (behaviorType == TYPE_ACCELEROMETER_SCALE
+        || behaviorType == TYPE_ACCELEROMETER_SCALE_ROTATES) {
       // Pick the middle icon
       largeIcon.setImageLevel(2);
-    } else if (mBehaviorType == TYPE_POSITIVE_RELATIVE_SCALE
-        || mBehaviorType == TYPE_RELATIVE_SCALE) {
+    } else if (behaviorType == TYPE_POSITIVE_RELATIVE_SCALE
+        || behaviorType == TYPE_RELATIVE_SCALE) {
       // Pick the most exciting icon (the biggest value represented)
       largeIcon.setImageLevel(3);
     }

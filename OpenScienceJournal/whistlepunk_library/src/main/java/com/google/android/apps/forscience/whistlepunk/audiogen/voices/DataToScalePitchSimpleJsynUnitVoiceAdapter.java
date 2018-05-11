@@ -28,24 +28,30 @@ import com.softsynth.shared.time.TimeStamp;
  * nothing.
  */
 public class DataToScalePitchSimpleJsynUnitVoiceAdapter extends JsynUnitVoiceAdapter {
-  protected final int[] mPitches;
+  protected final int[] pitches;
 
   public DataToScalePitchSimpleJsynUnitVoiceAdapter(
       Synthesizer synth, int[] scale, int pitchMin, int pitchMax) {
-    mPitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
-    mVoice = new SimpleJsynUnitVoice();
-    synth.add(mVoice);
+    pitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
+    voice = new SimpleJsynUnitVoice();
+    synth.add(voice);
   }
 
   public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
     // Default implementation (or any implementation with no pitches) does nothing.
-    if (mPitches.length == 0) return;
+    if (pitches.length == 0) {
+      return;
+    }
     // Range checking, in case min or max is higher or lower than value (respectively).
-    if (value < min) value = min;
-    if (value > max) value = max;
+    if (value < min) {
+      value = min;
+    }
+    if (value > max) {
+      value = max;
+    }
 
-    int index = (int) Math.floor((value - min) / (max - min) * (mPitches.length - 1));
-    double freq = AudioMath.pitchToFrequency(mPitches[index]);
-    mVoice.noteOn(freq, AMP_VALUE, timeStamp);
+    int index = (int) Math.floor((value - min) / (max - min) * (pitches.length - 1));
+    double freq = AudioMath.pitchToFrequency(pitches[index]);
+    voice.noteOn(freq, AMP_VALUE, timeStamp);
   }
 }

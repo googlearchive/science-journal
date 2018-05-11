@@ -35,143 +35,142 @@ public class CardTriggerPresenter {
     void onCardTriggerIconClicked();
   }
 
-  private final OnCardTriggerClickedListener mListener;
-  private List<SensorTrigger> mSensorTriggers = Collections.emptyList();
-  private List<String> mTriggerText = new ArrayList<>();
-  private int mDisplayedTriggerTextIndex = 0;
-  private CardViewHolder mCardViewHolder;
-  private Activity mActivity;
-  private Handler mHandler;
-  private Runnable mTriggerRunnable;
+  private final OnCardTriggerClickedListener listener;
+  private List<SensorTrigger> sensorTriggers = Collections.emptyList();
+  private List<String> triggerText = new ArrayList<>();
+  private int displayedTriggerTextIndex = 0;
+  private CardViewHolder cardViewHolder;
+  private Activity activity;
+  private Handler handler;
+  private Runnable triggerRunnable;
 
   public CardTriggerPresenter(OnCardTriggerClickedListener listener, Fragment fragment) {
-    mListener = listener;
+    this.listener = listener;
     // In tests, the fragment may be null.
-    mActivity = fragment != null ? fragment.getActivity() : null;
+    activity = fragment != null ? fragment.getActivity() : null;
   }
 
   public void setViews(CardViewHolder cardViewHolder) {
-    mCardViewHolder = cardViewHolder;
+    this.cardViewHolder = cardViewHolder;
     View.OnClickListener listener =
         new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            mListener.onCardTriggerIconClicked();
+            CardTriggerPresenter.this.listener.onCardTriggerIconClicked();
           }
         };
     // Put the click listener on both the check box button and the trigger icon button.
-    mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(listener);
-    mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(listener);
-    if (mSensorTriggers.size() > 0) {
+    this.cardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(listener);
+    this.cardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(listener);
+    if (sensorTriggers.size() > 0) {
       trySettingUpTextSwitcher();
     }
   }
 
   public void onViewRecycled() {
-    if (mCardViewHolder != null) {
-      mCardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(null);
-      mCardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(null);
-      mCardViewHolder.triggerFiredBackground.setAnimationListener(null);
-      mCardViewHolder = null;
+    if (cardViewHolder != null) {
+      cardViewHolder.triggerIcon.getChildAt(0).setOnClickListener(null);
+      cardViewHolder.triggerIcon.getChildAt(1).setOnClickListener(null);
+      cardViewHolder.triggerFiredBackground.setAnimationListener(null);
+      cardViewHolder = null;
     }
-    if (mHandler != null) {
-      mHandler.removeCallbacks(mTriggerRunnable);
-      mHandler = null;
+    if (handler != null) {
+      handler.removeCallbacks(triggerRunnable);
+      handler = null;
     }
-    mTriggerRunnable = null;
+    triggerRunnable = null;
   }
 
   public void onDestroy() {
-    if (mCardViewHolder != null) {
+    if (cardViewHolder != null) {
       onViewRecycled();
     }
-    mActivity = null;
+    activity = null;
   }
 
   public void setSensorTriggers(List<SensorTrigger> sensorTriggers) {
-    mSensorTriggers = sensorTriggers;
-    if (mDisplayedTriggerTextIndex < mSensorTriggers.size()) {
-      mDisplayedTriggerTextIndex = 0;
+    this.sensorTriggers = sensorTriggers;
+    if (displayedTriggerTextIndex < this.sensorTriggers.size()) {
+      displayedTriggerTextIndex = 0;
     }
     createTextForTriggers();
-    if (mCardViewHolder != null) {
+    if (cardViewHolder != null) {
       trySettingUpTextSwitcher();
     }
   }
 
   private void trySettingUpTextSwitcher() {
-    if (mTriggerText.size() == 0) {
-      mCardViewHolder.triggerTextSwitcher.setCurrentText("");
+    if (triggerText.size() == 0) {
+      cardViewHolder.triggerTextSwitcher.setCurrentText("");
       return;
     }
-    if (mHandler == null) {
-      mHandler = new Handler();
-      mTriggerRunnable =
+    if (handler == null) {
+      handler = new Handler();
+      triggerRunnable =
           new Runnable() {
             @Override
             public void run() {
-              if (mTriggerText.size() == 0 || mCardViewHolder == null) {
+              if (triggerText.size() == 0 || cardViewHolder == null) {
                 return;
               }
-              mDisplayedTriggerTextIndex = (++mDisplayedTriggerTextIndex) % mTriggerText.size();
-              mCardViewHolder.triggerTextSwitcher.setText(
-                  mTriggerText.get(mDisplayedTriggerTextIndex));
-              mHandler.postDelayed(mTriggerRunnable, TRIGGER_TEXT_SWITCHER_DELAY_MS);
+              displayedTriggerTextIndex = (++displayedTriggerTextIndex) % triggerText.size();
+              cardViewHolder.triggerTextSwitcher.setText(
+                  triggerText.get(displayedTriggerTextIndex));
+              handler.postDelayed(triggerRunnable, TRIGGER_TEXT_SWITCHER_DELAY_MS);
             }
           };
     }
-    mCardViewHolder.triggerFiredBackground.setAnimationListener(
+    cardViewHolder.triggerFiredBackground.setAnimationListener(
         new TriggerBackgroundView.TriggerAnimationListener() {
           @Override
           public void onAnimationStart() {
-            mCardViewHolder.triggerFiredText.setVisibility(View.VISIBLE);
-            mCardViewHolder.triggerTextSwitcher.setVisibility(View.INVISIBLE);
-            mCardViewHolder.triggerIcon.showNext();
+            cardViewHolder.triggerFiredText.setVisibility(View.VISIBLE);
+            cardViewHolder.triggerTextSwitcher.setVisibility(View.INVISIBLE);
+            cardViewHolder.triggerIcon.showNext();
           }
 
           @Override
           public void onAnimationEnd() {
-            if (mCardViewHolder != null) {
-              mCardViewHolder.triggerFiredText.setVisibility(View.GONE);
-              mCardViewHolder.triggerTextSwitcher.setVisibility(View.VISIBLE);
-              mCardViewHolder.triggerIcon.showPrevious();
+            if (cardViewHolder != null) {
+              cardViewHolder.triggerFiredText.setVisibility(View.GONE);
+              cardViewHolder.triggerTextSwitcher.setVisibility(View.VISIBLE);
+              cardViewHolder.triggerIcon.showPrevious();
             }
           }
         });
-    if (mTriggerText.size() == 1) {
+    if (triggerText.size() == 1) {
       // No need for a switcher with one trigger
-      mCardViewHolder.triggerTextSwitcher.setCurrentText(mTriggerText.get(0));
+      cardViewHolder.triggerTextSwitcher.setCurrentText(triggerText.get(0));
     } else {
-      mCardViewHolder.triggerTextSwitcher.setCurrentText(
-          mTriggerText.get(mDisplayedTriggerTextIndex));
-      mCardViewHolder.triggerTextSwitcher.setInAnimation(
-          mCardViewHolder.getContext(), android.R.anim.fade_in);
-      mCardViewHolder.triggerTextSwitcher.setOutAnimation(
-          mCardViewHolder.getContext(), android.R.anim.fade_out);
-      mTriggerRunnable.run();
+      cardViewHolder.triggerTextSwitcher.setCurrentText(triggerText.get(displayedTriggerTextIndex));
+      cardViewHolder.triggerTextSwitcher.setInAnimation(
+          cardViewHolder.getContext(), android.R.anim.fade_in);
+      cardViewHolder.triggerTextSwitcher.setOutAnimation(
+          cardViewHolder.getContext(), android.R.anim.fade_out);
+      triggerRunnable.run();
     }
-    mCardViewHolder.triggerLevelDrawableButton.setImageLevel(mTriggerText.size());
+    cardViewHolder.triggerLevelDrawableButton.setImageLevel(triggerText.size());
   }
 
   public List<SensorTrigger> getSensorTriggers() {
-    return mSensorTriggers;
+    return sensorTriggers;
   }
 
   public void updateSensorTriggerUi() {
-    if (mSensorTriggers.size() == 0) {
-      mCardViewHolder.triggerSection.setVisibility(View.GONE);
+    if (sensorTriggers.size() == 0) {
+      cardViewHolder.triggerSection.setVisibility(View.GONE);
     } else {
-      mCardViewHolder.triggerSection.setVisibility(View.VISIBLE);
+      cardViewHolder.triggerSection.setVisibility(View.VISIBLE);
     }
   }
 
   private void createTextForTriggers() {
-    mTriggerText.clear();
-    if (mActivity == null) {
+    triggerText.clear();
+    if (activity == null) {
       return;
     }
-    for (SensorTrigger trigger : mSensorTriggers) {
-      mTriggerText.add(TriggerHelper.buildDescription(trigger, mActivity));
+    for (SensorTrigger trigger : sensorTriggers) {
+      triggerText.add(TriggerHelper.buildDescription(trigger, activity));
     }
   }
 
@@ -179,11 +178,11 @@ public class CardTriggerPresenter {
     // Whenever a trigger fires, we update the header to show an animation. Per UX, it does not
     // matter, the type of trigger. All triggers show an animation, but visual alert triggers
     // do nothing else.
-    if (mCardViewHolder == null
-        || mCardViewHolder.triggerSection.getVisibility() == View.GONE
-        || !mCardViewHolder.triggerSection.isAttachedToWindow()) {
+    if (cardViewHolder == null
+        || cardViewHolder.triggerSection.getVisibility() == View.GONE
+        || !cardViewHolder.triggerSection.isAttachedToWindow()) {
       return;
     }
-    mCardViewHolder.triggerFiredBackground.onTriggerFired();
+    cardViewHolder.triggerFiredBackground.onTriggerFired();
   }
 }

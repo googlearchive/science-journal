@@ -33,7 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 /** Class to create a compass sensor from the magnetic field and accelerometer. */
 public class CompassSensor extends ScalarSensor {
   public static final String ID = "CompassSensor";
-  private SensorEventListener mSensorEventListener;
+  private SensorEventListener sensorEventListener;
 
   public CompassSensor() {
     super(ID);
@@ -52,11 +52,11 @@ public class CompassSensor extends ScalarSensor {
         SensorManager sensorManager = getSensorManager(context);
         Sensor magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        if (mSensorEventListener != null) {
-          getSensorManager(context).unregisterListener(mSensorEventListener);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
         }
         final Clock clock = environment.getDefaultClock();
-        mSensorEventListener =
+        sensorEventListener =
             new SensorEventListener() {
               private float[] orientation = new float[3];
               private float[] magneticRotation;
@@ -92,14 +92,14 @@ public class CompassSensor extends ScalarSensor {
               public void onAccuracyChanged(Sensor sensor, int accuracy) {}
             };
         sensorManager.registerListener(
-            mSensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
+            sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
         sensorManager.registerListener(
-            mSensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
+            sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
       }
 
       @Override
       public void stopObserving() {
-        getSensorManager(context).unregisterListener(mSensorEventListener);
+        getSensorManager(context).unregisterListener(sensorEventListener);
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
       }
     };

@@ -45,10 +45,10 @@ public class AudioSettingsDialog extends DialogFragment {
   private static final String KEY_SENSOR_ID = "sensor_id";
   private static final String KEY_ACTIVE_SENSOR_INDEX = "active_sensor_index";
 
-  private String[] mSensorIds;
-  private String[] mOriginalSonificationTypes;
-  private String[] mSonificationTypes;
-  private int mActiveSensorIndex;
+  private String[] sensorIds;
+  private String[] originalSonificationTypes;
+  private String[] sonificationTypes;
+  private int activeSensorIndex;
 
   /**
    * Gets a new instance of the AudioSettingsDialog.
@@ -75,33 +75,33 @@ public class AudioSettingsDialog extends DialogFragment {
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putStringArray(KEY_SONIFICATION_TYPES, mSonificationTypes);
-    outState.putInt(KEY_ACTIVE_SENSOR_INDEX, mActiveSensorIndex);
+    outState.putStringArray(KEY_SONIFICATION_TYPES, sonificationTypes);
+    outState.putInt(KEY_ACTIVE_SENSOR_INDEX, activeSensorIndex);
   }
 
   @Override
   public void onCancel(DialogInterface dialog) {
     if (getParentFragment() != null) {
       ((AudioSettingsDialogListener) getParentFragment())
-          .onAudioSettingsCanceled(mOriginalSonificationTypes, mSensorIds);
+          .onAudioSettingsCanceled(originalSonificationTypes, sensorIds);
     }
   }
 
   @Override
   public AlertDialog onCreateDialog(Bundle savedInstanceState) {
-    mOriginalSonificationTypes = getArguments().getStringArray(KEY_SONIFICATION_TYPES);
+    originalSonificationTypes = getArguments().getStringArray(KEY_SONIFICATION_TYPES);
     if (savedInstanceState != null) {
       // Use the most recent version if possible.
-      mSonificationTypes = savedInstanceState.getStringArray(KEY_SONIFICATION_TYPES);
-      mActiveSensorIndex = savedInstanceState.getInt(KEY_ACTIVE_SENSOR_INDEX);
+      sonificationTypes = savedInstanceState.getStringArray(KEY_SONIFICATION_TYPES);
+      activeSensorIndex = savedInstanceState.getInt(KEY_ACTIVE_SENSOR_INDEX);
     } else {
       // Create a deep copy of the original sonification types.
-      mSonificationTypes = new String[mOriginalSonificationTypes.length];
+      sonificationTypes = new String[originalSonificationTypes.length];
       System.arraycopy(
-          mOriginalSonificationTypes, 0, mSonificationTypes, 0, mOriginalSonificationTypes.length);
-      mActiveSensorIndex = getArguments().getInt(KEY_ACTIVE_SENSOR_INDEX);
+          originalSonificationTypes, 0, sonificationTypes, 0, originalSonificationTypes.length);
+      activeSensorIndex = getArguments().getInt(KEY_ACTIVE_SENSOR_INDEX);
     }
-    mSensorIds = getArguments().getStringArray(KEY_SENSOR_ID);
+    sensorIds = getArguments().getStringArray(KEY_SENSOR_ID);
 
     final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
     View rootView =
@@ -137,7 +137,7 @@ public class AudioSettingsDialog extends DialogFragment {
     final int initialSelectedIndex =
         findSelection(
             SonificationTypeAdapterFactory.SONIFICATION_TYPES,
-            mSonificationTypes[mActiveSensorIndex]);
+            sonificationTypes[activeSensorIndex]);
 
     typeList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
@@ -149,25 +149,25 @@ public class AudioSettingsDialog extends DialogFragment {
         new AdapterView.OnItemClickListener() {
           @Override
           public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            mSonificationTypes[mActiveSensorIndex] =
+            sonificationTypes[activeSensorIndex] =
                 SonificationTypeAdapterFactory.SONIFICATION_TYPES[position];
             if (getParentFragment() != null) {
               ((AudioSettingsDialogListener) getParentFragment())
-                  .onAudioSettingsPreview(mSonificationTypes, mSensorIds);
+                  .onAudioSettingsPreview(sonificationTypes, sensorIds);
             }
           }
         });
     selectItem(typeList, initialSelectedIndex);
 
-    if (mSensorIds.length <= 1) {
+    if (sensorIds.length <= 1) {
       spinner.setVisibility(View.GONE);
       rootView.findViewById(R.id.audio_settings_sensor_selector_title).setVisibility(View.GONE);
     } else {
-      String[] sensorNames = new String[mSensorIds.length];
+      String[] sensorNames = new String[sensorIds.length];
       SensorAppearanceProvider appearanceProvider =
           AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider();
-      for (int i = 0; i < mSensorIds.length; i++) {
-        sensorNames[i] = appearanceProvider.getAppearance(mSensorIds[i]).getName(getActivity());
+      for (int i = 0; i < sensorIds.length; i++) {
+        sensorNames[i] = appearanceProvider.getAppearance(sensorIds[i]).getName(getActivity());
       }
       final ArrayAdapter<String> sensorAdapter =
           new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, sensorNames);
@@ -177,9 +177,9 @@ public class AudioSettingsDialog extends DialogFragment {
           new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-              mActiveSensorIndex = position;
+              activeSensorIndex = position;
               // Look up the sonification type of this newly active sensor.
-              String newActiveSonificationType = mSonificationTypes[mActiveSensorIndex];
+              String newActiveSonificationType = sonificationTypes[activeSensorIndex];
               int typePosition =
                   findSelection(
                       SonificationTypeAdapterFactory.SONIFICATION_TYPES, newActiveSonificationType);
@@ -189,7 +189,7 @@ public class AudioSettingsDialog extends DialogFragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
           });
-      spinner.setSelection(mActiveSensorIndex);
+      spinner.setSelection(activeSensorIndex);
     }
 
     alertDialog.setPositiveButton(
@@ -199,7 +199,7 @@ public class AudioSettingsDialog extends DialogFragment {
           public void onClick(DialogInterface dialog, int which) {
             if (getParentFragment() != null) {
               ((AudioSettingsDialogListener) getParentFragment())
-                  .onAudioSettingsApplied(mSonificationTypes, mSensorIds);
+                  .onAudioSettingsApplied(sonificationTypes, sensorIds);
             }
           }
         });

@@ -47,16 +47,16 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ScalarSensorTest {
-  private final MemoryMetadataManager mMetadata = new MemoryMetadataManager();
-  private InMemorySensorDatabase mDb = new InMemorySensorDatabase();
-  private final RecordingDataController mRecordingController =
-      mDb.makeSimpleRecordingController(mMetadata);
+  private final MemoryMetadataManager metadata = new MemoryMetadataManager();
+  private InMemorySensorDatabase db = new InMemorySensorDatabase();
+  private final RecordingDataController recordingController =
+      db.makeSimpleRecordingController(metadata);
 
   @Test
   public void testDontStoreWhenObserving() {
     ManualSensor sensor = new ManualSensor("test", Long.MAX_VALUE, 2);
     RecordingSensorObserver observer = new RecordingSensorObserver();
-    SensorRecorder recorder = sensor.createRecorder(getContext(), mRecordingController, observer);
+    SensorRecorder recorder = sensor.createRecorder(getContext(), recordingController, observer);
 
     recorder.startObserving();
     sensor.pushValue(0, 0);
@@ -75,11 +75,11 @@ public class ScalarSensorTest {
         Lists.newArrayList(
             new InMemorySensorDatabase.Reading("runId", "test", 1, 1),
             new InMemorySensorDatabase.Reading("runId", "test", 2, 2));
-    assertEquals(expectedRecorded, mDb.getReadings(0));
+    assertEquals(expectedRecorded, db.getReadings(0));
 
     // We should just have two values at tier 1, too (none from after we stopped recording,
     // but even a partial buffer should have representative points)
-    assertEquals(expectedRecorded, mDb.getReadings(1));
+    assertEquals(expectedRecorded, db.getReadings(1));
 
     ArrayList<ScalarReading> expectedObserved =
         Lists.newArrayList(
@@ -314,11 +314,11 @@ public class ScalarSensorTest {
             new InMemorySensorDatabase.Reading("runId", "test", 9, 9),
             new InMemorySensorDatabase.Reading("runId", "test", 10, 10),
             new InMemorySensorDatabase.Reading("runId", "test", 19, 19));
-    assertEquals(expected, mDb.getReadings(1));
+    assertEquals(expected, db.getReadings(1));
   }
 
   private SensorRecorder createRecorder(ManualSensor sensor) {
-    return sensor.createRecorder(getContext(), mRecordingController, new RecordingSensorObserver());
+    return sensor.createRecorder(getContext(), recordingController, new RecordingSensorObserver());
   }
 
   @Test
@@ -345,7 +345,7 @@ public class ScalarSensorTest {
             new InMemorySensorDatabase.Reading(trial.getTrialId(), "test", 49, 49),
             new InMemorySensorDatabase.Reading(trial.getTrialId(), "test", 50, 50),
             new InMemorySensorDatabase.Reading(trial.getTrialId(), "test", 99, 99));
-    assertEquals(expected, mDb.getReadings(2));
+    assertEquals(expected, db.getReadings(2));
 
     recorder.stopRecording(trial);
     TrialStats stats = trial.getStatsForSensor("test");
@@ -381,7 +381,7 @@ public class ScalarSensorTest {
     ManualSensor sensor = new ManualSensor("test", 1000, 5, executor);
 
     RecordingSensorObserver observer = new RecordingSensorObserver();
-    sensor.createRecorder(getContext(), mRecordingController, observer).startObserving();
+    sensor.createRecorder(getContext(), recordingController, observer).startObserving();
 
     sensor.pushValue(0, 0);
     sensor.pushValue(1, 1);

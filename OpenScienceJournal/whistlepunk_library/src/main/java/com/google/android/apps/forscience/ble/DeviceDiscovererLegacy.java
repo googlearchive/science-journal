@@ -31,15 +31,15 @@ import java.util.concurrent.Executor;
 
 /** Discovers devices using pre API level 21 methods. */
 /* package */ class DeviceDiscovererLegacy extends DeviceDiscoverer {
-  private final Executor mUiThreadExecutor;
+  private final Executor uiThreadExecutor;
 
-  private BluetoothAdapter.LeScanCallback mCallback =
+  private BluetoothAdapter.LeScanCallback callback =
       new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(
             final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
           if (isScienceSensor(parseUuids(scanRecord))) {
-            mUiThreadExecutor.execute(
+            uiThreadExecutor.execute(
                 new Runnable() {
                   @Override
                   public void run() {
@@ -52,18 +52,18 @@ import java.util.concurrent.Executor;
 
   DeviceDiscovererLegacy(Context context) {
     super(context);
-    mUiThreadExecutor = AppSingleton.getUiThreadExecutor();
+    uiThreadExecutor = AppSingleton.getUiThreadExecutor();
   }
 
   @Override
   public void onStartScanning() {
     // KitKat can't handle 128bit UUIDs, so ask for all devices.
-    getBluetoothAdapter().startLeScan(mCallback);
+    getBluetoothAdapter().startLeScan(callback);
   }
 
   @Override
   public void onStopScanning() {
-    getBluetoothAdapter().stopLeScan(mCallback);
+    getBluetoothAdapter().stopLeScan(callback);
   }
 
   private List<UUID> parseUuids(byte[] advertisedData) {

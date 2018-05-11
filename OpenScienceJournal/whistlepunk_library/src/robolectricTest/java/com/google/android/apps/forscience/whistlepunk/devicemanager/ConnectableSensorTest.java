@@ -31,7 +31,7 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ConnectableSensorTest {
-  private ConnectableSensor.Connector mConnector = new ConnectableSensor.Connector(new HashMap<>());
+  private ConnectableSensor.Connector connector = new ConnectableSensor.Connector(new HashMap<>());
 
   @Test
   public void getNameExternal() {
@@ -56,6 +56,6 @@ public class ConnectableSensorTest {
           }
         });
 
-    assertEquals(sensorName, mConnector.builtIn("sid", false).getAppearance(map).getName(null));
+    assertEquals(sensorName, connector.builtIn("sid", false).getAppearance(map).getName(null));
   }
 }

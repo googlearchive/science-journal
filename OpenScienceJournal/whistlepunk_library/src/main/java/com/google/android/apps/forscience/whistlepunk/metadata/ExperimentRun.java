@@ -22,43 +22,43 @@ import java.util.List;
 
 @Deprecated
 public class ExperimentRun {
-  private Trial mTrial;
-  private String mExperimentId;
+  private Trial trial;
+  private String experimentId;
 
   private ExperimentRun(Trial trial, String experimentId, CropHelper.CropLabels unused) {
-    mTrial = trial;
-    mExperimentId = experimentId;
+    this.trial = trial;
+    this.experimentId = experimentId;
   }
 
   public String getExperimentId() {
-    return mExperimentId;
+    return experimentId;
   }
 
   public long getFirstTimestamp() {
-    return mTrial.getFirstTimestamp();
+    return trial.getFirstTimestamp();
   }
 
   public List<String> getSensorIds() {
-    return mTrial.getSensorIds();
+    return trial.getSensorIds();
   }
 
   public String getTrialId() {
-    return mTrial.getTrialId();
+    return trial.getTrialId();
   }
 
   public boolean isArchived() {
-    return mTrial.isArchived();
+    return trial.isArchived();
   }
 
   public void setArchived(boolean isArchived) {
-    mTrial.setArchived(isArchived);
+    trial.setArchived(isArchived);
   }
 
   public Trial getTrial() {
-    return mTrial;
+    return trial;
   }
 
   public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
-    return mTrial.getSensorLayouts();
+    return trial.getSensorLayouts();
   }
 }

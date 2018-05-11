@@ -22,23 +22,23 @@ import java.util.Map;
 
 /** Extends TransportableSensorOptions */
 public class ReadableTransportableSensorOptions extends AbstractReadableSensorOptions {
-  private final TransportableSensorOptions mTransportable;
+  private final TransportableSensorOptions transportable;
 
   public ReadableTransportableSensorOptions(Map<String, String> values) {
     this(new TransportableSensorOptions(values));
   }
 
   public ReadableTransportableSensorOptions(TransportableSensorOptions transportable) {
-    mTransportable = transportable;
+    this.transportable = transportable;
   }
 
   @Override
   public String getString(String key, String defaultValue) {
-    return mTransportable.getString(key, defaultValue);
+    return transportable.getString(key, defaultValue);
   }
 
   @Override
   public Collection<String> getWrittenKeys() {
-    return mTransportable.getWrittenKeys();
+    return transportable.getWrittenKeys();
   }
 }

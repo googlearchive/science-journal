@@ -20,11 +20,11 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscov
 
 class TestScanListener extends StubScanListener {
   private final Consumer<SensorDiscoverer.DiscoveredSensor> onNewSensor;
-  private final Runnable mOnScanDone;
+  private final Runnable onScanDone;
 
   public TestScanListener(Consumer<SensorDiscoverer.DiscoveredSensor> c, Runnable onScanDone) {
     onNewSensor = c;
-    mOnScanDone = onScanDone;
+    this.onScanDone = onScanDone;
   }
 
   @Override
@@ -34,6 +34,6 @@ class TestScanListener extends StubScanListener {
 
   @Override
   public void onScanDone() {
-    mOnScanDone.run();
+    onScanDone.run();
   }
 }

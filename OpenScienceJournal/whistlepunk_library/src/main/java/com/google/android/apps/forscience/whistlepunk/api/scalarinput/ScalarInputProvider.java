@@ -24,27 +24,27 @@ import java.util.concurrent.Executor;
 
 /** Generates ScalarInputSensors from ScalarInputSpecs */
 class ScalarInputProvider implements SensorProvider {
-  private final Scheduler mScheduler;
-  private Consumer<AppDiscoveryCallbacks> mServiceFinder;
-  private ScalarInputStringSource mStringSource;
-  private Executor mUiThreadExecutor;
+  private final Scheduler scheduler;
+  private Consumer<AppDiscoveryCallbacks> serviceFinder;
+  private ScalarInputStringSource stringSource;
+  private Executor uiThreadExecutor;
 
   public ScalarInputProvider(
       Consumer<AppDiscoveryCallbacks> serviceFinder,
       ScalarInputStringSource stringSource,
       Executor uiThreadExecutor,
       Scheduler scheduler) {
-    this.mServiceFinder = serviceFinder;
-    this.mStringSource = stringSource;
-    this.mUiThreadExecutor = uiThreadExecutor;
-    mScheduler = scheduler;
+    this.serviceFinder = serviceFinder;
+    this.stringSource = stringSource;
+    this.uiThreadExecutor = uiThreadExecutor;
+    this.scheduler = scheduler;
   }
 
   @Override
   public SensorChoice buildSensor(String sensorId, ExternalSensorSpec spec) {
     ScalarInputSpec sis = (ScalarInputSpec) spec;
     return new ScalarInputSensor(
-        sensorId, mUiThreadExecutor, mServiceFinder, mStringSource, sis, mScheduler);
+        sensorId, uiThreadExecutor, serviceFinder, stringSource, sis, scheduler);
   }
 
   @Override

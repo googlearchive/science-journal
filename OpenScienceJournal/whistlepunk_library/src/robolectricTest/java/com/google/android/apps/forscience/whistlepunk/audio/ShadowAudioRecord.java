@@ -11,13 +11,13 @@ import org.robolectric.annotation.Implements;
 @Implements(AudioRecord.class)
 public class ShadowAudioRecord {
 
-  private static int mMinBufferSize;
-  private static int mState = AudioRecord.STATE_INITIALIZED;
-  private static int mRecordingState = AudioRecord.RECORDSTATE_RECORDING;
+  private static int minBufferSize;
+  private static int state = AudioRecord.STATE_INITIALIZED;
+  private static int recordingState = AudioRecord.RECORDSTATE_RECORDING;
 
-  private static List<Short> mAudioData = new ArrayList<>();
+  private static List<Short> audioData = new ArrayList<>();
 
-  private static final Object mAudioDataLock = new Object();
+  private static final Object audioDataLock = new Object();
 
   public ShadowAudioRecord() {}
 
@@ -32,7 +32,7 @@ public class ShadowAudioRecord {
 
   @Implementation
   protected static int getMinBufferSize(int sampleRateInHz, int channelConfig, int audioFormat) {
-    return mMinBufferSize;
+    return minBufferSize;
   }
 
   @Implementation
@@ -40,30 +40,34 @@ public class ShadowAudioRecord {
 
   @Implementation
   protected int getState() {
-    return mState;
+    return state;
   }
 
   @Implementation
   protected int getRecordingState() {
-    return mRecordingState;
+    return recordingState;
   }
 
   @Implementation
   protected int read(short[] audioData, int offsetInShorts, int sizeInShorts) {
-    synchronized (mAudioDataLock) {
-      if (mAudioData.size() > 0) {
+    synchronized (audioDataLock) {
+      if (ShadowAudioRecord.audioData.size() > 0) {
         System.arraycopy(
             Shorts.toArray(
-                mAudioData.subList(
-                    0, sizeInShorts > mAudioData.size() ? mAudioData.size() : sizeInShorts)),
+                ShadowAudioRecord.audioData.subList(
+                    0,
+                    sizeInShorts > ShadowAudioRecord.audioData.size()
+                        ? ShadowAudioRecord.audioData.size()
+                        : sizeInShorts)),
             0,
             audioData,
             offsetInShorts,
             sizeInShorts);
-        if (mAudioData.size() > 10) {
-          mAudioData = mAudioData.subList(sizeInShorts, mAudioData.size());
+        if (ShadowAudioRecord.audioData.size() > 10) {
+          ShadowAudioRecord.audioData =
+              ShadowAudioRecord.audioData.subList(sizeInShorts, ShadowAudioRecord.audioData.size());
         } else {
-          mAudioData.clear();
+          ShadowAudioRecord.audioData.clear();
         }
         return sizeInShorts;
       }
@@ -78,29 +82,29 @@ public class ShadowAudioRecord {
   protected void release() {}
 
   public static void resetState() {
-    mMinBufferSize = 0;
-    mState = AudioRecord.STATE_INITIALIZED;
-    mRecordingState = AudioRecord.RECORDSTATE_RECORDING;
-    synchronized (mAudioDataLock) {
-      mAudioData.clear();
+    minBufferSize = 0;
+    state = AudioRecord.STATE_INITIALIZED;
+    recordingState = AudioRecord.RECORDSTATE_RECORDING;
+    synchronized (audioDataLock) {
+      audioData.clear();
     }
   }
 
   public static void setMinBufferSize(int minBufferSize) {
-    mMinBufferSize = minBufferSize;
+    ShadowAudioRecord.minBufferSize = minBufferSize;
   }
 
   public static void setInitializationFailed() {
-    mState = AudioRecord.STATE_UNINITIALIZED;
+    state = AudioRecord.STATE_UNINITIALIZED;
   }
 
   public static void setRecordingStartFailed() {
-    mRecordingState = AudioRecord.RECORDSTATE_STOPPED;
+    recordingState = AudioRecord.RECORDSTATE_STOPPED;
   }
 
   public static void setAudioData(short[] audioData) {
-    synchronized (mAudioDataLock) {
-      mAudioData.addAll(Shorts.asList(audioData));
+    synchronized (audioDataLock) {
+      ShadowAudioRecord.audioData.addAll(Shorts.asList(audioData));
     }
   }
 }

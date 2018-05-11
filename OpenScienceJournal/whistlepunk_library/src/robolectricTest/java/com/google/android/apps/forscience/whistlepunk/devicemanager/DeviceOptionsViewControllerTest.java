@@ -114,16 +114,16 @@ public class DeviceOptionsViewControllerTest {
   }
 
   private class TestController extends DeviceOptionsViewController {
-    private final BleSensorSpec mNewSpec;
+    private final BleSensorSpec newSpec;
 
     public TestController(DataController dc, BleSensorSpec newSpec, String experimentId) {
       super(DeviceOptionsViewControllerTest.this.getContext(), dc, experimentId);
-      mNewSpec = newSpec;
+      this.newSpec = newSpec;
     }
 
     @Override
     public BleSensorSpec getOptions() {
-      return mNewSpec;
+      return newSpec;
     }
   }
 

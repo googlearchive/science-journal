@@ -46,13 +46,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * </pre>
  */
 public class SensorMessage {
-  private final Runnable mRunnable;
-  private long mTimestamp = -1;
+  private final Runnable runnable;
+  private long timestamp = -1;
 
-  private SensorObserver.Data mData = new SensorObserver.Data();
+  private SensorObserver.Data data = new SensorObserver.Data();
 
   private SensorMessage(final Consumer<SensorMessage> onNewData) {
-    mRunnable =
+    runnable =
         new Runnable() {
           @Override
           public void run() {
@@ -62,11 +62,11 @@ public class SensorMessage {
   }
 
   public void setTimestamp(long timestamp) {
-    mTimestamp = timestamp;
+    this.timestamp = timestamp;
   }
 
   public long getTimestamp() {
-    return mTimestamp;
+    return timestamp;
   }
 
   /**
@@ -74,7 +74,7 @@ public class SensorMessage {
    * getRunnable() is run, the data will be delivered, and then cleared out for reuse.
    */
   public SensorObserver.Data getData() {
-    return mData;
+    return data;
   }
 
   /**
@@ -82,17 +82,17 @@ public class SensorMessage {
    *     for reuse.
    */
   public Runnable getRunnable() {
-    return mRunnable;
+    return runnable;
   }
 
   /** A pool of reusable SensorMessages. */
   public static class Pool {
-    private final Consumer<SensorMessage> mOnNewData;
-    private ConcurrentLinkedQueue<SensorMessage> mQueue = new ConcurrentLinkedQueue<>();
+    private final Consumer<SensorMessage> onNewData;
+    private ConcurrentLinkedQueue<SensorMessage> queue = new ConcurrentLinkedQueue<>();
 
     /** Creates a pool of messages that will deliver data to {@code observer} */
     public Pool(final SensorObserver observer) {
-      mOnNewData =
+      onNewData =
           new Consumer<SensorMessage>() {
             @Override
             public void take(SensorMessage sensorMessage) {
@@ -104,17 +104,17 @@ public class SensorMessage {
 
     /** @return a reused message if any are available, or a new one if necessary. */
     public SensorMessage obtain() {
-      SensorMessage obtained = mQueue.poll();
+      SensorMessage obtained = queue.poll();
       if (obtained == null) {
-        return new SensorMessage(mOnNewData);
+        return new SensorMessage(onNewData);
       }
       return obtained;
     }
 
     private void release(SensorMessage released) {
-      released.mData.clear();
-      released.mTimestamp = -1;
-      mQueue.add(released);
+      released.data.clear();
+      released.timestamp = -1;
+      queue.add(released);
     }
   }
 }

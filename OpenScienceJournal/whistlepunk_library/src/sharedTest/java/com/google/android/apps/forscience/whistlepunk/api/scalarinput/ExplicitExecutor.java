@@ -21,20 +21,20 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 public class ExplicitExecutor implements Executor {
-  List<Runnable> mQueue = new ArrayList<>();
+  List<Runnable> queue = new ArrayList<>();
 
   @Override
   public void execute(Runnable command) {
-    mQueue.add(command);
+    queue.add(command);
   }
 
   public boolean drain() {
-    if (mQueue.isEmpty()) {
+    if (queue.isEmpty()) {
       return false;
     }
 
-    while (!mQueue.isEmpty()) {
-      Runnable next = mQueue.remove(0);
+    while (!queue.isEmpty()) {
+      Runnable next = queue.remove(0);
       next.run();
     }
     return true;

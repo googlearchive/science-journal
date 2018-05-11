@@ -37,11 +37,11 @@ public class SensorTrigger {
   // TODO: This could be passed in per-sensor as part of the API.
   private static final Double EPSILON = .00001;
 
-  private GoosciSensorTrigger.SensorTrigger mTriggerProto;
+  private GoosciSensorTrigger.SensorTrigger triggerProto;
 
   // Used to determine when the trigger is triggered.
-  private Double mOldValue;
-  private boolean mIsInitialized = false;
+  private Double oldValue;
+  private boolean isInitialized = false;
 
   // Short cut to create an alert type SensorTrigger.
   public static SensorTrigger newAlertTypeTrigger(
@@ -87,85 +87,85 @@ public class SensorTrigger {
 
   @VisibleForTesting
   protected SensorTrigger(String sensorId, int triggerWhen, int actionType, double triggerValue) {
-    mTriggerProto = new GoosciSensorTrigger.SensorTrigger();
-    mTriggerProto.triggerInformation = new TriggerInformation();
-    mTriggerProto.triggerInformation.triggerWhen = triggerWhen;
-    mTriggerProto.triggerInformation.triggerActionType = actionType;
-    mTriggerProto.triggerInformation.valueToTrigger = triggerValue;
-    mTriggerProto.sensorId = sensorId;
-    mTriggerProto.triggerId = java.util.UUID.randomUUID().toString();
+    triggerProto = new GoosciSensorTrigger.SensorTrigger();
+    triggerProto.triggerInformation = new TriggerInformation();
+    triggerProto.triggerInformation.triggerWhen = triggerWhen;
+    triggerProto.triggerInformation.triggerActionType = actionType;
+    triggerProto.triggerInformation.valueToTrigger = triggerValue;
+    triggerProto.sensorId = sensorId;
+    triggerProto.triggerId = java.util.UUID.randomUUID().toString();
     updateLastUsed();
   }
 
   private SensorTrigger(
       String triggerId, String sensorId, long lastUsed, TriggerInformation triggerInformation) {
-    mTriggerProto = new GoosciSensorTrigger.SensorTrigger();
-    mTriggerProto.triggerInformation = triggerInformation;
-    mTriggerProto.sensorId = sensorId;
-    mTriggerProto.triggerId = triggerId;
+    triggerProto = new GoosciSensorTrigger.SensorTrigger();
+    triggerProto.triggerInformation = triggerInformation;
+    triggerProto.sensorId = sensorId;
+    triggerProto.triggerId = triggerId;
     setLastUsed(lastUsed);
   }
 
   private SensorTrigger(GoosciSensorTrigger.SensorTrigger triggerProto) {
-    mTriggerProto = triggerProto;
+    this.triggerProto = triggerProto;
   }
 
   public String getTriggerId() {
-    return mTriggerProto.triggerId;
+    return triggerProto.triggerId;
   }
 
   public GoosciSensorTrigger.SensorTrigger getTriggerProto() {
-    return mTriggerProto;
+    return triggerProto;
   }
 
   public String getSensorId() {
-    return mTriggerProto.sensorId;
+    return triggerProto.sensorId;
   }
 
   public Double getValueToTrigger() {
-    return mTriggerProto.triggerInformation.valueToTrigger;
+    return triggerProto.triggerInformation.valueToTrigger;
   }
 
   public void setValueToTrigger(double valueToTrigger) {
-    mTriggerProto.triggerInformation.valueToTrigger = valueToTrigger;
+    triggerProto.triggerInformation.valueToTrigger = valueToTrigger;
   }
 
   public int getTriggerWhen() {
-    return mTriggerProto.triggerInformation.triggerWhen;
+    return triggerProto.triggerInformation.triggerWhen;
   }
 
   public void setTriggerWhen(int triggerWhen) {
-    mTriggerProto.triggerInformation.triggerWhen = triggerWhen;
+    triggerProto.triggerInformation.triggerWhen = triggerWhen;
   }
 
   public int getActionType() {
-    return mTriggerProto.triggerInformation.triggerActionType;
+    return triggerProto.triggerInformation.triggerActionType;
   }
 
   public void setTriggerActionType(int actionType) {
-    if (mTriggerProto.triggerInformation.triggerActionType == actionType) {
+    if (triggerProto.triggerInformation.triggerActionType == actionType) {
       return;
     }
     // Clear old metadata to defaults when the new trigger is set.
-    if (mTriggerProto.triggerInformation.triggerActionType
+    if (triggerProto.triggerInformation.triggerActionType
         == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
-      mTriggerProto.triggerInformation.noteText = "";
-    } else if (mTriggerProto.triggerInformation.triggerActionType
+      triggerProto.triggerInformation.noteText = "";
+    } else if (triggerProto.triggerInformation.triggerActionType
         == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
-      mTriggerProto.triggerInformation.triggerAlertTypes = new int[] {};
+      triggerProto.triggerInformation.triggerAlertTypes = new int[] {};
     }
-    mTriggerProto.triggerInformation.triggerActionType = actionType;
+    triggerProto.triggerInformation.triggerActionType = actionType;
   }
 
   public long getLastUsed() {
-    return mTriggerProto.lastUsedMs;
+    return triggerProto.lastUsedMs;
   }
 
   // Unless re-creating a SensorTrigger from the DB, nothing should call setLastUsed with a
   // timestamp except the updateLastUsed function.
   @VisibleForTesting
   public void setLastUsed(long lastUsed) {
-    mTriggerProto.lastUsedMs = lastUsed;
+    triggerProto.lastUsedMs = lastUsed;
   }
 
   // This can be called any time a trigger is "used", i.e. when the trigger is used in a card, or
@@ -176,32 +176,32 @@ public class SensorTrigger {
 
   public boolean isTriggered(double newValue) {
     boolean result = false;
-    if (!mIsInitialized) {
-      mIsInitialized = true;
+    if (!isInitialized) {
+      isInitialized = true;
       result = false;
     } else {
-      if (mTriggerProto.triggerInformation.triggerWhen
+      if (triggerProto.triggerInformation.triggerWhen
           == TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT) {
         // Not just an equality check: also test to see if the threshold was crossed in
         // either direction.
         result =
-            doubleEquals(newValue, mTriggerProto.triggerInformation.valueToTrigger)
-                || crossedThreshold(newValue, mOldValue);
-      } else if (mTriggerProto.triggerInformation.triggerWhen
+            doubleEquals(newValue, triggerProto.triggerInformation.valueToTrigger)
+                || crossedThreshold(newValue, oldValue);
+      } else if (triggerProto.triggerInformation.triggerWhen
           == TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW) {
-        result = droppedBelow(newValue, mOldValue);
-      } else if (mTriggerProto.triggerInformation.triggerWhen
+        result = droppedBelow(newValue, oldValue);
+      } else if (triggerProto.triggerInformation.triggerWhen
           == TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE) {
-        result = roseAbove(newValue, mOldValue);
-      } else if (mTriggerProto.triggerInformation.triggerWhen
+        result = roseAbove(newValue, oldValue);
+      } else if (triggerProto.triggerInformation.triggerWhen
           == TriggerInformation.TriggerWhen.TRIGGER_WHEN_BELOW) {
-        return newValue < mTriggerProto.triggerInformation.valueToTrigger;
-      } else if (mTriggerProto.triggerInformation.triggerWhen
+        return newValue < triggerProto.triggerInformation.valueToTrigger;
+      } else if (triggerProto.triggerInformation.triggerWhen
           == TriggerInformation.TriggerWhen.TRIGGER_WHEN_ABOVE) {
-        return newValue > mTriggerProto.triggerInformation.valueToTrigger;
+        return newValue > triggerProto.triggerInformation.valueToTrigger;
       }
     }
-    mOldValue = newValue;
+    oldValue = newValue;
     // The last used time may be the last time it was used in a card.
     updateLastUsed();
     return result;
@@ -212,20 +212,20 @@ public class SensorTrigger {
   }
 
   private boolean droppedBelow(double newValue, double oldValue) {
-    return newValue < mTriggerProto.triggerInformation.valueToTrigger
-        && oldValue >= mTriggerProto.triggerInformation.valueToTrigger;
+    return newValue < triggerProto.triggerInformation.valueToTrigger
+        && oldValue >= triggerProto.triggerInformation.valueToTrigger;
   }
 
   private boolean roseAbove(double newValue, double oldValue) {
-    return newValue > mTriggerProto.triggerInformation.valueToTrigger
-        && oldValue <= mTriggerProto.triggerInformation.valueToTrigger;
+    return newValue > triggerProto.triggerInformation.valueToTrigger
+        && oldValue <= triggerProto.triggerInformation.valueToTrigger;
   }
 
   private boolean crossedThreshold(double newValue, double oldValue) {
-    return (newValue < mTriggerProto.triggerInformation.valueToTrigger
-            && oldValue > mTriggerProto.triggerInformation.valueToTrigger)
-        || (newValue > mTriggerProto.triggerInformation.valueToTrigger
-            && oldValue < mTriggerProto.triggerInformation.valueToTrigger);
+    return (newValue < triggerProto.triggerInformation.valueToTrigger
+            && oldValue > triggerProto.triggerInformation.valueToTrigger)
+        || (newValue > triggerProto.triggerInformation.valueToTrigger
+            && oldValue < triggerProto.triggerInformation.valueToTrigger);
   }
 
   // Returns true if the other SensorTrigger is the same as this one, ignoring the trigger ID
@@ -251,32 +251,32 @@ public class SensorTrigger {
 
   // For TRIGGER_ACTION_ALERT only.
   public int[] getAlertTypes() {
-    return mTriggerProto.triggerInformation.triggerAlertTypes;
+    return triggerProto.triggerInformation.triggerAlertTypes;
   }
 
   public boolean hasAlertType(int alertType) {
-    int[] alertTypes = mTriggerProto.triggerInformation.triggerAlertTypes;
+    int[] alertTypes = triggerProto.triggerInformation.triggerAlertTypes;
     return Ints.indexOf(alertTypes, alertType) != -1;
   }
 
   // For TRIGGER_ACTION_ALERT only.
   public void setAlertTypes(int[] alertTypes) {
-    mTriggerProto.triggerInformation.triggerAlertTypes = alertTypes;
+    triggerProto.triggerInformation.triggerAlertTypes = alertTypes;
   }
 
   // For TRIGGER_ACTION_NOTE only.
   public String getNoteText() {
-    return mTriggerProto.triggerInformation.noteText;
+    return triggerProto.triggerInformation.noteText;
   }
 
   // For TRIGGER_ACTION_NOTE only.
   public void setNoteText(String newText) {
-    mTriggerProto.triggerInformation.noteText = newText;
+    triggerProto.triggerInformation.noteText = newText;
   }
 
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putByteArray(KEY_TRIGGER, ProtoUtils.makeBlob(mTriggerProto));
+    bundle.putByteArray(KEY_TRIGGER, ProtoUtils.makeBlob(triggerProto));
     return bundle;
   }
 
@@ -293,10 +293,10 @@ public class SensorTrigger {
   }
 
   public boolean shouldTriggerOnlyWhenRecording() {
-    return mTriggerProto.triggerInformation.triggerOnlyWhenRecording;
+    return triggerProto.triggerInformation.triggerOnlyWhenRecording;
   }
 
   public void setTriggerOnlyWhenRecording(boolean triggerOnlyWhenRecording) {
-    mTriggerProto.triggerInformation.triggerOnlyWhenRecording = triggerOnlyWhenRecording;
+    triggerProto.triggerInformation.triggerOnlyWhenRecording = triggerOnlyWhenRecording;
   }
 }

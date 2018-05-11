@@ -39,13 +39,13 @@ import org.robolectric.RobolectricTestRunner;
 public class TrialUnitTest {
   private static final GoosciSensorLayout.SensorLayout[] NO_LAYOUTS =
       new GoosciSensorLayout.SensorLayout[0];
-  private SensorAppearanceProvider mFakeProvider = new FakeUnitAppearanceProvider();
+  private SensorAppearanceProvider fakeProvider = new FakeUnitAppearanceProvider();
 
   private Trial makeSimpleTrial(long startTime, String sensorId) {
     GoosciSensorLayout.SensorLayout[] layouts =
         new GoosciSensorLayout.SensorLayout[] {new GoosciSensorLayout.SensorLayout()};
     layouts[0].sensorId = sensorId;
-    return Trial.newTrial(startTime, layouts, mFakeProvider, null);
+    return Trial.newTrial(startTime, layouts, fakeProvider, null);
   }
 
   @Test
@@ -121,8 +121,8 @@ public class TrialUnitTest {
 
   @Test
   public void testUniqueIds() {
-    Trial first = Trial.newTrial(10, NO_LAYOUTS, mFakeProvider, null);
-    Trial second = Trial.newTrial(10, NO_LAYOUTS, mFakeProvider, null);
+    Trial first = Trial.newTrial(10, NO_LAYOUTS, fakeProvider, null);
+    Trial second = Trial.newTrial(10, NO_LAYOUTS, fakeProvider, null);
     assertNotEquals(first.getTrialId(), second.getTrialId());
 
     Trial firstAgain = Trial.fromTrial(first.getTrialProto());
@@ -131,7 +131,7 @@ public class TrialUnitTest {
 
   @Test
   public void testElapsedSeconds() {
-    Trial trial = Trial.newTrial(7, NO_LAYOUTS, mFakeProvider, null);
+    Trial trial = Trial.newTrial(7, NO_LAYOUTS, fakeProvider, null);
     assertEquals(0, trial.elapsedSeconds());
 
     trial.setRecordingEndTime(5007);

@@ -40,10 +40,10 @@ public class StatsList extends FrameLayout {
       Typeface.create("sans-serif-medium", Typeface.NORMAL);
   private static final Typeface NORMAL_TYPEFACE = Typeface.create("sans-serif", Typeface.NORMAL);
 
-  private List<StreamStat> mStats;
-  private SingleLineResizableTextView mMinTextView;
-  private SingleLineResizableTextView mMaxTextView;
-  private SingleLineResizableTextView mAvgTextView;
+  private List<StreamStat> stats;
+  private SingleLineResizableTextView minTextView;
+  private SingleLineResizableTextView maxTextView;
+  private SingleLineResizableTextView avgTextView;
 
   public StatsList(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -64,28 +64,28 @@ public class StatsList extends FrameLayout {
     } finally {
       a.recycle();
     }
-    mMinTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_min);
-    mMaxTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_max);
-    mAvgTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_avg);
-    mStats = new ArrayList<>();
+    minTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_min);
+    maxTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_max);
+    avgTextView = (SingleLineResizableTextView) this.findViewById(R.id.stats_view_avg);
+    stats = new ArrayList<>();
   }
 
   public void updateStats(List<StreamStat> stats) {
-    mStats.clear();
-    mStats.addAll(stats);
+    this.stats.clear();
+    this.stats.addAll(stats);
 
     for (int i = 0; i < stats.size(); i++) {
       StreamStat stat = stats.get(i);
       TextView next = null;
       switch (stat.getType()) {
         case StreamStat.TYPE_MIN:
-          next = mMinTextView;
+          next = minTextView;
           break;
         case StreamStat.TYPE_MAX:
-          next = mMaxTextView;
+          next = maxTextView;
           break;
         case StreamStat.TYPE_AVERAGE:
-          next = mAvgTextView;
+          next = avgTextView;
           break;
       }
       if (next == null) {
@@ -99,23 +99,23 @@ public class StatsList extends FrameLayout {
   }
 
   public void clearStats() {
-    mStats.clear();
+    stats.clear();
     String unknownContentDescription = getResources().getString(R.string.stat_unknown);
-    mMinTextView.setContentDescription(
+    minTextView.setContentDescription(
         getResources().getString(R.string.stat_min) + ": " + unknownContentDescription);
-    mMaxTextView.setContentDescription(
+    maxTextView.setContentDescription(
         getResources().getString(R.string.stat_max) + ": " + unknownContentDescription);
-    mAvgTextView.setContentDescription(
+    avgTextView.setContentDescription(
         getResources().getString(R.string.stat_average) + ": " + unknownContentDescription);
 
     String unknown = getResources().getString(R.string.indeterminate_value);
-    mMinTextView.setText(unknown);
-    mMaxTextView.setText(unknown);
-    mAvgTextView.setText(unknown);
+    minTextView.setText(unknown);
+    maxTextView.setText(unknown);
+    avgTextView.setText(unknown);
 
-    mMinTextView.resetTextSize();
-    mMaxTextView.resetTextSize();
-    mAvgTextView.resetTextSize();
+    minTextView.resetTextSize();
+    maxTextView.resetTextSize();
+    avgTextView.resetTextSize();
   }
 
   public void setTextBold(boolean shouldBeBold) {
@@ -125,13 +125,13 @@ public class StatsList extends FrameLayout {
     } else {
       typeface = NORMAL_TYPEFACE;
     }
-    mMinTextView.setTypeface(typeface);
-    mMaxTextView.setTypeface(typeface);
-    mAvgTextView.setTypeface(typeface);
+    minTextView.setTypeface(typeface);
+    maxTextView.setTypeface(typeface);
+    avgTextView.setTypeface(typeface);
   }
 
   public void updateColor(int color) {
-    mMinTextView.setTextColor(color);
-    mMaxTextView.setTextColor(color);
+    minTextView.setTextColor(color);
+    maxTextView.setTextColor(color);
   }
 }

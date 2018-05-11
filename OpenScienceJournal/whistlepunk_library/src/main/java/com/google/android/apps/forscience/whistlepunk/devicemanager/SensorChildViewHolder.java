@@ -35,20 +35,20 @@ import java.util.Map;
 
 /** View holder for child views in expandable tree view of sensors. */
 public class SensorChildViewHolder extends ChildViewHolder {
-  private final TextView mNameView;
-  private final CheckBox mPairedCheckbox;
-  private final SensorAppearanceProvider mAppearanceProvider;
-  private final ImageButton mSettingsGear;
-  private final ImageView mIcon;
-  private String mSensorKey;
+  private final TextView nameView;
+  private final CheckBox pairedCheckbox;
+  private final SensorAppearanceProvider appearanceProvider;
+  private final ImageButton settingsGear;
+  private final ImageView icon;
+  private String sensorKey;
 
   public SensorChildViewHolder(View itemView, SensorAppearanceProvider appearanceProvider) {
     super(itemView);
-    mNameView = (TextView) itemView.findViewById(R.id.sensor_name);
-    mPairedCheckbox = (CheckBox) itemView.findViewById(R.id.paired_checkbox);
-    mSettingsGear = (ImageButton) itemView.findViewById(R.id.settings_gear);
-    mIcon = (ImageView) itemView.findViewById(R.id.sensor_icon);
-    mAppearanceProvider = appearanceProvider;
+    nameView = (TextView) itemView.findViewById(R.id.sensor_name);
+    pairedCheckbox = (CheckBox) itemView.findViewById(R.id.paired_checkbox);
+    settingsGear = (ImageButton) itemView.findViewById(R.id.settings_gear);
+    icon = (ImageView) itemView.findViewById(R.id.sensor_icon);
+    this.appearanceProvider = appearanceProvider;
   }
 
   // TODO: can we test this logic?
@@ -57,23 +57,23 @@ public class SensorChildViewHolder extends ChildViewHolder {
       Map<String, ConnectableSensor> sensorMap,
       final ConnectableSensorRegistry registry,
       final EnablementController econtroller) {
-    if (mSensorKey != null) {
-      econtroller.clearEnablementListener(mSensorKey);
+    if (this.sensorKey != null) {
+      econtroller.clearEnablementListener(this.sensorKey);
     }
-    mSensorKey = sensorKey;
+    this.sensorKey = sensorKey;
     ConnectableSensor sensor = sensorMap.get(sensorKey);
-    SensorAppearance appearance = sensor.getAppearance(mAppearanceProvider);
+    SensorAppearance appearance = sensor.getAppearance(appearanceProvider);
     Context context = itemView.getContext();
-    mNameView.setText(appearance.getName(context));
+    nameView.setText(appearance.getName(context));
 
-    mIcon.setImageDrawable(appearance.getIconDrawable(context));
+    icon.setImageDrawable(appearance.getIconDrawable(context));
 
     boolean paired = sensor.isPaired();
-    mPairedCheckbox.setOnCheckedChangeListener(null);
-    mPairedCheckbox.setChecked(paired);
+    pairedCheckbox.setOnCheckedChangeListener(null);
+    pairedCheckbox.setChecked(paired);
     updateCheckboxContentDescription(paired);
 
-    mPairedCheckbox.setOnCheckedChangeListener(
+    pairedCheckbox.setOnCheckedChangeListener(
         new CompoundButton.OnCheckedChangeListener() {
           @Override
           public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -92,8 +92,8 @@ public class SensorChildViewHolder extends ChildViewHolder {
         new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            if (mPairedCheckbox.isEnabled()) {
-              mPairedCheckbox.setChecked(!mPairedCheckbox.isChecked());
+            if (pairedCheckbox.isEnabled()) {
+              pairedCheckbox.setChecked(!pairedCheckbox.isChecked());
             }
           }
         });
@@ -103,26 +103,26 @@ public class SensorChildViewHolder extends ChildViewHolder {
         new Consumer<Boolean>() {
           @Override
           public void take(Boolean isEnabled) {
-            mPairedCheckbox.setEnabled(isEnabled);
+            pairedCheckbox.setEnabled(isEnabled);
           }
         });
 
     boolean hasOptions = registry.hasOptions(sensorKey);
     if (hasOptions) {
-      mSettingsGear.setVisibility(View.VISIBLE);
-      mSettingsGear.setOnClickListener(
+      settingsGear.setVisibility(View.VISIBLE);
+      settingsGear.setOnClickListener(
           new View.OnClickListener() {
             @Override
             public void onClick(View v) {
               registry.showSensorOptions(sensorKey);
             }
           });
-      mSettingsGear.setContentDescription(
-          context.getResources().getString(R.string.sensor_options_for, mNameView.getText()));
+      settingsGear.setContentDescription(
+          context.getResources().getString(R.string.sensor_options_for, nameView.getText()));
     } else {
-      mSettingsGear.setVisibility(View.GONE);
-      mSettingsGear.setOnClickListener(null);
-      mSettingsGear.setContentDescription("");
+      settingsGear.setVisibility(View.GONE);
+      settingsGear.setOnClickListener(null);
+      settingsGear.setContentDescription("");
     }
   }
 
@@ -148,14 +148,14 @@ public class SensorChildViewHolder extends ChildViewHolder {
                       AccessibilityNodeInfo.ACTION_CLICK, description));
             }
           });
-      mPairedCheckbox.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-      mPairedCheckbox.setContentDescription("");
+      pairedCheckbox.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+      pairedCheckbox.setContentDescription("");
     } else {
       // For older devices, make sure the content description is specific to this row.
-      mPairedCheckbox.setContentDescription(
-          mPairedCheckbox
+      pairedCheckbox.setContentDescription(
+          pairedCheckbox
               .getResources()
-              .getString(R.string.include_device_in_experiment, mNameView.getText()));
+              .getString(R.string.include_device_in_experiment, nameView.getText()));
     }
   }
 }

@@ -23,7 +23,7 @@ import android.view.MotionEvent;
 
 /** A coordinatorlayout that can be frozen (not allowed to scroll). */
 public class FreezeableCoordinatorLayout extends CoordinatorLayout {
-  public boolean mIsFrozen = false;
+  public boolean isFrozen = false;
 
   public FreezeableCoordinatorLayout(Context context) {
     super(context);
@@ -38,18 +38,18 @@ public class FreezeableCoordinatorLayout extends CoordinatorLayout {
   }
 
   public void setFrozen(boolean frozen) {
-    mIsFrozen = frozen;
+    isFrozen = frozen;
   }
 
   public boolean isFrozen() {
-    return mIsFrozen;
+    return isFrozen;
   }
 
   @Override
   public boolean onTouchEvent(MotionEvent ev) {
     // TODO: Instead of overwriting onTouchEvent here, try using a special behavior or
     // overriding the scroll event in AppBarLayout.
-    if (mIsFrozen) {
+    if (isFrozen) {
       return true;
     }
     return super.onTouchEvent(ev);

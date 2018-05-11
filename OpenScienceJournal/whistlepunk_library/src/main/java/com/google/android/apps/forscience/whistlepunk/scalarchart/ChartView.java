@@ -64,88 +64,88 @@ public class ChartView extends View {
   private static final int MINIMUM_NUM_LABELS = 3;
   private static final int MAXIMUM_NUM_LABELS = 6;
 
-  private List<ExternalAxisController.InteractionListener> mListeners = new ArrayList<>();
+  private List<ExternalAxisController.InteractionListener> listeners = new ArrayList<>();
 
-  private Paint mBackgroundPaint;
+  private Paint backgroundPaint;
 
-  private Paint mPathPaint;
-  private Path mPath;
-  private boolean mHasPath;
-  private Matrix mMatrix = new Matrix();
+  private Paint pathPaint;
+  private Path path;
+  private boolean hasPath;
+  private Matrix matrix = new Matrix();
 
-  private Paint mAxisPaint;
-  private Paint mAxisTextPaint;
-  private float mAxisTextHeight;
-  private float mTopPadding;
-  private float mBottomPadding;
-  private float mRightPadding;
-  private float mAxisTextStartPadding;
+  private Paint axisPaint;
+  private Paint axisTextPaint;
+  private float axisTextHeight;
+  private float topPadding;
+  private float bottomPadding;
+  private float rightPadding;
+  private float axisTextStartPadding;
 
-  private List<Double> mYAxisPoints = new ArrayList<>();
+  private List<Double> yAxisPoints = new ArrayList<>();
   // Number formatting takes a lot of allocations, so save formatted labels in a list.
-  private ArrayList<String> mYAxisPointLabels = new ArrayList<>();
+  private ArrayList<String> yAxisPointLabels = new ArrayList<>();
 
-  private Paint mLeadingEdgePaint;
-  private float mLeadingEdgeRadius;
-  private boolean mLeadingEdgeIsDrawn = false;
+  private Paint leadingEdgePaint;
+  private float leadingEdgeRadius;
+  private boolean leadingEdgeIsDrawn = false;
 
-  private Paint mEndpointPaint;
-  private float mEndpointInnerRadius;
-  private float mEndpointOuterRadius;
+  private Paint endpointPaint;
+  private float endpointInnerRadius;
+  private float endpointOuterRadius;
 
-  private Paint mLabelFillPaint;
-  private Paint mLabelOutlinePaint;
-  private float mLabelRadius;
-  private float mLabelOutlineRadius;
-  private Paint mLabelLinePaint;
+  private Paint labelFillPaint;
+  private Paint labelOutlinePaint;
+  private float labelRadius;
+  private float labelOutlineRadius;
+  private Paint labelLinePaint;
 
-  private ChartOptions mChartOptions;
-  private ChartData mChartData;
+  private ChartOptions chartOptions;
+  private ChartData chartData;
 
-  private float mWidth = 1;
-  private float mHeight = 1;
-  private float mChartHeight;
-  private float mChartWidth;
-  private RectF mChartRect; // Save this to avoid reallocations.
-  private RectF mPreviousChartRect = new RectF();
+  private float width = 1;
+  private float height = 1;
+  private float chartHeight;
+  private float chartWidth;
+  private RectF chartRect; // Save this to avoid reallocations.
+  private RectF previousChartRect = new RectF();
 
   // These describe the minimum and maximum values which the path covers, in the coordinates
   // of the chart data. If the path is not being transformed, they should be the same as the
   // the ChartOptions.getRenderedXMin, XMax, YMin and YMax. If a change in rendered values has
   // occured, these values are used to figure out the transformation needed on the path.
-  private long mXMinForPathCalcs;
-  private long mXMaxForPathCalcs;
-  private double mYMinForPathCalcs;
-  private double mYMaxForPathCalcs;
+  private long xMinForPathCalcs;
+  private long xMaxForPathCalcs;
+  private double yMinForPathCalcs;
+  private double yMaxForPathCalcs;
 
   // These track how much data is covered in the path, and are only updated when the path is
   // redrawn.
-  private long mXMinInPath;
-  private long mXMaxInPath;
+  private long xMinInPath;
+  private long xMaxInPath;
 
   // Whether we were previously pinned to now. This is used to decide whether to add a new data
   // point to the end of the chart, or pull in a lot of new data if there may be a gap.
-  private boolean mWasPinnedToNow;
+  private boolean wasPinnedToNow;
 
-  private boolean mIsDrawn = false;
+  private boolean isDrawn = false;
 
   // For drawing the recording overlay
-  private Paint mRecordingBackgroundPaint;
-  private Paint mRecordingTimePaint;
+  private Paint recordingBackgroundPaint;
+  private Paint recordingTimePaint;
 
   // For drawing stats
-  private float mStatLineWidth;
-  private Paint mStatMinMaxPaint;
-  private Paint mStatAvgPaint;
-  private Drawable mMinDrawable;
-  private Drawable mMaxDrawable;
-  private Drawable mAvgDrawable;
-  private int mStatDrawableWidth;
-  private Path mStatsPath;
-  private float mStartPadding;
-  private Drawable mTriggerDrawable;
-  private int mBackgroundColor;
-  private boolean mExploreByTouchEnabled;
+  private float statLineWidth;
+  private Paint statMinMaxPaint;
+  private Paint statAvgPaint;
+  private Drawable minDrawable;
+  private Drawable maxDrawable;
+  private Drawable avgDrawable;
+  private int statDrawableWidth;
+  private Path statsPath;
+  private float startPadding;
+  private Drawable triggerDrawable;
+  private int backgroundColor;
+  private boolean exploreByTouchEnabled;
 
   public ChartView(Context context) {
     super(context);
@@ -170,98 +170,97 @@ public class ChartView extends View {
 
   private void finishConstruction() {
     createPaints();
-    mPath = new Path();
-    mStatsPath = new Path();
+    path = new Path();
+    statsPath = new Path();
   }
 
   private void createPaints() {
-    mPathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mPathPaint.setStyle(Paint.Style.STROKE);
-    mAxisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mAxisPaint.setStyle(Paint.Style.STROKE);
-    mAxisTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mAxisTextPaint.setTextAlign(Paint.Align.RIGHT);
-    mLeadingEdgePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mLeadingEdgePaint.setStyle(Paint.Style.FILL);
-    mEndpointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mEndpointPaint.setStyle(Paint.Style.FILL);
-    mLabelFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mLabelOutlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mBackgroundPaint = new Paint();
+    pathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    pathPaint.setStyle(Paint.Style.STROKE);
+    axisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    axisPaint.setStyle(Paint.Style.STROKE);
+    axisTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    axisTextPaint.setTextAlign(Paint.Align.RIGHT);
+    leadingEdgePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    leadingEdgePaint.setStyle(Paint.Style.FILL);
+    endpointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    endpointPaint.setStyle(Paint.Style.FILL);
+    labelFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    labelOutlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    backgroundPaint = new Paint();
 
-    mRecordingBackgroundPaint = new Paint();
-    mRecordingBackgroundPaint.setStyle(Paint.Style.FILL);
-    mRecordingTimePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mRecordingTimePaint.setStyle(Paint.Style.STROKE);
+    recordingBackgroundPaint = new Paint();
+    recordingBackgroundPaint.setStyle(Paint.Style.FILL);
+    recordingTimePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    recordingTimePaint.setStyle(Paint.Style.STROKE);
 
-    mLabelLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mStatMinMaxPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mStatAvgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    labelLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    statMinMaxPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    statAvgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
   }
 
   @Override
   public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    float prevHeight = mHeight;
-    float prevWidth = mWidth;
-    mHeight = getMeasuredHeight();
-    mWidth = getMeasuredWidth();
-    mTopPadding = getPaddingTop();
-    mBottomPadding = getPaddingBottom();
-    mRightPadding = getResources().getDimensionPixelSize(R.dimen.stream_presenter_padding_sides);
+    float prevHeight = height;
+    float prevWidth = width;
+    height = getMeasuredHeight();
+    width = getMeasuredWidth();
+    topPadding = getPaddingTop();
+    bottomPadding = getPaddingBottom();
+    rightPadding = getResources().getDimensionPixelSize(R.dimen.stream_presenter_padding_sides);
 
-    if (mChartOptions == null || mChartData == null) {
+    if (chartOptions == null || chartData == null) {
       return;
     }
     // If the height has changed, need to redraw the whole path!
-    if (prevHeight != mHeight || prevWidth != mWidth) {
-      initialize(mChartOptions, mChartData);
+    if (prevHeight != height || prevWidth != width) {
+      initialize(chartOptions, chartData);
     }
   }
 
   private void measure() {
     Resources res = getResources();
-    mPathPaint.setPathEffect(
-        new CornerPathEffect(res.getDimensionPixelSize(mChartOptions.getCornerPathRadiusId())));
-    mPathPaint.setStrokeWidth(res.getDimensionPixelSize(mChartOptions.getLineWidthId()));
-    mAxisPaint.setStrokeWidth(res.getDimensionPixelSize(mChartOptions.getAxisLabelsLineWidthId()));
-    mAxisTextHeight = res.getDimensionPixelSize(mChartOptions.getAxisLabelsTextSizeId());
-    mAxisTextPaint.setTextSize(mAxisTextHeight);
-    float chartStartPadding = res.getDimensionPixelSize(mChartOptions.getChartStartPaddingId());
-    mAxisTextStartPadding = res.getDimensionPixelSize(mChartOptions.getAxisLabelsStartPaddingId());
+    pathPaint.setPathEffect(
+        new CornerPathEffect(res.getDimensionPixelSize(chartOptions.getCornerPathRadiusId())));
+    pathPaint.setStrokeWidth(res.getDimensionPixelSize(chartOptions.getLineWidthId()));
+    axisPaint.setStrokeWidth(res.getDimensionPixelSize(chartOptions.getAxisLabelsLineWidthId()));
+    axisTextHeight = res.getDimensionPixelSize(chartOptions.getAxisLabelsTextSizeId());
+    axisTextPaint.setTextSize(axisTextHeight);
+    float chartStartPadding = res.getDimensionPixelSize(chartOptions.getChartStartPaddingId());
+    axisTextStartPadding = res.getDimensionPixelSize(chartOptions.getAxisLabelsStartPaddingId());
 
-    mLeadingEdgeRadius = res.getDimensionPixelSize(mChartOptions.getLeadingEdgeRadiusId());
-    mEndpointInnerRadius = res.getDimensionPixelSize(mChartOptions.getEndpointInnerRadiusId());
-    mEndpointOuterRadius = res.getDimensionPixelSize(mChartOptions.getEndpointOutderRadiusId());
+    leadingEdgeRadius = res.getDimensionPixelSize(chartOptions.getLeadingEdgeRadiusId());
+    endpointInnerRadius = res.getDimensionPixelSize(chartOptions.getEndpointInnerRadiusId());
+    endpointOuterRadius = res.getDimensionPixelSize(chartOptions.getEndpointOutderRadiusId());
 
-    mLabelRadius = res.getDimensionPixelSize(mChartOptions.getLabelInnerRadiusId());
-    mLabelOutlineRadius = res.getDimensionPixelSize(mChartOptions.getLabelOutlineRadiusId());
+    labelRadius = res.getDimensionPixelSize(chartOptions.getLabelInnerRadiusId());
+    labelOutlineRadius = res.getDimensionPixelSize(chartOptions.getLabelOutlineRadiusId());
 
-    mMinDrawable = res.getDrawable(R.drawable.ic_data_min_color_12dpm);
-    mMaxDrawable = res.getDrawable(R.drawable.ic_data_max_color_12dpm);
-    mAvgDrawable = res.getDrawable(R.drawable.ic_data_average_color_12dp);
-    mStatDrawableWidth = res.getDimensionPixelSize(R.dimen.small_stat_icon_size);
+    minDrawable = res.getDrawable(R.drawable.ic_data_min_color_12dpm);
+    maxDrawable = res.getDrawable(R.drawable.ic_data_max_color_12dpm);
+    avgDrawable = res.getDrawable(R.drawable.ic_data_average_color_12dp);
+    statDrawableWidth = res.getDimensionPixelSize(R.dimen.small_stat_icon_size);
 
-    mStatLineWidth = getResources().getDimensionPixelSize(R.dimen.recording_overlay_bar_width);
-    mRecordingBackgroundPaint.setColor(res.getColor(R.color.recording_axis_overlay_color));
-    mRecordingTimePaint.setStrokeWidth(
+    statLineWidth = getResources().getDimensionPixelSize(R.dimen.recording_overlay_bar_width);
+    recordingBackgroundPaint.setColor(res.getColor(R.color.recording_axis_overlay_color));
+    recordingTimePaint.setStrokeWidth(
         getResources().getDimensionPixelSize(R.dimen.recording_overlay_time_line_width));
-    mRecordingTimePaint.setColor(res.getColor(R.color.recording_axis_bar_color));
+    recordingTimePaint.setColor(res.getColor(R.color.recording_axis_bar_color));
 
     float dashSize = res.getDimensionPixelSize(R.dimen.recording_overlay_dash_size);
-    makeDashedLinePaint(mLabelLinePaint, R.color.note_overlay_line_color, mStatLineWidth, dashSize);
-    makeDashedLinePaint(mStatMinMaxPaint, mStatLineWidth, dashSize);
-    makeDashedLinePaint(mStatAvgPaint, R.color.stats_average_color, mStatLineWidth, dashSize);
+    makeDashedLinePaint(labelLinePaint, R.color.note_overlay_line_color, statLineWidth, dashSize);
+    makeDashedLinePaint(statMinMaxPaint, statLineWidth, dashSize);
+    makeDashedLinePaint(statAvgPaint, R.color.stats_average_color, statLineWidth, dashSize);
 
     // These calculations are done really frequently, so store in member variables to reduce
     // cycles.
-    mStartPadding = chartStartPadding + getPaddingLeft();
-    mChartHeight = mHeight - mBottomPadding - mTopPadding;
-    mChartWidth = mWidth - mStartPadding - mRightPadding;
+    startPadding = chartStartPadding + getPaddingLeft();
+    chartHeight = height - bottomPadding - topPadding;
+    chartWidth = width - startPadding - rightPadding;
 
-    mChartRect =
-        new RectF(
-            mStartPadding, mTopPadding, mChartWidth + mStartPadding, mChartHeight + mTopPadding);
+    chartRect =
+        new RectF(startPadding, topPadding, chartWidth + startPadding, chartHeight + topPadding);
   }
 
   private void makeDashedLinePaint(Paint paint, int colorId, float lineWidth, float dashSize) {
@@ -281,26 +280,26 @@ public class ChartView extends View {
     if (hasWindowFocus) {
       // The user could have changed the accessibility mode while we were in the background,
       // so just get it when window focus changes.
-      mExploreByTouchEnabled =
+      exploreByTouchEnabled =
           ((AccessibilityManager) getContext().getSystemService(Context.ACCESSIBILITY_SERVICE))
               .isTouchExplorationEnabled();
     }
   }
 
   public void initialize(ChartOptions chartOptions, ChartData chartData) {
-    mChartOptions = chartOptions;
-    mChartData = chartData;
+    this.chartOptions = chartOptions;
+    this.chartData = chartData;
     measure();
-    if (mWidth <= 1 || mHeight <= 1) {
+    if (width <= 1 || height <= 1) {
       return;
     }
     updateColorOptions();
     populatePath(false);
 
     final boolean isObserve =
-        mChartOptions.getChartPlacementType() == ChartOptions.ChartPlacementType.TYPE_OBSERVE;
+        this.chartOptions.getChartPlacementType() == ChartOptions.ChartPlacementType.TYPE_OBSERVE;
 
-    if (mChartOptions.canPan() || mChartOptions.canZoom()) {
+    if (this.chartOptions.canPan() || this.chartOptions.canZoom()) {
       ViewConfiguration vc = ViewConfiguration.get(getContext());
       final float touchSlop = vc.getScaledTouchSlop();
       setOnTouchListener(
@@ -310,54 +309,54 @@ public class ChartView extends View {
 
             private final float ZOOM_SLOP = touchSlop * 4;
 
-            private float mTouchX;
-            private float mTouchY;
-            private int mDownIndex;
-            private float mXZoomSpan;
-            private float mYZoomSpan;
-            private long mPreviousDownTime = 0;
+            private float touchX;
+            private float touchY;
+            private int downIndex;
+            private float xZoomSpan;
+            private float yZoomSpan;
+            private long previousDownTime = 0;
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
               int type = event.getActionMasked();
               int numPointers = event.getPointerCount();
               if (type == MotionEvent.ACTION_DOWN) {
-                mDownIndex = 0;
-                updateTouchPoints(event, mDownIndex);
-                long tapDelta = event.getDownTime() - mPreviousDownTime;
+                downIndex = 0;
+                updateTouchPoints(event, downIndex);
+                long tapDelta = event.getDownTime() - previousDownTime;
                 if (!isObserve
                     && DOUBLE_TAP_MIN_TIME < tapDelta
                     && tapDelta < DOUBLE_TAP_MAX_TIME) {
                   resetZoom();
                 } else {
-                  for (ExternalAxisController.InteractionListener listener : mListeners) {
+                  for (ExternalAxisController.InteractionListener listener : listeners) {
                     listener.onStartInteracting();
                   }
                 }
-                mPreviousDownTime = event.getDownTime();
+                previousDownTime = event.getDownTime();
                 return true;
               } else if (type == MotionEvent.ACTION_POINTER_DOWN) {
-                mDownIndex = event.getActionIndex() == 1 ? 0 : 1;
-                updateTouchPoints(event, mDownIndex);
-                mXZoomSpan = Math.abs(event.getX(0) - event.getX(1));
-                mYZoomSpan = Math.abs(event.getY(0) - event.getY(1));
+                downIndex = event.getActionIndex() == 1 ? 0 : 1;
+                updateTouchPoints(event, downIndex);
+                this.xZoomSpan = Math.abs(event.getX(0) - event.getX(1));
+                this.yZoomSpan = Math.abs(event.getY(0) - event.getY(1));
                 return true;
               } else if (type == MotionEvent.ACTION_MOVE) {
-                float oldTouchX = mTouchX;
-                float oldTouchY = mTouchY;
-                updateTouchPoints(event, mDownIndex);
+                float oldTouchX = touchX;
+                float oldTouchY = touchY;
+                updateTouchPoints(event, downIndex);
 
                 boolean hasPannedX = false;
                 boolean hasPannedY = false;
-                if (mChartOptions.canPanX()) {
-                  long dPanX = getXValueDeltaFromXScreenDelta(oldTouchX - mTouchX);
-                  mChartOptions.setRenderedXRange(
-                      mChartOptions.getRenderedXMin() + dPanX,
-                      mChartOptions.getRenderedXMax() + dPanX);
+                if (ChartView.this.chartOptions.canPanX()) {
+                  long dPanX = getXValueDeltaFromXScreenDelta(oldTouchX - touchX);
+                  ChartView.this.chartOptions.setRenderedXRange(
+                      ChartView.this.chartOptions.getRenderedXMin() + dPanX,
+                      ChartView.this.chartOptions.getRenderedXMax() + dPanX);
                   hasPannedX = true;
                 }
-                if (mChartOptions.canPanY()) {
-                  double dPanY = getYValueDeltaFromYScreenDelta(mTouchY - oldTouchY);
+                if (ChartView.this.chartOptions.canPanY()) {
+                  double dPanY = getYValueDeltaFromYScreenDelta(touchY - oldTouchY);
                   doYPan(dPanY);
                   hasPannedY = true;
                 }
@@ -367,46 +366,55 @@ public class ChartView extends View {
                 if (numPointers > 1) {
                   float xZoomSpan = Math.abs(event.getX(0) - event.getX(1));
                   float yZoomSpan = Math.abs(event.getY(0) - event.getY(1));
-                  if (mChartOptions.canZoomX() && xZoomSpan > touchSlop) {
-                    float scale = mXZoomSpan / xZoomSpan;
+                  if (ChartView.this.chartOptions.canZoomX() && xZoomSpan > touchSlop) {
+                    float scale = this.xZoomSpan / xZoomSpan;
                     long newDiff =
                         (long)
-                            ((mChartOptions.getRenderedXMax() - mChartOptions.getRenderedXMin())
+                            ((ChartView.this.chartOptions.getRenderedXMax()
+                                    - ChartView.this.chartOptions.getRenderedXMin())
                                 * scale);
                     long avg =
-                        (mChartOptions.getRenderedXMax() + mChartOptions.getRenderedXMin()) / 2;
+                        (ChartView.this.chartOptions.getRenderedXMax()
+                                + ChartView.this.chartOptions.getRenderedXMin())
+                            / 2;
 
-                    mChartOptions.setRenderedXRange(avg - newDiff / 2, avg + newDiff / 2);
-                    mXZoomSpan = xZoomSpan;
+                    ChartView.this.chartOptions.setRenderedXRange(
+                        avg - newDiff / 2, avg + newDiff / 2);
+                    this.xZoomSpan = xZoomSpan;
                     hasZoomedX = true;
                   } else {
-                    mXZoomSpan = xZoomSpan;
+                    this.xZoomSpan = xZoomSpan;
                   }
                   // Zooming in Y can happen accidentally so make sure the user isn't just
                   // being sloppy but really means to zoom in Y.
-                  if (mChartOptions.canZoomY() && yZoomSpan > ZOOM_SLOP) {
+                  if (ChartView.this.chartOptions.canZoomY() && yZoomSpan > ZOOM_SLOP) {
                     // Limit the amount of scale we can do in a cycle.
-                    float scale = Math.max(0.5f, Math.min(2, mYZoomSpan / yZoomSpan));
+                    float scale = Math.max(0.5f, Math.min(2, this.yZoomSpan / yZoomSpan));
                     double newDiff =
                         Math.min(
-                                mChartOptions.getMaxRenderedYRange(),
-                                mChartOptions.getRenderedYMax() - mChartOptions.getRenderedYMin())
+                                ChartView.this.chartOptions.getMaxRenderedYRange(),
+                                ChartView.this.chartOptions.getRenderedYMax()
+                                    - ChartView.this.chartOptions.getRenderedYMin())
                             * scale;
                     double avg =
-                        (mChartOptions.getRenderedYMax() + mChartOptions.getRenderedYMin()) / 2;
+                        (ChartView.this.chartOptions.getRenderedYMax()
+                                + ChartView.this.chartOptions.getRenderedYMin())
+                            / 2;
                     double newMin =
                         isObserve
                             ? avg - newDiff / 2
-                            : Math.max(avg - newDiff / 2, mChartOptions.getYMinLimit());
+                            : Math.max(
+                                avg - newDiff / 2, ChartView.this.chartOptions.getYMinLimit());
                     double newMax =
                         isObserve
                             ? avg + newDiff / 2
-                            : Math.min(avg + newDiff / 2, mChartOptions.getYMaxLimit());
-                    mChartOptions.setRenderedYRange(newMin, newMax);
+                            : Math.min(
+                                avg + newDiff / 2, ChartView.this.chartOptions.getYMaxLimit());
+                    ChartView.this.chartOptions.setRenderedYRange(newMin, newMax);
                     hasZoomedY = true;
-                    mYZoomSpan = yZoomSpan;
+                    this.yZoomSpan = yZoomSpan;
                   } else {
-                    mYZoomSpan = yZoomSpan;
+                    this.yZoomSpan = yZoomSpan;
                   }
                 }
 
@@ -422,22 +430,24 @@ public class ChartView extends View {
 
                 // Now do stuff that impacts the X axis.
                 if (hasPannedX || hasZoomedX) {
-                  for (ExternalAxisController.InteractionListener listener : mListeners) {
+                  for (ExternalAxisController.InteractionListener listener : listeners) {
                     // No need to zoom and pan, this double-calls listeners.
                     // Try zooming first, then panning.
                     if (hasZoomedX) {
                       listener.onZoom(
-                          mChartOptions.getRenderedXMin(), mChartOptions.getRenderedXMax());
+                          ChartView.this.chartOptions.getRenderedXMin(),
+                          ChartView.this.chartOptions.getRenderedXMax());
                     } else if (hasPannedX) {
                       listener.onPan(
-                          mChartOptions.getRenderedXMin(), mChartOptions.getRenderedXMax());
+                          ChartView.this.chartOptions.getRenderedXMin(),
+                          ChartView.this.chartOptions.getRenderedXMax());
                     }
                   }
                 }
 
                 // If we made a chart movement here, don't let the parent steal the event.
                 boolean eventUsed =
-                    (hasPannedX && significantPan(mTouchX - oldTouchX))
+                    (hasPannedX && significantPan(touchX - oldTouchX))
                         || hasPannedY
                         || hasZoomedX
                         || hasZoomedY;
@@ -448,23 +458,23 @@ public class ChartView extends View {
               } else if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
                 int upIndex = event.getActionIndex();
                 // Whichever finger is still down gets to keep panning, so we need to update
-                // mTouchX and mTouchY.
+                // touchX and touchY.
                 int stillDownIndex = upIndex == 1 ? 0 : 1;
                 updateTouchPoints(event, stillDownIndex);
-                mDownIndex = 0;
+                downIndex = 0;
                 return true;
               } else if (event.getAction() == MotionEvent.ACTION_UP
                   || event.getAction() == MotionEvent.ACTION_POINTER_UP
                   || event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
-                for (ExternalAxisController.InteractionListener listener : mListeners) {
+                for (ExternalAxisController.InteractionListener listener : listeners) {
                   listener.onStopInteracting();
                 }
-                if (event.getAction() == MotionEvent.ACTION_UP && mExploreByTouchEnabled) {
+                if (event.getAction() == MotionEvent.ACTION_UP && exploreByTouchEnabled) {
                   // A single quick tap when explore by touch is enabled is actually a
                   // double-tap from the user, so we should zoom out.
                   // Single tapping doesn't do anything anyway so this is the correct
                   // behavior.
-                  long tapDelta = event.getEventTime() - mPreviousDownTime;
+                  long tapDelta = event.getEventTime() - previousDownTime;
                   if (!isObserve && tapDelta < DOUBLE_TAP_MAX_TIME / 2) {
                     resetZoom();
                   }
@@ -477,11 +487,11 @@ public class ChartView extends View {
 
             // Pans the Y axis by dPanY without passing the limits defined by ChartOptions.
             private void doYPan(double dPanY) {
-              double prevMin = mChartOptions.getRenderedYMin();
-              double prevMax = mChartOptions.getRenderedYMax();
+              double prevMin = ChartView.this.chartOptions.getRenderedYMin();
+              double prevMax = ChartView.this.chartOptions.getRenderedYMax();
 
-              double limitMin = mChartOptions.getYMinLimit();
-              double limitMax = mChartOptions.getYMaxLimit();
+              double limitMin = ChartView.this.chartOptions.getYMinLimit();
+              double limitMax = ChartView.this.chartOptions.getYMaxLimit();
 
               if (prevMin + dPanY < limitMin) {
                 dPanY = limitMin - prevMin;
@@ -489,7 +499,7 @@ public class ChartView extends View {
               if (prevMax + dPanY > limitMax) {
                 dPanY = prevMax - limitMax;
               }
-              mChartOptions.setRenderedYRange(prevMin + dPanY, prevMax + dPanY);
+              ChartView.this.chartOptions.setRenderedYRange(prevMin + dPanY, prevMax + dPanY);
             }
 
             private boolean significantPan(float panDistance) {
@@ -497,14 +507,14 @@ public class ChartView extends View {
             }
 
             private void updateTouchPoints(MotionEvent event, int panPointerIndex) {
-              mTouchX = event.getX(panPointerIndex);
-              mTouchY = event.getY(panPointerIndex);
+              touchX = event.getX(panPointerIndex);
+              touchY = event.getY(panPointerIndex);
             }
 
             private void resetZoom() {
               // Assume this is a double-tap, reset zoom if we aren't in observe.
-              mChartOptions.requestResetZoomInY();
-              for (ExternalAxisController.InteractionListener listener : mListeners) {
+              ChartView.this.chartOptions.requestResetZoomInY();
+              for (ExternalAxisController.InteractionListener listener : listeners) {
                 listener.onStartInteracting();
                 listener.requestResetZoom();
               }
@@ -514,51 +524,51 @@ public class ChartView extends View {
   }
 
   public void updateColorOptions() {
-    int chartColor = mChartOptions.getLineColor();
-    mPathPaint.setColor(chartColor);
+    int chartColor = chartOptions.getLineColor();
+    pathPaint.setColor(chartColor);
     Resources res = getResources();
-    mAxisPaint.setColor(res.getColor(mChartOptions.getAxisLabelsLineColorId()));
-    mAxisTextPaint.setColor(res.getColor(mChartOptions.getLabelsTextColorId()));
-    mLeadingEdgePaint.setColor(chartColor);
-    mEndpointPaint.setColor(chartColor);
-    mLabelFillPaint.setColor(res.getColor(mChartOptions.getLabelFillColorId()));
-    mLabelOutlinePaint.setColor(mChartOptions.getLabelOutlineColor(res));
-    mBackgroundColor = res.getColor(mChartOptions.getChartBackgroundColorId());
-    mBackgroundPaint.setColor(mBackgroundColor);
+    axisPaint.setColor(res.getColor(chartOptions.getAxisLabelsLineColorId()));
+    axisTextPaint.setColor(res.getColor(chartOptions.getLabelsTextColorId()));
+    leadingEdgePaint.setColor(chartColor);
+    endpointPaint.setColor(chartColor);
+    labelFillPaint.setColor(res.getColor(chartOptions.getLabelFillColorId()));
+    labelOutlinePaint.setColor(chartOptions.getLabelOutlineColor(res));
+    backgroundColor = res.getColor(chartOptions.getChartBackgroundColorId());
+    backgroundPaint.setColor(backgroundColor);
 
-    mStatMinMaxPaint.setColor(chartColor);
-    mMinDrawable = mMinDrawable.mutate();
-    mMinDrawable.setColorFilter(chartColor, PorterDuff.Mode.SRC_ATOP);
-    mMaxDrawable = mMaxDrawable.mutate();
-    mMaxDrawable.setColorFilter(chartColor, PorterDuff.Mode.SRC_ATOP);
+    statMinMaxPaint.setColor(chartColor);
+    minDrawable = minDrawable.mutate();
+    minDrawable.setColorFilter(chartColor, PorterDuff.Mode.SRC_ATOP);
+    maxDrawable = maxDrawable.mutate();
+    maxDrawable.setColorFilter(chartColor, PorterDuff.Mode.SRC_ATOP);
   }
 
   private double getYValueDeltaFromYScreenDelta(float screenDiff) {
-    double valueDiff = mChartOptions.getRenderedYMax() - mChartOptions.getRenderedYMin();
-    return screenDiff / mChartHeight * valueDiff;
+    double valueDiff = chartOptions.getRenderedYMax() - chartOptions.getRenderedYMin();
+    return screenDiff / chartHeight * valueDiff;
   }
 
   private long getXValueDeltaFromXScreenDelta(float screenDiff) {
-    long timeDiff = mChartOptions.getRenderedXMax() - mChartOptions.getRenderedXMin();
-    return (long) (screenDiff / mChartWidth * timeDiff);
+    long timeDiff = chartOptions.getRenderedXMax() - chartOptions.getRenderedXMin();
+    return (long) (screenDiff / chartWidth * timeDiff);
   }
 
   public void addInteractionListener(ExternalAxisController.InteractionListener listener) {
-    mListeners.add(listener);
+    listeners.add(listener);
   }
 
   public void clearInteractionListeners() {
-    mListeners.clear();
+    listeners.clear();
   }
 
   public void clear() {
-    mIsDrawn = false;
+    isDrawn = false;
     redraw();
   }
 
   public void redraw() {
-    mYAxisPoints.clear();
-    mYAxisPointLabels.clear();
+    yAxisPoints.clear();
+    yAxisPointLabels.clear();
     populatePath(false);
     postInvalidateOnAnimation();
   }
@@ -570,9 +580,9 @@ public class ChartView extends View {
    * @return The screen x coordinate
    */
   public float getScreenX(long x) {
-    long xMax = mChartOptions.getRenderedXMax();
-    long xMin = mChartOptions.getRenderedXMin();
-    float result = (1.0f * (x - xMin)) / (xMax - xMin) * mChartWidth + mStartPadding;
+    long xMax = chartOptions.getRenderedXMax();
+    long xMin = chartOptions.getRenderedXMin();
+    float result = (1.0f * (x - xMin)) / (xMax - xMin) * chartWidth + startPadding;
     return result;
   }
 
@@ -583,9 +593,9 @@ public class ChartView extends View {
    * @return The screen y coordinate
    */
   public float getScreenY(double y) {
-    double yMax = mChartOptions.getRenderedYMax();
-    double yMin = mChartOptions.getRenderedYMin();
-    double result = mChartHeight * (1 - ((y - yMin) / (yMax - yMin))) + mTopPadding;
+    double yMax = chartOptions.getRenderedYMax();
+    double yMin = chartOptions.getRenderedYMin();
+    double result = chartHeight * (1 - ((y - yMin) / (yMax - yMin))) + topPadding;
     return (float) result;
   }
 
@@ -597,7 +607,7 @@ public class ChartView extends View {
    * @return The long value that corresponds to the x value of the point on the chart.
    */
   public long getXFromScreenX(float x) {
-    return mChartOptions.getRenderedXMin() + getXValueDeltaFromXScreenDelta(x - mStartPadding);
+    return chartOptions.getRenderedXMin() + getXValueDeltaFromXScreenDelta(x - startPadding);
   }
 
   /**
@@ -608,14 +618,14 @@ public class ChartView extends View {
    * @return The double value that corresponds to the y value of the point on the chart.
    */
   public double getYFromScreenY(float y) {
-    return mChartOptions.getRenderedYMin()
-        + getYValueDeltaFromYScreenDelta(mHeight - mBottomPadding - y);
+    return chartOptions.getRenderedYMin()
+        + getYValueDeltaFromYScreenDelta(height - bottomPadding - y);
   }
 
   /** Populates the path from the chart data, from scratch. */
   private void populatePath(boolean optimizePinnedToEnd) {
-    int numPoints = mChartData.getNumPoints();
-    mPath.reset();
+    int numPoints = chartData.getNumPoints();
+    path.reset();
 
     if (numPoints == 0) {
       return;
@@ -627,26 +637,26 @@ public class ChartView extends View {
     List<ChartData.DataPoint> points;
     if (optimizePinnedToEnd) {
       // This is a slightly more efficient call, so use it when possible.
-      points = mChartData.getPointsInRangeToEnd(mChartOptions.getRenderedXMin() - BUFFER_MS);
+      points = chartData.getPointsInRangeToEnd(chartOptions.getRenderedXMin() - BUFFER_MS);
     } else {
       points =
-          mChartData.getPointsInRange(
-              mChartOptions.getRenderedXMin() - BUFFER_MS,
-              mChartOptions.getRenderedXMax() + BUFFER_MS);
+          chartData.getPointsInRange(
+              chartOptions.getRenderedXMin() - BUFFER_MS,
+              chartOptions.getRenderedXMax() + BUFFER_MS);
     }
     int numPlottedPoints = points.size();
     if (numPlottedPoints == 0) {
       return;
     }
-    mPath.moveTo(getPathX(points.get(0).getX()), getPathY(points.get(0).getY()));
+    path.moveTo(getPathX(points.get(0).getX()), getPathY(points.get(0).getY()));
     for (int i = 1; i < numPlottedPoints; i++) {
-      mPath.lineTo(getPathX(points.get(i).getX()), getPathY(points.get(i).getY()));
+      path.lineTo(getPathX(points.get(i).getX()), getPathY(points.get(i).getY()));
     }
-    mHasPath = true;
+    hasPath = true;
 
     // Only update these when the path is redrawn. They track how much data the path covers.
-    mXMinInPath = points.get(0).getX();
-    mXMaxInPath = points.get(numPlottedPoints - 1).getX();
+    xMinInPath = points.get(0).getX();
+    xMaxInPath = points.get(numPlottedPoints - 1).getX();
   }
 
   /**
@@ -657,58 +667,58 @@ public class ChartView extends View {
    * @param point The data point to add to the end of the path.
    */
   public void addPointToEndOfPath(ChartData.DataPoint point) {
-    int numPoints = mChartData.getNumPoints();
-    if (!mHasPath
+    int numPoints = chartData.getNumPoints();
+    if (!hasPath
         || numPoints < MAXIMUM_NUM_POINTS_FOR_POPULATE_PATH
-        || (numPoints % DRAWN_POINTS_REDRAW_THRESHOLD == 0 && mChartOptions.isPinnedToNow())) {
+        || (numPoints % DRAWN_POINTS_REDRAW_THRESHOLD == 0 && chartOptions.isPinnedToNow())) {
       populatePath(true);
       postInvalidateOnAnimation();
     } else {
-      if (mChartOptions.isPinnedToNow() && !mWasPinnedToNow) {
+      if (chartOptions.isPinnedToNow() && !wasPinnedToNow) {
         populatePath(true);
         postInvalidateOnAnimation();
-      } else if ((mChartOptions.isPinnedToNow())
-          || mChartOptions.getRenderedXMax() >= point.getX()
-          || mLeadingEdgeIsDrawn) {
+      } else if ((chartOptions.isPinnedToNow())
+          || chartOptions.getRenderedXMax() >= point.getX()
+          || leadingEdgeIsDrawn) {
         // Add the point to the end only if the end is being rendered.
         // The path is in the previous coordinates, so we can add a point using those
         // mins/maxes.
-        mPath.lineTo(getPathX(point.getX()), getPathY(point.getY()));
-        mXMaxInPath = point.getX();
+        path.lineTo(getPathX(point.getX()), getPathY(point.getY()));
+        xMaxInPath = point.getX();
       }
     }
-    mWasPinnedToNow = mChartOptions.isPinnedToNow();
+    wasPinnedToNow = chartOptions.isPinnedToNow();
   }
 
   /** Transform the path by stretching and translating it to meet the new rendered size. */
   public void transformPath() {
     // The path needs to be scaled in X and Y based on the range of the new data points.
-    mMatrix.reset();
-    mPreviousChartRect.set(
-        getScreenX(mXMinForPathCalcs),
-        getScreenY(mYMaxForPathCalcs),
-        getScreenX(mXMaxForPathCalcs),
-        getScreenY(mYMinForPathCalcs));
-    mMatrix.setRectToRect(mChartRect, mPreviousChartRect, Matrix.ScaleToFit.FILL);
-    mPath.transform(mMatrix);
+    matrix.reset();
+    previousChartRect.set(
+        getScreenX(xMinForPathCalcs),
+        getScreenY(yMaxForPathCalcs),
+        getScreenX(xMaxForPathCalcs),
+        getScreenY(yMinForPathCalcs));
+    matrix.setRectToRect(chartRect, previousChartRect, Matrix.ScaleToFit.FILL);
+    path.transform(matrix);
 
     updatePathCalcs();
     postInvalidateOnAnimation();
   }
 
   private void updatePathCalcs() {
-    mXMaxForPathCalcs = mChartOptions.getRenderedXMax();
-    mXMinForPathCalcs = mChartOptions.getRenderedXMin();
-    mYMinForPathCalcs = mChartOptions.getRenderedYMin();
-    mYMaxForPathCalcs = mChartOptions.getRenderedYMax();
+    xMaxForPathCalcs = chartOptions.getRenderedXMax();
+    xMinForPathCalcs = chartOptions.getRenderedXMin();
+    yMinForPathCalcs = chartOptions.getRenderedYMin();
+    yMaxForPathCalcs = chartOptions.getRenderedYMax();
   }
 
   // Gets the X coordinate of a point in the current path coordinates, which may be different
   // from the rendered min/max coordinates if the path has not yet been transformed and drawn.
   // This should just be used when drawing the path.
   private float getPathX(long x) {
-    return (1.0f * (x - mXMinForPathCalcs)) / (mXMaxForPathCalcs - mXMinForPathCalcs) * mChartWidth
-        + mStartPadding;
+    return (1.0f * (x - xMinForPathCalcs)) / (xMaxForPathCalcs - xMinForPathCalcs) * chartWidth
+        + startPadding;
   }
 
   // Gets the Y coordinate of a point in the current path coordinates, which may be different
@@ -716,25 +726,25 @@ public class ChartView extends View {
   // This should just be used when drawing the path.
   private float getPathY(double y) {
     return (float)
-        (mChartHeight * (1 - ((y - mYMinForPathCalcs) / (mYMaxForPathCalcs - mYMinForPathCalcs)))
-            + mTopPadding);
+        (chartHeight * (1 - ((y - yMinForPathCalcs) / (yMaxForPathCalcs - yMinForPathCalcs)))
+            + topPadding);
   }
 
   @Override
   public void onDraw(Canvas canvas) {
-    canvas.drawColor(mBackgroundColor);
+    canvas.drawColor(backgroundColor);
 
-    if (mChartData == null || mChartData.getNumPoints() == 0) {
+    if (chartData == null || chartData.getNumPoints() == 0) {
       return;
     }
 
-    if (mChartOptions.showYGrid()) {
+    if (chartOptions.showYGrid()) {
       updateYAxisPoints();
     }
 
     // Draw the Y label lines under the path.
     drawYAxis(canvas);
-    canvas.drawPath(mPath, mPathPaint);
+    canvas.drawPath(path, pathPaint);
     // Try drawing the endpoints, if they are needed.
     tryDrawingEndpoints(canvas);
 
@@ -742,37 +752,37 @@ public class ChartView extends View {
     drawLabels(canvas);
 
     // Draw the stats and recording overlay if needed.
-    if (mChartOptions.shouldDrawRecordingOverlay()) {
+    if (chartOptions.shouldDrawRecordingOverlay()) {
       drawRecordingOverlay(canvas);
     }
 
     // Draw the stats if needed
-    if (mChartOptions.shouldShowStatsOverlay()) {
+    if (chartOptions.shouldShowStatsOverlay()) {
       drawStats(canvas);
     }
 
     // White out the margins
-    canvas.drawRect(0, 0, mStartPadding, mHeight, mBackgroundPaint);
-    canvas.drawRect(0, 0, mWidth, mTopPadding, mBackgroundPaint);
-    canvas.drawRect(0, mHeight - mBottomPadding, mWidth, mHeight, mBackgroundPaint);
-    canvas.drawRect(mWidth - mRightPadding, 0, mWidth, mHeight, mBackgroundPaint);
+    canvas.drawRect(0, 0, startPadding, height, backgroundPaint);
+    canvas.drawRect(0, 0, width, topPadding, backgroundPaint);
+    canvas.drawRect(0, height - bottomPadding, width, height, backgroundPaint);
+    canvas.drawRect(width - rightPadding, 0, width, height, backgroundPaint);
 
     drawTriggers(canvas);
 
-    if (mChartOptions.showYGrid()) {
+    if (chartOptions.showYGrid()) {
       // Draw the Y label text above the rect that whites out the Y label axis.
       drawYAxisText(canvas);
     }
 
-    mIsDrawn = true;
+    isDrawn = true;
   }
 
   public boolean isDrawn() {
-    return mIsDrawn;
+    return isDrawn;
   }
 
   private void drawTriggers(Canvas canvas) {
-    List<Double> triggerValues = mChartOptions.getTriggerValues();
+    List<Double> triggerValues = chartOptions.getTriggerValues();
     if (triggerValues == null || triggerValues.size() == 0) {
       return;
     }
@@ -781,13 +791,13 @@ public class ChartView extends View {
     int height = drawable.getIntrinsicHeight();
     for (double value : triggerValues) {
       float y = getScreenY(value);
-      if (y + height < 0 || y - height > mHeight) {
+      if (y + height < 0 || y - height > this.height) {
         continue;
       }
       drawable.setBounds(
-          (int) (mStartPadding - width - mAxisTextStartPadding),
+          (int) (startPadding - width - axisTextStartPadding),
           (int) y - height / 2,
-          (int) (mStartPadding - mAxisTextStartPadding),
+          (int) (startPadding - axisTextStartPadding),
           (int) y + height / 2);
       drawable.draw(canvas);
     }
@@ -795,70 +805,70 @@ public class ChartView extends View {
 
   private Drawable getTriggerDrawable() {
     // Lazy init, as most charts probably won't need triggers.
-    if (mTriggerDrawable == null) {
+    if (triggerDrawable == null) {
       Resources res = getResources();
-      mTriggerDrawable = res.getDrawable(R.drawable.ic_label_black_24dp);
-      mTriggerDrawable
+      triggerDrawable = res.getDrawable(R.drawable.ic_label_black_24dp);
+      triggerDrawable
           .mutate()
           .setColorFilter(res.getColor(R.color.color_accent), PorterDuff.Mode.SRC_IN);
-      mTriggerDrawable.setAlpha(res.getInteger(R.integer.trigger_drawable_alpha));
+      triggerDrawable.setAlpha(res.getInteger(R.integer.trigger_drawable_alpha));
     }
-    return mTriggerDrawable;
+    return triggerDrawable;
   }
 
   private void drawLabels(Canvas canvas) {
-    List<ChartData.DataPoint> labels = mChartData.getLabelPoints();
+    List<ChartData.DataPoint> labels = chartData.getLabelPoints();
     for (ChartData.DataPoint label : labels) {
-      if (label.getX() < mXMinInPath || label.getX() > mXMaxInPath) {
+      if (label.getX() < xMinInPath || label.getX() > xMaxInPath) {
         continue;
       }
       float x = getScreenX(label.getX());
       float y = getScreenY(label.getY());
-      if (mChartOptions.shouldDrawRecordingOverlay()) {
-        mStatsPath.reset();
-        mStatsPath.moveTo(x, 0);
-        mStatsPath.lineTo(x, mHeight);
-        canvas.drawPath(mStatsPath, mLabelLinePaint);
+      if (chartOptions.shouldDrawRecordingOverlay()) {
+        statsPath.reset();
+        statsPath.moveTo(x, 0);
+        statsPath.lineTo(x, height);
+        canvas.drawPath(statsPath, labelLinePaint);
       }
-      canvas.drawCircle(x, y, mLabelOutlineRadius, mLabelOutlinePaint);
-      canvas.drawCircle(x, y, mLabelRadius, mLabelFillPaint);
+      canvas.drawCircle(x, y, labelOutlineRadius, labelOutlinePaint);
+      canvas.drawCircle(x, y, labelRadius, labelFillPaint);
     }
   }
 
   private void tryDrawingEndpoints(Canvas canvas) {
-    if (mChartOptions.isShowLeadingEdge()) {
-      ChartData.DataPoint point = mChartData.getPoints().get(mChartData.getNumPoints() - 1);
-      if (point.getX() == mXMaxInPath && mXMaxInPath <= mXMaxForPathCalcs) {
-        mLeadingEdgeIsDrawn = true;
+    if (chartOptions.isShowLeadingEdge()) {
+      ChartData.DataPoint point = chartData.getPoints().get(chartData.getNumPoints() - 1);
+      if (point.getX() == xMaxInPath && xMaxInPath <= xMaxForPathCalcs) {
+        leadingEdgeIsDrawn = true;
         canvas.drawCircle(
             getScreenX(point.getX()),
             getScreenY(point.getY()),
-            mLeadingEdgeRadius,
-            mLeadingEdgePaint);
+            leadingEdgeRadius,
+            leadingEdgePaint);
       } else {
-        mLeadingEdgeIsDrawn = false;
+        leadingEdgeIsDrawn = false;
       }
-    } else if (mChartOptions.isShowEndpoints()) {
+    } else if (chartOptions.isShowEndpoints()) {
       // Only try to draw the endpoints if the range shown contains the recording
       // start and/or end times.
-      if (mChartOptions.getRenderedXMin() < mChartOptions.getRecordingStartTime()
-          && mChartOptions.getRecordingStartTime() < mChartOptions.getRenderedXMax()) {
-        ChartData.DataPoint start = mChartData.getPoints().get(0);
-        if (start.getX() >= mXMinForPathCalcs) {
+      if (chartOptions.getRenderedXMin() < chartOptions.getRecordingStartTime()
+          && chartOptions.getRecordingStartTime() < chartOptions.getRenderedXMax()) {
+        ChartData.DataPoint start = chartData.getPoints().get(0);
+        if (start.getX() >= xMinForPathCalcs) {
           float screenX = getScreenX(start.getX());
           float screenY = getScreenY(start.getY());
-          canvas.drawCircle(screenX, screenY, mEndpointOuterRadius, mEndpointPaint);
-          canvas.drawCircle(screenX, screenY, mEndpointInnerRadius, mBackgroundPaint);
+          canvas.drawCircle(screenX, screenY, endpointOuterRadius, endpointPaint);
+          canvas.drawCircle(screenX, screenY, endpointInnerRadius, backgroundPaint);
         }
       }
-      if (mChartOptions.getRenderedXMin() < mChartOptions.getRecordingEndTime()
-          && mChartOptions.getRecordingEndTime() < mChartOptions.getRenderedXMax()) {
-        ChartData.DataPoint end = mChartData.getPoints().get(mChartData.getNumPoints() - 1);
-        if (end.getX() <= mXMaxForPathCalcs) {
+      if (chartOptions.getRenderedXMin() < chartOptions.getRecordingEndTime()
+          && chartOptions.getRecordingEndTime() < chartOptions.getRenderedXMax()) {
+        ChartData.DataPoint end = chartData.getPoints().get(chartData.getNumPoints() - 1);
+        if (end.getX() <= xMaxForPathCalcs) {
           float screenX = getScreenX(end.getX());
           float screenY = getScreenY(end.getY());
-          canvas.drawCircle(screenX, screenY, mEndpointOuterRadius, mEndpointPaint);
-          canvas.drawCircle(screenX, screenY, mEndpointInnerRadius, mBackgroundPaint);
+          canvas.drawCircle(screenX, screenY, endpointOuterRadius, endpointPaint);
+          canvas.drawCircle(screenX, screenY, endpointInnerRadius, backgroundPaint);
         }
       }
     }
@@ -866,65 +876,57 @@ public class ChartView extends View {
 
   private void drawYAxis(Canvas canvas) {
     // Now go through the points to label and draw the horizontal label line.
-    for (int i = 0; i < mYAxisPoints.size(); i++) {
-      float yValue = getScreenY(mYAxisPoints.get(i));
-      canvas.drawLine(mStartPadding, yValue, mWidth, yValue, mAxisPaint);
+    for (int i = 0; i < yAxisPoints.size(); i++) {
+      float yValue = getScreenY(yAxisPoints.get(i));
+      canvas.drawLine(startPadding, yValue, width, yValue, axisPaint);
     }
   }
 
   private void drawYAxisText(Canvas canvas) {
     // Now go through the points to label and draw the label text
-    for (int i = 0; i < mYAxisPoints.size(); i++) {
-      double pointValue = mYAxisPoints.get(i);
+    for (int i = 0; i < yAxisPoints.size(); i++) {
+      double pointValue = yAxisPoints.get(i);
       float yValue = getScreenY(pointValue);
-      if (textWillBeCropped(yValue, mAxisTextHeight)) {
+      if (textWillBeCropped(yValue, axisTextHeight)) {
         continue;
       }
       canvas.drawText(
-          mYAxisPointLabels.get(i),
-          mStartPadding - mAxisTextStartPadding,
-          yValue + mAxisTextHeight / 3,
-          mAxisTextPaint);
+          yAxisPointLabels.get(i),
+          startPadding - axisTextStartPadding,
+          yValue + axisTextHeight / 3,
+          axisTextPaint);
     }
   }
 
   // Don't draw labels if they will be cropped.
   private boolean textWillBeCropped(float y, float textHeight) {
-    return y + textHeight > mHeight || y - textHeight < 0;
+    return y + textHeight > height || y - textHeight < 0;
   }
 
   private void drawRecordingOverlay(Canvas canvas) {
-    float xRecordingStart = getScreenX(mChartOptions.getRecordingStartTime());
+    float xRecordingStart = getScreenX(chartOptions.getRecordingStartTime());
     if (xRecordingStart < 0) {
       canvas.drawRect(
-          0,
-          mTopPadding,
-          mWidth - mRightPadding,
-          mHeight - mBottomPadding,
-          mRecordingBackgroundPaint);
+          0, topPadding, width - rightPadding, height - bottomPadding, recordingBackgroundPaint);
     } else {
       canvas.drawRect(
           xRecordingStart,
-          mTopPadding,
-          mWidth - mRightPadding,
-          mHeight - mBottomPadding,
-          mRecordingBackgroundPaint);
+          topPadding,
+          width - rightPadding,
+          height - bottomPadding,
+          recordingBackgroundPaint);
       canvas.drawLine(
-          xRecordingStart,
-          mTopPadding,
-          xRecordingStart,
-          mHeight - mBottomPadding,
-          mRecordingTimePaint);
+          xRecordingStart, topPadding, xRecordingStart, height - bottomPadding, recordingTimePaint);
     }
   }
 
   private void drawStats(Canvas canvas) {
-    for (StreamStat stat : mChartData.getStats()) {
+    for (StreamStat stat : chartData.getStats()) {
       float yValue = getScreenY(stat.getValue());
-      mStatsPath.reset();
-      mStatsPath.moveTo(mStatDrawableWidth + mStartPadding, yValue);
-      mStatsPath.lineTo(mWidth, yValue);
-      canvas.drawPath(mStatsPath, getStatPaint(stat.getType()));
+      statsPath.reset();
+      statsPath.moveTo(statDrawableWidth + startPadding, yValue);
+      statsPath.lineTo(width, yValue);
+      canvas.drawPath(statsPath, getStatPaint(stat.getType()));
       drawStatDrawable((int) yValue, canvas, stat.getType());
     }
   }
@@ -933,41 +935,41 @@ public class ChartView extends View {
     switch (type) {
       case StreamStat.TYPE_MIN:
       case StreamStat.TYPE_MAX:
-        return mStatMinMaxPaint;
+        return statMinMaxPaint;
       case StreamStat.TYPE_AVERAGE:
-        return mStatAvgPaint;
+        return statAvgPaint;
       default:
-        return mStatAvgPaint;
+        return statAvgPaint;
     }
   }
 
   private void drawStatDrawable(int yOffset, Canvas canvas, int type) {
     Drawable toDraw;
-    int startPadding = (int) mStartPadding;
+    int startPadding = (int) this.startPadding;
     switch (type) {
       case StreamStat.TYPE_MIN:
-        toDraw = mMinDrawable;
+        toDraw = minDrawable;
         toDraw.setBounds(
             startPadding,
-            yOffset - mStatDrawableWidth + ((int) mStatLineWidth) * 2,
-            mStatDrawableWidth + startPadding,
-            yOffset + ((int) mStatLineWidth) * 2);
+            yOffset - statDrawableWidth + ((int) statLineWidth) * 2,
+            statDrawableWidth + startPadding,
+            yOffset + ((int) statLineWidth) * 2);
         break;
       case StreamStat.TYPE_MAX:
-        toDraw = mMaxDrawable;
+        toDraw = maxDrawable;
         toDraw.setBounds(
             startPadding,
-            yOffset - ((int) mStatLineWidth) * 2,
-            mStatDrawableWidth + startPadding,
-            yOffset + mStatDrawableWidth - ((int) mStatLineWidth) * 2);
+            yOffset - ((int) statLineWidth) * 2,
+            statDrawableWidth + startPadding,
+            yOffset + statDrawableWidth - ((int) statLineWidth) * 2);
         break;
       case StreamStat.TYPE_AVERAGE:
-        toDraw = mAvgDrawable;
+        toDraw = avgDrawable;
         toDraw.setBounds(
             startPadding,
-            yOffset - mStatDrawableWidth / 2,
-            mStatDrawableWidth + startPadding,
-            yOffset + mStatDrawableWidth / 2);
+            yOffset - statDrawableWidth / 2,
+            statDrawableWidth + startPadding,
+            yOffset + statDrawableWidth / 2);
         break;
       default:
         return;
@@ -977,12 +979,12 @@ public class ChartView extends View {
 
   private void updateYAxisPoints() {
     // Calculate how many labels and figure out where they should go
-    double yMin = mChartOptions.getRenderedYMin();
-    double yMax = mChartOptions.getRenderedYMax();
+    double yMin = chartOptions.getRenderedYMin();
+    double yMax = chartOptions.getRenderedYMax();
     if (yMax < yMin) {
       return;
     }
-    int sizeShown = calculateSizeShownNext(mYAxisPoints, yMin, yMax);
+    int sizeShown = calculateSizeShownNext(yAxisPoints, yMin, yMax);
     if (sizeShown < MINIMUM_NUM_LABELS || sizeShown > MAXIMUM_NUM_LABELS) {
       double range = yMax - yMin;
       if (Double.isNaN(range) || range <= 0) {
@@ -990,28 +992,28 @@ public class ChartView extends View {
       }
       int increment = (int) Math.ceil(range / (PREFERRED_NUM_LABELS * 1.0));
       int labelStart = increment * ((int) yMin / increment);
-      mYAxisPoints.clear();
-      mYAxisPointLabels.clear();
+      yAxisPoints.clear();
+      yAxisPointLabels.clear();
 
       int count = 0;
       for (int i = labelStart; i < yMax + increment; i += increment) {
-        mYAxisPoints.add(count++, i * 1.0);
-        mYAxisPointLabels.add(mChartOptions.getAxisNumberFormat().format(i * 1.0));
+        yAxisPoints.add(count++, i * 1.0);
+        yAxisPointLabels.add(chartOptions.getAxisNumberFormat().format(i * 1.0));
       }
     } else {
       // Figure out if any can be added or removed at the same increment value.
-      double increment = mYAxisPoints.get(1) - mYAxisPoints.get(0);
+      double increment = yAxisPoints.get(1) - yAxisPoints.get(0);
 
-      double nextSmallerLabel = mYAxisPoints.get(0) - increment;
+      double nextSmallerLabel = yAxisPoints.get(0) - increment;
       while (nextSmallerLabel > yMin) {
-        mYAxisPoints.add(0, nextSmallerLabel);
-        mYAxisPointLabels.add(0, mChartOptions.getAxisNumberFormat().format(nextSmallerLabel));
+        yAxisPoints.add(0, nextSmallerLabel);
+        yAxisPointLabels.add(0, chartOptions.getAxisNumberFormat().format(nextSmallerLabel));
         nextSmallerLabel -= increment;
       }
-      double nextLargerLabel = mYAxisPoints.get(mYAxisPoints.size() - 1) + increment;
+      double nextLargerLabel = yAxisPoints.get(yAxisPoints.size() - 1) + increment;
       while (nextLargerLabel < yMax) {
-        mYAxisPoints.add(nextLargerLabel);
-        mYAxisPointLabels.add(mChartOptions.getAxisNumberFormat().format(nextLargerLabel));
+        yAxisPoints.add(nextLargerLabel);
+        yAxisPointLabels.add(chartOptions.getAxisNumberFormat().format(nextLargerLabel));
         nextLargerLabel += increment;
       }
     }
@@ -1047,16 +1049,15 @@ public class ChartView extends View {
 
   public void onAxisLimitsAdjusted() {
     // Uses transformPath() instead of populatePath() when possible, i.e. when
-    // the range loaded (mXMinInPath to mXMaxInPath) is within the rendered
+    // the range loaded (xMinInPath to xMaxInPath) is within the rendered
     // range desired (getRenderedXMax and getRenderedXMin).
-    if (mChartData.isEmpty()) {
+    if (chartData.isEmpty()) {
       return;
     }
     boolean newRangeOutsideOfPathRange =
-        (mChartOptions.getRenderedXMax() > mXMaxInPath && mXMaxInPath < mChartData.getXMax())
-            || (mChartOptions.getRenderedXMin() < mXMinInPath
-                && mXMinInPath > mChartData.getXMin());
-    boolean newRangeTooLarge = getScreenX(mXMaxInPath) - getScreenX(mXMinInPath) > mWidth * 2;
+        (chartOptions.getRenderedXMax() > xMaxInPath && xMaxInPath < chartData.getXMax())
+            || (chartOptions.getRenderedXMin() < xMinInPath && xMinInPath > chartData.getXMin());
+    boolean newRangeTooLarge = getScreenX(xMaxInPath) - getScreenX(xMinInPath) > width * 2;
     if (newRangeOutsideOfPathRange || newRangeTooLarge) {
       populatePath(false);
       postInvalidateOnAnimation();

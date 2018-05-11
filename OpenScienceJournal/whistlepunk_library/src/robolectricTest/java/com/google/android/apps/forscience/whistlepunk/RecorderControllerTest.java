@@ -55,16 +55,16 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class RecorderControllerTest {
-  private final MockScheduler mScheduler = new MockScheduler();
-  private String mSensorId = "sensorId";
-  private String mSensorName = "sensor";
-  private final ManualSensorRegistry mSensorRegistry = new ManualSensorRegistry();
-  private final ManualSensor mSensor = mSensorRegistry.addSensor(mSensorId, mSensorName);
-  private final InMemorySensorDatabase mDatabase = new InMemorySensorDatabase();
-  private final DataControllerImpl mDataController = mDatabase.makeSimpleController();
-  private final MemorySensorEnvironment mEnvironment =
+  private final MockScheduler scheduler = new MockScheduler();
+  private String sensorId = "sensorId";
+  private String sensorName = "sensor";
+  private final ManualSensorRegistry sensorRegistry = new ManualSensorRegistry();
+  private final ManualSensor sensor = sensorRegistry.addSensor(sensorId, sensorName);
+  private final InMemorySensorDatabase database = new InMemorySensorDatabase();
+  private final DataControllerImpl dataController = database.makeSimpleController();
+  private final MemorySensorEnvironment environment =
       new MemorySensorEnvironment(
-          mDatabase.makeSimpleRecordingController(),
+          database.makeSimpleRecordingController(),
           new FakeBleClient(null),
           new MemorySensorHistoryStorage(),
           null);
@@ -74,7 +74,7 @@ public class RecorderControllerTest {
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
             null,
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
             null,
@@ -84,29 +84,29 @@ public class RecorderControllerTest {
     RecordingSensorObserver observer1 = new RecordingSensorObserver();
     RecordingSensorObserver observer2 = new RecordingSensorObserver();
 
-    mSensor.pushValue(0, 0);
+    sensor.pushValue(0, 0);
     String id1 =
         rc.startObserving(
-            mSensorId,
+            sensorId,
             Collections.<SensorTrigger>emptyList(),
             observer1,
             new StubStatusListener(),
             null,
-            mSensorRegistry);
-    mSensor.pushValue(1, 1);
+            sensorRegistry);
+    sensor.pushValue(1, 1);
     String id2 =
         rc.startObserving(
-            mSensorId,
+            sensorId,
             Collections.<SensorTrigger>emptyList(),
             observer2,
             new StubStatusListener(),
             null,
-            mSensorRegistry);
-    mSensor.pushValue(2, 2);
-    rc.stopObserving(mSensorId, id1);
-    mSensor.pushValue(3, 3);
-    rc.stopObserving(mSensorId, id2);
-    mSensor.pushValue(4, 4);
+            sensorRegistry);
+    sensor.pushValue(2, 2);
+    rc.stopObserving(sensorId, id1);
+    sensor.pushValue(3, 3);
+    rc.stopObserving(sensorId, id2);
+    sensor.pushValue(4, 4);
 
     TestData.allPointsBetween(1, 2, 1).checkObserver(observer1);
     TestData.allPointsBetween(2, 3, 1).checkObserver(observer2);
@@ -117,7 +117,7 @@ public class RecorderControllerTest {
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
             null,
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
             null,
@@ -145,59 +145,59 @@ public class RecorderControllerTest {
 
   @Test
   public void delayStopObserving() {
-    TestTrigger trigger = new TestTrigger(mSensorId);
+    TestTrigger trigger = new TestTrigger(sensorId);
     ArrayList<SensorTrigger> triggerList = Lists.<SensorTrigger>newArrayList(trigger);
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
             null,
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
             null,
-            mScheduler,
+            scheduler,
             Delay.seconds(15),
             new FakeUnitAppearanceProvider());
     String observeId1 =
         rc.startObserving(
-            mSensorId,
+            sensorId,
             Lists.<SensorTrigger>newArrayList(),
             new RecordingSensorObserver(),
             new RecordingStatusListener(),
             null,
-            mSensorRegistry);
-    rc.stopObserving(mSensorId, observeId1);
+            sensorRegistry);
+    rc.stopObserving(sensorId, observeId1);
 
     // Redundant call should have no effect.
-    rc.stopObserving(mSensorId, observeId1);
-    mScheduler.incrementTime(1000);
+    rc.stopObserving(sensorId, observeId1);
+    scheduler.incrementTime(1000);
 
     // Should still be observing 1s later.
-    assertTrue(mSensor.isObserving());
+    assertTrue(sensor.isObserving());
 
     // Start observing again before the delay is hit
     String observeId2 =
         rc.startObserving(
-            mSensorId,
+            sensorId,
             triggerList,
             new RecordingSensorObserver(),
             new RecordingStatusListener(),
             null,
-            mSensorRegistry);
+            sensorRegistry);
 
     // Make sure there's no delayed stop commands waiting to strike
-    mScheduler.incrementTime(30000);
-    assertTrue(mSensor.isObserving());
+    scheduler.incrementTime(30000);
+    assertTrue(sensor.isObserving());
 
     // And we have correctly picked up the new trigger list.
     trigger.clearTestCount();
-    mSensor.pushValue(0, 0);
+    sensor.pushValue(0, 0);
     assertEquals(1, trigger.getTestCount());
 
     // Finally, after appropriate delay, sensor stops.
-    rc.stopObserving(mSensorId, observeId2);
-    assertTrue(mSensor.isObserving());
-    mScheduler.incrementTime(16000);
-    assertFalse(mSensor.isObserving());
+    rc.stopObserving(sensorId, observeId2);
+    assertTrue(sensor.isObserving());
+    scheduler.incrementTime(16000);
+    assertFalse(sensor.isObserving());
   }
 
   @Test
@@ -205,23 +205,23 @@ public class RecorderControllerTest {
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
             null,
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
             null,
-            mScheduler,
+            scheduler,
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
     String observeId1 =
         rc.startObserving(
-            mSensorId,
+            sensorId,
             null,
             new RecordingSensorObserver(),
             new RecordingStatusListener(),
             null,
-            mSensorRegistry);
-    rc.stopObserving(mSensorId, observeId1);
-    assertEquals(0, mScheduler.getScheduleCount());
+            sensorRegistry);
+    rc.stopObserving(sensorId, observeId1);
+    assertEquals(0, scheduler.getScheduleCount());
   }
 
   @Test
@@ -229,24 +229,24 @@ public class RecorderControllerTest {
     RecorderControllerImpl rc =
         new RecorderControllerImpl(
             null,
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
             null,
-            mScheduler,
+            scheduler,
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
     rc.startObserving(
-        mSensorId,
+        sensorId,
         null,
         new RecordingSensorObserver(),
         new RecordingStatusListener(),
         null,
-        mSensorRegistry);
-    mSensor.simulateExternalEventPreventingObservation();
-    assertFalse(mSensor.isObserving());
-    rc.reboot(mSensorId);
-    assertTrue(mSensor.isObserving());
+        sensorRegistry);
+    sensor.simulateExternalEventPreventingObservation();
+    assertFalse(sensor.isObserving());
+    rc.reboot(sensorId);
+    assertTrue(sensor.isObserving());
   }
 
   @Test
@@ -254,25 +254,25 @@ public class RecorderControllerTest {
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
             RuntimeEnvironment.application.getApplicationContext(),
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
-            mDataController,
-            mScheduler,
+            dataController,
+            scheduler,
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
 
     rc.startObserving(
-        mSensorId,
+        sensorId,
         new ArrayList<SensorTrigger>(),
         new RecordingSensorObserver(),
         new RecordingStatusListener(),
         null,
-        mSensorRegistry);
+        sensorRegistry);
 
     Maybe<String> snapshot =
-        rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId), mSensorRegistry);
-    mSensor.pushValue(10, 50);
+        rc.generateSnapshotText(Lists.<String>newArrayList(sensorId), sensorRegistry);
+    sensor.pushValue(10, 50);
     assertEquals("[sensor has value 50.0]", snapshot.test().assertNoErrors().values().toString());
   }
 
@@ -282,31 +282,31 @@ public class RecorderControllerTest {
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
             RuntimeEnvironment.application.getApplicationContext(),
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
-            mDataController,
-            mScheduler,
+            dataController,
+            scheduler,
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
 
     rc.startObserving(
-        mSensorId,
+        sensorId,
         new ArrayList<SensorTrigger>(),
         new RecordingSensorObserver(),
         new RecordingStatusListener(),
         null,
-        mSensorRegistry);
+        sensorRegistry);
 
     Single<GoosciSnapshotValue.SnapshotLabelValue> snapshot =
-        rc.generateSnapshotLabelValue(Lists.<String>newArrayList(mSensorId), mSensorRegistry);
-    mSensor.pushValue(10, 50);
+        rc.generateSnapshotLabelValue(Lists.<String>newArrayList(sensorId), sensorRegistry);
+    sensor.pushValue(10, 50);
 
     GoosciSnapshotValue.SnapshotLabelValue value =
         snapshot.test().assertNoErrors().assertValueCount(1).values().get(0);
 
     GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot shot = value.snapshots[0];
-    assertEquals(mSensorName, shot.sensor.rememberedAppearance.name);
+    assertEquals(sensorName, shot.sensor.rememberedAppearance.name);
     assertEquals(50.0, shot.value, 0.01);
     assertEquals(10, shot.timestampMs);
 
@@ -318,68 +318,68 @@ public class RecorderControllerTest {
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
             RuntimeEnvironment.application.getApplicationContext(),
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
-            mDataController,
-            mScheduler,
+            dataController,
+            scheduler,
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
 
     Maybe<String> snapshot =
-        rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId), mSensorRegistry);
+        rc.generateSnapshotText(Lists.<String>newArrayList(sensorId), sensorRegistry);
     assertEquals("[No sensors observed]", snapshot.test().values().toString());
   }
 
   @Test
   public void snapshotWithThreeSensors() {
-    ManualSensor s2 = mSensorRegistry.addSensor("s2", "B2");
-    ManualSensor s3 = mSensorRegistry.addSensor("s3", "C3");
+    ManualSensor s2 = sensorRegistry.addSensor("s2", "B2");
+    ManualSensor s3 = sensorRegistry.addSensor("s3", "C3");
 
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
             RuntimeEnvironment.application.getApplicationContext(),
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
-            mDataController,
-            mScheduler,
+            dataController,
+            scheduler,
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
 
     ArrayList<SensorTrigger> triggers = new ArrayList<>();
     rc.startObserving(
-        mSensorId,
+        sensorId,
         triggers,
         new RecordingSensorObserver(),
         new RecordingStatusListener(),
         null,
-        mSensorRegistry);
+        sensorRegistry);
     rc.startObserving(
         s2.getId(),
         triggers,
         new RecordingSensorObserver(),
         new RecordingStatusListener(),
         null,
-        mSensorRegistry);
+        sensorRegistry);
     rc.startObserving(
         s3.getId(),
         triggers,
         new RecordingSensorObserver(),
         new RecordingStatusListener(),
         null,
-        mSensorRegistry);
+        sensorRegistry);
 
     // Some sensors may publish earlier
     s2.pushValue(12, 52);
     s3.pushValue(13, 53);
     Maybe<String> snapshot =
         rc.generateSnapshotText(
-            Lists.newArrayList(mSensorId, s2.getId(), s3.getId()), mSensorRegistry);
+            Lists.newArrayList(sensorId, s2.getId(), s3.getId()), sensorRegistry);
     // Some may publish later
-    mSensor.pushValue(11, 51);
+    sensor.pushValue(11, 51);
     assertEquals(
-        "[" + mSensorName + " has value 51.0, B2 has value 52.0, C3 has value 53.0]",
+        "[" + sensorName + " has value 51.0, B2 has value 52.0, C3 has value 53.0]",
         snapshot.test().assertNoErrors().values().toString());
   }
 
@@ -388,40 +388,40 @@ public class RecorderControllerTest {
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
             RuntimeEnvironment.application.getApplicationContext(),
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             null,
-            mDataController,
-            mScheduler,
+            dataController,
+            scheduler,
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
 
     String observerId =
         rc.startObserving(
-            mSensorId,
+            sensorId,
             new ArrayList<SensorTrigger>(),
             new RecordingSensorObserver(),
             new RecordingStatusListener(),
             null,
-            mSensorRegistry);
-    mSensor.pushValue(10, 50);
+            sensorRegistry);
+    sensor.pushValue(10, 50);
 
     // This should clear the latest value
-    rc.stopObserving(mSensorId, observerId);
+    rc.stopObserving(sensorId, observerId);
 
     // Restart observing
     rc.startObserving(
-        mSensorId,
+        sensorId,
         new ArrayList<SensorTrigger>(),
         new RecordingSensorObserver(),
         new RecordingStatusListener(),
         null,
-        mSensorRegistry);
+        sensorRegistry);
 
     Maybe<String> snapshot =
-        rc.generateSnapshotText(Lists.<String>newArrayList(mSensorId), mSensorRegistry);
+        rc.generateSnapshotText(Lists.<String>newArrayList(sensorId), sensorRegistry);
     snapshot.test().assertNotComplete();
-    mSensor.pushValue(20, 60);
+    sensor.pushValue(20, 60);
     assertEquals("[sensor has value 60.0]", snapshot.test().assertNoErrors().values().toString());
   }
 
@@ -430,11 +430,11 @@ public class RecorderControllerTest {
     final RecorderControllerImpl rc =
         new RecorderControllerImpl(
             RuntimeEnvironment.application.getApplicationContext(),
-            mEnvironment,
+            environment,
             new RecorderListenerRegistry(),
             connectionSupplier(),
-            mDataController,
-            mScheduler,
+            dataController,
+            scheduler,
             Delay.ZERO,
             new SensorAppearanceProvider() {
               @Override
@@ -442,11 +442,11 @@ public class RecorderControllerTest {
 
               @Override
               public SensorAppearance getAppearance(String sensorId) {
-                assertEquals(mSensorId, sensorId);
+                assertEquals(RecorderControllerTest.this.sensorId, sensorId);
                 return new EmptySensorAppearance() {
                   @Override
                   public String getName(Context context) {
-                    return mSensorName;
+                    return sensorName;
                   }
                 };
               }
@@ -455,29 +455,29 @@ public class RecorderControllerTest {
     rc.setLayoutSupplier(
         () -> {
           GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-          layout.sensorId = mSensorId;
+          layout.sensorId = this.sensorId;
           return Lists.newArrayList(layout);
         });
 
     ArrayList<SensorTrigger> triggers = new ArrayList<>();
     rc.startObserving(
-        mSensorId,
+        this.sensorId,
         triggers,
         new RecordingSensorObserver(),
         new RecordingStatusListener(),
         null,
-        mSensorRegistry);
+        sensorRegistry);
 
     Experiment experiment =
-        RxDataController.createExperiment(mDataController).test().values().get(0);
+        RxDataController.createExperiment(dataController).test().values().get(0);
     rc.setSelectedExperiment(experiment);
     rc.startRecording(null, true).test().await().assertComplete();
     // must push at least one value to record
-    mSensor.pushValue(10, 50);
-    rc.stopRecording(mSensorRegistry).test().await().assertComplete();
+    sensor.pushValue(10, 50);
+    rc.stopRecording(sensorRegistry).test().await().assertComplete();
 
     Experiment savedExperiment =
-        RxDataController.getExperimentById(mDataController, experiment.getExperimentId())
+        RxDataController.getExperimentById(dataController, experiment.getExperimentId())
             .test()
             .values()
             .get(0);
@@ -488,10 +488,10 @@ public class RecorderControllerTest {
     Trial trial = trials.get(0);
 
     List<String> sensorIds = trial.getSensorIds();
-    assertEquals(Lists.newArrayList(mSensorId), sensorIds);
+    assertEquals(Lists.newArrayList(this.sensorId), sensorIds);
     GoosciSensorAppearance.BasicSensorAppearance appearance =
         trial.getAppearances().get(sensorIds.get(0));
-    assertEquals(mSensorName, appearance.name);
+    assertEquals(sensorName, appearance.name);
   }
 
   private Supplier<RecorderServiceConnection> connectionSupplier() {
@@ -532,23 +532,23 @@ public class RecorderControllerTest {
   }
 
   private class TestTrigger extends SensorTrigger {
-    int mTestCount = 0;
+    int testCount = 0;
 
     public TestTrigger(String sensorId) {
       super(sensorId, 0, 0, 0);
     }
 
     public void clearTestCount() {
-      mTestCount = 0;
+      testCount = 0;
     }
 
     public int getTestCount() {
-      return mTestCount;
+      return testCount;
     }
 
     @Override
     public boolean isTriggered(double newValue) {
-      mTestCount++;
+      testCount++;
       return false;
     }
   }

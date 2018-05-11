@@ -23,20 +23,20 @@ import java.util.Collection;
 import java.util.Map;
 
 public class TransportableSensorOptions implements Parcelable {
-  private Map<String, String> mValues;
+  private Map<String, String> values;
 
   public TransportableSensorOptions(Map<String, String> values) {
-    mValues = values;
+    this.values = values;
   }
 
   protected TransportableSensorOptions(Parcel in) {
-    mValues = new ArrayMap<>();
-    in.readMap(mValues, getClass().getClassLoader());
+    values = new ArrayMap<>();
+    in.readMap(values, getClass().getClassLoader());
   }
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeMap(mValues);
+    dest.writeMap(values);
   }
 
   @Override
@@ -58,14 +58,14 @@ public class TransportableSensorOptions implements Parcelable {
       };
 
   public String getString(String key, String defaultValue) {
-    if (mValues.containsKey(key)) {
-      return mValues.get(key);
+    if (values.containsKey(key)) {
+      return values.get(key);
     } else {
       return defaultValue;
     }
   }
 
   public Collection<String> getWrittenKeys() {
-    return mValues.keySet();
+    return values.keySet();
   }
 }

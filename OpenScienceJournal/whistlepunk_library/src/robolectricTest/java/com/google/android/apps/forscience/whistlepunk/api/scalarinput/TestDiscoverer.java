@@ -18,10 +18,10 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import android.os.RemoteException;
 
 class TestDiscoverer extends ISensorDiscoverer.Stub {
-  private final ISensorConnector mTestConnector;
+  private final ISensorConnector testConnector;
 
   public TestDiscoverer(ISensorConnector testConnector) {
-    mTestConnector = testConnector;
+    this.testConnector = testConnector;
   }
 
   @Override
@@ -37,6 +37,6 @@ class TestDiscoverer extends ISensorDiscoverer.Stub {
 
   @Override
   public ISensorConnector getConnector() throws RemoteException {
-    return mTestConnector;
+    return testConnector;
   }
 }

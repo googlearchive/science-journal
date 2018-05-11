@@ -43,9 +43,9 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ScalarInputProviderTest {
-  private final RecordingSensorObserver mObserver = new RecordingSensorObserver();
-  private final RecordingStatusListener mListener = new RecordingStatusListener();
-  private Executor mExecutor = MoreExecutors.directExecutor();
+  private final RecordingSensorObserver observer = new RecordingSensorObserver();
+  private final RecordingStatusListener listener = new RecordingStatusListener();
+  private Executor executor = MoreExecutors.directExecutor();
 
   @Test
   public void grabDataFromService() {
@@ -62,19 +62,19 @@ public class ScalarInputProviderTest {
                 serviceId, new TestDiscoverer(new TestConnector(dataToSend, sensorAddress)));
           }
         };
-    SensorProvider provider = new ScalarInputProvider(finder, null, mExecutor, new MockScheduler());
+    SensorProvider provider = new ScalarInputProvider(finder, null, executor, new MockScheduler());
 
     SensorChoice sensor = provider.buildSensor(sensorId, makeSpec(sensorAddress, serviceId));
     SensorRecorder recorder = createRecorder(sensor);
     recorder.startObserving();
-    Integer integer = mListener.mostRecentStatuses.get(sensorId);
-    assertNotNull(sensorId + sensorAddress + mListener.mostRecentStatuses.keySet(), integer);
+    Integer integer = listener.mostRecentStatuses.get(sensorId);
+    assertNotNull(sensorId + sensorAddress + listener.mostRecentStatuses.keySet(), integer);
     assertEquals(SensorStatusListener.STATUS_CONNECTED, (int) integer);
     recorder.stopObserving();
     assertEquals(
-        SensorStatusListener.STATUS_DISCONNECTED, (int) mListener.mostRecentStatuses.get(sensorId));
-    mListener.assertNoErrors();
-    TestData.fromPoints(dataToSend).checkObserver(mObserver);
+        SensorStatusListener.STATUS_DISCONNECTED, (int) listener.mostRecentStatuses.get(sensorId));
+    listener.assertNoErrors();
+    TestData.fromPoints(dataToSend).checkObserver(observer);
   }
 
   @Test
@@ -108,11 +108,11 @@ public class ScalarInputProviderTest {
           }
         };
 
-    SensorProvider provider = new ScalarInputProvider(finder, null, mExecutor, new MockScheduler());
+    SensorProvider provider = new ScalarInputProvider(finder, null, executor, new MockScheduler());
     SensorChoice sensor = provider.buildSensor(sensorId, makeSpec(sensorAddress, serviceId));
     SensorRecorder recorder = createRecorder(sensor);
     recorder.startObserving();
-    mListener.assertErrors(errorMessage);
+    this.listener.assertErrors(errorMessage);
   }
 
   @Test
@@ -146,12 +146,12 @@ public class ScalarInputProviderTest {
                 return "Connection timeout";
               }
             },
-            mExecutor,
+            executor,
             new MockScheduler());
     SensorChoice sensor = provider.buildSensor(sensorId, makeSpec(sensorAddress, serviceId));
     SensorRecorder recorder = createRecorder(sensor);
     recorder.startObserving();
-    mListener.assertErrors("Could not find service: " + serviceId);
+    listener.assertErrors("Could not find service: " + serviceId);
   }
 
   @NonNull
@@ -180,7 +180,7 @@ public class ScalarInputProviderTest {
           }
         };
 
-    SensorProvider provider = new ScalarInputProvider(finder, null, mExecutor, new MockScheduler());
+    SensorProvider provider = new ScalarInputProvider(finder, null, executor, new MockScheduler());
     SensorChoice sensor =
         provider.buildSensor(
             sensorId,
@@ -188,7 +188,7 @@ public class ScalarInputProviderTest {
     SensorRecorder recorder = createRecorder(sensor);
     recorder.startObserving();
     recorder.stopObserving();
-    TestData.fromPoints(dataToSend).checkObserver(mObserver);
+    TestData.fromPoints(dataToSend).checkObserver(observer);
   }
 
   @NonNull
@@ -198,7 +198,7 @@ public class ScalarInputProviderTest {
   }
 
   private SensorRecorder createRecorder(SensorChoice sensor) {
-    return sensor.createRecorder(null, mObserver, mListener, createEnvironment());
+    return sensor.createRecorder(null, observer, listener, createEnvironment());
   }
 
   @NonNull

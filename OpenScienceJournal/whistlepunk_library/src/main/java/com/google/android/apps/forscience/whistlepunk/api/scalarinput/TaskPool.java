@@ -23,25 +23,25 @@ import java.util.Set;
  * call a final Runnable.
  */
 public class TaskPool {
-  private final Set<String> mTaskIds = new HashSet<>();
-  private Runnable mOnDone;
+  private final Set<String> taskIds = new HashSet<>();
+  private Runnable onDone;
 
   public TaskPool(Runnable onDone, String... moreTaskIds) {
-    mOnDone = onDone;
+    this.onDone = onDone;
     for (String taskId : moreTaskIds) {
       addTask(taskId);
     }
   }
 
   public void addTask(String taskId) {
-    mTaskIds.add(taskId);
+    taskIds.add(taskId);
   }
 
   public boolean taskDone(String taskId) {
-    boolean wasRemoved = mTaskIds.remove(taskId);
-    if (mTaskIds.isEmpty() && mOnDone != null) {
-      mOnDone.run();
-      mOnDone = null;
+    boolean wasRemoved = taskIds.remove(taskId);
+    if (taskIds.isEmpty() && onDone != null) {
+      onDone.run();
+      onDone = null;
     }
     return wasRemoved;
   }

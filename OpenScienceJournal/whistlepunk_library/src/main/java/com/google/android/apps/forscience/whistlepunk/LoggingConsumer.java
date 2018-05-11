@@ -38,17 +38,17 @@ public abstract class LoggingConsumer<T> implements MaybeConsumer<T> {
     };
   }
 
-  private final String mTag;
-  private final String mOperation;
+  private final String tag;
+  private final String operation;
 
   public LoggingConsumer(String tag, String operation) {
-    mTag = tag;
-    mOperation = operation;
+    this.tag = tag;
+    this.operation = operation;
   }
 
   @Override
   public void fail(Exception e) {
-    complain(e, mTag, mOperation);
+    complain(e, tag, operation);
   }
 
   public static void complain(Throwable e, String tag, String operation) {

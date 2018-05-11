@@ -49,13 +49,13 @@ public class UserMetadataManager {
   private static final int MINOR_VERSION = 1;
   private static final long WRITE_DELAY_MS = 500;
 
-  private final Runnable mWriteRunnable;
-  private final Handler mHandler;
-  private final ExecutorService mBackgroundWriteThread;
-  private final long mWriteDelayMs;
-  private boolean mNeedsWrite = false;
-  private GoosciUserMetadata.UserMetadata mUserMetadata;
-  private UsageTracker mUsageTracker;
+  private final Runnable writeRunnable;
+  private final Handler handler;
+  private final ExecutorService backgroundWriteThread;
+  private final long writeDelayMs;
+  private boolean needsWrite = false;
+  private GoosciUserMetadata.UserMetadata userMetadata;
+  private UsageTracker usageTracker;
 
   interface FailureListener {
     // TODO: What's helpful to pass back here? Maybe info about the type of error?
@@ -68,45 +68,45 @@ public class UserMetadataManager {
     void onNewerVersionDetected();
   }
 
-  private FailureListener mFailureListener;
-  private ProtoFileHelper<GoosciUserMetadata.UserMetadata> mOverviewProtoFileHelper;
-  private File mUserMetadataFile;
+  private FailureListener failureListener;
+  private ProtoFileHelper<GoosciUserMetadata.UserMetadata> overviewProtoFileHelper;
+  private File userMetadataFile;
 
   public UserMetadataManager(
       Context context, AppAccount appAccount, FailureListener failureListener) {
-    mFailureListener = failureListener;
-    mOverviewProtoFileHelper = new ProtoFileHelper<>();
-    mUserMetadataFile = FileMetadataManager.getUserMetadataFile(appAccount);
-    mBackgroundWriteThread = Executors.newSingleThreadExecutor();
-    mHandler = new Handler();
-    mWriteRunnable =
+    this.failureListener = failureListener;
+    overviewProtoFileHelper = new ProtoFileHelper<>();
+    userMetadataFile = FileMetadataManager.getUserMetadataFile(appAccount);
+    backgroundWriteThread = Executors.newSingleThreadExecutor();
+    handler = new Handler();
+    writeRunnable =
         () -> {
-          if (mNeedsWrite) {
-            mBackgroundWriteThread.execute(() -> writeUserMetadata(mUserMetadata));
+          if (needsWrite) {
+            backgroundWriteThread.execute(() -> writeUserMetadata(userMetadata));
           }
         };
-    mWriteDelayMs = WRITE_DELAY_MS;
-    mUsageTracker = WhistlePunkApplication.getUsageTracker(context);
+    writeDelayMs = WRITE_DELAY_MS;
+    usageTracker = WhistlePunkApplication.getUsageTracker(context);
   }
 
   private void startWriteTimer() {
-    if (mNeedsWrite) {
+    if (needsWrite) {
       // The timer is already running.
       return;
     }
-    mNeedsWrite = true;
-    mHandler.postDelayed(mWriteRunnable, mWriteDelayMs);
+    needsWrite = true;
+    handler.postDelayed(writeRunnable, writeDelayMs);
   }
 
   public void saveImmediately() {
-    if (mNeedsWrite) {
-      writeUserMetadata(mUserMetadata);
+    if (needsWrite) {
+      writeUserMetadata(userMetadata);
       cancelWriteTimer();
     }
   }
 
   private void cancelWriteTimer() {
-    mHandler.removeCallbacks(mWriteRunnable);
+    handler.removeCallbacks(writeRunnable);
   }
 
   /** Gets an experiment overview by experiment ID from the Shared Metadata. */
@@ -272,8 +272,8 @@ public class UserMetadataManager {
    * Reads the shared metadata from the file, and throws an error to the failure listener if needed.
    */
   private GoosciUserMetadata.UserMetadata getUserMetadata() {
-    if (mUserMetadata != null) {
-      return mUserMetadata;
+    if (userMetadata != null) {
+      return userMetadata;
     }
     // Otherwise, read it from the file.
     boolean firstTime = createUserMetadataFileIfNeeded();
@@ -281,20 +281,20 @@ public class UserMetadataManager {
     if (firstTime) {
       // If the file has nothing in it, these version numbers will be the basis of our initial
       // UserMetadata file.
-      mUserMetadata = new GoosciUserMetadata.UserMetadata();
-      mUserMetadata.version = VERSION;
-      mUserMetadata.minorVersion = MINOR_VERSION;
+      userMetadata = new GoosciUserMetadata.UserMetadata();
+      userMetadata.version = VERSION;
+      userMetadata.minorVersion = MINOR_VERSION;
     } else {
-      mUserMetadata =
-          mOverviewProtoFileHelper.readFromFile(
-              mUserMetadataFile, GoosciUserMetadata.UserMetadata::parseFrom, mUsageTracker);
-      if (mUserMetadata == null) {
-        mFailureListener.onReadFailed();
+      userMetadata =
+          overviewProtoFileHelper.readFromFile(
+              userMetadataFile, GoosciUserMetadata.UserMetadata::parseFrom, usageTracker);
+      if (userMetadata == null) {
+        failureListener.onReadFailed();
         return null;
       }
-      upgradeUserMetadataVersionIfNeeded(mUserMetadata);
+      upgradeUserMetadataVersionIfNeeded(userMetadata);
     }
-    return mUserMetadata;
+    return userMetadata;
   }
 
   private void upgradeUserMetadataVersionIfNeeded(GoosciUserMetadata.UserMetadata userMetadata) {
@@ -317,7 +317,7 @@ public class UserMetadataManager {
     }
     if (userMetadata.version > newMajorVersion) {
       // It is too new for us to read -- the major version is later than ours.
-      mFailureListener.onNewerVersionDetected();
+      failureListener.onNewerVersionDetected();
       return;
     }
     // Try to upgrade the major version
@@ -362,13 +362,13 @@ public class UserMetadataManager {
     if (userMetadata.version > VERSION
         || userMetadata.version == VERSION && userMetadata.minorVersion > MINOR_VERSION) {
       // If the major version is too new, or the minor version is too new, we can't save this.
-      mFailureListener.onNewerVersionDetected(); // TODO: Or should this throw onWriteFailed?
+      failureListener.onNewerVersionDetected(); // TODO: Or should this throw onWriteFailed?
     }
     createUserMetadataFileIfNeeded();
-    if (!mOverviewProtoFileHelper.writeToFile(mUserMetadataFile, userMetadata, mUsageTracker)) {
-      mFailureListener.onWriteFailed();
+    if (!overviewProtoFileHelper.writeToFile(userMetadataFile, userMetadata, usageTracker)) {
+      failureListener.onWriteFailed();
     } else {
-      mNeedsWrite = false;
+      needsWrite = false;
     }
   }
 
@@ -378,17 +378,17 @@ public class UserMetadataManager {
    * expensive. Returns true if a new file was created.
    */
   private boolean createUserMetadataFileIfNeeded() {
-    if (!mUserMetadataFile.exists()) {
+    if (!userMetadataFile.exists()) {
       // If the files aren't there yet, create them.
       try {
-        boolean created = mUserMetadataFile.createNewFile();
+        boolean created = userMetadataFile.createNewFile();
         if (!created) {
-          mFailureListener.onWriteFailed();
+          failureListener.onWriteFailed();
           return false;
         }
         return true;
       } catch (IOException e) {
-        mFailureListener.onWriteFailed();
+        failureListener.onWriteFailed();
       }
     }
     return false;

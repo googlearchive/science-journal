@@ -62,15 +62,15 @@ public class BluetoothSensor extends ScalarSensor {
 
   private static final long DEFAULT_FREQUENCY_WINDOW = 2000;
   private static final float DEFAULT_FREQUENCY_FILTER = 0;
-  private final BleSensorSpec mSensor;
-  private final BleServiceSpec mServiceSpec;
-  private boolean mDeviceFrequencyEnabled;
-  private boolean mNotificationSubscribed = false;
+  private final BleSensorSpec sensor;
+  private final BleServiceSpec serviceSpec;
+  private boolean deviceFrequencyEnabled;
+  private boolean notificationSubscribed = false;
 
-  private String mAddress;
-  private GoosciSensorConfig.BleSensorConfig.ScaleTransform mDeviceScaleTransform;
+  private String address;
+  private GoosciSensorConfig.BleSensorConfig.ScaleTransform deviceScaleTransform;
 
-  private BleFlowListener mBleFlowListener;
+  private BleFlowListener bleFlowListener;
 
   public BluetoothSensor(String sensorId, BleSensorSpec sensor, BleServiceSpec serviceSpec) {
     this(sensorId, sensor, serviceSpec, AppSingleton.getUiThreadExecutor());
@@ -82,9 +82,9 @@ public class BluetoothSensor extends ScalarSensor {
       BleServiceSpec serviceSpec,
       Executor uiThreadExecutor) {
     super(sensorId, uiThreadExecutor);
-    mSensor = sensor;
-    mServiceSpec = serviceSpec;
-    mAddress = sensor.getAddress();
+    this.sensor = sensor;
+    this.serviceSpec = serviceSpec;
+    address = sensor.getAddress();
     readConfigurationFrom(sensor);
   }
 
@@ -94,7 +94,7 @@ public class BluetoothSensor extends ScalarSensor {
       final SensorStatusListener listener,
       BleFlow flow) {
     return new BleFlowListener() {
-      final PacketAssembler mPa =
+      final PacketAssembler pa =
           new PacketAssembler(
               defaultClock,
               new PacketAssembler.Listener() {
@@ -117,7 +117,7 @@ public class BluetoothSensor extends ScalarSensor {
         Log.d(TAG, "Failure " + error.getMessage());
         listener.onSourceError(
             getId(), SensorStatusListener.ERROR_UNKNOWN, error.getLocalizedMessage());
-        flow.resetAndAddListener(mBleFlowListener, true).disconnect();
+        flow.resetAndAddListener(bleFlowListener, true).disconnect();
         BleFlow.run(flow);
       }
 
@@ -126,7 +126,7 @@ public class BluetoothSensor extends ScalarSensor {
         // This is where we catch the characteristic static value
         // For Value (UUID:555a0003), it's a protobuf
         // For Description (UUID:555a0002), it's a string desc (eg. "Goosci Windmill")
-        if (characteristic.compareTo(mServiceSpec.getVersionId()) == 0) {
+        if (characteristic.compareTo(serviceSpec.getVersionId()) == 0) {
           BleProtocolVersion protocolVersion = new BleProtocolVersion(value);
           switch (protocolVersion.getMajorVersion()) {
               // Currently no version requires a special connection sequence
@@ -138,12 +138,12 @@ public class BluetoothSensor extends ScalarSensor {
 
       @Override
       public void onNotification(UUID characteristic, int flags, byte[] value) {
-        mPa.append(value);
+        pa.append(value);
       }
 
       @Override
       public void onDisconnect() {
-        mNotificationSubscribed = false;
+        notificationSubscribed = false;
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
       }
 
@@ -154,21 +154,20 @@ public class BluetoothSensor extends ScalarSensor {
 
       @Override
       public void onNotificationSubscribed() {
-        mNotificationSubscribed = true;
+        notificationSubscribed = true;
       }
 
       @Override
       public void onNotificationUnsubscribed() {
-        mNotificationSubscribed = false;
-        flow.resetAndAddListener(mBleFlowListener, true).disconnect();
+        notificationSubscribed = false;
+        flow.resetAndAddListener(bleFlowListener, true).disconnect();
         BleFlow.run(flow);
       }
 
       @Override
       public void onServicesDiscovered() {
-        if (flow.isCharacteristicValid(mServiceSpec.getServiceId(), mServiceSpec.getVersionId())) {
-          flow.lookupCharacteristic(mServiceSpec.getServiceId(), mServiceSpec.getVersionId())
-              .read();
+        if (flow.isCharacteristicValid(serviceSpec.getServiceId(), serviceSpec.getVersionId())) {
+          flow.lookupCharacteristic(serviceSpec.getServiceId(), serviceSpec.getVersionId()).read();
           BleFlow.run(flow);
         } else {
           writeConfigAndSetNotification(flow);
@@ -179,12 +178,12 @@ public class BluetoothSensor extends ScalarSensor {
 
   @Override
   protected boolean getDefaultFrequencyChecked() {
-    return mDeviceFrequencyEnabled;
+    return deviceFrequencyEnabled;
   }
 
   @Nullable
   protected GoosciSensorConfig.BleSensorConfig.ScaleTransform getDefaultScaleTransform() {
-    return mDeviceScaleTransform;
+    return deviceScaleTransform;
   }
 
   private byte[] buildConfigProtoForDevice(BleSensorSpec sensor) {
@@ -233,20 +232,20 @@ public class BluetoothSensor extends ScalarSensor {
   }
 
   private void writeConfigAndSetNotification(BleFlow flow) {
-    byte[] sensorConfig = buildConfigProtoForDevice(mSensor);
+    byte[] sensorConfig = buildConfigProtoForDevice(sensor);
     if (sensorConfig != null
-        && flow.isCharacteristicValid(mServiceSpec.getServiceId(), mServiceSpec.getSettingId())) {
-      flow.lookupCharacteristic(mServiceSpec.getServiceId(), mServiceSpec.getSettingId())
+        && flow.isCharacteristicValid(serviceSpec.getServiceId(), serviceSpec.getSettingId())) {
+      flow.lookupCharacteristic(serviceSpec.getServiceId(), serviceSpec.getSettingId())
           .write(sensorConfig);
     }
-    flow.lookupCharacteristic(mServiceSpec.getServiceId(), mServiceSpec.getValueId())
+    flow.lookupCharacteristic(serviceSpec.getServiceId(), serviceSpec.getValueId())
         .enableNotification();
     BleFlow.run(flow);
   }
 
   private void readConfigurationFrom(BleSensorSpec bleSensor) {
-    mDeviceFrequencyEnabled = bleSensor.getFrequencyEnabled();
-    mDeviceScaleTransform = bleSensor.getScaleTransform();
+    deviceFrequencyEnabled = bleSensor.getFrequencyEnabled();
+    deviceScaleTransform = bleSensor.getScaleTransform();
     setScalarFilter(getDeviceDefaultValueFilter());
   }
 
@@ -266,7 +265,7 @@ public class BluetoothSensor extends ScalarSensor {
       Context context,
       final SensorStatusListener listener) {
     Single<BleFlow> whenFlow =
-        environment.getConnectedBleClient().map(client -> client.getFlowFor(mAddress)).cache();
+        environment.getConnectedBleClient().map(client -> client.getFlowFor(address)).cache();
 
     return new AbstractSensorRecorder() {
       @Override
@@ -275,11 +274,11 @@ public class BluetoothSensor extends ScalarSensor {
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTING);
         whenFlow.subscribe(
             flow -> {
-              mBleFlowListener =
+              bleFlowListener =
                   createBleFlowListener(c, environment.getDefaultClock(), listener, flow);
-              flow.resetAndAddListener(mBleFlowListener, true)
+              flow.resetAndAddListener(bleFlowListener, true)
                   .connect()
-                  .lookupService(mServiceSpec.getServiceId());
+                  .lookupService(serviceSpec.getServiceId());
               BleFlow.run(flow);
             });
       }
@@ -290,10 +289,10 @@ public class BluetoothSensor extends ScalarSensor {
             flow -> {
               // Don't reset service map: should still be valid from above, and it doesn't work
               // on ChromeBooks
-              flow.resetAndAddListener(mBleFlowListener, false);
-              if (mNotificationSubscribed) {
-                flow.lookupService(mServiceSpec.getServiceId())
-                    .lookupCharacteristic(mServiceSpec.getServiceId(), mServiceSpec.getValueId())
+              flow.resetAndAddListener(bleFlowListener, false);
+              if (notificationSubscribed) {
+                flow.lookupService(serviceSpec.getServiceId())
+                    .lookupCharacteristic(serviceSpec.getServiceId(), serviceSpec.getValueId())
                     .disableNotification();
                 BleFlow.run(flow);
               } else {

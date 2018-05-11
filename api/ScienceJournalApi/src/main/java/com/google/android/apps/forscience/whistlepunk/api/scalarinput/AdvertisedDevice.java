@@ -20,12 +20,12 @@ import java.util.List;
 
 /** A device advertised through the API */
 public abstract class AdvertisedDevice {
-  private final String mDeviceId;
-  private final String mDeviceName;
+  private final String deviceId;
+  private final String deviceName;
 
   protected AdvertisedDevice(String deviceId, String deviceName) {
-    mDeviceId = deviceId;
-    mDeviceName = deviceName;
+    this.deviceId = deviceId;
+    this.deviceName = deviceName;
   }
 
   /** @return a pending intent to change settings on the device. */
@@ -36,10 +36,10 @@ public abstract class AdvertisedDevice {
   public abstract List<? extends AdvertisedSensor> getSensors();
 
   String getDeviceId() {
-    return mDeviceId;
+    return deviceId;
   }
 
   String getDeviceName() {
-    return mDeviceName;
+    return deviceName;
   }
 }

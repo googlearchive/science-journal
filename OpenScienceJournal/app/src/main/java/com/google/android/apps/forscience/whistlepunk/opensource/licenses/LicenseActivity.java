@@ -104,7 +104,7 @@ public class LicenseActivity extends AppCompatActivity {
 
   public static class LicenseListFragment extends ListFragment {
 
-    private ArrayAdapter<License> mAdapter;
+    private ArrayAdapter<License> adapter;
 
     public LicenseListFragment() {}
 
@@ -165,16 +165,16 @@ public class LicenseActivity extends AppCompatActivity {
 
       @Override
       protected void onPostExecute(List<License> licenses) {
-        mAdapter =
+        adapter =
             new ArrayAdapter<>(
                 getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, licenses);
-        setListAdapter(mAdapter);
+        setListAdapter(adapter);
       }
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-      ((LicenseActivity) getActivity()).showLicense(mAdapter.getItem(position));
+      ((LicenseActivity) getActivity()).showLicense(adapter.getItem(position));
     }
   }
 
@@ -186,9 +186,9 @@ public class LicenseActivity extends AppCompatActivity {
   }
 
   public static class LicenseFragment extends Fragment {
-    private String mTitleToRestore = null;
+    private String titleToRestore = null;
 
-    private WebView mWebView;
+    private WebView webView;
 
     public LicenseFragment() {}
 
@@ -207,7 +207,7 @@ public class LicenseActivity extends AppCompatActivity {
     public View onCreateView(
         LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
       View view = inflater.inflate(R.layout.licenses, container, false);
-      mWebView = (WebView) view.findViewById(R.id.license_web_view);
+      webView = (WebView) view.findViewById(R.id.license_web_view);
       return view;
     }
 
@@ -222,7 +222,7 @@ public class LicenseActivity extends AppCompatActivity {
                   if (!TextUtils.isEmpty(copyrightHeader)) {
                     data = data.replace(COPYRIGHT_HEADER_PLACEHOLDER, copyrightHeader);
                   }
-                  mWebView.loadData(data, "text/html", "UTF-8");
+                  webView.loadData(data, "text/html", "UTF-8");
                 }
               },
               getResources(),
@@ -237,17 +237,17 @@ public class LicenseActivity extends AppCompatActivity {
     @Override
     public void onResume() {
       super.onResume();
-      if (mTitleToRestore == null) {
-        mTitleToRestore = getActivity().getTitle().toString();
+      if (titleToRestore == null) {
+        titleToRestore = getActivity().getTitle().toString();
       }
       getActivity().setTitle(getArguments().getString(TAG_TITLE));
     }
 
     @Override
     public void onPause() {
-      if (mTitleToRestore != null) {
-        getActivity().setTitle(mTitleToRestore);
-        mTitleToRestore = null;
+      if (titleToRestore != null) {
+        getActivity().setTitle(titleToRestore);
+        titleToRestore = null;
       }
       super.onPause();
     }

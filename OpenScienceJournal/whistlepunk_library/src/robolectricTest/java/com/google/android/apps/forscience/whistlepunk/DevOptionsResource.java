@@ -21,11 +21,11 @@ import org.junit.rules.ExternalResource;
 import org.robolectric.RuntimeEnvironment;
 
 public class DevOptionsResource extends ExternalResource {
-  private boolean mRememberedPref;
+  private boolean rememberedPref;
 
   @Override
   public void before() throws Exception {
-    mRememberedPref = getPrefs().getBoolean(getRememberedPrefKey(), false);
+    rememberedPref = getPrefs().getBoolean(getRememberedPrefKey(), false);
   }
 
   @NonNull
@@ -35,7 +35,7 @@ public class DevOptionsResource extends ExternalResource {
 
   @Override
   public void after() {
-    setPrefValue(mRememberedPref);
+    setPrefValue(rememberedPref);
   }
 
   protected void setPrefValue(boolean value) {

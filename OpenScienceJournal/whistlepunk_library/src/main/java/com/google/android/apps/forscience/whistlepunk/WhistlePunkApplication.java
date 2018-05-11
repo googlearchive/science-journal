@@ -38,45 +38,45 @@ import javax.inject.Inject;
 
 /** Application subclass holding shared objects. */
 public abstract class WhistlePunkApplication extends Application {
-  private RefWatcher mRefWatcher;
+  private RefWatcher refWatcher;
 
   private static int versionCode;
 
   // TODO: create directly in subclasses, rather than dagger injection
 
-  @Inject UsageTracker mUsageTracker;
+  @Inject UsageTracker usageTracker;
 
-  @Inject FeatureDiscoveryProvider mFeatureDiscoveryProvider;
+  @Inject FeatureDiscoveryProvider featureDiscoveryProvider;
 
-  @Inject FeedbackProvider mFeedbackProvider;
+  @Inject FeedbackProvider feedbackProvider;
 
-  @Inject AccountsProvider mAccountsProvider;
+  @Inject AccountsProvider accountsProvider;
 
-  @Inject Map<String, SensorDiscoverer> mSensorDiscoverers;
+  @Inject Map<String, SensorDiscoverer> sensorDiscoverers;
 
-  @Inject PerfTrackerProvider mPerfTrackerProvider;
+  @Inject PerfTrackerProvider perfTrackerProvider;
 
   @Inject LicenseProvider licenseProvider;
 
-  private final AppServices mAppServices =
+  private final AppServices appServices =
       new AppServices() {
         @Override
         public RefWatcher getRefWatcher() {
-          return mRefWatcher;
+          return refWatcher;
         }
 
         public UsageTracker getUsageTracker() {
-          return mUsageTracker;
+          return usageTracker;
         }
 
         @Override
         public FeatureDiscoveryProvider getFeatureDiscoveryProvider() {
-          return mFeatureDiscoveryProvider;
+          return featureDiscoveryProvider;
         }
 
         @Override
         public FeedbackProvider getFeedbackProvider() {
-          return mFeedbackProvider;
+          return feedbackProvider;
         }
 
         @Override
@@ -86,7 +86,7 @@ public abstract class WhistlePunkApplication extends Application {
 
         @Override
         public AccountsProvider getAccountsProvider() {
-          return mAccountsProvider;
+          return accountsProvider;
         }
 
         @Override
@@ -98,7 +98,7 @@ public abstract class WhistlePunkApplication extends Application {
   public static AppServices getAppServices(Context context) {
     if (hasAppServices(context)) {
       WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
-      return app.mAppServices;
+      return app.appServices;
     } else {
       return AppServices.STUB;
     }
@@ -115,12 +115,12 @@ public abstract class WhistlePunkApplication extends Application {
 
   public static Map<String, SensorDiscoverer> getExternalSensorDiscoverers(Context context) {
     WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
-    return app.mSensorDiscoverers;
+    return app.sensorDiscoverers;
   }
 
   public static PerfTrackerProvider getPerfTrackerProvider(Context context) {
     WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
-    return app.mPerfTrackerProvider;
+    return app.perfTrackerProvider;
   }
 
   public static Intent getLaunchIntentForPanesActivity(Context context, String experimentId) {
@@ -137,7 +137,7 @@ public abstract class WhistlePunkApplication extends Application {
       // You should not init your app in this process.
       return;
     }
-    mRefWatcher = installLeakCanary();
+    refWatcher = installLeakCanary();
     versionCode = populateVersionCode();
     onCreateInjector();
     enableStrictMode();

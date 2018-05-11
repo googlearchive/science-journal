@@ -22,45 +22,43 @@ import android.content.Context;
 public class ElapsedTimeFormatter {
 
   private static final long SECS_IN_A_MIN = 60;
-  private static ElapsedTimeFormatter sInstance;
-  private final String mShortFormat;
-  private final String mLongFormat;
-  private final String mAccessibleShortFormat;
-  private final String mAccessibleLongFormat;
+  private static ElapsedTimeFormatter instance;
+  private final String shortFormat;
+  private final String longFormat;
+  private final String accessibleShortFormat;
+  private final String accessibleLongFormat;
 
   public static ElapsedTimeFormatter getInstance(Context context) {
-    if (sInstance == null) {
-      sInstance = new ElapsedTimeFormatter(context.getApplicationContext());
+    if (instance == null) {
+      instance = new ElapsedTimeFormatter(context.getApplicationContext());
     }
-    return sInstance;
+    return instance;
   }
 
   private ElapsedTimeFormatter(Context context) {
-    mShortFormat = context.getResources().getString(R.string.elapsed_time_short_format);
-    mLongFormat = context.getResources().getString(R.string.elapsed_time_long_format);
-    mAccessibleShortFormat =
+    shortFormat = context.getResources().getString(R.string.elapsed_time_short_format);
+    longFormat = context.getResources().getString(R.string.elapsed_time_long_format);
+    accessibleShortFormat =
         context.getResources().getString(R.string.accessible_elapsed_time_short_format);
-    mAccessibleLongFormat =
+    accessibleLongFormat =
         context.getResources().getString(R.string.accessible_elapsed_time_long_format);
   }
 
   public String format(long elapsedTime) {
     if (Math.abs(elapsedTime) >= SECS_IN_A_MIN) {
       return String.format(
-          mLongFormat, elapsedTime / SECS_IN_A_MIN, Math.abs(elapsedTime % SECS_IN_A_MIN));
+          longFormat, elapsedTime / SECS_IN_A_MIN, Math.abs(elapsedTime % SECS_IN_A_MIN));
     } else {
-      return String.format(mShortFormat, elapsedTime);
+      return String.format(shortFormat, elapsedTime);
     }
   }
 
   public String formatForAccessibility(long elapsedTime) {
     if (Math.abs(elapsedTime) >= SECS_IN_A_MIN) {
       return String.format(
-          mAccessibleLongFormat,
-          elapsedTime / SECS_IN_A_MIN,
-          Math.abs(elapsedTime % SECS_IN_A_MIN));
+          accessibleLongFormat, elapsedTime / SECS_IN_A_MIN, Math.abs(elapsedTime % SECS_IN_A_MIN));
     } else {
-      return String.format(mAccessibleShortFormat, elapsedTime);
+      return String.format(accessibleShortFormat, elapsedTime);
     }
   }
 }

@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class RecordingStatusListener implements SensorStatusListener {
   public Map<String, Integer> mostRecentStatuses = new HashMap<>();
-  private List<String> mErrors = new ArrayList<>();
+  private List<String> errors = new ArrayList<>();
 
   @Override
   public void onSourceStatus(String id, int status) {
@@ -37,14 +37,14 @@ public class RecordingStatusListener implements SensorStatusListener {
 
   @Override
   public void onSourceError(String id, int error, String errorMessage) {
-    mErrors.add(errorMessage);
+    errors.add(errorMessage);
   }
 
   public void assertNoErrors() {
-    assertTrue("" + mErrors, mErrors.isEmpty());
+    assertTrue("" + errors, errors.isEmpty());
   }
 
   public void assertErrors(String... messages) {
-    assertEquals(Arrays.asList(messages), mErrors);
+    assertEquals(Arrays.asList(messages), errors);
   }
 }

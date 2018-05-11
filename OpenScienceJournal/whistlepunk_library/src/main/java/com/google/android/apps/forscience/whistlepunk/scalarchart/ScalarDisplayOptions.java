@@ -36,10 +36,10 @@ public class ScalarDisplayOptions {
 
   public Bundle asBundle() {
     final Bundle bundle = new Bundle();
-    bundle.putFloat(PREFS_KEY_GAUSSIAN_SIGMA, mGaussianSigma);
-    bundle.putFloat(PREFS_KEY_SMOOTHNESS, mSmoothness);
-    bundle.putInt(PREFS_KEY_BLUR_TYPE, mBlurType);
-    bundle.putInt(PREFS_KEY_WINDOW, mWindow);
+    bundle.putFloat(PREFS_KEY_GAUSSIAN_SIGMA, gaussianSigma);
+    bundle.putFloat(PREFS_KEY_SMOOTHNESS, smoothness);
+    bundle.putInt(PREFS_KEY_BLUR_TYPE, blurType);
+    bundle.putInt(PREFS_KEY_WINDOW, window);
     return bundle;
   }
 
@@ -74,19 +74,19 @@ public class ScalarDisplayOptions {
 
   static final int DEFAULT_BLUR_TYPE = BLUR_TYPE_GAUSSIAN;
 
-  private float mSmoothness = DEFAULT_SMOOTHNESS;
-  private int mWindow = DEFAULT_WINDOW;
-  private @BlurType int mBlurType = DEFAULT_BLUR_TYPE;
-  private float mGaussianSigma = DEFAULT_GAUSSIAN_SIGMA;
+  private float smoothness = DEFAULT_SMOOTHNESS;
+  private int window = DEFAULT_WINDOW;
+  private @BlurType int blurType = DEFAULT_BLUR_TYPE;
+  private float gaussianSigma = DEFAULT_GAUSSIAN_SIGMA;
 
-  Set<ScalarDisplayOptionsListener> mListeners = Collections.newSetFromMap(new WeakHashMap());
+  Set<ScalarDisplayOptionsListener> listeners = Collections.newSetFromMap(new WeakHashMap());
 
   public void updateLineSettings(
       float smoothness, int window, @BlurType int blurType, float sigma) {
-    mSmoothness = smoothness;
-    mWindow = window;
-    mBlurType = blurType;
-    mGaussianSigma = sigma;
+    this.smoothness = smoothness;
+    this.window = window;
+    this.blurType = blurType;
+    gaussianSigma = sigma;
     notifyLineGraphPresenters();
   }
 
@@ -95,28 +95,28 @@ public class ScalarDisplayOptions {
    * reference to the listener, or else messages may not be delivered.
    */
   public void weaklyRegisterListener(ScalarDisplayOptionsListener listener) {
-    mListeners.add(listener);
+    listeners.add(listener);
   }
 
   private void notifyLineGraphPresenters() {
-    for (ScalarDisplayOptionsListener listener : mListeners) {
-      listener.onLineOptionsChanged(mSmoothness, mWindow, mBlurType, mGaussianSigma);
+    for (ScalarDisplayOptionsListener listener : listeners) {
+      listener.onLineOptionsChanged(smoothness, window, blurType, gaussianSigma);
     }
   }
 
   public float getSmoothness() {
-    return mSmoothness;
+    return smoothness;
   }
 
   public int getWindow() {
-    return mWindow;
+    return window;
   }
 
   public @BlurType int getBlurType() {
-    return mBlurType;
+    return blurType;
   }
 
   public float getGaussianSigma() {
-    return mGaussianSigma;
+    return gaussianSigma;
   }
 }

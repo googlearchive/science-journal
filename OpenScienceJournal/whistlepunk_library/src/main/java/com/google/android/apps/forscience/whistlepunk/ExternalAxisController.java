@@ -89,9 +89,9 @@ public class ExternalAxisController {
     void onRecordingTimeUpdated(long now);
   }
 
-  private List<AxisUpdateListener> mAxisUpdateListeners = new ArrayList<>();
-  private InteractionListener mInteractionListener;
-  private RecordingTimeUpdateListener mRecordingTimeUpdateListener;
+  private List<AxisUpdateListener> axisUpdateListeners = new ArrayList<>();
+  private InteractionListener interactionListener;
+  private RecordingTimeUpdateListener recordingTimeUpdateListener;
 
   public static final int MS_IN_SEC = 1000;
   private static final int DEFAULT_GRAPH_RANGE_IN_SECONDS = 20;
@@ -113,47 +113,47 @@ public class ExternalAxisController {
   public static final double LEADING_EDGE_BUFFER_TIME =
       DEFAULT_GRAPH_RANGE_IN_SECONDS * EDGE_POINTS_BUFFER_FRACTION * MS_IN_SEC;
 
-  long mXMin = Long.MAX_VALUE;
-  long mXMax = Long.MIN_VALUE;
+  long xMin = Long.MAX_VALUE;
+  long xMax = Long.MIN_VALUE;
 
-  private long mRecordingStart = RecordingMetadata.NOT_RECORDING;
+  private long recordingStart = RecordingMetadata.NOT_RECORDING;
 
-  // The original start to the run. This may differ from mRecordingStart if the run has been
-  // cropped, in which case this is always less than or equal to mRecordingStart.
-  private long mOriginalStart = RecordingMetadata.NOT_RECORDING;
+  // The original start to the run. This may differ from recordingStart if the run has been
+  // cropped, in which case this is always less than or equal to recordingStart.
+  private long originalStart = RecordingMetadata.NOT_RECORDING;
 
   private boolean isInitialized = false;
-  private Clock mCurrentTimeClock;
-  private View mResetButton;
+  private Clock currentTimeClock;
+  private View resetButton;
 
   protected static final int NO_RESET = -1;
-  private long mResetAxisOnFirstDataPointAfter = NO_RESET;
-  private ExternalAxisView mAxisView;
-  private List<Label> mLabels;
+  private long resetAxisOnFirstDataPointAfter = NO_RESET;
+  private ExternalAxisView axisView;
+  private List<Label> labels;
 
   // Whether we are in the live / observe mode, or in a static mode.
-  private boolean mIsLive;
-  private Handler mRefreshHandler;
-  private Runnable mRefreshRunnable;
+  private boolean isLive;
+  private Handler refreshHandler;
+  private Runnable refreshRunnable;
 
   // Used to determine whether the run review data has been set.
   private static final long RUN_REVIEW_DATA_NOT_INITIALIZED = -1;
 
   // The min and max x values that can be shown in RunReview, so the user does not have
   // infinite scrolling
-  private long mReviewXMin = RUN_REVIEW_DATA_NOT_INITIALIZED;
-  private long mReviewXMax = RUN_REVIEW_DATA_NOT_INITIALIZED;
+  private long reviewXMin = RUN_REVIEW_DATA_NOT_INITIALIZED;
+  private long reviewXMax = RUN_REVIEW_DATA_NOT_INITIALIZED;
 
   // Whether the graph is pinned to "now", or we are looking back.
-  private boolean mIsPinnedToNow;
+  private boolean isPinnedToNow;
 
   // Whether a user is currently interacting with a graph.
-  private boolean mUserIsInteracting = false;
+  private boolean userIsInteracting = false;
 
-  private float mResetButtonTranslationPx;
+  private float resetButtonTranslationPx;
 
   /** Tracks if we are animating the reset button out or not. */
-  private boolean mResetAnimatingOut = false;
+  private boolean resetAnimatingOut = false;
 
   public ExternalAxisController(
       ExternalAxisView axisView,
@@ -169,22 +169,23 @@ public class ExternalAxisController {
       final boolean isLive,
       CurrentTimeClock currentTimeClock,
       View resetButton) {
-    mAxisView = axisView;
-    mAxisUpdateListeners.add(listener);
-    mIsLive = isLive;
+    this.axisView = axisView;
+    axisUpdateListeners.add(listener);
+    this.isLive = isLive;
     // If we are creating a live mode sensor, it will probably start off pinned to now.
-    mIsPinnedToNow = isLive;
-    mCurrentTimeClock = currentTimeClock;
+    isPinnedToNow = isLive;
+    this.currentTimeClock = currentTimeClock;
 
-    if (mIsLive) {
-      mAxisView.setNumberFormat(new SecondsAgoFormat(currentTimeClock, mAxisView.getContext()));
+    if (this.isLive) {
+      this.axisView.setNumberFormat(
+          new SecondsAgoFormat(currentTimeClock, this.axisView.getContext()));
     }
-    mResetButtonTranslationPx =
+    resetButtonTranslationPx =
         axisView.getResources().getDimensionPixelSize(R.dimen.reset_btn_holder_width);
 
-    mResetButton = resetButton;
-    if (mResetButton != null) {
-      mResetButton.setOnClickListener(
+    this.resetButton = resetButton;
+    if (this.resetButton != null) {
+      this.resetButton.setOnClickListener(
           new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -196,46 +197,50 @@ public class ExternalAxisController {
       setUpResetAnimation();
     }
 
-    mInteractionListener =
+    interactionListener =
         new InteractionListener() {
           @Override
           public void onStartInteracting() {
-            mUserIsInteracting = true;
+            userIsInteracting = true;
             // When the user is interacting, unpin to now.
-            mIsPinnedToNow = false;
+            isPinnedToNow = false;
           }
 
           @Override
           public void onStopInteracting() {
-            mUserIsInteracting = false;
+            userIsInteracting = false;
             // When the user is done interacting, see if they've left the graph in a pinned
             // state, i.e. within 1% of now or with the X axis above now.
-            long now = mCurrentTimeClock.getNow();
-            mIsPinnedToNow = mXMax >= now - (0.01 * DEFAULT_GRAPH_RANGE_IN_MILLIS);
+            long now = ExternalAxisController.this.currentTimeClock.getNow();
+            isPinnedToNow =
+                ExternalAxisController.this.xMax >= now - (0.01 * DEFAULT_GRAPH_RANGE_IN_MILLIS);
           }
 
           @Override
           public void onPan(double xMin, double xMax) {
             // When the user is interacting, unpin to now.
-            mIsPinnedToNow = false;
-            if (!mIsLive) {
-              if (xMin < mReviewXMin || xMax > mReviewXMax) {
+            isPinnedToNow = false;
+            if (!ExternalAxisController.this.isLive) {
+              if (xMin < reviewXMin || xMax > reviewXMax) {
                 // Don't apply the change.
                 updateAxis();
                 return;
               }
             }
-            mXMin = (long) xMin;
-            mXMax = (long) xMax;
+            ExternalAxisController.this.xMin = (long) xMin;
+            ExternalAxisController.this.xMax = (long) xMax;
             updateAxis();
           }
 
           @Override
           public void onZoom(long xMin, long xMax) {
-            if (!mIsLive && mReviewXMin != RUN_REVIEW_DATA_NOT_INITIALIZED) {
+            if (!ExternalAxisController.this.isLive
+                && reviewXMin != RUN_REVIEW_DATA_NOT_INITIALIZED) {
               // If we are zoomed into maximum, and trying to zoom smaller than our saved
-              // mXMin to mXMax range...
-              if (xMax - xMin < MINIMUM_ZOOM_RANGE_MS && xMax - xMin < mXMax - mXMin) {
+              // xMin to xMax range...
+              if (xMax - xMin < MINIMUM_ZOOM_RANGE_MS
+                  && xMax - xMin
+                      < ExternalAxisController.this.xMax - ExternalAxisController.this.xMin) {
                 // Don't apply the change.
                 updateAxis();
                 return;
@@ -246,161 +251,161 @@ public class ExternalAxisController {
 
           @Override
           public void requestResetPinnedState() {
-            if (!mIsPinnedToNow) {
-              mResetButton.callOnClick();
+            if (!isPinnedToNow) {
+              ExternalAxisController.this.resetButton.callOnClick();
             }
           }
 
           @Override
           public void requestResetZoom() {
             // TODO: Animate?
-            mXMin = mReviewXMin;
-            mXMax = mReviewXMax;
+            ExternalAxisController.this.xMin = reviewXMin;
+            ExternalAxisController.this.xMax = reviewXMax;
             updateAxis();
           }
         };
   }
 
   public void onResumeLiveAxis() {
-    if (!mIsLive) {
+    if (!isLive) {
       return;
     }
-    mRefreshHandler = new Handler();
-    mRefreshRunnable =
+    refreshHandler = new Handler();
+    refreshRunnable =
         new Runnable() {
           @Override
           public void run() {
-            long timestamp = mCurrentTimeClock.getNow();
+            long timestamp = currentTimeClock.getNow();
             if (!isInitialized) {
-              mXMax = timestamp;
+              xMax = timestamp;
               // The time range is the default time.
-              mXMin = timestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
+              xMin = timestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
               isInitialized = true;
             }
-            long now = mCurrentTimeClock.getNow();
+            long now = currentTimeClock.getNow();
             scrollToNowIfPinned(now, timestamp);
-            if (mRecordingStart != RecordingMetadata.NOT_RECORDING
-                && mRecordingTimeUpdateListener != null) {
-              mRecordingTimeUpdateListener.onRecordingTimeUpdated(now - mRecordingStart);
+            if (recordingStart != RecordingMetadata.NOT_RECORDING
+                && recordingTimeUpdateListener != null) {
+              recordingTimeUpdateListener.onRecordingTimeUpdated(now - recordingStart);
             }
-            mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_TIME_MS);
+            refreshHandler.postDelayed(refreshRunnable, UPDATE_TIME_MS);
           }
         };
-    mRefreshRunnable.run();
+    refreshRunnable.run();
   }
 
   public void onPauseLiveAxis() {
-    if (mRefreshHandler != null) {
-      mRefreshHandler.removeCallbacks(mRefreshRunnable);
-      mRefreshRunnable = null;
-      mRefreshHandler = null;
+    if (refreshHandler != null) {
+      refreshHandler.removeCallbacks(refreshRunnable);
+      refreshRunnable = null;
+      refreshHandler = null;
     }
   }
 
   public long getXMax() {
-    return mXMax;
+    return xMax;
   }
 
   public long getXMin() {
-    return mXMin;
+    return xMin;
   }
 
   public InteractionListener getInteractionListener() {
-    return mInteractionListener;
+    return interactionListener;
   }
 
   public void setRecordingTimeUpdateListener(RecordingTimeUpdateListener listener) {
-    mRecordingTimeUpdateListener = listener;
+    recordingTimeUpdateListener = listener;
   }
 
   public void setReviewData(long originalStart, long runStart, long reviewMin, long reviewMax) {
     // The start and end of recording.
-    mRecordingStart = runStart;
-    mOriginalStart = originalStart;
+    recordingStart = runStart;
+    this.originalStart = originalStart;
 
-    mAxisView.setNumberFormat(new RelativeTimeFormat(mRecordingStart, mAxisView.getContext()));
-    mAxisView.setRecordingStart(mRecordingStart);
+    axisView.setNumberFormat(new RelativeTimeFormat(recordingStart, axisView.getContext()));
+    axisView.setRecordingStart(recordingStart);
 
     // The edges of the data which can be reviewed. Do not allow zoom or pan past these edges.
     // Slightly wider than the recording start and end, because of a zoom out to show endpoints.
-    mReviewXMin = reviewMin;
-    mReviewXMax = reviewMax;
+    reviewXMin = reviewMin;
+    reviewXMax = reviewMax;
   }
 
   public void destroy() {
-    mAxisUpdateListeners.clear();
-    mInteractionListener = null;
-    mRecordingTimeUpdateListener = null;
+    axisUpdateListeners.clear();
+    interactionListener = null;
+    recordingTimeUpdateListener = null;
   }
 
   public void updateAxis() {
-    mAxisView.updateAxis(mXMin, mXMax);
-    for (AxisUpdateListener listener : mAxisUpdateListeners) {
-      listener.onAxisUpdated(mXMin, mXMax, mIsPinnedToNow);
+    axisView.updateAxis(xMin, xMax);
+    for (AxisUpdateListener listener : axisUpdateListeners) {
+      listener.onAxisUpdated(xMin, xMax, isPinnedToNow);
     }
   }
 
   public void zoomTo(long xMin, long xMax) {
-    if (!mIsLive && mReviewXMin != RUN_REVIEW_DATA_NOT_INITIALIZED) {
+    if (!isLive && reviewXMin != RUN_REVIEW_DATA_NOT_INITIALIZED) {
       // Otherwise, make sure the change is within the review region
-      if (xMin < mReviewXMin) {
-        xMin = mReviewXMin;
+      if (xMin < reviewXMin) {
+        xMin = reviewXMin;
       }
-      if (xMax > mReviewXMax) {
-        xMax = mReviewXMax;
+      if (xMax > reviewXMax) {
+        xMax = reviewXMax;
       }
     }
-    mXMin = xMin;
-    mXMax = xMax;
+    this.xMin = xMin;
+    this.xMax = xMax;
     updateAxis();
   }
 
   public void addAxisUpdateListener(AxisUpdateListener listener) {
-    mAxisUpdateListeners.add(listener);
+    axisUpdateListeners.add(listener);
   }
 
   // TODO: allow testing this logic without a real View
   /** @return The max timestamp after reset is completed. */
   public long resetAxes() {
-    mIsPinnedToNow = mIsLive;
-    if (mIsPinnedToNow) {
-      long timestampMillis = mCurrentTimeClock.getNow();
-      mResetAxisOnFirstDataPointAfter = timestampMillis;
-      mXMin = timestampMillis - DEFAULT_GRAPH_RANGE_IN_MILLIS;
-      mXMax = timestampMillis;
+    isPinnedToNow = isLive;
+    if (isPinnedToNow) {
+      long timestampMillis = currentTimeClock.getNow();
+      resetAxisOnFirstDataPointAfter = timestampMillis;
+      xMin = timestampMillis - DEFAULT_GRAPH_RANGE_IN_MILLIS;
+      xMax = timestampMillis;
       return timestampMillis;
     } else {
-      mXMin = mReviewXMin;
-      mXMax = mReviewXMax;
-      return mReviewXMax;
+      xMin = reviewXMin;
+      xMax = reviewXMax;
+      return reviewXMax;
     }
   }
 
   public void scrollToNowIfPinned(long nowTimestamp, long lastAddedTimestamp) {
     // Ignore user interaction if it happens between data resets.
-    if (mUserIsInteracting && mResetAxisOnFirstDataPointAfter == NO_RESET) {
+    if (userIsInteracting && resetAxisOnFirstDataPointAfter == NO_RESET) {
       return;
     }
     nowTimestamp += LEADING_EDGE_BUFFER_TIME;
 
     // Only auto-scroll if we're already pinned to now (within 1%), or the user has indicated
     // that a reset is necessary.
-    if (mResetAxisOnFirstDataPointAfter != NO_RESET
-        && lastAddedTimestamp > mResetAxisOnFirstDataPointAfter) {
-      mIsPinnedToNow = true;
-      mResetAxisOnFirstDataPointAfter = NO_RESET;
+    if (resetAxisOnFirstDataPointAfter != NO_RESET
+        && lastAddedTimestamp > resetAxisOnFirstDataPointAfter) {
+      isPinnedToNow = true;
+      resetAxisOnFirstDataPointAfter = NO_RESET;
     }
-    if (mIsPinnedToNow) {
+    if (isPinnedToNow) {
       // Push the min by as much as the max
-      mXMax = nowTimestamp;
-      mXMin = nowTimestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
+      xMax = nowTimestamp;
+      xMin = nowTimestamp - DEFAULT_GRAPH_RANGE_IN_MILLIS;
     }
-    if (mResetButton != null) {
+    if (resetButton != null) {
       boolean resetButtonMatchesPinned =
-          mResetButton.getVisibility() == (mIsPinnedToNow ? View.INVISIBLE : View.VISIBLE);
+          resetButton.getVisibility() == (isPinnedToNow ? View.INVISIBLE : View.VISIBLE);
       if (!resetButtonMatchesPinned) {
         // If we have any differences between old and new values.
-        if (!mIsPinnedToNow) {
+        if (!isPinnedToNow) {
           animateButtonIn();
         } else {
           animateButtonOut();
@@ -411,44 +416,44 @@ public class ExternalAxisController {
   }
 
   public void onLabelsChanged(List<Label> labels) {
-    mLabels = labels;
+    this.labels = labels;
     List<Long> timestamps = new ArrayList<>();
-    for (Label label : mLabels) {
+    for (Label label : this.labels) {
       if (ChartOptions.isDisplayable(
-          label, mRecordingStart, ChartOptions.ChartPlacementType.TYPE_OBSERVE)) {
+          label, recordingStart, ChartOptions.ChartPlacementType.TYPE_OBSERVE)) {
         timestamps.add(label.getTimeStamp());
       }
     }
-    mAxisView.setLabels(timestamps);
+    axisView.setLabels(timestamps);
   }
 
   public void onStartRecording(long timestamp) {
-    mRecordingStart = timestamp;
-    mAxisView.setNumberFormat(new RelativeTimeFormat(mRecordingStart, mAxisView.getContext()));
-    mAxisView.setRecordingStart(mRecordingStart);
+    recordingStart = timestamp;
+    axisView.setNumberFormat(new RelativeTimeFormat(recordingStart, axisView.getContext()));
+    axisView.setRecordingStart(recordingStart);
   }
 
   public long getRecordingStartTime() {
-    return mRecordingStart;
+    return recordingStart;
   }
 
   public void onStopRecording() {
-    mRecordingStart = RecordingMetadata.NOT_RECORDING;
-    mAxisView.setNumberFormat(new SecondsAgoFormat(mCurrentTimeClock, mAxisView.getContext()));
-    mAxisView.setRecordingStart(mRecordingStart);
+    recordingStart = RecordingMetadata.NOT_RECORDING;
+    axisView.setNumberFormat(new SecondsAgoFormat(currentTimeClock, axisView.getContext()));
+    axisView.setRecordingStart(recordingStart);
   }
 
   // Returns an elapsed time for RunReview data. Will return the empty string otherwise.
   public String formatElapsedTimeForAccessibility(long timestamp, Context context) {
-    if (mReviewXMin == RUN_REVIEW_DATA_NOT_INITIALIZED) {
+    if (reviewXMin == RUN_REVIEW_DATA_NOT_INITIALIZED) {
       return "";
     }
     return ElapsedTimeFormatter.getInstance(context)
-        .formatForAccessibility((timestamp - mRecordingStart) / MS_IN_SEC);
+        .formatForAccessibility((timestamp - recordingStart) / MS_IN_SEC);
   }
 
   private void animateButtonIn() {
-    mResetButton
+    resetButton
         .animate()
         .translationX(0)
         .setInterpolator(new DecelerateInterpolator())
@@ -458,7 +463,7 @@ public class ExternalAxisController {
               @Override
               public void onAnimationStart(Animator animation) {
                 super.onAnimationStart(animation);
-                mResetButton.setVisibility(View.VISIBLE);
+                resetButton.setVisibility(View.VISIBLE);
               }
             })
         .start();
@@ -466,42 +471,42 @@ public class ExternalAxisController {
 
   /** Sets up the button. Basically set all the end points that are done in animateButtonOut. */
   private void setUpResetAnimation() {
-    mResetButton.setTranslationX(mResetButtonTranslationPx);
-    mResetButton.setRotation(180);
+    resetButton.setTranslationX(resetButtonTranslationPx);
+    resetButton.setRotation(180);
   }
 
   private void animateButtonOut() {
-    if (mResetAnimatingOut) {
+    if (resetAnimatingOut) {
       // Don't animate if we are already doing it.
       return;
     }
-    mResetButton
+    resetButton
         .animate()
-        .translationX(mResetButtonTranslationPx)
+        .translationX(resetButtonTranslationPx)
         .rotation(180)
         .setInterpolator(new AccelerateInterpolator())
         .setListener(
             new AnimatorListenerAdapter() {
               @Override
               public void onAnimationStart(Animator animation) {
-                mResetAnimatingOut = true;
+                resetAnimatingOut = true;
               }
 
               @Override
               public void onAnimationEnd(Animator animation) {
-                mResetButton.setVisibility(View.INVISIBLE);
-                mResetAnimatingOut = false;
+                resetButton.setVisibility(View.INVISIBLE);
+                resetAnimatingOut = false;
               }
             })
         .start();
   }
 
   public boolean containsTimestamp(long timestamp) {
-    return mXMin <= timestamp && timestamp <= mXMax;
+    return xMin <= timestamp && timestamp <= xMax;
   }
 
   public boolean isIntialized() {
-    return mXMax != Long.MIN_VALUE;
+    return xMax != Long.MIN_VALUE;
   }
 
   public static long getReviewBuffer(long firstTimestamp, long lastTimestamp) {
@@ -509,6 +514,6 @@ public class ExternalAxisController {
   }
 
   public long timestampAtAxisFraction(double fraction) {
-    return (long) ((mXMax - mXMin) * fraction + mXMin);
+    return (long) ((xMax - xMin) * fraction + xMin);
   }
 }

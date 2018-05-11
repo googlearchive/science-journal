@@ -29,10 +29,10 @@ public class FakeBleClient implements BleClient {
   public String expectedAddress = null;
   public String mostRecentAddress = null;
 
-  private Context mContext;
+  private Context context;
 
   public FakeBleClient(Context context) {
-    this.mContext = context;
+    this.context = context;
   }
 
   @Override
@@ -42,7 +42,7 @@ public class FakeBleClient implements BleClient {
 
   @Override
   public BleFlow createFlowFor(String address) {
-    return BleFlow.getInstance(this, mContext, address);
+    return BleFlow.getInstance(this, context, address);
   }
 
   @Override

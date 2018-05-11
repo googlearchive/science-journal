@@ -52,9 +52,9 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
   // TODO: Revisit this constant -- should it be even smaller, like 5?
   public static final int MAX_POINTS_AFTER_DECIMAL = 10;
 
-  private Map<String, SensorAppearance> mAppearances = new HashMap<>();
+  private Map<String, SensorAppearance> appearances = new HashMap<>();
 
-  private DataController mDataController;
+  private DataController dataController;
 
   public static GoosciSensorAppearance.BasicSensorAppearance toProto(
       SensorAppearance appearance, Context context) {
@@ -90,7 +90,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
 
   @Override
   public void loadAppearances(final MaybeConsumer<Success> onSuccess) {
-    mDataController.getExternalSensors(
+    dataController.getExternalSensors(
         new LoggingConsumer<Map<String, ExternalSensorSpec>>(
             TAG, "load external sensors from database") {
           @Override
@@ -104,7 +104,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
   }
 
   public SensorAppearanceProviderImpl(DataController dataController) {
-    mDataController = Preconditions.checkNotNull(dataController);
+    this.dataController = Preconditions.checkNotNull(dataController);
     // If we add new on-device sensors/icons, they need to be added here.
 
     // TODO: add these when the sensors are added to the adapter?
@@ -287,13 +287,13 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
   }
 
   private void putAppearance(String sensorId, SensorAppearance appearance) {
-    mAppearances.put(sensorId, Preconditions.checkNotNull(appearance));
+    appearances.put(sensorId, Preconditions.checkNotNull(appearance));
   }
 
   @Override
   public SensorAppearance getAppearance(String sensorId) {
-    if (mAppearances.containsKey(sensorId)) {
-      return mAppearances.get(sensorId);
+    if (appearances.containsKey(sensorId)) {
+      return appearances.get(sensorId);
     }
 
     // Completely unknown sensors get a default appearance here.

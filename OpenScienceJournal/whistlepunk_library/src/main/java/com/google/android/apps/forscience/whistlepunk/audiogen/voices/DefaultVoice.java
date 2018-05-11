@@ -29,8 +29,8 @@ import com.softsynth.shared.time.TimeStamp;
 public class DefaultVoice extends JsynUnitVoiceAdapter {
 
   public DefaultVoice(Synthesizer synth) {
-    mVoice = new SimpleJsynUnitVoice();
-    synth.add(mVoice);
+    voice = new SimpleJsynUnitVoice();
+    synth.add(voice);
   }
 
   public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
@@ -39,6 +39,6 @@ public class DefaultVoice extends JsynUnitVoiceAdapter {
     if (value > max) value = max;
 
     double freq = (value - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
-    mVoice.noteOn(freq, AMP_VALUE, timeStamp);
+    voice.noteOn(freq, AMP_VALUE, timeStamp);
   }
 }

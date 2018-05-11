@@ -71,12 +71,12 @@ public class MyBleService extends Service {
   private Map<String, BluetoothGatt> addressToGattClient =
       Collections.synchronizedMap(new LinkedHashMap<String, BluetoothGatt>());
 
-  private Set<String> mOutstandingServiceDiscoveryAddresses = new ArraySet<>();
+  private Set<String> outstandingServiceDiscoveryAddresses = new ArraySet<>();
 
   // GATT callbacks
   private BluetoothGattCallback gattCallbacks =
       new BluetoothGattCallback() {
-        Map<String, Integer> mConnectionStatuses = new ArrayMap<>();
+        Map<String, Integer> connectionStatuses = new ArrayMap<>();
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -88,9 +88,9 @@ public class MyBleService extends Service {
           // (very brittle) downstream code, so filter the duplicates out here.  See
           // b/31741822 for further discussion.
           boolean isActualChange =
-              !(mConnectionStatuses.containsKey(address)
-                  && mConnectionStatuses.get(address) == newState);
-          mConnectionStatuses.put(address, newState);
+              !(connectionStatuses.containsKey(address)
+                  && connectionStatuses.get(address) == newState);
+          connectionStatuses.put(address, newState);
 
           if (status != BluetoothGatt.GATT_SUCCESS) {
             sendGattBroadcast(address, BleEvents.GATT_CONNECT_FAIL, null);
@@ -118,7 +118,7 @@ public class MyBleService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
           String address = getAddressFromGatt(gatt);
-          mOutstandingServiceDiscoveryAddresses.remove(address);
+          outstandingServiceDiscoveryAddresses.remove(address);
           if (status == BluetoothGatt.GATT_SUCCESS) {
             if (DEBUG) Log.d(TAG, "Sending the action: " + BleEvents.SERVICES_OK);
             sendServiceDiscoveryIntent(MyBleService.this, address, SERVICES_RETRY_COUNT);
@@ -333,10 +333,10 @@ public class MyBleService extends Service {
   }
 
   public boolean discoverServices(String address) {
-    if (mOutstandingServiceDiscoveryAddresses.contains(address)) {
+    if (outstandingServiceDiscoveryAddresses.contains(address)) {
       return addressToGattClient.containsKey(address);
     }
-    mOutstandingServiceDiscoveryAddresses.add(address);
+    outstandingServiceDiscoveryAddresses.add(address);
     return internalDiscoverServices(address);
   }
 

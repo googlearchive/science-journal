@@ -18,36 +18,36 @@ package com.google.android.apps.forscience.whistlepunk.audio;
 
 /** Computes moving average using a circular buffer. */
 class MovingAverage {
-  private final int mBufferSize;
+  private final int bufferSize;
   private final double[] buffer;
   private double sum;
-  private int mSize;
-  private int mNext;
+  private int size;
+  private int next;
 
   MovingAverage(int size) {
-    mBufferSize = size;
-    buffer = new double[mBufferSize];
+    bufferSize = size;
+    buffer = new double[bufferSize];
   }
 
   /** Clears this MovingAverage of previous entries. */
   void clear() {
     sum = 0;
-    mSize = 0;
-    mNext = 0;
+    size = 0;
+    next = 0;
   }
 
   /** Inserts the given number and returns the moving average. */
   double insertAndReturnAverage(double n) {
-    if (mSize == mBufferSize) {
-      double removed = buffer[mNext];
+    if (size == bufferSize) {
+      double removed = buffer[next];
       sum = sum - removed;
     }
-    buffer[mNext] = n;
+    buffer[next] = n;
     sum += n;
-    mNext = (mNext + 1) % mBufferSize;
-    if (mSize < mBufferSize) {
-      mSize++;
+    next = (next + 1) % bufferSize;
+    if (size < bufferSize) {
+      size++;
     }
-    return sum / mSize;
+    return sum / size;
   }
 }

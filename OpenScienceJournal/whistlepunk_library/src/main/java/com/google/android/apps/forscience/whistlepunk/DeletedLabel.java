@@ -29,20 +29,20 @@ import java.util.concurrent.TimeUnit;
 
 public class DeletedLabel {
   private static final String TAG = "DeletedLabel";
-  private Label mLabel;
-  private Consumer<Context> mAssetDeleter;
+  private Label label;
+  private Consumer<Context> assetDeleter;
 
   // This is a little longer than the value of SnackbarManager#LONG_DURATION_MS.  We set it
   // custom so we can try to be sure when it has disappeared.
   private static final int UNDO_DELAY_MS = 3000;
 
   public DeletedLabel(Label label, Consumer<Context> assetDeleter) {
-    mLabel = label;
-    mAssetDeleter = assetDeleter;
+    this.label = label;
+    this.assetDeleter = assetDeleter;
   }
 
   public Label getLabel() {
-    return mLabel;
+    return label;
   }
 
   public void deleteAndDisplayUndoBar(
@@ -56,22 +56,22 @@ public class DeletedLabel {
         AccessibilityUtils.makeSnackbar(
             view, context.getResources().getString(R.string.snackbar_note_deleted), UNDO_DELAY_MS);
 
-    RxEvent undone = new RxEvent();
+    RxEvent undoneEvent = new RxEvent();
 
     // On undo, re-add the item to the database and the pinned note list.
     bar.setAction(
         R.string.snackbar_undo,
         new View.OnClickListener() {
-          boolean mUndone = false;
+          boolean undone = false;
 
           @Override
           public void onClick(View v) {
-            if (mUndone) {
+            if (this.undone) {
               return;
             }
-            undone.onHappened();
-            mUndone = true;
-            labelHolder.addLabel(experiment, mLabel);
+            undoneEvent.onHappened();
+            this.undone = true;
+            labelHolder.addLabel(experiment, label);
 
             dc.updateExperiment(
                 experiment.getExperimentId(),
@@ -90,8 +90,8 @@ public class DeletedLabel {
 
     Context appContext = view.getContext().getApplicationContext();
     Observable.timer(delayWithBuffer, TimeUnit.MILLISECONDS)
-        .takeUntil(undone.happens())
+        .takeUntil(undoneEvent.happens())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(o -> mAssetDeleter.accept(appContext));
+        .subscribe(o -> assetDeleter.accept(appContext));
   }
 }

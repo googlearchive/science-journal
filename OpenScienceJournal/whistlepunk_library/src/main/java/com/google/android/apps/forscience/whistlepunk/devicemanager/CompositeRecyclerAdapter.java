@@ -39,21 +39,21 @@ public class CompositeRecyclerAdapter<VH extends RecyclerView.ViewHolder>
     public void informGlobalAdapterStartPosition(int startPosition);
   }
 
-  private RecyclerView.Adapter<VH>[] mSubAdapters;
-  private SparseArray<Integer> mViewTypeToCreatingAdapterIndex = new SparseArray<>();
+  private RecyclerView.Adapter<VH>[] subAdapters;
+  private SparseArray<Integer> viewTypeToCreatingAdapterIndex = new SparseArray<>();
 
   /** See scanTo for how these work */
-  private int mLastGlobalPosition = -1;
+  private int lastGlobalPosition = -1;
 
-  private int mLastSubAdapterIndex = -1;
-  private int mLastSubPosition = -1;
+  private int lastSubAdapterIndex = -1;
+  private int lastSubPosition = -1;
 
   /**
    * CompositeRecyclerAdapter takes incoming requests and farms them out to child adapters. To do
    * this, we need to know which child adapter is responsible for which child item. To act on the
    * item at global position {@code position}, call {@code scanTo(position)}, and then use
-   * mSubAdapters[mLastSubAdapterIndex] to get the correct child adapter, and mLastSubPosition to
-   * get the index of the child item within that child adapter.
+   * subAdapters[lastSubAdapterIndex] to get the correct child adapter, and lastSubPosition to get
+   * the index of the child item within that child adapter.
    */
   private void scanTo(int position) {
     // Always recalculate a scan, because subitem counts may have changed (for what _not_ to
@@ -61,13 +61,13 @@ public class CompositeRecyclerAdapter<VH extends RecyclerView.ViewHolder>
 
     int subPosition = position;
     int index = 0;
-    while (index < mSubAdapters.length) {
-      RecyclerView.Adapter<VH> sub = mSubAdapters[index];
+    while (index < subAdapters.length) {
+      RecyclerView.Adapter<VH> sub = subAdapters[index];
       int subCount = sub.getItemCount();
       if (subPosition < subCount) {
-        mLastGlobalPosition = position;
-        mLastSubAdapterIndex = index;
-        mLastSubPosition = subPosition;
+        lastGlobalPosition = position;
+        lastSubAdapterIndex = index;
+        lastSubPosition = subPosition;
         return;
       }
       subPosition -= subCount;
@@ -77,7 +77,7 @@ public class CompositeRecyclerAdapter<VH extends RecyclerView.ViewHolder>
   }
 
   public CompositeRecyclerAdapter(RecyclerView.Adapter<VH>... subAdapters) {
-    mSubAdapters = subAdapters;
+    this.subAdapters = subAdapters;
     for (int i = 0; i < subAdapters.length; i++) {
       final int thisSubIndex = i;
       subAdapters[i].registerAdapterDataObserver(
@@ -119,7 +119,7 @@ public class CompositeRecyclerAdapter<VH extends RecyclerView.ViewHolder>
   private int translate(int subIndex, int subPosition) {
     int position = subPosition;
     for (int i = 0; i < subIndex; i++) {
-      position += mSubAdapters[i].getItemCount();
+      position += subAdapters[i].getItemCount();
     }
     return position;
   }
@@ -127,39 +127,39 @@ public class CompositeRecyclerAdapter<VH extends RecyclerView.ViewHolder>
   @Override
   public long getItemId(int position) {
     scanTo(position);
-    return mSubAdapters[mLastSubAdapterIndex].getItemId(mLastSubPosition);
+    return subAdapters[lastSubAdapterIndex].getItemId(lastSubPosition);
   }
 
   @Override
   public int getItemViewType(int position) {
     scanTo(position);
-    int itemViewType = mSubAdapters[mLastSubAdapterIndex].getItemViewType(mLastSubPosition);
-    mViewTypeToCreatingAdapterIndex.put(itemViewType, mLastSubAdapterIndex);
+    int itemViewType = subAdapters[lastSubAdapterIndex].getItemViewType(lastSubPosition);
+    viewTypeToCreatingAdapterIndex.put(itemViewType, lastSubAdapterIndex);
     return itemViewType;
   }
 
   @Override
   public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-    return mSubAdapters[mViewTypeToCreatingAdapterIndex.get(viewType)].onCreateViewHolder(
+    return subAdapters[viewTypeToCreatingAdapterIndex.get(viewType)].onCreateViewHolder(
         parent, viewType);
   }
 
   @Override
   public void onBindViewHolder(VH holder, int position) {
     scanTo(position);
-    RecyclerView.Adapter<VH> subAdapter = mSubAdapters[mLastSubAdapterIndex];
+    RecyclerView.Adapter<VH> subAdapter = subAdapters[lastSubAdapterIndex];
     if (subAdapter instanceof CompositeSensitiveAdapter) {
       CompositeSensitiveAdapter csa = (CompositeSensitiveAdapter) subAdapter;
-      csa.informGlobalAdapterStartPosition(mLastGlobalPosition - mLastSubPosition);
+      csa.informGlobalAdapterStartPosition(lastGlobalPosition - lastSubPosition);
     }
-    subAdapter.onBindViewHolder(holder, mLastSubPosition);
+    subAdapter.onBindViewHolder(holder, lastSubPosition);
   }
 
   @Override
   public int getItemCount() {
     // TODO: would it help to cache this?
     int count = 0;
-    for (RecyclerView.Adapter<VH> sub : mSubAdapters) {
+    for (RecyclerView.Adapter<VH> sub : subAdapters) {
       count += sub.getItemCount();
     }
     return count;

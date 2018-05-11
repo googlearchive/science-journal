@@ -22,69 +22,69 @@ import android.text.TextUtils;
 /** Represents a project, which is a collection of experiments. */
 public class Project {
 
-  private long mId;
-  private String mProjectId;
-  private String mTitle;
-  private String mDescription;
-  private String mCoverPhoto;
-  private boolean mArchived;
-  private long mLastUsedTime;
+  private long id;
+  private String projectId;
+  private String title;
+  private String description;
+  private String coverPhoto;
+  private boolean archived;
+  private long lastUsedTime;
 
   @VisibleForTesting
   public Project(long id) {
-    mId = id;
+    this.id = id;
   }
 
   /* package */ long getId() {
-    return mId;
+    return id;
   }
 
   /* package */ void setProjectId(String projectId) {
-    mProjectId = projectId;
+    this.projectId = projectId;
   }
 
   public void setTitle(String title) {
-    this.mTitle = title;
+    this.title = title;
   }
 
   public void setDescription(String description) {
-    mDescription = description;
+    this.description = description;
   }
 
   public void setCoverPhoto(String coverPhoto) {
-    this.mCoverPhoto = coverPhoto;
+    this.coverPhoto = coverPhoto;
   }
 
   public void setArchived(boolean archived) {
-    this.mArchived = archived;
+    this.archived = archived;
   }
 
   public String getProjectId() {
-    return mProjectId;
+    return projectId;
   }
 
   public String getTitle() {
-    return mTitle;
+    return title;
   }
 
   public String getDescription() {
-    return mDescription;
+    return description;
   }
 
   public String getCoverPhoto() {
-    return mCoverPhoto;
+    return coverPhoto;
   }
 
   public boolean isArchived() {
-    return mArchived;
+    return archived;
   }
 
   public void setLastUsedTime(long lastUsedTime) {
-    mLastUsedTime = lastUsedTime;
+    this.lastUsedTime = lastUsedTime;
   }
 
   public long getLastUsedTime() {
-    return mLastUsedTime;
+    return lastUsedTime;
   }
 
   @Override
@@ -94,12 +94,12 @@ public class Project {
       return false;
     }
     boolean returnValue =
-        mId == other.mId
-            && TextUtils.equals(mTitle, other.mTitle)
-            && mArchived == other.mArchived
-            && TextUtils.equals(mDescription, other.mDescription)
-            && TextUtils.equals(mCoverPhoto, other.mCoverPhoto)
-            && mLastUsedTime == other.mLastUsedTime;
+        id == other.id
+            && TextUtils.equals(title, other.title)
+            && archived == other.archived
+            && TextUtils.equals(description, other.description)
+            && TextUtils.equals(coverPhoto, other.coverPhoto)
+            && lastUsedTime == other.lastUsedTime;
     return returnValue;
   }
 }

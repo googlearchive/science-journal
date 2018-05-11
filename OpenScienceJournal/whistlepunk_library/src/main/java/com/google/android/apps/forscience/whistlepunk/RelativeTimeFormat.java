@@ -23,12 +23,12 @@ import java.text.ParsePosition;
 
 /** Formats a timestamp based on how far away it was from a known 0 time. */
 public class RelativeTimeFormat extends NumberFormat {
-  private final ElapsedTimeAxisFormatter mElapsedTimeFormatter;
-  private final long mZeroTimestamp;
+  private final ElapsedTimeAxisFormatter elapsedTimeFormatter;
+  private final long zeroTimestamp;
 
   public RelativeTimeFormat(long zeroTimestamp, Context context) {
-    mZeroTimestamp = zeroTimestamp;
-    mElapsedTimeFormatter = ElapsedTimeAxisFormatter.getInstance(context);
+    this.zeroTimestamp = zeroTimestamp;
+    elapsedTimeFormatter = ElapsedTimeAxisFormatter.getInstance(context);
   }
 
   @Override
@@ -38,7 +38,7 @@ public class RelativeTimeFormat extends NumberFormat {
 
   @Override
   public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
-    return buffer.append(mElapsedTimeFormatter.format(value - mZeroTimestamp, false));
+    return buffer.append(elapsedTimeFormatter.format(value - zeroTimestamp, false));
   }
 
   @Override

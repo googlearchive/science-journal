@@ -20,22 +20,22 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConf
 
 /** Filter that applies a linear function to the incoming function */
 public class ScaleFilter implements ValueFilter {
-  private final double mSourceBottom;
-  private final double mDestBottom;
-  private final double mSourceRange;
-  private final double mDestRange;
+  private final double sourceBottom;
+  private final double destBottom;
+  private final double sourceRange;
+  private final double destRange;
 
   public ScaleFilter(ScaleTransform transform) {
-    mSourceBottom = transform.sourceBottom;
-    mSourceRange = transform.sourceTop - mSourceBottom;
-    mDestBottom = transform.destBottom;
-    mDestRange = transform.destTop - mDestBottom;
+    sourceBottom = transform.sourceBottom;
+    sourceRange = transform.sourceTop - sourceBottom;
+    destBottom = transform.destBottom;
+    destRange = transform.destTop - destBottom;
   }
 
   @Override
   public double filterValue(long timestamp, double value) {
-    double ratio = (value - mSourceBottom) / mSourceRange;
-    double transformed = (ratio * mDestRange) + mDestBottom;
+    double ratio = (value - sourceBottom) / sourceRange;
+    double transformed = (ratio * destRange) + destBottom;
     return transformed;
   }
 }

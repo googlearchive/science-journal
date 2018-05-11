@@ -82,10 +82,10 @@ public class SensorDatabaseImpl implements SensorDatabase {
         "CREATE INDEX timestamp ON " + NAME + "(" + Column.TIMESTAMP_MILLIS + ");";
   }
 
-  private final SQLiteOpenHelper mOpenHelper;
+  private final SQLiteOpenHelper openHelper;
 
   public SensorDatabaseImpl(Context context, String name) {
-    mOpenHelper =
+    openHelper =
         new SQLiteOpenHelper(context, name, null, DbVersions.CURRENT) {
           @Override
           public void onCreate(SQLiteDatabase db) {
@@ -125,7 +125,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
 
   @Override
   public void addScalarReadings(List<BatchInsertScalarReading> readings) {
-    SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+    SQLiteDatabase db = openHelper.getWritableDatabase();
     try {
       db.beginTransaction();
       for (BatchInsertScalarReading r : readings) {
@@ -152,7 +152,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
     values.put(ScalarSensorsTable.Column.TIMESTAMP_MILLIS, timestampMillis);
     values.put(ScalarSensorsTable.Column.VALUE, value);
     values.put(ScalarSensorsTable.Column.RESOLUTION_TIER, resolutionTier);
-    mOpenHelper.getWritableDatabase().insert(ScalarSensorsTable.NAME, null, values);
+    openHelper.getWritableDatabase().insert(ScalarSensorsTable.NAME, null, values);
   }
 
   /**
@@ -283,7 +283,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
     return Observable.create(
         new ObservableOnSubscribe<ScalarReading>() {
 
-          private long mLastTimeStampWritten = -1;
+          private long lastTimeStampWritten = -1;
 
           @Override
           public void subscribe(ObservableEmitter<ScalarReading> observableEmitter)
@@ -300,7 +300,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
                     String sensorTag = cursor.getString(2);
                     observableEmitter.onNext(
                         new ScalarReading(timeStamp, cursor.getDouble(1), sensorTag));
-                    mLastTimeStampWritten = timeStamp;
+                    lastTimeStampWritten = timeStamp;
                     count++;
                   }
                   if (count == 0 || observableEmitter.isDisposed()) {
@@ -308,11 +308,11 @@ public class SensorDatabaseImpl implements SensorDatabase {
                   }
                 }
               }
-              if (mLastTimeStampWritten >= range.getTimes().upperEndpoint()) {
+              if (lastTimeStampWritten >= range.getTimes().upperEndpoint()) {
                 break;
               } else {
                 Range<Long> times =
-                    Range.openClosed(mLastTimeStampWritten, range.getTimes().upperEndpoint());
+                    Range.openClosed(lastTimeStampWritten, range.getTimes().upperEndpoint());
                 searchRange = TimeRange.oldest(times);
               }
               if (observableEmitter.isDisposed()) {
@@ -340,7 +340,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
             + (range.getOrder().equals(TimeRange.ObservationOrder.OLDEST_FIRST) ? " ASC" : " DESC");
     String limit = maxRecords <= 0 ? null : String.valueOf(maxRecords);
 
-    return mOpenHelper
+    return openHelper
         .getReadableDatabase()
         .query(
             ScalarSensorsTable.NAME, columns, selection, selectionArgs, null, null, orderBy, limit);
@@ -419,7 +419,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
   public String getFirstDatabaseTagAfter(long timestamp) {
     final String timestampString = String.valueOf(timestamp);
     try (Cursor cursor =
-        mOpenHelper
+        openHelper
             .getReadableDatabase()
             .query(
                 ScalarSensorsTable.NAME,
@@ -445,6 +445,6 @@ public class SensorDatabaseImpl implements SensorDatabase {
             trialId, new String[] {sensorTag}, range, -1 /* delete all resolutions */);
     String selection = selectionAndArgs.first;
     String[] selectionArgs = selectionAndArgs.second;
-    mOpenHelper.getWritableDatabase().delete(ScalarSensorsTable.NAME, selection, selectionArgs);
+    openHelper.getWritableDatabase().delete(ScalarSensorsTable.NAME, selection, selectionArgs);
   }
 }

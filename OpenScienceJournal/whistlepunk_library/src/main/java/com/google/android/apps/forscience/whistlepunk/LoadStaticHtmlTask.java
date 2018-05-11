@@ -31,14 +31,14 @@ public class LoadStaticHtmlTask extends AsyncTask<Void, Void, String> {
     void onDataLoaded(String data);
   }
 
-  private StaticHtmlLoadListener mListener;
-  private int mFileId;
-  private Resources mResources;
+  private StaticHtmlLoadListener listener;
+  private int fileId;
+  private Resources resources;
 
   public LoadStaticHtmlTask(StaticHtmlLoadListener listener, Resources resources, int fileId) {
-    mResources = resources;
-    mListener = listener;
-    mFileId = fileId;
+    this.resources = resources;
+    this.listener = listener;
+    this.fileId = fileId;
   }
 
   @Override
@@ -52,7 +52,7 @@ public class LoadStaticHtmlTask extends AsyncTask<Void, Void, String> {
       char[] tmp = new char[2048];
       int numRead;
 
-      inputReader = new InputStreamReader(mResources.openRawResource(mFileId));
+      inputReader = new InputStreamReader(resources.openRawResource(fileId));
       while ((numRead = inputReader.read(tmp)) >= 0) {
         data.append(tmp, 0, numRead);
       }
@@ -75,6 +75,6 @@ public class LoadStaticHtmlTask extends AsyncTask<Void, Void, String> {
 
   @Override
   protected void onPostExecute(String data) {
-    mListener.onDataLoaded(data);
+    listener.onDataLoaded(data);
   }
 }

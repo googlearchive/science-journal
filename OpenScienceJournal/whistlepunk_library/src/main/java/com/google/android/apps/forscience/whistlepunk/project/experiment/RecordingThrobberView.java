@@ -33,12 +33,12 @@ public class RecordingThrobberView extends View {
   private static final int NUMBER_BARS = 5;
   private static final int MS_PER_CYCLE = 500;
 
-  private Paint mPaint;
-  private float mWidth;
-  private float mHeight;
-  private float mBarAndSpacingWidth;
-  private float[] mAnimatedFraction = new float[NUMBER_BARS];
-  private RxEvent mStopped = new RxEvent();
+  private Paint paint;
+  private float width;
+  private float height;
+  private float barAndSpacingWidth;
+  private float[] animatedFraction = new float[NUMBER_BARS];
+  private RxEvent stopped = new RxEvent();
 
   public RecordingThrobberView(Context context) {
     super(context);
@@ -63,8 +63,8 @@ public class RecordingThrobberView extends View {
 
   private void init() {
     int color = getContext().getResources().getColor(R.color.recording_axis_bar_color);
-    mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mPaint.setColor(color);
+    paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    paint.setColor(color);
   }
 
   @Override
@@ -92,43 +92,42 @@ public class RecordingThrobberView extends View {
           (long) (MS_PER_CYCLE * (i * 3 + 7 * 1.0 % NUMBER_BARS) / NUMBER_BARS));
       animator.addUpdateListener(
           valueAnimator -> {
-            mAnimatedFraction[index] = valueAnimator.getAnimatedFraction();
+            animatedFraction[index] = valueAnimator.getAnimatedFraction();
             // Coordinate the invalidates for performance.
             postInvalidateOnAnimation();
           });
       animator.start();
-      mStopped.happensNext().subscribe(() -> animator.end());
+      stopped.happensNext().subscribe(() -> animator.end());
     }
   }
 
   public void stopAnimation() {
-    mStopped.onHappened();
+    stopped.onHappened();
   }
 
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    mWidth = getMeasuredWidth();
-    mHeight = getMeasuredHeight();
+    width = getMeasuredWidth();
+    height = getMeasuredHeight();
     // Bars and inter-bar spacing are the same size
-    mBarAndSpacingWidth = mWidth / (NUMBER_BARS * 2 - 1);
+    barAndSpacingWidth = width / (NUMBER_BARS * 2 - 1);
   }
 
   @Override
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
-    float padding = mBarAndSpacingWidth / 2;
-    float halfHeight = mHeight / 2 - padding;
+    float padding = barAndSpacingWidth / 2;
+    float halfHeight = height / 2 - padding;
     float top;
     float bottom;
     for (int i = 0; i < NUMBER_BARS; i++) {
-      top = padding + halfHeight * mAnimatedFraction[i];
-      bottom = mHeight - padding - halfHeight * mAnimatedFraction[i];
+      top = padding + halfHeight * animatedFraction[i];
+      bottom = height - padding - halfHeight * animatedFraction[i];
       canvas.drawRect(
-          i * 2 * mBarAndSpacingWidth, top, (i * 2 + 1) * mBarAndSpacingWidth, bottom, mPaint);
-      canvas.drawCircle((i * 2 + .5f) * mBarAndSpacingWidth, top, mBarAndSpacingWidth / 2, mPaint);
-      canvas.drawCircle(
-          (i * 2 + .5f) * mBarAndSpacingWidth, bottom, mBarAndSpacingWidth / 2, mPaint);
+          i * 2 * barAndSpacingWidth, top, (i * 2 + 1) * barAndSpacingWidth, bottom, paint);
+      canvas.drawCircle((i * 2 + .5f) * barAndSpacingWidth, top, barAndSpacingWidth / 2, paint);
+      canvas.drawCircle((i * 2 + .5f) * barAndSpacingWidth, bottom, barAndSpacingWidth / 2, paint);
     }
   }
 }

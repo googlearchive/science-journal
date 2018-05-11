@@ -19,18 +19,18 @@ import static org.junit.Assert.assertTrue;
 
 /** Little utility class for when you want to be sure a callback was called. */
 public class TestFlag {
-  private boolean mSet = false;
-  private String mTitle;
+  private boolean set = false;
+  private String title;
 
   public TestFlag(String title) {
-    mTitle = title;
+    this.title = title;
   }
 
   public void set() {
-    mSet = true;
+    set = true;
   }
 
   public void assertSet() {
-    assertTrue(mTitle, mSet);
+    assertTrue(title, set);
   }
 }

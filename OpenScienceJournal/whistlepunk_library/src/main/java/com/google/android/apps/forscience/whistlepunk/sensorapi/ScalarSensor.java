@@ -68,15 +68,15 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
   private static final double DENOMINATOR_FOR_RPMS = 60 * 1000.0;
   public static final String BUNDLE_KEY_SENSOR_VALUE = "key_sensor_value";
 
-  private final FailureListener mDataFailureListener;
-  private final int mZoomLevelBetweenTiers;
+  private final FailureListener dataFailureListener;
+  private final int zoomLevelBetweenTiers;
 
-  private final long mDefaultGraphRange;
-  private Executor mUiThreadExecutor;
-  private ValueFilter mValueFilter = null;
-  private ChartController mChartController;
-  private AudioGenerator mAudioGenerator;
-  private final Clock mClock;
+  private final long defaultGraphRange;
+  private Executor uiThreadExecutor;
+  private ValueFilter valueFilter = null;
+  private ChartController chartController;
+  private AudioGenerator audioGenerator;
+  private final Clock clock;
 
   public ScalarSensor(String id) {
     this(id, AppSingleton.getUiThreadExecutor());
@@ -100,10 +100,10 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
       int zoomLevelBetweenTiers,
       Clock clock) {
     super(id);
-    mDefaultGraphRange = defaultGraphRange;
-    mUiThreadExecutor = uiThreadExecutor;
-    mZoomLevelBetweenTiers = zoomLevelBetweenTiers;
-    mDataFailureListener =
+    this.defaultGraphRange = defaultGraphRange;
+    this.uiThreadExecutor = uiThreadExecutor;
+    this.zoomLevelBetweenTiers = zoomLevelBetweenTiers;
+    dataFailureListener =
         new FailureListener() {
           @Override
           public void fail(Exception e) {
@@ -112,7 +112,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             }
           }
         };
-    mClock = clock;
+    this.clock = clock;
   }
 
   @Override
@@ -121,7 +121,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
       NumberFormat statsNumberFormat,
       StatsListener statsListener) {
     final ChartController chartController =
-        getChartController(dataViewOptions, getId(), mDefaultGraphRange);
+        getChartController(dataViewOptions, getId(), defaultGraphRange);
 
     final AudioGenerator audioGenerator = getAudioGenerator();
     final SensorPresenter.OptionsPresenter optionsPresenter = createOptionsPresenter();
@@ -130,14 +130,14 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     statsDisplay.addStatsListener(statsListener);
 
     return new SensorPresenter() {
-      private boolean mAudioEnabled;
+      private boolean audioEnabled;
 
       @Override
       public void startShowing(
           View contentView, ExternalAxisController.InteractionListener listener) {
         chartController.setInteractionListener(listener);
         chartController.setChartView((ChartView) contentView);
-        if (mAudioEnabled) {
+        if (this.audioEnabled) {
           audioGenerator.startPlaying();
         }
       }
@@ -157,7 +157,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
       public void onNewData(long timestamp, Data bundle) {
         double value = bundle.getValue();
         chartController.addPoint(new ChartData.DataPoint(timestamp, value));
-        if (mAudioEnabled) {
+        if (this.audioEnabled) {
           audioGenerator.addData(
               timestamp,
               value,
@@ -214,12 +214,12 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
       @Override
       public void updateAudioSettings(boolean audioEnabled, String sonificationType) {
         setAudioEnabled(audioEnabled);
-        mAudioGenerator.setSonificationType(sonificationType);
+        ScalarSensor.this.audioGenerator.setSonificationType(sonificationType);
       }
 
       private void setAudioEnabled(boolean enableAudio) {
-        mAudioEnabled = enableAudio;
-        if (mAudioEnabled) {
+        this.audioEnabled = enableAudio;
+        if (this.audioEnabled) {
           audioGenerator.startPlaying();
         } else {
           audioGenerator.stopPlaying();
@@ -254,15 +254,15 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
   }
 
   private void destroyChartController() {
-    if (mChartController != null) {
+    if (chartController != null) {
       // Destroy the controller. This causes previous data to be destroyed on a rotate,
       // later we can add that data back via the background service.
-      mChartController.onDestroy();
-      mChartController = null;
+      chartController.onDestroy();
+      chartController = null;
     }
-    if (mAudioGenerator != null) {
-      mAudioGenerator.destroy();
-      mAudioGenerator = null;
+    if (audioGenerator != null) {
+      audioGenerator.destroy();
+      audioGenerator = null;
     }
   }
 
@@ -270,21 +270,21 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
   @NonNull
   private ChartController getChartController(
       DataViewOptions dataViewOptions, String id, long defaultGraphRange) {
-    if (mChartController == null) {
-      mChartController = createChartController(dataViewOptions, id, defaultGraphRange);
+    if (chartController == null) {
+      chartController = createChartController(dataViewOptions, id, defaultGraphRange);
     } else {
-      mChartController.updateOptions(
+      chartController.updateOptions(
           dataViewOptions.getGraphColor(), dataViewOptions.getLineGraphOptions(), id);
     }
-    return mChartController;
+    return chartController;
   }
 
   @NonNull
   private AudioGenerator getAudioGenerator() {
-    if (mAudioGenerator == null) {
-      mAudioGenerator = new SimpleJsynAudioGenerator();
+    if (audioGenerator == null) {
+      audioGenerator = new SimpleJsynAudioGenerator();
     }
-    return mAudioGenerator;
+    return audioGenerator;
   }
 
   @NonNull
@@ -294,7 +294,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
         new ChartController(
             ChartOptions.ChartPlacementType.TYPE_OBSERVE,
             dataViewOptions.getLineGraphOptions(),
-            mClock);
+            clock);
     chartController.updateColor(dataViewOptions.getGraphColor());
     chartController.setDefaultGraphRange(defaultGraphRange);
     chartController.setSensorId(id);
@@ -371,17 +371,17 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     // We need twice the buffer as the zoom level, because in this implementation of zoom, we
     // decided to store min and max data points at each level.
     // TODO: make this configurable?
-    int zoomBufferSize = mZoomLevelBetweenTiers * 2;
+    int zoomBufferSize = zoomLevelBetweenTiers * 2;
     final ZoomRecorder zoomRecorder = new ZoomRecorder(getId(), zoomBufferSize, 1);
     final ScalarStreamConsumer consumer =
         new ScalarStreamConsumer(statsAccumulator, observer, dataController, zoomRecorder);
     final SensorRecorder recorder = makeScalarControl(consumer, environment, context, listener);
     return new DelegatingSensorRecorder(recorder) {
-      private String mRunId;
+      private String runId;
 
       @Override
       public void startObserving() {
-        dataController.setDataErrorListenerForSensor(getId(), mDataFailureListener);
+        dataController.setDataErrorListenerForSensor(getId(), dataFailureListener);
         super.startObserving();
       }
 
@@ -393,11 +393,11 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
       @Override
       public void startRecording(String runId) {
-        mRunId = runId;
+        this.runId = runId;
         statsAccumulator.clearStats();
         zoomRecorder.setTrialId(runId);
         zoomRecorder.clear();
-        consumer.startRecording(mRunId);
+        consumer.startRecording(this.runId);
         super.startRecording(runId);
       }
 
@@ -410,7 +410,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
             GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT, zoomRecorder.countTiers());
         trialStats.putStat(
             GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS,
-            mZoomLevelBetweenTiers);
+            zoomLevelBetweenTiers);
         if (trialToUpdate != null) {
           trialToUpdate.setStats(trialStats);
         }
@@ -450,7 +450,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
 
   @Override
   public void setScalarFilter(ValueFilter filter) {
-    mValueFilter = filter;
+    valueFilter = filter;
   }
 
   /**
@@ -473,39 +473,39 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
   private class ScalarStreamConsumer implements StreamConsumer {
     private static final int NO_DATA_RECORDED = -1;
 
-    private final StatsAccumulator mStatsAccumulator;
-    private final RecordingDataController mDataController;
-    private final ZoomRecorder mZoomRecorder;
-    private boolean mIsRecording = false;
-    private long mLastDataTimestampMillis = NO_DATA_RECORDED;
-    private long mTimestampBeforeRecordingStart = NO_DATA_RECORDED;
-    private SensorMessage.Pool mMessagePool;
-    private String mRunId = null;
+    private final StatsAccumulator statsAccumulator;
+    private final RecordingDataController dataController;
+    private final ZoomRecorder zoomRecorder;
+    private boolean isRecording = false;
+    private long lastDataTimestampMillis = NO_DATA_RECORDED;
+    private long timestampBeforeRecordingStart = NO_DATA_RECORDED;
+    private SensorMessage.Pool messagePool;
+    private String runId = null;
 
     public ScalarStreamConsumer(
         StatsAccumulator statsAccumulator,
         SensorObserver observer,
         RecordingDataController dataController,
         ZoomRecorder zoomRecorder) {
-      mStatsAccumulator = statsAccumulator;
-      mDataController = dataController;
-      mZoomRecorder = zoomRecorder;
-      mMessagePool = new SensorMessage.Pool(observer);
+      this.statsAccumulator = statsAccumulator;
+      this.dataController = dataController;
+      this.zoomRecorder = zoomRecorder;
+      messagePool = new SensorMessage.Pool(observer);
     }
 
     public void startRecording(String runId) {
-      mIsRecording = true;
-      mTimestampBeforeRecordingStart = mLastDataTimestampMillis;
-      mRunId = runId;
+      isRecording = true;
+      timestampBeforeRecordingStart = lastDataTimestampMillis;
+      this.runId = runId;
     }
 
     public void stopRecording() {
-      mIsRecording = false;
-      mZoomRecorder.flushAllTiers(mDataController);
+      isRecording = false;
+      zoomRecorder.flushAllTiers(dataController);
     }
 
     public boolean maintainsTimeSeries(final long timestampMillis) {
-      if (timestampMillis > mLastDataTimestampMillis) {
+      if (timestampMillis > lastDataTimestampMillis) {
         return true;
       }
       return false;
@@ -520,45 +520,45 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
       value = maybeFilter(timestampMillis, value);
       observeData(timestampMillis, value);
       recordData(timestampMillis, value);
-      mLastDataTimestampMillis = timestampMillis;
+      lastDataTimestampMillis = timestampMillis;
       return true;
     }
 
     public void observeData(final long timestampMillis, double value) {
       // Each call to obtain is guaranteed to retrieve a currently-unused message...
-      SensorMessage message = mMessagePool.obtain();
+      SensorMessage message = messagePool.obtain();
 
       // ...which is set up with the correct values here...
       message.setTimestamp(timestampMillis);
       message.getData().setValue(value);
-      mStatsAccumulator.updateRecordingStreamStats(timestampMillis, value);
-      mStatsAccumulator.addStatsToBundle(message.getData());
+      statsAccumulator.updateRecordingStreamStats(timestampMillis, value);
+      statsAccumulator.addStatsToBundle(message.getData());
 
       // ..and will be cleared and released back to the message pool when getRunnable is run.
       runOnMainThread(message.getRunnable());
     }
 
     public void recordData(long timestampMillis, double value) {
-      if (mIsRecording) {
-        mZoomRecorder.addData(timestampMillis, value, mDataController);
-        mDataController.addScalarReading(mRunId, getId(), 0, timestampMillis, value);
+      if (isRecording) {
+        zoomRecorder.addData(timestampMillis, value, dataController);
+        dataController.addScalarReading(runId, getId(), 0, timestampMillis, value);
       }
     }
 
     public double maybeFilter(long timestampMillis, double value) {
-      if (mValueFilter != null) {
-        value = mValueFilter.filterValue(timestampMillis, value);
+      if (valueFilter != null) {
+        value = valueFilter.filterValue(timestampMillis, value);
       }
       return value;
     }
 
     public boolean hasRecordedData() {
-      return mLastDataTimestampMillis > mTimestampBeforeRecordingStart;
+      return lastDataTimestampMillis > timestampBeforeRecordingStart;
     }
   }
 
   protected void runOnMainThread(Runnable runnable) {
-    mUiThreadExecutor.execute(runnable);
+    uiThreadExecutor.execute(runnable);
   }
 
   public static SensorManager getSensorManager(Context context) {

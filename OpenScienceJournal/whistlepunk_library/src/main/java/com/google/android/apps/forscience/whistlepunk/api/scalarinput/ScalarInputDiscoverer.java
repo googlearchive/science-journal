@@ -44,14 +44,14 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
   private static final long DEFAULT_SCAN_TIMEOUT_MILLIS = 10_000;
   private static String TAG = "SIDiscoverer";
 
-  private final Consumer<AppDiscoveryCallbacks> mServiceFinder;
-  private final ScalarInputStringSource mStringSource;
-  private final Executor mUiThreadExecutor;
-  private final Scheduler mScheduler;
-  private final long mScanTimeoutMillis;
-  private UsageTracker mUsageTracker;
-  private ScanListener mScanListener;
-  private List<String> mActiveServices = new ArrayList<>();
+  private final Consumer<AppDiscoveryCallbacks> serviceFinder;
+  private final ScalarInputStringSource stringSource;
+  private final Executor uiThreadExecutor;
+  private final Scheduler scheduler;
+  private final long scanTimeoutMillis;
+  private UsageTracker usageTracker;
+  private ScanListener scanListener;
+  private List<String> activeServices = new ArrayList<>();
 
   public ScalarInputDiscoverer(
       Consumer<AppDiscoveryCallbacks> serviceFinder, Context context, UsageTracker usageTracker) {
@@ -86,12 +86,12 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
       Scheduler scheduler,
       long scanTimeoutMillis,
       UsageTracker usageTracker) {
-    mServiceFinder = serviceFinder;
-    mStringSource = stringSource;
-    mUiThreadExecutor = uiThreadExecutor;
-    mScheduler = scheduler;
-    mScanTimeoutMillis = scanTimeoutMillis;
-    mUsageTracker = usageTracker;
+    this.serviceFinder = serviceFinder;
+    this.stringSource = stringSource;
+    this.uiThreadExecutor = uiThreadExecutor;
+    this.scheduler = scheduler;
+    this.scanTimeoutMillis = scanTimeoutMillis;
+    this.usageTracker = usageTracker;
     if (usageTracker == null) {
       if (Log.isLoggable(TAG, Log.WARN)) {
         Log.w(TAG, "Configuration error: No usage tracking in ScalarInputDiscoverer");
@@ -101,19 +101,19 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
 
   @Override
   public SensorProvider getProvider() {
-    return new ScalarInputProvider(mServiceFinder, mStringSource, mUiThreadExecutor, mScheduler);
+    return new ScalarInputProvider(serviceFinder, stringSource, uiThreadExecutor, scheduler);
   }
 
   @Override
   public boolean startScanning(final ScanListener listener, final FailureListener onScanError) {
-    mScanListener = listener;
+    scanListener = listener;
     final String discoveryTaskId = "DISCOVERY";
     final TaskPool pool =
         new TaskPool(
             new Runnable() {
               @Override
               public void run() {
-                mUiThreadExecutor.execute(
+                uiThreadExecutor.execute(
                     new Runnable() {
                       @Override
                       public void run() {
@@ -123,7 +123,7 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
               }
             },
             discoveryTaskId);
-    mServiceFinder.take(
+    serviceFinder.take(
         new AppDiscoveryCallbacks() {
           @Override
           public void onServiceFound(final String serviceId, final ISensorDiscoverer service) {
@@ -132,15 +132,15 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
             }
             try {
               final String serviceName = service.getName();
-              mUiThreadExecutor.execute(
+              uiThreadExecutor.execute(
                   new Runnable() {
                     @Override
                     public void run() {
-                      if (mScanListener == null) {
+                      if (scanListener == null) {
                         return;
                       }
-                      mActiveServices.add(serviceId);
-                      mScanListener.onServiceFound(
+                      activeServices.add(serviceId);
+                      scanListener.onServiceFound(
                           new DiscoveredService() {
                             @Override
                             public String getServiceId() {
@@ -187,15 +187,15 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
       final ISensorDiscoverer service, final String serviceId, final TaskPool pool) {
     final String serviceTaskId = "SERVICE:" + serviceId;
     pool.addTask(serviceTaskId);
-    mScheduler.schedule(
-        Delay.millis(mScanTimeoutMillis),
+    scheduler.schedule(
+        Delay.millis(scanTimeoutMillis),
         new Runnable() {
           @Override
           public void run() {
             markTaskTimeout(pool, serviceTaskId);
-            mActiveServices.remove(serviceId);
-            if (mScanListener != null) {
-              mScanListener.onServiceScanComplete(serviceId);
+            activeServices.remove(serviceId);
+            if (scanListener != null) {
+              scanListener.onServiceScanComplete(serviceId);
             }
           }
         });
@@ -211,14 +211,14 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
         pool.addTask(deviceTaskId);
         scheduleTaskTimeout(pool, deviceTaskId);
 
-        mUiThreadExecutor.execute(
+        uiThreadExecutor.execute(
             new Runnable() {
               @Override
               public void run() {
-                if (mScanListener == null) {
+                if (scanListener == null) {
                   return;
                 }
-                mScanListener.onDeviceFound(
+                scanListener.onDeviceFound(
                     new DiscoveredDevice() {
                       @Override
                       public String getServiceId() {
@@ -252,12 +252,12 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
 
       @Override
       public void onScanDone() throws RemoteException {
-        mUiThreadExecutor.execute(
+        uiThreadExecutor.execute(
             new Runnable() {
               @Override
               public void run() {
-                if (mScanListener != null) {
-                  mScanListener.onServiceScanComplete(serviceId);
+                if (scanListener != null) {
+                  scanListener.onServiceScanComplete(serviceId);
                 }
                 pool.taskDone(serviceTaskId);
               }
@@ -267,8 +267,8 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
   }
 
   private void scheduleTaskTimeout(final TaskPool pool, final String taskId) {
-    mScheduler.schedule(
-        Delay.millis(mScanTimeoutMillis),
+    scheduler.schedule(
+        Delay.millis(scanTimeoutMillis),
         new Runnable() {
           @Override
           public void run() {
@@ -278,12 +278,12 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
   }
 
   private void markTaskTimeout(TaskPool pool, String taskId) {
-    if (pool.taskDone(taskId) && mUsageTracker != null) {
-      mUsageTracker.trackEvent(
+    if (pool.taskDone(taskId) && usageTracker != null) {
+      usageTracker.trackEvent(
           TrackerConstants.CATEGORY_API,
           TrackerConstants.ACTION_API_SCAN_TIMEOUT,
           taskId,
-          mScanTimeoutMillis);
+          scanTimeoutMillis);
     }
   }
 
@@ -304,14 +304,14 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
 
         final ScalarInputSpec spec =
             new ScalarInputSpec(name, serviceId, sensorAddress, behavior, ids, deviceId);
-        mUiThreadExecutor.execute(
+        uiThreadExecutor.execute(
             new Runnable() {
               @Override
               public void run() {
-                if (mScanListener == null) {
+                if (scanListener == null) {
                   return;
                 }
-                mScanListener.onSensorFound(
+                scanListener.onSensorFound(
                     new DiscoveredSensor() {
 
                       @Override
@@ -363,16 +363,16 @@ public class ScalarInputDiscoverer implements SensorDiscoverer {
   @Override
   public void stopScanning() {
     markAllScansDone();
-    mScanListener = null;
+    scanListener = null;
   }
 
   private void markAllScansDone() {
-    if (mScanListener != null) {
-      for (String serviceId : mActiveServices) {
-        mScanListener.onServiceScanComplete(serviceId);
+    if (scanListener != null) {
+      for (String serviceId : activeServices) {
+        scanListener.onServiceScanComplete(serviceId);
       }
-      mScanListener.onScanDone();
+      scanListener.onScanDone();
     }
-    mActiveServices.clear();
+    activeServices.clear();
   }
 }

@@ -24,14 +24,14 @@ import dagger.Provides;
 @Module
 public class ContextModule {
 
-  WhistlePunkApplication mApplication;
+  WhistlePunkApplication application;
 
   public ContextModule(WhistlePunkApplication application) {
-    mApplication = application;
+    this.application = application;
   }
 
   @Provides
   Context providesContext() {
-    return mApplication;
+    return application;
   }
 }

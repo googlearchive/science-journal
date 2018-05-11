@@ -31,7 +31,7 @@ public class SineWavePseudoSensor extends ScalarSensor {
   public static final String ID = "SINE_WAVE_X";
   public static final long DEFAULT_FREQENCY_MILLIS = 5000;
   public static final String PREFS_KEY_FREQUENCY_MILLIS = "prefs_frequency";
-  private DataRefresher mDataRefresher;
+  private DataRefresher dataRefresher;
 
   public SineWavePseudoSensor() {
     // TODO(katie): Replace placeholder drawable with appropriate "unknown" sensor symbol.
@@ -45,11 +45,11 @@ public class SineWavePseudoSensor extends ScalarSensor {
       Context context,
       final SensorStatusListener listener) {
     return new AbstractSensorRecorder() {
-      private long mFrequencyMillis = DEFAULT_FREQENCY_MILLIS;
+      private long frequencyMillis = DEFAULT_FREQENCY_MILLIS;
 
       @Override
       public void startObserving() {
-        mDataRefresher =
+        dataRefresher =
             new DataRefresher(new SystemScheduler(), environment.getDefaultClock()) {
               @Override
               public double getValue(long now) {
@@ -57,27 +57,27 @@ public class SineWavePseudoSensor extends ScalarSensor {
               }
             };
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
-        mDataRefresher.setStreamConsumer(c);
-        mDataRefresher.startStreaming();
+        dataRefresher.setStreamConsumer(c);
+        dataRefresher.startStreaming();
       }
 
       private double computeValue(long now) {
-        final double value = Math.sin(Math.PI * 2 * now / mFrequencyMillis);
+        final double value = Math.sin(Math.PI * 2 * now / frequencyMillis);
         return value;
       }
 
       @Override
       public void stopObserving() {
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
-        if (mDataRefresher != null) {
-          mDataRefresher.stopStreaming();
-          mDataRefresher = null;
+        if (dataRefresher != null) {
+          dataRefresher.stopStreaming();
+          dataRefresher = null;
         }
       }
 
       @Override
       public void applyOptions(ReadableSensorOptions settings) {
-        mFrequencyMillis = settings.getLong(PREFS_KEY_FREQUENCY_MILLIS, DEFAULT_FREQENCY_MILLIS);
+        frequencyMillis = settings.getLong(PREFS_KEY_FREQUENCY_MILLIS, DEFAULT_FREQENCY_MILLIS);
       }
     };
   }

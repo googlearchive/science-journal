@@ -33,61 +33,61 @@ public class ScalarSensorDumpReader {
   private static final int NO_DATA_RECORDED = -1;
   private static final String TAG = "ScalarSensorDumpReader";
 
-  private final RecordingDataController mDataController;
-  private long mLastDataTimestampMillis = NO_DATA_RECORDED;
-  private final int mZoomLevelBetweenTiers;
+  private final RecordingDataController dataController;
+  private long lastDataTimestampMillis = NO_DATA_RECORDED;
+  private final int zoomLevelBetweenTiers;
 
   public ScalarSensorDumpReader(RecordingDataController dataController) {
-    mDataController = dataController;
-    mZoomLevelBetweenTiers = ScalarSensor.DEFAULT_ZOOM_LEVEL_BETWEEN_TIERS;
+    this.dataController = dataController;
+    zoomLevelBetweenTiers = ScalarSensor.DEFAULT_ZOOM_LEVEL_BETWEEN_TIERS;
   }
 
   public void readData(
       GoosciScalarSensorData.ScalarSensorData scalarSensorData, Map<String, String> idMap) {
-    int zoomBufferSize = mZoomLevelBetweenTiers * 2;
+    int zoomBufferSize = zoomLevelBetweenTiers * 2;
     for (GoosciScalarSensorData.ScalarSensorDataDump sensor : scalarSensorData.sensors) {
       ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.tag, zoomBufferSize, 1);
       String trialId = idMap.get(sensor.trialId);
       zoomRecorder.setTrialId(trialId);
-      try (BatchDataController batchController = new BatchDataController(mDataController)) {
+      try (BatchDataController batchController = new BatchDataController(dataController)) {
         addAllRows(sensor, zoomRecorder, trialId, batchController);
         batchController.flushScalarReadings();
       } catch (IOException ioe) {
         Log.e(TAG, "Exception while flushing BatchDataController", ioe);
       }
-      mLastDataTimestampMillis = NO_DATA_RECORDED;
+      lastDataTimestampMillis = NO_DATA_RECORDED;
     }
   }
 
   public void readData(List<GoosciScalarSensorData.ScalarSensorDataDump> scalarSensorData) {
-    int zoomBufferSize = mZoomLevelBetweenTiers * 2;
+    int zoomBufferSize = zoomLevelBetweenTiers * 2;
     for (GoosciScalarSensorData.ScalarSensorDataDump sensor : scalarSensorData) {
       ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.tag, zoomBufferSize, 1);
       String trialId = sensor.trialId;
       zoomRecorder.setTrialId(trialId);
-      try (BatchDataController batchController = new BatchDataController(mDataController)) {
+      try (BatchDataController batchController = new BatchDataController(dataController)) {
         addAllRows(sensor, zoomRecorder, trialId, batchController);
         batchController.flushScalarReadings();
       } catch (IOException ioe) {
         Log.e(TAG, "Exception while flushing BatchDataController", ioe);
       }
-      mLastDataTimestampMillis = NO_DATA_RECORDED;
+      lastDataTimestampMillis = NO_DATA_RECORDED;
     }
   }
 
   public void readData(GoosciScalarSensorData.ScalarSensorDataDump sensor) {
-    int zoomBufferSize = mZoomLevelBetweenTiers * 2;
+    int zoomBufferSize = zoomLevelBetweenTiers * 2;
 
     ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.tag, zoomBufferSize, 1);
     String trialId = sensor.trialId;
     zoomRecorder.setTrialId(trialId);
-    try (BatchDataController batchController = new BatchDataController(mDataController)) {
+    try (BatchDataController batchController = new BatchDataController(dataController)) {
       addAllRows(sensor, zoomRecorder, trialId, batchController);
       batchController.flushScalarReadings();
     } catch (IOException ioe) {
       Log.e(TAG, "Exception while flushing BatchDataController", ioe);
     }
-    mLastDataTimestampMillis = NO_DATA_RECORDED;
+    lastDataTimestampMillis = NO_DATA_RECORDED;
   }
 
   private void addAllRows(
@@ -112,12 +112,12 @@ public class ScalarSensorDumpReader {
       return false;
     }
     recordData(dataController, zoomRecorder, trialId, tag, timestampMillis, value);
-    mLastDataTimestampMillis = timestampMillis;
+    lastDataTimestampMillis = timestampMillis;
     return true;
   }
 
   private boolean maintainsTimeSeries(final long timestampMillis) {
-    if (timestampMillis > mLastDataTimestampMillis) {
+    if (timestampMillis > lastDataTimestampMillis) {
       return true;
     }
     return false;

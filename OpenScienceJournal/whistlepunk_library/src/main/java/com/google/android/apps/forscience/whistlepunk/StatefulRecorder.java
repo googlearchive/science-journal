@@ -23,42 +23,42 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOp
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 
 public class StatefulRecorder {
-  private boolean mObserving = false;
-  private boolean mRecording = false;
-  private final SensorRecorder mRecorder;
-  private final Scheduler mScheduler;
-  private Delay mStopDelay;
-  private boolean mForceHasDataForTesting = false;
-  private Runnable mStopRunnable;
+  private boolean observing = false;
+  private boolean recording = false;
+  private final SensorRecorder recorder;
+  private final Scheduler scheduler;
+  private Delay stopDelay;
+  private boolean forceHasDataForTesting = false;
+  private Runnable stopRunnable;
 
   StatefulRecorder(SensorRecorder recorder, Scheduler scheduler, Delay stopDelay) {
-    mRecorder = recorder;
-    mScheduler = scheduler;
-    mStopDelay = stopDelay;
+    this.recorder = recorder;
+    this.scheduler = scheduler;
+    this.stopDelay = stopDelay;
   }
 
   public void startObserving() {
     cancelCurrentStopRunnable();
     if (!isStillRunning()) {
-      mRecorder.startObserving();
+      recorder.startObserving();
     }
-    mObserving = true;
+    observing = true;
   }
 
   public void reboot() {
-    mRecorder.stopObserving();
-    mRecorder.startObserving();
+    recorder.stopObserving();
+    recorder.startObserving();
   }
 
   private void cancelCurrentStopRunnable() {
-    if (mStopRunnable != null) {
-      mScheduler.unschedule(mStopRunnable);
-      mStopRunnable = null;
+    if (stopRunnable != null) {
+      scheduler.unschedule(stopRunnable);
+      stopRunnable = null;
     }
   }
 
   public void stopObserving() {
-    if (mStopRunnable != null) {
+    if (this.stopRunnable != null) {
       // Already stopping.
       return;
     }
@@ -66,13 +66,13 @@ public class StatefulRecorder {
         new Runnable() {
           @Override
           public void run() {
-            mObserving = false;
+            observing = false;
             maybeStopObserving();
           }
         };
-    if (mScheduler != null && !mStopDelay.isZero()) {
-      mStopRunnable = stopRunnable;
-      mScheduler.schedule(mStopDelay, mStopRunnable);
+    if (scheduler != null && !stopDelay.isZero()) {
+      this.stopRunnable = stopRunnable;
+      scheduler.schedule(stopDelay, this.stopRunnable);
     } else {
       stopRunnable.run();
     }
@@ -80,13 +80,13 @@ public class StatefulRecorder {
 
   /** @param runId id for the run that is starting, to allow out-of-band data saving */
   public void startRecording(String runId) {
-    mRecorder.startRecording(runId);
-    mRecording = true;
+    recorder.startRecording(runId);
+    recording = true;
   }
 
   void stopRecording(Trial trialToUpdate) {
-    mRecorder.stopRecording(trialToUpdate);
-    mRecording = false;
+    recorder.stopRecording(trialToUpdate);
+    recording = false;
     maybeStopObserving();
   }
 
@@ -96,29 +96,29 @@ public class StatefulRecorder {
   // observing OR recording.
   private void maybeStopObserving() {
     if (!isStillRunning()) {
-      mRecorder.stopObserving();
+      recorder.stopObserving();
     }
   }
 
   public boolean isStillRunning() {
-    return mObserving || mRecording;
+    return observing || recording;
   }
 
   public void applyOptions(ReadableSensorOptions settings) {
-    mRecorder.applyOptions(settings);
+    recorder.applyOptions(settings);
   }
 
   public boolean hasRecordedData() {
-    return mRecorder.hasRecordedData() || mForceHasDataForTesting;
+    return recorder.hasRecordedData() || forceHasDataForTesting;
   }
 
   // TODO: Find a better way to fake force add data than this method.
   @VisibleForTesting
   void forceHasDataForTesting(boolean hasDataForTesting) {
-    mForceHasDataForTesting = hasDataForTesting;
+    forceHasDataForTesting = hasDataForTesting;
   }
 
   public boolean isRecording() {
-    return mRecording;
+    return recording;
   }
 }

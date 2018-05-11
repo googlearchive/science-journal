@@ -48,15 +48,15 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   // Enables WIP functionality to show multiple sensor cards.
   private static final boolean ENABLE_MULTIPLE_SENSOR_CARDS = true;
 
-  private List<SensorCardPresenter> mSensorCardPresenters;
-  private int mAvailableSensorCount;
-  private View.OnClickListener mOnAddButtonClickListener;
-  private SensorCardHeaderToggleListener mSensorCardHeaderToggleListener;
-  private CardRemovedListener mCardRemovedListener;
-  private int mSingleCardPresenterHeight;
-  private View mAddView;
-  private Rect mAddRect = new Rect();
-  private boolean mUiIsLocked;
+  private List<SensorCardPresenter> sensorCardPresenters;
+  private int availableSensorCount;
+  private View.OnClickListener onAddButtonClickListener;
+  private SensorCardHeaderToggleListener sensorCardHeaderToggleListener;
+  private CardRemovedListener cardRemovedListener;
+  private int singleCardPresenterHeight;
+  private View addView;
+  private Rect addRect = new Rect();
+  private boolean uiIsLocked;
 
   public static class AddCardViewHolder extends RecyclerView.ViewHolder {
     public ImageButton button;
@@ -74,24 +74,24 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       View.OnClickListener onAddButtonClickListener,
       CardRemovedListener cardRemovedListener,
       SensorCardHeaderToggleListener sensorCardHeaderToggleListener) {
-    mSensorCardPresenters = sensorCardPresenters;
-    mOnAddButtonClickListener = onAddButtonClickListener;
-    mSensorCardHeaderToggleListener = sensorCardHeaderToggleListener;
-    mCardRemovedListener = cardRemovedListener;
+    this.sensorCardPresenters = sensorCardPresenters;
+    this.onAddButtonClickListener = onAddButtonClickListener;
+    this.sensorCardHeaderToggleListener = sensorCardHeaderToggleListener;
+    this.cardRemovedListener = cardRemovedListener;
   }
 
   public List<SensorCardPresenter> getSensorCardPresenters() {
-    return mSensorCardPresenters;
+    return sensorCardPresenters;
   }
 
   public void addSensorCardPresenter(SensorCardPresenter sensorCardPresenter) {
-    int oldSize = mSensorCardPresenters.size();
+    int oldSize = sensorCardPresenters.size();
     // If the size is bigger than 1, then we need to re-enable the close button on the first
     // card.
     if (oldSize == 1) {
-      mSensorCardPresenters.get(0).setIsSingleCard(false);
+      sensorCardPresenters.get(0).setIsSingleCard(false);
     }
-    mSensorCardPresenters.add(sensorCardPresenter);
+    sensorCardPresenters.add(sensorCardPresenter);
     if (oldSize == getMaxSensorCount() - 1) {
       notifyItemChanged(oldSize);
     } else {
@@ -100,9 +100,9 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   }
 
   public void setSingleCardPresenterHeight(int singlePresenterHeight) {
-    mSingleCardPresenterHeight = singlePresenterHeight;
-    int size = mSensorCardPresenters.size();
-    for (SensorCardPresenter sensorCardPresenter : mSensorCardPresenters) {
+    singleCardPresenterHeight = singlePresenterHeight;
+    int size = sensorCardPresenters.size();
+    for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
       sensorCardPresenter.setSingleCardPresenterHeight(singlePresenterHeight);
       if (size == 1) {
         sensorCardPresenter.setIsSingleCard(true);
@@ -114,51 +114,50 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
   public void setRecording(boolean isRecording, long startRecordingTimestamp) {
     setUiLockedForRecording(isRecording);
-    for (SensorCardPresenter sensorCardPresenter : mSensorCardPresenters) {
+    for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
       sensorCardPresenter.setRecording(startRecordingTimestamp);
     }
   }
 
   public void setUiLockedForRecording(boolean uiIsLocked) {
-    if (mUiIsLocked != uiIsLocked) {
-      mUiIsLocked = uiIsLocked;
-      if (mUiIsLocked && getMaxSensorCount() != mSensorCardPresenters.size()) {
+    if (this.uiIsLocked != uiIsLocked) {
+      this.uiIsLocked = uiIsLocked;
+      if (this.uiIsLocked && getMaxSensorCount() != sensorCardPresenters.size()) {
         // Hide the add button and tell the presenters to lock their UIs for recording.
-        notifyItemRemoved(mSensorCardPresenters.size());
+        notifyItemRemoved(sensorCardPresenters.size());
       } else {
-        notifyItemInserted(mSensorCardPresenters.size());
+        notifyItemInserted(sensorCardPresenters.size());
       }
     }
     if (uiIsLocked) {
-      for (SensorCardPresenter presenter : mSensorCardPresenters) {
+      for (SensorCardPresenter presenter : sensorCardPresenters) {
         presenter.lockUiForRecording();
       }
     }
   }
 
   public void setAvailableSensorCount(int sensorCount) {
-    if (mAvailableSensorCount == mSensorCardPresenters.size()
-        && sensorCount > getMaxSensorCount()) {
+    if (availableSensorCount == sensorCardPresenters.size() && sensorCount > getMaxSensorCount()) {
       // Notify if we've added the "add sensor card" button back in.
       notifyItemInserted(getMaxSensorCount());
     }
-    mAvailableSensorCount = sensorCount;
+    availableSensorCount = sensorCount;
   }
 
   public void onPause() {
-    for (SensorCardPresenter sensorCardPresenter : mSensorCardPresenters) {
+    for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
       sensorCardPresenter.onPause();
     }
   }
 
   public void onResume(long resetTime) {
-    for (SensorCardPresenter sensorCardPresenter : mSensorCardPresenters) {
+    for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
       sensorCardPresenter.onResume(resetTime);
     }
   }
 
   public void onDestroy() {
-    for (SensorCardPresenter sensorCardPresenter : mSensorCardPresenters) {
+    for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
       sensorCardPresenter.destroy();
     }
   }
@@ -187,10 +186,10 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
           R.string.btn_sensor_card_expand, R.string.btn_sensor_card_contract);
       return cardViewHolder;
     } else if (viewType == TYPE_SENSOR_ADD) {
-      mAddView =
+      addView =
           LayoutInflater.from(parent.getContext())
               .inflate(R.layout.add_sensor_card_button, parent, false);
-      return new SensorCardAdapter.AddCardViewHolder(mAddView);
+      return new SensorCardAdapter.AddCardViewHolder(addView);
     } else {
       return null;
     }
@@ -203,28 +202,28 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     // - replace the contents of the view with that element.
     if (getItemViewType(position) == TYPE_SENSOR_CARD) {
       final CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
-      final SensorCardPresenter sensorCardPresenter = mSensorCardPresenters.get(position);
-      sensorCardPresenter.setSingleCardPresenterHeight(mSingleCardPresenterHeight);
+      final SensorCardPresenter sensorCardPresenter = sensorCardPresenters.get(position);
+      sensorCardPresenter.setSingleCardPresenterHeight(singleCardPresenterHeight);
       sensorCardPresenter.setViews(
           cardViewHolder,
           new SensorCardPresenter.OnCloseClickedListener() {
             @Override
             public void onCloseClicked() {
-              if (mSensorCardPresenters.size() < 2) {
+              if (sensorCardPresenters.size() < 2) {
                 return;
               }
-              int index = mSensorCardPresenters.indexOf(sensorCardPresenter);
-              mSensorCardPresenters.remove(sensorCardPresenter);
-              mCardRemovedListener.onCardRemoved(sensorCardPresenter);
+              int index = sensorCardPresenters.indexOf(sensorCardPresenter);
+              sensorCardPresenters.remove(sensorCardPresenter);
+              cardRemovedListener.onCardRemoved(sensorCardPresenter);
               sensorCardPresenter.destroy();
               // If only one card is left, disable the 'close' button.
-              if (mSensorCardPresenters.size() == 1) {
-                mSensorCardPresenters.get(0).setIsSingleCard(true);
+              if (sensorCardPresenters.size() == 1) {
+                sensorCardPresenters.get(0).setIsSingleCard(true);
               }
               notifyItemRemoved(index);
             }
           });
-      if (!ENABLE_MULTIPLE_SENSOR_CARDS || mSensorCardPresenters.size() == 1) {
+      if (!ENABLE_MULTIPLE_SENSOR_CARDS || sensorCardPresenters.size() == 1) {
         sensorCardPresenter.setIsSingleCard(true);
       } else {
         sensorCardPresenter.setIsSingleCard(false);
@@ -233,15 +232,15 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
           new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              mSensorCardHeaderToggleListener.onToggleSensorHeader(sensorCardPresenter);
+              sensorCardHeaderToggleListener.onToggleSensorHeader(sensorCardPresenter);
             }
           };
       cardViewHolder.header.setOnClickListener(onToggleClickListener);
       cardViewHolder.toggleButton.setOnClickListener(onToggleClickListener);
     } else if (getItemViewType(position) == TYPE_SENSOR_ADD) {
       AddCardViewHolder addCardViewHolder = (AddCardViewHolder) viewHolder;
-      addCardViewHolder.button.setOnClickListener(mOnAddButtonClickListener);
-      mAddView = addCardViewHolder.itemView;
+      addCardViewHolder.button.setOnClickListener(onAddButtonClickListener);
+      addView = addCardViewHolder.itemView;
     }
   }
 
@@ -249,19 +248,19 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   public void onViewRecycled(RecyclerView.ViewHolder viewHolder) {
     int position = viewHolder.getAdapterPosition();
     if (viewHolder instanceof CardViewHolder && position != RecyclerView.NO_POSITION) {
-      mSensorCardPresenters.get(position).onViewRecycled();
+      sensorCardPresenters.get(position).onViewRecycled();
       CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
       cardViewHolder.header.setOnClickListener(null);
     } else if (getItemViewType(position) == TYPE_SENSOR_ADD) {
-      mAddView = null;
+      addView = null;
     }
     super.onViewRecycled(viewHolder);
   }
 
   @Override
   public int getItemCount() {
-    int size = mSensorCardPresenters.size();
-    if (ENABLE_MULTIPLE_SENSOR_CARDS && !mUiIsLocked && getMaxSensorCount() > size) {
+    int size = sensorCardPresenters.size();
+    if (ENABLE_MULTIPLE_SENSOR_CARDS && !uiIsLocked && getMaxSensorCount() > size) {
       return size + 1;
     } else {
       return size;
@@ -271,7 +270,7 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   @Override
   public int getItemViewType(int position) {
     // Return the add button view type for the final element.
-    if (position == mSensorCardPresenters.size()) {
+    if (position == sensorCardPresenters.size()) {
       return TYPE_SENSOR_ADD;
     }
     return TYPE_SENSOR_CARD;
@@ -279,11 +278,11 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
   // Don't allow more than MAX_SENSOR_COUNT sensors to be added even if more are available.
   private int getMaxSensorCount() {
-    return Math.min(MAX_SENSOR_COUNT, mAvailableSensorCount);
+    return Math.min(MAX_SENSOR_COUNT, availableSensorCount);
   }
 
   public boolean canAddMoreCards() {
-    return getSensorCardPresenters().size() < getMaxSensorCount() && !mUiIsLocked;
+    return getSensorCardPresenters().size() < getMaxSensorCount() && !uiIsLocked;
   }
 
   /**
@@ -292,30 +291,30 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
    * and moves above the panel.
    */
   public void adjustAddViewAlpha(Rect panelRect) {
-    if (mAddView != null) {
-      mAddView.getHitRect(mAddRect);
-      int difference = panelRect.top - mAddRect.top;
+    if (addView != null) {
+      addView.getHitRect(addRect);
+      int difference = panelRect.top - addRect.top;
       boolean setAlpha = false;
       if (difference < 0) {
-        mAddView.setAlpha(0.0f);
+        addView.setAlpha(0.0f);
       } else {
-        mAddView.setAlpha(Math.min(((float) difference) / mAddRect.height(), 1.0f));
+        addView.setAlpha(Math.min(((float) difference) / addRect.height(), 1.0f));
       }
     }
   }
 
   /** Gets the array of color indexes from the sensor card presenters, in order. */
   public int[] getUsedColors() {
-    int[] colors = new int[mSensorCardPresenters.size()];
-    for (int index = 0, size = mSensorCardPresenters.size(); index < size; index++) {
-      colors[index] = mSensorCardPresenters.get(index).getColorIndex();
+    int[] colors = new int[sensorCardPresenters.size()];
+    for (int index = 0, size = sensorCardPresenters.size(); index < size; index++) {
+      colors[index] = sensorCardPresenters.get(index).getColorIndex();
     }
     return colors;
   }
 
   public List<String> getSelectedSensorIds() {
     List<String> sensorIds = new ArrayList<>();
-    for (SensorCardPresenter presenter : mSensorCardPresenters) {
+    for (SensorCardPresenter presenter : sensorCardPresenters) {
       sensorIds.add(presenter.getSelectedSensorId());
     }
     return sensorIds;
@@ -323,9 +322,9 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
   /** Gets the sensor card presenter sensor IDs. */
   public String[] getSensorTags() {
-    String[] tags = new String[mSensorCardPresenters.size()];
-    for (int index = 0, size = mSensorCardPresenters.size(); index < size; index++) {
-      tags[index] = mSensorCardPresenters.get(index).getSelectedSensorId();
+    String[] tags = new String[sensorCardPresenters.size()];
+    for (int index = 0, size = sensorCardPresenters.size(); index < size; index++) {
+      tags[index] = sensorCardPresenters.get(index).getSelectedSensorId();
     }
     return tags;
   }

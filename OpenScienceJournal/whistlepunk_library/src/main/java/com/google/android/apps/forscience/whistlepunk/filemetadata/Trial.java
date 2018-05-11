@@ -61,9 +61,9 @@ public class Trial extends LabelListHolder {
     void beforeDeletingPictureLabel(Label label);
   }
 
-  private GoosciTrial.Trial mTrial;
-  private Map<String, TrialStats> mTrialStats;
-  private OnLabelChangeListener mOnLabelChangeListener;
+  private GoosciTrial.Trial trial;
+  private Map<String, TrialStats> trialStats;
+  private OnLabelChangeListener onLabelChangeListener;
 
   /** Populates the Trial from an existing proto. */
   public static Trial fromTrial(GoosciTrial.Trial trial) {
@@ -73,7 +73,7 @@ public class Trial extends LabelListHolder {
   /** Populates the Trial from an existing proto, but changes the TrialId. */
   public static Trial fromTrialWithNewId(GoosciTrial.Trial trial) {
     Trial t = new Trial(trial);
-    t.mTrial.trialId = java.util.UUID.randomUUID().toString();
+    t.trial.trialId = java.util.UUID.randomUUID().toString();
     return t;
   }
 
@@ -88,11 +88,11 @@ public class Trial extends LabelListHolder {
   }
 
   private Trial(GoosciTrial.Trial trial) {
-    mTrial = trial;
-    mTrialStats = TrialStats.fromTrial(mTrial);
-    mLabels = new ArrayList<>();
-    for (GoosciLabel.Label proto : mTrial.labels) {
-      mLabels.add(Label.fromLabel(proto));
+    this.trial = trial;
+    trialStats = TrialStats.fromTrial(this.trial);
+    labels = new ArrayList<>();
+    for (GoosciLabel.Label proto : this.trial.labels) {
+      labels.add(Label.fromLabel(proto));
     }
   }
 
@@ -104,14 +104,14 @@ public class Trial extends LabelListHolder {
       String trialId,
       SensorAppearanceProvider provider,
       Context context) {
-    mTrial = new GoosciTrial.Trial();
-    mTrial.creationTimeMs = startTimeMs;
-    mTrial.recordingRange = new GoosciTrial.Range();
-    mTrial.recordingRange.startMs = startTimeMs;
-    mTrial.sensorLayouts = sensorLayouts;
-    mTrial.trialId = trialId;
+    trial = new GoosciTrial.Trial();
+    trial.creationTimeMs = startTimeMs;
+    trial.recordingRange = new GoosciTrial.Range();
+    trial.recordingRange.startMs = startTimeMs;
+    trial.sensorLayouts = sensorLayouts;
+    trial.trialId = trialId;
 
-    mTrial.sensorAppearances = new GoosciTrial.Trial.AppearanceEntry[sensorLayouts.length];
+    trial.sensorAppearances = new GoosciTrial.Trial.AppearanceEntry[sensorLayouts.length];
     for (int i = 0; i < sensorLayouts.length; i++) {
       GoosciTrial.Trial.AppearanceEntry entry = new GoosciTrial.Trial.AppearanceEntry();
       GoosciSensorLayout.SensorLayout layout = sensorLayouts[i];
@@ -119,15 +119,15 @@ public class Trial extends LabelListHolder {
       entry.rememberedAppearance =
           SensorAppearanceProviderImpl.appearanceToProto(
               provider.getAppearance(layout.sensorId), context);
-      mTrial.sensorAppearances[i] = entry;
+      trial.sensorAppearances[i] = entry;
     }
 
-    mLabels = new ArrayList<>();
-    mTrialStats = new HashMap<>();
+    labels = new ArrayList<>();
+    trialStats = new HashMap<>();
   }
 
   public GoosciPictureLabelValue.PictureLabelValue getCoverPictureLabelValue() {
-    for (Label label : mLabels) {
+    for (Label label : labels) {
       if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
         return label.getPictureLabelValue();
       }
@@ -136,44 +136,44 @@ public class Trial extends LabelListHolder {
   }
 
   public long getCreationTimeMs() {
-    return mTrial.creationTimeMs;
+    return trial.creationTimeMs;
   }
 
   public long getFirstTimestamp() {
-    return mTrial.cropRange == null ? mTrial.recordingRange.startMs : mTrial.cropRange.startMs;
+    return trial.cropRange == null ? trial.recordingRange.startMs : trial.cropRange.startMs;
   }
 
   public long getLastTimestamp() {
-    return mTrial.cropRange == null ? mTrial.recordingRange.endMs : mTrial.cropRange.endMs;
+    return trial.cropRange == null ? trial.recordingRange.endMs : trial.cropRange.endMs;
   }
 
   public long getOriginalFirstTimestamp() {
-    return mTrial.recordingRange.startMs;
+    return trial.recordingRange.startMs;
   }
 
   public long getOriginalLastTimestamp() {
-    return mTrial.recordingRange.endMs;
+    return trial.recordingRange.endMs;
   }
 
   public void setRecordingEndTime(long recordingEndTime) {
-    mTrial.recordingRange.endMs = recordingEndTime;
+    trial.recordingRange.endMs = recordingEndTime;
   }
 
   public GoosciTrial.Range getOriginalRecordingRange() {
-    return mTrial.recordingRange;
+    return trial.recordingRange;
   }
 
   public GoosciTrial.Range getCropRange() {
-    return mTrial.cropRange;
+    return trial.cropRange;
   }
 
   public void setCropRange(GoosciTrial.Range cropRange) {
-    mTrial.cropRange = cropRange;
+    trial.cropRange = cropRange;
   }
 
   public List<String> getSensorIds() {
     List<String> result = new ArrayList<>();
-    for (GoosciSensorLayout.SensorLayout layout : mTrial.sensorLayouts) {
+    for (GoosciSensorLayout.SensorLayout layout : trial.sensorLayouts) {
       result.add(layout.sensorId);
     }
     return result;
@@ -199,62 +199,62 @@ public class Trial extends LabelListHolder {
   }
 
   public String getTitle(Context context) {
-    if (TextUtils.isEmpty(mTrial.title)) {
-      return context.getString(R.string.default_trial_title, mTrial.trialNumberInExperiment);
+    if (TextUtils.isEmpty(trial.title)) {
+      return context.getString(R.string.default_trial_title, trial.trialNumberInExperiment);
     } else {
-      return mTrial.title;
+      return trial.title;
     }
   }
 
   public String getRawTitle() {
-    return mTrial.title;
+    return trial.title;
   }
 
   public void setTitle(String title) {
-    mTrial.title = title;
+    trial.title = title;
   }
 
   public boolean isArchived() {
-    return mTrial.archived;
+    return trial.archived;
   }
 
   public void setArchived(boolean isArchived) {
-    mTrial.archived = isArchived;
+    trial.archived = isArchived;
   }
 
   public GoosciTrial.Trial getTrialProto() {
     updateTrialProtoWithStats();
     updateTrialProtoWithLabels();
-    return mTrial;
+    return trial;
   }
 
   public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
-    return new ArrayList(Arrays.asList(mTrial.sensorLayouts));
+    return new ArrayList(Arrays.asList(trial.sensorLayouts));
   }
 
   @VisibleForTesting
   public void setSensorLayouts(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
     Preconditions.checkNotNull(sensorLayouts);
-    mTrial.sensorLayouts =
+    trial.sensorLayouts =
         sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
   }
 
   public boolean getAutoZoomEnabled() {
-    return mTrial.autoZoomEnabled;
+    return trial.autoZoomEnabled;
   }
 
   public void setAutoZoomEnabled(boolean enableAutoZoom) {
-    mTrial.autoZoomEnabled = enableAutoZoom;
+    trial.autoZoomEnabled = enableAutoZoom;
   }
 
   /** Gets a list of the stats for all sensors. */
   public List<TrialStats> getStats() {
-    return new ArrayList<>(mTrialStats.values());
+    return new ArrayList<>(trialStats.values());
   }
 
   /** Gets the stats for a sensor. */
   public TrialStats getStatsForSensor(String sensorId) {
-    return mTrialStats.get(sensorId);
+    return trialStats.get(sensorId);
   }
 
   /**
@@ -263,23 +263,23 @@ public class Trial extends LabelListHolder {
    * @param newTrialStats The new stats to save.
    */
   public void setStats(TrialStats newTrialStats) {
-    mTrialStats.put(newTrialStats.getSensorId(), newTrialStats);
+    trialStats.put(newTrialStats.getSensorId(), newTrialStats);
   }
 
   // The Trial ID cannot be set after it is created.
   public String getTrialId() {
-    return mTrial.trialId;
+    return trial.trialId;
   }
 
   public String getCaptionText() {
-    if (mTrial.caption == null) {
+    if (trial.caption == null) {
       return "";
     }
-    return mTrial.caption.text;
+    return trial.caption.text;
   }
 
   public void setCaption(GoosciCaption.Caption caption) {
-    mTrial.caption = caption;
+    trial.caption = caption;
   }
 
   /**
@@ -287,7 +287,7 @@ public class Trial extends LabelListHolder {
    * data, etc.
    */
   public void deleteContents(Context context, String experimentId) {
-    for (Label label : mLabels) {
+    for (Label label : labels) {
       deleteLabelAssets(label, context, experimentId);
     }
     AppSingleton.getInstance(context)
@@ -308,37 +308,37 @@ public class Trial extends LabelListHolder {
   }
 
   private void updateTrialProtoWithStats() {
-    GoosciTrial.SensorTrialStats[] result = new GoosciTrial.SensorTrialStats[mTrialStats.size()];
+    GoosciTrial.SensorTrialStats[] result = new GoosciTrial.SensorTrialStats[trialStats.size()];
     int i = 0;
-    for (String key : mTrialStats.keySet()) {
-      result[i++] = mTrialStats.get(key).getSensorTrialStatsProto();
+    for (String key : trialStats.keySet()) {
+      result[i++] = trialStats.get(key).getSensorTrialStatsProto();
     }
-    mTrial.trialStats = result;
+    trial.trialStats = result;
   }
 
   private void updateTrialProtoWithLabels() {
-    GoosciLabel.Label[] result = new GoosciLabel.Label[mLabels.size()];
-    for (int i = 0; i < mLabels.size(); i++) {
-      result[i] = mLabels.get(i).getLabelProto();
+    GoosciLabel.Label[] result = new GoosciLabel.Label[labels.size()];
+    for (int i = 0; i < labels.size(); i++) {
+      result[i] = labels.get(i).getLabelProto();
     }
-    mTrial.labels = result;
+    trial.labels = result;
   }
 
   public void setOnLabelChangeListener(OnLabelChangeListener listener) {
-    mOnLabelChangeListener = listener;
+    onLabelChangeListener = listener;
   }
 
   @Override
   protected void onPictureLabelAdded(Label label) {
-    if (mOnLabelChangeListener != null) {
-      mOnLabelChangeListener.onPictureLabelAdded(label);
+    if (onLabelChangeListener != null) {
+      onLabelChangeListener.onPictureLabelAdded(label);
     }
   }
 
   @Override
   protected void beforeDeletingPictureLabel(Label label) {
-    if (mOnLabelChangeListener != null) {
-      mOnLabelChangeListener.beforeDeletingPictureLabel(label);
+    if (onLabelChangeListener != null) {
+      onLabelChangeListener.beforeDeletingPictureLabel(label);
     }
   }
 
@@ -349,7 +349,7 @@ public class Trial extends LabelListHolder {
   public Map<String, GoosciSensorAppearance.BasicSensorAppearance> getAppearances() {
     // TODO: need a putAppearance method for changes
     HashMap<String, GoosciSensorAppearance.BasicSensorAppearance> appearances = new HashMap<>();
-    for (GoosciTrial.Trial.AppearanceEntry entry : mTrial.sensorAppearances) {
+    for (GoosciTrial.Trial.AppearanceEntry entry : trial.sensorAppearances) {
       appearances.put(entry.sensorId, entry.rememberedAppearance);
     }
     return appearances;
@@ -357,15 +357,15 @@ public class Trial extends LabelListHolder {
 
   @Override
   public String toString() {
-    return "Trial{" + "mTrial=" + mTrial + ", mTrialStats=" + mTrialStats + '}';
+    return "Trial{" + "mTrial=" + trial + ", mTrialStats=" + trialStats + '}';
   }
 
   public void setTrialNumberInExperiment(int trialNumberInExperiment) {
-    mTrial.trialNumberInExperiment = trialNumberInExperiment;
+    trial.trialNumberInExperiment = trialNumberInExperiment;
   }
 
   public int getTrialNumberInExperiment() {
-    return mTrial.trialNumberInExperiment;
+    return trial.trialNumberInExperiment;
   }
 
   @Override

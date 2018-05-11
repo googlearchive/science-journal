@@ -32,8 +32,8 @@ public interface SensorObserver {
   void onNewData(long timestamp, Data data);
 
   class Data {
-    private double mValue;
-    private boolean mHasValidValue;
+    private double value;
+    private boolean hasValidValue;
 
     // stats
     public double min;
@@ -41,26 +41,26 @@ public interface SensorObserver {
     public double average;
 
     public void clear() {
-      mHasValidValue = false;
+      hasValidValue = false;
     }
 
     public boolean hasValidValue() {
-      return mHasValidValue;
+      return hasValidValue;
     }
 
     public void setValue(double newValue) {
-      mValue = newValue;
-      mHasValidValue = true;
+      value = newValue;
+      hasValidValue = true;
     }
 
     public double getValue() {
-      return mValue;
+      return value;
     }
 
     public Bundle asBundle() {
       // TODO: test, and optimize
       Bundle bundle = new Bundle();
-      bundle.putDouble(ScalarSensor.BUNDLE_KEY_SENSOR_VALUE, mValue);
+      bundle.putDouble(ScalarSensor.BUNDLE_KEY_SENSOR_VALUE, value);
       bundle.putDouble(StatsAccumulator.KEY_MAX, max);
       bundle.putDouble(StatsAccumulator.KEY_MIN, min);
       bundle.putDouble(StatsAccumulator.KEY_AVERAGE, average);

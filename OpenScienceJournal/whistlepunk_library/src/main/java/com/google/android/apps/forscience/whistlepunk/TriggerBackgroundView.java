@@ -46,20 +46,20 @@ public class TriggerBackgroundView extends View {
     void onAnimationEnd();
   }
 
-  private TriggerAnimationListener mAnimationListener;
+  private TriggerAnimationListener animationListener;
 
-  private int mWidth;
-  private int mHeight;
-  private int mStartCenterX;
-  private int mRadiusToUsePath;
-  private Paint mTriggerPaint;
-  private Paint mBackgroundPaint;
-  private RectF mTriggerOutline;
-  private Path mTriggerPath;
+  private int width;
+  private int height;
+  private int startCenterX;
+  private int radiusToUsePath;
+  private Paint triggerPaint;
+  private Paint backgroundPaint;
+  private RectF triggerOutline;
+  private Path triggerPath;
 
-  private long mLastFiredTimestamp = NO_TRIGGER_FIRING;
-  private long mAnimationStateStartTimestamp = NO_TRIGGER_FIRING;
-  private int mAnimationState;
+  private long lastFiredTimestamp = NO_TRIGGER_FIRING;
+  private long animationStateStartTimestamp = NO_TRIGGER_FIRING;
+  private int animationState;
 
   private boolean isLtrLayout;
 
@@ -89,16 +89,16 @@ public class TriggerBackgroundView extends View {
     int backgroundColor = getResources().getColor(R.color.text_color_dark_grey);
     int triggerColor = getResources().getColor(R.color.trigger_fire_color);
 
-    mTriggerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    mTriggerPaint.setColor(triggerColor);
-    mTriggerPaint.setStyle(Paint.Style.FILL);
+    triggerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    triggerPaint.setColor(triggerColor);
+    triggerPaint.setStyle(Paint.Style.FILL);
 
-    mBackgroundPaint = new Paint();
-    mBackgroundPaint.setColor(backgroundColor);
-    mBackgroundPaint.setStyle(Paint.Style.FILL);
+    backgroundPaint = new Paint();
+    backgroundPaint.setColor(backgroundColor);
+    backgroundPaint.setStyle(Paint.Style.FILL);
 
-    mTriggerOutline = new RectF();
-    mTriggerPath = new Path();
+    triggerOutline = new RectF();
+    triggerPath = new Path();
 
     isLtrLayout =
         getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_LTR;
@@ -107,27 +107,27 @@ public class TriggerBackgroundView extends View {
   @Override
   public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    mWidth = getMeasuredWidth();
-    mHeight = getMeasuredHeight();
+    width = getMeasuredWidth();
+    height = getMeasuredHeight();
     int centerX =
         getResources().getDimensionPixelSize(R.dimen.accessibility_touch_target_min_size) / 2;
-    mStartCenterX = isLtrLayout ? centerX : mWidth - centerX;
+    startCenterX = isLtrLayout ? centerX : width - centerX;
 
     // When the radius reaches this size, the circle will touch or extend past the
     // top left and lower left corners. At this point, we should start using a path
     // to draw the trigger color.
-    mRadiusToUsePath = (int) Math.sqrt(mHeight * mHeight + mStartCenterX * mStartCenterX);
+    radiusToUsePath = (int) Math.sqrt(height * height + startCenterX * startCenterX);
   }
 
   public void setAnimationListener(TriggerAnimationListener animationListener) {
-    mAnimationListener = animationListener;
+    this.animationListener = animationListener;
   }
 
   public void onTriggerFired() {
-    if (mLastFiredTimestamp == NO_TRIGGER_FIRING) {
-      mAnimationListener.onAnimationStart();
+    if (lastFiredTimestamp == NO_TRIGGER_FIRING) {
+      animationListener.onAnimationStart();
     }
-    mLastFiredTimestamp = System.currentTimeMillis();
+    lastFiredTimestamp = System.currentTimeMillis();
     updateAnimationStateOnTriggerFired();
     postInvalidateOnAnimation();
   }
@@ -135,27 +135,27 @@ public class TriggerBackgroundView extends View {
   // When a trigger fires, it may update the animation state. Update vars tracking where we are
   // in the animation progress.
   private void updateAnimationStateOnTriggerFired() {
-    if (mAnimationState == STATE_NOT_FIRING) {
-      mAnimationState = STATE_INCREASING;
-      mAnimationStateStartTimestamp = mLastFiredTimestamp;
-    } else if (mAnimationState == STATE_INCREASING) {
+    if (animationState == STATE_NOT_FIRING) {
+      animationState = STATE_INCREASING;
+      animationStateStartTimestamp = lastFiredTimestamp;
+    } else if (animationState == STATE_INCREASING) {
       // Do nothing - we don't interrupt an increase
-    } else if (mAnimationState == STATE_STEADY) {
-      mAnimationStateStartTimestamp = mLastFiredTimestamp;
-    } else if (mAnimationState == STATE_DECREASING) {
-      mAnimationState = STATE_INCREASING;
+    } else if (animationState == STATE_STEADY) {
+      animationStateStartTimestamp = lastFiredTimestamp;
+    } else if (animationState == STATE_DECREASING) {
+      animationState = STATE_INCREASING;
       // Calculate the "state start timestamp" based on the amount of decrease
       // we have already experienced.
       long now = System.currentTimeMillis();
 
       // How many millis have we already progressed through the phase
-      long currentProgress = ANIMATION_PHASE_DURATION - (now - mAnimationStateStartTimestamp);
+      long currentProgress = ANIMATION_PHASE_DURATION - (now - animationStateStartTimestamp);
 
       // To increase from the same point, just reverse.
       long newProgressInPhaseIncreaing = ANIMATION_PHASE_DURATION - currentProgress;
 
       // And that gives us our new increase state start timestamp.
-      mAnimationStateStartTimestamp = now - newProgressInPhaseIncreaing;
+      animationStateStartTimestamp = now - newProgressInPhaseIncreaing;
     }
   }
 
@@ -163,25 +163,25 @@ public class TriggerBackgroundView extends View {
   // to enter a new state.
   private void updateAnimationStateOnClockTick() {
     long now = System.currentTimeMillis();
-    if (now - mAnimationStateStartTimestamp > ANIMATION_PHASE_DURATION) {
-      mAnimationStateStartTimestamp = now;
-      mAnimationState = (mAnimationState + 1) % 4;
+    if (now - animationStateStartTimestamp > ANIMATION_PHASE_DURATION) {
+      animationStateStartTimestamp = now;
+      animationState = (animationState + 1) % 4;
     }
   }
 
   // Calculates the fraction which the trigger bar should be filled.
   private double calculateFractionFull() {
-    if (mAnimationState == STATE_STEADY) {
+    if (animationState == STATE_STEADY) {
       return 1.0;
     }
 
     long now = System.currentTimeMillis();
     // Based on when this animation state "started".
-    long diff = now - mAnimationStateStartTimestamp;
+    long diff = now - animationStateStartTimestamp;
     double result = 0;
-    if (mAnimationState == STATE_INCREASING) {
+    if (animationState == STATE_INCREASING) {
       result = (float) diff / (float) ANIMATION_PHASE_DURATION;
-    } else if (mAnimationState == STATE_DECREASING) {
+    } else if (animationState == STATE_DECREASING) {
       result = (float) (ANIMATION_PHASE_DURATION - diff) / (float) ANIMATION_PHASE_DURATION;
     }
     // Pass the result through an interpolator, in this case a simple square root, to get
@@ -192,53 +192,50 @@ public class TriggerBackgroundView extends View {
 
   @Override
   public void onDraw(Canvas canvas) {
-    canvas.drawRect(0, 0, mWidth, mHeight, mBackgroundPaint);
-    if (mLastFiredTimestamp != NO_TRIGGER_FIRING) {
+    canvas.drawRect(0, 0, width, height, backgroundPaint);
+    if (lastFiredTimestamp != NO_TRIGGER_FIRING) {
       updateAnimationStateOnClockTick();
 
       // End the animation process
-      if (mAnimationState == STATE_NOT_FIRING) {
-        mLastFiredTimestamp = NO_TRIGGER_FIRING;
-        mAnimationListener.onAnimationEnd();
+      if (animationState == STATE_NOT_FIRING) {
+        lastFiredTimestamp = NO_TRIGGER_FIRING;
+        animationListener.onAnimationEnd();
       }
 
       double fractionFull = calculateFractionFull();
       if (fractionFull >= 1.0) {
-        canvas.drawRect(0, 0, mWidth, mHeight, mTriggerPaint);
+        canvas.drawRect(0, 0, width, height, triggerPaint);
       } else {
-        double radius = (mWidth * fractionFull);
+        double radius = (width * fractionFull);
         int radInt = (int) radius;
-        mTriggerOutline.set(
-            mStartCenterX - radInt,
-            mHeight / 2 - radInt,
-            mStartCenterX + radInt,
-            mHeight / 2 + radInt);
+        triggerOutline.set(
+            startCenterX - radInt, height / 2 - radInt, startCenterX + radInt, height / 2 + radInt);
         // For large radiuses, define a path instead of drawing the whole oval, otherwise
         // the path can get too large to render.
-        if (radInt > mRadiusToUsePath) {
+        if (radInt > radiusToUsePath) {
           // Calculate the angle between the horizontal and where the arc intersects the
           // trigger box.
-          float angle = (float) Math.toDegrees(Math.asin(mHeight / 2 / radius));
+          float angle = (float) Math.toDegrees(Math.asin(height / 2 / radius));
 
-          mTriggerPath.reset();
+          triggerPath.reset();
           if (isLtrLayout) {
-            mTriggerPath.moveTo(0, 0);
+            triggerPath.moveTo(0, 0);
             // arcTo automatically creates a lineTo the start of the arc, so we don't
             // actually need to do as much math!
-            mTriggerPath.arcTo(mTriggerOutline, -angle, 2 * angle);
-            mTriggerPath.lineTo(0, mHeight);
-            mTriggerPath.lineTo(0, 0);
+            triggerPath.arcTo(triggerOutline, -angle, 2 * angle);
+            triggerPath.lineTo(0, height);
+            triggerPath.lineTo(0, 0);
           } else {
-            mTriggerPath.moveTo(mWidth, 0);
-            mTriggerPath.lineTo(mWidth, mHeight);
+            triggerPath.moveTo(width, 0);
+            triggerPath.lineTo(width, height);
             // arcTo automatically creates a lineTo the start of the arc, so we don't
             // actually need to do as much math!
-            mTriggerPath.arcTo(mTriggerOutline, 180 - angle, 2 * angle);
-            mTriggerPath.lineTo(mWidth, 0);
+            triggerPath.arcTo(triggerOutline, 180 - angle, 2 * angle);
+            triggerPath.lineTo(width, 0);
           }
-          canvas.drawPath(mTriggerPath, mTriggerPaint);
+          canvas.drawPath(triggerPath, triggerPaint);
         } else {
-          canvas.drawOval(mTriggerOutline, mTriggerPaint);
+          canvas.drawOval(triggerOutline, triggerPaint);
         }
       }
       postInvalidateOnAnimation();

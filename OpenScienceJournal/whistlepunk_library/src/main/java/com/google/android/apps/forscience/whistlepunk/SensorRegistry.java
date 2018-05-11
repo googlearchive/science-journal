@@ -85,13 +85,13 @@ public class SensorRegistry {
   }
 
   /** Remember insertion order in order to display sensors in order added. */
-  private Map<String, SensorRegistryItem> mSensorRegistry = new LinkedHashMap<>();
+  private Map<String, SensorRegistryItem> sensorRegistry = new LinkedHashMap<>();
 
   /** Which ids that would otherwise be available has the user explicitly excluded? */
-  private Set<String> mExcludedIds = new ArraySet<>();
+  private Set<String> excludedIds = new ArraySet<>();
 
   // sensorId -> (tag, op)
-  private Multimap<String, Pair<String, Consumer<SensorChoice>>> mWaitingSensorChoiceOperations =
+  private Multimap<String, Pair<String, Consumer<SensorChoice>>> waitingSensorChoiceOperations =
       HashMultimap.create();
 
   public static SensorRegistry createWithBuiltinSensors(final Context context) {
@@ -106,7 +106,7 @@ public class SensorRegistry {
   }
 
   private void removeBuiltInSensors() {
-    Iterator<SensorRegistryItem> iter = mSensorRegistry.values().iterator();
+    Iterator<SensorRegistryItem> iter = sensorRegistry.values().iterator();
     while (iter.hasNext()) {
       SensorRegistryItem item = iter.next();
       if (Objects.equals(WP_HARDWARE_PROVIDER_ID, item.providerId)) {
@@ -133,11 +133,11 @@ public class SensorRegistry {
    * of the RecordFragment setup.
    */
   public void withSensorChoice(String tag, String sensorId, Consumer<SensorChoice> consumer) {
-    SensorRegistryItem item = mSensorRegistry.get(sensorId);
+    SensorRegistryItem item = sensorRegistry.get(sensorId);
     if (item != null) {
       consumer.take(item.choice);
     } else {
-      mWaitingSensorChoiceOperations.put(sensorId, Pair.create(tag, consumer));
+      waitingSensorChoiceOperations.put(sensorId, Pair.create(tag, consumer));
     }
   }
 
@@ -151,20 +151,20 @@ public class SensorRegistry {
   private void addSource(SensorRegistryItem item) {
     // TODO: enable per-sensor defaults (b/28036680)
     String id = item.choice.getId();
-    mSensorRegistry.put(id, item);
-    for (Pair<String, Consumer<SensorChoice>> c : mWaitingSensorChoiceOperations.get(id)) {
+    sensorRegistry.put(id, item);
+    for (Pair<String, Consumer<SensorChoice>> c : waitingSensorChoiceOperations.get(id)) {
       c.second.take(item.choice);
     }
-    mWaitingSensorChoiceOperations.removeAll(id);
+    waitingSensorChoiceOperations.removeAll(id);
   }
 
   public List<String> getAllSources() {
-    return Lists.newArrayList(mSensorRegistry.keySet());
+    return Lists.newArrayList(sensorRegistry.keySet());
   }
 
   private Set<String> getAllExternalSources() {
     Set<String> externalSourceIds = new HashSet<String>();
-    for (Map.Entry<String, SensorRegistryItem> entry : mSensorRegistry.entrySet()) {
+    for (Map.Entry<String, SensorRegistryItem> entry : sensorRegistry.entrySet()) {
       if (!Objects.equals(entry.getValue().providerId, WP_HARDWARE_PROVIDER_ID)) {
         externalSourceIds.add(entry.getKey());
       }
@@ -175,7 +175,7 @@ public class SensorRegistry {
   public List<String> getBuiltInSources() {
     // TODO: is this going to be returned in the right order?
     List<String> ids = new ArrayList<>();
-    for (Map.Entry<String, SensorRegistryItem> entry : mSensorRegistry.entrySet()) {
+    for (Map.Entry<String, SensorRegistryItem> entry : sensorRegistry.entrySet()) {
       if (Objects.equals(entry.getValue().providerId, WP_HARDWARE_PROVIDER_ID)) {
         ids.add(entry.getKey());
       }
@@ -273,15 +273,15 @@ public class SensorRegistry {
     // Remove known sensors that no longer exist
     Set<String> removedExternalSensors = previousExternalSources;
     for (String externalSensorId : removedExternalSensors) {
-      mSensorRegistry.remove(externalSensorId);
+      sensorRegistry.remove(externalSensorId);
     }
 
     return sensorsActuallyAdded;
   }
 
   public String getLoggingId(String sensorId) {
-    if (mSensorRegistry.containsKey(sensorId)) {
-      return mSensorRegistry.get(sensorId).loggingId;
+    if (sensorRegistry.containsKey(sensorId)) {
+      return sensorRegistry.get(sensorId).loggingId;
     } else {
       return null;
     }
@@ -289,7 +289,7 @@ public class SensorRegistry {
 
   public void removePendingOperations(String tag) {
     Iterator<Pair<String, Consumer<SensorChoice>>> i =
-        mWaitingSensorChoiceOperations.values().iterator();
+        waitingSensorChoiceOperations.values().iterator();
     while (i.hasNext()) {
       if (i.next().first.equals(tag)) {
         i.remove();
@@ -300,20 +300,20 @@ public class SensorRegistry {
   // TODO: test this?
   public List<String> getIncludedSources() {
     List<String> allSensorIds = getAllSources();
-    allSensorIds.removeAll(mExcludedIds);
+    allSensorIds.removeAll(excludedIds);
     return allSensorIds;
   }
 
   public void setExcludedIds(Set<String> excludedSensorIds) {
-    mExcludedIds.clear();
-    mExcludedIds.addAll(excludedSensorIds);
+    excludedIds.clear();
+    excludedIds.addAll(excludedSensorIds);
   }
 
   public GoosciSensorSpec.SensorSpec getSpecForId(
       String sensorId, SensorAppearanceProvider appearanceProvider, Context context) {
     GoosciSensorAppearance.BasicSensorAppearance appearance =
         SensorAppearanceProviderImpl.toProto(appearanceProvider.getAppearance(sensorId), context);
-    SensorRegistryItem item = mSensorRegistry.get(sensorId);
+    SensorRegistryItem item = sensorRegistry.get(sensorId);
     GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
 
     // TODO: fill in rest of proto (hostId, hostDescription)

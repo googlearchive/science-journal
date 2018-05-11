@@ -22,10 +22,10 @@ package com.google.android.apps.forscience.whistlepunk;
  */
 public class ColorAllocator {
 
-  private final int[] mColorIndexCounts;
+  private final int[] colorIndexCounts;
 
   public ColorAllocator(int listSize) {
-    mColorIndexCounts = new int[listSize];
+    colorIndexCounts = new int[listSize];
   }
 
   /**
@@ -37,21 +37,21 @@ public class ColorAllocator {
       return 0;
     }
     // Zero out the counts
-    for (int i = 0; i < mColorIndexCounts.length; i++) {
-      mColorIndexCounts[i] = 0;
+    for (int i = 0; i < colorIndexCounts.length; i++) {
+      colorIndexCounts[i] = 0;
     }
     // Count up the used color indexes
     for (int index : usedColorIndexes) {
-      mColorIndexCounts[index]++;
+      colorIndexCounts[index]++;
     }
     int leastUsedCount = Integer.MAX_VALUE;
     int leastUsedIndex = -1;
 
     // Now start at the 0th index and move forward, keeping track of the smallest count item.
-    for (int index = 0; index < mColorIndexCounts.length; index++) {
-      if (mColorIndexCounts[index] < leastUsedCount) {
+    for (int index = 0; index < colorIndexCounts.length; index++) {
+      if (colorIndexCounts[index] < leastUsedCount) {
         leastUsedIndex = index;
-        leastUsedCount = mColorIndexCounts[index];
+        leastUsedCount = colorIndexCounts[index];
       }
     }
     return leastUsedIndex;

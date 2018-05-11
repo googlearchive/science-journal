@@ -28,10 +28,10 @@ class PrefsSensorHistoryStorage implements SensorHistoryStorage {
   private static final String PREFS_FILE = "PrefsSensorHistoryStorage";
   private static final String KEY_MOST_RECENT_IDS = "prefsKey";
 
-  private Context mContext;
+  private Context context;
 
   public PrefsSensorHistoryStorage(Context context) {
-    mContext = context;
+    this.context = context;
   }
 
   @Override
@@ -40,7 +40,7 @@ class PrefsSensorHistoryStorage implements SensorHistoryStorage {
   }
 
   public SharedPreferences getPrefs() {
-    return mContext.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE);
+    return context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE);
   }
 
   @Override

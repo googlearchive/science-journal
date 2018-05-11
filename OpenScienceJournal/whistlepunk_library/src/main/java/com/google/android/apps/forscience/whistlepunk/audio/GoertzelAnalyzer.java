@@ -18,10 +18,10 @@ package com.google.android.apps.forscience.whistlepunk.audio;
 
 /** Determines the frequency by using a series of Goertzel filters. */
 class GoertzelAnalyzer {
-  private final int mSampleRateInHz;
+  private final int sampleRateInHz;
 
   GoertzelAnalyzer(int sampleRateInHz) {
-    mSampleRateInHz = sampleRateInHz;
+    this.sampleRateInHz = sampleRateInHz;
   }
 
   /**
@@ -126,7 +126,7 @@ class GoertzelAnalyzer {
 
   /** Calculates the power at the given target frequency. */
   private double calculatePower(short[] samples, double targetFrequency) {
-    double normalizedFrequency = targetFrequency / mSampleRateInHz;
+    double normalizedFrequency = targetFrequency / sampleRateInHz;
     double coeff = 2 * Math.cos(2 * Math.PI * normalizedFrequency);
     double sPrev1 = 0;
     double sPrev2 = 0;

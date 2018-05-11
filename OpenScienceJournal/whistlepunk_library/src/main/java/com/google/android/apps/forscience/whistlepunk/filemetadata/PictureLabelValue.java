@@ -39,7 +39,7 @@ public class PictureLabelValue extends LabelValue {
   @VisibleForTesting
   PictureLabelValue() {
     super();
-    mValue.type = GoosciLabelValue.LabelValue.ValueType.PICTURE;
+    value.type = GoosciLabelValue.LabelValue.ValueType.PICTURE;
   }
 
   @Override

@@ -37,22 +37,22 @@ public class StreamStat {
   public static final int TYPE_AVERAGE = 2;
   public static final int TYPE_DURATION = 3;
 
-  private @StatType int mType;
-  private boolean mDisplayValue = false;
-  private NumberFormat mNumberFormat;
-  private double mValue;
+  private @StatType int type;
+  private boolean displayValue = false;
+  private NumberFormat numberFormat;
+  private double value;
 
   public StreamStat(@StatType int type, NumberFormat numberFormat) {
-    mType = type;
-    mNumberFormat = numberFormat;
+    this.type = type;
+    this.numberFormat = numberFormat;
   }
 
   public @StatType int getType() {
-    return mType;
+    return type;
   }
 
   public int getDisplayTypeStringId() {
-    switch (mType) {
+    switch (type) {
       case TYPE_MIN:
         return R.string.stat_min;
       case TYPE_MAX:
@@ -67,23 +67,23 @@ public class StreamStat {
   }
 
   public String getDisplayValue() {
-    if (mDisplayValue) {
-      return mNumberFormat.format(mValue);
+    if (displayValue) {
+      return numberFormat.format(value);
     } else {
       return "";
     }
   }
 
   public void setValue(double value) {
-    mValue = value;
-    mDisplayValue = true;
+    this.value = value;
+    displayValue = true;
   }
 
   public void clear() {
-    mDisplayValue = false;
+    displayValue = false;
   }
 
   public double getValue() {
-    return mValue;
+    return value;
   }
 }

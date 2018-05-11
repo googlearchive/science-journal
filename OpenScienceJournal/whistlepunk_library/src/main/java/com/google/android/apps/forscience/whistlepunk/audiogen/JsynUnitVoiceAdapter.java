@@ -21,7 +21,7 @@ import com.jsyn.unitgen.UnitVoice;
 import com.softsynth.shared.time.TimeStamp;
 
 public class JsynUnitVoiceAdapter implements JsynUnitVoiceAdapterInterface {
-  protected SimpleJsynUnitVoiceBase mVoice = null;
+  protected SimpleJsynUnitVoiceBase voice = null;
   // Range of generated frequencies is [FREQ_MIN,FREQ_MAX).  Lower than 200Hz is very quiet on
   // small speakers, while higher than 800Hz tends to sound like a metal detector.
   protected static final double FREQ_MIN = 220.;
@@ -30,14 +30,14 @@ public class JsynUnitVoiceAdapter implements JsynUnitVoiceAdapterInterface {
 
   public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
     double freq = (value - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
-    mVoice.noteOn(freq, AMP_VALUE, timeStamp);
+    voice.noteOn(freq, AMP_VALUE, timeStamp);
   }
 
   public void noteOff(TimeStamp timeStamp) {
-    mVoice.noteOff(timeStamp);
+    voice.noteOff(timeStamp);
   }
 
   public UnitVoice getVoice() {
-    return mVoice;
+    return voice;
   }
 }

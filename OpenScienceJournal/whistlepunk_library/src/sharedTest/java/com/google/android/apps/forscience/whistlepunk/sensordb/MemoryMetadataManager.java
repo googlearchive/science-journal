@@ -41,15 +41,15 @@ import java.util.List;
 import java.util.Map;
 
 public class MemoryMetadataManager implements MetaDataManager {
-  private List<Experiment> mExperiments = new ArrayList<>();
-  private Multimap<String, String> mExperimentIncluded = HashMultimap.create();
-  private Multimap<String, String> mExperimentExcluded = HashMultimap.create();
-  private Map<String, List<GoosciSensorLayout.SensorLayout>> mLayouts = new HashMap<>();
-  private Map<String, ExternalSensorSpec> mExternalSensors = new HashMap<>();
+  private List<Experiment> experiments = new ArrayList<>();
+  private Multimap<String, String> experimentIncluded = HashMultimap.create();
+  private Multimap<String, String> experimentExcluded = HashMultimap.create();
+  private Map<String, List<GoosciSensorLayout.SensorLayout>> layouts = new HashMap<>();
+  private Map<String, ExternalSensorSpec> externalSensors = new HashMap<>();
 
   @Override
   public Experiment getExperimentById(String experimentId) {
-    for (Experiment experiment : mExperiments) {
+    for (Experiment experiment : experiments) {
       if (TextUtils.equals(experiment.getExperimentId(), experimentId)) {
         return experiment;
       }
@@ -67,26 +67,26 @@ public class MemoryMetadataManager implements MetaDataManager {
   @NonNull
   public Experiment newExperiment(long timestamp, String experimentId) {
     Experiment experiment = Experiment.newExperiment(timestamp, experimentId, 0);
-    mExperiments.add(0, experiment);
+    experiments.add(0, experiment);
     return experiment;
   }
 
   @Override
   public void deleteExperiment(Experiment experiment) {
     // TODO: test directly
-    mExperiments.remove(experiment);
+    experiments.remove(experiment);
   }
 
   @Override
   public void updateExperiment(Experiment experiment) {
-    mLayouts.put(experiment.getExperimentId(), experiment.getSensorLayouts());
+    layouts.put(experiment.getExperimentId(), experiment.getSensorLayouts());
   }
 
   @Override
   public List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
       boolean includeArchived) {
     List<GoosciUserMetadata.ExperimentOverview> result = new ArrayList<>();
-    for (Experiment experiment : mExperiments) {
+    for (Experiment experiment : experiments) {
       result.add(experiment.getExperimentOverview());
     }
     return result;
@@ -100,34 +100,34 @@ public class MemoryMetadataManager implements MetaDataManager {
   @Override
   public Map<String, ExternalSensorSpec> getExternalSensors(
       Map<String, SensorProvider> providerMap) {
-    return mExternalSensors;
+    return externalSensors;
   }
 
   @Override
   public ExternalSensorSpec getExternalSensorById(
       String id, Map<String, SensorProvider> providerMap) {
-    return mExternalSensors.get(id);
+    return externalSensors.get(id);
   }
 
   @Override
   public void removeExternalSensor(String databaseTag) {
-    mExternalSensors.remove(databaseTag);
+    externalSensors.remove(databaseTag);
   }
 
   @Override
   public String addOrGetExternalSensor(
       ExternalSensorSpec sensor, Map<String, SensorProvider> providerMap) {
-    for (Map.Entry<String, ExternalSensorSpec> entry : mExternalSensors.entrySet()) {
+    for (Map.Entry<String, ExternalSensorSpec> entry : externalSensors.entrySet()) {
       if (sensor.isSameSensorAndSpec(entry.getValue())) {
         return entry.getKey();
       }
     }
     int suffix = 0;
-    while (mExternalSensors.containsKey(ExternalSensorSpec.getSensorId(sensor, suffix))) {
+    while (externalSensors.containsKey(ExternalSensorSpec.getSensorId(sensor, suffix))) {
       suffix++;
     }
     String newId = ExternalSensorSpec.getSensorId(sensor, suffix);
-    mExternalSensors.put(newId, cloneSensor(sensor, providerMap));
+    externalSensors.put(newId, cloneSensor(sensor, providerMap));
     return newId;
   }
 
@@ -147,14 +147,14 @@ public class MemoryMetadataManager implements MetaDataManager {
 
   @Override
   public void addSensorToExperiment(String databaseTag, String experimentId) {
-    mExperimentExcluded.remove(experimentId, databaseTag);
-    mExperimentIncluded.put(experimentId, databaseTag);
+    experimentExcluded.remove(experimentId, databaseTag);
+    experimentIncluded.put(experimentId, databaseTag);
   }
 
   @Override
   public void removeSensorFromExperiment(String databaseTag, String experimentId) {
-    mExperimentIncluded.remove(experimentId, databaseTag);
-    mExperimentExcluded.put(experimentId, databaseTag);
+    experimentIncluded.remove(experimentId, databaseTag);
+    experimentExcluded.put(experimentId, databaseTag);
   }
 
   @Override
@@ -165,10 +165,10 @@ public class MemoryMetadataManager implements MetaDataManager {
     Preconditions.checkNotNull(connector);
     // TODO: doesn't deal with exclusions
     List<ConnectableSensor> specs = new ArrayList<>();
-    for (String id : mExperimentIncluded.get(experimentId)) {
-      specs.add(connector.connected(ExternalSensorSpec.toGoosciSpec(mExternalSensors.get(id)), id));
+    for (String id : experimentIncluded.get(experimentId)) {
+      specs.add(connector.connected(ExternalSensorSpec.toGoosciSpec(externalSensors.get(id)), id));
     }
-    return new ExperimentSensors(specs, Sets.newHashSet(mExperimentExcluded.get(experimentId)));
+    return new ExperimentSensors(specs, Sets.newHashSet(experimentExcluded.get(experimentId)));
   }
 
   @Override
@@ -184,7 +184,7 @@ public class MemoryMetadataManager implements MetaDataManager {
 
   @Override
   public Experiment getLastUsedUnarchivedExperiment() {
-    for (Experiment experiment : mExperiments) {
+    for (Experiment experiment : experiments) {
       if (!experiment.isArchived()) {
         return experiment;
       }
@@ -195,8 +195,8 @@ public class MemoryMetadataManager implements MetaDataManager {
 
   @Override
   public void setLastUsedExperiment(Experiment experiment) {
-    mExperiments.remove(experiment);
-    mExperiments.add(0, experiment);
+    experiments.remove(experiment);
+    experiments.add(0, experiment);
   }
 
   private GoosciSensorLayout.SensorLayout[] deepCopy(

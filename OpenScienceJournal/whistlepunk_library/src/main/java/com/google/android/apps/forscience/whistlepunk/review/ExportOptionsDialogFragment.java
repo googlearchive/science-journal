@@ -45,12 +45,12 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
 
   private static final String KEY_EXPERIMENT_ID = "experiment_id";
   private static final String KEY_TRIAL_ID = "trial_id";
-  private String mTrialId;
-  private CheckBox mRelativeTime;
-  private List<String> mSensorIds;
-  private ProgressBar mProgressBar;
-  private Button mExportButton;
-  private Disposable mUntilStop;
+  private String trialId;
+  private CheckBox relativeTime;
+  private List<String> sensorIds;
+  private ProgressBar progressBar;
+  private Button exportButton;
+  private Disposable untilStop;
 
   public static ExportOptionsDialogFragment createOptionsDialog(
       String experimentId, String trialId) {
@@ -65,30 +65,30 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
   @Override
   public void onStart() {
     super.onStart();
-    mTrialId = getArguments().getString(KEY_TRIAL_ID);
-    mUntilStop =
+    trialId = getArguments().getString(KEY_TRIAL_ID);
+    untilStop =
         ExportService.bind(getActivity())
             // Only look at events for this trial or the default value
             .filter(
                 progress ->
-                    Objects.equals(progress.getId(), mTrialId) || progress.getId().equals(""))
+                    Objects.equals(progress.getId(), trialId) || progress.getId().equals(""))
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext(
                 progress -> {
                   if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
                     // Reset the progress only after the UI has consumed this.
-                    ExportService.resetProgress(mTrialId);
+                    ExportService.resetProgress(trialId);
                   }
                 })
             .subscribe(this::updateProgress);
   }
 
   private void updateProgress(ExportProgress progress) {
-    mProgressBar.setVisibility(
+    progressBar.setVisibility(
         progress.getState() == ExportProgress.EXPORTING ? View.VISIBLE : View.INVISIBLE);
-    mExportButton.setEnabled(progress.getState() != ExportProgress.EXPORTING);
+    exportButton.setEnabled(progress.getState() != ExportProgress.EXPORTING);
     if (progress.getState() == ExportProgress.EXPORTING) {
-      mProgressBar.setProgress(progress.getProgress());
+      progressBar.setProgress(progress.getProgress());
     } else if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
       // Finish dialog and send the filename.
       if (getActivity() != null) {
@@ -120,8 +120,8 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
   @Override
   public void onStop() {
     super.onStop();
-    if (mUntilStop != null) {
-      mUntilStop.dispose();
+    if (untilStop != null) {
+      untilStop.dispose();
     }
   }
 
@@ -130,9 +130,9 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.dialog_export_options, container, false);
-    mRelativeTime = (CheckBox) view.findViewById(R.id.export_relative_time);
-    mProgressBar = (ProgressBar) view.findViewById(R.id.progress);
-    mProgressBar.setMax(100);
+    relativeTime = (CheckBox) view.findViewById(R.id.export_relative_time);
+    progressBar = (ProgressBar) view.findViewById(R.id.progress);
+    progressBar.setMax(100);
     view.findViewById(R.id.action_cancel)
         .setOnClickListener(
             v -> {
@@ -148,18 +148,18 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
         .subscribe(
             experiment -> {
               Trial trial = experiment.getTrial(trialId);
-              mSensorIds = trial.getSensorIds();
+              sensorIds = trial.getSensorIds();
               // TODO: fill in UI with these sensors.
             });
-    mExportButton = (Button) view.findViewById(R.id.action_export);
-    mExportButton.setOnClickListener(
+    exportButton = (Button) view.findViewById(R.id.action_export);
+    exportButton.setOnClickListener(
         v -> {
           ExportService.exportTrial(
               getActivity(),
               experimentId,
               trialId,
-              mRelativeTime.isChecked(),
-              mSensorIds.toArray(new String[] {}));
+              relativeTime.isChecked(),
+              sensorIds.toArray(new String[] {}));
         });
     return view;
   }

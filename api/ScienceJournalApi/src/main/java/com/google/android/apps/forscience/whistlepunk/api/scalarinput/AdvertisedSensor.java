@@ -27,13 +27,13 @@ import android.util.Log;
  */
 public abstract class AdvertisedSensor {
   private static final String TAG = "AdvertisedSensor";
-  private final String mAddress;
-  private final String mName;
-  private ISensorStatusListener mListener = null;
+  private final String address;
+  private final String name;
+  private ISensorStatusListener listener = null;
 
   protected AdvertisedSensor(String address, String name) {
-    mAddress = address;
-    mName = name;
+    this.address = address;
+    this.name = name;
   }
 
   /** Override to provide non-default behavior */
@@ -97,13 +97,13 @@ public abstract class AdvertisedSensor {
       return;
     }
     listener.onSensorConnected();
-    mListener = listener;
+    this.listener = listener;
 
     streamData(
         new DataConsumer() {
           @Override
           public boolean isReceiving() {
-            return mListener != null;
+            return AdvertisedSensor.this.listener != null;
           }
 
           @Override
@@ -124,18 +124,18 @@ public abstract class AdvertisedSensor {
 
   final void stopObserving() throws RemoteException {
     disconnect();
-    if (mListener != null) {
-      mListener.onSensorDisconnected();
-      mListener = null;
+    if (listener != null) {
+      listener.onSensorDisconnected();
+      listener = null;
     }
   }
 
   String getAddress() {
-    return mAddress;
+    return address;
   }
 
   public String getName() {
-    return mName;
+    return name;
   }
 
   private void reportError(RemoteException e) {

@@ -17,29 +17,29 @@
 package com.google.android.apps.forscience.javalib;
 
 public abstract class Refresher {
-  private final Scheduler mScheduler;
+  private final Scheduler scheduler;
 
-  private boolean mRefreshScheduled = false;
-  private Runnable mRefreshRunnable =
+  private boolean refreshScheduled = false;
+  private Runnable refreshRunnable =
       new Runnable() {
         @Override
         public void run() {
-          mRefreshScheduled = false;
+          refreshScheduled = false;
           refresh();
         }
       };
-  private Delay mDelay;
+  private Delay delay;
 
   public Refresher(Scheduler scheduler, Delay delay) {
-    mScheduler = scheduler;
-    mDelay = delay;
+    this.scheduler = scheduler;
+    this.delay = delay;
   }
 
   public void refresh() {
     final boolean rescheduleWouldBeUseful = doRefresh();
-    if (rescheduleWouldBeUseful && !mRefreshScheduled) {
-      mRefreshScheduled = true;
-      mScheduler.schedule(mDelay, mRefreshRunnable);
+    if (rescheduleWouldBeUseful && !refreshScheduled) {
+      refreshScheduled = true;
+      scheduler.schedule(delay, refreshRunnable);
     }
   }
 

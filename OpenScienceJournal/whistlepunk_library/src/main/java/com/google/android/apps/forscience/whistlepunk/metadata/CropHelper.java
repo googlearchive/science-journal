@@ -68,17 +68,17 @@ public class CropHelper {
   }
 
   private static class ProcessPriorityThreadFactory implements ThreadFactory {
-    private final int mThreadPriority;
+    private final int threadPriority;
 
     ProcessPriorityThreadFactory(int threadPriority) {
       super();
-      mThreadPriority = threadPriority;
+      this.threadPriority = threadPriority;
     }
 
     @Override
     public Thread newThread(Runnable r) {
       Thread thread = new Thread(r);
-      thread.setPriority(mThreadPriority);
+      thread.setPriority(threadPriority);
       return thread;
     }
   }
@@ -97,9 +97,9 @@ public class CropHelper {
     void onCropFailed(int errorId);
   }
 
-  private int mStatsUpdated = 0;
-  private Executor mCropStatsExecutor;
-  private DataController mDataController;
+  private int statsUpdated = 0;
+  private Executor cropStatsExecutor;
+  private DataController dataController;
 
   public CropHelper(DataController dataController) {
     this(
@@ -110,8 +110,8 @@ public class CropHelper {
 
   @VisibleForTesting
   CropHelper(Executor executor, DataController dataController) {
-    mCropStatsExecutor = executor;
-    mDataController = dataController;
+    cropStatsExecutor = executor;
+    this.dataController = dataController;
   }
 
   public void cropTrial(
@@ -151,7 +151,7 @@ public class CropHelper {
       stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
       trial.setStats(stats);
     }
-    mDataController.updateExperiment(
+    dataController.updateExperiment(
         experiment.getExperimentId(),
         new LoggingConsumer<Success>(TAG, "edit crop times in trial") {
           public void success(Success value) {
@@ -181,84 +181,84 @@ public class CropHelper {
           public void run() {
             // Moves the current Thread into the background
             StatsAdjuster adjuster = new StatsAdjuster(sensorId, experiment, trialId, context);
-            adjuster.recalculateStats(mDataController);
+            adjuster.recalculateStats(dataController);
           }
         };
     // Update the stats in the background, without blocking anything.
-    mCropStatsExecutor.execute(runnable);
+    cropStatsExecutor.execute(runnable);
   }
 
   // A class that recalculates and resaves the stats in a trial.
   private class StatsAdjuster {
-    private final String mSensorId;
-    private final Experiment mExperiment;
-    private final String mTrialId;
-    private StatsAccumulator mStatsAccumulator;
-    StreamConsumer mStreamConsumer;
-    private Context mContext;
+    private final String sensorId;
+    private final Experiment experiment;
+    private final String trialId;
+    private StatsAccumulator statsAccumulator;
+    StreamConsumer streamConsumer;
+    private Context context;
 
     StatsAdjuster(String sensorId, Experiment experiment, String trialId, Context context) {
-      mStatsAccumulator = new StatsAccumulator(sensorId);
-      mSensorId = sensorId;
-      mExperiment = experiment;
-      mTrialId = trialId;
-      mStreamConsumer =
+      statsAccumulator = new StatsAccumulator(sensorId);
+      this.sensorId = sensorId;
+      this.experiment = experiment;
+      this.trialId = trialId;
+      streamConsumer =
           new StreamConsumer() {
             @Override
             public boolean addData(long timestampMillis, double value) {
-              mStatsAccumulator.updateRecordingStreamStats(timestampMillis, value);
+              statsAccumulator.updateRecordingStreamStats(timestampMillis, value);
               return true;
             }
           };
-      mContext = context;
+      this.context = context;
     }
 
     void recalculateStats(DataController dc) {
       TimeRange range =
           TimeRange.oldest(
               Range.closed(
-                  mExperiment.getTrial(mTrialId).getFirstTimestamp(),
-                  mExperiment.getTrial(mTrialId).getLastTimestamp()));
+                  experiment.getTrial(trialId).getFirstTimestamp(),
+                  experiment.getTrial(trialId).getLastTimestamp()));
       addReadingsToStats(dc, range);
     }
 
     private void addReadingsToStats(final DataController dc, final TimeRange range) {
       dc.getScalarReadings(
-          mTrialId,
-          mSensorId, /* tier 0 */
+          trialId,
+          sensorId, /* tier 0 */
           0,
           range,
           DATAPOINTS_PER_LOAD,
           new MaybeConsumer<ScalarReadingList>() {
             @Override
             public void success(ScalarReadingList list) {
-              list.deliver(mStreamConsumer);
-              Trial trial = mExperiment.getTrial(mTrialId);
+              list.deliver(streamConsumer);
+              Trial trial = experiment.getTrial(trialId);
               if (list.size() == 0
                   || list.size() < DATAPOINTS_PER_LOAD
-                  || mStatsAccumulator.getLatestTimestamp() >= trial.getLastTimestamp()) {
-                if (!mStatsAccumulator.isInitialized()) {
+                  || statsAccumulator.getLatestTimestamp() >= trial.getLastTimestamp()) {
+                if (!statsAccumulator.isInitialized()) {
                   // There was no data in this region, so the stats are still
                   // not valid.
                   return;
                 }
                 // Done! Save back to the database.
-                TrialStats fullStats = trial.getStatsForSensor(mSensorId);
-                mStatsAccumulator.populateTrialStats(fullStats);
+                TrialStats fullStats = trial.getStatsForSensor(sensorId);
+                statsAccumulator.populateTrialStats(fullStats);
                 trial.setStats(fullStats);
                 dc.updateExperiment(
-                    mExperiment.getExperimentId(),
+                    experiment.getExperimentId(),
                     new LoggingConsumer<Success>(TAG, "update stats") {
                       @Override
                       public void success(Success value) {
-                        sendStatsUpdatedBroadcast(mContext, mSensorId, mTrialId);
+                        sendStatsUpdatedBroadcast(context, sensorId, trialId);
                       }
                     });
               } else {
                 TimeRange nextRange =
                     TimeRange.oldest(
                         Range.openClosed(
-                            mStatsAccumulator.getLatestTimestamp(), trial.getLastTimestamp()));
+                            statsAccumulator.getLatestTimestamp(), trial.getLastTimestamp()));
                 addReadingsToStats(dc, nextRange);
               }
             }

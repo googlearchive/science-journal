@@ -37,7 +37,7 @@ import java.util.Map;
  * <p>These methods should all only be called on the service's main thread.
  */
 public class RecorderListenerRegistry implements SensorStatusListener {
-  private Multimap<String, ListenerSet> mListeners = HashMultimap.create();
+  private Multimap<String, ListenerSet> listeners = HashMultimap.create();
 
   private static class ListenerSet {
     public final String observerId;
@@ -52,15 +52,15 @@ public class RecorderListenerRegistry implements SensorStatusListener {
     }
   }
 
-  private Map<String, Integer> mCurrentStatus = new HashMap<>();
-  private Map<String, Boolean> mCurrentErrors = new HashMap<>();
-  private int mObserverCount = 0;
+  private Map<String, Integer> currentStatus = new HashMap<>();
+  private Map<String, Boolean> currentErrors = new HashMap<>();
+  private int observerCount = 0;
 
   @Override
   public void onSourceStatus(String id, @Status int status) {
-    mCurrentStatus.put(id, status);
-    mCurrentErrors.put(id, false);
-    for (ListenerSet set : mListeners.get(id)) {
+    currentStatus.put(id, status);
+    currentErrors.put(id, false);
+    for (ListenerSet set : listeners.get(id)) {
       if (set.statusListener != null) {
         set.statusListener.onSourceStatus(id, status);
       }
@@ -69,11 +69,11 @@ public class RecorderListenerRegistry implements SensorStatusListener {
 
   @Override
   public void onSourceError(String id, @Error int error, String errorMessage) {
-    mCurrentErrors.put(id, true);
+    currentErrors.put(id, true);
     // Since onSourceError can call a disconnect and remove a listener, need to keep this safe
     // for concurrent modification by copying it elsewhere.
     List<ListenerSet> listenerList = new ArrayList<>();
-    listenerList.addAll(mListeners.get(id));
+    listenerList.addAll(listeners.get(id));
     for (ListenerSet set : listenerList) {
       if (set.statusListener != null) {
         set.statusListener.onSourceError(id, error, errorMessage);
@@ -82,15 +82,15 @@ public class RecorderListenerRegistry implements SensorStatusListener {
   }
 
   public int getSourceStatus(String id) {
-    if (mCurrentStatus.containsKey(id)) {
-      return mCurrentStatus.get(id);
+    if (currentStatus.containsKey(id)) {
+      return currentStatus.get(id);
     }
     return STATUS_DISCONNECTED;
   }
 
   public boolean getSourceHasError(String id) {
-    if (mCurrentErrors.containsKey(id)) {
-      return mCurrentErrors.get(id);
+    if (currentErrors.containsKey(id)) {
+      return currentErrors.get(id);
     }
     return false;
   }
@@ -101,11 +101,11 @@ public class RecorderListenerRegistry implements SensorStatusListener {
 
   public String putListeners(
       String sensorId, SensorObserver observer, SensorStatusListener listener) {
-    String observerId = sensorId + (++mObserverCount);
+    String observerId = sensorId + (++observerCount);
 
-    mListeners.put(sensorId, new ListenerSet(observerId, listener, observer));
+    listeners.put(sensorId, new ListenerSet(observerId, listener, observer));
 
-    Integer status = mCurrentStatus.get(sensorId);
+    Integer status = currentStatus.get(sensorId);
     if (status != null && listener != null) {
       listener.onSourceStatus(sensorId, status);
     }
@@ -113,7 +113,7 @@ public class RecorderListenerRegistry implements SensorStatusListener {
   }
 
   public void remove(String sensorId, String observerId) {
-    Collection<ListenerSet> sensorListeners = mListeners.get(sensorId);
+    Collection<ListenerSet> sensorListeners = listeners.get(sensorId);
     Iterator<ListenerSet> iterator = sensorListeners.iterator();
     while (iterator.hasNext()) {
       if (iterator.next().observerId.equals(observerId)) {
@@ -123,14 +123,14 @@ public class RecorderListenerRegistry implements SensorStatusListener {
     if (sensorListeners.isEmpty()) {
       // Then we've just removed the last listener for this sensorID.
       // Remove the status and errors state too.
-      if (mCurrentErrors.containsKey(sensorId)) {
-        mCurrentErrors.remove(sensorId);
+      if (currentErrors.containsKey(sensorId)) {
+        currentErrors.remove(sensorId);
       }
     }
   }
 
   public int countListeners(String sensorId) {
-    Collection<ListenerSet> sensorListeners = mListeners.get(sensorId);
+    Collection<ListenerSet> sensorListeners = listeners.get(sensorId);
     if (sensorListeners == null) {
       return 0;
     }
@@ -145,7 +145,7 @@ public class RecorderListenerRegistry implements SensorStatusListener {
     return new SensorObserver() {
       @Override
       public void onNewData(long timestamp, Data bundle) {
-        for (ListenerSet set : mListeners.get(sensorId)) {
+        for (ListenerSet set : listeners.get(sensorId)) {
           set.observer.onNewData(timestamp, bundle);
         }
       }

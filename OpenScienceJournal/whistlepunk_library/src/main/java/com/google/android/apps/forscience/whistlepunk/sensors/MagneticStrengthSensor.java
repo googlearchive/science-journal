@@ -35,7 +35,7 @@ public class MagneticStrengthSensor extends ScalarSensor {
   // For historical reasons, the ID is MagneticRotationSensor. Since this is not exposed to the
   // user, we will just not mind the inconsistency.
   public static final String ID = "MagneticRotationSensor";
-  private SensorEventListener mSensorEventListener;
+  private SensorEventListener sensorEventListener;
 
   public MagneticStrengthSensor() {
     super(ID);
@@ -53,11 +53,11 @@ public class MagneticStrengthSensor extends ScalarSensor {
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
         SensorManager sensorManager = getSensorManager(context);
         Sensor magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        if (mSensorEventListener != null) {
-          getSensorManager(context).unregisterListener(mSensorEventListener);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
         }
         final Clock clock = environment.getDefaultClock();
-        mSensorEventListener =
+        sensorEventListener =
             new SensorEventListener() {
               @Override
               public void onSensorChanged(SensorEvent event) {
@@ -75,12 +75,12 @@ public class MagneticStrengthSensor extends ScalarSensor {
               public void onAccuracyChanged(Sensor sensor, int accuracy) {}
             };
         sensorManager.registerListener(
-            mSensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
+            sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
       }
 
       @Override
       public void stopObserving() {
-        getSensorManager(context).unregisterListener(mSensorEventListener);
+        getSensorManager(context).unregisterListener(sensorEventListener);
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
       }
     };

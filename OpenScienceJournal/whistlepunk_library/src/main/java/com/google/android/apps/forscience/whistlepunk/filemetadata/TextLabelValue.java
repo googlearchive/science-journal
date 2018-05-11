@@ -27,7 +27,7 @@ public class TextLabelValue extends LabelValue {
 
   public TextLabelValue(GoosciLabelValue.LabelValue value) {
     super(value);
-    mValue.type = GoosciLabelValue.LabelValue.ValueType.TEXT;
+    this.value.type = GoosciLabelValue.LabelValue.ValueType.TEXT;
   }
 
   public static TextLabelValue fromText(String text) {
@@ -37,7 +37,7 @@ public class TextLabelValue extends LabelValue {
   @VisibleForTesting
   TextLabelValue() {
     super();
-    mValue.type = GoosciLabelValue.LabelValue.ValueType.TEXT;
+    value.type = GoosciLabelValue.LabelValue.ValueType.TEXT;
   }
 
   @Override

@@ -73,8 +73,8 @@ public class PermissionUtils {
     void onPermissionPermanentlyDenied();
   }
 
-  private static List<Integer> mPermanentlyDeniedRequests = new ArrayList<>();
-  private static SparseArray<PermissionListener> mPermissionListeners = new SparseArray<>();
+  private static List<Integer> permanentlyDeniedRequests = new ArrayList<>();
+  private static SparseArray<PermissionListener> permissionListeners = new SparseArray<>();
 
   public static void tryRequestingPermission(
       Activity activity, @Requests int permission, PermissionListener listener) {
@@ -86,12 +86,12 @@ public class PermissionUtils {
       listener.onPermissionGranted();
       return;
     }
-    mPermissionListeners.put(permission, listener);
+    permissionListeners.put(permission, listener);
     ActivityCompat.requestPermissions(activity, new String[] {PERMISSIONS[permission]}, permission);
   }
 
   public static boolean isPermissionPermanentlyDenied(@Requests int permission) {
-    return mPermanentlyDeniedRequests.contains(permission);
+    return permanentlyDeniedRequests.contains(permission);
   }
 
   public static boolean hasPermission(Context context, @Requests int permission) {
@@ -105,7 +105,7 @@ public class PermissionUtils {
 
   public static void onRequestPermissionsResult(
       Activity activity, @Requests int requestCode, String permissions[], int[] grantResults) {
-    PermissionListener permissionListener = mPermissionListeners.get(requestCode);
+    PermissionListener permissionListener = permissionListeners.get(requestCode);
     if (permissionListener == null || permissions.length == 0 || grantResults.length == 0) {
       return;
     }
@@ -118,9 +118,9 @@ public class PermissionUtils {
     } else {
       // If the permission was denied AND we shouldn't show the user more information about
       // why we want the permission, then they have permanently denied it.
-      mPermanentlyDeniedRequests.add(requestCode);
+      permanentlyDeniedRequests.add(requestCode);
       permissionListener.onPermissionPermanentlyDenied();
     }
-    mPermissionListeners.remove(requestCode);
+    permissionListeners.remove(requestCode);
   }
 }

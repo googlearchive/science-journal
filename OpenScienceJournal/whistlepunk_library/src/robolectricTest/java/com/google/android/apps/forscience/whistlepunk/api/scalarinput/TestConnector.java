@@ -24,36 +24,36 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import java.util.List;
 
 class TestConnector extends ISensorConnector.Stub {
-  private final List<ChartData.DataPoint> mDataToSend;
-  private final String mSensorId;
-  private ISensorObserver mObserver = null;
-  private ISensorStatusListener mListener;
+  private final List<ChartData.DataPoint> dataToSend;
+  private final String sensorId;
+  private ISensorObserver observer = null;
+  private ISensorStatusListener listener;
 
   public TestConnector(List<ChartData.DataPoint> dataToSend, String sensorId) {
-    mDataToSend = dataToSend;
-    mSensorId = sensorId;
+    this.dataToSend = dataToSend;
+    this.sensorId = sensorId;
   }
 
   @Override
   public void startObserving(
       String sensorId, ISensorObserver observer, ISensorStatusListener listener, String settingsKey)
       throws RemoteException {
-    assertEquals(mSensorId, sensorId);
-    assertNull(mObserver);
-    mObserver = observer;
-    mListener = listener;
+    assertEquals(this.sensorId, sensorId);
+    assertNull(this.observer);
+    this.observer = observer;
+    this.listener = listener;
     listener.onSensorConnected();
   }
 
   @Override
   public void stopObserving(String sensorId) throws RemoteException {
-    assertEquals(mSensorId, sensorId);
-    assertNotNull(mObserver);
-    for (ChartData.DataPoint point : mDataToSend) {
-      mObserver.onNewData(point.getX(), point.getY());
+    assertEquals(this.sensorId, sensorId);
+    assertNotNull(observer);
+    for (ChartData.DataPoint point : dataToSend) {
+      observer.onNewData(point.getX(), point.getY());
     }
-    mListener.onSensorDisconnected();
-    mListener = null;
-    mObserver = null;
+    listener.onSensorDisconnected();
+    listener = null;
+    observer = null;
   }
 }

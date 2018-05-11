@@ -23,16 +23,16 @@ import java.util.Formatter;
  * Formatter behind the scenes for each use.
  */
 public class ReusableFormatter {
-  private Formatter mFormatter;
-  private StringBuilder mBuilder;
+  private Formatter formatter;
+  private StringBuilder builder;
 
   public ReusableFormatter() {
-    mBuilder = new StringBuilder();
-    mFormatter = new Formatter(mBuilder);
+    builder = new StringBuilder();
+    formatter = new Formatter(builder);
   }
 
   public Formatter format(String format, Object... params) {
-    mBuilder.setLength(0);
-    return mFormatter.format(format, params);
+    builder.setLength(0);
+    return formatter.format(format, params);
   }
 }

@@ -32,7 +32,7 @@ public class SensorCardHeader extends RelativeLayout {
     void onTouch();
   }
 
-  private onHeaderTouchListener mOnTouchListener;
+  private onHeaderTouchListener onTouchListener;
 
   public SensorCardHeader(Context context) {
     super(context);
@@ -52,13 +52,13 @@ public class SensorCardHeader extends RelativeLayout {
   }
 
   public void setOnHeaderTouchListener(onHeaderTouchListener listener) {
-    mOnTouchListener = listener;
+    onTouchListener = listener;
   }
 
   @Override
   public boolean onInterceptTouchEvent(MotionEvent ev) {
-    if (mOnTouchListener != null) {
-      mOnTouchListener.onTouch();
+    if (onTouchListener != null) {
+      onTouchListener.onTouch();
     }
     return false;
   }

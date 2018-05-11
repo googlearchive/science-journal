@@ -40,14 +40,14 @@ public class FrequencyOptionsPresenter implements SensorPresenter.OptionsPresent
   private static final long DEFAULT_FREQUENCY_WINDOW = 2000;
   private static final float DEFAULT_FREQUENCY_FILTER = 10;
 
-  private final SensorPresenter.OptionsPresenter mAdditionalPresenter;
-  private FilterChangeListener mFilterChangeListener;
+  private final SensorPresenter.OptionsPresenter additionalPresenter;
+  private FilterChangeListener filterChangeListener;
 
   public FrequencyOptionsPresenter(
       FilterChangeListener filterChangeListener,
       SensorPresenter.OptionsPresenter additionalPresenter) {
-    mAdditionalPresenter = additionalPresenter;
-    mFilterChangeListener = filterChangeListener;
+    this.additionalPresenter = additionalPresenter;
+    this.filterChangeListener = filterChangeListener;
   }
 
   @Override
@@ -55,10 +55,10 @@ public class FrequencyOptionsPresenter implements SensorPresenter.OptionsPresent
     @SuppressLint("InflateParams")
     final View inflated = LayoutInflater.from(context).inflate(R.layout.frequency_options, null);
 
-    if (mAdditionalPresenter != null) {
+    if (additionalPresenter != null) {
       final ViewGroup additionalView = (ViewGroup) inflated.findViewById(R.id.additional_options);
       additionalView.setVisibility(View.VISIBLE);
-      additionalView.addView(mAdditionalPresenter.buildOptionsView(activeBundle, context));
+      additionalView.addView(additionalPresenter.buildOptionsView(activeBundle, context));
     }
 
     final EditText windowEditText = getWindowEditText(inflated);
@@ -123,11 +123,11 @@ public class FrequencyOptionsPresenter implements SensorPresenter.OptionsPresent
     final double newFilter = getFrequencyFilter(prefs);
     final boolean newEnabled = getFrequencyChecked(prefs);
     // TODO: enable UI for setting scale transforms?
-    mFilterChangeListener.setScalarFilter(
+    filterChangeListener.setScalarFilter(
         ScalarSensor.computeValueFilter(
             newWindow, newFilter, newEnabled, getDefaultScaleTransform()));
-    if (mAdditionalPresenter != null) {
-      mAdditionalPresenter.applyOptions(prefs);
+    if (additionalPresenter != null) {
+      additionalPresenter.applyOptions(prefs);
     }
   }
 }

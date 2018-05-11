@@ -42,17 +42,17 @@ public class ExpandableServiceAdapter
         ServiceParentViewHolder, ExpandableServiceAdapter.DeviceChildViewHolder>
     implements SensorGroup, CompositeRecyclerAdapter.CompositeSensitiveAdapter {
   private static final String KEY_COLLAPSED_SERVICE_ADDRESSES = "key_collapsed_services";
-  private List<ServiceParentListItem> mParentItemList;
-  private SensorRegistry mSensorRegistry;
-  private ConnectableSensorRegistry mConnectableSensorRegistry;
-  private ArrayList<InputDeviceSpec> mMyDevices = Lists.newArrayList();
-  private final DeviceRegistry mDeviceRegistry;
-  private final FragmentManager mFragmentManager;
+  private List<ServiceParentListItem> parentItemList;
+  private SensorRegistry sensorRegistry;
+  private ConnectableSensorRegistry connectableSensorRegistry;
+  private ArrayList<InputDeviceSpec> myDevices = Lists.newArrayList();
+  private final DeviceRegistry deviceRegistry;
+  private final FragmentManager fragmentManager;
 
   // TODO: maintain one global map
-  private Map<String, ConnectableSensor> mSensorMap = new ArrayMap<>();
-  private final SensorAppearanceProvider mAppearanceProvider;
-  private ArrayList<String> mInitiallyCollapsedServiceIds = new ArrayList<>();
+  private Map<String, ConnectableSensor> sensorMap = new ArrayMap<>();
+  private final SensorAppearanceProvider appearanceProvider;
+  private ArrayList<String> initiallyCollapsedServiceIds = new ArrayList<>();
 
   public static ExpandableServiceAdapter createEmpty(
       SensorRegistry sensorRegistry,
@@ -80,12 +80,12 @@ public class ExpandableServiceAdapter
       FragmentManager fragmentManager,
       SensorAppearanceProvider appearanceProvider) {
     super(parentItemList, uniqueId);
-    mParentItemList = parentItemList;
-    mSensorRegistry = sensorRegistry;
-    mConnectableSensorRegistry = connectableSensorRegistry;
-    mDeviceRegistry = deviceRegistry;
-    mFragmentManager = fragmentManager;
-    mAppearanceProvider = appearanceProvider;
+    this.parentItemList = parentItemList;
+    this.sensorRegistry = sensorRegistry;
+    this.connectableSensorRegistry = connectableSensorRegistry;
+    this.deviceRegistry = deviceRegistry;
+    this.fragmentManager = fragmentManager;
+    this.appearanceProvider = appearanceProvider;
   }
 
   @Override
@@ -108,7 +108,7 @@ public class ExpandableServiceAdapter
     super.onSaveInstanceState(savedInstanceState);
 
     ArrayList<String> collapsedServices = new ArrayList<>();
-    for (ServiceParentListItem serviceParent : mParentItemList) {
+    for (ServiceParentListItem serviceParent : parentItemList) {
       if (!serviceParent.isCurrentlyExpanded()) {
         collapsedServices.add(serviceParent.getGlobalServiceId());
       }
@@ -120,7 +120,7 @@ public class ExpandableServiceAdapter
   public void onRestoreInstanceState(Bundle savedInstanceState) {
     ArrayList<String> list = savedInstanceState.getStringArrayList(KEY_COLLAPSED_SERVICE_ADDRESSES);
     if (list != null) {
-      mInitiallyCollapsedServiceIds.addAll(list);
+      initiallyCollapsedServiceIds.addAll(list);
     }
     super.onRestoreInstanceState(savedInstanceState);
   }
@@ -141,11 +141,11 @@ public class ExpandableServiceAdapter
     final ServiceParentListItem serviceParent = (ServiceParentListItem) parentListItem;
     parentViewHolder.bind(
         serviceParent,
-        mFragmentManager,
+        fragmentManager,
         new Runnable() {
           @Override
           public void run() {
-            mConnectableSensorRegistry.reloadProvider(serviceParent.getProviderId(), false);
+            connectableSensorRegistry.reloadProvider(serviceParent.getProviderId(), false);
           }
         });
   }
@@ -161,12 +161,12 @@ public class ExpandableServiceAdapter
   @Override
   public void onBindChildViewHolder(
       DeviceChildViewHolder childViewHolder, int position, Object childListItem) {
-    childViewHolder.bind((DeviceWithSensors) childListItem, mAppearanceProvider, mSensorMap);
+    childViewHolder.bind((DeviceWithSensors) childListItem, appearanceProvider, sensorMap);
   }
 
   @Override
   public boolean hasSensorKey(String sensorKey) {
-    for (ServiceParentListItem listItem : mParentItemList) {
+    for (ServiceParentListItem listItem : parentItemList) {
       if (listItem.containsSensorKey(sensorKey)) {
         return true;
       }
@@ -181,11 +181,11 @@ public class ExpandableServiceAdapter
 
   @Override
   public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
-    mSensorMap.put(sensorKey, sensor);
-    InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec());
-    int size = mParentItemList.size();
+    sensorMap.put(sensorKey, sensor);
+    InputDeviceSpec device = deviceRegistry.getDevice(sensor.getSpec());
+    int size = parentItemList.size();
     for (int i = 0; i < size; i++) {
-      if (mParentItemList.get(i).addSensorToDevice(device, sensorKey)) {
+      if (parentItemList.get(i).addSensorToDevice(device, sensorKey)) {
         // Possibly refresh icon
         notifyParentItemChanged(i);
         return true;
@@ -197,7 +197,7 @@ public class ExpandableServiceAdapter
 
   @Override
   public void onSensorAddedElsewhere(String newKey, ConnectableSensor sensor) {
-    mSensorMap.put(newKey, sensor);
+    sensorMap.put(newKey, sensor);
   }
 
   @Override
@@ -226,12 +226,12 @@ public class ExpandableServiceAdapter
       }
       return;
     }
-    boolean initallyCollapsed = mInitiallyCollapsedServiceIds.remove(service.getServiceId());
+    boolean initallyCollapsed = initiallyCollapsedServiceIds.remove(service.getServiceId());
     boolean startsExpanded = !initallyCollapsed;
     ServiceParentListItem item = new ServiceParentListItem(providerId, service, startsExpanded);
     item.setIsLoading(true);
-    mParentItemList.add(item);
-    notifyParentItemInserted(mParentItemList.size() - 1);
+    parentItemList.add(item);
+    notifyParentItemInserted(parentItemList.size() - 1);
   }
 
   @Override
@@ -242,14 +242,14 @@ public class ExpandableServiceAdapter
   private void setIsLoading(String serviceId, boolean isLoading) {
     int i = indexOfService(serviceId);
     if (i >= 0) {
-      mParentItemList.get(i).setIsLoading(isLoading);
+      parentItemList.get(i).setIsLoading(isLoading);
       notifyParentItemChanged(i);
     }
   }
 
   private int indexOfService(String serviceId) {
-    for (int i = 0; i < mParentItemList.size(); i++) {
-      if (mParentItemList.get(i).isService(serviceId)) {
+    for (int i = 0; i < parentItemList.size(); i++) {
+      if (parentItemList.get(i).isService(serviceId)) {
         return i;
       }
     }
@@ -258,7 +258,7 @@ public class ExpandableServiceAdapter
 
   @Override
   public void addAvailableDevice(SensorDiscoverer.DiscoveredDevice device) {
-    for (InputDeviceSpec myDevice : mMyDevices) {
+    for (InputDeviceSpec myDevice : myDevices) {
       // Don't add something that's already in my devices
       if (myDevice.isSameSensor(device.getSpec())) {
         return;
@@ -269,7 +269,7 @@ public class ExpandableServiceAdapter
     if (i < 0) {
       return;
     }
-    ServiceParentListItem item = mParentItemList.get(i);
+    ServiceParentListItem item = parentItemList.get(i);
     if (item.addDevice(device)) {
       notifyChildItemInserted(i, item.getChildItemList().size() - 1);
     }
@@ -283,9 +283,9 @@ public class ExpandableServiceAdapter
    */
   @Override
   public void setMyDevices(List<InputDeviceSpec> devices) {
-    mMyDevices = new ArrayList<>(devices);
-    for (int i = 0; i < mParentItemList.size(); i++) {
-      List<Integer> removedIndices = mParentItemList.get(i).removeAnyOf(mMyDevices);
+    myDevices = new ArrayList<>(devices);
+    for (int i = 0; i < parentItemList.size(); i++) {
+      List<Integer> removedIndices = parentItemList.get(i).removeAnyOf(myDevices);
       for (Integer childIndex : removedIndices) {
         notifyChildItemRemoved(i, childIndex);
       }
@@ -293,29 +293,28 @@ public class ExpandableServiceAdapter
   }
 
   public class DeviceChildViewHolder extends ChildViewHolder {
-    private final TextView mNameView;
-    private final ImageView mIcon;
+    private final TextView nameView;
+    private final ImageView icon;
 
     public DeviceChildViewHolder(View itemView) {
       super(itemView);
-      mNameView = (TextView) itemView.findViewById(R.id.device_name);
-      mIcon = (ImageView) itemView.findViewById(R.id.device_icon);
+      nameView = (TextView) itemView.findViewById(R.id.device_name);
+      icon = (ImageView) itemView.findViewById(R.id.device_icon);
     }
 
     public void bind(
         final DeviceWithSensors dws,
         SensorAppearanceProvider appearanceProvider,
         Map<String, ConnectableSensor> sensorMap) {
-      mNameView.setText(dws.getName());
+      nameView.setText(dws.getName());
       itemView.setOnClickListener(
           new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              dws.addToRegistry(mConnectableSensorRegistry, mSensorRegistry);
+              dws.addToRegistry(connectableSensorRegistry, sensorRegistry);
             }
           });
-      mIcon.setImageDrawable(
-          dws.getIconDrawable(mIcon.getContext(), appearanceProvider, sensorMap));
+      icon.setImageDrawable(dws.getIconDrawable(icon.getContext(), appearanceProvider, sensorMap));
     }
   }
 }

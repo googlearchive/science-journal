@@ -60,103 +60,103 @@ public class PacketAssemblerTest {
   }
 
   private static class TestPacketAssemblerListener implements PacketAssembler.Listener {
-    private List<Point> mPoints = new ArrayList<>();
-    private List<String> mErrors = new ArrayList<>();
+    private List<Point> points = new ArrayList<>();
+    private List<String> errors = new ArrayList<>();
 
     @Override
     public void onError(@SensorStatusListener.Error int error, String errorMessage) {
-      mErrors.add(errorMessage);
+      errors.add(errorMessage);
     }
 
     @Override
     public void onDataParsed(long timeStampMs, double data) {
-      mPoints.add(new Point(timeStampMs, data));
+      points.add(new Point(timeStampMs, data));
     }
 
     public List<String> getErrors() {
-      return mErrors;
+      return errors;
     }
 
     public List<Point> getData() {
-      return mPoints;
+      return points;
     }
   }
 
   private class GoosciSensorBuilder {
-    private GoosciSensor.SensorData mSensorData;
-    private GoosciSensor.Data mData;
+    private GoosciSensor.SensorData sensorData;
+    private GoosciSensor.Data data;
 
     GoosciSensorBuilder() {
-      mSensorData = new GoosciSensor.SensorData();
-      mData = new GoosciSensor.Data();
-      mData.pin = new GoosciSensor.Pin();
+      sensorData = new GoosciSensor.SensorData();
+      data = new GoosciSensor.Data();
+      data.pin = new GoosciSensor.Pin();
     }
 
     GoosciSensorBuilder setAnalogPin() {
       GoosciSensor.AnalogPin pin = new GoosciSensor.AnalogPin();
-      mData.pin.setAnalogPin(pin);
+      data.pin.setAnalogPin(pin);
       return this;
     }
 
     GoosciSensorBuilder setDigitalPin() {
       GoosciSensor.DigitalPin pin = new GoosciSensor.DigitalPin();
-      mData.pin.setDigitalPin(pin);
+      data.pin.setDigitalPin(pin);
       return this;
     }
 
     GoosciSensorBuilder setVirtualPin() {
       GoosciSensor.VirtualPin pin = new GoosciSensor.VirtualPin();
-      mData.pin.setVirtualPin(pin);
+      data.pin.setVirtualPin(pin);
       return this;
     }
 
     GoosciSensorBuilder setAnalogValue(int value, int timestampMs) {
-      mSensorData.timestampKey = timestampMs;
+      sensorData.timestampKey = timestampMs;
       GoosciSensor.AnalogValue av = new GoosciSensor.AnalogValue();
       av.value = value;
-      mData.setAnalogValue(av);
+      data.setAnalogValue(av);
       return this;
     }
 
     GoosciSensorBuilder setDigitalValue(boolean value, int timestampMs) {
-      mSensorData.timestampKey = timestampMs;
+      sensorData.timestampKey = timestampMs;
       GoosciSensor.DigitalValue dv = new GoosciSensor.DigitalValue();
       dv.value = value;
-      mData.setDigitalValue(dv);
+      data.setDigitalValue(dv);
       return this;
     }
 
     GoosciSensorBuilder setIntValue(int value, int timestampMs) {
-      mSensorData.timestampKey = timestampMs;
+      sensorData.timestampKey = timestampMs;
       GoosciSensor.IntValue iv = new GoosciSensor.IntValue();
       iv.value = value;
-      mData.setIntValue(iv);
+      data.setIntValue(iv);
       return this;
     }
 
     GoosciSensorBuilder setFloatValue(float value, int timestampMs) {
-      mSensorData.timestampKey = timestampMs;
+      sensorData.timestampKey = timestampMs;
       GoosciSensor.FloatValue fv = new GoosciSensor.FloatValue();
       fv.value = value;
-      mData.setFloatValue(fv);
+      data.setFloatValue(fv);
       return this;
     }
 
     GoosciSensorBuilder setStringValue(String value, int timestampMs) {
-      mSensorData.timestampKey = timestampMs;
+      sensorData.timestampKey = timestampMs;
       GoosciSensor.StringValue sv = new GoosciSensor.StringValue();
       sv.value = value;
-      mData.setStringValue(sv);
+      data.setStringValue(sv);
       return this;
     }
 
     GoosciSensorBuilder commit() {
-      mSensorData.setData(mData);
+      sensorData.setData(data);
       return this;
     }
 
     byte[] toByteArray() {
-      return GoosciSensor.SensorData.toByteArray(mSensorData);
+      return GoosciSensor.SensorData.toByteArray(sensorData);
     }
   }
 

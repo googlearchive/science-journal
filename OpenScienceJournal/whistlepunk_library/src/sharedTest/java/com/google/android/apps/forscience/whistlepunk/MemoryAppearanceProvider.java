@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryAppearanceProvider implements SensorAppearanceProvider {
-  private Map<String, SensorAppearance> mAppearances = new HashMap<>();
+  private Map<String, SensorAppearance> appearances = new HashMap<>();
 
   public void putAppearance(String sensorId, SensorAppearance appearance) {
-    mAppearances.put(sensorId, appearance);
+    appearances.put(sensorId, appearance);
   }
 
   @Override
@@ -34,6 +34,6 @@ public class MemoryAppearanceProvider implements SensorAppearanceProvider {
 
   @Override
   public SensorAppearance getAppearance(String sensorId) {
-    return mAppearances.get(sensorId);
+    return appearances.get(sensorId);
   }
 }

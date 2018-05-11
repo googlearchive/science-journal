@@ -32,32 +32,32 @@ public class BleSensorSpec extends ExternalSensorSpec {
   public static final String TYPE = "bluetooth_le";
 
   /** Human readable name of the sensor. */
-  private String mName;
+  private String name;
 
-  private GoosciSensorConfig.BleSensorConfig mConfig = new GoosciSensorConfig.BleSensorConfig();
+  private GoosciSensorConfig.BleSensorConfig config = new GoosciSensorConfig.BleSensorConfig();
 
   // TODO: read in descriptor.
 
   public BleSensorSpec(String address, String name) {
-    mName = name;
-    mConfig.address = address;
+    this.name = name;
+    config.address = address;
     // Configure default sensor options (b/27106781)
     setSensorType(SensorTypeProvider.TYPE_RAW);
   }
 
   public BleSensorSpec(String name, byte[] deviceConfig) {
-    mName = name;
+    this.name = name;
     loadFromConfig(deviceConfig);
   }
 
   @Override
   public String getAddress() {
-    return mConfig.address;
+    return config.address;
   }
 
   @Override
   public String getName() {
-    return mName;
+    return name;
   }
 
   @Override
@@ -67,13 +67,13 @@ public class BleSensorSpec extends ExternalSensorSpec {
 
   @Override
   public byte[] getConfig() {
-    return getBytes(mConfig);
+    return getBytes(config);
   }
 
   @VisibleForTesting
   public void loadFromConfig(byte[] data) {
     try {
-      mConfig = GoosciSensorConfig.BleSensorConfig.parseFrom(data);
+      config = GoosciSensorConfig.BleSensorConfig.parseFrom(data);
     } catch (InvalidProtocolBufferNanoException e) {
       Log.e(TAG, "Could not deserialize config", e);
       throw new IllegalStateException(e);
@@ -85,30 +85,30 @@ public class BleSensorSpec extends ExternalSensorSpec {
     return SensorTypeProvider.getSensorAppearance(getSensorType(), this.getName());
   }
 
-  // Methods that access mConfig proto fields
+  // Methods that access config proto fields
   public @SensorTypeProvider.SensorKind int getSensorType() {
     // TODO: SensorType is stored as a string in the proto, but we should store it as an enum.
-    if (TextUtils.isEmpty(mConfig.sensorType) || !TextUtils.isDigitsOnly(mConfig.sensorType)) {
+    if (TextUtils.isEmpty(config.sensorType) || !TextUtils.isDigitsOnly(config.sensorType)) {
       // If the type isn't set, use a custom type.
       return SensorTypeProvider.TYPE_ROTATION;
     }
-    return Integer.valueOf(mConfig.sensorType);
+    return Integer.valueOf(config.sensorType);
   }
 
   public void setSensorType(@SensorTypeProvider.SensorKind int sensorType) {
-    mConfig.sensorType = String.valueOf(sensorType);
+    config.sensorType = String.valueOf(sensorType);
   }
 
   public String getCustomPin() {
-    return mConfig.customPin;
+    return config.customPin;
   }
 
   public void setCustomPin(String pin) {
-    mConfig.customPin = pin;
+    config.customPin = pin;
   }
 
   public boolean getCustomFrequencyEnabled() {
-    return mConfig.customFrequency;
+    return config.customFrequency;
   }
 
   public boolean getFrequencyEnabled() {
@@ -125,7 +125,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
   }
 
   public void setCustomFrequencyEnabled(boolean frequency) {
-    mConfig.customFrequency = frequency;
+    config.customFrequency = frequency;
   }
 
   public String getPin() {
@@ -141,7 +141,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
   }
 
   public void setCustomScaleTransform(GoosciSensorConfig.BleSensorConfig.ScaleTransform transform) {
-    mConfig.customScaleTransform = transform;
+    config.customScaleTransform = transform;
   }
 
   public GoosciSensorConfig.BleSensorConfig.ScaleTransform getScaleTransform() {
@@ -151,7 +151,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
       case SensorTypeProvider.TYPE_RAW:
         return tenBitsToPercent();
       case SensorTypeProvider.TYPE_CUSTOM:
-        return mConfig.customScaleTransform;
+        return config.customScaleTransform;
     }
     complainSensorType();
     return null;
@@ -195,7 +195,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
   @VisibleForTesting
   @Override
   public String toString() {
-    return "BleSensorSpec{" + "mConfig=" + mConfig + '}';
+    return "BleSensorSpec{" + "mConfig=" + config + '}';
   }
 
   @Override

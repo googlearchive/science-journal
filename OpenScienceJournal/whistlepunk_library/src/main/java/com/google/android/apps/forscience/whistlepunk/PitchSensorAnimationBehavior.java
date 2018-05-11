@@ -79,19 +79,19 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
   private static final String SHARP = "\u266F";
 
   private static class MusicalNote {
-    final String mLetter;
-    final String mSign;
-    final String mOctave;
+    final String letter;
+    final String sign;
+    final String octave;
 
     MusicalNote(String letter, String sign, String octave) {
-      mLetter = letter;
-      mSign = sign;
-      mOctave = octave;
+      this.letter = letter;
+      this.sign = sign;
+      this.octave = octave;
     }
 
     boolean isNotePlacedAtCenter() {
       // "-" and "+" are placed at the center.
-      return mLetter.equals("-") || mLetter.equals("+");
+      return letter.equals("-") || letter.equals("+");
     }
   }
 
@@ -104,41 +104,41 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
 
   private static final List<MusicalNote> musicalNotes = new ArrayList<>();
 
-  private final Paint mPaintForDot;
-  private final Paint mPaintForShade;
-  private final Paint mPaintForNoteLeft;
-  private final Paint mPaintForNoteRight;
-  private final Paint mPaintForSign;
-  private final Paint mPaintForOctave;
+  private final Paint paintForDot;
+  private final Paint paintForShade;
+  private final Paint paintForNoteLeft;
+  private final Paint paintForNoteRight;
+  private final Paint paintForSign;
+  private final Paint paintForOctave;
 
   PitchSensorAnimationBehavior() {
-    mPaintForDot = new Paint();
-    mPaintForDot.setColor(Color.RED);
+    paintForDot = new Paint();
+    paintForDot.setColor(Color.RED);
 
-    mPaintForShade = new Paint();
-    mPaintForShade.setColor(makeShadeColor(0));
+    paintForShade = new Paint();
+    paintForShade.setColor(makeShadeColor(0));
 
     Typeface sansSerifBold = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
 
-    mPaintForNoteLeft = new Paint(Paint.LINEAR_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
-    mPaintForNoteLeft.setTextAlign(Paint.Align.CENTER);
-    mPaintForNoteLeft.setColor(COLOR_NOTE_LEFT);
-    mPaintForNoteLeft.setTypeface(sansSerifBold);
+    paintForNoteLeft = new Paint(Paint.LINEAR_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
+    paintForNoteLeft.setTextAlign(Paint.Align.CENTER);
+    paintForNoteLeft.setColor(COLOR_NOTE_LEFT);
+    paintForNoteLeft.setTypeface(sansSerifBold);
 
-    mPaintForNoteRight = new Paint(Paint.LINEAR_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
-    mPaintForNoteRight.setTextAlign(Paint.Align.CENTER);
-    mPaintForNoteRight.setColor(COLOR_NOTE_RIGHT);
-    mPaintForNoteRight.setTypeface(sansSerifBold);
+    paintForNoteRight = new Paint(Paint.LINEAR_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
+    paintForNoteRight.setTextAlign(Paint.Align.CENTER);
+    paintForNoteRight.setColor(COLOR_NOTE_RIGHT);
+    paintForNoteRight.setTypeface(sansSerifBold);
 
-    mPaintForSign = new Paint(Paint.LINEAR_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
-    mPaintForSign.setTextAlign(Paint.Align.CENTER);
-    mPaintForSign.setColor(COLOR_SIGN);
-    mPaintForSign.setTypeface(sansSerifBold);
+    paintForSign = new Paint(Paint.LINEAR_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
+    paintForSign.setTextAlign(Paint.Align.CENTER);
+    paintForSign.setColor(COLOR_SIGN);
+    paintForSign.setTypeface(sansSerifBold);
 
-    mPaintForOctave = new Paint(Paint.LINEAR_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
-    mPaintForOctave.setTextAlign(Paint.Align.CENTER);
-    mPaintForOctave.setColor(COLOR_OCTAVE);
-    mPaintForOctave.setTypeface(sansSerifBold);
+    paintForOctave = new Paint(Paint.LINEAR_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
+    paintForOctave.setTextAlign(Paint.Align.CENTER);
+    paintForOctave.setColor(COLOR_OCTAVE);
+    paintForOctave.setTypeface(sansSerifBold);
   }
 
   private ImageViewCanvas getImageViewCanvas(RelativeLayout layout) {
@@ -146,18 +146,18 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
   }
 
   private class ImageViewCanvas extends AppCompatImageView {
-    private float mIconCenterX;
-    private float mIconCenterY;
-    private float mDotRadius;
-    private float mEllipseRadius;
-    private float mShadeRadius;
-    private float mNoteX;
-    private float mNoteY;
-    private float mSignX;
-    private float mSignY;
-    private float mOctaveX;
-    private float mOctaveY;
-    private Rect mNoteBounds = new Rect();
+    private float iconCenterX;
+    private float iconCenterY;
+    private float dotRadius;
+    private float ellipseRadius;
+    private float shadeRadius;
+    private float noteX;
+    private float noteY;
+    private float signX;
+    private float signY;
+    private float octaveX;
+    private float octaveY;
+    private Rect noteBounds = new Rect();
 
     /**
      * The angle of the dot indicating how close the detected pitch is to the nearest musical note.
@@ -165,9 +165,9 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
      * top. A value of PI positions the dot at the far left. Initialize so that the dot is displayed
      * at the top.
      */
-    private double mAngleOfDot = ANGLE_TOP;
+    private double angleOfDot = ANGLE_TOP;
 
-    private int mLevel = 0;
+    private int level = 0;
 
     ImageViewCanvas(Context context) {
       super(context);
@@ -178,34 +178,34 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
 
     private void setPitch(double detectedPitch) {
       int level = pitchToLevel(detectedPitch);
-      if (level != mLevel) {
-        mLevel = level;
-        mPaintForShade.setColor(makeShadeColor(level));
+      if (level != this.level) {
+        this.level = level;
+        paintForShade.setColor(makeShadeColor(level));
       }
       double difference = calculateDifference(detectedPitch, level);
-      mAngleOfDot = (1 - 2 * difference) * (Math.PI / 2);
+      angleOfDot = (1 - 2 * difference) * (Math.PI / 2);
       setContentDescription(makeContentDescription(getContext(), level, difference));
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
-      mIconCenterX = w / 2.0f;
-      mIconCenterY = h / 2.0f;
-      mEllipseRadius = w * ELLIPSE_RADIUS_RATIO;
-      mDotRadius = w * DOT_RADIUS_RATIO;
-      mShadeRadius = w * SHADE_RADIUS_RATIO;
+      iconCenterX = w / 2.0f;
+      iconCenterY = h / 2.0f;
+      ellipseRadius = w * ELLIPSE_RADIUS_RATIO;
+      dotRadius = w * DOT_RADIUS_RATIO;
+      shadeRadius = w * SHADE_RADIUS_RATIO;
 
-      mNoteX = w * NOTE_X_RATIO;
-      mNoteY = h * NOTE_Y_RATIO;
-      mSignX = w * SIGN_X_RATIO;
-      mSignY = h * SIGN_Y_RATIO;
-      mOctaveX = w * OCTAVE_X_RATIO;
-      mOctaveY = h * OCTAVE_Y_RATIO;
+      noteX = w * NOTE_X_RATIO;
+      noteY = h * NOTE_Y_RATIO;
+      signX = w * SIGN_X_RATIO;
+      signY = h * SIGN_Y_RATIO;
+      octaveX = w * OCTAVE_X_RATIO;
+      octaveY = h * OCTAVE_Y_RATIO;
 
-      mPaintForNoteLeft.setTextSize(h * NOTE_TEXT_SIZE_RATIO);
-      mPaintForNoteRight.setTextSize(h * NOTE_TEXT_SIZE_RATIO);
-      mPaintForSign.setTextSize(h * SIGN_TEXT_SIZE_RATIO);
-      mPaintForOctave.setTextSize(h * OCTAVE_TEXT_SIZE_RATIO);
+      paintForNoteLeft.setTextSize(h * NOTE_TEXT_SIZE_RATIO);
+      paintForNoteRight.setTextSize(h * NOTE_TEXT_SIZE_RATIO);
+      paintForSign.setTextSize(h * SIGN_TEXT_SIZE_RATIO);
+      paintForOctave.setTextSize(h * OCTAVE_TEXT_SIZE_RATIO);
       DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
       int shadowRadius = SHADOW_RADIUS;
       int shadowDx = SHADOW_DX;
@@ -215,10 +215,10 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
         shadowDx *= 2;
         shadowDy *= 2;
       }
-      mPaintForNoteLeft.setShadowLayer(shadowRadius, shadowDx, shadowDy, SHADOW_COLOR);
-      mPaintForNoteRight.setShadowLayer(shadowRadius, shadowDx, shadowDy, SHADOW_COLOR);
-      mPaintForOctave.setShadowLayer(shadowRadius, shadowDx, shadowDy, SHADOW_COLOR);
-      mPaintForSign.setShadowLayer(shadowRadius, shadowDx, shadowDy, SHADOW_COLOR);
+      paintForNoteLeft.setShadowLayer(shadowRadius, shadowDx, shadowDy, SHADOW_COLOR);
+      paintForNoteRight.setShadowLayer(shadowRadius, shadowDx, shadowDy, SHADOW_COLOR);
+      paintForOctave.setShadowLayer(shadowRadius, shadowDx, shadowDy, SHADOW_COLOR);
+      paintForSign.setShadowLayer(shadowRadius, shadowDx, shadowDy, SHADOW_COLOR);
 
       if (musicalNotes.isEmpty()) {
         fillNoteLists();
@@ -235,44 +235,44 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
         return;
       }
 
-      canvas.drawCircle(mIconCenterX, mIconCenterY, mShadeRadius, mPaintForShade);
+      canvas.drawCircle(iconCenterX, iconCenterY, shadeRadius, paintForShade);
 
-      MusicalNote musicalNote = musicalNotes.get(mLevel);
-      float noteX = mNoteX;
-      float noteY = mNoteY;
+      MusicalNote musicalNote = musicalNotes.get(level);
+      float noteX = this.noteX;
+      float noteY = this.noteY;
       if (musicalNote.isNotePlacedAtCenter()) {
         // "-" and "+" are placed at the center.
-        noteX = mIconCenterX;
-        mPaintForNoteLeft.getTextBounds(
-            musicalNote.mLetter, 0, musicalNote.mLetter.length(), mNoteBounds);
-        noteY = mIconCenterY - (mNoteBounds.top + mNoteBounds.bottom) / 2;
+        noteX = iconCenterX;
+        paintForNoteLeft.getTextBounds(
+            musicalNote.letter, 0, musicalNote.letter.length(), noteBounds);
+        noteY = iconCenterY - (noteBounds.top + noteBounds.bottom) / 2;
       }
       canvas.save();
       canvas.clipRect(0, 0, noteX, getHeight());
-      canvas.drawText(musicalNote.mLetter, noteX, noteY, mPaintForNoteLeft);
+      canvas.drawText(musicalNote.letter, noteX, noteY, paintForNoteLeft);
       canvas.restore();
       canvas.save();
       canvas.clipRect(noteX, 0, getWidth(), getHeight());
-      canvas.drawText(musicalNote.mLetter, noteX, noteY, mPaintForNoteRight);
+      canvas.drawText(musicalNote.letter, noteX, noteY, paintForNoteRight);
       canvas.restore();
-      if (musicalNote.mSign != null && !musicalNote.mSign.isEmpty()) {
+      if (musicalNote.sign != null && !musicalNote.sign.isEmpty()) {
         // We need to draw the sharp or flat sign.
-        canvas.drawText(musicalNote.mSign, mSignX, mSignY, mPaintForSign);
+        canvas.drawText(musicalNote.sign, signX, signY, paintForSign);
       }
-      if (musicalNote.mOctave != null && !musicalNote.mOctave.isEmpty()) {
-        canvas.drawText(musicalNote.mOctave, mOctaveX, mOctaveY, mPaintForOctave);
+      if (musicalNote.octave != null && !musicalNote.octave.isEmpty()) {
+        canvas.drawText(musicalNote.octave, octaveX, octaveY, paintForOctave);
       }
 
       // Calculate the location of the red dot. The red dot will be a point on the invisible
       // ellipse.
-      float xDot = (float) (mIconCenterX + mEllipseRadius * Math.cos(mAngleOfDot));
-      float yDot = (float) (mIconCenterY - mEllipseRadius * Math.sin(mAngleOfDot));
-      if (mAngleOfDot == ANGLE_TOP) {
+      float xDot = (float) (iconCenterX + ellipseRadius * Math.cos(angleOfDot));
+      float yDot = (float) (iconCenterY - ellipseRadius * Math.sin(angleOfDot));
+      if (angleOfDot == ANGLE_TOP) {
         // Because the drawable is an even number of pixels wide, the top circle is offset
         // half a pixel to the right. This fixes the overlap issues.
         xDot += HALF_PIXEL;
       }
-      canvas.drawCircle(xDot, yDot, mDotRadius, mPaintForDot);
+      canvas.drawCircle(xDot, yDot, dotRadius, paintForDot);
     }
   }
 
@@ -479,16 +479,16 @@ class PitchSensorAnimationBehavior implements SensorAnimationBehavior {
     }
     MusicalNote musicalNote = musicalNotes.get(noteNumber);
     int format;
-    if (musicalNote.mSign.equals(FLAT)) {
+    if (musicalNote.sign.equals(FLAT)) {
       format = flatNoteDescription(signum);
-    } else if (musicalNote.mSign.equals(SHARP)) {
+    } else if (musicalNote.sign.equals(SHARP)) {
       format = sharpNoteDescription(signum);
     } else {
       format = naturalNoteDescription(signum);
     }
     return context
         .getResources()
-        .getString(format, musicalNote.mLetter, musicalNote.mOctave, differenceFormatted);
+        .getString(format, musicalNote.letter, musicalNote.octave, differenceFormatted);
   }
 
   private static int naturalNoteDescription(int signum) {

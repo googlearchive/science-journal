@@ -28,44 +28,44 @@ import java.util.concurrent.Executor;
  */
 public class ScalarInputScenario {
   public final SensorAppearanceResources appearance = new SensorAppearanceResources();
-  private String mServiceName;
-  private String mDeviceId;
-  private String mDeviceName;
-  private String mSensorAddress;
-  private String mSensorName;
-  private String mServiceId;
+  private String serviceName;
+  private String deviceId;
+  private String deviceName;
+  private String sensorAddress;
+  private String sensorName;
+  private String serviceId;
 
   public ScalarInputScenario() {
-    mServiceName = Arbitrary.string("serviceName");
-    mDeviceId = Arbitrary.string("deviceId");
-    mDeviceName = Arbitrary.string("deviceName");
-    mSensorAddress = Arbitrary.string("sensorAddress");
-    mSensorName = Arbitrary.string("sensorName");
-    mServiceId = Arbitrary.string("serviceId");
+    serviceName = Arbitrary.string("serviceName");
+    deviceId = Arbitrary.string("deviceId");
+    deviceName = Arbitrary.string("deviceName");
+    sensorAddress = Arbitrary.string("sensorAddress");
+    sensorName = Arbitrary.string("sensorName");
+    serviceId = Arbitrary.string("serviceId");
   }
 
   public String getServiceName() {
-    return mServiceName;
+    return serviceName;
   }
 
   public String getDeviceId() {
-    return mDeviceId;
+    return deviceId;
   }
 
   public String getDeviceName() {
-    return mDeviceName;
+    return deviceName;
   }
 
   public String getSensorAddress() {
-    return mSensorAddress;
+    return sensorAddress;
   }
 
   public String getSensorName() {
-    return mSensorName;
+    return sensorName;
   }
 
   public String getServiceId() {
-    return mServiceId;
+    return serviceId;
   }
 
   @NonNull
@@ -96,7 +96,7 @@ public class ScalarInputScenario {
         getSensorAddress(),
         new SensorBehavior(),
         appearance,
-        mDeviceId);
+        deviceId);
   }
 
   public Map<String, SensorProvider> makeScalarInputProviders() {

@@ -32,7 +32,7 @@ import java.util.Set;
 public class RunStats {
   private static final int TYPE_NOT_FOUND = -1;
   private static final int DEFAULT_VALUE = 0;
-  private TrialStats mTrialStats;
+  private TrialStats trialStats;
   private static Map<String, Integer> keyMap = new HashMap<>();
 
   public static RunStats fromTrialStats(TrialStats trialStats) {
@@ -44,7 +44,7 @@ public class RunStats {
   }
 
   private RunStats(TrialStats trialStats) {
-    mTrialStats = trialStats;
+    this.trialStats = trialStats;
   }
 
   private static void initializeKeyMap() {
@@ -63,16 +63,16 @@ public class RunStats {
   }
 
   public RunStats(String sensorId) {
-    mTrialStats = new TrialStats(sensorId);
+    trialStats = new TrialStats(sensorId);
   }
 
   public TrialStats getTrialStats() {
-    return mTrialStats;
+    return trialStats;
   }
 
   public void putStat(String key, double value) {
     int type = keyToType(key);
-    mTrialStats.putStat(type, value);
+    trialStats.putStat(type, value);
   }
 
   public double getStat(String key) {
@@ -80,15 +80,15 @@ public class RunStats {
   }
 
   public double getStat(String key, double defaultValue) {
-    return mTrialStats.getStatValue(keyToType(key), defaultValue);
+    return trialStats.getStatValue(keyToType(key), defaultValue);
   }
 
   public boolean hasStat(String key) {
-    return mTrialStats.hasStat(keyToType(key));
+    return trialStats.hasStat(keyToType(key));
   }
 
   public int getStatus() {
-    if (mTrialStats.statsAreValid()) {
+    if (trialStats.statsAreValid()) {
       return StatsAccumulator.STATUS_VALID;
     }
     return StatsAccumulator.STATUS_NEEDS_UPDATE;
@@ -96,16 +96,16 @@ public class RunStats {
 
   public void setStatus(int newStatus) {
     if (newStatus == StatsAccumulator.STATUS_NEEDS_UPDATE) {
-      mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
+      trialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
     } else if (newStatus == StatsAccumulator.STATUS_VALID) {
-      mTrialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+      trialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
     }
   }
 
   public Set<String> getKeys() {
     Set<String> result = new HashSet<>();
     for (String key : keyMap.keySet()) {
-      if (mTrialStats.hasStat(keyToType(key))) {
+      if (trialStats.hasStat(keyToType(key))) {
         result.add(key);
       }
     }

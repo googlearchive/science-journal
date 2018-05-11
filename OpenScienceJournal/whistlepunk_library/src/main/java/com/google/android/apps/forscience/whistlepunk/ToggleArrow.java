@@ -25,10 +25,10 @@ import android.util.AttributeSet;
 import android.view.TouchDelegate;
 
 public class ToggleArrow extends AppCompatImageButton {
-  private int mStringToBecomeActive;
-  private int mStringToBecomeInactive;
-  private String mName;
-  private boolean mIsFocusable = true;
+  private int stringToBecomeActive;
+  private int stringToBecomeInactive;
+  private String name;
+  private boolean isFocusable = true;
 
   public ToggleArrow(Context context) {
     super(context);
@@ -60,7 +60,7 @@ public class ToggleArrow extends AppCompatImageButton {
   }
 
   public void setIsFocusable(boolean focusable) {
-    mIsFocusable = focusable;
+    isFocusable = focusable;
   }
 
   /**
@@ -70,8 +70,8 @@ public class ToggleArrow extends AppCompatImageButton {
    * @param stringToBecomeInactive The ID of the string to use when user action deactivates us.
    */
   public void setActionStrings(int stringToBecomeActive, int stringToBecomeInactive) {
-    mStringToBecomeActive = stringToBecomeActive;
-    mStringToBecomeInactive = stringToBecomeInactive;
+    this.stringToBecomeActive = stringToBecomeActive;
+    this.stringToBecomeInactive = stringToBecomeInactive;
   }
 
   /**
@@ -86,17 +86,17 @@ public class ToggleArrow extends AppCompatImageButton {
    */
   public void setActionStrings(int stringToBecomeActive, int stringToBecomeInactive, String name) {
     setActionStrings(stringToBecomeActive, stringToBecomeInactive);
-    mName = name;
+    this.name = name;
   }
 
   public void setActive(boolean isBecomingActive, boolean animate) {
-    if (mIsFocusable) {
+    if (isFocusable) {
       Resources resources = getResources();
-      int stringId = isBecomingActive ? mStringToBecomeInactive : mStringToBecomeActive;
+      int stringId = isBecomingActive ? stringToBecomeInactive : stringToBecomeActive;
       // If it has a name field, then setActionStrings was called with the name param, and we
       // can expect those strings to be string-formatting strings that take the name.
-      if (!TextUtils.isEmpty(mName)) {
-        setContentDescription(resources.getString(stringId, mName));
+      if (!TextUtils.isEmpty(name)) {
+        setContentDescription(resources.getString(stringId, name));
       } else {
         setContentDescription(resources.getString(stringId));
       }

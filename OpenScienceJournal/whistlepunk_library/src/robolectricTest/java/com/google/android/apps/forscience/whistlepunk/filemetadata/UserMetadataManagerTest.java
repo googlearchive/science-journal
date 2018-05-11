@@ -36,7 +36,7 @@ import org.robolectric.RuntimeEnvironment;
 /** Tests for SharedMetadatamanager */
 @RunWith(RobolectricTestRunner.class)
 public class UserMetadataManagerTest {
-  private int mFailureCount = 0;
+  private int failureCount = 0;
 
   private UserMetadataManager.FailureListener getFailureFailsListener() {
     return new UserMetadataManager.FailureListener() {
@@ -61,17 +61,17 @@ public class UserMetadataManagerTest {
     return new UserMetadataManager.FailureListener() {
       @Override
       public void onWriteFailed() {
-        mFailureCount++;
+        failureCount++;
       }
 
       @Override
       public void onReadFailed() {
-        mFailureCount++;
+        failureCount++;
       }
 
       @Override
       public void onNewerVersionDetected() {
-        mFailureCount++;
+        failureCount++;
       }
     };
   }
@@ -89,7 +89,7 @@ public class UserMetadataManagerTest {
   private void cleanUp() {
     File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getAppAccount());
     sharedMetadataFile.delete();
-    mFailureCount = 0;
+    failureCount = 0;
   }
 
   @Test
@@ -179,7 +179,7 @@ public class UserMetadataManagerTest {
     proto.version = 2;
     proto.minorVersion = 0;
     smm.upgradeUserMetadataVersionIfNeeded(proto, 1, 1);
-    assertEquals(1, mFailureCount);
+    assertEquals(1, failureCount);
   }
 
   @Test
@@ -200,7 +200,7 @@ public class UserMetadataManagerTest {
         new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     smm.upgradeUserMetadataVersionIfNeeded(proto, 100, 0);
-    assertEquals(1, mFailureCount);
+    assertEquals(1, failureCount);
   }
 
   @Test

@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 class MemoryRecorderController implements RecorderController {
-  private Map<String, String> mCurrentObserverIds = new HashMap<>();
-  private int mObserverCount = 0;
+  private Map<String, String> currentObserverIds = new HashMap<>();
+  private int observerCount = 0;
 
   @Override
   public String startObserving(
@@ -45,15 +45,15 @@ class MemoryRecorderController implements RecorderController {
       SensorStatusListener listener,
       TransportableSensorOptions initialOptions,
       SensorRegistry sensorRegistry) {
-    String observerId = String.valueOf(++mObserverCount);
-    mCurrentObserverIds.put(sensorId, observerId);
+    String observerId = String.valueOf(++observerCount);
+    currentObserverIds.put(sensorId, observerId);
     return observerId;
   }
 
   @Override
   public void stopObserving(String sensorId, String observerId) {
-    if (mCurrentObserverIds.get(sensorId).equals(observerId)) {
-      mCurrentObserverIds.remove(sensorId);
+    if (currentObserverIds.get(sensorId).equals(observerId)) {
+      currentObserverIds.remove(sensorId);
     }
   }
 
@@ -139,6 +139,6 @@ class MemoryRecorderController implements RecorderController {
   public void clearSensorTriggers(String sensorId, SensorRegistry sensorRegistry) {}
 
   public List<String> getCurrentObservedIds() {
-    return Lists.newArrayList(mCurrentObserverIds.keySet());
+    return Lists.newArrayList(currentObserverIds.keySet());
   }
 }

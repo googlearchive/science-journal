@@ -42,7 +42,7 @@ import java.util.Set;
 public abstract class ScalarSensorService extends Service {
   private static final String TAG = "ScalarService";
 
-  private ISensorDiscoverer.Stub mDiscoverer = null;
+  private ISensorDiscoverer.Stub discoverer = null;
 
   /** @return a human-readable name of this service */
   @NonNull
@@ -161,10 +161,10 @@ public abstract class ScalarSensorService extends Service {
   }
 
   private ISensorDiscoverer.Stub getDiscoverer() {
-    if (mDiscoverer == null) {
-      mDiscoverer = createDiscoverer();
+    if (discoverer == null) {
+      discoverer = createDiscoverer();
     }
-    return mDiscoverer;
+    return discoverer;
   }
 
   protected ISensorDiscoverer.Stub createDiscoverer() {
@@ -172,10 +172,10 @@ public abstract class ScalarSensorService extends Service {
   }
 
   private class ScalarDiscoverer extends ISensorDiscoverer.Stub {
-    private LinkedHashMap<String, AdvertisedDevice> mDevices = new LinkedHashMap<>();
-    private Map<String, AdvertisedSensor> mSensors = new ArrayMap<>();
-    private boolean mSignatureHasBeenChecked = false;
-    private boolean mSignatureCheckPassed = false;
+    private LinkedHashMap<String, AdvertisedDevice> devices = new LinkedHashMap<>();
+    private Map<String, AdvertisedSensor> sensors = new ArrayMap<>();
+    private boolean signatureHasBeenChecked = false;
+    private boolean signatureCheckPassed = false;
 
     @Override
     public String getName() throws RemoteException {
@@ -191,7 +191,7 @@ public abstract class ScalarSensorService extends Service {
           new AdvertisedDeviceConsumer() {
             @Override
             public void onDeviceFound(AdvertisedDevice device) throws RemoteException {
-              mDevices.put(device.getDeviceId(), device);
+              devices.put(device.getDeviceId(), device);
               c.onDeviceFound(
                   device.getDeviceId(), device.getDeviceName(), device.getSettingsIntent());
             }
@@ -206,13 +206,13 @@ public abstract class ScalarSensorService extends Service {
     @Override
     public void scanSensors(String deviceId, ISensorConsumer c) throws RemoteException {
       if (clientAllowed()) {
-        AdvertisedDevice device = mDevices.get(deviceId);
+        AdvertisedDevice device = devices.get(deviceId);
         if (device == null) {
           c.onScanDone();
           return;
         }
         for (AdvertisedSensor sensor : device.getSensors()) {
-          mSensors.put(sensor.getAddress(), sensor);
+          sensors.put(sensor.getAddress(), sensor);
           c.onSensorFound(
               sensor.getAddress(), sensor.getName(), sensor.getBehavior(), sensor.getAppearance());
         }
@@ -231,7 +231,7 @@ public abstract class ScalarSensorService extends Service {
             String settingsKey)
             throws RemoteException {
           if (clientAllowed()) {
-            AdvertisedSensor sensor = mSensors.get(sensorId);
+            AdvertisedSensor sensor = sensors.get(sensorId);
             // TODO: write tests for this
             if (sensor != null) {
               sensor.startObserving(observer, listener);
@@ -245,7 +245,7 @@ public abstract class ScalarSensorService extends Service {
         @Override
         public void stopObserving(String sensorId) throws RemoteException {
           if (clientAllowed()) {
-            mSensors.get(sensorId).stopObserving();
+            sensors.get(sensorId).stopObserving();
           }
         }
 
@@ -271,7 +271,7 @@ public abstract class ScalarSensorService extends Service {
                             SensorAppearanceResources appearance)
                             throws RemoteException {
                           if (sensorAddress.equals(sensorId)) {
-                            mSensors.get(sensorId).startObserving(observer, listener);
+                            sensors.get(sensorId).startObserving(observer, listener);
                           }
                         }
 
@@ -293,10 +293,10 @@ public abstract class ScalarSensorService extends Service {
     }
 
     private boolean clientAllowed() {
-      if (!mSignatureHasBeenChecked) {
-        mSignatureCheckPassed = !shouldCheckBinderSignature() || binderHasAllowedSignature();
+      if (!signatureHasBeenChecked) {
+        signatureCheckPassed = !shouldCheckBinderSignature() || binderHasAllowedSignature();
       }
-      return mSignatureCheckPassed;
+      return signatureCheckPassed;
     }
   }
 }

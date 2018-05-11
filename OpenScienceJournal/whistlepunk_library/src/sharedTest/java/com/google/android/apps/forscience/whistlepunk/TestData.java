@@ -60,10 +60,10 @@ public class TestData {
     }
   }
 
-  private List<Point> mPoints = new ArrayList<>();
+  private List<Point> points = new ArrayList<>();
 
   public TestData addPoint(long x, double y) {
-    mPoints.add(new Point(x, y));
+    points.add(new Point(x, y));
     return this;
   }
 
@@ -78,7 +78,7 @@ public class TestData {
 
   public void checkRawData(List<ChartData.DataPoint> rawData) {
     removeDupes(rawData);
-    final Iterator<Point> iterator = mPoints.iterator();
+    final Iterator<Point> iterator = points.iterator();
 
     for (ChartData.DataPoint entry : rawData) {
       // rawData (due to other bugs) can have duplicate entries, which aren't important to

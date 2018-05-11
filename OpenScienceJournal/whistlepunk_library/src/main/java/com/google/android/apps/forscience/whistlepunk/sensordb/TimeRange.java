@@ -36,24 +36,24 @@ public class TimeRange {
     return new TimeRange(times, ObservationOrder.OLDEST_FIRST);
   }
 
-  private Range<Long> mTimes;
-  private ObservationOrder mOrder;
+  private Range<Long> times;
+  private ObservationOrder order;
 
   /**
    * @param times inclusive range of timestamps of interest. May be Range.all() or null in order to
    *     get the most recent observations overall.
    */
   private TimeRange(Range<Long> times, ObservationOrder order) {
-    mTimes = times;
-    mOrder = order;
+    this.times = times;
+    this.order = order;
   }
 
   public Range<Long> getTimes() {
-    return mTimes;
+    return times;
   }
 
   public ObservationOrder getOrder() {
-    return mOrder;
+    return order;
   }
 
   @Override
@@ -67,16 +67,16 @@ public class TimeRange {
 
     final TimeRange that = (TimeRange) o;
 
-    if (mOrder != that.mOrder) {
+    if (order != that.order) {
       return false;
     }
-    return mTimes.equals(that.mTimes);
+    return times.equals(that.times);
   }
 
   @Override
   public int hashCode() {
-    int result = mTimes.hashCode();
-    result = 31 * result + mOrder.hashCode();
+    int result = times.hashCode();
+    result = 31 * result + order.hashCode();
     return result;
   }
 }

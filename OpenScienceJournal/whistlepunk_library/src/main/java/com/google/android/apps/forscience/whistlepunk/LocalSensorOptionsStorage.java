@@ -30,8 +30,8 @@ import java.util.Map;
 /** Stores sensor options in a local map */
 public class LocalSensorOptionsStorage implements NewOptionsStorage {
   public static final String TAG = "LocalSensorOptionsStrg";
-  Map<String, String> mValues = new HashMap<>();
-  private AbstractReadableSensorOptions mReadable = new ReadableTransportableSensorOptions(mValues);
+  Map<String, String> values = new HashMap<>();
+  private AbstractReadableSensorOptions readable = new ReadableTransportableSensorOptions(values);
 
   @Override
   public WriteableSensorOptions load(FailureListener onFailures) {
@@ -44,12 +44,12 @@ public class LocalSensorOptionsStorage implements NewOptionsStorage {
     return new WriteableSensorOptions() {
       @Override
       public ReadableSensorOptions getReadOnly() {
-        return mReadable;
+        return readable;
       }
 
       @Override
       public void put(String key, String value) {
-        mValues.put(key, value);
+        values.put(key, value);
       }
     };
   }

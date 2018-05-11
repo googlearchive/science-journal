@@ -38,17 +38,17 @@ public class ZoomRecorder {
    */
   public static final String STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS = "stats_zoom_level";
 
-  private final String mSensorId;
-  private final int mZoomBufferSize;
-  private final int mTier;
+  private final String sensorId;
+  private final int zoomBufferSize;
+  private final int tier;
 
-  private String mTrialId = null;
-  private int mSeenThisPass = 0;
-  private long mTimestampOfMinSeen;
-  private double mValueOfMinSeen;
-  private long mTimestampOfMaxSeen;
-  private double mValueOfMaxSeen;
-  private ZoomRecorder mNextTierUp = null;
+  private String trialId = null;
+  private int seenThisPass = 0;
+  private long timestampOfMinSeen;
+  private double valueOfMinSeen;
+  private long timestampOfMaxSeen;
+  private double valueOfMaxSeen;
+  private ZoomRecorder nextTierUp = null;
 
   /**
    * @param zoomBufferSize how many data points we can store before sending summary data points to
@@ -56,89 +56,89 @@ public class ZoomRecorder {
    *     tier will hold (2 / zoomBufferSize) as many data points as the next tier down.
    */
   public ZoomRecorder(String id, int zoomBufferSize, int tier) {
-    mSensorId = id;
-    mTier = tier;
-    mZoomBufferSize = zoomBufferSize;
+    sensorId = id;
+    this.tier = tier;
+    this.zoomBufferSize = zoomBufferSize;
     resetBuffer();
   }
 
   public void clear() {
-    mNextTierUp = null;
+    nextTierUp = null;
     resetBuffer();
   }
 
   public void clearTrialId() {
-    mTrialId = null;
-    if (mNextTierUp != null) {
-      mNextTierUp.clearTrialId();
+    trialId = null;
+    if (nextTierUp != null) {
+      nextTierUp.clearTrialId();
     }
   }
 
   public void setTrialId(String trialId) {
-    mTrialId = trialId;
-    if (mNextTierUp != null) {
-      mNextTierUp.setTrialId(trialId);
+    this.trialId = trialId;
+    if (nextTierUp != null) {
+      nextTierUp.setTrialId(trialId);
     }
   }
 
   private void resetBuffer() {
-    mSeenThisPass = 0;
-    mValueOfMinSeen = Double.MAX_VALUE;
-    mValueOfMaxSeen = -Double.MAX_VALUE;
-    mTimestampOfMaxSeen = mTimestampOfMinSeen = -1;
+    seenThisPass = 0;
+    valueOfMinSeen = Double.MAX_VALUE;
+    valueOfMaxSeen = -Double.MAX_VALUE;
+    timestampOfMaxSeen = timestampOfMinSeen = -1;
   }
 
   public void addData(long timestampMillis, double value, RecordingDataController dc) {
-    mSeenThisPass++;
-    if (value > mValueOfMaxSeen) {
-      mValueOfMaxSeen = value;
-      mTimestampOfMaxSeen = timestampMillis;
+    seenThisPass++;
+    if (value > valueOfMaxSeen) {
+      valueOfMaxSeen = value;
+      timestampOfMaxSeen = timestampMillis;
     }
-    if (value < mValueOfMinSeen) {
-      mValueOfMinSeen = value;
-      mTimestampOfMinSeen = timestampMillis;
+    if (value < valueOfMinSeen) {
+      valueOfMinSeen = value;
+      timestampOfMinSeen = timestampMillis;
     }
-    if (mSeenThisPass == mZoomBufferSize) {
+    if (seenThisPass == zoomBufferSize) {
       flush(dc);
     }
   }
 
   private void addReadingAtThisTier(RecordingDataController dc, long timestamp, double value) {
-    dc.addScalarReading(mTrialId, mSensorId, mTier, timestamp, value);
+    dc.addScalarReading(trialId, sensorId, tier, timestamp, value);
     getNextTierUp().addData(timestamp, value, dc);
   }
 
   private ZoomRecorder getNextTierUp() {
-    if (mNextTierUp == null) {
-      mNextTierUp = new ZoomRecorder(mSensorId, mZoomBufferSize, mTier + 1);
-      mNextTierUp.setTrialId(mTrialId);
+    if (nextTierUp == null) {
+      nextTierUp = new ZoomRecorder(sensorId, zoomBufferSize, tier + 1);
+      nextTierUp.setTrialId(trialId);
     }
-    return mNextTierUp;
+    return nextTierUp;
   }
 
   public int countTiers() {
-    if (mNextTierUp == null) {
+    if (nextTierUp == null) {
       // If we don't have a parent, then we haven't written anything at our level yet, so
       // the total count is our tier number
-      return mTier;
+      return tier;
     } else {
-      return mNextTierUp.countTiers();
+      return nextTierUp.countTiers();
     }
   }
 
   public void flushAllTiers(RecordingDataController dc) {
-    if (mNextTierUp != null) {
-      mNextTierUp.flushAllTiers(dc);
-      mNextTierUp = null;
+    if (nextTierUp != null) {
+      nextTierUp.flushAllTiers(dc);
+      nextTierUp = null;
     }
     flush(dc);
   }
 
   public void flush(RecordingDataController dc) {
-    if (mSeenThisPass > 0) {
+    if (seenThisPass > 0) {
       // order of adding data to DB doesn't matter
-      addReadingAtThisTier(dc, mTimestampOfMinSeen, mValueOfMinSeen);
-      addReadingAtThisTier(dc, mTimestampOfMaxSeen, mValueOfMaxSeen);
+      addReadingAtThisTier(dc, timestampOfMinSeen, valueOfMinSeen);
+      addReadingAtThisTier(dc, timestampOfMaxSeen, valueOfMaxSeen);
       resetBuffer();
     }
   }

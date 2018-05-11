@@ -45,34 +45,34 @@ public class ApplicationLabel {
   private static final String KEY_VALUE_TYPE = "value_type";
 
   /** Experiment ID this label belongs to. */
-  private String mExperimentId;
+  private String experimentId;
 
   /** Time in ms since the epoch which represents this label. */
-  private long mTimestamp;
+  private long timestamp;
 
   /** The unique ID of the label. */
-  private String mLabelId;
+  private String labelId;
 
   /**
    * Associates a label with a trial. When recording starts, a START ApplicationLabel is generated
    * with a particular ID. This ID is used as the startLabelId for all other labels associated with
    * that run.
    */
-  private String mTrialId;
+  private String trialId;
 
   /** The value of this label. */
-  private GoosciLabelValue.LabelValue mValue;
+  private GoosciLabelValue.LabelValue value;
 
   public ApplicationLabel(
       String id, String startLabelId, long timestamp, GoosciLabelValue.LabelValue value) {
     this(id, startLabelId, timestamp);
-    mValue = value;
+    this.value = value;
   }
 
   protected ApplicationLabel(String id, String startLabelId, long timestamp) {
-    mTimestamp = timestamp;
-    mLabelId = id;
-    mTrialId = startLabelId;
+    this.timestamp = timestamp;
+    labelId = id;
+    trialId = startLabelId;
   }
 
   // TODO: use a clock to build labels.
@@ -99,20 +99,20 @@ public class ApplicationLabel {
   }
 
   public String getLabelId() {
-    return mLabelId;
+    return labelId;
   }
 
   public String getTrialId() {
-    return mTrialId;
+    return trialId;
   }
 
   public long getTimeStamp() {
-    return mTimestamp;
+    return timestamp;
   }
 
   /** @return Bundle value of this label's contents. */
   public GoosciLabelValue.LabelValue getValue() {
-    return mValue;
+    return value;
   };
 
   public @Type int getType() {
@@ -129,15 +129,15 @@ public class ApplicationLabel {
   }
 
   public void setTimestamp(long timestamp) {
-    mTimestamp = timestamp;
+    this.timestamp = timestamp;
   }
 
   public String getExperimentId() {
-    return mExperimentId;
+    return experimentId;
   }
 
   public void setExperimentId(String experimentId) {
-    mExperimentId = experimentId;
+    this.experimentId = experimentId;
   }
 
   // This function is only used when parsing a deprecated version of ApplicationLabel,

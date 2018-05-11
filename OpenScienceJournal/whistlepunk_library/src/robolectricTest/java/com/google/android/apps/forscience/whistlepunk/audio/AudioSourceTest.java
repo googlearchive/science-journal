@@ -33,90 +33,90 @@ import org.robolectric.annotation.Config;
 @Config(shadows = {ShadowAudioRecord.class})
 public class AudioSourceTest {
   // TODO(nmulcahey) make this Shadow work within the test methods
-  private AudioSource mAudioSource;
+  private AudioSource audioSource;
 
   @Test
   public void testAudioRecordErrorBadValue() {
     ShadowAudioRecord.setMinBufferSize(AudioRecord.ERROR_BAD_VALUE);
-    mAudioSource = new AudioSource();
-    assertFalse(mAudioSource.registerAudioReceiver(buffer -> {}));
-    assertEquals(mAudioSource.getRecievers().size(), 0);
-    assertFalse(mAudioSource.isRunning());
+    audioSource = new AudioSource();
+    assertFalse(audioSource.registerAudioReceiver(buffer -> {}));
+    assertEquals(audioSource.getRecievers().size(), 0);
+    assertFalse(audioSource.isRunning());
   }
 
   @Test
   public void testRegisterAudioReceiverOnce() {
     ShadowAudioRecord.setMinBufferSize(2);
-    mAudioSource = new AudioSource();
+    audioSource = new AudioSource();
     AudioSource.AudioReceiver audioReceiver = buffer -> {};
-    assertTrue(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertFalse(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 1);
-    assertTrue(mAudioSource.isRunning());
+    assertTrue(audioSource.registerAudioReceiver(audioReceiver));
+    assertFalse(audioSource.registerAudioReceiver(audioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 1);
+    assertTrue(audioSource.isRunning());
   }
 
   @Test
   public void testRegisterNullAudioReceiver() {
     ShadowAudioRecord.setMinBufferSize(2);
-    mAudioSource = new AudioSource();
-    assertFalse(mAudioSource.registerAudioReceiver(null));
-    assertEquals(mAudioSource.getRecievers().size(), 0);
-    assertFalse(mAudioSource.isRunning());
+    audioSource = new AudioSource();
+    assertFalse(audioSource.registerAudioReceiver(null));
+    assertEquals(audioSource.getRecievers().size(), 0);
+    assertFalse(audioSource.isRunning());
   }
 
   @Test
   public void testUnregisterOnlyAudioReceiver() {
     ShadowAudioRecord.setMinBufferSize(2);
-    mAudioSource = new AudioSource();
+    audioSource = new AudioSource();
     AudioSource.AudioReceiver audioReceiver = buffer -> {};
-    assertTrue(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 1);
-    assertTrue(mAudioSource.isRunning());
+    assertTrue(audioSource.registerAudioReceiver(audioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 1);
+    assertTrue(audioSource.isRunning());
 
-    mAudioSource.unregisterAudioReceiver(audioReceiver);
-    assertEquals(mAudioSource.getRecievers().size(), 0);
-    assertFalse(mAudioSource.isRunning());
+    audioSource.unregisterAudioReceiver(audioReceiver);
+    assertEquals(audioSource.getRecievers().size(), 0);
+    assertFalse(audioSource.isRunning());
   }
 
   @Test
   public void testUnregisteringOneOfMultipleAudioReceivers() {
     ShadowAudioRecord.setMinBufferSize(2);
-    mAudioSource = new AudioSource();
+    audioSource = new AudioSource();
     AudioSource.AudioReceiver audioReceiver = buffer -> {};
-    assertTrue(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 1);
-    assertTrue(mAudioSource.isRunning());
+    assertTrue(audioSource.registerAudioReceiver(audioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 1);
+    assertTrue(audioSource.isRunning());
 
     AudioSource.AudioReceiver otherAudioReceiver = buffer -> {};
-    assertTrue(mAudioSource.registerAudioReceiver(otherAudioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 2);
-    assertTrue(mAudioSource.isRunning());
+    assertTrue(audioSource.registerAudioReceiver(otherAudioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 2);
+    assertTrue(audioSource.isRunning());
 
-    mAudioSource.unregisterAudioReceiver(audioReceiver);
-    assertEquals(mAudioSource.getRecievers().size(), 1);
-    assertTrue(mAudioSource.isRunning());
+    audioSource.unregisterAudioReceiver(audioReceiver);
+    assertEquals(audioSource.getRecievers().size(), 1);
+    assertTrue(audioSource.isRunning());
   }
 
   @Test
   public void testRegisterAudioReceiverStartFailedUninitialized() {
     ShadowAudioRecord.setMinBufferSize(2);
     ShadowAudioRecord.setInitializationFailed();
-    mAudioSource = new AudioSource();
+    audioSource = new AudioSource();
     AudioSource.AudioReceiver audioReceiver = buffer -> {};
-    assertFalse(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 0);
-    assertFalse(mAudioSource.isRunning());
+    assertFalse(audioSource.registerAudioReceiver(audioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 0);
+    assertFalse(audioSource.isRunning());
   }
 
   @Test
   public void testRegisterAudioReceiverStartFailedNotRecording() {
     ShadowAudioRecord.setMinBufferSize(2);
     ShadowAudioRecord.setRecordingStartFailed();
-    mAudioSource = new AudioSource();
+    audioSource = new AudioSource();
     AudioSource.AudioReceiver audioReceiver = buffer -> {};
-    assertFalse(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 0);
-    assertFalse(mAudioSource.isRunning());
+    assertFalse(audioSource.registerAudioReceiver(audioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 0);
+    assertFalse(audioSource.isRunning());
   }
 
   @Test
@@ -125,12 +125,12 @@ public class AudioSourceTest {
 
     ShadowAudioRecord.setMinBufferSize(20);
     ShadowAudioRecord.setAudioData(new short[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-    mAudioSource = new AudioSource();
+    audioSource = new AudioSource();
 
     AudioSource.AudioReceiver audioReceiver = future::complete;
-    assertTrue(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 1);
-    assertTrue(mAudioSource.isRunning());
+    assertTrue(audioSource.registerAudioReceiver(audioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 1);
+    assertTrue(audioSource.isRunning());
 
     assertArrayEquals(new short[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0}, future.join());
   }
@@ -142,12 +142,12 @@ public class AudioSourceTest {
     ShadowAudioRecord.setMinBufferSize(20);
     ShadowAudioRecord.setAudioData(
         new short[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-    mAudioSource = new AudioSource();
+    audioSource = new AudioSource();
 
     AudioSource.AudioReceiver audioReceiver = future::complete;
-    assertTrue(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 1);
-    assertTrue(mAudioSource.isRunning());
+    assertTrue(audioSource.registerAudioReceiver(audioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 1);
+    assertTrue(audioSource.isRunning());
 
     assertArrayEquals(new short[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0}, future.join());
   }
@@ -159,12 +159,12 @@ public class AudioSourceTest {
     ShadowAudioRecord.setMinBufferSize(20);
     ShadowAudioRecord.setAudioData(
         new short[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-    mAudioSource = new AudioSource();
+    audioSource = new AudioSource();
 
     AudioSource.AudioReceiver audioReceiver = future::complete;
-    assertTrue(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 1);
-    assertTrue(mAudioSource.isRunning());
+    assertTrue(audioSource.registerAudioReceiver(audioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 1);
+    assertTrue(audioSource.isRunning());
 
     assertArrayEquals(new short[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0}, future.join());
   }
@@ -175,17 +175,17 @@ public class AudioSourceTest {
     CompletableFuture<short[]> otherFuture = new CompletableFuture<>();
 
     ShadowAudioRecord.setMinBufferSize(20);
-    mAudioSource = new AudioSource();
+    audioSource = new AudioSource();
 
     AudioSource.AudioReceiver audioReceiver = future::complete;
-    assertTrue(mAudioSource.registerAudioReceiver(audioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 1);
-    assertTrue(mAudioSource.isRunning());
+    assertTrue(audioSource.registerAudioReceiver(audioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 1);
+    assertTrue(audioSource.isRunning());
 
     AudioSource.AudioReceiver otherAudioReceiver = otherFuture::complete;
-    assertTrue(mAudioSource.registerAudioReceiver(otherAudioReceiver));
-    assertEquals(mAudioSource.getRecievers().size(), 2);
-    assertTrue(mAudioSource.isRunning());
+    assertTrue(audioSource.registerAudioReceiver(otherAudioReceiver));
+    assertEquals(audioSource.getRecievers().size(), 2);
+    assertTrue(audioSource.isRunning());
 
     ShadowAudioRecord.setAudioData(new short[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
 
@@ -196,9 +196,9 @@ public class AudioSourceTest {
   @After
   public void cleanUp() {
     ShadowAudioRecord.resetState();
-    if (mAudioSource != null) {
-      mAudioSource.unregisterAllAudioReceivers();
-      mAudioSource = null;
+    if (audioSource != null) {
+      audioSource.unregisterAllAudioReceivers();
+      audioSource = null;
     }
   }
 }

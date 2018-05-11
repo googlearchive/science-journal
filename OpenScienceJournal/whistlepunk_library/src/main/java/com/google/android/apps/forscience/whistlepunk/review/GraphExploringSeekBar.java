@@ -39,15 +39,15 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
   // needed. This is applied to the seekbar using the setMax function.
   public static final double SEEKBAR_MAX = 500.0;
 
-  private String mTimeString = "";
-  private String mValueString = "";
-  private String mUnits = "";
-  private String mFormat;
+  private String timeString = "";
+  private String valueString = "";
+  private String units = "";
+  private String format;
 
   // This is like mProgress, but can be less than 0 or greater than the max.
   // This makes it easier to handle times when we want to represent data that is
   // outside the edge of the graph -- and therefore outside of the seekbar range.
-  private int mFullProgress;
+  private int fullProgress;
 
   public GraphExploringSeekBar(Context context) {
     super(context);
@@ -85,7 +85,7 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
         });
 
     Resources res = getContext().getResources();
-    mFormat = res.getString(R.string.graph_exploring_seekbar_content_description);
+    format = res.getString(R.string.graph_exploring_seekbar_content_description);
 
     // Always use LTR layout, since graphs are always LTR.
     setLayoutDirection(LAYOUT_DIRECTION_LTR);
@@ -94,37 +94,37 @@ public class GraphExploringSeekBar extends AppCompatSeekBar {
   }
 
   public void updateValuesForAccessibility(String time, String value) {
-    mTimeString = time;
-    mValueString = value;
+    timeString = time;
+    valueString = value;
   }
 
   public void setUnits(String units) {
-    mUnits = units;
+    this.units = units;
   }
 
   private String generateEventText() {
-    return String.format(mFormat, mTimeString, mValueString, mUnits);
+    return String.format(format, timeString, valueString, units);
   }
 
   protected void setFormat(String format) {
-    mFormat = format;
+    this.format = format;
   }
 
   // Gets the full progress, which may be more than the max and less than 0.
   public int getFullProgress() {
-    return mFullProgress;
+    return fullProgress;
   }
 
   // This should be used instead of setProgress whenever anything wants to change this
   // seekbar's progress.
   public void setFullProgress(int progress) {
-    mFullProgress = progress;
-    setProgress(mFullProgress);
+    fullProgress = progress;
+    setProgress(fullProgress);
   }
 
   // Updates the full progress without calling the setProgress function unless it is necessary.
   public void updateFullProgress(int progress) {
-    mFullProgress = progress;
+    fullProgress = progress;
     if (getProgress() == 0 && progress != 0) {
       setProgress(progress);
     }

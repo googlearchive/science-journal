@@ -33,7 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 /** Class to get sensor data from the Pressure Sensor (barometer). */
 public class BarometerSensor extends ScalarSensor {
   public static final String ID = "BarometerSensor";
-  private SensorEventListener mSensorEventListener;
+  private SensorEventListener sensorEventListener;
 
   public BarometerSensor() {
     super(ID);
@@ -51,11 +51,11 @@ public class BarometerSensor extends ScalarSensor {
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
         SensorManager sensorManager = getSensorManager(context);
         Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-        if (mSensorEventListener != null) {
-          getSensorManager(context).unregisterListener(mSensorEventListener);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
         }
         final Clock clock = environment.getDefaultClock();
-        mSensorEventListener =
+        sensorEventListener =
             new SensorEventListener() {
               @Override
               public void onSensorChanged(SensorEvent event) {
@@ -67,12 +67,12 @@ public class BarometerSensor extends ScalarSensor {
               @Override
               public void onAccuracyChanged(Sensor sensor, int accuracy) {}
             };
-        sensorManager.registerListener(mSensorEventListener, sensor, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_UI);
       }
 
       @Override
       public void stopObserving() {
-        getSensorManager(context).unregisterListener(mSensorEventListener);
+        getSensorManager(context).unregisterListener(sensorEventListener);
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
       }
     };

@@ -21,14 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecordingSensorObserver implements SensorObserver {
-  private List<ScalarReading> mReadings = new ArrayList<>();
+  private List<ScalarReading> readings = new ArrayList<>();
 
   @Override
   public void onNewData(long timestamp, Data bundle) {
-    mReadings.add(new ScalarReading(timestamp, ScalarSensor.getValue(bundle)));
+    readings.add(new ScalarReading(timestamp, ScalarSensor.getValue(bundle)));
   }
 
   public List<ScalarReading> getReadings() {
-    return mReadings;
+    return readings;
   }
 }

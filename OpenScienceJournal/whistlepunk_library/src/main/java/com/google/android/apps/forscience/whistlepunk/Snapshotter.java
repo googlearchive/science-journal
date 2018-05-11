@@ -23,22 +23,22 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import io.reactivex.Single;
 
 public class Snapshotter {
-  private final RecorderController mRecorderController;
-  private final DataController mDataController;
-  private final SensorRegistry mSensorRegistry;
+  private final RecorderController recorderController;
+  private final DataController dataController;
+  private final SensorRegistry sensorRegistry;
 
   public Snapshotter(
       RecorderController recorderController,
       DataController dataController,
       SensorRegistry sensorRegistry) {
-    mRecorderController = recorderController;
-    mDataController = dataController;
-    mSensorRegistry = sensorRegistry;
+    this.recorderController = recorderController;
+    this.dataController = dataController;
+    this.sensorRegistry = sensorRegistry;
   }
 
   public Single<Label> addSnapshotLabel(String experimentId, RecordingStatus status) {
     // When experiment is loaded, add label
-    return RxDataController.getExperimentById(mDataController, experimentId)
+    return RxDataController.getExperimentById(dataController, experimentId)
         .flatMap(
             e -> {
               LabelListHolder holder =
@@ -50,10 +50,10 @@ public class Snapshotter {
   @VisibleForTesting
   public Single<Label> addSnapshotLabelToHolder(
       final Experiment selectedExperiment, final LabelListHolder labelListHolder) {
-    RecorderController rc = mRecorderController;
+    RecorderController rc = recorderController;
 
     // get proto
-    return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), mSensorRegistry)
+    return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), sensorRegistry)
 
         // Make it into a label
         .map(
@@ -65,7 +65,7 @@ public class Snapshotter {
         .flatMap(
             label -> {
               labelListHolder.addLabel(selectedExperiment, label);
-              return RxDataController.updateExperiment(mDataController, selectedExperiment)
+              return RxDataController.updateExperiment(dataController, selectedExperiment)
                   .andThen(Single.just(label));
             });
   }

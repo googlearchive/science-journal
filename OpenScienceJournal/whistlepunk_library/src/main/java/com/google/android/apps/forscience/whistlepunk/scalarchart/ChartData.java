@@ -28,26 +28,26 @@ import java.util.List;
 public class ChartData {
   public static class DataPoint {
 
-    private final long mX;
-    private final double mY;
+    private final long x;
+    private final double y;
 
     public DataPoint(long x, double y) {
-      mX = x;
-      mY = y;
+      this.x = x;
+      this.y = y;
     }
 
     public long getX() {
-      return mX;
+      return x;
     }
 
     public double getY() {
-      return mY;
+      return y;
     }
 
     /** For debugging only */
     @Override
     public String toString() {
-      return String.format("(%d,%.3g)", mX, mY);
+      return String.format("(%d,%.3g)", x, y);
     }
   }
 
@@ -57,24 +57,24 @@ public class ChartData {
   @VisibleForTesting private static final int DEFAULT_APPROX_RANGE = 8;
 
   public static final int DEFAULT_THROWAWAY_THRESHOLD = 100;
-  private int mThrowawayDataSizeThreshold;
+  private int throwawayDataSizeThreshold;
 
   // 2 minutes is plenty.
   public static final long DEFAULT_THROWAWAY_TIME_THRESHOLD = 1000 * 60 * 2;
-  private long mThrowawayDataTimeThreshold = DEFAULT_THROWAWAY_TIME_THRESHOLD;
+  private long throwawayDataTimeThreshold = DEFAULT_THROWAWAY_TIME_THRESHOLD;
 
-  private List<DataPoint> mData = new ArrayList<>();
+  private List<DataPoint> data = new ArrayList<>();
 
   // The list of data points at which a label should be displayed.
-  private List<DataPoint> mLabels = new ArrayList<>();
+  private List<DataPoint> labels = new ArrayList<>();
 
   // The list of Label objects which are not yet converted into DataPoints and added to the
-  // mLabels list. This happens when the Label is outside of the range for which we have data,
+  // labels list. This happens when the Label is outside of the range for which we have data,
   // so we cannot calculate where that label should be drawn.
-  private List<Label> mUnaddedLabels = new ArrayList<>();
+  private List<Label> unaddedLabels = new ArrayList<>();
 
   // The stats for this list.
-  private List<StreamStat> mStats = new ArrayList<>();
+  private List<StreamStat> stats = new ArrayList<>();
 
   private static final Comparator<? super DataPoint> DATA_POINT_COMPARATOR =
       new Comparator<DataPoint>() {
@@ -89,18 +89,18 @@ public class ChartData {
   }
 
   public ChartData(int throwawayDataSizeThreshold, long throwawayDataTimeThreshold) {
-    mThrowawayDataSizeThreshold = throwawayDataSizeThreshold;
-    mThrowawayDataTimeThreshold = throwawayDataTimeThreshold;
+    this.throwawayDataSizeThreshold = throwawayDataSizeThreshold;
+    this.throwawayDataTimeThreshold = throwawayDataTimeThreshold;
   }
 
   // This assumes the data point occurs after all previous data points.
   // Order is not checked.
   public void addPoint(DataPoint point) {
-    mData.add(point);
-    if (mUnaddedLabels.size() > 0) {
+    data.add(point);
+    if (unaddedLabels.size() > 0) {
       // TODO to avoid extra work, only try again if new data might come in in the direction
       // of these labels...?
-      Iterator<Label> unaddedLabelIterator = mUnaddedLabels.iterator();
+      Iterator<Label> unaddedLabelIterator = unaddedLabels.iterator();
       while (unaddedLabelIterator.hasNext()) {
         Label next = unaddedLabelIterator.next();
         if (tryAddingLabel(next)) {
@@ -111,25 +111,25 @@ public class ChartData {
   }
 
   public List<DataPoint> getPoints() {
-    return mData;
+    return data;
   }
 
   // This assumes the List<DataPoint> is ordered by timestamp.
   public void setPoints(List<DataPoint> data) {
-    mData = data;
+    this.data = data;
   }
 
   public void addOrderedGroupOfPoints(List<DataPoint> points) {
     if (points == null || points.size() == 0) {
       return;
     }
-    mData.addAll(points);
-    Collections.sort(mData, DATA_POINT_COMPARATOR);
+    data.addAll(points);
+    Collections.sort(data, DATA_POINT_COMPARATOR);
   }
 
   public List<DataPoint> getPointsInRangeToEnd(long xMin) {
     int startIndex = approximateBinarySearch(xMin, 0, true);
-    return mData.subList(startIndex, mData.size());
+    return data.subList(startIndex, data.size());
   }
 
   public List<DataPoint> getPointsInRange(long xMin, long xMax) {
@@ -138,15 +138,15 @@ public class ChartData {
     if (startIndex > endIndex) {
       return Collections.emptyList();
     }
-    return mData.subList(startIndex, endIndex + 1);
+    return data.subList(startIndex, endIndex + 1);
   }
 
   public DataPoint getClosestDataPointToTimestamp(long timestamp) {
     int index = getClosestIndexToTimestamp(timestamp);
-    if (mData.size() == 0) {
+    if (data.size() == 0) {
       return null;
     }
-    return mData.get(index);
+    return data.get(index);
   }
 
   // Searches for the closest index to a given timestamp, round up or down if the search
@@ -165,7 +165,7 @@ public class ChartData {
    */
   @VisibleForTesting
   int exactBinarySearch(long searchX, int startSearchIndex) {
-    return approximateBinarySearch(searchX, startSearchIndex, mData.size() - 1, true, 0);
+    return approximateBinarySearch(searchX, startSearchIndex, data.size() - 1, true, 0);
   }
 
   /**
@@ -180,7 +180,7 @@ public class ChartData {
    */
   private int approximateBinarySearch(long searchX, int startSearchIndex, boolean preferStart) {
     return approximateBinarySearch(
-        searchX, startSearchIndex, mData.size() - 1, preferStart, DEFAULT_APPROX_RANGE);
+        searchX, startSearchIndex, data.size() - 1, preferStart, DEFAULT_APPROX_RANGE);
   }
 
   /**
@@ -203,18 +203,18 @@ public class ChartData {
   @VisibleForTesting
   int approximateBinarySearch(
       long searchX, int startIndex, int endIndex, boolean preferStart, int searchRange) {
-    if (mData.isEmpty()) {
+    if (data.isEmpty()) {
       return 0;
     }
 
     // See if we're already done (need to do this before calculating distances below, in case
     // searchX is so big or small we're in danger of overflow).
 
-    long startValue = mData.get(startIndex).getX();
+    long startValue = data.get(startIndex).getX();
     if (searchX <= startValue) {
       return startIndex;
     }
-    long endValue = mData.get(endIndex).getX();
+    long endValue = data.get(endIndex).getX();
     if (searchX >= endValue) {
       return endIndex;
     }
@@ -233,7 +233,7 @@ public class ChartData {
       }
     }
     int mid = (startIndex + endIndex) / 2;
-    long midX = mData.get(mid).getX();
+    long midX = data.get(mid).getX();
     if (midX < searchX) {
       return approximateBinarySearch(searchX, mid, endIndex, preferStart, searchRange);
     } else if (midX > searchX) {
@@ -244,75 +244,75 @@ public class ChartData {
   }
 
   public int getNumPoints() {
-    return mData.size();
+    return data.size();
   }
 
   public boolean isEmpty() {
-    return mData.isEmpty();
+    return data.isEmpty();
   }
 
   // Assume points are ordered
   public long getXMin() {
-    return mData.get(0).getX();
+    return data.get(0).getX();
   }
 
   // Assume points are ordered
   public long getXMax() {
-    return mData.get(mData.size() - 1).getX();
+    return data.get(data.size() - 1).getX();
   }
 
   public void clear() {
-    mData.clear();
-    mLabels.clear();
-    mUnaddedLabels.clear();
+    data.clear();
+    labels.clear();
+    unaddedLabels.clear();
   }
 
   public void setDisplayableLabels(List<Label> labels) {
-    mLabels.clear();
-    mUnaddedLabels.clear();
+    this.labels.clear();
+    unaddedLabels.clear();
     for (Label label : labels) {
       if (!tryAddingLabel(label)) {
-        mUnaddedLabels.add(label);
+        unaddedLabels.add(label);
       }
     }
   }
 
   public void addLabel(Label label) {
     if (!tryAddingLabel(label)) {
-      mUnaddedLabels.add(label);
+      unaddedLabels.add(label);
     }
   }
 
   @VisibleForTesting
   boolean tryAddingLabel(Label label) {
     long timestamp = label.getTimeStamp();
-    if (mData.isEmpty() || timestamp < getXMin() || timestamp > getXMax()) {
+    if (data.isEmpty() || timestamp < getXMin() || timestamp > getXMax()) {
       return false;
     }
     int indexPrev = exactBinarySearch(timestamp, 0);
-    DataPoint start = mData.get(indexPrev);
+    DataPoint start = data.get(indexPrev);
     if (timestamp == start.getX()) {
-      mLabels.add(start);
+      labels.add(start);
       return true;
-    } else if (indexPrev < mData.size() - 2) {
-      DataPoint end = mData.get(indexPrev + 1);
+    } else if (indexPrev < data.size() - 2) {
+      DataPoint end = data.get(indexPrev + 1);
       double weight = (timestamp - start.getX()) / (1.0 * end.getX() - start.getX());
-      mLabels.add(new DataPoint(timestamp, start.getY() * weight + end.getY() * (1 - weight)));
+      labels.add(new DataPoint(timestamp, start.getY() * weight + end.getY() * (1 - weight)));
       return true;
     }
     return false;
   }
 
   public List<DataPoint> getLabelPoints() {
-    return mLabels;
+    return labels;
   }
 
   public void updateStats(List<StreamStat> stats) {
-    mStats = stats;
+    this.stats = stats;
   }
 
   public List<StreamStat> getStats() {
-    return mStats;
+    return stats;
   }
 
   public void throwAwayBefore(long throwawayThreshold) {
@@ -329,20 +329,20 @@ public class ChartData {
     }
 
     // This should be the index to the right of max
-    int indexEnd = approximateBinarySearch(throwAwayMaxX, 0, mData.size() - 1, false, 1);
-    int indexStart = approximateBinarySearch(throwAwayMinX, 0, mData.size() - 1, false, 1);
+    int indexEnd = approximateBinarySearch(throwAwayMaxX, 0, data.size() - 1, false, 1);
+    int indexStart = approximateBinarySearch(throwAwayMinX, 0, data.size() - 1, false, 1);
 
     // Only throw away in bulk once we reach a threshold, so that all the work is not done on
     // every iteration. Make sure to also throw out very far away old data to avoid
     // "path too long". So if the data is less than the size, and the range is not too long,
     // we can just "return" here.
-    if (indexEnd - indexStart < mThrowawayDataSizeThreshold
+    if (indexEnd - indexStart < throwawayDataSizeThreshold
         && (indexStart >= 0
-            && indexEnd < mData.size()
-            && mData.get(indexEnd).getX() - mData.get(indexStart).getX()
-                < mThrowawayDataTimeThreshold)) {
+            && indexEnd < data.size()
+            && data.get(indexEnd).getX() - data.get(indexStart).getX()
+                < throwawayDataTimeThreshold)) {
       return;
     }
-    mData.subList(indexStart, indexEnd).clear();
+    data.subList(indexStart, indexEnd).clear();
   }
 }

@@ -29,9 +29,9 @@ import java.util.Collection;
  * SharedPreferences file.
  */
 public class PrefsNewOptionsStorage implements NewOptionsStorage {
-  private final String mPrefFile;
-  private Context mContext;
-  private ReadableSensorOptions mReadOnly =
+  private final String prefFile;
+  private Context context;
+  private ReadableSensorOptions readOnly =
       new AbstractReadableSensorOptions() {
         @Override
         public String getString(String key, String defaultValue) {
@@ -45,8 +45,8 @@ public class PrefsNewOptionsStorage implements NewOptionsStorage {
       };
 
   public PrefsNewOptionsStorage(String prefFile, Context context) {
-    mPrefFile = prefFile;
-    mContext = context;
+    this.prefFile = prefFile;
+    this.context = context;
   }
 
   @Override
@@ -54,7 +54,7 @@ public class PrefsNewOptionsStorage implements NewOptionsStorage {
     return new WriteableSensorOptions() {
       @Override
       public ReadableSensorOptions getReadOnly() {
-        return mReadOnly;
+        return readOnly;
       }
 
       @Override
@@ -65,6 +65,6 @@ public class PrefsNewOptionsStorage implements NewOptionsStorage {
   }
 
   private SharedPreferences getPrefs() {
-    return mContext.getSharedPreferences(mPrefFile, Context.MODE_PRIVATE);
+    return context.getSharedPreferences(prefFile, Context.MODE_PRIVATE);
   }
 }

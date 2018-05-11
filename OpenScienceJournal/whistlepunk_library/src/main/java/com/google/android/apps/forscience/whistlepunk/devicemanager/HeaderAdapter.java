@@ -22,24 +22,24 @@ import android.widget.TextView;
 
 /** Simple RecyclerView.Adapter that always contains a single TextView */
 public class HeaderAdapter extends RecyclerView.Adapter<HeaderAdapter.ViewHolder> {
-  private final int mLayoutId;
-  private int mStringResourceId;
+  private final int layoutId;
+  private int stringResourceId;
 
   public HeaderAdapter(int layoutId, int stringResourceId) {
-    mStringResourceId = stringResourceId;
-    mLayoutId = layoutId;
+    this.stringResourceId = stringResourceId;
+    this.layoutId = layoutId;
   }
 
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     TextView textView =
-        (TextView) LayoutInflater.from(parent.getContext()).inflate(mLayoutId, parent, false);
+        (TextView) LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
     return new ViewHolder(textView);
   }
 
   @Override
   public void onBindViewHolder(ViewHolder holder, int position) {
-    holder.textView.setText(mStringResourceId);
+    holder.textView.setText(stringResourceId);
   }
 
   @Override
@@ -49,7 +49,7 @@ public class HeaderAdapter extends RecyclerView.Adapter<HeaderAdapter.ViewHolder
 
   @Override
   public int getItemViewType(int position) {
-    return mLayoutId;
+    return layoutId;
   }
 
   public static class ViewHolder extends RecyclerView.ViewHolder {

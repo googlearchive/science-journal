@@ -35,18 +35,18 @@ import io.reactivex.subjects.PublishSubject;
  * </pre>
  */
 public class RxEvent {
-  private PublishSubject<Object> mHappenings = PublishSubject.create();
+  private PublishSubject<Object> happenings = PublishSubject.create();
 
   public Observable<Object> happens() {
-    return mHappenings;
+    return happenings;
   }
 
   public void onHappened() {
-    mHappenings.onNext(true);
+    happenings.onNext(true);
   }
 
   public void onDoneHappening() {
-    mHappenings.onComplete();
+    happenings.onComplete();
   }
 
   public Completable happensNext() {

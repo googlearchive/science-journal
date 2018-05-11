@@ -60,18 +60,18 @@ public class ProxyRecorderControllerTest {
           onSuccess.success(Success.SUCCESS);
         }
       };
-  private final AlwaysAllowedPolicy mPolicy = new AlwaysAllowedPolicy();
-  private final FailureListener mFailureListener = ExplodingFactory.makeListener();
-  private final RecordingSensorObserver mObserver = new RecordingSensorObserver();
-  private final RecordingStatusListener mStatusListener = new RecordingStatusListener();
-  private SensorRegistry mRegistry =
+  private final AlwaysAllowedPolicy policy = new AlwaysAllowedPolicy();
+  private final FailureListener failureListener = ExplodingFactory.makeListener();
+  private final RecordingSensorObserver observer = new RecordingSensorObserver();
+  private final RecordingStatusListener statusListener = new RecordingStatusListener();
+  private SensorRegistry registry =
       new AllSensorsRegistry() {
         @Override
         protected boolean shouldAutomaticallyConnectWhenObserving() {
           return false;
         }
       };
-  private final MemorySensorEnvironment mEnvironment =
+  private final MemorySensorEnvironment environment =
       new MemorySensorEnvironment(
           new InMemorySensorDatabase().makeSimpleRecordingController(),
           new FakeBleClient(null),
@@ -85,7 +85,7 @@ public class ProxyRecorderControllerTest {
     RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
     RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
     ProxyRecorderController prc =
-        new ProxyRecorderController(rc, mPolicy, mFailureListener, mRegistry);
+        new ProxyRecorderController(rc, policy, failureListener, registry);
 
     // Blank only at the beginning of time
     assertEquals(Lists.newArrayList(), prc.getMostRecentObservedSensorIds());
@@ -93,19 +93,19 @@ public class ProxyRecorderControllerTest {
         rc.startObserving(
             id1,
             Collections.<SensorTrigger>emptyList(),
-            mObserver,
-            mStatusListener,
+            observer,
+            statusListener,
             BLANK_OPTIONS,
-            mRegistry);
+            registry);
     assertEquals(Lists.newArrayList(id1), prc.getMostRecentObservedSensorIds());
     String observerId2 =
         rc.startObserving(
             id2,
             Collections.<SensorTrigger>emptyList(),
-            mObserver,
-            mStatusListener,
+            observer,
+            statusListener,
             BLANK_OPTIONS,
-            mRegistry);
+            registry);
     assertEquals(Lists.newArrayList(id1, id2), prc.getMostRecentObservedSensorIds());
 
     // Pausing doesn't clear most recent list
@@ -124,7 +124,7 @@ public class ProxyRecorderControllerTest {
 
     RecorderControllerTestImpl rc2 = new RecorderControllerTestImpl(listenerRegistry);
     ProxyRecorderController prc2 =
-        new ProxyRecorderController(rc2, mPolicy, mFailureListener, mRegistry);
+        new ProxyRecorderController(rc2, policy, failureListener, registry);
     assertEquals(Lists.newArrayList(id2), prc2.getMostRecentObservedSensorIds());
   }
 
@@ -135,7 +135,7 @@ public class ProxyRecorderControllerTest {
     RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
     RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
     ProxyRecorderController prc =
-        new ProxyRecorderController(rc, mPolicy, mFailureListener, mRegistry);
+        new ProxyRecorderController(rc, policy, failureListener, registry);
 
     RecordingStateListener stateListener = new RecordingStateListener();
     prc.addRecordingStateListener("listenerId", stateListener);
@@ -144,19 +144,19 @@ public class ProxyRecorderControllerTest {
         rc.startObserving(
             id1,
             Collections.<SensorTrigger>emptyList(),
-            mObserver,
-            mStatusListener,
+            observer,
+            statusListener,
             BLANK_OPTIONS,
-            mRegistry);
+            registry);
     assertEquals(Lists.newArrayList(id1), stateListener.recentObservedSensorIds);
     String observerId2 =
         rc.startObserving(
             id2,
             Collections.<SensorTrigger>emptyList(),
-            mObserver,
-            mStatusListener,
+            observer,
+            statusListener,
             BLANK_OPTIONS,
-            mRegistry);
+            registry);
     assertEquals(Lists.newArrayList(id1, id2), stateListener.recentObservedSensorIds);
 
     // Pausing doesn't clear most recent list
@@ -176,15 +176,15 @@ public class ProxyRecorderControllerTest {
     rc.startObserving(
         id1,
         Collections.<SensorTrigger>emptyList(),
-        mObserver,
-        mStatusListener,
+        observer,
+        statusListener,
         BLANK_OPTIONS,
-        mRegistry);
+        registry);
     assertEquals(Lists.newArrayList(id1), stateListener.recentObservedSensorIds);
 
     // Connecting another proxy finds the same value
     ProxyRecorderController prc2 =
-        new ProxyRecorderController(rc, mPolicy, mFailureListener, mRegistry);
+        new ProxyRecorderController(rc, policy, failureListener, registry);
 
     RecordingStateListener stateListener2 = new RecordingStateListener();
     prc2.addRecordingStateListener("listenerId2", stateListener2);
@@ -197,7 +197,7 @@ public class ProxyRecorderControllerTest {
     RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
 
     ProxyRecorderController prc =
-        new ProxyRecorderController(rc, mPolicy, mFailureListener, mRegistry);
+        new ProxyRecorderController(rc, policy, failureListener, registry);
 
     prc.addRecordingStateListener("id1", new RecordingStateListener());
     try {
@@ -213,7 +213,7 @@ public class ProxyRecorderControllerTest {
     RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
     RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
     ProxyRecorderController prc =
-        new ProxyRecorderController(rc, mPolicy, mFailureListener, mRegistry);
+        new ProxyRecorderController(rc, policy, failureListener, registry);
     Experiment experiment = Experiment.newExperiment(1618, "phi", 0);
     experiment.setTitle("experimentName");
     rc.setSelectedExperiment(experiment);
@@ -225,10 +225,10 @@ public class ProxyRecorderControllerTest {
         rc.startObserving(
             "id1",
             Collections.<SensorTrigger>emptyList(),
-            mObserver,
-            mStatusListener,
+            observer,
+            statusListener,
             BLANK_OPTIONS,
-            mRegistry);
+            registry);
     assertEquals(Arrays.asList("id1"), stateListener.recentObservedSensorIds);
 
     listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
@@ -239,14 +239,14 @@ public class ProxyRecorderControllerTest {
 
     rc.forceHasData("id1", true);
 
-    rc.stopRecording(mRegistry).blockingGet();
+    rc.stopRecording(registry).blockingGet();
     assertFalse(stateListener.recentIsRecording);
     prc.removeRecordingStateListener("listenerId");
     assertFalse(stateListener.recentIsRecording);
     rc.startRecording(null, true);
     // Still false, because we've stopped listening
     assertFalse(stateListener.recentIsRecording);
-    rc.stopRecording(mRegistry).blockingGet();
+    rc.stopRecording(registry).blockingGet();
 
     rc.stopObserving("id1", observerId1);
 
@@ -259,7 +259,7 @@ public class ProxyRecorderControllerTest {
     RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
     RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
     ProxyRecorderController prc =
-        new ProxyRecorderController(rc, mPolicy, mFailureListener, mRegistry);
+        new ProxyRecorderController(rc, policy, failureListener, registry);
     Experiment experiment = Experiment.newExperiment(1618, "phi", 0);
     experiment.setTitle("experimentName");
     rc.setSelectedExperiment(experiment);
@@ -269,10 +269,10 @@ public class ProxyRecorderControllerTest {
     rc.startObserving(
         "id1",
         Collections.<SensorTrigger>emptyList(),
-        mObserver,
-        mStatusListener,
+        observer,
+        statusListener,
         BLANK_OPTIONS,
-        mRegistry);
+        registry);
 
     // Not connected - no data
     assertFalse(stateListener.recentIsRecording);
@@ -299,7 +299,7 @@ public class ProxyRecorderControllerTest {
     RecorderListenerRegistry listenerRegistry = new RecorderListenerRegistry();
     RecorderControllerTestImpl rc = new RecorderControllerTestImpl(listenerRegistry);
     ProxyRecorderController prc =
-        new ProxyRecorderController(rc, mPolicy, mFailureListener, mRegistry);
+        new ProxyRecorderController(rc, policy, failureListener, registry);
     Experiment experiment = Experiment.newExperiment(1618, "phi", 0);
     experiment.setTitle("experimentName");
     rc.setSelectedExperiment(experiment);
@@ -309,17 +309,17 @@ public class ProxyRecorderControllerTest {
     rc.startObserving(
         "id1",
         Collections.<SensorTrigger>emptyList(),
-        mObserver,
-        mStatusListener,
+        observer,
+        statusListener,
         BLANK_OPTIONS,
-        mRegistry);
+        registry);
 
     listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_CONNECTED);
     rc.startRecording(null, true).blockingAwait();
     assertTrue(stateListener.recentIsRecording);
 
     // No data yet -- stop recording should not actually stop
-    rc.stopRecording(mRegistry).blockingGet();
+    rc.stopRecording(registry).blockingGet();
     assertTrue(stateListener.recentIsRecording);
 
     // Forcing stop recording should work, though.
@@ -332,7 +332,7 @@ public class ProxyRecorderControllerTest {
     listenerRegistry.onSourceStatus("id1", SensorStatusListener.STATUS_DISCONNECTED);
     assertTrue(stateListener.recentIsRecording);
 
-    rc.stopRecording(mRegistry).blockingGet();
+    rc.stopRecording(registry).blockingGet();
     assertTrue(stateListener.recentIsRecording);
 
     // Forcing stop recording should work, though.
@@ -344,7 +344,7 @@ public class ProxyRecorderControllerTest {
     RecorderControllerTestImpl(RecorderListenerRegistry listenerRegistry) {
       super(
           RuntimeEnvironment.application.getApplicationContext(),
-          mEnvironment,
+          environment,
           listenerRegistry,
           null,
           DATA_CONTROLLER,

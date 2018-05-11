@@ -23,40 +23,40 @@ import java.util.Map;
 
 /** Keeps track of devices found by all ExternalSensorProviders. */
 public class DeviceRegistry {
-  private Map<String, InputDeviceSpec> mDevices = new ArrayMap<>();
-  private InputDeviceSpec mBuiltInDevice;
+  private Map<String, InputDeviceSpec> devices = new ArrayMap<>();
+  private InputDeviceSpec builtInDevice;
 
   public DeviceRegistry(InputDeviceSpec builtInDevice) {
-    mBuiltInDevice = builtInDevice;
+    this.builtInDevice = builtInDevice;
   }
 
   // TODO: store and retrieve "My Devices" from database
   public void addDevice(InputDeviceSpec spec) {
-    mDevices.put(spec.getGlobalDeviceAddress(), spec);
+    devices.put(spec.getGlobalDeviceAddress(), spec);
   }
 
   public InputDeviceSpec getDevice(String type, String deviceAddress) {
     String key = InputDeviceSpec.joinAddresses(type, deviceAddress);
     InputDeviceSpec spec = getDevice(key);
     if (spec == null) {
-      throw new IllegalArgumentException(key + " not found in " + mDevices.keySet());
+      throw new IllegalArgumentException(key + " not found in " + devices.keySet());
     }
     return spec;
   }
 
   @NonNull
   private InputDeviceSpec getDevice(String deviceGlobalAddress) {
-    return mDevices.get(deviceGlobalAddress);
+    return devices.get(deviceGlobalAddress);
   }
 
   @Override
   public String toString() {
-    return "DeviceRegistry{" + "mDevices=" + mDevices + '}';
+    return "DeviceRegistry{" + "mDevices=" + devices + '}';
   }
 
   InputDeviceSpec getDevice(ExternalSensorSpec spec) {
     if (spec == null) {
-      return mBuiltInDevice;
+      return builtInDevice;
     }
     InputDeviceSpec device = getDevice(spec.getGlobalDeviceAddress());
     if (device == null) {
@@ -72,10 +72,10 @@ public class DeviceRegistry {
   }
 
   public int getDeviceCount() {
-    return mDevices.size();
+    return devices.size();
   }
 
   public InputDeviceSpec getBuiltInDevice() {
-    return mBuiltInDevice;
+    return builtInDevice;
   }
 }

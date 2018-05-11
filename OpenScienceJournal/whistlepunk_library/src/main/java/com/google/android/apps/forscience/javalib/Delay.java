@@ -21,8 +21,8 @@ import java.util.concurrent.TimeUnit;
 public class Delay {
   public static final Delay ZERO = millis(0);
 
-  private final long mDelay;
-  private final TimeUnit mUnit;
+  private final long delay;
+  private final TimeUnit unit;
 
   public static Delay seconds(long secs) {
     return new Delay(secs, TimeUnit.SECONDS);
@@ -37,21 +37,21 @@ public class Delay {
   }
 
   private Delay(long delay, TimeUnit unit) {
-    mDelay = delay;
-    mUnit = unit;
+    this.delay = delay;
+    this.unit = unit;
   }
 
   public long getDelay() {
-    return mDelay;
+    return delay;
   }
 
   public TimeUnit getUnit() {
-    return mUnit;
+    return unit;
   }
 
   @Override
   public String toString() {
-    return "Delay{" + mDelay + " " + mUnit + "}";
+    return "Delay{" + delay + " " + unit + "}";
   }
 
   @Override
@@ -65,24 +65,24 @@ public class Delay {
 
     final Delay delay = (Delay) o;
 
-    if (mDelay != delay.mDelay) {
+    if (this.delay != delay.delay) {
       return false;
     }
-    return mUnit == delay.mUnit;
+    return unit == delay.unit;
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (mDelay ^ (mDelay >>> 32));
-    result = 31 * result + mUnit.hashCode();
+    int result = (int) (delay ^ (delay >>> 32));
+    result = 31 * result + unit.hashCode();
     return result;
   }
 
   public long asMillis() {
-    return TimeUnit.MILLISECONDS.convert(mDelay, mUnit);
+    return TimeUnit.MILLISECONDS.convert(delay, unit);
   }
 
   public boolean isZero() {
-    return mDelay == 0;
+    return delay == 0;
   }
 }

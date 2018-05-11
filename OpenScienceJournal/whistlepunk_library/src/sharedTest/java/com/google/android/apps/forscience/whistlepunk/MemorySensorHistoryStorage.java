@@ -21,16 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MemorySensorHistoryStorage implements SensorHistoryStorage {
-  List<String> mStored = new ArrayList<>();
+  List<String> stored = new ArrayList<>();
 
   @Override
   public List<String> getMostRecentSensorIds() {
-    return Lists.newArrayList(mStored);
+    return Lists.newArrayList(stored);
   }
 
   @Override
   public void setMostRecentSensorIds(List<String> ids) {
-    mStored.clear();
-    mStored.addAll(ids);
+    stored.clear();
+    stored.addAll(ids);
   }
 }

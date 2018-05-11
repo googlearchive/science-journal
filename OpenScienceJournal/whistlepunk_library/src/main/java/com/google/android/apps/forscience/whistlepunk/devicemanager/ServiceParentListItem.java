@@ -25,65 +25,65 @@ import java.util.List;
 
 public class ServiceParentListItem implements ParentListItem {
   // TODO: duplication with DeviceParentListItem
-  private String mProviderId;
-  private SensorDiscoverer.DiscoveredService mService;
-  private ArrayList<DeviceWithSensors> mDevices = Lists.newArrayList();
-  private boolean mIsLoading;
-  private boolean mIsNowExpanded;
+  private String providerId;
+  private SensorDiscoverer.DiscoveredService service;
+  private ArrayList<DeviceWithSensors> devices = Lists.newArrayList();
+  private boolean isLoading;
+  private boolean isNowExpanded;
 
   public ServiceParentListItem(
       String providerId, SensorDiscoverer.DiscoveredService service, boolean startsExpanded) {
-    mProviderId = providerId;
-    mService = service;
-    mIsNowExpanded = startsExpanded;
+    this.providerId = providerId;
+    this.service = service;
+    isNowExpanded = startsExpanded;
   }
 
   @Override
   public List<?> getChildItemList() {
-    return mDevices;
+    return devices;
   }
 
   @Override
   public boolean isInitiallyExpanded() {
-    return mIsNowExpanded;
+    return isNowExpanded;
   }
 
   public boolean isCurrentlyExpanded() {
-    return mIsNowExpanded;
+    return isNowExpanded;
   }
 
   public void setIsCurrentlyExpanded(boolean isNowExpanded) {
-    mIsNowExpanded = isNowExpanded;
+    this.isNowExpanded = isNowExpanded;
   }
 
   public String getServiceName() {
-    return mService.getName();
+    return service.getName();
   }
 
   public Drawable getDeviceIcon(Context context) {
-    return mService.getIconDrawable(context);
+    return service.getIconDrawable(context);
   }
 
   public boolean isService(String serviceId) {
-    return mService.getServiceId().equals(serviceId);
+    return service.getServiceId().equals(serviceId);
   }
 
   public boolean addDevice(SensorDiscoverer.DiscoveredDevice device) {
-    for (DeviceWithSensors spec : mDevices) {
+    for (DeviceWithSensors spec : devices) {
       if (spec.isSameSensor(device.getSpec())) {
         return false;
       }
     }
-    mDevices.add(new DeviceWithSensors(device.getSpec()));
+    devices.add(new DeviceWithSensors(device.getSpec()));
     return true;
   }
 
   public List<Integer> removeAnyOf(ArrayList<InputDeviceSpec> myDevices) {
     List<Integer> indicesRemoved = Lists.newArrayList();
     for (InputDeviceSpec myDevice : myDevices) {
-      for (int i = mDevices.size() - 1; i >= 0; i--) {
-        if (mDevices.get(i).isSameSensor(myDevice)) {
-          mDevices.remove(i);
+      for (int i = devices.size() - 1; i >= 0; i--) {
+        if (devices.get(i).isSameSensor(myDevice)) {
+          devices.remove(i);
           indicesRemoved.add(i);
         }
       }
@@ -92,7 +92,7 @@ public class ServiceParentListItem implements ParentListItem {
   }
 
   public boolean addSensorToDevice(InputDeviceSpec device, String sensorKey) {
-    for (DeviceWithSensors dws : mDevices) {
+    for (DeviceWithSensors dws : devices) {
       if (dws.isSameSensor(device)) {
         dws.addSensorKey(sensorKey);
         return true;
@@ -102,27 +102,27 @@ public class ServiceParentListItem implements ParentListItem {
   }
 
   public SensorDiscoverer.ServiceConnectionError getConnectionErrorIfAny() {
-    return mService.getConnectionErrorIfAny();
+    return service.getConnectionErrorIfAny();
   }
 
   public void setIsLoading(boolean isLoading) {
-    mIsLoading = isLoading;
+    this.isLoading = isLoading;
   }
 
   public boolean isLoading() {
-    return mIsLoading;
+    return isLoading;
   }
 
   public String getProviderId() {
-    return mProviderId;
+    return providerId;
   }
 
   public String getGlobalServiceId() {
-    return mService.getServiceId();
+    return service.getServiceId();
   }
 
   public boolean containsSensorKey(String sensorKey) {
-    for (DeviceWithSensors device : mDevices) {
+    for (DeviceWithSensors device : devices) {
       if (device.getSensorKeys().contains(sensorKey)) {
         return true;
       }

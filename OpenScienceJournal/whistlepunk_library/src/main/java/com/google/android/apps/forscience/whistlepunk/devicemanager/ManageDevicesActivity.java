@@ -46,10 +46,10 @@ public class ManageDevicesActivity extends AppCompatActivity
   /** String extra which stores the experiment ID that launched this activity. */
   public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
 
-  private BroadcastReceiver mBtReceiver;
-  private DataController mDataController;
-  private ManageDevicesRecyclerFragment mManageFragment;
-  private Experiment mCurrentExperiment;
+  private BroadcastReceiver btReceiver;
+  private DataController dataController;
+  private ManageDevicesRecyclerFragment manageFragment;
+  private Experiment currentExperiment;
 
   public static DeviceOptionsDialog.DeviceOptionsListener getOptionsListener(Activity activity) {
     if (activity instanceof DeviceOptionsDialog.DeviceOptionsListener) {
@@ -76,7 +76,7 @@ public class ManageDevicesActivity extends AppCompatActivity
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_manage_devices);
-    mDataController = AppSingleton.getInstance(this).getDataController();
+    dataController = AppSingleton.getInstance(this).getDataController();
   }
 
   @Override
@@ -93,12 +93,12 @@ public class ManageDevicesActivity extends AppCompatActivity
     // Set up a broadcast receiver in case the adapter is disabled from the notification shade.
     registerBtReceiverIfNecessary();
     String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
-    mDataController.getExperimentById(
+    dataController.getExperimentById(
         experimentId,
         new LoggingConsumer<Experiment>(TAG, "load experiment with ID = " + experimentId) {
           @Override
           public void success(Experiment value) {
-            mCurrentExperiment = value;
+            currentExperiment = value;
           }
         });
   }
@@ -118,21 +118,21 @@ public class ManageDevicesActivity extends AppCompatActivity
     FragmentManager fragmentManager = getSupportFragmentManager();
     Fragment fragmentById = fragmentManager.findFragmentById(R.id.fragment);
     if (fragmentById != null) {
-      mManageFragment = (ManageDevicesRecyclerFragment) fragmentById;
+      manageFragment = (ManageDevicesRecyclerFragment) fragmentById;
     } else {
-      mManageFragment = new ManageDevicesRecyclerFragment();
+      manageFragment = new ManageDevicesRecyclerFragment();
       Bundle args = new Bundle();
       args.putString(EXTRA_EXPERIMENT_ID, getIntent().getStringExtra(EXTRA_EXPERIMENT_ID));
-      mManageFragment.setArguments(args);
+      manageFragment.setArguments(args);
       FragmentTransaction ft = fragmentManager.beginTransaction();
-      ft.replace(R.id.fragment, mManageFragment);
+      ft.replace(R.id.fragment, manageFragment);
       ft.commitAllowingStateLoss();
     }
   }
 
   private void registerBtReceiverIfNecessary() {
-    if (mBtReceiver == null) {
-      mBtReceiver =
+    if (btReceiver == null) {
+      btReceiver =
           new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -141,14 +141,14 @@ public class ManageDevicesActivity extends AppCompatActivity
           };
       IntentFilter filter = new IntentFilter();
       filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-      registerReceiver(mBtReceiver, filter);
+      registerReceiver(btReceiver, filter);
     }
   }
 
   private void unregisterBtReceiverIfNecessary() {
-    if (mBtReceiver != null) {
-      unregisterReceiver(mBtReceiver);
-      mBtReceiver = null;
+    if (btReceiver != null) {
+      unregisterReceiver(btReceiver);
+      btReceiver = null;
     }
   }
 
@@ -159,14 +159,14 @@ public class ManageDevicesActivity extends AppCompatActivity
 
   @Override
   public void onRemoveSensorFromExperiment(String experimentId, final String sensorId) {
-    if (mCurrentExperiment != null && mCurrentExperiment.getExperimentId().equals(experimentId)) {
+    if (currentExperiment != null && currentExperiment.getExperimentId().equals(experimentId)) {
       removeSensorFromExperiment(sensorId);
     }
   }
 
   private void removeSensorFromExperiment(String sensorId) {
-    mDataController.removeSensorFromExperiment(
-        mCurrentExperiment.getExperimentId(),
+    dataController.removeSensorFromExperiment(
+        currentExperiment.getExperimentId(),
         sensorId,
         new LoggingConsumer<Success>(TAG, "remove sensor from experiment") {
           @Override
@@ -175,8 +175,8 @@ public class ManageDevicesActivity extends AppCompatActivity
   }
 
   private void refreshAfterLoad() {
-    if (mManageFragment != null) {
-      mManageFragment.refreshAfterLoad();
+    if (manageFragment != null) {
+      manageFragment.refreshAfterLoad();
     }
   }
 }

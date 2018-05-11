@@ -19,19 +19,19 @@ import android.bluetooth.BluetoothDevice;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
 
 public class NativeDevice implements WhistlepunkBleDevice {
-  private BluetoothDevice mDevice;
+  private BluetoothDevice device;
 
   public NativeDevice(BluetoothDevice device) {
-    mDevice = device;
+    this.device = device;
   }
 
   @Override
   public String getName() {
-    return mDevice.getName();
+    return device.getName();
   }
 
   @Override
   public String getAddress() {
-    return mDevice.getAddress();
+    return device.getAddress();
   }
 }

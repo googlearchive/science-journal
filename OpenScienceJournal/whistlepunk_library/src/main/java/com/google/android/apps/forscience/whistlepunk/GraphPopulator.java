@@ -33,15 +33,15 @@ public class GraphPopulator {
   // How many datapoints do we grab from the database at one time?
   private static final int MAX_DATAPOINTS_PER_SENSOR_LOAD = 100;
 
-  private Range<Long> mRequestedTimes = null;
-  private ObservationDisplay mObservationDisplay;
-  private boolean mRequestInFlight = false;
-  private final long mRequestId;
+  private Range<Long> requestedTimes = null;
+  private ObservationDisplay observationDisplay;
+  private boolean requestInFlight = false;
+  private final long requestId;
 
   // TODO: can we pass in the request id, rather than generating it here?
   public GraphPopulator(ObservationDisplay observationDisplay, Clock clock) {
-    mObservationDisplay = observationDisplay;
-    mRequestId = clock.getNow();
+    this.observationDisplay = observationDisplay;
+    requestId = clock.getNow();
   }
 
   /** GraphStatus for a graph that is not changing its x axis. */
@@ -80,14 +80,14 @@ public class GraphPopulator {
       final int resolutionTier,
       final String trialId,
       final String sensorId) {
-    if (mRequestInFlight) {
+    if (requestInFlight) {
       return;
     }
     final TimeRange r = getRequestRange(graphStatus);
     if (r == null) {
-      mObservationDisplay.onFinish(mRequestId);
+      observationDisplay.onFinish(requestId);
     } else {
-      mRequestInFlight = true;
+      requestInFlight = true;
       dataController.getScalarReadings(
           trialId,
           sensorId,
@@ -99,12 +99,12 @@ public class GraphPopulator {
               new FallibleConsumer<ScalarReadingList>() {
                 @Override
                 public void take(ScalarReadingList observations) {
-                  mRequestInFlight = false;
+                  requestInFlight = false;
                   if (graphStatus.graphIsStillValid()) {
                     final Pair<Range<Long>, Range<Double>> received =
                         addObservationsToDisplay(observations);
                     if (received.first != null) {
-                      mObservationDisplay.addRange(observations, received.second, mRequestId);
+                      observationDisplay.addRange(observations, received.second, requestId);
                     }
                     addToRequestedTimes(getEffectiveAddedRange(r, received.first));
                     requestObservations(
@@ -118,7 +118,7 @@ public class GraphPopulator {
                 }
 
                 public void addToRequestedTimes(Range<Long> effectiveAdded) {
-                  mRequestedTimes = Ranges.span(mRequestedTimes, effectiveAdded);
+                  requestedTimes = Ranges.span(requestedTimes, effectiveAdded);
                 }
 
                 public Pair<Range<Long>, Range<Double>> addObservationsToDisplay(
@@ -162,7 +162,7 @@ public class GraphPopulator {
     final long maxTime = graphStatus.getMaxTime();
     // TODO(saff): push more of this computation to be testable in NextRequestType
     return computeRequestRange(
-        NextRequestType.compute(mRequestedTimes, minTime, maxTime), minTime, maxTime);
+        NextRequestType.compute(requestedTimes, minTime, maxTime), minTime, maxTime);
   }
 
   private TimeRange computeRequestRange(NextRequestType type, long minTime, long maxTime) {
@@ -172,9 +172,9 @@ public class GraphPopulator {
       case FIRST:
         return TimeRange.oldest(Range.closed(minTime, maxTime));
       case NEXT_LOWER:
-        return TimeRange.oldest(Range.closedOpen(minTime, mRequestedTimes.lowerEndpoint()));
+        return TimeRange.oldest(Range.closedOpen(minTime, requestedTimes.lowerEndpoint()));
       case NEXT_HIGHER:
-        return TimeRange.oldest(Range.openClosed(mRequestedTimes.upperEndpoint(), maxTime));
+        return TimeRange.oldest(Range.openClosed(requestedTimes.upperEndpoint(), maxTime));
       default:
         throw new IllegalStateException("Should never happen");
     }
@@ -196,7 +196,7 @@ public class GraphPopulator {
   }
 
   public long getRequestId() {
-    return mRequestId;
+    return requestId;
   }
 
   public interface GraphStatus {

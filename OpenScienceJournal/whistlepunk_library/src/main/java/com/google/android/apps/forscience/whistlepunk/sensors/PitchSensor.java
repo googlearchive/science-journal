@@ -49,18 +49,18 @@ public class PitchSensor extends ScalarSensor {
     final AudioSource audioSource = environment.getAudioSource();
     final AudioReceiver audioReceiver =
         new AudioReceiver() {
-          private final AudioAnalyzer mAudioAnalyzer = new AudioAnalyzer(SAMPLE_RATE_IN_HZ);
+          private final AudioAnalyzer audioAnalyzer = new AudioAnalyzer(SAMPLE_RATE_IN_HZ);
           private final short[] audioAnalyzerBuffer = new short[AudioAnalyzer.BUFFER_SIZE];
           private int audioAnalyzerBufferOffset;
-          private Double mPreviousFrequency;
+          private Double previousFrequency;
 
           @Override
           public void onReceiveAudio(short[] audioSourceBuffer) {
             int audioSourceBufferOffset = 0;
             while (audioSourceBufferOffset < audioSourceBuffer.length) {
               // Repeat the previous frequency value while we collect and analyze new data.
-              if (mPreviousFrequency != null) {
-                c.addData(clock.getNow(), mPreviousFrequency);
+              if (previousFrequency != null) {
+                c.addData(clock.getNow(), previousFrequency);
               }
 
               int lengthToCopy =
@@ -78,7 +78,7 @@ public class PitchSensor extends ScalarSensor {
 
               // If audioAnalyzerBuffer is full, analyze it.
               if (audioAnalyzerBufferOffset == audioAnalyzerBuffer.length) {
-                Double frequency = mAudioAnalyzer.detectFundamentalFrequency(audioAnalyzerBuffer);
+                Double frequency = audioAnalyzer.detectFundamentalFrequency(audioAnalyzerBuffer);
                 long timestampMillis = clock.getNow();
                 if (frequency == null) {
                   // Unable to detect frequency, likely due to low volume.
@@ -87,13 +87,13 @@ public class PitchSensor extends ScalarSensor {
                   // Avoid drastic changes that show as spikes in the graph between notes
                   // being played on an instrument. If the new value is more than 50%
                   // different from the previous value, skip it.
-                  // Note that since we set mPreviousFrequency to frequency below, we
+                  // Note that since we set previousFrequency to frequency below, we
                   // will never skip two consecutive values.
                   frequency = null;
                 } else {
                   c.addData(timestampMillis, frequency);
                 }
-                mPreviousFrequency = frequency;
+                previousFrequency = frequency;
 
                 // Since we've analyzed that buffer, set the offset back to 0.
                 audioAnalyzerBufferOffset = 0;
@@ -102,8 +102,8 @@ public class PitchSensor extends ScalarSensor {
           }
 
           private boolean isDrasticSpike(double frequency) {
-            return mPreviousFrequency != null
-                && Math.abs(frequency - mPreviousFrequency) / mPreviousFrequency > 0.50;
+            return previousFrequency != null
+                && Math.abs(frequency - previousFrequency) / previousFrequency > 0.50;
           }
         };
 

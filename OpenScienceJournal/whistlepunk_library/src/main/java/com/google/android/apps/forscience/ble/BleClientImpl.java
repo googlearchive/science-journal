@@ -37,7 +37,7 @@ public class BleClientImpl implements BleClient {
   private static String TAG = "BLEClient";
   private static final boolean DEBUG = false;
 
-  private BehaviorSubject<Optional<MyBleService>> mWhenService = BehaviorSubject.create();
+  private BehaviorSubject<Optional<MyBleService>> whenService = BehaviorSubject.create();
   private MyBleService bleService;
 
   private final Context context;
@@ -49,14 +49,14 @@ public class BleClientImpl implements BleClient {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
           bleService = ((MyBleService.LocalBinder) service).getService();
-          mWhenService.onNext(Optional.of(bleService));
+          whenService.onNext(Optional.of(bleService));
           if (DEBUG) Log.d(TAG, "bleService connected");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
           bleService = null;
-          mWhenService.onNext(Optional.absent());
+          whenService.onNext(Optional.absent());
           if (DEBUG) Log.d(TAG, "bleService disconnected");
         }
       };
@@ -166,7 +166,7 @@ public class BleClientImpl implements BleClient {
 
   @Override
   public Single<BleClient> whenConnected() {
-    return mWhenService
+    return whenService
         .filter(Optional::isPresent)
         .firstElement()
         .map(o -> (BleClient) this)

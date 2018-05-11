@@ -23,7 +23,7 @@ import java.util.Map;
 
 /** Metadata object for the stats stored along with a trial */
 public class TrialStats {
-  private GoosciTrial.SensorTrialStats mTrialStats;
+  private GoosciTrial.SensorTrialStats trialStats;
 
   public static Map<String, TrialStats> fromTrial(GoosciTrial.Trial trial) {
     Map<String, TrialStats> result = new HashMap<>();
@@ -34,51 +34,51 @@ public class TrialStats {
   }
 
   public TrialStats(String sensorId) {
-    mTrialStats = new GoosciTrial.SensorTrialStats();
-    mTrialStats.sensorId = sensorId;
+    trialStats = new GoosciTrial.SensorTrialStats();
+    trialStats.sensorId = sensorId;
   }
 
   public TrialStats(GoosciTrial.SensorTrialStats trialStats) {
-    mTrialStats = trialStats;
+    this.trialStats = trialStats;
   }
 
   public GoosciTrial.SensorTrialStats getSensorTrialStatsProto() {
-    return mTrialStats;
+    return trialStats;
   }
 
   public void copyFrom(TrialStats other) {
-    mTrialStats = other.getSensorTrialStatsProto();
+    trialStats = other.getSensorTrialStatsProto();
   }
 
   public String getSensorId() {
-    return mTrialStats.sensorId;
+    return trialStats.sensorId;
   }
 
   public boolean statsAreValid() {
-    return mTrialStats.statStatus == GoosciTrial.SensorTrialStats.StatStatus.VALID;
+    return trialStats.statStatus == GoosciTrial.SensorTrialStats.StatStatus.VALID;
   }
 
   public void setStatStatus(int status) {
-    mTrialStats.statStatus = status;
+    trialStats.statStatus = status;
   }
 
   public void putStat(int type, double value) {
-    for (GoosciTrial.SensorStat sensorStat : mTrialStats.sensorStats) {
+    for (GoosciTrial.SensorStat sensorStat : trialStats.sensorStats) {
       if (sensorStat.statType == type) {
         sensorStat.statValue = value;
         return;
       }
     }
-    int newSize = mTrialStats.sensorStats.length + 1;
-    mTrialStats.sensorStats = Arrays.copyOf(mTrialStats.sensorStats, newSize);
+    int newSize = trialStats.sensorStats.length + 1;
+    trialStats.sensorStats = Arrays.copyOf(trialStats.sensorStats, newSize);
     GoosciTrial.SensorStat newStat = new GoosciTrial.SensorStat();
     newStat.statType = type;
     newStat.statValue = value;
-    mTrialStats.sensorStats[newSize - 1] = newStat;
+    trialStats.sensorStats[newSize - 1] = newStat;
   }
 
   public double getStatValue(int type, double defaultValue) {
-    for (GoosciTrial.SensorStat sensorStat : mTrialStats.sensorStats) {
+    for (GoosciTrial.SensorStat sensorStat : trialStats.sensorStats) {
       if (sensorStat.statType == type) {
         return sensorStat.statValue;
       }
@@ -87,7 +87,7 @@ public class TrialStats {
   }
 
   public boolean hasStat(int type) {
-    for (GoosciTrial.SensorStat sensorStat : mTrialStats.sensorStats) {
+    for (GoosciTrial.SensorStat sensorStat : trialStats.sensorStats) {
       if (sensorStat.statType == type) {
         return true;
       }

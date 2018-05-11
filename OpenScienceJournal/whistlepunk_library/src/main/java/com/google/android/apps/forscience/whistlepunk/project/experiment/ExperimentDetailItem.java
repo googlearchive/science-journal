@@ -30,95 +30,95 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayO
  * <p>TODO: might be able to rework this when Run objects exist.
  */
 public class ExperimentDetailItem {
-  private final int mViewType;
-  private Trial mTrial;
-  private int mSensorTagIndex = -1;
-  private Label mLabel;
-  private long mTimestamp;
-  private ChartController mChartController;
+  private final int viewType;
+  private Trial trial;
+  private int sensorTagIndex = -1;
+  private Label label;
+  private long timestamp;
+  private ChartController chartController;
 
   ExperimentDetailItem(
       Trial trial, ScalarDisplayOptions scalarDisplayOptions, boolean isRecording) {
-    mTrial = trial;
-    mTimestamp = mTrial.getFirstTimestamp();
+    this.trial = trial;
+    timestamp = this.trial.getFirstTimestamp();
     if (isRecording) {
-      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RECORDING;
+      viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RECORDING;
     } else {
-      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RUN_CARD;
+      viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_RUN_CARD;
     }
-    mSensorTagIndex = mTrial.getSensorIds().size() > 0 ? 0 : -1;
+    sensorTagIndex = this.trial.getSensorIds().size() > 0 ? 0 : -1;
     if (trial.isValid()) {
-      mChartController =
+      chartController =
           new ChartController(
               ChartOptions.ChartPlacementType.TYPE_PREVIEW_REVIEW, scalarDisplayOptions);
     }
   }
 
   ExperimentDetailItem(Label label) {
-    mLabel = label;
+    this.label = label;
     if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
-      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
+      viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TEXT_LABEL;
     } else if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
+      viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_PICTURE_LABEL;
     } else if (label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
-      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
+      viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
     } else if (label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT) {
-      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_SNAPSHOT_LABEL;
+      viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_SNAPSHOT_LABEL;
     } else {
-      mViewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_UNKNOWN_LABEL;
+      viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_UNKNOWN_LABEL;
     }
-    mTimestamp = label.getTimeStamp();
+    timestamp = label.getTimeStamp();
   }
 
   ExperimentDetailItem(int viewType) {
-    mViewType = viewType;
+    this.viewType = viewType;
   }
 
   int getViewType() {
-    return mViewType;
+    return viewType;
   }
 
   long getTimestamp() {
-    return mTimestamp;
+    return timestamp;
   }
 
   Trial getTrial() {
-    return mTrial;
+    return trial;
   }
 
   int getSensorTagIndex() {
-    return mSensorTagIndex;
+    return sensorTagIndex;
   }
 
   GoosciSensorLayout.SensorLayout getSelectedSensorLayout() {
-    return mTrial.getSensorLayouts().get(mSensorTagIndex);
+    return trial.getSensorLayouts().get(sensorTagIndex);
   }
 
   String getNextSensorId() {
-    return mTrial.getSensorIds().get(mSensorTagIndex + 1);
+    return trial.getSensorIds().get(sensorTagIndex + 1);
   }
 
   String getPrevSensorId() {
-    return mTrial.getSensorIds().get(mSensorTagIndex - 1);
+    return trial.getSensorIds().get(sensorTagIndex - 1);
   }
 
   void setSensorTagIndex(int index) {
-    mSensorTagIndex = index;
+    sensorTagIndex = index;
   }
 
   ChartController getChartController() {
-    return mChartController;
+    return chartController;
   }
 
   public Label getLabel() {
-    return mLabel;
+    return label;
   }
 
   public void setLabel(Label label) {
-    mLabel = label;
+    this.label = label;
   }
 
   public void setTrial(Trial trial) {
-    mTrial = trial;
+    this.trial = trial;
   }
 }

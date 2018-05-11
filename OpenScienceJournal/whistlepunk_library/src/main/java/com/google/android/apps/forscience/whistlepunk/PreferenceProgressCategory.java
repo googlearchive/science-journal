@@ -25,7 +25,7 @@ import android.view.View;
 /** A PreferenceCategory with a progress spinner. */
 public class PreferenceProgressCategory extends PreferenceCategory {
 
-  private boolean mProgress;
+  private boolean progress;
 
   public PreferenceProgressCategory(Context context) {
     this(context, null);
@@ -47,11 +47,11 @@ public class PreferenceProgressCategory extends PreferenceCategory {
   protected void onBindView(View view) {
     super.onBindView(view);
     final View progressBar = view.findViewById(R.id.scanning_progress);
-    progressBar.setVisibility(mProgress ? View.VISIBLE : View.GONE);
+    progressBar.setVisibility(progress ? View.VISIBLE : View.GONE);
   }
 
   public void setProgress(boolean progressOn) {
-    mProgress = progressOn;
+    progress = progressOn;
     notifyChanged();
   }
 }

@@ -21,10 +21,10 @@ import android.util.Log;
 public class PinTypeProvider {
   public static final PinType DEFAULT_PIN = new PinType(PinSignalType.ANALOG, 0);
 
-  private PinType[] mPins;
+  private PinType[] pins;
 
   public PinTypeProvider() {
-    mPins =
+    pins =
         new PinType[] {
           DEFAULT_PIN,
           new PinType(PinSignalType.ANALOG, 1),
@@ -61,26 +61,26 @@ public class PinTypeProvider {
 
   public static class PinType {
     private String TAG = "PinType";
-    private PinSignalType mPinSignalType;
-    private int mPinNumber;
+    private PinSignalType pinSignalType;
+    private int pinNumber;
 
     PinType(PinSignalType pinSignalType, int pinNumber) {
-      mPinSignalType = pinSignalType;
-      mPinNumber = pinNumber;
+      this.pinSignalType = pinSignalType;
+      this.pinNumber = pinNumber;
     }
 
     public PinSignalType getPinSignalType() {
-      return mPinSignalType;
+      return pinSignalType;
     }
 
     public int getPinNumber() {
-      return mPinNumber;
+      return pinNumber;
     }
 
     @Override
     public String toString() {
       String prefix;
-      switch (mPinSignalType) {
+      switch (pinSignalType) {
         case ANALOG:
           prefix = "A";
           break;
@@ -91,15 +91,15 @@ public class PinTypeProvider {
           prefix = "V";
           break;
         default:
-          Log.wtf(TAG, "Unexpected enum value: " + mPinSignalType);
+          Log.wtf(TAG, "Unexpected enum value: " + pinSignalType);
           prefix = "X";
       }
-      return prefix + mPinNumber;
+      return prefix + pinNumber;
     }
   }
 
   public PinType[] getPins() {
-    return mPins;
+    return pins;
   }
 
   /* Parse a pin in the format "A0", "D1", or "V10".  Returns null on parse failure. */

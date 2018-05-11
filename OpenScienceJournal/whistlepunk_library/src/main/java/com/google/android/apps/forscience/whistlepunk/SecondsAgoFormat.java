@@ -22,12 +22,12 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 
 public class SecondsAgoFormat extends NumberFormat {
-  private final ElapsedTimeAxisFormatter mElapsedTimeFormatter;
-  private Clock mClock;
+  private final ElapsedTimeAxisFormatter elapsedTimeFormatter;
+  private Clock clock;
 
   public SecondsAgoFormat(Clock clock, Context context) {
-    mClock = clock;
-    mElapsedTimeFormatter = ElapsedTimeAxisFormatter.getInstance(context);
+    this.clock = clock;
+    elapsedTimeFormatter = ElapsedTimeAxisFormatter.getInstance(context);
   }
 
   @Override
@@ -37,7 +37,7 @@ public class SecondsAgoFormat extends NumberFormat {
 
   @Override
   public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
-    return buffer.append(mElapsedTimeFormatter.format(value - mClock.getNow(), false));
+    return buffer.append(elapsedTimeFormatter.format(value - clock.getNow(), false));
   }
 
   @Override

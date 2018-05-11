@@ -42,27 +42,27 @@ public class MockScheduler implements Scheduler {
     }
   }
 
-  private long mCurrentTime = 0;
-  private TreeSet<QueuedRunnable> mRunnables = new TreeSet<>();
-  private int mScheduleCount = 0;
+  private long currentTime = 0;
+  private TreeSet<QueuedRunnable> runnables = new TreeSet<>();
+  private int scheduleCount = 0;
 
   @Override
   public void schedule(Delay delay, Runnable doThis) {
-    mScheduleCount++;
+    scheduleCount++;
     if (delay.asMillis() == 0) {
       doThis.run();
     } else {
       // Add to list of runnables
       QueuedRunnable qr = new QueuedRunnable();
-      qr.executeAfter = delay.asMillis() + mCurrentTime;
+      qr.executeAfter = delay.asMillis() + currentTime;
       qr.runnable = doThis;
-      mRunnables.add(qr);
+      runnables.add(qr);
     }
   }
 
   @Override
   public void unschedule(Runnable removeThis) {
-    Iterator<QueuedRunnable> iter = mRunnables.iterator();
+    Iterator<QueuedRunnable> iter = runnables.iterator();
     while (iter.hasNext()) {
       if (iter.next().runnable == removeThis) {
         iter.remove();
@@ -71,27 +71,27 @@ public class MockScheduler implements Scheduler {
   }
 
   public int getScheduleCount() {
-    return mScheduleCount;
+    return scheduleCount;
   }
 
   public Clock getClock() {
     return new Clock() {
       @Override
       public long getNow() {
-        return mCurrentTime;
+        return currentTime;
       }
     };
   }
 
   public void incrementTime(long ms) {
-    long targetTime = mCurrentTime + ms;
+    long targetTime = currentTime + ms;
 
-    while (!mRunnables.isEmpty() && mRunnables.first().executeAfter <= targetTime) {
-      QueuedRunnable first = mRunnables.first();
-      mRunnables.remove(first);
-      mCurrentTime = first.executeAfter;
+    while (!runnables.isEmpty() && runnables.first().executeAfter <= targetTime) {
+      QueuedRunnable first = runnables.first();
+      runnables.remove(first);
+      currentTime = first.executeAfter;
       first.runnable.run();
     }
-    mCurrentTime = targetTime;
+    currentTime = targetTime;
   }
 }

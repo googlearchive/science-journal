@@ -23,8 +23,8 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypePr
 /** Subclass of {@link BuiltInSensorAppearance} which includes the external device name. */
 public class ExternalSensorAppearance extends BuiltInSensorAppearance {
 
-  private String mDeviceName;
-  private final int mKind;
+  private String deviceName;
+  private final int kind;
 
   public ExternalSensorAppearance(
       int nameStringId,
@@ -49,22 +49,22 @@ public class ExternalSensorAppearance extends BuiltInSensorAppearance {
         sensorAnimationBehavior,
         BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL,
         null);
-    mDeviceName = deviceName;
-    mKind = kind;
+    this.deviceName = deviceName;
+    this.kind = kind;
   }
 
   @Override
   public String getName(Context context) {
     return context
         .getResources()
-        .getString(R.string.external_sensor_appearance_name, super.getName(context), mDeviceName);
+        .getString(R.string.external_sensor_appearance_name, super.getName(context), deviceName);
   }
 
   @Override
   public GoosciIcon.IconPath getSmallIconPath() {
     GoosciIcon.IconPath path = new GoosciIcon.IconPath();
     path.type = GoosciIcon.IconPath.PathType.LEGACY_ANDROID_BLE;
-    path.pathString = String.valueOf(mKind);
+    path.pathString = String.valueOf(kind);
     return path;
   }
 
@@ -72,7 +72,7 @@ public class ExternalSensorAppearance extends BuiltInSensorAppearance {
   public GoosciIcon.IconPath getLargeIconPath() {
     GoosciIcon.IconPath path = new GoosciIcon.IconPath();
     path.type = GoosciIcon.IconPath.PathType.LEGACY_ANDROID_BLE;
-    path.pathString = String.valueOf(mKind);
+    path.pathString = String.valueOf(kind);
     return path;
   }
 }

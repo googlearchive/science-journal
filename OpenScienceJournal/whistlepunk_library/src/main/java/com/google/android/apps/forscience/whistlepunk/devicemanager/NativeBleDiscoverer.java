@@ -51,12 +51,12 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
 
   private static final String SERVICE_ID = "com.google.android.apps.forscience.whistlepunk.ble";
 
-  private DeviceDiscoverer mDeviceDiscoverer;
-  private Runnable mOnScanDone;
-  private Context mContext;
+  private DeviceDiscoverer deviceDiscoverer;
+  private Runnable onScanDone;
+  private Context context;
 
   public NativeBleDiscoverer(Context context) {
-    mContext = context;
+    this.context = context;
   }
 
   @Override
@@ -70,7 +70,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
 
     // BLE scan is only done when it times out (which is imposed from fragment)
     // TODO: consider making that timeout internal (like it is for API sensor services)
-    mOnScanDone =
+    onScanDone =
         new Runnable() {
           @Override
           public void run() {
@@ -79,8 +79,8 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
           }
         };
 
-    mDeviceDiscoverer = createDiscoverer(mContext);
-    final boolean canScan = mDeviceDiscoverer.canScan() && hasScanPermission();
+    deviceDiscoverer = createDiscoverer(this.context);
+    final boolean canScan = deviceDiscoverer.canScan() && hasScanPermission();
 
     listener.onServiceFound(
         new DiscoveredService() {
@@ -92,7 +92,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
           @Override
           public String getName() {
             // TODO: agree on a string here
-            return mContext.getString(R.string.native_ble_service_name);
+            return NativeBleDiscoverer.this.context.getString(R.string.native_ble_service_name);
           }
 
           @Override
@@ -108,7 +108,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
               return new ServiceConnectionError() {
                 @Override
                 public String getErrorMessage() {
-                  return mContext.getString(R.string.btn_enable_bluetooth);
+                  return NativeBleDiscoverer.this.context.getString(R.string.btn_enable_bluetooth);
                 }
 
                 @Override
@@ -131,7 +131,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
       return false;
     }
 
-    mDeviceDiscoverer.startScanning(
+    deviceDiscoverer.startScanning(
         new DeviceDiscoverer.Callback() {
           @Override
           public void onDeviceFound(final DeviceDiscoverer.DeviceRecord record) {
@@ -148,7 +148,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
 
   @VisibleForTesting
   protected boolean hasScanPermission() {
-    return PermissionUtils.hasPermission(mContext, PermissionUtils.REQUEST_ACCESS_COARSE_LOCATION);
+    return PermissionUtils.hasPermission(context, PermissionUtils.REQUEST_ACCESS_COARSE_LOCATION);
   }
 
   protected DeviceDiscoverer createDiscoverer(Context context) {
@@ -157,13 +157,13 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
 
   @Override
   public void stopScanning() {
-    if (mDeviceDiscoverer != null) {
-      mDeviceDiscoverer.stopScanning();
-      mDeviceDiscoverer = null;
+    if (deviceDiscoverer != null) {
+      deviceDiscoverer.stopScanning();
+      deviceDiscoverer = null;
     }
-    if (mOnScanDone != null) {
-      mOnScanDone.run();
-      mOnScanDone = null;
+    if (onScanDone != null) {
+      onScanDone.run();
+      onScanDone = null;
     }
   }
 

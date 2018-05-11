@@ -47,32 +47,32 @@ public class AgeVerifier extends AppCompatActivity {
    */
   private static final String KEY_USER_AGE_SET = "user_age_set";
 
-  private SharedPreferences mPreferences;
-  private DatePicker mDatePicker;
+  private SharedPreferences preferences;
+  private DatePicker datePicker;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_age_verifier);
 
-    mDatePicker = (DatePicker) findViewById(R.id.date_picker);
-    mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+    datePicker = (DatePicker) findViewById(R.id.date_picker);
+    preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
     Calendar calendar = Calendar.getInstance();
     // Pick a min date.
     calendar.set(1900, 0, 1);
-    mDatePicker.setMinDate(calendar.getTimeInMillis());
+    datePicker.setMinDate(calendar.getTimeInMillis());
     // Max date is today.
-    mDatePicker.setMaxDate(System.currentTimeMillis());
-    long time = getUserAge(mPreferences);
+    datePicker.setMaxDate(System.currentTimeMillis());
+    long time = getUserAge(preferences);
     boolean noTimeSet = time == 0;
     if (noTimeSet) {
-      time = mDatePicker.getMaxDate();
+      time = datePicker.getMaxDate();
     }
     calendar.setTimeInMillis(time);
     // If no time set, set the calendar 1 year back so that people can still access all the
     // months and days. Otherwise, use the remembered date.
-    mDatePicker.updateDate(
+    datePicker.updateDate(
         calendar.get(Calendar.YEAR) - (noTimeSet ? 1 : 0),
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH));
@@ -83,9 +83,8 @@ public class AgeVerifier extends AppCompatActivity {
           @Override
           public void onClick(View v) {
             Calendar calendar = Calendar.getInstance();
-            calendar.set(
-                mDatePicker.getYear(), mDatePicker.getMonth(), mDatePicker.getDayOfMonth());
-            mPreferences
+            calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
+            preferences
                 .edit()
                 .putLong(KEY_USER_AGE, calendar.getTimeInMillis())
                 .putBoolean(KEY_USER_AGE_SET, true)
@@ -103,7 +102,7 @@ public class AgeVerifier extends AppCompatActivity {
     super.onResume();
     if (AppSingleton.getInstance(this).getAndClearMostRecentOpenWasImport()) {
       AccessibilityUtils.makeSnackbar(
-              mDatePicker,
+              datePicker,
               getResources().getString(R.string.import_age_verification),
               Snackbar.LENGTH_SHORT)
           .show();

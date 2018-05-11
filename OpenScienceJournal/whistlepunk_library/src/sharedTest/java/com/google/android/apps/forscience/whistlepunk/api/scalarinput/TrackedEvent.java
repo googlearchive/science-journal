@@ -16,31 +16,31 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 public class TrackedEvent {
-  private final String mCategory;
-  private final String mAction;
-  private final String mLabel;
-  private final long mValue;
+  private final String category;
+  private final String action;
+  private final String label;
+  private final long value;
 
   public TrackedEvent(String category, String action, String label, long value) {
-    mCategory = category;
-    mAction = action;
-    mLabel = label;
-    mValue = value;
+    this.category = category;
+    this.action = action;
+    this.label = label;
+    this.value = value;
   }
 
   public String getCategory() {
-    return mCategory;
+    return category;
   }
 
   public String getAction() {
-    return mAction;
+    return action;
   }
 
   public String getLabel() {
-    return mLabel;
+    return label;
   }
 
   public long getValue() {
-    return mValue;
+    return value;
   }
 }

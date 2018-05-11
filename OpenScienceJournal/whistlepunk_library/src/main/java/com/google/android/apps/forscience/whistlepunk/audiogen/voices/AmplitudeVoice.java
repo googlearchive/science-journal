@@ -32,8 +32,8 @@ public class AmplitudeVoice extends JsynUnitVoiceAdapter {
   public static final double FREQ_VALUE = 440; // default value for amplitude
 
   public AmplitudeVoice(Synthesizer synth) {
-    mVoice = new SimpleJsynUnitVoice();
-    synth.add(mVoice);
+    voice = new SimpleJsynUnitVoice();
+    synth.add(voice);
   }
 
   public void noteOn(double value, double min, double max, TimeStamp timeStamp) {
@@ -42,6 +42,6 @@ public class AmplitudeVoice extends JsynUnitVoiceAdapter {
     if (value > max) value = max;
 
     double amp = (value - min) / (max - min) * (AMP_MAX - AMP_MIN) + AMP_MIN;
-    mVoice.noteOn(FREQ_VALUE, amp, timeStamp);
+    voice.noteOn(FREQ_VALUE, amp, timeStamp);
   }
 }

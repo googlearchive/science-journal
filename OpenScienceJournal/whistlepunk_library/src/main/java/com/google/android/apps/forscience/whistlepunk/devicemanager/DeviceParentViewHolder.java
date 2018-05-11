@@ -36,13 +36,13 @@ import java.util.Map;
 
 /** View holder for device views in the expandable view */
 public class DeviceParentViewHolder extends OffsetParentViewHolder {
-  private final TextView mDeviceNameView;
-  private final ImageView mDeviceIcon;
-  private final ToggleArrow mCollapsedIcon;
-  private final ImageButton mMenuButton;
-  private final MenuCallbacks mMenuCallbacks;
-  private PopupMenu mPopupMenu;
-  private DeviceParentListItem mItem;
+  private final TextView deviceNameView;
+  private final ImageView deviceIcon;
+  private final ToggleArrow collapsedIcon;
+  private final ImageButton menuButton;
+  private final MenuCallbacks menuCallbacks;
+  private PopupMenu popupMenu;
+  private DeviceParentListItem item;
 
   /** Defines what to do when menu items are chosen. */
   public interface MenuCallbacks {
@@ -52,34 +52,34 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
   public DeviceParentViewHolder(
       View itemView, Supplier<Integer> globalPositionOffset, MenuCallbacks menuCallbacks) {
     super(itemView, globalPositionOffset);
-    mDeviceNameView = (TextView) itemView.findViewById(R.id.device_name);
-    mDeviceIcon = (ImageView) itemView.findViewById(R.id.device_icon);
-    mCollapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
-    mMenuButton = (ImageButton) itemView.findViewById(R.id.btn_device_overflow_menu);
-    mMenuCallbacks = menuCallbacks;
+    deviceNameView = (TextView) itemView.findViewById(R.id.device_name);
+    deviceIcon = (ImageView) itemView.findViewById(R.id.device_icon);
+    collapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
+    menuButton = (ImageButton) itemView.findViewById(R.id.btn_device_overflow_menu);
+    this.menuCallbacks = menuCallbacks;
   }
 
   public void bind(
       final DeviceParentListItem item,
       Map<String, ConnectableSensor> sensorMap,
       DeviceRegistry deviceRegistry) {
-    mItem = item;
+    this.item = item;
     String name = item.getDeviceName();
-    mDeviceNameView.setText(name);
-    Context context = mDeviceIcon.getContext();
+    deviceNameView.setText(name);
+    Context context = deviceIcon.getContext();
     Drawable icon = item.getDeviceIcon(context, sensorMap);
-    mDeviceIcon.setImageDrawable(icon);
+    deviceIcon.setImageDrawable(icon);
 
     if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
-      mCollapsedIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-      mCollapsedIcon.setIsFocusable(false);
+      collapsedIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+      collapsedIcon.setIsFocusable(false);
       updateActionStrings(item.isInitiallyExpanded());
     } else {
-      mCollapsedIcon.setActionStrings(
+      collapsedIcon.setActionStrings(
           R.string.btn_expand_device_for, R.string.btn_contract_device_for, name);
     }
-    mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);
-    mCollapsedIcon.setOnClickListener(
+    collapsedIcon.setActive(item.isInitiallyExpanded(), false);
+    collapsedIcon.setOnClickListener(
         new View.OnClickListener() {
           @Override
           public void onClick(View v) {
@@ -90,60 +90,60 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
         });
 
     if (item.canForget(deviceRegistry)) {
-      mMenuButton.setVisibility(View.VISIBLE);
-      mMenuButton.setOnClickListener(
+      menuButton.setVisibility(View.VISIBLE);
+      menuButton.setOnClickListener(
           new View.OnClickListener() {
             @Override
             public void onClick(View v) {
               openDeviceMenu(item);
             }
           });
-      mMenuButton.setContentDescription(
+      menuButton.setContentDescription(
           context.getResources().getString(R.string.device_settings_for, name));
     } else {
-      mMenuButton.setVisibility(View.GONE);
-      mMenuButton.setOnClickListener(null);
-      mMenuButton.setContentDescription(null);
+      menuButton.setVisibility(View.GONE);
+      menuButton.setOnClickListener(null);
+      menuButton.setContentDescription(null);
     }
   }
 
   private void openDeviceMenu(final DeviceParentListItem listItem) {
-    if (mPopupMenu != null) {
+    if (popupMenu != null) {
       return;
     }
-    final Context context = mMenuButton.getContext();
-    mPopupMenu =
-        new PopupMenu(context, mMenuButton, Gravity.NO_GRAVITY, R.attr.actionOverflowMenuStyle, 0);
-    mPopupMenu.getMenuInflater().inflate(R.menu.menu_device_recycler_item, mPopupMenu.getMenu());
+    final Context context = menuButton.getContext();
+    popupMenu =
+        new PopupMenu(context, menuButton, Gravity.NO_GRAVITY, R.attr.actionOverflowMenuStyle, 0);
+    popupMenu.getMenuInflater().inflate(R.menu.menu_device_recycler_item, popupMenu.getMenu());
 
-    mPopupMenu.setOnMenuItemClickListener(
+    popupMenu.setOnMenuItemClickListener(
         new PopupMenu.OnMenuItemClickListener() {
           public boolean onMenuItemClick(MenuItem item) {
             int itemId = item.getItemId();
             if (itemId == R.id.btn_forget_device) {
-              mMenuCallbacks.forgetDevice(listItem.getSpec());
+              menuCallbacks.forgetDevice(listItem.getSpec());
               return true;
             }
             return false;
           }
         });
-    mPopupMenu.setOnDismissListener(
+    popupMenu.setOnDismissListener(
         new PopupMenu.OnDismissListener() {
           @Override
           public void onDismiss(PopupMenu menu) {
-            mPopupMenu = null;
+            popupMenu = null;
           }
         });
 
-    mPopupMenu.show();
+    popupMenu.show();
   }
 
   @Override
   public void onExpansionToggled(boolean wasExpandedBefore) {
     super.onExpansionToggled(wasExpandedBefore);
     boolean isNowExpanded = !wasExpandedBefore;
-    mCollapsedIcon.setActive(isNowExpanded, true);
-    mItem.setIsCurrentlyExpanded(isNowExpanded);
+    collapsedIcon.setActive(isNowExpanded, true);
+    item.setIsCurrentlyExpanded(isNowExpanded);
     if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
       // For newer phones, we can update the content description on the row, and the arrow
       // does not need to be focusable for a11y.

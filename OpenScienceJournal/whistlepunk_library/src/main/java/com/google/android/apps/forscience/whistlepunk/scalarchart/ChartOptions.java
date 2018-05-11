@@ -49,153 +49,153 @@ public class ChartOptions {
   // For comparing doubles
   private static final double EPSILON = 1E-7;
 
-  private final boolean mCanPanX;
-  private final boolean mCanPanY;
-  private final boolean mCanZoomX;
-  private final boolean mCanZoomY;
-  private final boolean mShowLeadingEdge;
-  private final ChartPlacementType mChartPlacementType;
+  private final boolean canPanX;
+  private final boolean canPanY;
+  private final boolean canZoomX;
+  private final boolean canZoomY;
+  private final boolean showLeadingEdge;
+  private final ChartPlacementType chartPlacementType;
 
-  private double mYMinPoint = Double.MAX_VALUE;
-  private double mYMaxPoint = Double.MIN_VALUE;
-  private boolean mRequestResetZoomInY = false;
+  private double yMinPoint = Double.MAX_VALUE;
+  private double yMaxPoint = Double.MIN_VALUE;
+  private boolean requestResetZoomInY = false;
 
-  private long mRenderedXMin;
-  private long mRenderedXMax;
-  private double mRenderedYMin;
-  private double mRenderedYMax;
-  private boolean mPinnedToNow;
-  private NumberFormat mNumberFormat;
-  private int mLineColor = Color.BLACK;
-  private boolean mShowStatsOverlay;
-  private ScalarDisplayOptions mScalarDisplayOptions;
+  private long renderedXMin;
+  private long renderedXMax;
+  private double renderedYMin;
+  private double renderedYMax;
+  private boolean pinnedToNow;
+  private NumberFormat numberFormat;
+  private int lineColor = Color.BLACK;
+  private boolean showStatsOverlay;
+  private ScalarDisplayOptions scalarDisplayOptions;
 
-  private boolean mShowOriginalRun = false;
-  private long mRecordingStartTime;
-  private long mRecordingEndTime;
-  private long mOriginalStartTime;
-  private long mOriginalEndTime;
+  private boolean showOriginalRun = false;
+  private long recordingStartTime;
+  private long recordingEndTime;
+  private long originalStartTime;
+  private long originalEndTime;
 
-  private List<Double> mTriggerValues;
+  private List<Double> triggerValues;
 
   public ChartOptions(ChartPlacementType chartPlacementType) {
-    mChartPlacementType = chartPlacementType;
-    switch (mChartPlacementType) {
+    this.chartPlacementType = chartPlacementType;
+    switch (this.chartPlacementType) {
       case TYPE_OBSERVE:
-        mShowLeadingEdge = true;
-        mCanPanX = true;
-        mCanPanY = false;
-        mCanZoomX = false;
-        mCanZoomY = true;
-        mPinnedToNow = true;
+        showLeadingEdge = true;
+        canPanX = true;
+        canPanY = false;
+        canZoomX = false;
+        canZoomY = true;
+        pinnedToNow = true;
         break;
       case TYPE_RUN_REVIEW:
-        mShowLeadingEdge = false;
-        mCanPanX = true;
-        mCanPanY = true;
-        mCanZoomX = true;
-        mCanZoomY = true;
-        mPinnedToNow = false;
+        showLeadingEdge = false;
+        canPanX = true;
+        canPanY = true;
+        canZoomX = true;
+        canZoomY = true;
+        pinnedToNow = false;
         break;
       case TYPE_PREVIEW_REVIEW:
       default:
-        mShowLeadingEdge = false;
-        mCanPanX = false;
-        mCanPanY = false;
-        mCanZoomX = false;
-        mCanZoomY = false;
-        mPinnedToNow = false;
+        showLeadingEdge = false;
+        canPanX = false;
+        canPanY = false;
+        canZoomX = false;
+        canZoomY = false;
+        pinnedToNow = false;
         break;
     }
-    mNumberFormat = new AxisNumberFormat();
+    numberFormat = new AxisNumberFormat();
     reset();
   }
 
   public ChartPlacementType getChartPlacementType() {
-    return mChartPlacementType;
+    return chartPlacementType;
   }
 
   public long getRenderedXMin() {
-    return mRenderedXMin;
+    return renderedXMin;
   }
 
   public long getRenderedXMax() {
-    return mRenderedXMax;
+    return renderedXMax;
   }
 
   public void setRenderedXRange(long renderedXMin, long renderedXMax) {
-    mRenderedXMin = renderedXMin;
-    mRenderedXMax = renderedXMax;
+    this.renderedXMin = renderedXMin;
+    this.renderedXMax = renderedXMax;
   }
 
   public double getRenderedYMin() {
-    return mRenderedYMin;
+    return renderedYMin;
   }
 
   public double getRenderedYMax() {
-    return mRenderedYMax;
+    return renderedYMax;
   }
 
   public double getYMinLimit() {
-    return mYMinPoint;
+    return yMinPoint;
   }
 
   public double getYMaxLimit() {
-    return mYMaxPoint;
+    return yMaxPoint;
   }
 
   public void requestResetZoomInY() {
-    mRenderedYMin = mYMinPoint;
-    mRenderedYMax = mYMaxPoint;
-    mRequestResetZoomInY = true;
+    renderedYMin = yMinPoint;
+    renderedYMax = yMaxPoint;
+    requestResetZoomInY = true;
   }
 
   public boolean getRequestResetZoomInY() {
-    return mRequestResetZoomInY;
+    return requestResetZoomInY;
   }
 
   public void setRenderedYRange(double renderedYMin, double renderedYMax) {
     if (renderedYMax - renderedYMin < MINIMUM_Y_SPREAD) {
       // Minimum Y spread keeps us from zooming in too far.
       double avg = (renderedYMax + renderedYMin) / 2;
-      mRenderedYMin = avg - MINIMUM_Y_SPREAD / 2;
-      mRenderedYMax = avg + MINIMUM_Y_SPREAD / 2;
+      this.renderedYMin = avg - MINIMUM_Y_SPREAD / 2;
+      this.renderedYMax = avg + MINIMUM_Y_SPREAD / 2;
     } else if (renderedYMax - renderedYMin < getMaxRenderedYRange()
-        || Math.abs(mYMaxPoint - mYMinPoint) < EPSILON) {
+        || Math.abs(yMaxPoint - yMinPoint) < EPSILON) {
       // If the requested points are inside of the max Y range allowed, save them.
-      mRenderedYMin = renderedYMin;
-      mRenderedYMax = renderedYMax;
+      this.renderedYMin = renderedYMin;
+      this.renderedYMax = renderedYMax;
     }
   }
 
   public void updateYMinAndMax(double minYPoint, double maxYPoint) {
-    mYMaxPoint = maxYPoint;
-    mYMinPoint = minYPoint;
+    yMaxPoint = maxYPoint;
+    yMinPoint = minYPoint;
   }
 
   public double getMaxRenderedYRange() {
     // Minimum range 1, maximum range 10 if we are getting ymin ~= ymax.
-    return Math.max(10, (mYMaxPoint - mYMinPoint) * MAXIMUM_Y_SPREAD_FACTOR);
+    return Math.max(10, (yMaxPoint - yMinPoint) * MAXIMUM_Y_SPREAD_FACTOR);
   }
 
   public void adjustYAxisStep(ChartData.DataPoint latestPoint) {
-    if (latestPoint.getY() < mYMinPoint) {
-      mYMinPoint = latestPoint.getY();
+    if (latestPoint.getY() < yMinPoint) {
+      yMinPoint = latestPoint.getY();
     }
-    if (latestPoint.getY() > mYMaxPoint) {
-      mYMaxPoint = latestPoint.getY();
+    if (latestPoint.getY() > yMaxPoint) {
+      yMaxPoint = latestPoint.getY();
     }
-    double buffer = getYBuffer(mYMinPoint, mYMaxPoint);
-    double idealYMax = mYMaxPoint + buffer;
-    double idealYMin = mYMinPoint - buffer;
+    double buffer = getYBuffer(yMinPoint, yMaxPoint);
+    double idealYMax = yMaxPoint + buffer;
+    double idealYMin = yMinPoint - buffer;
 
     double lastYMin = getRenderedYMin();
     double lastYMax = getRenderedYMax();
 
     if (lastYMax <= lastYMin) {
       // TODO do we need to do bounds checking?
-      mRenderedYMin = idealYMin;
-      mRenderedYMax = idealYMax;
+      renderedYMin = idealYMin;
+      renderedYMax = idealYMax;
       return;
     }
 
@@ -235,15 +235,15 @@ public class ChartOptions {
   }
 
   public boolean isShowLeadingEdge() {
-    return mShowLeadingEdge;
+    return showLeadingEdge;
   }
 
   public boolean isShowEndpoints() {
-    return !mShowLeadingEdge;
+    return !showLeadingEdge;
   }
 
   public int getLineColor() {
-    return mLineColor;
+    return lineColor;
   }
 
   public int getLineWidthId() {
@@ -268,54 +268,54 @@ public class ChartOptions {
   }
 
   public NumberFormat getAxisNumberFormat() {
-    return mNumberFormat;
+    return numberFormat;
   }
 
   public void reset() {
-    mRenderedXMin = Long.MAX_VALUE;
-    mRenderedXMax = Long.MIN_VALUE;
-    mRenderedYMin = Double.MAX_VALUE;
-    mRenderedYMax = Double.MIN_VALUE;
-    mYMinPoint = Double.MAX_VALUE;
-    mYMaxPoint = Double.MIN_VALUE;
-    mRequestResetZoomInY = false;
+    renderedXMin = Long.MAX_VALUE;
+    renderedXMax = Long.MIN_VALUE;
+    renderedYMin = Double.MAX_VALUE;
+    renderedYMax = Double.MIN_VALUE;
+    yMinPoint = Double.MAX_VALUE;
+    yMaxPoint = Double.MIN_VALUE;
+    requestResetZoomInY = false;
   }
 
   public void resetYAxisLimits() {
-    mYMinPoint = Double.MAX_VALUE;
-    mYMaxPoint = Double.MIN_VALUE;
+    yMinPoint = Double.MAX_VALUE;
+    yMaxPoint = Double.MIN_VALUE;
   }
 
   public boolean canPan() {
-    return mCanPanX || mCanPanY;
+    return canPanX || canPanY;
   }
 
   public boolean canPanX() {
-    return mCanPanX;
+    return canPanX;
   }
 
   public boolean canPanY() {
-    return mCanPanY;
+    return canPanY;
   }
 
   public boolean canZoom() {
-    return mCanZoomX || mCanZoomY;
+    return canZoomX || canZoomY;
   }
 
   public boolean canZoomX() {
-    return mCanZoomX;
+    return canZoomX;
   }
 
   public boolean canZoomY() {
-    return mCanZoomY;
+    return canZoomY;
   }
 
   public boolean isPinnedToNow() {
-    return mPinnedToNow;
+    return pinnedToNow;
   }
 
   public void setPinnedToNow(boolean pinnedToNow) {
-    mPinnedToNow = pinnedToNow;
+    this.pinnedToNow = pinnedToNow;
   }
 
   public int getAxisLabelsStartPaddingId() {
@@ -347,35 +347,35 @@ public class ChartOptions {
   }
 
   public int getLabelInnerRadiusId() {
-    return mShowLeadingEdge ? R.dimen.label_dot_radius : R.dimen.run_review_value_label_dot_radius;
+    return showLeadingEdge ? R.dimen.label_dot_radius : R.dimen.run_review_value_label_dot_radius;
   }
 
   public int getLabelOutlineRadiusId() {
-    return mShowLeadingEdge
+    return showLeadingEdge
         ? R.dimen.label_dot_outline_radius
         : R.dimen.run_review_value_label_dot_background_radius;
   }
 
   public int getLabelFillColorId() {
-    return mShowLeadingEdge
+    return showLeadingEdge
         ? R.color.graph_label_fill_color
         : R.color.run_review_graph_label_fill_color;
   }
 
   public int getLabelOutlineColor(Resources res) {
-    return mShowLeadingEdge ? mLineColor : res.getColor(R.color.chart_background_color);
+    return showLeadingEdge ? lineColor : res.getColor(R.color.chart_background_color);
   }
 
   public void setLineColor(int lineColor) {
-    mLineColor = lineColor;
+    this.lineColor = lineColor;
   }
 
   public void setRecordingStartTime(long recordingStartTime) {
-    mRecordingStartTime = recordingStartTime;
+    this.recordingStartTime = recordingStartTime;
   }
 
   public long getRecordingStartTime() {
-    return mShowOriginalRun ? mOriginalStartTime : mRecordingStartTime;
+    return showOriginalRun ? originalStartTime : recordingStartTime;
   }
 
   public void setRecordingTimes(
@@ -383,38 +383,38 @@ public class ChartOptions {
       long recordingEndTime,
       long originalStartTime,
       long originalEndTime) {
-    mRecordingStartTime = recordingStartTime;
-    mRecordingEndTime = recordingEndTime;
-    mOriginalStartTime = originalStartTime;
-    mOriginalEndTime = originalEndTime;
+    this.recordingStartTime = recordingStartTime;
+    this.recordingEndTime = recordingEndTime;
+    this.originalStartTime = originalStartTime;
+    this.originalEndTime = originalEndTime;
   }
 
   public long getRecordingEndTime() {
-    return mShowOriginalRun ? mOriginalEndTime : mRecordingEndTime;
+    return showOriginalRun ? originalEndTime : recordingEndTime;
   }
 
   public void setShowOriginalRun(boolean showOriginalRun) {
-    mShowOriginalRun = showOriginalRun;
+    this.showOriginalRun = showOriginalRun;
   }
 
   public boolean shouldDrawRecordingOverlay() {
-    return mRecordingStartTime != RecordingMetadata.NOT_RECORDING
-        && mChartPlacementType == ChartPlacementType.TYPE_OBSERVE;
+    return recordingStartTime != RecordingMetadata.NOT_RECORDING
+        && chartPlacementType == ChartPlacementType.TYPE_OBSERVE;
   }
 
   public void setShowStatsOverlay(boolean showStatsOverlay) {
-    mShowStatsOverlay = showStatsOverlay;
+    this.showStatsOverlay = showStatsOverlay;
   }
 
   public boolean shouldShowStatsOverlay() {
-    if (mChartPlacementType == ChartPlacementType.TYPE_RUN_REVIEW) {
-      return mShowStatsOverlay;
+    if (chartPlacementType == ChartPlacementType.TYPE_RUN_REVIEW) {
+      return showStatsOverlay;
     }
-    return mShowStatsOverlay && shouldDrawRecordingOverlay();
+    return showStatsOverlay && shouldDrawRecordingOverlay();
   }
 
   public boolean isDisplayable(Label label, long recordingStartTime) {
-    return isDisplayable(label, recordingStartTime, mChartPlacementType);
+    return isDisplayable(label, recordingStartTime, chartPlacementType);
   }
 
   // A label is displayable if:
@@ -431,19 +431,19 @@ public class ChartOptions {
   }
 
   public void setScalarDisplayOptions(ScalarDisplayOptions scalarDisplayOptions) {
-    mScalarDisplayOptions = scalarDisplayOptions;
+    this.scalarDisplayOptions = scalarDisplayOptions;
   }
 
   public ScalarDisplayOptions getScalarDisplayOptions() {
-    return mScalarDisplayOptions;
+    return scalarDisplayOptions;
   }
 
   public void setTriggerValues(List<Double> values) {
-    mTriggerValues = values;
+    triggerValues = values;
   }
 
   public List<Double> getTriggerValues() {
-    return mTriggerValues;
+    return triggerValues;
   }
 
   public boolean showYGrid() {

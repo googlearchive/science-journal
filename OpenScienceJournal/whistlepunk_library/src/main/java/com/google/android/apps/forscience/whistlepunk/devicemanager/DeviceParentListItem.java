@@ -33,49 +33,49 @@ import java.util.Map;
  * additional code.
  */
 public class DeviceParentListItem implements ParentListItem {
-  private DeviceWithSensors mDevice;
-  private final SensorAppearanceProvider mAppearanceProvider;
-  private boolean mIsNowExpanded = true;
+  private DeviceWithSensors device;
+  private final SensorAppearanceProvider appearanceProvider;
+  private boolean isNowExpanded = true;
 
   public DeviceParentListItem(
       InputDeviceSpec spec, SensorAppearanceProvider appearanceProvider, boolean startsExpanded) {
-    mDevice = new DeviceWithSensors(Preconditions.checkNotNull(spec));
-    mAppearanceProvider = appearanceProvider;
-    mIsNowExpanded = startsExpanded;
+    device = new DeviceWithSensors(Preconditions.checkNotNull(spec));
+    this.appearanceProvider = appearanceProvider;
+    isNowExpanded = startsExpanded;
   }
 
   @Override
   public List<?> getChildItemList() {
-    return mDevice.getSensorKeys();
+    return device.getSensorKeys();
   }
 
   @Override
   public boolean isInitiallyExpanded() {
-    return mIsNowExpanded;
+    return isNowExpanded;
   }
 
   public boolean isCurrentlyExpanded() {
-    return mIsNowExpanded;
+    return isNowExpanded;
   }
 
   public String getDeviceName() {
-    return mDevice.getName();
+    return device.getName();
   }
 
   public boolean isDevice(InputDeviceSpec device) {
-    return mDevice.getSpec().isSameSensor(device);
+    return this.device.getSpec().isSameSensor(device);
   }
 
   public void addSensor(String key) {
-    mDevice.addSensorKey(key);
+    device.addSensorKey(key);
   }
 
   public String getSensorKey(int i) {
-    return mDevice.getSensorKeys().get(i);
+    return device.getSensorKeys().get(i);
   }
 
   public int sensorIndexOf(String sensorKey) {
-    return mDevice.getSensorKeys().indexOf(sensorKey);
+    return device.getSensorKeys().indexOf(sensorKey);
   }
 
   boolean isPhoneSensorParent(DeviceRegistry deviceRegistry) {
@@ -83,15 +83,15 @@ public class DeviceParentListItem implements ParentListItem {
   }
 
   public Drawable getDeviceIcon(Context context, Map<String, ConnectableSensor> sensorMap) {
-    return mDevice.getIconDrawable(context, mAppearanceProvider, sensorMap);
+    return device.getIconDrawable(context, appearanceProvider, sensorMap);
   }
 
   public InputDeviceSpec getSpec() {
-    return mDevice.getSpec();
+    return device.getSpec();
   }
 
   public void setIsCurrentlyExpanded(boolean isNowExpanded) {
-    mIsNowExpanded = isNowExpanded;
+    this.isNowExpanded = isNowExpanded;
   }
 
   public boolean canForget(DeviceRegistry deviceRegistry) {
@@ -99,6 +99,6 @@ public class DeviceParentListItem implements ParentListItem {
   }
 
   public List<String> getSensorKeys() {
-    return mDevice.getSensorKeys();
+    return device.getSensorKeys();
   }
 }

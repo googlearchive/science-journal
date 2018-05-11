@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemorySensorDatabase implements SensorDatabase {
-  private List<List<Reading>> mReadings = new ArrayList<>();
+  private List<List<Reading>> readings = new ArrayList<>();
 
   public static DataControllerImpl makeSimpleController() {
     return new InMemorySensorDatabase().makeSimpleController(new MemoryMetadataManager());
@@ -93,10 +93,10 @@ public class InMemorySensorDatabase implements SensorDatabase {
   }
 
   private List<Reading> getTierReadings(int resolutionTier) {
-    while (resolutionTier >= mReadings.size()) {
-      mReadings.add(new ArrayList<Reading>());
+    while (resolutionTier >= readings.size()) {
+      readings.add(new ArrayList<Reading>());
     }
-    return mReadings.get(resolutionTier);
+    return readings.get(resolutionTier);
   }
 
   @Override
@@ -189,7 +189,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
 
   @Override
   public void deleteScalarReadings(String trialId, String sensorTag, TimeRange range) {
-    for (List<Reading> readingList : mReadings) {
+    for (List<Reading> readingList : readings) {
       for (int index = readingList.size() - 1; index >= 0; --index) {
         Reading reading = readingList.get(index);
         if (reading.getDatabaseTag().equals(sensorTag)
@@ -208,10 +208,10 @@ public class InMemorySensorDatabase implements SensorDatabase {
   }
 
   public List<Reading> getReadings(int resolutionTier) {
-    if (resolutionTier >= mReadings.size()) {
+    if (resolutionTier >= readings.size()) {
       return Collections.emptyList();
     } else {
-      return mReadings.get(resolutionTier);
+      return readings.get(resolutionTier);
     }
   }
 
@@ -221,32 +221,32 @@ public class InMemorySensorDatabase implements SensorDatabase {
 
   @VisibleForTesting
   public static class Reading {
-    private final String mDatabaseTag;
-    private final long mTimestampMillis;
-    private final double mValue;
-    private final String mTrialId;
+    private final String databaseTag;
+    private final long timestampMillis;
+    private final double value;
+    private final String trialId;
 
     public Reading(String trialId, String databaseTag, long timestampMillis, double value) {
-      mDatabaseTag = databaseTag;
-      mTimestampMillis = timestampMillis;
-      mValue = value;
-      mTrialId = trialId;
+      this.databaseTag = databaseTag;
+      this.timestampMillis = timestampMillis;
+      this.value = value;
+      this.trialId = trialId;
     }
 
     public String getDatabaseTag() {
-      return mDatabaseTag;
+      return databaseTag;
     }
 
     public long getTimestampMillis() {
-      return mTimestampMillis;
+      return timestampMillis;
     }
 
     public double getValue() {
-      return mValue;
+      return value;
     }
 
     public String getTrialId() {
-      return mTrialId;
+      return trialId;
     }
 
     @Override
@@ -260,27 +260,27 @@ public class InMemorySensorDatabase implements SensorDatabase {
 
       final Reading reading = (Reading) o;
 
-      if (mTimestampMillis != reading.mTimestampMillis) {
+      if (timestampMillis != reading.timestampMillis) {
         return false;
       }
-      if (Double.compare(reading.mValue, mValue) != 0) {
+      if (Double.compare(reading.value, value) != 0) {
         return false;
       }
-      if (!mTrialId.equals(reading.mTrialId)) {
+      if (!trialId.equals(reading.trialId)) {
         return false;
       }
-      return !(mDatabaseTag != null
-          ? !mDatabaseTag.equals(reading.mDatabaseTag)
-          : reading.mDatabaseTag != null);
+      return !(databaseTag != null
+          ? !databaseTag.equals(reading.databaseTag)
+          : reading.databaseTag != null);
     }
 
     @Override
     public int hashCode() {
       int result;
       long temp;
-      result = mDatabaseTag != null ? mDatabaseTag.hashCode() : 0;
-      result = 31 * result + (int) (mTimestampMillis ^ (mTimestampMillis >>> 32));
-      temp = Double.doubleToLongBits(mValue);
+      result = databaseTag != null ? databaseTag.hashCode() : 0;
+      result = 31 * result + (int) (timestampMillis ^ (timestampMillis >>> 32));
+      temp = Double.doubleToLongBits(value);
       result = 31 * result + (int) (temp ^ (temp >>> 32));
       return result;
     }
@@ -290,14 +290,14 @@ public class InMemorySensorDatabase implements SensorDatabase {
     public String toString() {
       return "Reading{"
           + "mDatabaseTag='"
-          + mDatabaseTag
+          + databaseTag
           + '\''
           + ", mTimestampMillis="
-          + mTimestampMillis
+          + timestampMillis
           + ", mValue="
-          + mValue
+          + value
           + ", mTrialId="
-          + mTrialId
+          + trialId
           + '}';
     }
   }

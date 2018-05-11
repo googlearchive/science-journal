@@ -18,44 +18,44 @@ package com.google.android.apps.forscience.whistlepunk.audio;
 
 /** Represents a harmonic relationship. */
 class Harmonic {
-  private final Peak mPeakA;
-  private final Peak mPeakB;
-  private int mA; // Antecedent or "A" term in the ratio A:B.
-  private int mB; // Consequent or "B" term in the ratio A:B.
+  private final Peak peakA;
+  private final Peak peakB;
+  private int a; // Antecedent or "A" term in the ratio A:B.
+  private int b; // Consequent or "B" term in the ratio A:B.
 
   private Harmonic(Peak peakA, Peak peakB, int a, int b) {
-    mPeakA = peakA;
-    mPeakB = peakB;
-    mA = a;
-    mB = b;
+    this.peakA = peakA;
+    this.peakB = peakB;
+    this.a = a;
+    this.b = b;
   }
 
   /** Returns the peak that is associated with the antecedent term of this harmonic ratio. */
   Peak getPeakA() {
-    return mPeakA;
+    return peakA;
   }
 
   /** Returns the peak that is associated with the consequent term of this harmonic ratio. */
   Peak getPeakB() {
-    return mPeakB;
+    return peakB;
   }
 
   /** Returns the antecedent term of this harmonic ratio. */
   int getA() {
-    return mA;
+    return a;
   }
 
   /** Returns the consequent term of this harmonic ratio. */
   int getB() {
-    return mB;
+    return b;
   }
 
   /** Returns the term in this harmonic ratio that is associated with the given peak. */
   int getTermForPeak(Peak peak) {
-    if (peak == mPeakA) {
-      return mA;
-    } else if (peak == mPeakB) {
-      return mB;
+    if (peak == peakA) {
+      return a;
+    } else if (peak == peakB) {
+      return b;
     }
     throw new IllegalArgumentException("The given peak is not in this harmonic.");
   }
@@ -103,8 +103,8 @@ class Harmonic {
 
   /** Multiplies the antecedent and consequent of this harmonic ratio by the given multiplier. */
   private void multiply(int multiplier) {
-    mA *= multiplier;
-    mB *= multiplier;
+    a *= multiplier;
+    b *= multiplier;
   }
 
   /** Creates a Harmonic for the given peaks and adds it to each peak. Returns the new harmonic. */
@@ -126,11 +126,11 @@ class Harmonic {
     }
 
     Harmonic harmonic = (Harmonic) obj;
-    return mPeakA == harmonic.mPeakA && mPeakB == harmonic.mPeakB;
+    return peakA == harmonic.peakA && peakB == harmonic.peakB;
   }
 
   @Override
   public int hashCode() {
-    return mPeakA.hashCode() * 31 + mPeakB.hashCode();
+    return peakA.hashCode() * 31 + peakB.hashCode();
   }
 }

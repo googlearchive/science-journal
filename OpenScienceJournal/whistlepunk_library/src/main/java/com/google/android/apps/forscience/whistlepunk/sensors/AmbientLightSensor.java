@@ -39,9 +39,9 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
  */
 public class AmbientLightSensor extends ScalarSensor {
   public static final String ID = "AmbientLightSensor";
-  private final SystemScheduler mScheduler = new SystemScheduler();
-  private SensorEventListener mSensorEventListener;
-  private DataRefresher mDataRefresher;
+  private final SystemScheduler scheduler = new SystemScheduler();
+  private SensorEventListener sensorEventListener;
+  private DataRefresher dataRefresher;
 
   public AmbientLightSensor() {
     super(ID);
@@ -56,36 +56,36 @@ public class AmbientLightSensor extends ScalarSensor {
     return new AbstractSensorRecorder() {
       @Override
       public void startObserving() {
-        mDataRefresher = new DataRefresher(mScheduler, environment.getDefaultClock());
+        dataRefresher = new DataRefresher(scheduler, environment.getDefaultClock());
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
         SensorManager sensorManager = getSensorManager(context);
         Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        if (mSensorEventListener != null) {
-          getSensorManager(context).unregisterListener(mSensorEventListener);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
         }
-        mSensorEventListener =
+        sensorEventListener =
             new SensorEventListener() {
               @Override
               public void onSensorChanged(SensorEvent event) {
                 // values[0] is the ambient light level in SI lux units.
-                mDataRefresher.setValue(event.values[0]);
-                mDataRefresher.startStreaming();
+                dataRefresher.setValue(event.values[0]);
+                dataRefresher.startStreaming();
               }
 
               @Override
               public void onAccuracyChanged(Sensor sensor, int accuracy) {}
             };
-        sensorManager.registerListener(mSensorEventListener, sensor, SensorManager.SENSOR_DELAY_UI);
-        mDataRefresher.setStreamConsumer(c);
+        sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_UI);
+        dataRefresher.setStreamConsumer(c);
       }
 
       @Override
       public void stopObserving() {
-        getSensorManager(context).unregisterListener(mSensorEventListener);
+        getSensorManager(context).unregisterListener(sensorEventListener);
         listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
-        if (mDataRefresher != null) {
-          mDataRefresher.stopStreaming();
-          mDataRefresher = null;
+        if (dataRefresher != null) {
+          dataRefresher.stopStreaming();
+          dataRefresher = null;
         }
       }
 

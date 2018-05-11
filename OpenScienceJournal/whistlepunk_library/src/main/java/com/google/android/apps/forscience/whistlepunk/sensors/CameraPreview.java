@@ -52,9 +52,9 @@ import java.util.List;
 public class CameraPreview extends SurfaceView {
   private static final String TAG = "CameraPreview";
 
-  private Camera mCamera;
-  private boolean mPreviewStarted = false;
-  private boolean mShouldChopPictures = false;
+  private Camera camera;
+  private boolean previewStarted = false;
+  private boolean shouldChopPictures = false;
 
   public CameraPreview(Context context, AttributeSet attrs) {
     super(context, attrs);
@@ -106,10 +106,10 @@ public class CameraPreview extends SurfaceView {
   }
 
   private void stopPreview() {
-    if (mCamera != null) {
-      mCamera.stopPreview();
+    if (camera != null) {
+      camera.stopPreview();
     }
-    mPreviewStarted = false;
+    previewStarted = false;
   }
 
   private int getDisplayRotation() {
@@ -125,8 +125,8 @@ public class CameraPreview extends SurfaceView {
   }
 
   public void setCamera(Camera camera) {
-    mCamera = camera;
-    if (!mPreviewStarted) {
+    this.camera = camera;
+    if (!previewStarted) {
       setupPreviewDisplay(getHolder());
     }
     requestLayout();
@@ -134,10 +134,10 @@ public class CameraPreview extends SurfaceView {
 
   public void setupPreviewDisplay(SurfaceHolder holder) {
     try {
-      if (mCamera != null) {
-        mCamera.setPreviewDisplay(holder);
+      if (camera != null) {
+        camera.setPreviewDisplay(holder);
         startPreview();
-        setCameraDisplayOrientation(0, mCamera);
+        setCameraDisplayOrientation(0, camera);
       }
     } catch (IOException e) {
       displayError("Creating camera preview failed; the surface holder was invalid.");
@@ -145,8 +145,8 @@ public class CameraPreview extends SurfaceView {
   }
 
   private void startPreview() {
-    mCamera.startPreview();
-    mPreviewStarted = true;
+    camera.startPreview();
+    previewStarted = true;
   }
 
   private void setCameraDisplayOrientation(int cameraId, Camera camera) {
@@ -177,26 +177,26 @@ public class CameraPreview extends SurfaceView {
     }
 
     // Adjust orientation of taken photo
-    Camera.Parameters params = mCamera.getParameters();
+    Camera.Parameters params = this.camera.getParameters();
     params.setRotation(result);
-    mCamera.setParameters(params);
+    this.camera.setParameters(params);
 
     // Adjust orientation of preview
     camera.setDisplayOrientation(result);
   }
 
   public void removeCamera() {
-    if (mCamera != null) {
+    if (camera != null) {
       stopPreview();
-      mCamera.release();
-      mCamera = null;
+      camera.release();
+      camera = null;
     }
   }
 
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    if (mCamera != null) {
+    if (camera != null) {
       adjustPreviewSizeAndShrinkToMatchRatio();
     }
   }
@@ -222,10 +222,10 @@ public class CameraPreview extends SurfaceView {
   }
 
   // To avoid allocation when preview sizes are the same (which I assume they'll often be)
-  private PreviewSize[] mCachedSupportedSizes = new PreviewSize[0];
+  private PreviewSize[] cachedSupportedSizes = new PreviewSize[0];
 
   private void adjustPreviewSizeAndShrinkToMatchRatio() {
-    Camera.Parameters params = mCamera.getParameters();
+    Camera.Parameters params = camera.getParameters();
     int idealWidth = getMeasuredWidth();
     int idealHeight = getMeasuredHeight();
     double idealRatio = (1.0 * idealHeight) / idealWidth;
@@ -248,7 +248,7 @@ public class CameraPreview extends SurfaceView {
     params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
     try {
       stopPreview();
-      mCamera.setParameters(params);
+      camera.setParameters(params);
     } catch (RuntimeException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         String msg = "Failure setting camera size to " + bestSize.width + "," + bestSize.height;
@@ -281,16 +281,16 @@ public class CameraPreview extends SurfaceView {
   }
 
   private PreviewSize[] getPreviewSizes(List<Camera.Size> sizeOptions) {
-    if (mCachedSupportedSizes.length != sizeOptions.size()) {
-      mCachedSupportedSizes = new PreviewSize[sizeOptions.size()];
-      for (int i = 0; i < mCachedSupportedSizes.length; i++) {
-        mCachedSupportedSizes[i] = new PreviewSize(0, 0);
+    if (cachedSupportedSizes.length != sizeOptions.size()) {
+      cachedSupportedSizes = new PreviewSize[sizeOptions.size()];
+      for (int i = 0; i < cachedSupportedSizes.length; i++) {
+        cachedSupportedSizes[i] = new PreviewSize(0, 0);
       }
     }
     for (int i = 0; i < sizeOptions.size(); i++) {
-      mCachedSupportedSizes[i].setFrom(sizeOptions.get(i));
+      cachedSupportedSizes[i].setFrom(sizeOptions.get(i));
     }
-    return mCachedSupportedSizes;
+    return cachedSupportedSizes;
   }
 
   /**
@@ -337,17 +337,17 @@ public class CameraPreview extends SurfaceView {
   }
 
   public void setCurrentDrawerState(int state) {
-    mShouldChopPictures = (state == PanesBottomSheetBehavior.STATE_MIDDLE);
+    shouldChopPictures = (state == PanesBottomSheetBehavior.STATE_MIDDLE);
   }
 
   public void takePicture(
       Maybe<String> maybeExperimentId, String uuid, final MaybeConsumer<String> onSuccess) {
     // TODO: better strategy (RxJava?) to avoid these null checks
-    if (mCamera == null) {
+    if (camera == null) {
       onSuccess.fail(new IllegalStateException("No camera loaded in CameraPreview"));
     }
     maybeExperimentId.subscribe(
-        experimentId -> takePicture(experimentId, uuid, mShouldChopPictures, onSuccess));
+        experimentId -> takePicture(experimentId, uuid, shouldChopPictures, onSuccess));
   }
 
   private void takePicture(
@@ -355,7 +355,7 @@ public class CameraPreview extends SurfaceView {
     final File photoFile = PictureUtils.createImageFile(getContext(), experimentId, uuid);
 
     try {
-      mCamera.takePicture(
+      this.camera.takePicture(
           null,
           null,
           null,

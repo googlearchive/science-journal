@@ -32,11 +32,11 @@ public class CropSeekBar extends GraphExploringSeekBar {
   public static final int TYPE_START = 1;
   public static final int TYPE_END = 2;
 
-  private double mMillisPerTick;
-  private int mType;
-  private CropSeekBar mOtherSeekbar;
-  private List<OnSeekBarChangeListener> mSeekBarChangeListeners = new ArrayList<>();
-  private Drawable mThumb;
+  private double millisPerTick;
+  private int type;
+  private CropSeekBar otherSeekbar;
+  private List<OnSeekBarChangeListener> seekBarChangeListeners = new ArrayList<>();
+  private Drawable thumb;
 
   public CropSeekBar(Context context) {
     super(context);
@@ -58,21 +58,21 @@ public class CropSeekBar extends GraphExploringSeekBar {
         new OnSeekBarChangeListener() {
           @Override
           public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            for (OnSeekBarChangeListener listener : mSeekBarChangeListeners) {
+            for (OnSeekBarChangeListener listener : seekBarChangeListeners) {
               listener.onProgressChanged(seekBar, progress, fromUser);
             }
           }
 
           @Override
           public void onStartTrackingTouch(SeekBar seekBar) {
-            for (OnSeekBarChangeListener listener : mSeekBarChangeListeners) {
+            for (OnSeekBarChangeListener listener : seekBarChangeListeners) {
               listener.onStartTrackingTouch(seekBar);
             }
           }
 
           @Override
           public void onStopTrackingTouch(SeekBar seekBar) {
-            for (OnSeekBarChangeListener listener : mSeekBarChangeListeners) {
+            for (OnSeekBarChangeListener listener : seekBarChangeListeners) {
               listener.onStartTrackingTouch(seekBar);
             }
           }
@@ -80,42 +80,42 @@ public class CropSeekBar extends GraphExploringSeekBar {
   }
 
   public int getType() {
-    return mType;
+    return type;
   }
 
   public void setType(int type) {
-    mType = type;
+    this.type = type;
     Resources res = getContext().getResources();
     setThumbOffset(res.getDimensionPixelSize(R.dimen.crop_thumb_offset));
-    if (mType == TYPE_START) {
-      mThumb = res.getDrawable(R.drawable.crop_thumb_start);
+    if (this.type == TYPE_START) {
+      thumb = res.getDrawable(R.drawable.crop_thumb_start);
       setFormat(res.getString(R.string.crop_start_seekbar_content_description));
     } else {
-      mThumb = res.getDrawable(R.drawable.crop_thumb_end);
+      thumb = res.getDrawable(R.drawable.crop_thumb_end);
       setFormat(res.getString(R.string.crop_end_seekbar_content_description));
     }
     int color = res.getColor(R.color.color_accent);
-    mThumb.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-    setThumb(mThumb);
+    thumb.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+    setThumb(thumb);
   }
 
   public void setOtherSeekbar(CropSeekBar other) {
-    mOtherSeekbar = other;
+    otherSeekbar = other;
     addOnSeekBarChangeListener(
         new OnSeekBarChangeListener() {
           @Override
           public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            int bufferTicks = (int) Math.ceil(CropHelper.MINIMUM_CROP_MILLIS / mMillisPerTick);
-            if (mType == TYPE_START) {
-              if (progress > mOtherSeekbar.getFullProgress() - bufferTicks) {
+            int bufferTicks = (int) Math.ceil(CropHelper.MINIMUM_CROP_MILLIS / millisPerTick);
+            if (type == TYPE_START) {
+              if (progress > otherSeekbar.getFullProgress() - bufferTicks) {
                 ((CropSeekBar) seekBar)
-                    .setFullProgress(mOtherSeekbar.getFullProgress() - bufferTicks);
+                    .setFullProgress(otherSeekbar.getFullProgress() - bufferTicks);
                 return;
               }
             } else {
-              if (progress < mOtherSeekbar.getFullProgress() + bufferTicks) {
+              if (progress < otherSeekbar.getFullProgress() + bufferTicks) {
                 ((CropSeekBar) seekBar)
-                    .setFullProgress(mOtherSeekbar.getFullProgress() + bufferTicks);
+                    .setFullProgress(otherSeekbar.getFullProgress() + bufferTicks);
                 return;
               }
             }
@@ -132,11 +132,11 @@ public class CropSeekBar extends GraphExploringSeekBar {
 
   // Allows us to have multiple change listeners.
   public void addOnSeekBarChangeListener(OnSeekBarChangeListener onSeekBarChangeListener) {
-    mSeekBarChangeListeners.add(onSeekBarChangeListener);
+    seekBarChangeListeners.add(onSeekBarChangeListener);
   }
 
   public void setMillisecondsInRange(long millisecondsInRange) {
-    mMillisPerTick = millisecondsInRange / GraphExploringSeekBar.SEEKBAR_MAX;
+    millisPerTick = millisecondsInRange / GraphExploringSeekBar.SEEKBAR_MAX;
   }
 
   public void hideThumb() {
@@ -144,6 +144,6 @@ public class CropSeekBar extends GraphExploringSeekBar {
   }
 
   public void showThumb() {
-    setThumb(mThumb);
+    setThumb(thumb);
   }
 }

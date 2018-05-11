@@ -40,7 +40,7 @@ class PhotoAsyncLoader extends AsyncTaskLoader<List<PhotoAsyncLoader.Image>> {
     }
   }
 
-  private List<Image> mItems;
+  private List<Image> items;
 
   public PhotoAsyncLoader(Context context) {
     super(context);
@@ -49,8 +49,8 @@ class PhotoAsyncLoader extends AsyncTaskLoader<List<PhotoAsyncLoader.Image>> {
   @Override
   protected void onStartLoading() {
     // Don't reload if we already have the result.
-    if (mItems != null && mItems.size() > 0) {
-      deliverResult(mItems);
+    if (items != null && items.size() > 0) {
+      deliverResult(items);
     } else {
       forceLoad();
     }
@@ -65,15 +65,15 @@ class PhotoAsyncLoader extends AsyncTaskLoader<List<PhotoAsyncLoader.Image>> {
         return Collections.emptyList();
       }
 
-      mItems = new ArrayList<>(cursor.getCount());
+      items = new ArrayList<>(cursor.getCount());
 
       if (cursor.moveToFirst()) {
         do {
-          mItems.add(new Image(uriToFullImage(cursor), timestampCreated(cursor)));
+          items.add(new Image(uriToFullImage(cursor), timestampCreated(cursor)));
         } while (cursor.moveToNext());
       }
     }
-    return mItems;
+    return items;
   }
 
   private Cursor getCursor() {

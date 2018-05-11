@@ -32,17 +32,17 @@ public class NotesVoice extends JsynUnitVoiceAdapter {
   private static final long MIN_TIME_VALUE_CHANGE_MS = 125; // min time delta to trigger new audio
   private static final long MIN_TIME_CHANGE_MS = 1000; // min time change to trigger new audio
 
-  private long mOldTime = System.currentTimeMillis();
-  private double mOldValue = Double.MIN_VALUE;
+  private long oldTime = System.currentTimeMillis();
+  private double oldValue = Double.MIN_VALUE;
 
   public NotesVoice(Synthesizer synth) {
-    mVoice = new SineEnvelope();
-    synth.add(mVoice);
+    voice = new SineEnvelope();
+    synth.add(voice);
   }
 
   public void noteOn(double newValue, double min, double max, TimeStamp timeStamp) {
-    if (mOldValue == Double.MIN_VALUE) {
-      mOldValue = newValue;
+    if (oldValue == Double.MIN_VALUE) {
+      oldValue = newValue;
       return;
     }
     // Range checking, in case min or max is higher or lower than value (respectively).
@@ -50,23 +50,23 @@ public class NotesVoice extends JsynUnitVoiceAdapter {
     if (newValue > max) newValue = max;
 
     // Compute percent change of value within Y axis range.
-    double dv = newValue - mOldValue;
+    double dv = newValue - oldValue;
     double range = max - min;
     double change = Math.abs(dv / range * 100.);
 
     long newTime = System.currentTimeMillis();
-    long dt = newTime - mOldTime;
+    long dt = newTime - oldTime;
 
     // If the value hasn't changed more than MIN_VALUE_CHANGED, suppress new notes for up to
     // MIN_TIME_CHANGE_MS.  If value has changed more than MIN_VALUE_CHANGED, suppress new
     // notes for MIN_TIME_VALUE_CHANGE_MS.
     if ((change >= MIN_VALUE_PERCENT_CHANGE && dt > MIN_TIME_VALUE_CHANGE_MS)
         || (change < MIN_VALUE_PERCENT_CHANGE && dt > MIN_TIME_CHANGE_MS)) {
-      mOldTime = newTime;
-      mOldValue = newValue;
+      oldTime = newTime;
+      oldValue = newValue;
       double freq = (newValue - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
-      mVoice.noteOn(freq, AMP_VALUE, timeStamp);
-      mVoice.noteOff(timeStamp.makeRelative(MIN_TIME_VALUE_CHANGE_MS / 1000.));
+      voice.noteOn(freq, AMP_VALUE, timeStamp);
+      voice.noteOff(timeStamp.makeRelative(MIN_TIME_VALUE_CHANGE_MS / 1000.));
     }
   }
 }

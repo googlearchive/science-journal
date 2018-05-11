@@ -30,16 +30,16 @@ public abstract class Consumer<T> {
   }
 
   private class CompoundConsumer extends Consumer<T> {
-    private final List<Consumer<T>> mConsumers = new ArrayList<>();
+    private final List<Consumer<T>> consumers = new ArrayList<>();
 
     CompoundConsumer(Consumer<T> first, Consumer<T> second) {
-      mConsumers.add(first);
-      mConsumers.add(second);
+      consumers.add(first);
+      consumers.add(second);
     }
 
     @Override
     public void take(T t) {
-      for (Consumer<T> consumer : mConsumers) {
+      for (Consumer<T> consumer : consumers) {
         consumer.take(t);
       }
     }
@@ -47,7 +47,7 @@ public abstract class Consumer<T> {
     @Override
     public Consumer<T> and(Consumer<T> consumer) {
       if (consumer != null) {
-        mConsumers.add(consumer);
+        consumers.add(consumer);
       }
       return this;
     }

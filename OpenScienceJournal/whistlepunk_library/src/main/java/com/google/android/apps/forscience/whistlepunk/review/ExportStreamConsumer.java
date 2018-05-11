@@ -22,11 +22,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 public class ExportStreamConsumer implements StreamConsumer {
-  private FailureListener mFailureListener;
-  private OutputStreamWriter mOutputStreamWriter;
-  private boolean mStartAtZero;
-  private long mFirstTimeStampWritten = -1;
-  private long mLastTimeStampWritten = -1;
+  private FailureListener failureListener;
+  private OutputStreamWriter outputStreamWriter;
+  private boolean startAtZero;
+  private long firstTimeStampWritten = -1;
+  private long lastTimeStampWritten = -1;
 
   /**
    * @param startAtZero if true, adjusts all timestamps so that the first timestamp is reported as
@@ -34,39 +34,39 @@ public class ExportStreamConsumer implements StreamConsumer {
    */
   public ExportStreamConsumer(
       OutputStreamWriter outputStreamWriter, boolean startAtZero, FailureListener failureListener) {
-    this.mFailureListener = failureListener;
-    this.mOutputStreamWriter = outputStreamWriter;
-    mStartAtZero = startAtZero;
+    this.failureListener = failureListener;
+    this.outputStreamWriter = outputStreamWriter;
+    this.startAtZero = startAtZero;
   }
 
   @Override
   public boolean addData(final long timestampMillis, final double value) {
-    if (mFirstTimeStampWritten < 0) {
-      mFirstTimeStampWritten = timestampMillis;
+    if (firstTimeStampWritten < 0) {
+      firstTimeStampWritten = timestampMillis;
     }
     try {
-      if (mOutputStreamWriter == null) {
-        mFailureListener.fail(new IllegalStateException("Output stream closed."));
+      if (outputStreamWriter == null) {
+        failureListener.fail(new IllegalStateException("Output stream closed."));
         return false;
       }
-      mOutputStreamWriter.write(getTimestampString(timestampMillis));
-      mOutputStreamWriter.write(",");
-      mOutputStreamWriter.write(Double.toString(value));
-      mOutputStreamWriter.write("\n");
-      mLastTimeStampWritten = timestampMillis;
+      outputStreamWriter.write(getTimestampString(timestampMillis));
+      outputStreamWriter.write(",");
+      outputStreamWriter.write(Double.toString(value));
+      outputStreamWriter.write("\n");
+      lastTimeStampWritten = timestampMillis;
 
     } catch (IOException e) {
-      mFailureListener.fail(e);
+      failureListener.fail(e);
       return false;
     }
     return true;
   }
 
   private String getTimestampString(long time) {
-    return Long.toString(mStartAtZero ? time - mFirstTimeStampWritten : time);
+    return Long.toString(startAtZero ? time - firstTimeStampWritten : time);
   }
 
   public long getLastTimeStampWritten() {
-    return mLastTimeStampWritten;
+    return lastTimeStampWritten;
   }
 }

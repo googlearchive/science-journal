@@ -31,19 +31,19 @@ import org.junit.Assert;
  * For testing, an {@link SensorDiscoverer} that knows exactly which specs it knows how to return.
  */
 public class EnumeratedDiscoverer extends StubSensorDiscoverer {
-  private final List<ExternalSensorSpec> mSpecs = new ArrayList<>();
+  private final List<ExternalSensorSpec> specs = new ArrayList<>();
 
   public EnumeratedDiscoverer(ExternalSensorSpec... specs) {
-    mSpecs.addAll(Arrays.asList(specs));
+    this.specs.addAll(Arrays.asList(specs));
   }
 
   public void addSpec(ExternalSensorSpec spec) {
-    mSpecs.add(spec);
+    specs.add(spec);
   }
 
   @Override
   public boolean startScanning(ScanListener listener, FailureListener onScanError) {
-    for (ExternalSensorSpec spec : mSpecs) {
+    for (ExternalSensorSpec spec : specs) {
       listener.onSensorFound(getDiscovered(spec));
     }
     return true;
@@ -94,12 +94,12 @@ public class EnumeratedDiscoverer extends StubSensorDiscoverer {
 
   @Override
   protected ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
-    for (ExternalSensorSpec spec : mSpecs) {
+    for (ExternalSensorSpec spec : specs) {
       if (spec.getName().equals(name)) {
         return spec;
       }
     }
-    Assert.fail("Can't find " + name + " in " + Arrays.asList(mSpecs));
+    Assert.fail("Can't find " + name + " in " + Arrays.asList(specs));
     return null;
   }
 }

@@ -39,19 +39,19 @@ public class MultiTouchDrawerLayout extends DrawerLayout {
     super(context, attrs, defStyle);
   }
 
-  private boolean mIsDisallowIntercept = false;
+  private boolean isDisallowIntercept = false;
 
   @Override
   public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
     // keep the info about if the innerViews do requestDisallowInterceptTouchEvent
-    mIsDisallowIntercept = disallowIntercept;
+    isDisallowIntercept = disallowIntercept;
     super.requestDisallowInterceptTouchEvent(disallowIntercept);
   }
 
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
     // the incorrect array size will only happen in the multi-touch scenario.
-    if (ev.getPointerCount() > 1 && mIsDisallowIntercept) {
+    if (ev.getPointerCount() > 1 && isDisallowIntercept) {
       requestDisallowInterceptTouchEvent(false);
       boolean handled = super.dispatchTouchEvent(ev);
       requestDisallowInterceptTouchEvent(true);

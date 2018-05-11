@@ -29,13 +29,13 @@ import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 
 public abstract class PanesToolFragment extends Fragment {
-  private RxEvent mVisibilityGained = new RxEvent();
-  private RxEvent mVisibilityLost = new RxEvent();
-  private BehaviorSubject<Boolean> mFocused = BehaviorSubject.create();
-  private BehaviorSubject<Boolean> mUiStarted = BehaviorSubject.create();
-  protected BehaviorSubject<Integer> mDrawerState = BehaviorSubject.create();
-  private BehaviorSubject<Optional<View>> mView = BehaviorSubject.create();
-  private RxEvent mViewDestroyed = new RxEvent();
+  private RxEvent visibilityGained = new RxEvent();
+  private RxEvent visibilityLost = new RxEvent();
+  private BehaviorSubject<Boolean> focused = BehaviorSubject.create();
+  private BehaviorSubject<Boolean> uiStarted = BehaviorSubject.create();
+  protected BehaviorSubject<Integer> drawerState = BehaviorSubject.create();
+  private BehaviorSubject<Optional<View>> view = BehaviorSubject.create();
+  private RxEvent viewDestroyed = new RxEvent();
 
   public static interface Env {
     Observable<Integer> watchDrawerState();
@@ -49,18 +49,18 @@ public abstract class PanesToolFragment extends Fragment {
     // Only treat as visible (and therefore connect the camera) when we are both focused and
     // resumed.
     Observable.combineLatest(
-            mFocused,
-            mUiStarted,
-            mDrawerState,
+            this.focused,
+            uiStarted,
+            this.drawerState,
             (focused, resumed, drawerState) ->
                 focused && resumed && drawerState != PanesBottomSheetBehavior.STATE_COLLAPSED)
         .distinctUntilChanged()
         .subscribe(
             hasBecomeVisible -> {
               if (hasBecomeVisible) {
-                mVisibilityGained.onHappened();
+                visibilityGained.onHappened();
               } else {
-                mVisibilityLost.onHappened();
+                visibilityLost.onHappened();
               }
             });
   }
@@ -73,11 +73,11 @@ public abstract class PanesToolFragment extends Fragment {
     provider
         .getPanesToolEnv()
         .watchDrawerState()
-        .takeUntil(mViewDestroyed.happens())
-        .subscribe(mDrawerState::onNext);
+        .takeUntil(viewDestroyed.happens())
+        .subscribe(drawerState::onNext);
 
     View view = onCreatePanesView(inflater, container, savedInstanceState);
-    mView.onNext(Optional.of(view));
+    this.view.onNext(Optional.of(view));
     return view;
   }
 
@@ -86,8 +86,8 @@ public abstract class PanesToolFragment extends Fragment {
 
   @Override
   public final void onDestroyView() {
-    mView.onNext(Optional.absent());
-    mViewDestroyed.onHappened();
+    view.onNext(Optional.absent());
+    viewDestroyed.onHappened();
     onDestroyPanesView();
     super.onDestroyView();
   }
@@ -98,7 +98,7 @@ public abstract class PanesToolFragment extends Fragment {
   }
 
   public Maybe<View> whenNextView() {
-    return mView.filter(Optional::isPresent).map(Optional::get).firstElement();
+    return view.filter(Optional::isPresent).map(Optional::get).firstElement();
   }
 
   // TODO: extract this pattern of fragment listeners
@@ -117,23 +117,23 @@ public abstract class PanesToolFragment extends Fragment {
   protected void panesOnAttach(Context context) {}
 
   protected Observable<Object> whenVisibilityGained() {
-    return mVisibilityGained.happens();
+    return visibilityGained.happens();
   }
 
   protected Observable<Object> whenVisibilityLost() {
-    return mVisibilityLost.happens();
+    return visibilityLost.happens();
   }
 
   protected Observable<Integer> watchDrawerState() {
-    return mDrawerState;
+    return drawerState;
   }
 
   public void onGainedFocus(Activity activity) {
-    mFocused.onNext(true);
+    focused.onNext(true);
   }
 
   public void onLosingFocus() {
-    mFocused.onNext(false);
+    focused.onNext(false);
   }
 
   @Override
@@ -141,7 +141,7 @@ public abstract class PanesToolFragment extends Fragment {
     super.onStart();
 
     if (isMultiWindowEnabled()) {
-      mUiStarted.onNext(true);
+      uiStarted.onNext(true);
     }
   }
 
@@ -150,7 +150,7 @@ public abstract class PanesToolFragment extends Fragment {
     super.onResume();
 
     if (!isMultiWindowEnabled()) {
-      mUiStarted.onNext(true);
+      uiStarted.onNext(true);
     }
   }
 
@@ -159,7 +159,7 @@ public abstract class PanesToolFragment extends Fragment {
     // TODO: can we safely use onStop to shut down observing on pre-Nougat?
     //       See discussion at b/34368790
     if (!isMultiWindowEnabled()) {
-      mUiStarted.onNext(false);
+      uiStarted.onNext(false);
     }
     super.onPause();
   }
@@ -167,7 +167,7 @@ public abstract class PanesToolFragment extends Fragment {
   @Override
   public void onStop() {
     if (isMultiWindowEnabled()) {
-      mUiStarted.onNext(false);
+      uiStarted.onNext(false);
     }
     super.onStop();
   }

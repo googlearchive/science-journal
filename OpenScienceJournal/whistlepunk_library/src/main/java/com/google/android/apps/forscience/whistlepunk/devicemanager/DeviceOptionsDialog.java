@@ -68,8 +68,8 @@ public class DeviceOptionsDialog extends DialogFragment {
     public void onRemoveSensorFromExperiment(String experimentId, String sensorId);
   }
 
-  private DataController mDataController;
-  private DeviceOptionsViewController mViewController;
+  private DataController dataController;
+  private DeviceOptionsViewController viewController;
 
   public static DeviceOptionsDialog newInstance(
       String experimentId,
@@ -110,23 +110,23 @@ public class DeviceOptionsDialog extends DialogFragment {
       // TODO: this is cheating, we're assuming that if there's no settings intent, we
       // can treat this like a BLE controller.
       setupControllers();
-      mDataController.getExternalSensorById(
+      dataController.getExternalSensorById(
           sensorId,
           new LoggingConsumer<ExternalSensorSpec>(
               TAG, "Load external sensor with ID = " + sensorId) {
             @Override
             public void success(ExternalSensorSpec sensor) {
-              mViewController.setSensor(sensorId, sensor, savedInstanceState);
+              viewController.setSensor(sensorId, sensor, savedInstanceState);
             }
           });
       onOK =
           new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-              mViewController.commit(getOptionsListener());
+              viewController.commit(getOptionsListener());
             }
           };
-      view = mViewController.getView();
+      view = viewController.getView();
     } else {
       onOK =
           new DialogInterface.OnClickListener() {
@@ -171,16 +171,16 @@ public class DeviceOptionsDialog extends DialogFragment {
   }
 
   private void setupControllers() {
-    mDataController = AppSingleton.getInstance(getActivity()).getDataController();
-    mViewController =
-        new DeviceOptionsViewController(getActivity(), mDataController, getExperimentId());
+    dataController = AppSingleton.getInstance(getActivity()).getDataController();
+    viewController =
+        new DeviceOptionsViewController(getActivity(), dataController, getExperimentId());
   }
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    if (mViewController != null) {
-      mViewController.onSaveInstanceState(outState);
+    if (viewController != null) {
+      viewController.onSaveInstanceState(outState);
     }
   }
 

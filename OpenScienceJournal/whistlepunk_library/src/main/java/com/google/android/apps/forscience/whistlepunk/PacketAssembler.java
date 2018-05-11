@@ -26,12 +26,12 @@ import java.io.ByteArrayOutputStream;
 public class PacketAssembler {
   private static final String TAG = "PacketAssembler";
 
-  private final Clock mDefaultClock;
-  private final Listener mListener;
+  private final Clock defaultClock;
+  private final Listener listener;
 
-  private final ByteArrayOutputStream mPacketStream = new ByteArrayOutputStream();
+  private final ByteArrayOutputStream packetStream = new ByteArrayOutputStream();
 
-  private long mTimeSkew = -1;
+  private long timeSkew = -1;
 
   private static float DIGITAL_HIGH = 1023f;
   private static float DIGITAL_LOW = 0f;
@@ -44,8 +44,8 @@ public class PacketAssembler {
   }
 
   public PacketAssembler(final Clock defaultClock, final Listener listener) {
-    mDefaultClock = defaultClock;
-    mListener = listener;
+    this.defaultClock = defaultClock;
+    this.listener = listener;
   }
 
   @VisibleForTesting
@@ -54,12 +54,12 @@ public class PacketAssembler {
   }
 
   private void raiseError(String message) {
-    mListener.onError(SensorStatusListener.ERROR_INVALID_PROTO, message);
+    listener.onError(SensorStatusListener.ERROR_INVALID_PROTO, message);
   }
 
   private void parse() {
-    byte[] bs = mPacketStream.toByteArray();
-    mPacketStream.reset();
+    byte[] bs = packetStream.toByteArray();
+    packetStream.reset();
 
     GoosciSensor.SensorData sensorData;
 
@@ -113,20 +113,20 @@ public class PacketAssembler {
 
     long relativeTime = sensorData.timestampKey;
 
-    if (mTimeSkew == -1) {
+    if (timeSkew == -1) {
       // Haven't seen a value yet. Let's calculate the time skew assuming no
       // delay.
-      mTimeSkew = mDefaultClock.getNow() - relativeTime;
+      timeSkew = defaultClock.getNow() - relativeTime;
     }
 
-    mListener.onDataParsed(relativeTime + mTimeSkew, data);
+    listener.onDataParsed(relativeTime + timeSkew, data);
   }
 
   public void append(byte[] packet) {
     int length = (int) packet[0];
     boolean isLast = packet[1] == 1;
 
-    mPacketStream.write(packet, 2, length);
+    packetStream.write(packet, 2, length);
 
     if (isLast) {
       parse();

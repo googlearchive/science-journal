@@ -35,15 +35,15 @@ import java.util.List;
 
 /** The OptionsManager for graph settings which should apply to all graphs across the app. */
 public class GraphOptionsManager {
-  private final ScalarDisplayOptions mScalarDisplayOptions;
+  private final ScalarDisplayOptions scalarDisplayOptions;
 
-  private SeekBar mSmoothnessBar;
-  private SeekBar mWindowBar;
-  private Spinner mBlurSpinner;
-  private SeekBar mGaussianSigmaBar;
+  private SeekBar smoothnessBar;
+  private SeekBar windowBar;
+  private Spinner blurSpinner;
+  private SeekBar gaussianSigmaBar;
 
   public GraphOptionsManager(ScalarDisplayOptions scalarDisplayOptions) {
-    mScalarDisplayOptions = scalarDisplayOptions;
+    this.scalarDisplayOptions = scalarDisplayOptions;
   }
 
   public View buildOptionsView(final ActiveBundle activeBundle, Context context) {
@@ -52,7 +52,7 @@ public class GraphOptionsManager {
 
     final SeekBar smoothnessBar = getSmoothnessSeekBar(inflated);
     smoothnessBar.setProgress(
-        getProgressFromSmoothness(mScalarDisplayOptions.getSmoothness(), smoothnessBar.getMax()));
+        getProgressFromSmoothness(scalarDisplayOptions.getSmoothness(), smoothnessBar.getMax()));
     smoothnessBar.setOnSeekBarChangeListener(
         new ActiveSeekBarListeners.FloatSeekBarListener(
             activeBundle, ScalarDisplayOptions.PREFS_KEY_SMOOTHNESS) {
@@ -64,7 +64,7 @@ public class GraphOptionsManager {
 
     final SeekBar windowBar = getWindowSeekBar(inflated);
     windowBar.setMax(ScalarDisplayOptions.WINDOW_MAX - ScalarDisplayOptions.WINDOW_MIN);
-    windowBar.setProgress(mScalarDisplayOptions.getWindow() - ScalarDisplayOptions.WINDOW_MIN);
+    windowBar.setProgress(scalarDisplayOptions.getWindow() - ScalarDisplayOptions.WINDOW_MIN);
     windowBar.setOnSeekBarChangeListener(
         new ActiveSeekBarListeners.IntSeekBarListener(
             activeBundle, ScalarDisplayOptions.PREFS_KEY_WINDOW) {
@@ -86,7 +86,7 @@ public class GraphOptionsManager {
         new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, blurOptions);
     blurAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     blurSpinner.setAdapter(blurAdapter);
-    blurSpinner.setSelection(mScalarDisplayOptions.getBlurType());
+    blurSpinner.setSelection(scalarDisplayOptions.getBlurType());
     blurSpinner.setOnItemSelectedListener(
         new AdapterView.OnItemSelectedListener() {
           @Override
@@ -100,7 +100,7 @@ public class GraphOptionsManager {
 
     final SeekBar sigmaBar = getGaussianSigmaBar(inflated);
     sigmaBar.setProgress(
-        getProgressFromGaussianSigma(mScalarDisplayOptions.getGaussianSigma(), sigmaBar.getMax()));
+        getProgressFromGaussianSigma(scalarDisplayOptions.getGaussianSigma(), sigmaBar.getMax()));
     sigmaBar.setOnSeekBarChangeListener(
         new ActiveSeekBarListeners.FloatSeekBarListener(
             activeBundle, ScalarDisplayOptions.PREFS_KEY_GAUSSIAN_SIGMA) {
@@ -118,7 +118,7 @@ public class GraphOptionsManager {
     int window = getWindow(bundle);
     @ScalarDisplayOptions.BlurType int blurType = getBlurType(bundle);
     float sigma = getGaussianSigma(bundle);
-    mScalarDisplayOptions.updateLineSettings(smoothness, window, blurType, sigma);
+    scalarDisplayOptions.updateLineSettings(smoothness, window, blurType, sigma);
   }
 
   private float getSmoothness(ReadableSensorOptions bundle) {
@@ -142,31 +142,31 @@ public class GraphOptionsManager {
   }
 
   private SeekBar getSmoothnessSeekBar(View inflated) {
-    if (mSmoothnessBar == null) {
-      mSmoothnessBar = (SeekBar) inflated.findViewById(R.id.graph_options_smoothness_edit);
+    if (smoothnessBar == null) {
+      smoothnessBar = (SeekBar) inflated.findViewById(R.id.graph_options_smoothness_edit);
     }
-    return mSmoothnessBar;
+    return smoothnessBar;
   }
 
   private SeekBar getWindowSeekBar(View inflated) {
-    if (mWindowBar == null) {
-      mWindowBar = (SeekBar) inflated.findViewById(R.id.graph_options_window_edit);
+    if (windowBar == null) {
+      windowBar = (SeekBar) inflated.findViewById(R.id.graph_options_window_edit);
     }
-    return mWindowBar;
+    return windowBar;
   }
 
   private Spinner getBlurSpinner(View inflated) {
-    if (mBlurSpinner == null) {
-      mBlurSpinner = (Spinner) inflated.findViewById(R.id.graph_options_blur_edit);
+    if (blurSpinner == null) {
+      blurSpinner = (Spinner) inflated.findViewById(R.id.graph_options_blur_edit);
     }
-    return mBlurSpinner;
+    return blurSpinner;
   }
 
   private SeekBar getGaussianSigmaBar(View inflated) {
-    if (mGaussianSigmaBar == null) {
-      mGaussianSigmaBar = (SeekBar) inflated.findViewById(R.id.graph_options_gaussian_sigma_edit);
+    if (gaussianSigmaBar == null) {
+      gaussianSigmaBar = (SeekBar) inflated.findViewById(R.id.graph_options_gaussian_sigma_edit);
     }
-    return mGaussianSigmaBar;
+    return gaussianSigmaBar;
   }
 
   @VisibleForTesting

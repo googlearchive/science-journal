@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BatchDataController implements RecordingDataController, Closeable {
-  private RecordingDataController mDataController;
-  private List<BatchInsertScalarReading> mReadings = new ArrayList<>();
+  private RecordingDataController dataController;
+  private List<BatchInsertScalarReading> readings = new ArrayList<>();
 
   public BatchDataController(RecordingDataController dataController) {
-    mDataController = dataController;
+    this.dataController = dataController;
   }
 
   public void addScalarReading(
@@ -36,34 +36,34 @@ public class BatchDataController implements RecordingDataController, Closeable {
       final int resolutionTier,
       long timestampMillis,
       double value) {
-    mReadings.add(
+    readings.add(
         new BatchInsertScalarReading(trialId, sensorId, resolutionTier, timestampMillis, value));
 
-    if (mReadings.size() > 10000) {
+    if (readings.size() > 10000) {
       flushScalarReadings();
     }
   }
 
   @Override
   public void addScalarReadings(List<BatchInsertScalarReading> readings) {
-    mDataController.addScalarReadings(readings);
+    dataController.addScalarReadings(readings);
   }
 
   public void flushScalarReadings() {
-    mDataController.addScalarReadings(mReadings);
-    mReadings = new ArrayList<>();
+    dataController.addScalarReadings(readings);
+    readings = new ArrayList<>();
   }
 
   /**
    * If an error is encountered storing data or stats for {@code sensorId}, notify {@code listener}
    */
   public void setDataErrorListenerForSensor(String sensorId, FailureListener listener) {
-    mDataController.setDataErrorListenerForSensor(sensorId, listener);
+    dataController.setDataErrorListenerForSensor(sensorId, listener);
   }
 
   /** Clear listener set by earlier call to {@code setDataErrorListener} */
   public void clearDataErrorListenerForSensor(String sensorId) {
-    mDataController.clearDataErrorListenerForSensor(sensorId);
+    dataController.clearDataErrorListenerForSensor(sensorId);
   }
 
   @Override

@@ -39,11 +39,11 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
   public static final String METADATA_KEY_CLASS_NAME_OVERRIDE = "api_service_logical_name";
   private static final String TAG = "ScalarFinder";
 
-  private final Context mContext;
-  private final Map<String, ServiceConnection> mConnections = new HashMap<>();
+  private final Context context;
+  private final Map<String, ServiceConnection> connections = new HashMap<>();
 
   public ScalarSensorServiceFinder(Context context) {
-    mContext = context;
+    this.context = context;
   }
 
   @Override
@@ -61,9 +61,9 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
       intent.setComponent(name);
       if (versionCheck(packageName)) {
         final ServiceConnection conn =
-            makeServiceConnection(mConnections, name, callbacks, serviceInfo.metaData);
-        mConnections.put(packageName, conn);
-        mContext.bindService(intent, conn, Context.BIND_AUTO_CREATE);
+            makeServiceConnection(connections, name, callbacks, serviceInfo.metaData);
+        connections.put(packageName, conn);
+        context.bindService(intent, conn, Context.BIND_AUTO_CREATE);
       }
     }
     // TODO: need to figure out when to call onDiscovery done (after every service we know
@@ -73,10 +73,10 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
   private boolean versionCheck(String packageName) {
     try {
       int myVersion =
-          Versions.getScalarApiVersion(mContext.getPackageName(), mContext.getResources());
+          Versions.getScalarApiVersion(context.getPackageName(), context.getResources());
       int packageVersion =
           Versions.getScalarApiVersion(
-              packageName, mContext.getPackageManager().getResourcesForApplication(packageName));
+              packageName, context.getPackageManager().getResourcesForApplication(packageName));
       return versionCheck(myVersion, packageVersion);
     } catch (PackageManager.NameNotFoundException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -103,7 +103,7 @@ public class ScalarSensorServiceFinder extends Consumer<AppDiscoveryCallbacks> {
   }
 
   protected List<ResolveInfo> getResolveInfos() {
-    PackageManager pm = mContext.getPackageManager();
+    PackageManager pm = context.getPackageManager();
     return pm.queryIntentServices(new Intent(INTENT_ACTION), PackageManager.GET_META_DATA);
   }
 

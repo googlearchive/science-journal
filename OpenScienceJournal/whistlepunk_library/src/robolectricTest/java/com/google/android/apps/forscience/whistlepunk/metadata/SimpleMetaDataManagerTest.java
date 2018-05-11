@@ -74,8 +74,8 @@ import org.robolectric.RuntimeEnvironment;
 @RunWith(RobolectricTestRunner.class)
 public class SimpleMetaDataManagerTest {
 
-  private SimpleMetaDataManager mMetaDataManager;
-  private TestSystemClock mTestSystemClock;
+  private SimpleMetaDataManager metaDataManager;
+  private TestSystemClock testSystemClock;
 
   public class TestSystemClock implements Clock {
 
@@ -93,14 +93,14 @@ public class SimpleMetaDataManagerTest {
 
   @Before
   public void setUp() {
-    mMetaDataManager = makeMetaDataManager();
+    metaDataManager = makeMetaDataManager();
   }
 
   @NonNull
   private SimpleMetaDataManager makeMetaDataManager() {
-    mTestSystemClock = new TestSystemClock();
+    testSystemClock = new TestSystemClock();
     return new SimpleMetaDataManager(
-        getContext(), getAppAccount(), "test.main.db", mTestSystemClock);
+        getContext(), getAppAccount(), "test.main.db", testSystemClock);
   }
 
   @After
@@ -112,13 +112,13 @@ public class SimpleMetaDataManagerTest {
 
   @Test
   public void testNewExperiment() {
-    Experiment experiment = mMetaDataManager.newDatabaseExperiment();
+    Experiment experiment = metaDataManager.newDatabaseExperiment();
     assertNotNull(experiment);
     assertFalse(TextUtils.isEmpty(experiment.getExperimentId()));
     assertTrue(experiment.getCreationTimeMs() > 0);
 
     List<GoosciUserMetadata.ExperimentOverview> experiments =
-        mMetaDataManager.getDatabaseExperimentOverviews(false);
+        metaDataManager.getDatabaseExperimentOverviews(false);
     assertEquals(1, experiments.size());
     assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
     assertFalse(experiments.get(0).isArchived);
@@ -127,16 +127,16 @@ public class SimpleMetaDataManagerTest {
     int count = 10;
     // Start at 1, we already added one.
     for (int index = 1; index < count; index++) {
-      mMetaDataManager.newDatabaseExperiment();
+      metaDataManager.newDatabaseExperiment();
     }
 
-    experiments = mMetaDataManager.getDatabaseExperimentOverviews(false);
+    experiments = metaDataManager.getDatabaseExperimentOverviews(false);
     assertEquals(count, experiments.size());
   }
 
   @Test
   public void testNewLabel() {
-    Experiment experiment = mMetaDataManager.newExperiment();
+    Experiment experiment = metaDataManager.newExperiment();
 
     String testLabelString = "test label";
     GoosciTextLabelValue.TextLabelValue textLabelValue = new GoosciTextLabelValue.TextLabelValue();
@@ -169,10 +169,10 @@ public class SimpleMetaDataManagerTest {
         Label.newLabelWithValue(2, GoosciLabel.Label.ValueType.PICTURE, labelValue, caption);
     experiment.addLabel(experiment, pictureLabel);
 
-    mMetaDataManager.updateExperiment(experiment);
+    metaDataManager.updateExperiment(experiment);
 
     List<Label> labels =
-        mMetaDataManager.getExperimentById(experiment.getExperimentId()).getLabels();
+        metaDataManager.getExperimentById(experiment.getExperimentId()).getLabels();
     assertEquals(2, labels.size());
 
     boolean foundText = false;
@@ -197,7 +197,7 @@ public class SimpleMetaDataManagerTest {
 
   @Test
   public void testExperimentStartIds() {
-    Experiment experiment = mMetaDataManager.newDatabaseExperiment();
+    Experiment experiment = metaDataManager.newDatabaseExperiment();
     ApplicationLabel startId1 =
         new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "startId1", "startId1", 0);
     ApplicationLabel stopId1 =
@@ -215,47 +215,47 @@ public class SimpleMetaDataManagerTest {
     final ApplicationLabel stopId3 =
         new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "stopId3", "startId3", 6);
     String experimentId = experiment.getExperimentId();
-    mMetaDataManager.addDatabaseApplicationLabel(experimentId, startId1);
-    mTestSystemClock.advanceClock();
-    mMetaDataManager.addDatabaseApplicationLabel(experimentId, stopId1);
-    mTestSystemClock.advanceClock();
-    mMetaDataManager.addDatabaseApplicationLabel(experimentId, startId2);
-    mTestSystemClock.advanceClock();
-    mMetaDataManager.addDatabaseApplicationLabel(experimentId, stopId2);
-    mTestSystemClock.advanceClock();
-    mMetaDataManager.addDatabaseApplicationLabel(experimentId, startId3);
-    mTestSystemClock.advanceClock();
-    mMetaDataManager.addDatabaseApplicationLabel(experimentId, stopId3);
-    mTestSystemClock.advanceClock();
+    metaDataManager.addDatabaseApplicationLabel(experimentId, startId1);
+    testSystemClock.advanceClock();
+    metaDataManager.addDatabaseApplicationLabel(experimentId, stopId1);
+    testSystemClock.advanceClock();
+    metaDataManager.addDatabaseApplicationLabel(experimentId, startId2);
+    testSystemClock.advanceClock();
+    metaDataManager.addDatabaseApplicationLabel(experimentId, stopId2);
+    testSystemClock.advanceClock();
+    metaDataManager.addDatabaseApplicationLabel(experimentId, startId3);
+    testSystemClock.advanceClock();
+    metaDataManager.addDatabaseApplicationLabel(experimentId, stopId3);
+    testSystemClock.advanceClock();
     final List<String> experimentRunIds =
-        mMetaDataManager.getDatabaseExperimentRunIds(experiment.getExperimentId(), true);
+        metaDataManager.getDatabaseExperimentRunIds(experiment.getExperimentId(), true);
     assertEquals(Lists.newArrayList(), experimentRunIds);
-    mMetaDataManager.newTrial(
+    metaDataManager.newTrial(
         experiment, startId1.getTrialId(), 0, new ArrayList<GoosciSensorLayout.SensorLayout>());
-    mTestSystemClock.advanceClock();
-    mMetaDataManager.newTrial(
+    testSystemClock.advanceClock();
+    metaDataManager.newTrial(
         experiment, startId2.getTrialId(), 2, new ArrayList<GoosciSensorLayout.SensorLayout>());
-    mTestSystemClock.advanceClock();
-    mMetaDataManager.newTrial(
+    testSystemClock.advanceClock();
+    metaDataManager.newTrial(
         experiment, startId3.getTrialId(), 5, new ArrayList<GoosciSensorLayout.SensorLayout>());
-    mTestSystemClock.advanceClock();
+    testSystemClock.advanceClock();
     final List<String> experimentRunIds2 =
-        mMetaDataManager.getDatabaseExperimentRunIds(experiment.getExperimentId(), true);
+        metaDataManager.getDatabaseExperimentRunIds(experiment.getExperimentId(), true);
     assertEquals(Lists.newArrayList("startId3", "startId2", "startId1"), experimentRunIds2);
   }
 
   @Test
   public void testAddRemoveExternalSensor() {
     Map<String, SensorProvider> providerMap = getProviderMap();
-    Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors(providerMap);
+    Map<String, ExternalSensorSpec> sensors = metaDataManager.getExternalSensors(providerMap);
     assertEquals(0, sensors.size());
 
     String testAddress = "11:22:33:44:55";
     String testName = "testName";
     BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
-    String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
+    String databaseTag = metaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
-    sensors = mMetaDataManager.getExternalSensors(providerMap);
+    sensors = metaDataManager.getExternalSensors(providerMap);
 
     assertEquals(1, sensors.size());
     ExternalSensorSpec spec = sensors.values().iterator().next();
@@ -265,9 +265,9 @@ public class SimpleMetaDataManagerTest {
     assertEquals(testName, dbSensor.getName());
     assertEquals(databaseTag, sensors.keySet().iterator().next());
 
-    mMetaDataManager.removeExternalSensor(databaseTag);
+    metaDataManager.removeExternalSensor(databaseTag);
 
-    sensors = mMetaDataManager.getExternalSensors(providerMap);
+    sensors = metaDataManager.getExternalSensors(providerMap);
     assertEquals(0, sensors.size());
   }
 
@@ -284,7 +284,7 @@ public class SimpleMetaDataManagerTest {
   @Test
   public void testSensorsDifferentTypes() {
     Map<String, SensorProvider> providerMap = null;
-    Map<String, ExternalSensorSpec> sensors = mMetaDataManager.getExternalSensors(providerMap);
+    Map<String, ExternalSensorSpec> sensors = metaDataManager.getExternalSensors(providerMap);
     assertEquals(0, sensors.size());
 
     final String testAddress = "11:22:33:44:55";
@@ -323,8 +323,8 @@ public class SimpleMetaDataManagerTest {
           }
         };
 
-    String bleId = mMetaDataManager.addOrGetExternalSensor(bleSpec, providerMap);
-    String wackedId = mMetaDataManager.addOrGetExternalSensor(wackedSpec, providerMap);
+    String bleId = metaDataManager.addOrGetExternalSensor(bleSpec, providerMap);
+    String wackedId = metaDataManager.addOrGetExternalSensor(wackedSpec, providerMap);
 
     assertEquals("bluetooth_le-11:22:33:44:55-testName-0", bleId);
     assertEquals("wacked-11:22:33:44:55-testName-0", wackedId);
@@ -333,10 +333,10 @@ public class SimpleMetaDataManagerTest {
   @Test
   public void testGetExternalSensorsWithScalarInput() {
     Map<String, SensorProvider> providerMap = getProviderMap();
-    assertEquals(0, mMetaDataManager.getExternalSensors(providerMap).size());
-    mMetaDataManager.addOrGetExternalSensor(
+    assertEquals(0, metaDataManager.getExternalSensors(providerMap).size());
+    metaDataManager.addOrGetExternalSensor(
         new ScalarInputSpec("name", "serviceId", "address", null, null, "deviceId"), providerMap);
-    Map<String, ExternalSensorSpec> newSensors = mMetaDataManager.getExternalSensors(providerMap);
+    Map<String, ExternalSensorSpec> newSensors = metaDataManager.getExternalSensors(providerMap);
     assertEquals(1, newSensors.size());
     String id = "ScalarInput-serviceId&address-name-0";
     assertEquals(id, newSensors.keySet().iterator().next());
@@ -352,25 +352,25 @@ public class SimpleMetaDataManagerTest {
     String testName = "testName";
     BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
     Map<String, SensorProvider> providerMap = getProviderMap();
-    String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
+    String databaseTag = metaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
-    Experiment experiment = mMetaDataManager.newDatabaseExperiment();
+    Experiment experiment = metaDataManager.newDatabaseExperiment();
 
-    mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
+    metaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
     ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
     Map<String, ExternalSensorSpec> sensors =
         ConnectableSensor.makeMap(
-            mMetaDataManager.getExperimentSensors(
+            metaDataManager.getExperimentSensors(
                 experiment.getExperimentId(), providerMap, connector));
     assertEquals(1, sensors.size());
     assertEquals(databaseTag, sensors.keySet().iterator().next());
 
-    mMetaDataManager.removeSensorFromExperiment(databaseTag, experiment.getExperimentId());
+    metaDataManager.removeSensorFromExperiment(databaseTag, experiment.getExperimentId());
 
     sensors =
         ConnectableSensor.makeMap(
-            mMetaDataManager.getExperimentSensors(
+            metaDataManager.getExperimentSensors(
                 experiment.getExperimentId(), providerMap, connector));
     assertEquals(0, sensors.size());
   }
@@ -382,32 +382,32 @@ public class SimpleMetaDataManagerTest {
     BleSensorSpec sensor = new BleSensorSpec(testAddress, testName);
     Map<String, SensorProvider> providerMap = getProviderMap();
     ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
-    String databaseTag = mMetaDataManager.addOrGetExternalSensor(sensor, providerMap);
+    String databaseTag = metaDataManager.addOrGetExternalSensor(sensor, providerMap);
 
-    Experiment experiment = mMetaDataManager.newDatabaseExperiment();
+    Experiment experiment = metaDataManager.newDatabaseExperiment();
 
-    mMetaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
+    metaDataManager.addSensorToExperiment(databaseTag, experiment.getExperimentId());
 
     Map<String, ExternalSensorSpec> sensors =
         ConnectableSensor.makeMap(
-            mMetaDataManager.getExperimentSensors(
+            metaDataManager.getExperimentSensors(
                 experiment.getExperimentId(), providerMap, connector));
     assertEquals(1, sensors.size());
     assertEquals(databaseTag, sensors.keySet().iterator().next());
 
-    mMetaDataManager.removeExternalSensor(databaseTag);
+    metaDataManager.removeExternalSensor(databaseTag);
 
     // This should be gone now.
     sensors =
         ConnectableSensor.makeMap(
-            mMetaDataManager.getExperimentSensors(
+            metaDataManager.getExperimentSensors(
                 experiment.getExperimentId(), providerMap, connector));
     assertEquals(0, sensors.size());
   }
 
   @Test
   public void testRunStorage() {
-    Experiment experiment = mMetaDataManager.newDatabaseExperiment();
+    Experiment experiment = metaDataManager.newDatabaseExperiment();
     final ApplicationLabel startLabel = newStartLabel("startId", 1);
     GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
     layout1.sensorId = "sensor1";
@@ -418,10 +418,10 @@ public class SimpleMetaDataManagerTest {
         Lists.newArrayList(layout1, layout2);
     final ArrayList<String> sensorIds = Lists.newArrayList("sensor1", "sensor2");
     Trial saved =
-        mMetaDataManager.newTrial(
+        metaDataManager.newTrial(
             experiment, startLabel.getTrialId(), startLabel.getTimeStamp(), sensorLayouts);
     Trial loaded =
-        mMetaDataManager.getDatabaseTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
+        metaDataManager.getDatabaseTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
     assertEquals(startLabel.getLabelId(), saved.getTrialId());
     assertEquals(startLabel.getLabelId(), loaded.getTrialId());
     assertEquals(sensorIds, saved.getSensorIds());
@@ -430,14 +430,14 @@ public class SimpleMetaDataManagerTest {
     assertEquals(5, loaded.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
 
     // Test that runs are deleted.
-    mMetaDataManager.deleteDatabaseTrial(startLabel.getLabelId());
-    loaded = mMetaDataManager.getDatabaseTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
+    metaDataManager.deleteDatabaseTrial(startLabel.getLabelId());
+    loaded = metaDataManager.getDatabaseTrial(startLabel.getLabelId(), Arrays.asList(startLabel));
     assertNull(loaded);
   }
 
   @Test
   public void testDatabaseExperimentDelete() {
-    Experiment experiment = mMetaDataManager.newDatabaseExperiment();
+    Experiment experiment = metaDataManager.newDatabaseExperiment();
     final ApplicationLabel startLabel = newStartLabel("startId", 1);
     GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
     layout1.sensorId = "sensor1";
@@ -445,21 +445,20 @@ public class SimpleMetaDataManagerTest {
     layout2.sensorId = "sensor2";
     final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
         Lists.newArrayList(layout1, layout2);
-    mMetaDataManager.addDatabaseApplicationLabel(experiment.getExperimentId(), startLabel);
-    mMetaDataManager.newTrial(
+    metaDataManager.addDatabaseApplicationLabel(experiment.getExperimentId(), startLabel);
+    metaDataManager.newTrial(
         experiment, startLabel.getTrialId(), startLabel.getTimeStamp(), sensorLayouts);
-    mMetaDataManager.setExperimentSensorLayouts(experiment.getExperimentId(), sensorLayouts);
+    metaDataManager.setExperimentSensorLayouts(experiment.getExperimentId(), sensorLayouts);
 
-    mMetaDataManager.deleteDatabaseExperiment(experiment);
+    metaDataManager.deleteDatabaseExperiment(experiment);
 
-    assertNull(mMetaDataManager.getDatabaseExperimentById(experiment.getExperimentId()));
+    assertNull(metaDataManager.getDatabaseExperimentById(experiment.getExperimentId()));
     // Test that runs are deleted when deleting experiments.
     assertNull(
-        mMetaDataManager.getDatabaseTrial(startLabel.getLabelId(), Arrays.asList(startLabel)));
+        metaDataManager.getDatabaseTrial(startLabel.getLabelId(), Arrays.asList(startLabel)));
     // Test that sensor layouts are gone.
     assertEquals(
-        0,
-        mMetaDataManager.getDatabaseExperimentSensorLayouts(experiment.getExperimentId()).size());
+        0, metaDataManager.getDatabaseExperimentSensorLayouts(experiment.getExperimentId()).size());
   }
 
   @Test
@@ -469,26 +468,26 @@ public class SimpleMetaDataManagerTest {
     GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
     layout2.sensorId = "sensorId2";
     String experimentId = Arbitrary.string();
-    mMetaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout1, layout2));
+    metaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout1, layout2));
 
     assertEquals(
         Lists.newArrayList(layout1.sensorId, layout2.sensorId),
-        getIds(mMetaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
+        getIds(metaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
 
     GoosciSensorLayout.SensorLayout layout3 = new GoosciSensorLayout.SensorLayout();
     layout3.sensorId = "sensorId3";
-    mMetaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3));
+    metaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3));
 
     assertEquals(
         Lists.newArrayList(layout3.sensorId),
-        getIds(mMetaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
+        getIds(metaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
 
     // Try storing duplicate
-    mMetaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3, layout3));
+    metaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3, layout3));
     // duplicates are removed
     assertEquals(
         Lists.newArrayList(layout3.sensorId),
-        getIds(mMetaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
+        getIds(metaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
   }
 
   @Test
@@ -496,19 +495,16 @@ public class SimpleMetaDataManagerTest {
     Map<String, SensorProvider> providerMap = getProviderMap();
     ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
     String id1 =
-        mMetaDataManager.addOrGetExternalSensor(
-            new BleSensorSpec("address1", "name1"), providerMap);
+        metaDataManager.addOrGetExternalSensor(new BleSensorSpec("address1", "name1"), providerMap);
     String id2 =
-        mMetaDataManager.addOrGetExternalSensor(
-            new BleSensorSpec("address2", "name2"), providerMap);
+        metaDataManager.addOrGetExternalSensor(new BleSensorSpec("address2", "name2"), providerMap);
     String id3 =
-        mMetaDataManager.addOrGetExternalSensor(
-            new BleSensorSpec("address3", "name3"), providerMap);
-    mMetaDataManager.addSensorToExperiment(id1, "experimentId");
-    mMetaDataManager.addSensorToExperiment(id2, "experimentId");
-    mMetaDataManager.addSensorToExperiment(id3, "experimentId");
+        metaDataManager.addOrGetExternalSensor(new BleSensorSpec("address3", "name3"), providerMap);
+    metaDataManager.addSensorToExperiment(id1, "experimentId");
+    metaDataManager.addSensorToExperiment(id2, "experimentId");
+    metaDataManager.addSensorToExperiment(id3, "experimentId");
     List<ConnectableSensor> sensors =
-        mMetaDataManager
+        metaDataManager
             .getExperimentSensors("experimentId", providerMap, connector)
             .getIncludedSensors();
     assertEquals(id1, sensors.get(0).getConnectedSensorId());
@@ -521,12 +517,11 @@ public class SimpleMetaDataManagerTest {
     Map<String, SensorProvider> providerMap = getProviderMap();
     ConnectableSensor.Connector connector = new ConnectableSensor.Connector(providerMap);
     String id1 =
-        mMetaDataManager.addOrGetExternalSensor(
-            new BleSensorSpec("address1", "name1"), providerMap);
-    mMetaDataManager.addSensorToExperiment(id1, "experimentId");
-    mMetaDataManager.addSensorToExperiment(id1, "experimentId");
+        metaDataManager.addOrGetExternalSensor(new BleSensorSpec("address1", "name1"), providerMap);
+    metaDataManager.addSensorToExperiment(id1, "experimentId");
+    metaDataManager.addSensorToExperiment(id1, "experimentId");
     List<ConnectableSensor> sensors =
-        mMetaDataManager
+        metaDataManager
             .getExperimentSensors("experimentId", providerMap, connector)
             .getIncludedSensors();
     assertEquals(1, sensors.size());
@@ -534,29 +529,29 @@ public class SimpleMetaDataManagerTest {
 
   @Test
   public void testMyDevices() {
-    assertEquals(0, mMetaDataManager.getMyDevices().size());
+    assertEquals(0, metaDataManager.getMyDevices().size());
     InputDeviceSpec device1 =
         new InputDeviceSpec(ScalarInputSpec.TYPE, "deviceAddress1", "deviceName1");
     InputDeviceSpec device2 =
         new InputDeviceSpec(ScalarInputSpec.TYPE, "deviceAddress2", "deviceName2");
 
-    mMetaDataManager.addMyDevice(device1);
-    assertEquals(1, mMetaDataManager.getMyDevices().size());
+    metaDataManager.addMyDevice(device1);
+    assertEquals(1, metaDataManager.getMyDevices().size());
 
-    mMetaDataManager.addMyDevice(device1);
-    assertEquals(1, mMetaDataManager.getMyDevices().size());
+    metaDataManager.addMyDevice(device1);
+    assertEquals(1, metaDataManager.getMyDevices().size());
 
-    mMetaDataManager.addMyDevice(device2);
-    assertEquals(2, mMetaDataManager.getMyDevices().size());
+    metaDataManager.addMyDevice(device2);
+    assertEquals(2, metaDataManager.getMyDevices().size());
 
-    assertSameSensor(device1, mMetaDataManager.getMyDevices().get(0));
-    assertSameSensor(device2, mMetaDataManager.getMyDevices().get(1));
+    assertSameSensor(device1, metaDataManager.getMyDevices().get(0));
+    assertSameSensor(device2, metaDataManager.getMyDevices().get(1));
 
-    mMetaDataManager.removeMyDevice(device1);
-    assertEquals(1, mMetaDataManager.getMyDevices().size());
+    metaDataManager.removeMyDevice(device1);
+    assertEquals(1, metaDataManager.getMyDevices().size());
 
-    mMetaDataManager.removeMyDevice(device2);
-    assertEquals(0, mMetaDataManager.getMyDevices().size());
+    metaDataManager.removeMyDevice(device2);
+    assertEquals(0, metaDataManager.getMyDevices().size());
   }
 
   private void assertSameSensor(InputDeviceSpec expected, InputDeviceSpec actual) {
@@ -565,12 +560,12 @@ public class SimpleMetaDataManagerTest {
 
   @Test
   public void testNewProject() {
-    Project project = mMetaDataManager.newProject();
+    Project project = metaDataManager.newProject();
     assertNotNull(project);
     assertFalse(TextUtils.isEmpty(project.getProjectId()));
     assertNotSame(project.getId(), -1);
 
-    List<Project> projects = mMetaDataManager.getDatabaseProjects(false);
+    List<Project> projects = metaDataManager.getDatabaseProjects(false);
     boolean found = false;
     for (Project retrievedProject : projects) {
       if (retrievedProject.getProjectId().equals(project.getProjectId())) {
@@ -584,31 +579,31 @@ public class SimpleMetaDataManagerTest {
   @Test
   public void testUpgradeProjects() {
     // Nothing in this project, so no updates should be made to firstExp.
-    Project first = mMetaDataManager.newProject();
-    Experiment firstExp = mMetaDataManager.newDatabaseExperiment(first.getProjectId());
+    Project first = metaDataManager.newProject();
+    Experiment firstExp = metaDataManager.newDatabaseExperiment(first.getProjectId());
 
     // The title, cover photo and description should be translated into objects in the secondExp
-    Project second = mMetaDataManager.newProject();
+    Project second = metaDataManager.newProject();
     second.setTitle("Title");
     second.setCoverPhoto("path/to/photo");
     second.setDescription("Description");
     second.setArchived(true);
-    mMetaDataManager.updateProject(second);
-    Experiment secondExp = mMetaDataManager.newDatabaseExperiment(second.getProjectId());
+    metaDataManager.updateProject(second);
+    Experiment secondExp = metaDataManager.newDatabaseExperiment(second.getProjectId());
 
-    assertEquals(2, mMetaDataManager.getDatabaseProjects(true).size());
+    assertEquals(2, metaDataManager.getDatabaseProjects(true).size());
 
-    mMetaDataManager.migrateProjectData();
-    assertEquals(0, mMetaDataManager.getDatabaseProjects(true).size());
+    metaDataManager.migrateProjectData();
+    assertEquals(0, metaDataManager.getDatabaseProjects(true).size());
 
     Experiment firstExpResult =
-        mMetaDataManager.getDatabaseExperimentById(firstExp.getExperimentId());
+        metaDataManager.getDatabaseExperimentById(firstExp.getExperimentId());
     assertEquals(0, firstExpResult.getLabels().size());
     assertEquals(1, firstExpResult.getVersion());
     assertTrue(TextUtils.isEmpty(firstExp.getTitle()));
 
     Experiment secondExpResult =
-        mMetaDataManager.getDatabaseExperimentById(secondExp.getExperimentId());
+        metaDataManager.getDatabaseExperimentById(secondExp.getExperimentId());
     List<Label> labels = secondExpResult.getLabels();
     assertEquals(2, labels.size());
     assertEquals("Description", labels.get(0).getTextLabelValue().text);
@@ -621,25 +616,25 @@ public class SimpleMetaDataManagerTest {
 
   @Test
   public void testMyDevicesMigrate() {
-    mMetaDataManager.databaseAddMyDevice(new InputDeviceSpec("provider", "address", "name"));
-    assertEquals(0, mMetaDataManager.fileGetMyDevices().size());
-    assertEquals(1, mMetaDataManager.databaseGetMyDevices().size());
-    mMetaDataManager.migrateMyDevices();
+    metaDataManager.databaseAddMyDevice(new InputDeviceSpec("provider", "address", "name"));
+    assertEquals(0, metaDataManager.fileGetMyDevices().size());
+    assertEquals(1, metaDataManager.databaseGetMyDevices().size());
+    metaDataManager.migrateMyDevices();
 
     // none left in database
-    assertEquals(0, mMetaDataManager.databaseGetMyDevices().size());
+    assertEquals(0, metaDataManager.databaseGetMyDevices().size());
 
-    List<GoosciDeviceSpec.DeviceSpec> myDevices = mMetaDataManager.fileGetMyDevices();
+    List<GoosciDeviceSpec.DeviceSpec> myDevices = metaDataManager.fileGetMyDevices();
     assertEquals(1, myDevices.size());
     assertEquals("name", myDevices.get(0).name);
   }
 
   @Test
   public void testGetInternalSensors() {
-    mMetaDataManager.addSensorToExperiment("internalTag", "experimentId");
+    metaDataManager.addSensorToExperiment("internalTag", "experimentId");
     HashMap<String, SensorProvider> providerMap = new HashMap<>();
     ExperimentSensors sensors =
-        mMetaDataManager.getExperimentSensors(
+        metaDataManager.getExperimentSensors(
             "experimentId", providerMap, new ConnectableSensor.Connector(providerMap));
     List<ConnectableSensor> included = sensors.getIncludedSensors();
     Observable.fromIterable(included)
@@ -649,7 +644,7 @@ public class SimpleMetaDataManagerTest {
 
   @Test
   public void testMigrateExperimentsToFiles() {
-    Experiment experiment = mMetaDataManager.newDatabaseExperiment();
+    Experiment experiment = metaDataManager.newDatabaseExperiment();
     for (int i = 0; i < 50; i++) {
       GoosciPictureLabelValue.PictureLabelValue labelValue =
           new GoosciPictureLabelValue.PictureLabelValue();
@@ -660,15 +655,15 @@ public class SimpleMetaDataManagerTest {
       LabelValue deprecatedValue = PictureLabelValue.fromPicture(labelValue.filePath, "");
       // In the database, labels are stored separately. Add them directly here so that we
       // don't need to re-create methods to update them from the SimpleMetadataManager.
-      mMetaDataManager.addDatabaseLabel(
+      metaDataManager.addDatabaseLabel(
           experiment.getExperimentId(),
           RecorderController.NOT_RECORDING_RUN_ID,
           label,
           deprecatedValue);
     }
-    mMetaDataManager.migrateExperimentsToFiles();
+    metaDataManager.migrateExperimentsToFiles();
     assertEquals(
-        50, mMetaDataManager.getExperimentById(experiment.getExperimentId()).getLabelCount());
+        50, metaDataManager.getExperimentById(experiment.getExperimentId()).getLabelCount());
   }
 
   private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {

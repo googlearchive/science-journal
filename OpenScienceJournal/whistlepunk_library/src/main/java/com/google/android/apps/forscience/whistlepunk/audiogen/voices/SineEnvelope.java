@@ -31,57 +31,57 @@ import com.softsynth.shared.time.TimeStamp;
 
 public class SineEnvelope extends SimpleJsynUnitVoiceBase {
   // Declare units and ports.
-  PassThrough mFrequencyPassThrough;
+  PassThrough frequencyPassThrough;
   public UnitInputPort frequency;
-  PassThrough mAmplitudePassThrough;
+  PassThrough amplitudePassThrough;
   public UnitInputPort amplitude;
-  PassThrough mOutputPassThrough;
+  PassThrough outputPassThrough;
   public UnitOutputPort output;
-  SineOscillator mSineOsc;
-  EnvelopeDAHDSR mDAHDSR;
+  SineOscillator sineOsc;
+  EnvelopeDAHDSR dAHDSR;
 
   // Declare inner classes for any child circuits.
 
   public SineEnvelope() {
     // Create unit generators.
-    add(mFrequencyPassThrough = new PassThrough());
-    addPort(frequency = mFrequencyPassThrough.input, "frequency");
-    add(mAmplitudePassThrough = new PassThrough());
-    addPort(amplitude = mAmplitudePassThrough.input, "amplitude");
-    add(mOutputPassThrough = new PassThrough());
-    addPort(output = mOutputPassThrough.output, "output");
-    add(mSineOsc = new SineOscillator());
-    add(mDAHDSR = new EnvelopeDAHDSR());
+    add(frequencyPassThrough = new PassThrough());
+    addPort(frequency = frequencyPassThrough.input, "frequency");
+    add(amplitudePassThrough = new PassThrough());
+    addPort(amplitude = amplitudePassThrough.input, "amplitude");
+    add(outputPassThrough = new PassThrough());
+    addPort(output = outputPassThrough.output, "output");
+    add(sineOsc = new SineOscillator());
+    add(dAHDSR = new EnvelopeDAHDSR());
     // Connect units and ports.
-    mFrequencyPassThrough.output.connect(mSineOsc.frequency);
-    mAmplitudePassThrough.output.connect(mSineOsc.amplitude);
-    mSineOsc.output.connect(mDAHDSR.amplitude);
-    mDAHDSR.output.connect(mOutputPassThrough.input);
+    frequencyPassThrough.output.connect(sineOsc.frequency);
+    amplitudePassThrough.output.connect(sineOsc.amplitude);
+    sineOsc.output.connect(dAHDSR.amplitude);
+    dAHDSR.output.connect(outputPassThrough.input);
     // Setup
     frequency.setup(40.0, 698.4584691287101, 8000.0);
     amplitude.setup(0.0, 0.999969482421875, 1.0);
-    mDAHDSR.input.set(0.0);
+    dAHDSR.input.set(0.0);
     // Sum of these times should not exceed MIN_TIME_VALUE_CHANGE_MS
-    mDAHDSR.delay.set(0.01);
-    mDAHDSR.attack.set(0.01);
-    mDAHDSR.hold.set(0.04);
-    mDAHDSR.decay.set(0.01);
-    mDAHDSR.sustain.set(0.045);
-    mDAHDSR.release.set(0.01);
+    dAHDSR.delay.set(0.01);
+    dAHDSR.attack.set(0.01);
+    dAHDSR.hold.set(0.04);
+    dAHDSR.decay.set(0.01);
+    dAHDSR.sustain.set(0.045);
+    dAHDSR.release.set(0.01);
   }
 
   public EnvelopeDAHDSR getDAHDSR() {
-    return mDAHDSR;
+    return dAHDSR;
   }
 
   public void noteOn(double frequency, double amplitude, TimeStamp timeStamp) {
     this.frequency.set(frequency, timeStamp);
     this.amplitude.set(amplitude, timeStamp);
-    mDAHDSR.input.on(timeStamp);
+    dAHDSR.input.on(timeStamp);
   }
 
   public void noteOff(TimeStamp timeStamp) {
-    mDAHDSR.input.off(timeStamp);
+    dAHDSR.input.off(timeStamp);
   }
 
   public UnitOutputPort getOutput() {

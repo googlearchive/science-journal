@@ -35,10 +35,10 @@ public class RelativeTimeTextView extends AppCompatTextView
 
   public static final long NOT_SET = -1;
 
-  private long mTimeMs;
+  private long timeMs;
 
-  private boolean mReceiverAttached = false;
-  private BroadcastReceiver mTimeReceiver =
+  private boolean receiverAttached = false;
+  private BroadcastReceiver timeReceiver =
       new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -62,20 +62,20 @@ public class RelativeTimeTextView extends AppCompatTextView
   }
 
   public void setTime(long timeMs) {
-    mTimeMs = timeMs;
+    this.timeMs = timeMs;
     updateText();
   }
 
   public long getTime() {
-    return mTimeMs;
+    return timeMs;
   }
 
   public void updateText() {
-    if (mTimeMs > 0) {
+    if (timeMs > 0) {
       setText(
           DateUtils.getRelativeDateTimeString(
               getContext(),
-              mTimeMs,
+              timeMs,
               DateUtils.MINUTE_IN_MILLIS,
               DateUtils.MINUTE_IN_MILLIS * 30,
               DateUtils.FORMAT_ABBREV_RELATIVE));
@@ -83,27 +83,27 @@ public class RelativeTimeTextView extends AppCompatTextView
   }
 
   private void init() {
-    mTimeMs = NOT_SET;
+    timeMs = NOT_SET;
     addOnAttachStateChangeListener(this);
   }
 
   @Override
   public void onViewAttachedToWindow(View v) {
-    if (!mReceiverAttached) {
+    if (!receiverAttached) {
       IntentFilter filter = new IntentFilter();
       filter.addAction(Intent.ACTION_TIME_TICK);
       filter.addAction(Intent.ACTION_TIME_CHANGED);
       filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-      getContext().registerReceiver(mTimeReceiver, filter);
-      mReceiverAttached = true;
+      getContext().registerReceiver(timeReceiver, filter);
+      receiverAttached = true;
     }
   }
 
   @Override
   public void onViewDetachedFromWindow(View v) {
-    if (mReceiverAttached) {
-      getContext().unregisterReceiver(mTimeReceiver);
-      mReceiverAttached = false;
+    if (receiverAttached) {
+      getContext().unregisterReceiver(timeReceiver);
+      receiverAttached = false;
     }
   }
 }

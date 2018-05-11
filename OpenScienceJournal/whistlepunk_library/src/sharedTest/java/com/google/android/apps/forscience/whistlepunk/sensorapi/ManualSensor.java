@@ -37,12 +37,12 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 public class ManualSensor extends ScalarSensor {
-  private final boolean mAutomaticallyConnectWhenObserving;
-  private StreamConsumer mConsumer;
-  private ChartController mChartController;
+  private final boolean automaticallyConnectWhenObserving;
+  private StreamConsumer consumer;
+  private ChartController chartController;
 
-  private MemorySensorHistoryStorage mStorage = new MemorySensorHistoryStorage();
-  private int mThrowawayThreshold = 1;
+  private MemorySensorHistoryStorage storage = new MemorySensorHistoryStorage();
+  private int throwawayThreshold = 1;
 
   public ManualSensor(
       String sensorId, long defaultGraphRange, int zoomLevelBetweenResolutionTiers) {
@@ -73,7 +73,7 @@ public class ManualSensor extends ScalarSensor {
         uiThreadExecutor,
         zoomLevelBetweenResolutionTiers,
         new UptimeClock());
-    mAutomaticallyConnectWhenObserving = automaticallyConnectWhenObserving;
+    this.automaticallyConnectWhenObserving = automaticallyConnectWhenObserving;
   }
 
   public SensorRecorder createRecorder(
@@ -87,7 +87,7 @@ public class ManualSensor extends ScalarSensor {
    * observation, outside of a direct call to stopObserving.
    */
   public void simulateExternalEventPreventingObservation() {
-    mConsumer = null;
+    consumer = null;
   }
 
   @Override
@@ -99,8 +99,8 @@ public class ManualSensor extends ScalarSensor {
     return new SensorRecorder() {
       @Override
       public void startObserving() {
-        mConsumer = c;
-        if (mAutomaticallyConnectWhenObserving) {
+        consumer = c;
+        if (automaticallyConnectWhenObserving) {
           listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
         }
       }
@@ -115,8 +115,8 @@ public class ManualSensor extends ScalarSensor {
 
       @Override
       public void stopObserving() {
-        mConsumer = null;
-        if (mAutomaticallyConnectWhenObserving) {
+        consumer = null;
+        if (automaticallyConnectWhenObserving) {
           listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
         }
       }
@@ -135,16 +135,16 @@ public class ManualSensor extends ScalarSensor {
   @Override
   protected ChartController createChartController(
       DataViewOptions dataViewOptions, String sensorId, long defaultGraphRange) {
-    mChartController =
+    chartController =
         new ChartController(
             ChartOptions.ChartPlacementType.TYPE_OBSERVE,
             getLineGraphOptions(dataViewOptions),
-            mThrowawayThreshold,
+            throwawayThreshold,
             /* no data loading buffer */ 0,
             new MonotonicClock());
-    mChartController.setSensorId(sensorId);
-    mChartController.setDefaultGraphRange(defaultGraphRange);
-    return mChartController;
+    chartController.setSensorId(sensorId);
+    chartController.setDefaultGraphRange(defaultGraphRange);
+    return chartController;
   }
 
   private ScalarDisplayOptions getLineGraphOptions(DataViewOptions dataViewOptions) {
@@ -156,16 +156,16 @@ public class ManualSensor extends ScalarSensor {
   }
 
   public List<ChartData.DataPoint> getRawData() {
-    return mChartController.getData();
+    return chartController.getData();
   }
 
   public List<ChartData.DataPoint> getLineData() {
-    return mChartController.getData();
+    return chartController.getData();
   }
 
   public void pushValue(long timestampMillis, double value) {
-    if (mConsumer != null) {
-      if (!mConsumer.addData(timestampMillis, value)) {
+    if (consumer != null) {
+      if (!consumer.addData(timestampMillis, value)) {
         fail("Did not add data: " + timestampMillis + ", " + value);
       }
     }
@@ -191,7 +191,7 @@ public class ManualSensor extends ScalarSensor {
   @NonNull
   private MemorySensorEnvironment makeSensorEnvironment(
       Context context, RecordingDataController rc) {
-    return new MemorySensorEnvironment(rc, new FakeBleClient(context), mStorage, null);
+    return new MemorySensorEnvironment(rc, new FakeBleClient(context), storage, null);
   }
 
   @NonNull
@@ -200,12 +200,12 @@ public class ManualSensor extends ScalarSensor {
       RecordingDataController rc,
       String runId,
       int graphDataThrowawaySizeThreshold) {
-    mThrowawayThreshold = graphDataThrowawaySizeThreshold;
+    throwawayThreshold = graphDataThrowawaySizeThreshold;
     return createRecordingPresenter(context, rc, runId);
   }
 
   public ChartController getChartController() {
-    return mChartController;
+    return chartController;
   }
 
   public void pushDataPoints(SensorRecorder recorder, int howMany, Trial trialToUpdate) {
@@ -224,6 +224,6 @@ public class ManualSensor extends ScalarSensor {
   }
 
   public boolean isObserving() {
-    return mConsumer != null;
+    return consumer != null;
   }
 }

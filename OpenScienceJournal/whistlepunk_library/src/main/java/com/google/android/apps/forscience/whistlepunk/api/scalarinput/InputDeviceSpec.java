@@ -85,23 +85,23 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   /** The "address" given to the device on which the app is running. */
   public static final String BUILT_IN_DEVICE_ADDRESS = "BUILT_IN_DEVICE";
 
-  private String mName;
-  private InputDevice.InputDeviceConfig mConfig;
+  private String name;
+  private InputDevice.InputDeviceConfig config;
 
   public static InputDeviceSpec fromProto(GoosciDeviceSpec.DeviceSpec proto) {
     return new InputDeviceSpec(proto.info.providerId, proto.info.address, proto.name);
   }
 
   public InputDeviceSpec(String providerType, String deviceAddress, String deviceName) {
-    mConfig = new InputDevice.InputDeviceConfig();
-    mConfig.providerId = providerType;
-    mConfig.deviceAddress = Preconditions.checkNotNull(deviceAddress);
-    mName = deviceName;
+    config = new InputDevice.InputDeviceConfig();
+    config.providerId = providerType;
+    config.deviceAddress = Preconditions.checkNotNull(deviceAddress);
+    name = deviceName;
   }
 
   public InputDeviceSpec(String name, byte[] config) {
-    mName = name;
-    mConfig = parse(config);
+    this.name = name;
+    this.config = parse(config);
   }
 
   @Nullable
@@ -145,7 +145,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
 
   @Override
   public String getName() {
-    return mName;
+    return name;
   }
 
   @Override
@@ -164,7 +164,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
 
   @Override
   public byte[] getConfig() {
-    return getBytes(mConfig);
+    return getBytes(config);
   }
 
   @Override
@@ -173,7 +173,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   }
 
   public String getDeviceAddress() {
-    return mConfig.deviceAddress;
+    return config.deviceAddress;
   }
 
   public static InputDeviceSpec builtInDevice(Context context) {
@@ -182,7 +182,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   }
 
   public String getProviderType() {
-    return mConfig.providerId;
+    return config.providerId;
   }
 
   @Override

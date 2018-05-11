@@ -89,7 +89,7 @@ public class RecordFragment extends PanesToolFragment
   private static final String EXTRA_SENSOR_IDS = "sensorIds";
 
   private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
-  private final SnackbarManager mSnackbarManager = new SnackbarManager();
+  private final SnackbarManager snackbarManager = new SnackbarManager();
 
   public abstract static class UICallbacks {
     public static UICallbacks NULL = new UICallbacks() {};
@@ -126,50 +126,50 @@ public class RecordFragment extends PanesToolFragment
     UICallbacks getRecordFragmentCallbacks();
   }
 
-  private UICallbacks mUICallbacks = UICallbacks.NULL;
-  private SensorRegistry mSensorRegistry;
+  private UICallbacks uICallbacks = UICallbacks.NULL;
+  private SensorRegistry sensorRegistry;
 
-  private SensorSettingsController mSensorSettingsController;
-  private GraphOptionsController mGraphOptionsController;
-  private ColorAllocator mColorAllocator;
-  private ScalarDisplayOptions mScalarDisplayOptions;
-  private int mInitialActiveCardIndex = -1;
+  private SensorSettingsController sensorSettingsController;
+  private GraphOptionsController graphOptionsController;
+  private ColorAllocator colorAllocator;
+  private ScalarDisplayOptions scalarDisplayOptions;
+  private int initialActiveCardIndex = -1;
 
-  private LinearLayoutManager mSensorCardLayoutManager;
-  private RecyclerView mSensorCardRecyclerView;
-  private SensorCardAdapter mSensorCardAdapter;
-  private ExternalAxisController mExternalAxis;
+  private LinearLayoutManager sensorCardLayoutManager;
+  private RecyclerView sensorCardRecyclerView;
+  private SensorCardAdapter sensorCardAdapter;
+  private ExternalAxisController externalAxis;
   // Stores the rect of the panel.
-  private Rect mPanelRect = new Rect();
+  private Rect panelRect = new Rect();
 
-  private Experiment mSelectedExperiment;
-  private BehaviorSubject<Experiment> mSelectedExperimentSubject = BehaviorSubject.create();
+  private Experiment selectedExperiment;
+  private BehaviorSubject<Experiment> selectedExperimentSubject = BehaviorSubject.create();
 
   // TODO: update RecorderController.watchRecordingStatus to replace the fine-grained status
   //       updates currently recorded here.
   // Subscribe to get whether we are currently recording, and future updates.
-  private BehaviorSubject<RecordingStatus> mRecordingStatus =
+  private BehaviorSubject<RecordingStatus> recordingStatus =
       BehaviorSubject.createDefault(RecordingStatus.UNCONNECTED);
 
   // A temporary variable to store a sensor card presenter that wants to use the decibel or
   // frequency sensor before the permission to use microphone is granted in Android M.
-  private SensorCardPresenter mSensorCardPresenterForAudio;
-  private String mSensorIdForAudio;
+  private SensorCardPresenter sensorCardPresenterForAudio;
+  private String sensorIdForAudio;
 
-  private Handler mHandler;
-  private FeatureDiscoveryProvider mFeatureDiscoveryProvider;
+  private Handler handler;
+  private FeatureDiscoveryProvider featureDiscoveryProvider;
 
   /**
    * Most recent result from {@link RecorderController#pauseObservingAll()}, which must be passed
    * when we resume
    */
-  private String mRecorderPauseId;
+  private String recorderPauseId;
 
-  private boolean mRecordingWasCanceled;
-  private int mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
+  private boolean recordingWasCanceled;
+  private int triggerFiredListenerId = RecorderController.NO_LISTENER_ID;
 
-  RxEvent mUiStop = new RxEvent();
-  RxEvent mContextDetach = new RxEvent();
+  RxEvent uiStop = new RxEvent();
+  RxEvent contextDetach = new RxEvent();
 
   public static RecordFragment newInstance(String experimentId) {
     RecordFragment fragment = new RecordFragment();
@@ -186,8 +186,8 @@ public class RecordFragment extends PanesToolFragment
 
   @Override
   public void onDetach() {
-    mUICallbacks = UICallbacks.NULL;
-    mContextDetach.onHappened();
+    uICallbacks = UICallbacks.NULL;
+    contextDetach.onHappened();
     super.onDetach();
   }
 
@@ -196,36 +196,36 @@ public class RecordFragment extends PanesToolFragment
     super.onCreate(savedInstanceState);
 
     if (savedInstanceState != null) {
-      mInitialActiveCardIndex = savedInstanceState.getInt(KEY_SAVED_ACTIVE_SENSOR_CARD, -1);
+      initialActiveCardIndex = savedInstanceState.getInt(KEY_SAVED_ACTIVE_SENSOR_CARD, -1);
     }
 
-    mColorAllocator =
+    colorAllocator =
         new ColorAllocator(getResources().getIntArray(R.array.graph_colors_array).length);
-    mSensorRegistry = AppSingleton.getInstance(getActivity()).getSensorRegistry();
-    mScalarDisplayOptions = new ScalarDisplayOptions();
+    sensorRegistry = AppSingleton.getInstance(getActivity()).getSensorRegistry();
+    scalarDisplayOptions = new ScalarDisplayOptions();
 
-    mHandler = new Handler(this);
-    mFeatureDiscoveryProvider =
+    handler = new Handler(this);
+    featureDiscoveryProvider =
         WhistlePunkApplication.getAppServices(getActivity()).getFeatureDiscoveryProvider();
 
     setHasOptionsMenu(true);
   }
 
   private void onAudioPermissionChanged(@PermissionUtils.PermissionState int newState) {
-    if (mSensorCardPresenterForAudio == null || getActivity() == null) {
+    if (sensorCardPresenterForAudio == null || getActivity() == null) {
       return;
     }
     if (newState == PermissionUtils.GRANTED) {
-      mSensorCardPresenterForAudio.retryConnection(getActivity());
+      sensorCardPresenterForAudio.retryConnection(getActivity());
     } else if (newState == PermissionUtils.DENIED) {
       // If the sensor can't be loaded, still show it as selected on the card
       // so the user understands that they wanted this sensor but can't use it.
-      mSensorCardPresenterForAudio.setConnectingUI(mSensorIdForAudio, true, getActivity(), true);
+      sensorCardPresenterForAudio.setConnectingUI(sensorIdForAudio, true, getActivity(), true);
     } else {
-      mSensorCardPresenterForAudio.setConnectingUI(mSensorIdForAudio, true, getActivity(), false);
+      sensorCardPresenterForAudio.setConnectingUI(sensorIdForAudio, true, getActivity(), false);
     }
     // in either case, we have our answer.  Stop waiting for it.
-    mSensorCardPresenterForAudio = null;
+    sensorCardPresenterForAudio = null;
     updateAvailableSensors();
   }
 
@@ -236,10 +236,10 @@ public class RecordFragment extends PanesToolFragment
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    if (mSensorCardAdapter == null) {
+    if (sensorCardAdapter == null) {
       return;
     }
-    List<SensorCardPresenter> presenters = mSensorCardAdapter.getSensorCardPresenters();
+    List<SensorCardPresenter> presenters = sensorCardAdapter.getSensorCardPresenters();
 
     int size = presenters.size();
     for (int i = 0; i < size; i++) {
@@ -250,7 +250,7 @@ public class RecordFragment extends PanesToolFragment
     }
 
     outState.putParcelable(
-        KEY_SAVED_RECYCLER_LAYOUT, mSensorCardLayoutManager.onSaveInstanceState());
+        KEY_SAVED_RECYCLER_LAYOUT, sensorCardLayoutManager.onSaveInstanceState());
   }
 
   @Override
@@ -260,17 +260,17 @@ public class RecordFragment extends PanesToolFragment
   }
 
   private void stopUI() {
-    mExternalAxis.onPauseLiveAxis();
+    externalAxis.onPauseLiveAxis();
     cancelFeatureDiscovery();
-    if (mSensorCardAdapter != null) {
-      mSensorCardAdapter.onPause();
+    if (sensorCardAdapter != null) {
+      sensorCardAdapter.onPause();
     }
     RecorderController rc = getRecorderController();
-    mRecorderPauseId = rc.pauseObservingAll();
-    mUiStop.onHappened();
-    if (mTriggerFiredListenerId != RecorderController.NO_LISTENER_ID) {
-      rc.removeTriggerFiredListener(mTriggerFiredListenerId);
-      mTriggerFiredListenerId = RecorderController.NO_LISTENER_ID;
+    recorderPauseId = rc.pauseObservingAll();
+    uiStop.onHappened();
+    if (triggerFiredListenerId != RecorderController.NO_LISTENER_ID) {
+      rc.removeTriggerFiredListener(triggerFiredListenerId);
+      triggerFiredListenerId = RecorderController.NO_LISTENER_ID;
     }
     freezeLayouts();
   }
@@ -288,19 +288,19 @@ public class RecordFragment extends PanesToolFragment
     final PerfTrackerProvider perfTracker =
         WhistlePunkApplication.getPerfTrackerProvider(getActivity());
     perfTracker.startJankRecorder(TrackerConstants.PRIMES_OBSERVE);
-    mUiStop
+    uiStop
         .happensNext()
         .subscribe(() -> perfTracker.stopJankRecorder(TrackerConstants.PRIMES_OBSERVE));
-    mExternalAxis.onResumeLiveAxis();
+    externalAxis.onResumeLiveAxis();
 
-    mRecordingStatus.onNext(RecordingStatus.UNCONNECTED);
+    recordingStatus.onNext(RecordingStatus.UNCONNECTED);
 
     RecorderController rc = getRecorderController();
-    rc.watchRecordingStatus().takeUntil(mUiStop.happens()).subscribe(this::onNewRecordingStatus);
+    rc.watchRecordingStatus().takeUntil(uiStop.happens()).subscribe(this::onNewRecordingStatus);
 
     AppSingleton.getInstance(getActivity())
         .whenLabelsAdded()
-        .takeUntil(mUiStop.happens())
+        .takeUntil(uiStop.happens())
         .subscribe(event -> processAddedLabel(event));
 
     RecorderController.TriggerFiredListener tlistener =
@@ -318,21 +318,21 @@ public class RecordFragment extends PanesToolFragment
           @Override
           public void onRequestStopRecording(RecorderController rc) {}
         };
-    mTriggerFiredListenerId = rc.addTriggerFiredListener(tlistener);
+    triggerFiredListenerId = rc.addTriggerFiredListener(tlistener);
 
-    if (!rc.resumeObservingAll(mRecorderPauseId)) {
+    if (!rc.resumeObservingAll(recorderPauseId)) {
       // Force a reload of the current experiment's ob
-      mSelectedExperiment = null;
-      if (mSelectedExperimentSubject.hasValue()) {
-        mSelectedExperimentSubject.onComplete();
-        mSelectedExperimentSubject = BehaviorSubject.create();
+      this.selectedExperiment = null;
+      if (selectedExperimentSubject.hasValue()) {
+        selectedExperimentSubject.onComplete();
+        selectedExperimentSubject = BehaviorSubject.create();
       }
     }
 
     RxDataController.getExperimentById(getDataController(), getExperimentId())
         .subscribe(
             selectedExperiment -> {
-              mRecordingStatus
+              recordingStatus
                   .firstElement()
                   .subscribe(
                       status -> {
@@ -354,7 +354,7 @@ public class RecordFragment extends PanesToolFragment
       return false;
     }
 
-    mRecordingStatus
+    recordingStatus
         .firstElement()
         .subscribe(
             status -> {
@@ -366,12 +366,12 @@ public class RecordFragment extends PanesToolFragment
   }
 
   private void onNewRecordingStatus(RecordingStatus newStatus) {
-    RecordingStatus oldStatus = mRecordingStatus.getValue();
+    RecordingStatus oldStatus = recordingStatus.getValue();
 
     // TODO: clean up the logic here.  Can we insert a new "STOP_SUCCEEDED" status so we
     // don't have to track old values?
     RecordingMetadata prevRecording = oldStatus.currentRecording;
-    mRecordingStatus.onNext(newStatus);
+    recordingStatus.onNext(newStatus);
 
     onRecordingMetadataUpdated(newStatus);
     updateRecordingUIState(newStatus);
@@ -379,34 +379,34 @@ public class RecordFragment extends PanesToolFragment
     // If we have switched from a recording state to a not-recording
     // state, update the UI.
     if (prevRecording != null && !newStatus.isRecording()) {
-      mExternalAxis.onStopRecording();
+      externalAxis.onStopRecording();
       AddNoteDialog dialog =
           (AddNoteDialog) getChildFragmentManager().findFragmentByTag(AddNoteDialog.TAG);
       if (dialog != null) {
         dialog.dismiss();
       }
-      if (!mRecordingWasCanceled) {
-        mUICallbacks.onRecordingSaved(prevRecording.getRunId(), mSelectedExperiment);
+      if (!recordingWasCanceled) {
+        uICallbacks.onRecordingSaved(prevRecording.getRunId(), selectedExperiment);
       }
     }
-    mRecordingWasCanceled = false;
+    recordingWasCanceled = false;
   }
 
   @Override
   public void onDestroyPanesView() {
     // TODO: extract presenter with lifespan identical to the views.
-    if (mSensorCardAdapter != null) {
-      mSensorCardAdapter.onDestroy();
-      mSensorCardAdapter = null;
+    if (sensorCardAdapter != null) {
+      sensorCardAdapter.onDestroy();
+      sensorCardAdapter = null;
     }
 
-    if (mExternalAxis != null) {
-      mExternalAxis.destroy();
+    if (externalAxis != null) {
+      externalAxis.destroy();
     }
   }
 
   private List<GoosciSensorLayout.SensorLayout> safeSaveCurrentLayouts() {
-    if (mSelectedExperiment == null) {
+    if (selectedExperiment == null) {
       return Collections.EMPTY_LIST;
     }
 
@@ -427,7 +427,7 @@ public class RecordFragment extends PanesToolFragment
 
   @Override
   public void onDestroy() {
-    mRecordingStatus
+    recordingStatus
         .firstElement()
         .subscribe(
             status -> {
@@ -438,19 +438,19 @@ public class RecordFragment extends PanesToolFragment
               }
             });
     stopObservingCurrentSensors();
-    mSnackbarManager.onDestroy();
-    mHandler = null;
-    mSensorSettingsController = null;
-    mGraphOptionsController = null;
-    if (mSensorRegistry != null) {
-      mSensorRegistry.removePendingOperations(TAG);
+    snackbarManager.onDestroy();
+    handler = null;
+    sensorSettingsController = null;
+    graphOptionsController = null;
+    if (sensorRegistry != null) {
+      sensorRegistry.removePendingOperations(TAG);
     }
     super.onDestroy();
   }
 
   public void stopObservingCurrentSensors() {
-    if (mSensorCardAdapter != null) {
-      for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
+    if (sensorCardAdapter != null) {
+      for (SensorCardPresenter presenter : sensorCardAdapter.getSensorCardPresenters()) {
         presenter.stopObserving();
       }
     }
@@ -464,15 +464,15 @@ public class RecordFragment extends PanesToolFragment
 
     View resetButton = rootView.findViewById(R.id.btn_reset);
     ExternalAxisView axisView = (ExternalAxisView) rootView.findViewById(R.id.external_x_axis);
-    mExternalAxis =
+    externalAxis =
         new ExternalAxisController(
             axisView,
             (xMin, xMax, isPinnedToNow) -> {
-              if (mSensorCardAdapter == null) {
+              if (sensorCardAdapter == null) {
                 return;
               }
               List<SensorCardPresenter> sensorCardPresenters =
-                  mSensorCardAdapter.getSensorCardPresenters();
+                  sensorCardAdapter.getSensorCardPresenters();
               for (SensorCardPresenter sensorCardPresenter : sensorCardPresenters) {
                 SensorPresenter presenter = sensorCardPresenter.getSensorPresenter();
                 if (presenter != null) {
@@ -484,11 +484,11 @@ public class RecordFragment extends PanesToolFragment
             new CurrentTimeClock(),
             resetButton);
 
-    mGraphOptionsController.loadIntoScalarDisplayOptions(mScalarDisplayOptions, getView());
-    mSensorCardLayoutManager = new LinearLayoutManager(getActivity());
+    graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, getView());
+    sensorCardLayoutManager = new LinearLayoutManager(getActivity());
 
     if (savedInstanceState != null) {
-      mSensorCardLayoutManager.onRestoreInstanceState(
+      sensorCardLayoutManager.onRestoreInstanceState(
           savedInstanceState.getParcelable(KEY_SAVED_RECYCLER_LAYOUT));
     }
 
@@ -497,8 +497,8 @@ public class RecordFragment extends PanesToolFragment
 
   public void setRecordingTimeUpdateListener(
       ExternalAxisController.RecordingTimeUpdateListener listener) {
-    if (mExternalAxis != null) {
-      mExternalAxis.setRecordingTimeUpdateListener(listener);
+    if (externalAxis != null) {
+      externalAxis.setRecordingTimeUpdateListener(listener);
     }
   }
 
@@ -510,7 +510,7 @@ public class RecordFragment extends PanesToolFragment
       SensorCardPresenter sensorCardPresenter, boolean setActive) {
     sensorCardPresenter.setActive(setActive, /* force */ false);
     if (setActive) {
-      for (SensorCardPresenter other : mSensorCardAdapter.getSensorCardPresenters()) {
+      for (SensorCardPresenter other : sensorCardAdapter.getSensorCardPresenters()) {
         if (!other.equals(sensorCardPresenter)) {
           other.setActive(false, /* force */ false);
         }
@@ -522,55 +522,55 @@ public class RecordFragment extends PanesToolFragment
       final Experiment selectedExperiment, final RecorderController rc, RecordingStatus status) {
     if (!TextUtils.equals(
         Experiment.getExperimentId(selectedExperiment),
-        Experiment.getExperimentId(mSelectedExperiment))) {
+        Experiment.getExperimentId(this.selectedExperiment))) {
       saveCurrentExperiment();
     }
     stopObservingCurrentSensors();
-    mSelectedExperiment = selectedExperiment;
-    mSelectedExperimentSubject.onNext(selectedExperiment);
-    loadIncludedSensors(mSelectedExperiment.getSensorLayouts(), rc, status);
-    rc.setSelectedExperiment(mSelectedExperiment);
+    this.selectedExperiment = selectedExperiment;
+    selectedExperimentSubject.onNext(selectedExperiment);
+    loadIncludedSensors(this.selectedExperiment.getSensorLayouts(), rc, status);
+    rc.setSelectedExperiment(this.selectedExperiment);
   }
 
   private void updateSensorLayout(GoosciSensorLayout.SensorLayout sensorLayout) {
-    if (mSelectedExperiment == null) {
+    if (selectedExperiment == null) {
       return;
     }
     int position = getPositionOfLayout(sensorLayout);
     if (position < 0) {
       return;
     }
-    mSelectedExperiment.updateSensorLayout(position, sensorLayout);
+    selectedExperiment.updateSensorLayout(position, sensorLayout);
     // TODO: Is there a way to do this write less frequently?
     getDataController()
         .updateExperiment(
-            mSelectedExperiment.getExperimentId(),
+            selectedExperiment.getExperimentId(),
             LoggingConsumer.<Success>expectSuccess(TAG, "saving layout"));
   }
 
   // TODO: Can we optimize this by calling it less frequently?
   private List<GoosciSensorLayout.SensorLayout> saveCurrentExperiment() {
-    if (mSelectedExperiment == null) {
+    if (selectedExperiment == null) {
       return null;
     }
     final List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
 
     if (layouts != null) {
-      mSelectedExperiment.setSensorLayouts(layouts);
+      selectedExperiment.setSensorLayouts(layouts);
       getDataController()
           .updateExperiment(
-              mSelectedExperiment.getExperimentId(),
+              selectedExperiment.getExperimentId(),
               LoggingConsumer.<Success>expectSuccess(TAG, "saving layouts"));
     }
     return layouts;
   }
 
   private List<GoosciSensorLayout.SensorLayout> buildCurrentLayouts() {
-    if (mSensorCardAdapter == null) {
+    if (sensorCardAdapter == null) {
       return null;
     }
 
-    return mSensorCardAdapter.buildLayouts();
+    return sensorCardAdapter.buildLayouts();
   }
 
   private void setSensorPresenters(
@@ -581,8 +581,8 @@ public class RecordFragment extends PanesToolFragment
       layouts =
           Lists.newArrayList(
               defaultLayout(
-                  mColorAllocator,
-                  mSensorCardAdapter == null ? null : mSensorCardAdapter.getUsedColors()));
+                  colorAllocator,
+                  sensorCardAdapter == null ? null : sensorCardAdapter.getUsedColors()));
     }
     int maxNumSources = getAllIncludedSources().size();
 
@@ -606,7 +606,7 @@ public class RecordFragment extends PanesToolFragment
     if (view != null) {
       createSensorCardPresenters(view, layouts, rc, status);
       updateAvailableSensors();
-      for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
+      for (SensorCardPresenter presenter : sensorCardAdapter.getSensorCardPresenters()) {
         presenter.initializeSensorSelection();
         // If we resume while recording, assume that the sensors are already connected.
         if (status.isRecording()) {
@@ -642,7 +642,7 @@ public class RecordFragment extends PanesToolFragment
 
     if (layouts.isEmpty()) {
       layouts =
-          Lists.newArrayList(defaultLayout(mColorAllocator, mSensorCardAdapter.getUsedColors()));
+          Lists.newArrayList(defaultLayout(colorAllocator, sensorCardAdapter.getUsedColors()));
     }
     // Create a sensorData card for each initial source tag, or at minimum one if no source
     // tags are saved in the bundle.
@@ -655,8 +655,8 @@ public class RecordFragment extends PanesToolFragment
     }
 
     int activeCardIndex = 0;
-    if (mInitialActiveCardIndex != -1 && mInitialActiveCardIndex < sensorCardPresenters.size()) {
-      activeCardIndex = mInitialActiveCardIndex;
+    if (initialActiveCardIndex != -1 && initialActiveCardIndex < sensorCardPresenters.size()) {
+      activeCardIndex = initialActiveCardIndex;
     }
 
     sensorCardPresenters
@@ -666,11 +666,11 @@ public class RecordFragment extends PanesToolFragment
             /** force UI updates */
             true);
 
-    if (mSensorCardAdapter != null) {
-      mSensorCardAdapter.onDestroy();
+    if (sensorCardAdapter != null) {
+      sensorCardAdapter.onDestroy();
     }
 
-    mSensorCardAdapter =
+    sensorCardAdapter =
         new SensorCardAdapter(
             sensorCardPresenters,
             new View.OnClickListener() {
@@ -680,24 +680,23 @@ public class RecordFragment extends PanesToolFragment
                 if (numAvailableSources != 0) {
                   SensorCardPresenter sensorCardPresenter =
                       createSensorCardPresenter(
-                          defaultLayout(mColorAllocator, mSensorCardAdapter.getUsedColors()), rc);
+                          defaultLayout(colorAllocator, sensorCardAdapter.getUsedColors()), rc);
                   sensorCardPresenter.setActive(
                       true,
                       /** force UI updates */
                       true);
-                  mSensorCardAdapter.addSensorCardPresenter(sensorCardPresenter);
+                  sensorCardAdapter.addSensorCardPresenter(sensorCardPresenter);
                   updateAvailableSensors();
                   sensorCardPresenter.initializeSensorSelection();
-                  if (!mSensorCardAdapter.canAddMoreCards()) {
+                  if (!sensorCardAdapter.canAddMoreCards()) {
                     // If only one source is left, this is the final card. Because the
                     // add button will be hidden, we are actually scrolled to this
                     // positionalready and no scrolling will happen without forcing a
                     // scroll using scrollToPositionWithOffset.
-                    mSensorCardLayoutManager.scrollToPositionWithOffset(
-                        mSensorCardAdapter.getItemCount() - 1, 1);
+                    sensorCardLayoutManager.scrollToPositionWithOffset(
+                        sensorCardAdapter.getItemCount() - 1, 1);
                   } else {
-                    mSensorCardLayoutManager.scrollToPosition(
-                        mSensorCardAdapter.getItemCount() - 1);
+                    sensorCardLayoutManager.scrollToPosition(sensorCardAdapter.getItemCount() - 1);
                   }
                   activateSensorCardPresenter(sensorCardPresenter, true);
                   saveCurrentExperiment();
@@ -721,19 +720,19 @@ public class RecordFragment extends PanesToolFragment
     rc.setLayoutSupplier(() -> buildCurrentLayouts());
 
     updateSensorCount();
-    mSensorCardAdapter.setRecording(status.isRecording(), status.getRecordingStartTime());
-    long resetTime = mExternalAxis.resetAxes();
-    if (mSensorCardAdapter != null) {
+    sensorCardAdapter.setRecording(status.isRecording(), status.getRecordingStartTime());
+    long resetTime = externalAxis.resetAxes();
+    if (sensorCardAdapter != null) {
       long ignoreDataBefore = status.isRecording() ? -1 : resetTime;
-      mSensorCardAdapter.onResume(ignoreDataBefore);
+      sensorCardAdapter.onResume(ignoreDataBefore);
     }
 
     refreshLabels(status);
 
-    mSensorCardRecyclerView = (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);
-    mSensorCardRecyclerView.setLayoutManager(mSensorCardLayoutManager);
-    mSensorCardRecyclerView.setAdapter(mSensorCardAdapter);
-    mSensorCardRecyclerView.setItemAnimator(
+    sensorCardRecyclerView = (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);
+    sensorCardRecyclerView.setLayoutManager(sensorCardLayoutManager);
+    sensorCardRecyclerView.setAdapter(sensorCardAdapter);
+    sensorCardRecyclerView.setItemAnimator(
         new DefaultItemAnimator() {
 
           @Override
@@ -741,22 +740,22 @@ public class RecordFragment extends PanesToolFragment
             adjustSensorCardAddAlpha();
           }
         });
-    mSensorCardRecyclerView.addOnScrollListener(
+    sensorCardRecyclerView.addOnScrollListener(
         new RecyclerView.OnScrollListener() {
           @Override
           public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             adjustSensorCardAddAlpha();
           }
         });
-    mSensorCardRecyclerView.setVisibility(View.VISIBLE);
+    sensorCardRecyclerView.setVisibility(View.VISIBLE);
 
     // Figure out the optimal height of a sensor presenter when the recycler view is laid out;
     // only do this on first layout
-    RxView.globalLayouts(mSensorCardRecyclerView)
+    RxView.globalLayouts(sensorCardRecyclerView)
         .firstElement()
         .subscribe(
             o -> {
-              if (getActivity() == null || mSensorCardAdapter == null) {
+              if (getActivity() == null || sensorCardAdapter == null) {
                 return;
               }
               // A sensor presenter should be the height of the recycler view, minus
@@ -769,7 +768,7 @@ public class RecordFragment extends PanesToolFragment
               int externalAxisHeight =
                   getResources().getDimensionPixelSize(R.dimen.external_axis_height);
               final int optimalHeight =
-                  mSensorCardRecyclerView.getHeight()
+                  sensorCardRecyclerView.getHeight()
                       - headerHeight
                       - marginHeight * 3
                       - externalAxisHeight;
@@ -777,23 +776,23 @@ public class RecordFragment extends PanesToolFragment
                   getResources().getDimensionPixelSize(R.dimen.sensor_card_content_height_min);
 
               // TODO: one time, I saw a crash here.  Can we prevent it more gracefully?
-              if (mSensorCardAdapter != null) {
-                mSensorCardAdapter.setSingleCardPresenterHeight(Math.max(optimalHeight, minHeight));
+              if (sensorCardAdapter != null) {
+                sensorCardAdapter.setSingleCardPresenterHeight(Math.max(optimalHeight, minHeight));
               }
             });
-    mSensorCardRecyclerView
+    sensorCardRecyclerView
         .getViewTreeObserver()
         .addOnGlobalLayoutListener(() -> adjustSensorCardAddAlpha());
   }
 
   private List<String> getAllIncludedSources() {
-    return nonEmptySensorList(Lists.newArrayList(mSensorRegistry.getIncludedSources()));
+    return nonEmptySensorList(Lists.newArrayList(sensorRegistry.getIncludedSources()));
   }
 
   private List<String> getAvailableSources() {
     // TODO: test this?
-    String[] selected = mSensorCardAdapter.getSensorTags();
-    List<String> sources = mSensorRegistry.getIncludedSources();
+    String[] selected = sensorCardAdapter.getSensorTags();
+    List<String> sources = sensorRegistry.getIncludedSources();
     sources.removeAll(Lists.newArrayList(selected));
     if (!hasGoodSensorId(selected)) {
       // If nothing is selected, at least one must be available (see notes on
@@ -820,32 +819,32 @@ public class RecordFragment extends PanesToolFragment
     if (allSourcesExcept.isEmpty()) {
       // We need _some_ kind of hack, but hopefully after b/32695928, this will be
       // impossible/rare.
-      return Lists.newArrayList(mSensorRegistry.getAllSources().get(0));
+      return Lists.newArrayList(sensorRegistry.getAllSources().get(0));
     }
     return allSourcesExcept;
   }
 
   private void adjustSensorCardAddAlpha() {
-    if (mSensorCardAdapter == null || !mSensorCardAdapter.canAddMoreCards()) {
+    if (sensorCardAdapter == null || !sensorCardAdapter.canAddMoreCards()) {
       return;
     }
     View bottomPanel = getView().findViewById(R.id.bottom_panel);
     if (bottomPanel != null) {
-      bottomPanel.getHitRect(mPanelRect);
+      bottomPanel.getHitRect(panelRect);
     }
-    mSensorCardAdapter.adjustAddViewAlpha(mPanelRect);
+    sensorCardAdapter.adjustAddViewAlpha(panelRect);
   }
 
   private SensorCardPresenter createSensorCardPresenter(
       GoosciSensorLayout.SensorLayout layout, final RecorderController rc) {
     final SensorCardPresenter sensorCardPresenter =
         new SensorCardPresenter(
-            new DataViewOptions(layout.colorIndex, getActivity(), mScalarDisplayOptions),
-            mSensorSettingsController,
+            new DataViewOptions(layout.colorIndex, getActivity(), scalarDisplayOptions),
+            sensorSettingsController,
             rc,
             layout,
-            mSelectedExperiment.getExperimentId(),
-            mExternalAxis.getInteractionListener(),
+            selectedExperiment.getExperimentId(),
+            externalAxis.getInteractionListener(),
             this);
 
     final SensorStatusListener sensorStatusListener =
@@ -866,7 +865,7 @@ public class RecordFragment extends PanesToolFragment
                         getView(),
                         getString(R.string.snackbar_source_error, errorMessage),
                         Snackbar.LENGTH_LONG);
-                mSnackbarManager.showSnackbar(bar);
+                snackbarManager.showSnackbar(bar);
               }
             }
           }
@@ -878,7 +877,7 @@ public class RecordFragment extends PanesToolFragment
           // Retry streaming.
           final String sensorId = sensorCardPresenter.getSelectedSensorId();
           if (sensorId != null
-              && mSensorCardAdapter.getSensorCardPresenters().contains(sensorCardPresenter)) {
+              && sensorCardAdapter.getSensorCardPresenters().contains(sensorCardPresenter)) {
             sensorCardPresenter.retryConnection(getActivity());
           }
         });
@@ -886,7 +885,7 @@ public class RecordFragment extends PanesToolFragment
     sensorCardPresenter.setOnSensorSelectedListener(
         sensorId -> {
           sensorCardPresenter.stopObserving();
-          mRecordingStatus
+          recordingStatus
               .firstElement()
               .subscribe(
                   status -> {
@@ -901,13 +900,13 @@ public class RecordFragment extends PanesToolFragment
   private void tryStartObserving(
       SensorCardPresenter sensorCardPresenter, String sensorId, RecordingStatus status) {
     if ((TextUtils.equals(sensorId, DecibelSensor.ID) || TextUtils.equals(sensorId, PitchSensor.ID))
-        && mSensorCardPresenterForAudio == null
+        && sensorCardPresenterForAudio == null
         && !PermissionUtils.isPermissionPermanentlyDenied(PermissionUtils.REQUEST_RECORD_AUDIO)
         && !PermissionUtils.hasPermission(getActivity(), PermissionUtils.REQUEST_RECORD_AUDIO)) {
-      mSensorCardPresenterForAudio = sensorCardPresenter;
-      mSensorIdForAudio = sensorId;
+      sensorCardPresenterForAudio = sensorCardPresenter;
+      sensorIdForAudio = sensorId;
       sensorCardPresenter.setConnectingUI(
-          mSensorIdForAudio, true, getActivity().getApplicationContext(), true);
+          sensorIdForAudio, true, getActivity().getApplicationContext(), true);
       PermissionUtils.tryRequestingPermission(
           getActivity(),
           PermissionUtils.REQUEST_RECORD_AUDIO,
@@ -933,12 +932,12 @@ public class RecordFragment extends PanesToolFragment
 
   // TODO: pull out somewhere testable?
   private void updateAvailableSensors() {
-    if (mSensorCardAdapter == null) {
+    if (sensorCardAdapter == null) {
       return;
     }
     List<String> availableSensors = getAvailableSources();
-    List<String> allSensors = mSensorRegistry.getAllSources();
-    List<SensorCardPresenter> sensorCardPresenters = mSensorCardAdapter.getSensorCardPresenters();
+    List<String> allSensors = sensorRegistry.getAllSources();
+    List<SensorCardPresenter> sensorCardPresenters = sensorCardAdapter.getSensorCardPresenters();
 
     // Available Sensors includes only sensors that are not being observed.
     // Check if a card wants to show the decibel and frequency sensors but permission was
@@ -968,7 +967,7 @@ public class RecordFragment extends PanesToolFragment
     Label label = event.getLabel();
     RecordingStatus status = event.getStatus();
     refreshLabels(status);
-    ensureUnarchived(getActivity(), mSelectedExperiment, getDataController());
+    ensureUnarchived(getActivity(), selectedExperiment, getDataController());
     // Trigger labels are logged in RecorderControllerImpl.
     if (!(label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER)) {
       String trackerLabel =
@@ -996,9 +995,9 @@ public class RecordFragment extends PanesToolFragment
   public void onAttach(Activity activity) {
     super.onAttach(activity);
 
-    mGraphOptionsController = new GraphOptionsController(activity);
-    mSensorSettingsController = new SensorSettingsControllerImpl(activity);
-    mUICallbacks = getUiCallbacks(activity);
+    graphOptionsController = new GraphOptionsController(activity);
+    sensorSettingsController = new SensorSettingsControllerImpl(activity);
+    uICallbacks = getUiCallbacks(activity);
   }
 
   private UICallbacks getUiCallbacks(Activity activity) {
@@ -1011,14 +1010,14 @@ public class RecordFragment extends PanesToolFragment
 
   private void onRecordingMetadataUpdated(RecordingStatus status) {
     if (status.isRecording()) {
-      mExternalAxis.resetAxes();
-      mExternalAxis.onStartRecording(status.currentRecording.getStartTime());
+      externalAxis.resetAxes();
+      externalAxis.onStartRecording(status.currentRecording.getStartTime());
     } else {
-      mExternalAxis.onStopRecording();
+      externalAxis.onStopRecording();
     }
     refreshLabels(status);
-    if (mSensorCardAdapter != null) {
-      mSensorCardAdapter.setRecording(
+    if (sensorCardAdapter != null) {
+      sensorCardAdapter.setRecording(
           status.isRecording(), RecordingMetadata.getStartTime(status.currentRecording));
       if (!status.isRecording()) {
         adjustSensorCardAddAlpha();
@@ -1028,8 +1027,8 @@ public class RecordFragment extends PanesToolFragment
   }
 
   private String getExperimentName() {
-    if (mSelectedExperiment != null) {
-      return mSelectedExperiment.getDisplayTitle(getActivity());
+    if (selectedExperiment != null) {
+      return selectedExperiment.getDisplayTitle(getActivity());
     } else {
       return "";
     }
@@ -1042,17 +1041,17 @@ public class RecordFragment extends PanesToolFragment
    */
   private void lockUiForRecording(boolean isStarting, boolean userInitiated) {
     if (isStarting) {
-      mUICallbacks.onRecordingRequested(getExperimentName(), userInitiated);
+      uICallbacks.onRecordingRequested(getExperimentName(), userInitiated);
     }
 
     // Lock the sensor cards and add button
-    if (mSensorCardAdapter != null) {
-      mSensorCardAdapter.setUiLockedForRecording(true);
+    if (sensorCardAdapter != null) {
+      sensorCardAdapter.setUiLockedForRecording(true);
     }
   }
 
   private void updateRecordingUIState(RecordingStatus status) {
-    if (mSelectedExperiment == null) {
+    if (selectedExperiment == null) {
       return;
     }
 
@@ -1060,42 +1059,42 @@ public class RecordFragment extends PanesToolFragment
       lockUiForRecording(/* state is STARTING */ true, status.userInitiated);
     } else if (status.isRecording()) {
       lockUiForRecording(/* state is not STARTING */ false, status.userInitiated);
-      mUICallbacks.onRecordingStart(status);
+      uICallbacks.onRecordingStart(status);
     } else {
-      mUICallbacks.onRecordingStopped();
-      if (mSensorCardAdapter != null) {
-        mSensorCardAdapter.setUiLockedForRecording(false);
+      uICallbacks.onRecordingStopped();
+      if (sensorCardAdapter != null) {
+        sensorCardAdapter.setUiLockedForRecording(false);
       }
     }
   }
 
   private void refreshLabels(RecordingStatus status) {
-    if (mSensorCardAdapter == null || mExternalAxis == null) {
+    if (sensorCardAdapter == null || externalAxis == null) {
       return;
     }
     List<Label> labels;
     if (!status.isRecording()) {
       labels = Collections.emptyList();
     } else {
-      Trial trial = mSelectedExperiment.getTrial(status.currentRecording.getRunId());
+      Trial trial = selectedExperiment.getTrial(status.currentRecording.getRunId());
       if (trial == null) {
         return;
       }
       labels = trial.getLabels();
     }
-    if (mSensorCardAdapter != null) {
-      for (SensorCardPresenter p : mSensorCardAdapter.getSensorCardPresenters()) {
+    if (sensorCardAdapter != null) {
+      for (SensorCardPresenter p : sensorCardAdapter.getSensorCardPresenters()) {
         p.refreshLabels(labels);
       }
     }
-    if (mExternalAxis != null) {
-      mExternalAxis.onLabelsChanged(labels);
+    if (externalAxis != null) {
+      externalAxis.onLabelsChanged(labels);
     }
   }
 
   @Override
   public void requestCancelRecording() {
-    mRecordingWasCanceled = true;
+    recordingWasCanceled = true;
     getRecorderController().stopRecordingWithoutSaving();
   }
 
@@ -1107,7 +1106,7 @@ public class RecordFragment extends PanesToolFragment
       SensorCardPresenter sensorCardPresenter, String sensorId, RecordingStatus status) {
     startObserving(sensorId, sensorCardPresenter);
     sensorCardPresenter.setRecording(status.getRecordingStartTime());
-    mExternalAxis.resetAxes();
+    externalAxis.resetAxes();
     updateSensorLayout(sensorCardPresenter.buildLayout());
     updateAvailableSensors();
   }
@@ -1115,7 +1114,7 @@ public class RecordFragment extends PanesToolFragment
   public void startObserving(final String sensorId, final SensorCardPresenter sensorCardPresenter) {
     final Context context = getActivity().getApplicationContext();
     sensorCardPresenter.setConnectingUI(sensorId, false, context, true);
-    mSensorRegistry.withSensorChoice(
+    sensorRegistry.withSensorChoice(
         TAG,
         sensorId,
         new Consumer<SensorChoice>() {
@@ -1141,29 +1140,29 @@ public class RecordFragment extends PanesToolFragment
             sensorPresenter.getOptionsPresenter().applyOptions(readOptions);
 
             sensorCardPresenter.startObserving(
-                sensorChoice, sensorPresenter, readOptions, mSelectedExperiment, mSensorRegistry);
-            mRecordingStatus.firstElement().subscribe(status -> refreshLabels(status));
+                sensorChoice, sensorPresenter, readOptions, selectedExperiment, sensorRegistry);
+            recordingStatus.firstElement().subscribe(status -> refreshLabels(status));
           }
         });
   }
 
   public void disableAllTriggers(
       final GoosciSensorLayout.SensorLayout layout, final SensorCardPresenter presenter) {
-    if (mSelectedExperiment == null) {
+    if (selectedExperiment == null) {
       return;
     }
     int position = getPositionOfLayout(layout);
     if (position < 0) {
       return;
     }
-    mSelectedExperiment.updateSensorLayout(position, layout);
+    selectedExperiment.updateSensorLayout(position, layout);
     getDataController()
         .updateExperiment(
-            mSelectedExperiment.getExperimentId(),
+            selectedExperiment.getExperimentId(),
             new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
               @Override
               public void success(Success value) {
-                getRecorderController().clearSensorTriggers(layout.sensorId, mSensorRegistry);
+                getRecorderController().clearSensorTriggers(layout.sensorId, sensorRegistry);
                 presenter.onSensorTriggersCleared();
               }
             });
@@ -1183,7 +1182,7 @@ public class RecordFragment extends PanesToolFragment
       return;
     }
     // If a snackbar is already being shown, don't show a new one.
-    if (mSnackbarManager.snackbarIsVisible()) {
+    if (snackbarManager.snackbarIsVisible()) {
       return;
     }
 
@@ -1217,10 +1216,10 @@ public class RecordFragment extends PanesToolFragment
       bar.setAction(
           R.string.scroll_to_card,
           v -> {
-            mUICallbacks.maximizeFragment();
-            mSensorCardLayoutManager.scrollToPosition(getPositionOfPresenter(presenter));
+            uICallbacks.maximizeFragment();
+            sensorCardLayoutManager.scrollToPosition(getPositionOfPresenter(presenter));
           });
-      mSnackbarManager.showSnackbar(bar);
+      snackbarManager.showSnackbar(bar);
     }
   }
 
@@ -1229,14 +1228,14 @@ public class RecordFragment extends PanesToolFragment
       final List<GoosciSensorLayout.SensorLayout> layouts,
       final RecorderController rc,
       RecordingStatus status) {
-    if (mSelectedExperiment != null) {
+    if (selectedExperiment != null) {
       getDataController()
           .getExternalSensorsByExperiment(
-              mSelectedExperiment.getExperimentId(),
+              selectedExperiment.getExperimentId(),
               new LoggingConsumer<ExperimentSensors>(TAG, "add external sensors") {
                 @Override
                 public void success(ExperimentSensors sensors) {
-                  mSensorRegistry.setExcludedIds(sensors.getExcludedSensorIds());
+                  sensorRegistry.setExcludedIds(sensors.getExcludedSensorIds());
                   updateExternalSensors(sensors.getIncludedSensors());
                   setSensorPresenters(layouts, rc, status);
                 }
@@ -1253,12 +1252,12 @@ public class RecordFragment extends PanesToolFragment
       return;
     }
     List<String> sensorsActuallyAdded =
-        mSensorRegistry.updateExternalSensors(
+        sensorRegistry.updateExternalSensors(
             sensors, AppSingleton.getInstance(getActivity()).getExternalSensorProviders());
 
     if (!sensorsActuallyAdded.isEmpty()) {
       boolean discoveryEnabled =
-          mFeatureDiscoveryProvider.isEnabled(
+          featureDiscoveryProvider.isEnabled(
               getActivity(), FeatureDiscoveryProvider.FEATURE_NEW_EXTERNAL_SENSOR);
       if (discoveryEnabled) {
         // If (unusually) more than one external sensor was added for
@@ -1281,35 +1280,35 @@ public class RecordFragment extends PanesToolFragment
   }
 
   private void updateSensorCount() {
-    mSensorCardAdapter.setAvailableSensorCount(getAllIncludedSources().size());
+    sensorCardAdapter.setAvailableSensorCount(getAllIncludedSources().size());
   }
 
   private void scheduleFeatureDiscovery(String sensorId) {
-    mHandler.sendMessageDelayed(
-        Message.obtain(mHandler, MSG_SHOW_FEATURE_DISCOVERY, sensorId),
+    handler.sendMessageDelayed(
+        Message.obtain(handler, MSG_SHOW_FEATURE_DISCOVERY, sensorId),
         FeatureDiscoveryProvider.FEATURE_DISCOVERY_SHOW_DELAY_MS);
   }
 
   private void cancelFeatureDiscovery() {
-    mHandler.removeMessages(MSG_SHOW_FEATURE_DISCOVERY);
+    handler.removeMessages(MSG_SHOW_FEATURE_DISCOVERY);
   }
 
   private void showFeatureDiscovery(String sensorId) {
     if (getActivity() == null) {
       return;
     }
-    if (mSensorCardRecyclerView.getChildCount() == 0) {
+    if (sensorCardRecyclerView.getChildCount() == 0) {
       return;
     }
     // Activate the first sensor card so the feature discovery has a place to attach.
-    if (mSensorCardAdapter != null && mSensorCardAdapter.getSensorCardPresenters().size() > 0) {
-      mSensorCardAdapter.getSensorCardPresenters().get(0).setActive(true, true);
-      mSensorCardAdapter.getSensorCardPresenters().get(0).scrollToSensor(sensorId);
+    if (sensorCardAdapter != null && sensorCardAdapter.getSensorCardPresenters().size() > 0) {
+      sensorCardAdapter.getSensorCardPresenters().get(0).setActive(true, true);
+      sensorCardAdapter.getSensorCardPresenters().get(0).scrollToSensor(sensorId);
     }
     // Look for view with the tag.
-    final View view = mSensorCardRecyclerView.getChildAt(0).findViewWithTag(sensorId);
+    final View view = sensorCardRecyclerView.getChildAt(0).findViewWithTag(sensorId);
     if (view != null) {
-      mFeatureDiscoveryProvider.show(
+      featureDiscoveryProvider.show(
           ((AppCompatActivity) getActivity()),
           FeatureDiscoveryProvider.FEATURE_NEW_EXTERNAL_SENSOR,
           sensorId);
@@ -1376,10 +1375,10 @@ public class RecordFragment extends PanesToolFragment
   }
 
   public int getPositionOfLayout(GoosciSensorLayout.SensorLayout layout) {
-    if (mSensorCardAdapter == null) {
+    if (sensorCardAdapter == null) {
       return -1;
     }
-    List<SensorCardPresenter> presenters = mSensorCardAdapter.getSensorCardPresenters();
+    List<SensorCardPresenter> presenters = sensorCardAdapter.getSensorCardPresenters();
     for (int i = 0; i < presenters.size(); i++) {
       if (TextUtils.equals(presenters.get(i).getSelectedSensorId(), layout.sensorId)) {
         return i;
@@ -1389,10 +1388,10 @@ public class RecordFragment extends PanesToolFragment
   }
 
   public int getPositionOfPresenter(SensorCardPresenter presenter) {
-    if (mSensorCardAdapter == null) {
+    if (sensorCardAdapter == null) {
       return -1;
     }
-    List<SensorCardPresenter> presenters = mSensorCardAdapter.getSensorCardPresenters();
+    List<SensorCardPresenter> presenters = sensorCardAdapter.getSensorCardPresenters();
     for (int i = 0; i < presenters.size(); i++) {
       if (Objects.equals(presenter, presenters.get(i))) {
         return i;
@@ -1402,10 +1401,10 @@ public class RecordFragment extends PanesToolFragment
   }
 
   private SensorCardPresenter getPresenterById(String sensorId) {
-    if (mSensorCardAdapter == null) {
+    if (sensorCardAdapter == null) {
       return null;
     }
-    for (SensorCardPresenter presenter : mSensorCardAdapter.getSensorCardPresenters()) {
+    for (SensorCardPresenter presenter : sensorCardAdapter.getSensorCardPresenters()) {
       if (presenter.getSelectedSensorId().equals(sensorId)) {
         return presenter;
       }

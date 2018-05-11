@@ -134,7 +134,7 @@ public class BleFlow {
   private final List<UUID> characteristics;
   private final List<UUID> descriptors;
   private final List<byte[]> values;
-  private Handler mDelayHandler = new Handler();
+  private Handler delayHandler = new Handler();
 
   private BluetoothGattCharacteristic currentCharacteristic;
   private BluetoothGattDescriptor currentDescriptor;
@@ -241,7 +241,7 @@ public class BleFlow {
       };
 
   private void scheduleServiceLookupRetry(final int retriesLeft) {
-    mDelayHandler.postDelayed(
+    delayHandler.postDelayed(
         new Runnable() {
           @Override
           public void run() {

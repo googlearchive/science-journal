@@ -48,16 +48,16 @@ public class TextToolFragment extends PanesToolFragment {
    */
   private static final int COLLAPSE_THRESHHOLD_LINES_OF_TEXT = 10;
 
-  private TextView mTextView;
-  private TextLabelFragmentListener mListener;
-  private BehaviorSubject<CharSequence> mWhenText = BehaviorSubject.create();
-  private RxEvent mFocusLost = new RxEvent();
-  private BehaviorSubject<Boolean> mShowingCollapsed = BehaviorSubject.create();
-  private BehaviorSubject<Integer> mTextSize = BehaviorSubject.create();
-  private boolean mUserMovingScroll = false;
+  private TextView textView;
+  private TextLabelFragmentListener listener;
+  private BehaviorSubject<CharSequence> whenText = BehaviorSubject.create();
+  private RxEvent focusLost = new RxEvent();
+  private BehaviorSubject<Boolean> showingCollapsed = BehaviorSubject.create();
+  private BehaviorSubject<Integer> textSize = BehaviorSubject.create();
+  private boolean userMovingScroll = false;
 
   public View getViewToKeepVisible() {
-    return mTextView;
+    return textView;
   }
 
   public interface TextLabelFragmentListener {
@@ -82,16 +82,16 @@ public class TextToolFragment extends PanesToolFragment {
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.text_label_fragment, null);
 
-    mTextView = (TextView) rootView.findViewById(R.id.text);
+    textView = (TextView) rootView.findViewById(R.id.text);
 
     NestedScrollView scroll = (NestedScrollView) rootView.findViewById(R.id.scroll);
     scroll.setOnTouchListener(
         (v, event) -> {
           int action = event.getAction();
           if (action == MotionEvent.ACTION_MOVE) {
-            mUserMovingScroll = true;
+            userMovingScroll = true;
           } else if (action == MotionEvent.ACTION_UP) {
-            mUserMovingScroll = false;
+            userMovingScroll = false;
           }
           return false;
         });
@@ -100,27 +100,27 @@ public class TextToolFragment extends PanesToolFragment {
           @Override
           public void onScrollChange(
               NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-            if (mUserMovingScroll) {
-              mTextView.clearFocus();
+            if (userMovingScroll) {
+              textView.clearFocus();
             }
           }
         });
-    mTextSize.onNext((int) mTextView.getTextSize());
+    textSize.onNext((int) textView.getTextSize());
 
-    RxTextView.afterTextChangeEvents(mTextView)
-        .subscribe(event -> mWhenText.onNext(event.view().getText()));
+    RxTextView.afterTextChangeEvents(textView)
+        .subscribe(event -> whenText.onNext(event.view().getText()));
 
     if (savedInstanceState != null) {
-      mTextView.setText(savedInstanceState.getString(KEY_TEXT));
+      textView.setText(savedInstanceState.getString(KEY_TEXT));
     }
 
     ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add_inline);
     setupAddButton(addButton);
 
-    mShowingCollapsed.subscribe(
+    showingCollapsed.subscribe(
         isCollapsed -> {
           addButton.setVisibility(isCollapsed ? View.VISIBLE : View.GONE);
-          mTextView.setMaxLines(isCollapsed ? 3 : Integer.MAX_VALUE);
+          textView.setMaxLines(isCollapsed ? 3 : Integer.MAX_VALUE);
         });
 
     return rootView;
@@ -130,12 +130,12 @@ public class TextToolFragment extends PanesToolFragment {
     ImageButton addButton = (ImageButton) controlBar.findViewById(R.id.btn_add);
     setupAddButton(addButton);
 
-    mShowingCollapsed.subscribe(
+    showingCollapsed.subscribe(
         isCollapsed -> {
           controlBar.setVisibility(isCollapsed ? View.GONE : View.VISIBLE);
         });
 
-    mFocusLost.happens().subscribe(o -> controlBar.setVisibility(View.VISIBLE));
+    focusLost.happens().subscribe(o -> controlBar.setVisibility(View.VISIBLE));
   }
 
   public void setupAddButton(ImageButton addButton) {
@@ -144,7 +144,7 @@ public class TextToolFragment extends PanesToolFragment {
           final long timestamp = getTimestamp(addButton.getContext());
           GoosciTextLabelValue.TextLabelValue labelValue =
               new GoosciTextLabelValue.TextLabelValue();
-          labelValue.text = mTextView.getText().toString();
+          labelValue.text = textView.getText().toString();
           Label result =
               Label.newLabelWithValue(
                   timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);
@@ -152,13 +152,13 @@ public class TextToolFragment extends PanesToolFragment {
 
           log(addButton.getContext(), result);
           // Clear the text
-          mTextView.setText("");
+          textView.setText("");
         });
     // TODO: Need to update the content description if we are recording or not.
     // This will probably happen in the ControlBar rather than here.
     addButton.setEnabled(false);
 
-    mWhenText.subscribe(text -> addButton.setEnabled(!TextUtils.isEmpty(text)));
+    whenText.subscribe(text -> addButton.setEnabled(!TextUtils.isEmpty(text)));
   }
 
   private void log(Context context, Label result) {
@@ -172,8 +172,8 @@ public class TextToolFragment extends PanesToolFragment {
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
-    if (mTextView != null && mTextView.getText() != null) {
-      outState.putString(KEY_TEXT, mTextView.getText().toString());
+    if (textView != null && textView.getText() != null) {
+      outState.putString(KEY_TEXT, textView.getText().toString());
     }
     super.onSaveInstanceState(outState);
   }
@@ -187,25 +187,25 @@ public class TextToolFragment extends PanesToolFragment {
   }
 
   private TextLabelFragmentListener getListener(Context context) {
-    if (mListener == null) {
+    if (listener == null) {
       if (context instanceof ListenerProvider) {
-        mListener = ((ListenerProvider) context).getTextLabelFragmentListener();
+        listener = ((ListenerProvider) context).getTextLabelFragmentListener();
       } else {
         Fragment parentFragment = getParentFragment();
         if (parentFragment instanceof ListenerProvider) {
-          mListener = ((ListenerProvider) parentFragment).getTextLabelFragmentListener();
+          listener = ((ListenerProvider) parentFragment).getTextLabelFragmentListener();
         } else if (parentFragment == null) {
-          mListener = ((ListenerProvider) getActivity()).getTextLabelFragmentListener();
+          listener = ((ListenerProvider) getActivity()).getTextLabelFragmentListener();
         }
       }
     }
-    return mListener;
+    return listener;
   }
 
   public void listenToAvailableHeight(Observable<Integer> height) {
-    Observable.combineLatest(height, mTextSize, (h, s) -> h < collapseThreshold(s) && canTint())
-        .takeUntil(mFocusLost.happens())
-        .subscribe(collapsed -> mShowingCollapsed.onNext(collapsed));
+    Observable.combineLatest(height, textSize, (h, s) -> h < collapseThreshold(s) && canTint())
+        .takeUntil(focusLost.happens())
+        .subscribe(collapsed -> showingCollapsed.onNext(collapsed));
   }
 
   private boolean canTint() {
@@ -221,11 +221,11 @@ public class TextToolFragment extends PanesToolFragment {
   public void onGainedFocus(Activity activity) {
     super.onGainedFocus(activity);
     // when losing focus, close keyboard
-    mFocusLost.happensNext().subscribe(() -> KeyboardUtil.closeKeyboard(activity).subscribe());
+    focusLost.happensNext().subscribe(() -> KeyboardUtil.closeKeyboard(activity).subscribe());
   }
 
   public void onLosingFocus() {
-    mFocusLost.onHappened();
+    focusLost.onHappened();
     super.onLosingFocus();
   }
 }

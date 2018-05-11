@@ -21,11 +21,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FrequencyBuffer implements ValueFilter {
-  private List<ScalarReading> mReadings = new LinkedList<>();
+  private List<ScalarReading> readings = new LinkedList<>();
 
-  private long mWindow;
-  private final double mDenominatorInMillis;
-  private double mFilter;
+  private long window;
+  private final double denominatorInMillis;
+  private double filter;
 
   /**
    * @param windowMillis how many milliseconds of data to keep for frequency detection
@@ -34,34 +34,34 @@ public class FrequencyBuffer implements ValueFilter {
    * @param filter only consider signals with an amplitude at least twice this number.
    */
   public FrequencyBuffer(long windowMillis, double denominatorInMillis, double filter) {
-    mWindow = windowMillis;
-    mDenominatorInMillis = denominatorInMillis;
-    mFilter = filter;
+    window = windowMillis;
+    this.denominatorInMillis = denominatorInMillis;
+    this.filter = filter;
   }
 
   public void changeWindow(long newWindowMillis) {
-    mWindow = newWindowMillis;
-    if (!mReadings.isEmpty()) {
+    window = newWindowMillis;
+    if (!readings.isEmpty()) {
       prune(getNewestTimestamp());
     }
   }
 
   @Override
   public double filterValue(long timestamp, double value) {
-    mReadings.add(new ScalarReading(timestamp, value));
+    readings.add(new ScalarReading(timestamp, value));
     prune(timestamp);
     return getLatestFrequency();
   }
 
   private void prune(long timestamp) {
-    long oldestRemaining = timestamp - mWindow;
-    while (mReadings.get(0).getCollectedTimeMillis() < oldestRemaining) {
-      mReadings.remove(0);
+    long oldestRemaining = timestamp - window;
+    while (readings.get(0).getCollectedTimeMillis() < oldestRemaining) {
+      readings.remove(0);
     }
   }
 
   public double getLatestFrequency() {
-    if (mReadings.size() < 2) {
+    if (readings.size() < 2) {
       return 0.0;
     }
 
@@ -70,8 +70,8 @@ public class FrequencyBuffer implements ValueFilter {
     long firstCrossingTime = -1;
     long lastCrossingTime = -1;
 
-    boolean higherThanAverage = mReadings.get(0).getValue() > average;
-    for (ScalarReading reading : mReadings.subList(1, mReadings.size())) {
+    boolean higherThanAverage = readings.get(0).getValue() > average;
+    for (ScalarReading reading : readings.subList(1, readings.size())) {
       boolean thisReadingHigher = reading.getValue() > average;
       if (higherThanAverage != thisReadingHigher) {
         higherThanAverage = thisReadingHigher;
@@ -92,7 +92,7 @@ public class FrequencyBuffer implements ValueFilter {
 
     long adjustedWindowMillis = lastCrossingTime - firstCrossingTime;
 
-    if (adjustedWindowMillis < mWindow / 4) {
+    if (adjustedWindowMillis < window / 4) {
       // if the signal appears to have stopped 3/4 a window ago, then treat it as stopped.
       // Without this, we can read very or infinitely short single spikes as representing a
       // nonsensical, very high "frequency", leading to janky frequency "spikes" when
@@ -100,7 +100,7 @@ public class FrequencyBuffer implements ValueFilter {
       return 0.0;
     }
 
-    double adjustedWindowUserUnits = adjustedWindowMillis / mDenominatorInMillis;
+    double adjustedWindowUserUnits = adjustedWindowMillis / denominatorInMillis;
     double cycles = crossings / 2.0f;
     double userUnitFrequency = cycles / adjustedWindowUserUnits;
     return userUnitFrequency;
@@ -112,19 +112,19 @@ public class FrequencyBuffer implements ValueFilter {
     // assume for now that doesn't happen.
 
     double total = 0;
-    for (ScalarReading reading : mReadings) {
+    for (ScalarReading reading : readings) {
       total += reading.getValue();
     }
-    // Adding mFilter means that variations of less than mFilter won't register as cycles.
-    return total / mReadings.size() + mFilter;
+    // Adding filter means that variations of less than filter won't register as cycles.
+    return total / readings.size() + filter;
   }
 
   private long getNewestTimestamp() {
-    final ScalarReading mostRecentReading = mReadings.get(mReadings.size() - 1);
+    final ScalarReading mostRecentReading = readings.get(readings.size() - 1);
     return mostRecentReading.getCollectedTimeMillis();
   }
 
   public void changeFilter(double newFilter) {
-    mFilter = newFilter;
+    filter = newFilter;
   }
 }

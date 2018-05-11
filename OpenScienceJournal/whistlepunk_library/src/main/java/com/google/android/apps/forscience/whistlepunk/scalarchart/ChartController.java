@@ -94,35 +94,35 @@ public class ChartController {
   private static final long DEFAULT_DATA_LOAD_BUFFER_MILLIS =
       ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS / 4;
 
-  private final ChartData mChartData;
-  private List<Label> mDisplayableLabels = new ArrayList<>();
-  private ChartOptions mChartOptions;
-  private ChartView mChartView;
-  private ExternalAxisController.InteractionListener mInteractionListener;
-  private ProgressBar mProgressView;
+  private final ChartData chartData;
+  private List<Label> displayableLabels = new ArrayList<>();
+  private ChartOptions chartOptions;
+  private ChartView chartView;
+  private ExternalAxisController.InteractionListener interactionListener;
+  private ProgressBar progressView;
 
   // Fields used for data loading and clearing during Observe/Record
-  private long mDefaultGraphRange;
-  private long mDataLoadBuffer;
-  private final FailureListener mDataFailureListener;
-  private long mResetTime = -1;
-  private String mSensorId;
-  private String mTrialId;
+  private long defaultGraphRange;
+  private long dataLoadBuffer;
+  private final FailureListener dataFailureListener;
+  private long resetTime = -1;
+  private String sensorId;
+  private String trialId;
 
-  private ZoomPresenter mZoomPresenter;
+  private ZoomPresenter zoomPresenter;
   // Need to keep track of min/max loaded separately from what is in ChartData,
   // because repeated async callbacks adding data can cause data to be added after
-  // that region was meant to be cleared, causing bugs. Therefore mMinLoadedX and mMaxLoadedX
+  // that region was meant to be cleared, causing bugs. Therefore minLoadedX and maxLoadedX
   // are used to track the min and max we know we've loaded during RunReview, to assist in
   // data loading during zoom and pan.
   private static final long NOTHING_LOADED = -1;
-  private long mMinLoadedX = NOTHING_LOADED;
-  private long mMaxLoadedX;
-  private boolean mNeedsForwardLoad = false;
-  private List<Long> mCurrentLoadIds = new ArrayList<>();
-  private final Clock mUptimeClock;
-  private final Clock mCurrentTimeClock;
-  private List<ChartDataLoadedCallback> mChartDataLoadedCallbacks = new ArrayList<>();
+  private long minLoadedX = NOTHING_LOADED;
+  private long maxLoadedX;
+  private boolean needsForwardLoad = false;
+  private List<Long> currentLoadIds = new ArrayList<>();
+  private final Clock uptimeClock;
+  private final Clock currentTimeClock;
+  private List<ChartDataLoadedCallback> chartDataLoadedCallbacks = new ArrayList<>();
 
   public ChartController(
       ChartOptions.ChartPlacementType type,
@@ -171,46 +171,46 @@ public class ChartController {
       long dataLoadBuffer,
       Clock uptimeClock,
       FailureListener dataFailureListener) {
-    mUptimeClock = uptimeClock;
-    mChartData =
+    this.uptimeClock = uptimeClock;
+    chartData =
         new ChartData(chartDataThrowawayThreshold, ChartData.DEFAULT_THROWAWAY_TIME_THRESHOLD);
-    mChartOptions = new ChartOptions(chartPlacementType);
-    mChartOptions.setScalarDisplayOptions(scalarDisplayOptions);
-    mDataFailureListener = dataFailureListener;
-    mDefaultGraphRange = ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS;
-    mDataLoadBuffer = dataLoadBuffer;
-    mCurrentTimeClock = new CurrentTimeClock();
+    chartOptions = new ChartOptions(chartPlacementType);
+    chartOptions.setScalarDisplayOptions(scalarDisplayOptions);
+    this.dataFailureListener = dataFailureListener;
+    defaultGraphRange = ExternalAxisController.DEFAULT_GRAPH_RANGE_IN_MILLIS;
+    this.dataLoadBuffer = dataLoadBuffer;
+    currentTimeClock = new CurrentTimeClock();
   }
 
   public void setDefaultGraphRange(long defaultGraphRange) {
-    mDefaultGraphRange = defaultGraphRange;
+    this.defaultGraphRange = defaultGraphRange;
   }
 
   public void setChartView(ChartView view) {
-    mChartView = view;
-    mChartView.clearInteractionListeners();
-    if (mInteractionListener != null) {
-      mChartView.addInteractionListener(mInteractionListener);
+    chartView = view;
+    chartView.clearInteractionListeners();
+    if (interactionListener != null) {
+      chartView.addInteractionListener(interactionListener);
     }
-    mChartView.initialize(mChartOptions, mChartData);
+    chartView.initialize(chartOptions, chartData);
   }
 
   public void setProgressView(ProgressBar progress) {
-    mProgressView = progress;
+    progressView = progress;
   }
 
   // Adds a single point to the end of the path. Assumes points are ordered as they arrive.
   public void addPoint(ChartData.DataPoint point) {
     // TODO: extract as a testable object
-    if (mResetTime != -1) {
-      if (point.getX() < mResetTime) {
+    if (resetTime != -1) {
+      if (point.getX() < resetTime) {
         // straggling datapoint from before the reset, ignore
         return;
       } else {
-        mResetTime = -1;
+        resetTime = -1;
       }
     }
-    if (!mChartData.isEmpty()) {
+    if (!chartData.isEmpty()) {
       // Get rid of data too old to be interesting for "now", but too new to be likely
       // seen by scrolling from the current view.  If we're recording, we'll swap
       // this data back in when we scroll to it.  If not, then we have no data
@@ -218,71 +218,71 @@ public class ChartController {
       // TODO: Is it possible to call throwAwayBetween less frequently for performance?
       // no need to do so many binary searches in ChartData...
       // TODO: This throwAwayBetween is causing b/28614204.
-      long throwawayBefore = point.getX() - (KEEP_THIS_MANY_SCREENS * mDefaultGraphRange);
-      long throwawayAfter = mChartOptions.getRenderedXMax() + mDefaultGraphRange;
-      mChartData.throwAwayBetween(throwawayAfter, throwawayBefore);
+      long throwawayBefore = point.getX() - (KEEP_THIS_MANY_SCREENS * defaultGraphRange);
+      long throwawayAfter = chartOptions.getRenderedXMax() + defaultGraphRange;
+      chartData.throwAwayBetween(throwawayAfter, throwawayBefore);
     }
 
-    mChartData.addPoint(point);
-    if (mChartView != null && mChartView.isDrawn()) {
-      mChartView.addPointToEndOfPath(point);
+    chartData.addPoint(point);
+    if (chartView != null && chartView.isDrawn()) {
+      chartView.addPointToEndOfPath(point);
     }
   }
 
   // Assume this is an ordered list.
   public void setData(List<ChartData.DataPoint> points) {
-    mChartData.clear();
-    mChartData.setPoints(points);
-    mChartOptions.reset();
-    mChartOptions.setPinnedToNow(false);
+    chartData.clear();
+    chartData.setPoints(points);
+    chartOptions.reset();
+    chartOptions.setPinnedToNow(false);
   }
 
   private void addOrderedGroupOfPoints(List<ChartData.DataPoint> points, long requestId) {
-    if (mCurrentLoadIds.contains(requestId)) {
-      mChartData.addOrderedGroupOfPoints(points);
+    if (currentLoadIds.contains(requestId)) {
+      chartData.addOrderedGroupOfPoints(points);
     }
   }
 
   // Clears just the line data, but does not reset the options. This is useful if we need
   // to update zoom levels on the same sensor in the same range, for example.
   private void clearLineData() {
-    mChartData.clear();
-    mCurrentLoadIds.clear();
-    if (mChartView != null) {
-      mChartView.clear();
+    chartData.clear();
+    currentLoadIds.clear();
+    if (chartView != null) {
+      chartView.clear();
     }
   }
 
   public void clearData() {
-    mChartData.clear();
-    mCurrentLoadIds.clear();
-    mChartOptions.reset();
-    if (mChartView != null) {
-      mChartView.clear();
+    chartData.clear();
+    currentLoadIds.clear();
+    chartOptions.reset();
+    if (chartView != null) {
+      chartView.clear();
     }
   }
 
   public void onDestroy() {
     onViewRecycled();
-    mChartData.clear();
-    mCurrentLoadIds.clear();
-    mChartDataLoadedCallbacks.clear();
+    chartData.clear();
+    currentLoadIds.clear();
+    chartDataLoadedCallbacks.clear();
   }
 
   public void onViewRecycled() {
-    if (mChartView != null) {
-      mChartView.clearInteractionListeners();
-      mInteractionListener = null;
-      mChartView = null;
+    if (chartView != null) {
+      chartView.clearInteractionListeners();
+      interactionListener = null;
+      chartView = null;
     }
   }
 
   private void setPinnedToNow(boolean isPinnedToNow) {
-    mChartOptions.setPinnedToNow(isPinnedToNow);
+    chartOptions.setPinnedToNow(isPinnedToNow);
   }
 
   public boolean isPinnedToNow() {
-    return mChartOptions.isPinnedToNow();
+    return chartOptions.isPinnedToNow();
   }
 
   public void setTriggers(List<SensorTrigger> triggers) {
@@ -290,40 +290,40 @@ public class ChartController {
     for (SensorTrigger trigger : triggers) {
       values.add(trigger.getValueToTrigger());
     }
-    mChartOptions.setTriggerValues(values);
+    chartOptions.setTriggerValues(values);
   }
 
   public void setLabels(List<Label> labels) {
-    mDisplayableLabels.clear();
+    displayableLabels.clear();
     for (Label label : labels) {
-      if (mChartOptions.isDisplayable(label, mChartOptions.getRecordingStartTime())) {
-        mDisplayableLabels.add(label);
+      if (chartOptions.isDisplayable(label, chartOptions.getRecordingStartTime())) {
+        displayableLabels.add(label);
       }
     }
-    mChartData.setDisplayableLabels(mDisplayableLabels);
-    if (mChartView != null) {
-      mChartView.postInvalidateOnAnimation();
+    chartData.setDisplayableLabels(displayableLabels);
+    if (chartView != null) {
+      chartView.postInvalidateOnAnimation();
     }
   }
 
   private void refreshLabels() {
-    mChartData.setDisplayableLabels(mDisplayableLabels);
-    if (mChartView != null) {
-      mChartView.postInvalidateOnAnimation();
+    chartData.setDisplayableLabels(displayableLabels);
+    if (chartView != null) {
+      chartView.postInvalidateOnAnimation();
     }
   }
 
   public List<ChartData.DataPoint> getData() {
-    return mChartData.getPoints();
+    return chartData.getPoints();
   }
 
   public void setXAxis(long xMin, long xMax) {
-    mChartOptions.setRenderedXRange(xMin, xMax);
-    if (mChartOptions.isPinnedToNow() && !mChartData.isEmpty()) {
-      mChartOptions.adjustYAxisStep(mChartData.getPoints().get(mChartData.getNumPoints() - 1));
+    chartOptions.setRenderedXRange(xMin, xMax);
+    if (chartOptions.isPinnedToNow() && !chartData.isEmpty()) {
+      chartOptions.adjustYAxisStep(chartData.getPoints().get(chartData.getNumPoints() - 1));
     }
-    if (mChartView != null) {
-      mChartView.onAxisLimitsAdjusted();
+    if (chartView != null) {
+      chartView.onAxisLimitsAdjusted();
     }
   }
 
@@ -333,65 +333,65 @@ public class ChartController {
   }
 
   public void setYAxis(double yMin, double yMax) {
-    mChartOptions.setRenderedYRange(yMin, yMax);
-    if (mChartView != null) {
-      mChartView.onAxisLimitsAdjusted();
+    chartOptions.setRenderedYRange(yMin, yMax);
+    if (chartView != null) {
+      chartView.onAxisLimitsAdjusted();
     }
   }
 
   private void updateYRangeFromValueRange(Range<Double> valueRange) {
-    mChartOptions.updateYMinAndMax(
-        Math.min(valueRange.lowerEndpoint(), mChartOptions.getYMinLimit()),
-        Math.max(valueRange.upperEndpoint(), mChartOptions.getYMaxLimit()));
+    chartOptions.updateYMinAndMax(
+        Math.min(valueRange.lowerEndpoint(), chartOptions.getYMinLimit()),
+        Math.max(valueRange.upperEndpoint(), chartOptions.getYMaxLimit()));
   }
 
   public void clearReviewYAxis() {
-    mChartOptions.resetYAxisLimits();
+    chartOptions.resetYAxisLimits();
   }
 
   public void setReviewYAxis(double min, double max, boolean hasBuffer) {
-    min = Math.min(mChartOptions.getYMinLimit(), min);
-    max = Math.max(mChartOptions.getYMaxLimit(), max);
+    min = Math.min(chartOptions.getYMinLimit(), min);
+    max = Math.max(chartOptions.getYMaxLimit(), max);
     double buffer = 0;
     if (hasBuffer) {
       buffer = ChartOptions.getYBuffer(min, max);
     }
-    mChartOptions.updateYMinAndMax(min - buffer, max + buffer);
+    chartOptions.updateYMinAndMax(min - buffer, max + buffer);
     setYAxis(min - buffer, max + buffer);
     refreshChartView();
   }
 
   public boolean hasData() {
-    return !mChartData.isEmpty();
+    return !chartData.isEmpty();
   }
 
   public long getXMin() {
-    return mChartData.getXMin();
+    return chartData.getXMin();
   }
 
   public long getXMax() {
-    return mChartData.getXMax();
+    return chartData.getXMax();
   }
 
   public long getRenderedXMin() {
-    return mChartOptions.getRenderedXMin();
+    return chartOptions.getRenderedXMin();
   }
 
   public long getRenderedXMax() {
-    return mChartOptions.getRenderedXMax();
+    return chartOptions.getRenderedXMax();
   }
 
   public double getRenderedYMin() {
-    return mChartOptions.getRenderedYMin();
+    return chartOptions.getRenderedYMin();
   }
 
   public double getRenderedYMax() {
-    return mChartOptions.getRenderedYMax();
+    return chartOptions.getRenderedYMax();
   }
 
   public void refreshChartView() {
-    if (mChartView != null) {
-      mChartView.redraw();
+    if (chartView != null) {
+      chartView.redraw();
     }
   }
 
@@ -402,7 +402,7 @@ public class ChartController {
    * @return A data point that is closest to this timestamp
    */
   public ChartData.DataPoint getClosestDataPointToTimestamp(long timestamp) {
-    return mChartData.getClosestDataPointToTimestamp(timestamp);
+    return chartData.getClosestDataPointToTimestamp(timestamp);
   }
 
   /**
@@ -416,17 +416,17 @@ public class ChartController {
    */
   public ChartData.DataPoint getClosestDataPointToTimestampAbove(
       long timestamp, long aboveTimestamp) {
-    if (mChartData.isEmpty()) {
+    if (chartData.isEmpty()) {
       return null;
     }
-    int closestIndex = mChartData.getClosestIndexToTimestamp(timestamp);
-    ChartData.DataPoint closestPoint = mChartData.getPoints().get(closestIndex);
+    int closestIndex = chartData.getClosestIndexToTimestamp(timestamp);
+    ChartData.DataPoint closestPoint = chartData.getPoints().get(closestIndex);
     // Check if we are above the aboveTimestamp.
     if (closestPoint.getX() >= aboveTimestamp) {
       return closestPoint;
     }
-    if (closestIndex + 1 < mChartData.getNumPoints() - 1) {
-      return mChartData.getPoints().get(closestIndex + 1);
+    if (closestIndex + 1 < chartData.getNumPoints() - 1) {
+      return chartData.getPoints().get(closestIndex + 1);
     }
     return null;
   }
@@ -442,38 +442,38 @@ public class ChartController {
    */
   public ChartData.DataPoint getClosestDataPointToTimestampBelow(
       long timestamp, long belowTimestamp) {
-    if (mChartData.isEmpty()) {
+    if (chartData.isEmpty()) {
       return null;
     }
-    int closestIndex = mChartData.getClosestIndexToTimestamp(timestamp);
-    ChartData.DataPoint closestPoint = mChartData.getPoints().get(closestIndex);
+    int closestIndex = chartData.getClosestIndexToTimestamp(timestamp);
+    ChartData.DataPoint closestPoint = chartData.getPoints().get(closestIndex);
     // Check if we are above the aboveTimestamp.
     if (closestPoint.getX() <= belowTimestamp) {
       return closestPoint;
     }
     if (closestIndex - 1 >= 0) {
-      return mChartData.getPoints().get(closestIndex - 1);
+      return chartData.getPoints().get(closestIndex - 1);
     }
     return null;
   }
 
   public boolean hasDrawnChart() {
-    return mChartView != null && mChartView.isDrawn();
+    return chartView != null && chartView.isDrawn();
   }
 
   public boolean hasScreenPoints() {
-    return mChartView != null && mChartView.isDrawn() && !mChartData.isEmpty();
+    return chartView != null && chartView.isDrawn() && !chartData.isEmpty();
   }
 
   public PointF getScreenPoint(long timestamp, double value) {
-    return new PointF(mChartView.getScreenX(timestamp), mChartView.getScreenY(value));
+    return new PointF(chartView.getScreenX(timestamp), chartView.getScreenY(value));
   }
 
   public ViewTreeObserver getChartViewTreeObserver() {
-    if (mChartView == null) {
+    if (chartView == null) {
       return null;
     }
-    return mChartView.getViewTreeObserver();
+    return chartView.getViewTreeObserver();
   }
 
   private void updateColor(int colorIndex, Context context) {
@@ -485,69 +485,68 @@ public class ChartController {
   }
 
   public void updateColor(int color) {
-    mChartOptions.setLineColor(color);
-    if (mChartView != null) {
-      mChartView.updateColorOptions();
+    chartOptions.setLineColor(color);
+    if (chartView != null) {
+      chartView.updateColorOptions();
     }
   }
 
   public void setShowProgress(boolean showProgress) {
-    if (mChartView != null) {
-      mChartView.setVisibility(showProgress ? View.GONE : View.VISIBLE);
+    if (chartView != null) {
+      chartView.setVisibility(showProgress ? View.GONE : View.VISIBLE);
     }
-    if (mProgressView != null) {
+    if (progressView != null) {
       if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-        mProgressView.setIndeterminateTintList(
-            ColorStateList.valueOf(mChartOptions.getLineColor()));
+        progressView.setIndeterminateTintList(ColorStateList.valueOf(chartOptions.getLineColor()));
       }
-      mProgressView.setVisibility(showProgress ? View.VISIBLE : View.GONE);
+      progressView.setVisibility(showProgress ? View.VISIBLE : View.GONE);
     }
   }
 
   public void setInteractionListener(
       ExternalAxisController.InteractionListener interactionListener) {
-    mInteractionListener = interactionListener;
-    if (mChartView != null) {
-      mChartView.addInteractionListener(interactionListener);
+    this.interactionListener = interactionListener;
+    if (chartView != null) {
+      chartView.addInteractionListener(interactionListener);
     }
   }
 
   public void updateOptions(
       int graphColor, ScalarDisplayOptions scalarDisplayOptions, String sensorId) {
-    mChartOptions.setLineColor(graphColor);
-    mChartOptions.setScalarDisplayOptions(scalarDisplayOptions);
-    mSensorId = sensorId;
-    if (mChartView != null) {
-      mChartView.redraw(); // Full redraw in case the options caused computational changes.
+    chartOptions.setLineColor(graphColor);
+    chartOptions.setScalarDisplayOptions(scalarDisplayOptions);
+    this.sensorId = sensorId;
+    if (chartView != null) {
+      chartView.redraw(); // Full redraw in case the options caused computational changes.
     }
   }
 
   public void setSensorId(String sensorId) {
-    mSensorId = sensorId;
+    this.sensorId = sensorId;
   }
 
   public void setTrialId(String trialId) {
-    mTrialId = trialId;
+    this.trialId = trialId;
   }
 
   public void setRecordingStartTime(long recordingStartTime) {
-    mChartOptions.setRecordingStartTime(recordingStartTime);
-    if (mChartView != null) {
-      mChartView.postInvalidateOnAnimation();
+    chartOptions.setRecordingStartTime(recordingStartTime);
+    if (chartView != null) {
+      chartView.postInvalidateOnAnimation();
     }
   }
 
   public void updateStats(List<StreamStat> stats) {
-    mChartData.updateStats(stats);
-    if (mChartView != null) {
-      mChartView.postInvalidateOnAnimation();
+    chartData.updateStats(stats);
+    if (chartView != null) {
+      chartView.postInvalidateOnAnimation();
     }
   }
 
   public void setShowStatsOverlay(boolean showStatsOverlay) {
-    mChartOptions.setShowStatsOverlay(showStatsOverlay);
-    if (mChartView != null) {
-      mChartView.postInvalidateOnAnimation();
+    chartOptions.setShowStatsOverlay(showStatsOverlay);
+    if (chartView != null) {
+      chartView.postInvalidateOnAnimation();
     }
   }
 
@@ -572,19 +571,19 @@ public class ChartController {
     clearData();
     final long firstTimestamp = trial.getFirstTimestamp();
     final long lastTimestamp = trial.getLastTimestamp();
-    mChartOptions.setRecordingTimes(
+    chartOptions.setRecordingTimes(
         firstTimestamp,
         lastTimestamp,
         trial.getOriginalFirstTimestamp(),
         trial.getOriginalLastTimestamp());
-    mSensorId = sensorLayout.sensorId;
-    mTrialId = trial.getTrialId();
+    sensorId = sensorLayout.sensorId;
+    trialId = trial.getTrialId();
     tryLoadingChartData(
         trial.getTrialId(),
         sensorLayout,
         dc,
-        mChartOptions.getRecordingStartTime(),
-        mChartOptions.getRecordingEndTime(),
+        chartOptions.getRecordingStartTime(),
+        chartOptions.getRecordingEndTime(),
         status,
         stats,
         fullChartLoadDataCallback,
@@ -617,8 +616,8 @@ public class ChartController {
     addChartDataLoadedCallback(fullChartLoadDataCallback);
     callChartDataStartLoadingCallbacks(true);
     final ZoomPresenter zp = getZoomPresenter(stats);
-    mMinLoadedX = firstTimestamp;
-    mMaxLoadedX = lastTimestamp;
+    minLoadedX = firstTimestamp;
+    maxLoadedX = lastTimestamp;
     int currentTier = zp.updateTier(lastTimestamp - firstTimestamp);
 
     // Populate the initial graph
@@ -638,7 +637,7 @@ public class ChartController {
 
                 if (!runId.equals(status.getRunId())
                     || !sensorLayout.sensorId.equals(status.getSensorId())
-                    || !mCurrentLoadIds.contains(requestId)) {
+                    || !currentLoadIds.contains(requestId)) {
                   // The wrong run or the wrong sensor ID was loaded into this
                   // chartController, or this is the wrong request ID.
                   // Clear and try again with the updated run and sensor values from the holder.
@@ -654,7 +653,7 @@ public class ChartController {
                       fullChartLoadDataCallback,
                       context);
                 } else {
-                  mCurrentLoadIds.remove(requestId);
+                  currentLoadIds.remove(requestId);
                   callChartDataLoadedCallbacks(firstTimestamp, lastTimestamp);
                   if (fullChartLoadDataCallback != null) {
                     removeChartDataLoadedCallback(fullChartLoadDataCallback);
@@ -663,60 +662,60 @@ public class ChartController {
                 }
               }
             },
-            mUptimeClock);
+            uptimeClock);
 
-    mCurrentLoadIds.add(graphPopulator.getRequestId());
+    currentLoadIds.add(graphPopulator.getRequestId());
     graphPopulator.requestObservations(
         GraphPopulator.constantGraphStatus(firstTimestamp, lastTimestamp),
         dc,
-        mDataFailureListener,
+        dataFailureListener,
         currentTier,
         runId,
-        mSensorId);
+        sensorId);
   }
 
   private ZoomPresenter getZoomPresenter(TrialStats stats) {
-    if (mZoomPresenter == null) {
-      mZoomPresenter = new ZoomPresenter();
+    if (zoomPresenter == null) {
+      zoomPresenter = new ZoomPresenter();
     }
-    mZoomPresenter.setRunStats(stats);
-    return mZoomPresenter;
+    zoomPresenter.setRunStats(stats);
+    return zoomPresenter;
   }
 
   public void onPause() {
     if (isRecording()) {
-      mNeedsForwardLoad = true;
+      needsForwardLoad = true;
     }
   }
 
   public void onResume(long resetTime) {
-    mResetTime = resetTime;
-    if (hasData() && mResetTime > mChartData.getXMax() + MAX_BLACKOUT_MILLIS_BEFORE_CLEARING) {
+    this.resetTime = resetTime;
+    if (hasData() && this.resetTime > chartData.getXMax() + MAX_BLACKOUT_MILLIS_BEFORE_CLEARING) {
       clearLineData();
-      mNeedsForwardLoad = false;
+      needsForwardLoad = false;
     }
   }
 
   public void setShowOriginalRun(boolean showOriginalRun) {
-    mChartOptions.setShowOriginalRun(showOriginalRun);
+    chartOptions.setShowOriginalRun(showOriginalRun);
   }
 
   public void onGlobalXAxisChanged(
       long xMin, long xMax, boolean isPinnedToNow, DataController dataController) {
     boolean isRunReview =
-        mChartOptions.getChartPlacementType() == ChartOptions.ChartPlacementType.TYPE_RUN_REVIEW;
-    if (isRunReview && mZoomPresenter == null) {
+        chartOptions.getChartPlacementType() == ChartOptions.ChartPlacementType.TYPE_RUN_REVIEW;
+    if (isRunReview && zoomPresenter == null) {
       // Then we aren't loaded all the way, so don't try to load anything else.
       return;
     }
     boolean isRecording = isObserving() && isRecording();
     if (isRunReview || isRecording) {
       long range = xMax - xMin;
-      long buffer = isRecording ? mDataLoadBuffer : range / 8;
+      long buffer = isRecording ? dataLoadBuffer : range / 8;
 
       if (isRunReview) {
-        int oldTier = mZoomPresenter.getCurrentTier();
-        int newTier = mZoomPresenter.updateTier(range);
+        int oldTier = zoomPresenter.getCurrentTier();
+        int newTier = zoomPresenter.updateTier(range);
         if (oldTier != newTier) {
           reloadAtNewZoomLevel(xMin, xMax, dataController, buffer);
           return;
@@ -724,85 +723,84 @@ public class ChartController {
       }
 
       // If something is already loaded...
-      if (mMinLoadedX != NOTHING_LOADED && !mChartData.isEmpty()) {
+      if (minLoadedX != NOTHING_LOADED && !chartData.isEmpty()) {
         // Load new data and throw away data that is too far off screen.
         // Note that xMin may be less than what is possible to load, because we often
         // load the chart with some buffer.
-        long minPossibleToLoad = Math.max(xMin, mChartOptions.getRecordingStartTime());
-        if (minPossibleToLoad < mMinLoadedX) {
-          long prevMinLoadedX = mMinLoadedX;
-          mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
-          loadReadings(dataController, mMinLoadedX, prevMinLoadedX, false);
+        long minPossibleToLoad = Math.max(xMin, chartOptions.getRecordingStartTime());
+        if (minPossibleToLoad < minLoadedX) {
+          long prevMinLoadedX = minLoadedX;
+          minLoadedX = Math.max(xMin - buffer, chartOptions.getRecordingStartTime());
+          loadReadings(dataController, minLoadedX, prevMinLoadedX, false);
         }
         long maxPossibleToLoad =
-            isRecording ? xMax : Math.min(xMax, mChartOptions.getRecordingEndTime());
-        if (maxPossibleToLoad > mMaxLoadedX) {
-          long prevMaxLoadedX = mMaxLoadedX;
-          mMaxLoadedX =
-              isRecording ? xMax : Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
+            isRecording ? xMax : Math.min(xMax, chartOptions.getRecordingEndTime());
+        if (maxPossibleToLoad > maxLoadedX) {
+          long prevMaxLoadedX = maxLoadedX;
+          maxLoadedX =
+              isRecording ? xMax : Math.min(xMax + buffer, chartOptions.getRecordingEndTime());
           // If it's pinned to now, then we don't expect to find data magically
           // appearing in front of old data.
-          if (mNeedsForwardLoad || isRunReview || !isPinnedToNow) {
-            loadReadings(dataController, prevMaxLoadedX, mMaxLoadedX, false);
-            mNeedsForwardLoad = false;
+          if (needsForwardLoad || isRunReview || !isPinnedToNow) {
+            loadReadings(dataController, prevMaxLoadedX, maxLoadedX, false);
+            needsForwardLoad = false;
           }
         }
-      } else if (isRecording && mCurrentLoadIds.size() == 0) {
+      } else if (isRecording && currentLoadIds.size() == 0) {
         // If we haven't loaded anything, and it is recorded, try loading data that
         // was already recorded.
         // Don't load anything before the recording start time if we got here
         // from resume.
-        mMinLoadedX = Math.max(xMin, mChartOptions.getRecordingStartTime());
-        mMaxLoadedX = xMax;
-        loadReadings(dataController, mMinLoadedX, mMaxLoadedX, false);
-      } else if (mChartData.isEmpty()) {
+        minLoadedX = Math.max(xMin, chartOptions.getRecordingStartTime());
+        maxLoadedX = xMax;
+        loadReadings(dataController, minLoadedX, maxLoadedX, false);
+      } else if (chartData.isEmpty()) {
         // If we haven't loaded anything, and we are not recording.
-        mMinLoadedX = Math.max(xMin, mChartOptions.getRecordingStartTime());
-        mMaxLoadedX = Math.min(xMax, mChartOptions.getRecordingEndTime());
-        loadReadings(dataController, mMinLoadedX, mMaxLoadedX, false);
+        minLoadedX = Math.max(xMin, chartOptions.getRecordingStartTime());
+        maxLoadedX = Math.min(xMax, chartOptions.getRecordingEndTime());
+        loadReadings(dataController, minLoadedX, maxLoadedX, false);
       }
     }
     setXAxis(xMin, xMax);
 
     if (isRunReview) {
-      mChartData.throwAwayBefore(mMinLoadedX);
-      mChartData.throwAwayAfter(mMaxLoadedX);
+      chartData.throwAwayBefore(minLoadedX);
+      chartData.throwAwayAfter(maxLoadedX);
     } else {
       setPinnedToNow(isPinnedToNow);
-      long throwawayThreshold = xMin - (KEEP_THIS_MANY_SCREENS - 1) * mDefaultGraphRange;
+      long throwawayThreshold = xMin - (KEEP_THIS_MANY_SCREENS - 1) * defaultGraphRange;
       if (!isPinnedToNow
           && !isRecording
-          && xMax > mCurrentTimeClock.getNow() - ExternalAxisController.LEADING_EDGE_BUFFER_TIME) {
+          && xMax > currentTimeClock.getNow() - ExternalAxisController.LEADING_EDGE_BUFFER_TIME) {
         // Don't throw away data on a big scroll forward
-        throwawayThreshold =
-            mCurrentTimeClock.getNow() - KEEP_THIS_MANY_SCREENS * mDefaultGraphRange;
+        throwawayThreshold = currentTimeClock.getNow() - KEEP_THIS_MANY_SCREENS * defaultGraphRange;
       }
-      if (mMinLoadedX < throwawayThreshold) {
-        mMinLoadedX = throwawayThreshold;
+      if (minLoadedX < throwawayThreshold) {
+        minLoadedX = throwawayThreshold;
       }
       // TODO: Should this be a throwAwayBetween or throwAwayafter, depending on which way
       // the x axis changed??
-      mChartData.throwAwayBefore(throwawayThreshold);
+      chartData.throwAwayBefore(throwawayThreshold);
     }
   }
 
   private boolean isObserving() {
-    return mChartOptions.getChartPlacementType() == ChartOptions.ChartPlacementType.TYPE_OBSERVE;
+    return chartOptions.getChartPlacementType() == ChartOptions.ChartPlacementType.TYPE_OBSERVE;
   }
 
   private void reloadAtNewZoomLevel(
       long xMin, long xMax, DataController dataController, long buffer) {
     setShowProgress(true);
     clearLineData();
-    mMinLoadedX = Math.max(xMin - buffer, mChartOptions.getRecordingStartTime());
-    mMaxLoadedX = Math.min(xMax + buffer, mChartOptions.getRecordingEndTime());
-    mCurrentLoadIds.clear();
-    loadReadings(dataController, mMinLoadedX, mMaxLoadedX, true);
+    minLoadedX = Math.max(xMin - buffer, chartOptions.getRecordingStartTime());
+    maxLoadedX = Math.min(xMax + buffer, chartOptions.getRecordingEndTime());
+    currentLoadIds.clear();
+    loadReadings(dataController, minLoadedX, maxLoadedX, true);
     setXAxis(xMin, xMax);
   }
 
   private boolean isRecording() {
-    return mChartOptions.getRecordingStartTime() != RecordingMetadata.NOT_RECORDING;
+    return chartOptions.getRecordingStartTime() != RecordingMetadata.NOT_RECORDING;
   }
 
   @VisibleForTesting
@@ -811,7 +809,7 @@ public class ChartController {
       final long minToLoad,
       final long maxToLoad,
       final boolean chartHiddenForLoad) {
-    int currentTier = mZoomPresenter == null ? 0 : mZoomPresenter.getCurrentTier();
+    int currentTier = zoomPresenter == null ? 0 : zoomPresenter.getCurrentTier();
     GraphPopulator graphPopulator =
         new GraphPopulator(
             new GraphPopulator.ObservationDisplay() {
@@ -824,10 +822,10 @@ public class ChartController {
 
               @Override
               public void onFinish(long requestId) {
-                if (mCurrentLoadIds.contains(requestId)) {
-                  mCurrentLoadIds.remove(requestId);
+                if (currentLoadIds.contains(requestId)) {
+                  currentLoadIds.remove(requestId);
                 }
-                if (mCurrentLoadIds.size() == 0) {
+                if (currentLoadIds.size() == 0) {
                   refreshLabels();
                 }
                 if (chartHiddenForLoad) {
@@ -837,42 +835,42 @@ public class ChartController {
                 callChartDataLoadedCallbacks(minToLoad, maxToLoad);
               }
             },
-            mUptimeClock);
-    mCurrentLoadIds.add(graphPopulator.getRequestId());
+            uptimeClock);
+    currentLoadIds.add(graphPopulator.getRequestId());
     graphPopulator.requestObservations(
         GraphPopulator.constantGraphStatus(minToLoad, maxToLoad),
         dataController,
-        mDataFailureListener,
+        dataFailureListener,
         currentTier,
-        mTrialId,
-        mSensorId);
+        trialId,
+        sensorId);
 
     callChartDataStartLoadingCallbacks(chartHiddenForLoad);
   }
 
   public void addChartDataLoadedCallback(ChartDataLoadedCallback callback) {
     if (callback != null) {
-      mChartDataLoadedCallbacks.add(callback);
+      chartDataLoadedCallbacks.add(callback);
     }
   }
 
   public void removeChartDataLoadedCallback(ChartDataLoadedCallback callback) {
-    if (mChartDataLoadedCallbacks.contains(callback)) {
-      mChartDataLoadedCallbacks.remove(callback);
+    if (chartDataLoadedCallbacks.contains(callback)) {
+      chartDataLoadedCallbacks.remove(callback);
     }
   }
 
   private void callChartDataLoadedCallbacks(long firstTimestamp, long lastTimestamp) {
-    if (mChartOptions.getRequestResetZoomInY()) {
-      setYAxis(mChartOptions.getYMinLimit(), mChartOptions.getYMaxLimit());
+    if (chartOptions.getRequestResetZoomInY()) {
+      setYAxis(chartOptions.getYMinLimit(), chartOptions.getYMaxLimit());
     }
-    for (ChartDataLoadedCallback callback : mChartDataLoadedCallbacks) {
+    for (ChartDataLoadedCallback callback : chartDataLoadedCallbacks) {
       callback.onChartDataLoaded(firstTimestamp, lastTimestamp);
     }
   }
 
   private void callChartDataStartLoadingCallbacks(boolean chartHiddenForLoad) {
-    for (ChartDataLoadedCallback callback : mChartDataLoadedCallbacks) {
+    for (ChartDataLoadedCallback callback : chartDataLoadedCallbacks) {
       callback.onLoadAttemptStarted(chartHiddenForLoad);
     }
   }

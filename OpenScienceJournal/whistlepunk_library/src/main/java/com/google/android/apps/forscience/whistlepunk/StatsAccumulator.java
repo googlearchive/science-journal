@@ -48,25 +48,25 @@ public class StatsAccumulator {
   public static final int STATUS_NEEDS_UPDATE = 1;
 
   public static class StatsDisplay {
-    private List<StatsListener> mStatsListeners = new ArrayList<StatsListener>();
-    private StreamStat mMinStat;
-    private StreamStat mMaxStat;
-    private StreamStat mAvgStat;
-    private List<StreamStat> mStreamStats = new ArrayList<>();
+    private List<StatsListener> statsListeners = new ArrayList<StatsListener>();
+    private StreamStat minStat;
+    private StreamStat maxStat;
+    private StreamStat avgStat;
+    private List<StreamStat> streamStats = new ArrayList<>();
 
     public StatsDisplay(NumberFormat numberFormat) {
-      mMinStat = new StreamStat(StreamStat.TYPE_MIN, numberFormat);
-      mMaxStat = new StreamStat(StreamStat.TYPE_MAX, numberFormat);
-      mAvgStat = new StreamStat(StreamStat.TYPE_AVERAGE, numberFormat);
-      mStreamStats.add(mMinStat);
-      mStreamStats.add(mMaxStat);
-      mStreamStats.add(mAvgStat);
+      minStat = new StreamStat(StreamStat.TYPE_MIN, numberFormat);
+      maxStat = new StreamStat(StreamStat.TYPE_MAX, numberFormat);
+      avgStat = new StreamStat(StreamStat.TYPE_AVERAGE, numberFormat);
+      streamStats.add(minStat);
+      streamStats.add(maxStat);
+      streamStats.add(avgStat);
     }
 
     public void clear() {
-      mMinStat.clear();
-      mMaxStat.clear();
-      mAvgStat.clear();
+      minStat.clear();
+      maxStat.clear();
+      avgStat.clear();
     }
 
     public void updateFromBundle(SensorObserver.Data bundle) {
@@ -74,37 +74,37 @@ public class StatsAccumulator {
     }
 
     public List<StreamStat> updateStreamStats(double yMin, double yMax, double average) {
-      mMinStat.setValue(yMin);
-      mMaxStat.setValue(yMax);
-      mAvgStat.setValue(average);
+      minStat.setValue(yMin);
+      maxStat.setValue(yMax);
+      avgStat.setValue(average);
 
       updateListeners();
 
-      return mStreamStats;
+      return streamStats;
     }
 
     public void addStatsListener(StatsListener listener) {
-      mStatsListeners.add(listener);
+      statsListeners.add(listener);
     }
 
     public List<StreamStat> updateStreamStats(TrialStats trialStats) {
       if (trialStats.hasStat(GoosciTrial.SensorStat.StatType.MINIMUM)) {
-        mMinStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0));
+        minStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0));
       }
       if (trialStats.hasStat(GoosciTrial.SensorStat.StatType.MAXIMUM)) {
-        mMaxStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0));
+        maxStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0));
       }
       if (trialStats.hasStat(GoosciTrial.SensorStat.StatType.AVERAGE)) {
-        mAvgStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, 0));
+        avgStat.setValue(trialStats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, 0));
       }
 
       updateListeners();
-      return mStreamStats;
+      return streamStats;
     }
 
     private void updateListeners() {
-      for (int index = 0, count = mStatsListeners.size(); index < count; ++index) {
-        mStatsListeners.get(index).onStatsUpdated(mStreamStats);
+      for (int index = 0, count = statsListeners.size(); index < count; ++index) {
+        statsListeners.get(index).onStatsUpdated(streamStats);
       }
     }
   }
@@ -112,66 +112,66 @@ public class StatsAccumulator {
   // Save information about the recording min, max and sum, as well as when recording
   // began and how many data points we have received, so that the stats calculation can
   // be done very efficiently.
-  private double mMin;
-  private double mMax;
-  private double mSum;
+  private double min;
+  private double max;
+  private double sum;
 
-  private long mStartTimestamp = RecordingMetadata.NOT_RECORDING;
-  private long mLatestTimestamp = RecordingMetadata.NOT_RECORDING;
-  private int mStatSize;
+  private long startTimestamp = RecordingMetadata.NOT_RECORDING;
+  private long latestTimestamp = RecordingMetadata.NOT_RECORDING;
+  private int statSize;
 
-  private String mSensorId;
+  private String sensorId;
 
   public StatsAccumulator(String sensorId) {
-    mSensorId = sensorId;
+    this.sensorId = sensorId;
     clearStats();
   }
 
   // Clears the stream stats.
   public void clearStats() {
-    mMin = Double.MAX_VALUE;
-    mMax = -Double.MAX_VALUE;
-    mSum = 0;
-    mStartTimestamp = RecordingMetadata.NOT_RECORDING;
-    mLatestTimestamp = RecordingMetadata.NOT_RECORDING;
-    mStatSize = 0;
+    min = Double.MAX_VALUE;
+    max = -Double.MAX_VALUE;
+    sum = 0;
+    startTimestamp = RecordingMetadata.NOT_RECORDING;
+    latestTimestamp = RecordingMetadata.NOT_RECORDING;
+    statSize = 0;
   }
 
   public boolean isInitialized() {
-    return mStatSize > 0;
+    return statSize > 0;
   }
 
   // Update the stream stats based on the new timestamp and value.
   // Assumes that all new timestamps acquired are bigger than the recording start time.
   public void updateRecordingStreamStats(long timestampMillis, double value) {
-    mLatestTimestamp = timestampMillis;
-    mStatSize++;
-    if (mStartTimestamp == RecordingMetadata.NOT_RECORDING) {
-      mStartTimestamp = timestampMillis;
-      mMin = value;
-      mMax = value;
-      mSum = value;
+    latestTimestamp = timestampMillis;
+    statSize++;
+    if (startTimestamp == RecordingMetadata.NOT_RECORDING) {
+      startTimestamp = timestampMillis;
+      min = value;
+      max = value;
+      sum = value;
     } else {
-      if (value > mMax) {
-        mMax = value;
-      } else if (value < mMin) {
-        mMin = value;
+      if (value > max) {
+        max = value;
+      } else if (value < min) {
+        min = value;
       }
-      mSum = mSum + value;
+      sum = sum + value;
     }
   }
 
   private double getAverage() {
-    return mSum / mStatSize;
+    return sum / statSize;
   }
 
   public long getLatestTimestamp() {
-    return mLatestTimestamp;
+    return latestTimestamp;
   }
 
   public void addStatsToBundle(SensorObserver.Data data) {
-    data.min = mMin;
-    data.max = mMax;
+    data.min = min;
+    data.max = max;
     data.average = getAverage();
   }
 
@@ -182,18 +182,17 @@ public class StatsAccumulator {
   }
 
   public TrialStats makeSaveableStats() {
-    TrialStats stats = new TrialStats(mSensorId);
+    TrialStats stats = new TrialStats(sensorId);
     populateTrialStats(stats);
     return stats;
   }
 
   public void populateTrialStats(TrialStats stats) {
     stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
-    stats.putStat(GoosciTrial.SensorStat.StatType.MINIMUM, mMin);
-    stats.putStat(GoosciTrial.SensorStat.StatType.MAXIMUM, mMax);
+    stats.putStat(GoosciTrial.SensorStat.StatType.MINIMUM, min);
+    stats.putStat(GoosciTrial.SensorStat.StatType.MAXIMUM, max);
     stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, getAverage());
-    stats.putStat(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, mStatSize);
-    stats.putStat(
-        GoosciTrial.SensorStat.StatType.TOTAL_DURATION, mLatestTimestamp - mStartTimestamp);
+    stats.putStat(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, statSize);
+    stats.putStat(GoosciTrial.SensorStat.StatType.TOTAL_DURATION, latestTimestamp - startTimestamp);
   }
 }

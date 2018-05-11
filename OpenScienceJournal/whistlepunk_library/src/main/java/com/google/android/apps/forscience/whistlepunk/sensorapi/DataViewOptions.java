@@ -26,8 +26,8 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayO
  * the data it has gathered.
  */
 public class DataViewOptions {
-  private final int mGraphColor;
-  private final ScalarDisplayOptions mOptions;
+  private final int graphColor;
+  private final ScalarDisplayOptions options;
 
   /**
    * @param colorIndex index for "theme color" for this sensor data view. For example, if this is a
@@ -37,21 +37,21 @@ public class DataViewOptions {
    *     its shape. (This is currently shared between all graphs)
    */
   public DataViewOptions(int colorIndex, Context context, ScalarDisplayOptions options) {
-    mGraphColor = context.getResources().getIntArray(R.array.graph_colors_array)[colorIndex];
-    mOptions = options;
+    graphColor = context.getResources().getIntArray(R.array.graph_colors_array)[colorIndex];
+    this.options = options;
   }
 
   @VisibleForTesting
   public DataViewOptions(int color, ScalarDisplayOptions options) {
-    mGraphColor = color;
-    mOptions = options;
+    graphColor = color;
+    this.options = options;
   }
 
   public int getGraphColor() {
-    return mGraphColor;
+    return graphColor;
   }
 
   public ScalarDisplayOptions getLineGraphOptions() {
-    return mOptions;
+    return options;
   }
 }

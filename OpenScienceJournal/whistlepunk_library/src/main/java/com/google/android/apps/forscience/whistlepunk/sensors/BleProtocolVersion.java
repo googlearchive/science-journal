@@ -19,9 +19,9 @@ package com.google.android.apps.forscience.whistlepunk.sensors;
 import androidx.annotation.VisibleForTesting;
 
 public class BleProtocolVersion {
-  private final int mMajorVersion;
-  private final int mMinorVersion;
-  private final int mPatchVersion;
+  private final int majorVersion;
+  private final int minorVersion;
+  private final int patchVersion;
 
   private static final int MAJOR_BITS = 5;
   private static final int MINOR_BITS = 5;
@@ -41,21 +41,21 @@ public class BleProtocolVersion {
   public BleProtocolVersion(byte[] rawVersion) {
     int version = (rawVersion[0] & 0xFF) | ((rawVersion[1] << 8) & 0xFF00);
 
-    mMajorVersion = (version & MAJOR_MASK) >> MAJOR_SHIFT;
-    mMinorVersion = (version & MINOR_MASK) >> MINOR_SHIFT;
-    mPatchVersion = (version & PATCH_MASK);
+    majorVersion = (version & MAJOR_MASK) >> MAJOR_SHIFT;
+    minorVersion = (version & MINOR_MASK) >> MINOR_SHIFT;
+    patchVersion = (version & PATCH_MASK);
   }
 
   public int getMajorVersion() {
-    return mMajorVersion;
+    return majorVersion;
   }
 
   public int getMinorVersion() {
-    return mMinorVersion;
+    return minorVersion;
   }
 
   public int getPatchVersion() {
-    return mPatchVersion;
+    return patchVersion;
   }
 
   @VisibleForTesting

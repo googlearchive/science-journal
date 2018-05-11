@@ -35,11 +35,11 @@ public class SingleLineResizableTextView extends AppCompatTextView {
 
   private static final String TAG = "ResizableTextView";
 
-  private float mMinSize;
-  private float mMaxSize = -1;
-  private float mOneSp;
+  private float minSize;
+  private float maxSize = -1;
+  private float oneSp;
 
-  private float mWidth;
+  private float width;
 
   public SingleLineResizableTextView(Context context) {
     super(context);
@@ -58,16 +58,16 @@ public class SingleLineResizableTextView extends AppCompatTextView {
 
   private void init() {
     setSingleLine(true);
-    mMaxSize = getTextSize();
-    mMinSize = getResources().getDimensionPixelSize(R.dimen.min_resizable_text_size);
-    mOneSp = getResources().getDimensionPixelSize(R.dimen.one_sp);
+    maxSize = getTextSize();
+    minSize = getResources().getDimensionPixelSize(R.dimen.min_resizable_text_size);
+    oneSp = getResources().getDimensionPixelSize(R.dimen.one_sp);
   }
 
   @Override
   protected void onSizeChanged(int width, int height, int oldwidth, int oldheight) {
     super.onSizeChanged(width, height, oldwidth, oldheight);
     if (width != oldwidth) {
-      mWidth = width;
+      this.width = width;
       if (width > oldwidth) {
         // If we have gotten larger, reset the text size so we can fill up the view.
         resetTextSize();
@@ -78,7 +78,7 @@ public class SingleLineResizableTextView extends AppCompatTextView {
   }
 
   public void resetTextSize() {
-    setTextSize(TypedValue.COMPLEX_UNIT_PX, mMaxSize);
+    setTextSize(TypedValue.COMPLEX_UNIT_PX, maxSize);
     resizeTextIfNeeded(getText());
   }
 
@@ -89,17 +89,17 @@ public class SingleLineResizableTextView extends AppCompatTextView {
   }
 
   private void resizeTextIfNeeded(CharSequence text) {
-    if (mWidth <= 0 || TextUtils.isEmpty(text)) {
+    if (this.width <= 0 || TextUtils.isEmpty(text)) {
       return;
     }
     TextPaint paint = getPaint();
     float width = paint.measureText(text, 0, text.length());
     float size = getTextSize();
-    while (width > mWidth) {
+    while (width > this.width) {
       // It needs to be resized, if possible
-      if (size > mMinSize) {
+      if (size > minSize) {
         // We can still get smaller
-        size = Math.max(size - mOneSp, mMinSize);
+        size = Math.max(size - oneSp, minSize);
         setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
         width = paint.measureText(text, 0, text.length());
       } else {

@@ -33,11 +33,11 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
  * <p>TODO: all SettingsControllers switch to use this API
  */
 public class ActiveSettingsController {
-  private final Context mContext;
+  private final Context context;
 
   // TODO: this doesn't really need to be a persistent object.
   public ActiveSettingsController(Context context) {
-    mContext = context;
+    this.context = context;
   }
 
   public interface OptionsCallbacks {
@@ -71,9 +71,9 @@ public class ActiveSettingsController {
       String name,
       String optionsTitle,
       WriteableSensorOptions options) {
-    final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+    final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-    final Resources resources = mContext.getResources();
+    final Resources resources = context.getResources();
     if (callbacks == null) {
       builder.setTitle(resources.getString(R.string.no_options_title, name));
       builder.setMessage(resources.getString(R.string.no_options_message, name));
@@ -136,21 +136,21 @@ public class ActiveSettingsController {
   }
 
   private static class OptionsConsumer extends Consumer<ReadableSensorOptions> {
-    private final OptionsCallbacks mCallbacks;
-    private ReadableSensorOptions mSettings;
+    private final OptionsCallbacks callbacks;
+    private ReadableSensorOptions settings;
 
     public OptionsConsumer(OptionsCallbacks callbacks) {
-      mCallbacks = callbacks;
+      this.callbacks = callbacks;
     }
 
     @Override
     public void take(ReadableSensorOptions bundle) {
-      mCallbacks.previewOptions(bundle);
-      mSettings = bundle;
+      callbacks.previewOptions(bundle);
+      settings = bundle;
     }
 
     public ReadableSensorOptions getOptions() {
-      return mSettings;
+      return settings;
     }
   }
 }

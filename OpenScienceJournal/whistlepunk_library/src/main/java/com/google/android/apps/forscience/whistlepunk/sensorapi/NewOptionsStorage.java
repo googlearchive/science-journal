@@ -34,10 +34,10 @@ public interface NewOptionsStorage {
 
   class SnackbarFailureListener implements FailureListener {
     private static final String TAG = "SnackbarFListener";
-    private final View mView;
+    private final View view;
 
     public SnackbarFailureListener(View view) {
-      mView = view;
+      this.view = view;
     }
 
     @Override
@@ -45,11 +45,11 @@ public interface NewOptionsStorage {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Error loading options", e);
       }
-      if (mView == null) {
+      if (view == null) {
         return;
       }
-      String message = mView.getResources().getString(R.string.options_load_error);
-      AccessibilityUtils.makeSnackbar(mView, message, Snackbar.LENGTH_LONG).show();
+      String message = view.getResources().getString(R.string.options_load_error);
+      AccessibilityUtils.makeSnackbar(view, message, Snackbar.LENGTH_LONG).show();
     }
   }
 }

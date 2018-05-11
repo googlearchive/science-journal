@@ -33,37 +33,37 @@ public class BuiltInSensorAppearance implements SensorAppearance {
   public static final int MAX_POINTS_AFTER_DECIMAL = 10;
 
   /** Human readable name for this source. */
-  private final int mNameStringId;
+  private final int nameStringId;
 
   /** The ID of the drawable to use as an icon for this sensor source. */
-  private final int mDrawableId;
+  private final int drawableId;
 
   /**
    * The ID of the string that represents the units for this source. Use 0 if no units are needed.
    */
-  private final int mUnitsStringId;
+  private final int unitsStringId;
 
-  private final int mPointsAfterDecimal;
+  private final int pointsAfterDecimal;
 
   /** The number format to use for this sensor everywhere but the graph Y axis. */
-  private NumberFormat mNumberFormat;
+  private NumberFormat numberFormat;
 
-  private final String mBuiltInSensorId;
+  private final String builtInSensorId;
 
   /** The ID of the string that has a short description of this sensor. */
-  private final int mShortDescriptionStringId;
+  private final int shortDescriptionStringId;
 
   /** The SensorAnimationBehavior that controls the drawable used in the sensor animation. */
-  private final SensorAnimationBehavior mSensorAnimationBehavior;
+  private final SensorAnimationBehavior sensorAnimationBehavior;
 
   /**
    * The IDs to the first and second paragraphs of text in the Learn More page. The first paragraph
    * comes before the image, and the second comes after.
    */
-  private int mFirstParagraphStringId;
+  private int firstParagraphStringId;
 
-  private int mSecondParagraphStringId;
-  private int mLearnMoreDrawableId;
+  private int secondParagraphStringId;
+  private int learnMoreDrawableId;
 
   /**
    * @param builtInSensorId string id of built-in sensor. This should be the same as the result of
@@ -132,43 +132,43 @@ public class BuiltInSensorAppearance implements SensorAppearance {
       SensorAnimationBehavior sensorAnimationBehavior,
       int pointsAfterDecimalInNumberFormat,
       String builtInSensorId) {
-    mNameStringId = nameStringId;
-    mDrawableId = drawableId;
-    mUnitsStringId = unitsStringId;
-    mShortDescriptionStringId = shortDescriptionId;
-    mFirstParagraphStringId = firstParagraphStringId;
-    mSecondParagraphStringId = secondParagraphStringId;
-    mLearnMoreDrawableId = infoDrawableId;
-    mSensorAnimationBehavior = sensorAnimationBehavior;
-    mPointsAfterDecimal = pointsAfterDecimalInNumberFormat;
-    mNumberFormat =
+    this.nameStringId = nameStringId;
+    this.drawableId = drawableId;
+    this.unitsStringId = unitsStringId;
+    shortDescriptionStringId = shortDescriptionId;
+    this.firstParagraphStringId = firstParagraphStringId;
+    this.secondParagraphStringId = secondParagraphStringId;
+    learnMoreDrawableId = infoDrawableId;
+    this.sensorAnimationBehavior = sensorAnimationBehavior;
+    pointsAfterDecimal = pointsAfterDecimalInNumberFormat;
+    numberFormat =
         SensorAppearanceProviderImpl.createNumberFormat(pointsAfterDecimalInNumberFormat);
-    mBuiltInSensorId = builtInSensorId;
+    this.builtInSensorId = builtInSensorId;
   }
 
   @Override
   public String getName(Context context) {
-    return context.getResources().getString(mNameStringId);
+    return context.getResources().getString(nameStringId);
   }
 
   @Override
   public String getUnits(Context context) {
-    return getString(context, mUnitsStringId);
+    return getString(context, unitsStringId);
   }
 
   @Override
   public Drawable getIconDrawable(Context context) {
-    return context.getResources().getDrawable(mDrawableId);
+    return context.getResources().getDrawable(drawableId);
   }
 
   @Override
   public String getShortDescription(Context context) {
-    return getString(context, mShortDescriptionStringId);
+    return getString(context, shortDescriptionStringId);
   }
 
   @Override
   public boolean hasLearnMore() {
-    return mFirstParagraphStringId != 0;
+    return firstParagraphStringId != 0;
   }
 
   @Override
@@ -177,17 +177,17 @@ public class BuiltInSensorAppearance implements SensorAppearance {
         new LearnMoreContents() {
           @Override
           public String getFirstParagraph() {
-            return getString(context, mFirstParagraphStringId);
+            return getString(context, firstParagraphStringId);
           }
 
           @Override
           public int getDrawableResourceId() {
-            return mLearnMoreDrawableId;
+            return learnMoreDrawableId;
           }
 
           @Override
           public String getSecondParagraph() {
-            return getString(context, mSecondParagraphStringId);
+            return getString(context, secondParagraphStringId);
           }
         });
   }
@@ -196,7 +196,7 @@ public class BuiltInSensorAppearance implements SensorAppearance {
   public GoosciIcon.IconPath getSmallIconPath() {
     GoosciIcon.IconPath path = new GoosciIcon.IconPath();
     path.type = GoosciIcon.IconPath.PathType.BUILTIN;
-    path.pathString = Preconditions.checkNotNull(mBuiltInSensorId);
+    path.pathString = Preconditions.checkNotNull(builtInSensorId);
     return path;
   }
 
@@ -204,13 +204,13 @@ public class BuiltInSensorAppearance implements SensorAppearance {
   public GoosciIcon.IconPath getLargeIconPath() {
     GoosciIcon.IconPath path = new GoosciIcon.IconPath();
     path.type = GoosciIcon.IconPath.PathType.BUILTIN;
-    path.pathString = Preconditions.checkNotNull(mBuiltInSensorId);
+    path.pathString = Preconditions.checkNotNull(builtInSensorId);
     return path;
   }
 
   @Override
   public SensorAnimationBehavior getSensorAnimationBehavior() {
-    return mSensorAnimationBehavior;
+    return sensorAnimationBehavior;
   }
 
   private String getString(Context context, int id) {
@@ -222,12 +222,12 @@ public class BuiltInSensorAppearance implements SensorAppearance {
 
   @Override
   public NumberFormat getNumberFormat() {
-    return mNumberFormat;
+    return numberFormat;
   }
 
   @Override
   public int getPointsAfterDecimal() {
-    return mPointsAfterDecimal;
+    return pointsAfterDecimal;
   }
 
   // TODO: Is there a way to cache this instead of re-constructing it each time it is needed?

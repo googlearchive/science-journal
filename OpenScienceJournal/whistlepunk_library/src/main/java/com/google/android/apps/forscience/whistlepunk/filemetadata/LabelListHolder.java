@@ -25,11 +25,11 @@ import java.util.List;
 
 /** Class which has a list of labels, and setters / getters / modifiers for those labels. */
 public abstract class LabelListHolder {
-  // mLabels should be initialized by the class which implements this class in its constructor.
-  List<Label> mLabels;
+  // labels should be initialized by the class which implements this class in its constructor.
+  List<Label> labels;
 
   public int getLabelCount() {
-    return mLabels.size();
+    return labels.size();
   }
 
   /**
@@ -38,7 +38,7 @@ public abstract class LabelListHolder {
    * happen using updateLabel, addTrialLabel, removeLabel.
    */
   public List<Label> getLabels() {
-    return mLabels;
+    return labels;
   }
 
   /** Updates a label in the list. Maintains label sort order. */
@@ -50,12 +50,12 @@ public abstract class LabelListHolder {
   public abstract void updateLabel(Experiment experiment, Label label);
 
   void updateLabelWithoutSorting(Label label) {
-    for (int i = 0; i < mLabels.size(); i++) {
-      Label next = mLabels.get(i);
+    for (int i = 0; i < labels.size(); i++) {
+      Label next = labels.get(i);
       if (!TextUtils.equals(label.getLabelId(), next.getLabelId())) {
         continue;
       }
-      mLabels.set(i, label);
+      labels.set(i, label);
     }
   }
 
@@ -63,7 +63,7 @@ public abstract class LabelListHolder {
 
   /** Adds a label to the object's list of labels. The list will still be sorted by timestamp. */
   void addLabel(Label label) {
-    mLabels.add(label);
+    labels.add(label);
     sortLabels();
     if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
       onPictureLabelAdded(label);
@@ -79,9 +79,9 @@ public abstract class LabelListHolder {
    * executed when the deletion is final (user opts not to undo).
    */
   public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label toDelete, String experimentId) {
-    for (Label label : mLabels) {
+    for (Label label : labels) {
       if (TextUtils.equals(label.getLabelId(), toDelete.getLabelId())) {
-        mLabels.remove(label);
+        labels.remove(label);
         break;
       }
     }
@@ -96,11 +96,11 @@ public abstract class LabelListHolder {
   }
 
   private void sortLabels() {
-    Collections.sort(mLabels, Label.COMPARATOR_BY_TIMESTAMP);
+    Collections.sort(labels, Label.COMPARATOR_BY_TIMESTAMP);
   }
 
   protected void setLabels(List<Label> labels) {
-    mLabels = labels;
+    this.labels = labels;
   }
 
   protected abstract void onPictureLabelAdded(Label label);

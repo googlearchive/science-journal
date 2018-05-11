@@ -19,7 +19,7 @@ import android.support.design.widget.Snackbar;
 
 /** Allows us to only show one snackbar at a time. */
 public class SnackbarManager {
-  private Snackbar mVisibleSnackbar = null;
+  private Snackbar visibleSnackbar = null;
 
   public void showSnackbar(Snackbar bar) {
     // TODO: UX asks for the Snackbar to be shown above the external axis...
@@ -29,7 +29,7 @@ public class SnackbarManager {
 
           @Override
           public void onDismissed(Snackbar snackbar, int event) {
-            mVisibleSnackbar = null;
+            visibleSnackbar = null;
           }
 
           @Override
@@ -37,11 +37,11 @@ public class SnackbarManager {
         });
     hideVisibleSnackbar();
     bar.show();
-    mVisibleSnackbar = bar;
+    visibleSnackbar = bar;
   }
 
   public boolean snackbarIsVisible() {
-    return mVisibleSnackbar != null;
+    return visibleSnackbar != null;
   }
 
   /**
@@ -50,12 +50,12 @@ public class SnackbarManager {
    */
   public void onDestroy() {
     hideVisibleSnackbar();
-    mVisibleSnackbar = null;
+    visibleSnackbar = null;
   }
 
   public void hideVisibleSnackbar() {
-    if (mVisibleSnackbar != null) {
-      mVisibleSnackbar.dismiss();
+    if (visibleSnackbar != null) {
+      visibleSnackbar.dismiss();
     }
   }
 }

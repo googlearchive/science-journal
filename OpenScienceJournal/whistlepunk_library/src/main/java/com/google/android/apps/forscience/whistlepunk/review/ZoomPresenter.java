@@ -43,9 +43,9 @@ public class ZoomPresenter {
 
   private static final String TAG = "ZoomPresenter";
 
-  private final int mIdealNumberOfDisplayedDatapoints;
-  private TrialStats mTrialStats;
-  private int mCurrentTier;
+  private final int idealNumberOfDisplayedDatapoints;
+  private TrialStats trialStats;
+  private int currentTier;
 
   public ZoomPresenter() {
     this(IDEAL_NUMBER_OF_DISPLAYED_DATAPOINTS);
@@ -53,21 +53,21 @@ public class ZoomPresenter {
 
   @VisibleForTesting
   public ZoomPresenter(int idealNumberOfDisplayedDatapoints) {
-    mIdealNumberOfDisplayedDatapoints = idealNumberOfDisplayedDatapoints;
+    this.idealNumberOfDisplayedDatapoints = idealNumberOfDisplayedDatapoints;
   }
 
   public void setRunStats(TrialStats stats) {
-    mTrialStats = stats;
+    trialStats = stats;
   }
 
   public int updateTier(long loadedRange) {
-    mCurrentTier =
-        computeTier(mCurrentTier, mIdealNumberOfDisplayedDatapoints, mTrialStats, loadedRange);
-    return mCurrentTier;
+    currentTier =
+        computeTier(currentTier, idealNumberOfDisplayedDatapoints, trialStats, loadedRange);
+    return currentTier;
   }
 
   public int getCurrentTier() {
-    return mCurrentTier;
+    return currentTier;
   }
 
   @VisibleForTesting

@@ -22,25 +22,25 @@ import java.util.Map;
 import java.util.Set;
 
 public class EnablementController {
-  private Set<String> mDisabledCheckboxes = new ArraySet<>();
-  private Set<String> mCheckedBoxes = new ArraySet<>();
-  private Map<String, Consumer<Boolean>> mEnablementListeners = new ArrayMap<>();
+  private Set<String> disabledCheckboxes = new ArraySet<>();
+  private Set<String> checkedBoxes = new ArraySet<>();
+  private Map<String, Consumer<Boolean>> enablementListeners = new ArrayMap<>();
 
   public void addEnablementListener(String sensorKey, Consumer<Boolean> listener) {
-    mEnablementListeners.put(sensorKey, listener);
+    enablementListeners.put(sensorKey, listener);
     listener.take(isEnabled(sensorKey));
   }
 
   public void clearEnablementListener(String sensorKey) {
-    mEnablementListeners.remove(sensorKey);
+    enablementListeners.remove(sensorKey);
   }
 
   public void setChecked(String sensorKey, boolean isChecked) {
-    changeInclusion(mCheckedBoxes, sensorKey, isChecked);
-    if (mCheckedBoxes.size() == 1) {
-      setEnabled(mCheckedBoxes.iterator().next(), false);
+    changeInclusion(checkedBoxes, sensorKey, isChecked);
+    if (checkedBoxes.size() == 1) {
+      setEnabled(checkedBoxes.iterator().next(), false);
     } else {
-      for (String key : mCheckedBoxes) {
+      for (String key : checkedBoxes) {
         setEnabled(key, true);
       }
     }
@@ -53,8 +53,8 @@ public class EnablementController {
   }
 
   private void setEnabled(String sensorKey, boolean isEnabled) {
-    changeInclusion(mDisabledCheckboxes, sensorKey, !isEnabled);
-    Consumer<Boolean> listener = mEnablementListeners.get(sensorKey);
+    changeInclusion(disabledCheckboxes, sensorKey, !isEnabled);
+    Consumer<Boolean> listener = enablementListeners.get(sensorKey);
     if (listener != null) {
       listener.take(isEnabled);
     }
@@ -69,10 +69,10 @@ public class EnablementController {
   }
 
   private boolean isEnabled(String sensorKey) {
-    return !mDisabledCheckboxes.contains(sensorKey);
+    return !disabledCheckboxes.contains(sensorKey);
   }
 
   public void onDestroy() {
-    mEnablementListeners.clear();
+    enablementListeners.clear();
   }
 }

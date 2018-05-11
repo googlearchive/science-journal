@@ -45,9 +45,9 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class SensorCardPresenterTest {
-  private RecorderControllerImpl mRecorderController;
-  private SensorRegistry mSensorRegistry;
-  private List<String> mStoppedSensorIds = new ArrayList<>();
+  private RecorderControllerImpl recorderController;
+  private SensorRegistry sensorRegistry;
+  private List<String> stoppedSensorIds = new ArrayList<>();
 
   @Test
   public void testExtrasIncludedInLayout() {
@@ -146,7 +146,7 @@ public class SensorCardPresenterTest {
     SensorCardPresenter scp = createSCP();
     // Don't stop anything if we've never had a sensorId
     scp.destroy();
-    assertEquals(0, mStoppedSensorIds.size());
+    assertEquals(0, stoppedSensorIds.size());
   }
 
   @Test
@@ -184,8 +184,8 @@ public class SensorCardPresenterTest {
 
   @NonNull
   private RecorderControllerImpl getRecorderController() {
-    if (mRecorderController == null) {
-      mRecorderController =
+    if (recorderController == null) {
+      recorderController =
           new RecorderControllerImpl(
               getContext(),
               new MemorySensorEnvironment(null, null, null, null),
@@ -197,19 +197,19 @@ public class SensorCardPresenterTest {
               new FakeAppearanceProvider()) {
             @Override
             public void stopObserving(String sensorId, String observerId) {
-              mStoppedSensorIds.add(sensorId);
+              stoppedSensorIds.add(sensorId);
               super.stopObserving(sensorId, observerId);
             }
           };
     }
-    return mRecorderController;
+    return recorderController;
   }
 
   private SensorRegistry getSensorRegistry() {
-    if (mSensorRegistry == null) {
-      mSensorRegistry = SensorRegistry.createWithBuiltinSensors(getContext());
+    if (sensorRegistry == null) {
+      sensorRegistry = SensorRegistry.createWithBuiltinSensors(getContext());
     }
-    return mSensorRegistry;
+    return sensorRegistry;
   }
 
   private Context getContext() {

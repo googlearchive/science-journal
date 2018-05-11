@@ -29,14 +29,14 @@ import java.util.Objects;
 public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
   public static final String SENSOR_TAG_UNDEFINED = "undefined";
 
-  private final long mTimestampMillis;
-  private final double mValue;
-  private final String mSensorTag;
+  private final long timestampMillis;
+  private final double value;
+  private final String sensorTag;
 
   public ScalarReading(long timestampMillis, double value, String sensorTag) {
-    mTimestampMillis = timestampMillis;
-    mValue = value;
-    mSensorTag = sensorTag;
+    this.timestampMillis = timestampMillis;
+    this.value = value;
+    this.sensorTag = sensorTag;
   }
 
   public ScalarReading(long timestampMillis, double value) {
@@ -69,23 +69,23 @@ public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
 
     final ScalarReading that = (ScalarReading) o;
 
-    if (mTimestampMillis != that.mTimestampMillis) {
+    if (timestampMillis != that.timestampMillis) {
       return false;
     }
-    if (!Objects.equals(mSensorTag, that.mSensorTag)) {
+    if (!Objects.equals(sensorTag, that.sensorTag)) {
       return false;
     }
-    return Double.compare(that.mValue, mValue) == 0;
+    return Double.compare(that.value, value) == 0;
   }
 
   @Override
   public int hashCode() {
     int result;
     long temp;
-    result = (int) (mTimestampMillis ^ (mTimestampMillis >>> 32));
-    temp = Double.doubleToLongBits(mValue);
+    result = (int) (timestampMillis ^ (timestampMillis >>> 32));
+    temp = Double.doubleToLongBits(value);
     result = 31 * result + (int) (temp ^ (temp >>> 32));
-    result = 31 * result + mSensorTag.hashCode();
+    result = 31 * result + sensorTag.hashCode();
     return result;
   }
 
@@ -93,29 +93,29 @@ public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
   public String toString() {
     return "ScalarReading{"
         + "mTimestampMillis="
-        + mTimestampMillis
+        + timestampMillis
         + ", mValue="
-        + mValue
+        + value
         + ", mSensorTag="
-        + mSensorTag
+        + sensorTag
         + '}';
   }
 
   @Override
   public long getCollectedTimeMillis() {
-    return mTimestampMillis;
+    return timestampMillis;
   }
 
   public double getValue() {
-    return mValue;
+    return value;
   }
 
   public String getSensorTag() {
-    return mSensorTag;
+    return sensorTag;
   }
 
   @Override
   public int compareTo(ScalarReading another) {
-    return Long.compare(mTimestampMillis, another.mTimestampMillis);
+    return Long.compare(timestampMillis, another.timestampMillis);
   }
 }

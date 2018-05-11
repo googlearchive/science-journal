@@ -26,18 +26,18 @@ import java.util.HashSet;
 
 /** Combines two different options storage: the one provided first overrides the second one. */
 public class OverlayOptionsStorage implements NewOptionsStorage {
-  private final NewOptionsStorage mTopStorage;
-  private final NewOptionsStorage mBackingStorage;
+  private final NewOptionsStorage topStorage;
+  private final NewOptionsStorage backingStorage;
 
   public OverlayOptionsStorage(NewOptionsStorage topStorage, NewOptionsStorage backingStorage) {
-    mTopStorage = topStorage;
-    mBackingStorage = backingStorage;
+    this.topStorage = topStorage;
+    this.backingStorage = backingStorage;
   }
 
   @Override
   public WriteableSensorOptions load(FailureListener onFailures) {
-    final WriteableSensorOptions top = mTopStorage.load(onFailures);
-    final WriteableSensorOptions backing = mBackingStorage.load(onFailures);
+    final WriteableSensorOptions top = topStorage.load(onFailures);
+    final WriteableSensorOptions backing = backingStorage.load(onFailures);
 
     return new WriteableSensorOptions() {
       @Override

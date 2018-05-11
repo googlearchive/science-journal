@@ -18,12 +18,12 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 class TestDevicesPresenter implements DevicesPresenter {
   public String experimentId;
   public String sensorId;
-  private MemorySensorGroup mAvailableDevices;
-  private SensorGroup mPairedDevices;
+  private MemorySensorGroup availableDevices;
+  private SensorGroup pairedDevices;
 
   public TestDevicesPresenter(MemorySensorGroup availableDevices, MemorySensorGroup pairedDevices) {
-    this.mAvailableDevices = availableDevices;
-    this.mPairedDevices = pairedDevices;
+    this.availableDevices = availableDevices;
+    this.pairedDevices = pairedDevices;
   }
 
   @Override
@@ -38,12 +38,12 @@ class TestDevicesPresenter implements DevicesPresenter {
 
   @Override
   public SensorGroup getPairedSensorGroup() {
-    return mPairedDevices;
+    return pairedDevices;
   }
 
   @Override
   public SensorGroup getAvailableSensorGroup() {
-    return mAvailableDevices;
+    return availableDevices;
   }
 
   @Override
@@ -55,6 +55,6 @@ class TestDevicesPresenter implements DevicesPresenter {
   }
 
   public void setPairedDevices(SensorGroup pairedDevices) {
-    mPairedDevices = pairedDevices;
+    this.pairedDevices = pairedDevices;
   }
 }

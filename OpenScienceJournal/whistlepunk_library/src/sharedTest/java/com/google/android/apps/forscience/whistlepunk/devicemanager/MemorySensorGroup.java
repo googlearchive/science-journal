@@ -22,36 +22,36 @@ import java.util.List;
 import org.junit.Assert;
 
 class MemorySensorGroup implements SensorGroup {
-  private LinkedHashMap<String, ConnectableSensor> mSensors = new LinkedHashMap<>();
-  private DeviceRegistry mDeviceRegistry;
+  private LinkedHashMap<String, ConnectableSensor> sensors = new LinkedHashMap<>();
+  private DeviceRegistry deviceRegistry;
 
   public MemorySensorGroup(DeviceRegistry deviceRegistry) {
-    mDeviceRegistry = deviceRegistry;
+    this.deviceRegistry = deviceRegistry;
   }
 
   @Override
   public boolean hasSensorKey(String sensorKey) {
-    return mSensors.containsKey(sensorKey);
+    return sensors.containsKey(sensorKey);
   }
 
   @Override
   public void addSensor(String sensorKey, ConnectableSensor sensor) {
-    mSensors.put(sensorKey, sensor);
+    sensors.put(sensorKey, sensor);
   }
 
   @Override
   public boolean removeSensor(String prefKey) {
-    return mSensors.remove(prefKey) != null;
+    return sensors.remove(prefKey) != null;
   }
 
   @Override
   public void replaceSensor(String sensorKey, ConnectableSensor sensor) {
-    mSensors.put(sensorKey, sensor);
+    sensors.put(sensorKey, sensor);
   }
 
   @Override
   public int getSensorCount() {
-    return mSensors.size();
+    return sensors.size();
   }
 
   @Override
@@ -69,14 +69,14 @@ class MemorySensorGroup implements SensorGroup {
 
   @Override
   public boolean addAvailableSensor(String sensorKey, ConnectableSensor sensor) {
-    return mSensors.containsKey(sensorKey);
+    return sensors.containsKey(sensorKey);
   }
 
   @Override
   public void onSensorAddedElsewhere(String newKey, ConnectableSensor sensor) {}
 
   public String getKey(int location) {
-    return new ArrayList<>(mSensors.keySet()).get(location);
+    return new ArrayList<>(sensors.keySet()).get(location);
   }
 
   public int size() {
@@ -84,7 +84,7 @@ class MemorySensorGroup implements SensorGroup {
   }
 
   public void removeAll() {
-    mSensors.clear();
+    sensors.clear();
   }
 
   public String getTitle(int i) {
@@ -94,12 +94,12 @@ class MemorySensorGroup implements SensorGroup {
   public String getDeviceName(int i) {
     ConnectableSensor sensor = getSensor(i);
     String address = sensor.getSpec().getDeviceAddress();
-    InputDeviceSpec device = mDeviceRegistry.getDevice(sensor.getSpec().getType(), address);
-    Assert.assertNotNull(address + " not in " + mDeviceRegistry, device);
+    InputDeviceSpec device = deviceRegistry.getDevice(sensor.getSpec().getType(), address);
+    Assert.assertNotNull(address + " not in " + deviceRegistry, device);
     return device.getName();
   }
 
   private ConnectableSensor getSensor(int i) {
-    return new ArrayList<>(mSensors.values()).get(i);
+    return new ArrayList<>(sensors.values()).get(i);
   }
 }

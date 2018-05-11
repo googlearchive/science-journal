@@ -59,14 +59,14 @@ public class DataService extends Service {
   }
 
   private class DataBinder extends Binder {
-    private AppSingleton mSingleton;
+    private AppSingleton singleton;
 
     public DataBinder(AppSingleton singleton) {
-      mSingleton = singleton;
+      this.singleton = singleton;
     }
 
     public AppSingleton getData() {
-      return mSingleton;
+      return singleton;
     }
   }
 
@@ -90,17 +90,17 @@ public class DataService extends Service {
           if (appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE)) {
             emitter.setDisposable(
                 new Disposable() {
-                  public boolean mDisposed = false;
+                  public boolean disposed = false;
 
                   @Override
                   public void dispose() {
                     appContext.unbindService(conn);
-                    mDisposed = true;
+                    disposed = true;
                   }
 
                   @Override
                   public boolean isDisposed() {
-                    return mDisposed;
+                    return disposed;
                   }
                 });
           } else {

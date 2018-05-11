@@ -43,36 +43,36 @@ public class ReviewExternalAxisView extends ExternalAxisView {
   public void onDraw(Canvas canvas) {
     super.onDraw(canvas);
     // Draw the main line
-    canvas.drawLine(mPaddingLeft, mPaddingTop, mWidth - mPaddingRight, mPaddingTop, mPaint);
+    canvas.drawLine(paddingLeft, paddingTop, width - paddingRight, paddingTop, paint);
 
-    if (mTimeBetweenTicks == 0 || mFormat == null) {
+    if (timeBetweenTicks == 0 || format == null) {
       return;
     }
 
-    if (mTimeBetweenTicks < ExternalAxisController.MS_IN_SEC) {
+    if (timeBetweenTicks < ExternalAxisController.MS_IN_SEC) {
       // Adjust the time and distance between ticks so that there is at least one
       // second per labeled tick.
-      mTimeBetweenTicks = ExternalAxisController.MS_IN_SEC / 2;
+      timeBetweenTicks = ExternalAxisController.MS_IN_SEC / 2;
     } else {
       // Round to label at seconds.
-      mTimeBetweenTicks =
-          ((int) mTimeBetweenTicks / ExternalAxisController.MS_IN_SEC)
+      timeBetweenTicks =
+          ((int) timeBetweenTicks / ExternalAxisController.MS_IN_SEC)
               * ExternalAxisController.MS_IN_SEC;
     }
 
     // Recalculate distance between ticks.
-    mDistanceBetweenTicks =
-        super.getOffsetForTimestamp(mRecordingStart + mTimeBetweenTicks)
-            - super.getOffsetForTimestamp(mRecordingStart);
+    distanceBetweenTicks =
+        super.getOffsetForTimestamp(recordingStart + timeBetweenTicks)
+            - super.getOffsetForTimestamp(recordingStart);
 
     // Don't draw any ticks before the padding.
-    long minTickTime = getTimestampForOffset(mPaddingLeft);
-    int multiplier = (int) Math.ceil((minTickTime - mRecordingStart) * 1.0 / mTimeBetweenTicks);
-    long firstTickTime = multiplier * mTimeBetweenTicks + mRecordingStart;
+    long minTickTime = getTimestampForOffset(paddingLeft);
+    int multiplier = (int) Math.ceil((minTickTime - recordingStart) * 1.0 / timeBetweenTicks);
+    long firstTickTime = multiplier * timeBetweenTicks + recordingStart;
 
     // Label ticks starting with mRecordingStart.
     boolean labelTick = multiplier % 2 == 0;
 
-    super.drawTicks(canvas, firstTickTime, mXMax, labelTick, mPaddingTop + mTickPaddingTop);
+    super.drawTicks(canvas, firstTickTime, xMax, labelTick, paddingTop + tickPaddingTop);
   }
 }

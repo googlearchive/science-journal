@@ -28,9 +28,9 @@ import com.google.common.base.Preconditions;
  * prevent leaks, do not hold references to an ActiveBundle longer than necessary.
  */
 public class ActiveBundle {
-  private final WriteableSensorOptions mBundle;
-  private final Consumer<ReadableSensorOptions> mOnOptionsChanged;
-  private final OnErrorListener mOnEntryError;
+  private final WriteableSensorOptions bundle;
+  private final Consumer<ReadableSensorOptions> onOptionsChanged;
+  private final OnErrorListener onEntryError;
 
   public interface OnErrorListener {
     void onError(String error, View relevantView);
@@ -40,9 +40,9 @@ public class ActiveBundle {
       WriteableSensorOptions bundle,
       Consumer<ReadableSensorOptions> onOptionsChanged,
       OnErrorListener onEntryError) {
-    mOnEntryError = onEntryError;
-    mBundle = Preconditions.checkNotNull(bundle);
-    mOnOptionsChanged = Preconditions.checkNotNull(onOptionsChanged);
+    this.onEntryError = onEntryError;
+    this.bundle = Preconditions.checkNotNull(bundle);
+    this.onOptionsChanged = Preconditions.checkNotNull(onOptionsChanged);
   }
 
   /**
@@ -51,7 +51,7 @@ public class ActiveBundle {
    *     change listener.
    */
   public ReadableSensorOptions getReadOnly() {
-    return mBundle.getReadOnly();
+    return bundle.getReadOnly();
   }
 
   public void changeBoolean(String key, boolean value) {
@@ -71,15 +71,15 @@ public class ActiveBundle {
   }
 
   public void changeString(String key, String value) {
-    mBundle.put(key, value);
+    bundle.put(key, value);
     notifyListener();
   }
 
   public void reportError(String message, View view) {
-    mOnEntryError.onError(message, view);
+    onEntryError.onError(message, view);
   }
 
   private void notifyListener() {
-    mOnOptionsChanged.take(mBundle.getReadOnly());
+    onOptionsChanged.take(bundle.getReadOnly());
   }
 }

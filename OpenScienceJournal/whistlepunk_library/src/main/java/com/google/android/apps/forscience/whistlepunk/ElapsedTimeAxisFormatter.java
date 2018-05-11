@@ -27,34 +27,34 @@ import android.util.LruCache;
 // TODO: Switch to using JodaTime library or DateUtils.formatElapsedTime.
 public class ElapsedTimeAxisFormatter {
 
-  private static ElapsedTimeAxisFormatter sInstance;
-  private final String mSmallFormat;
-  private final String mLargeFormat;
-  private final String mSmallFormatTenths;
-  private final String mLargeFormatTenths;
-  private LruCache<Long, String> mCacheWithTenths;
-  private LruCache<Long, String> mCacheWithoutTenths;
+  private static ElapsedTimeAxisFormatter instance;
+  private final String smallFormat;
+  private final String largeFormat;
+  private final String smallFormatTenths;
+  private final String largeFormatTenths;
+  private LruCache<Long, String> cacheWithTenths;
+  private LruCache<Long, String> cacheWithoutTenths;
 
-  private final ReusableFormatter mFormatter;
+  private final ReusableFormatter formatter;
 
   public static ElapsedTimeAxisFormatter getInstance(Context context) {
-    if (sInstance == null) {
-      sInstance = new ElapsedTimeAxisFormatter(context);
+    if (instance == null) {
+      instance = new ElapsedTimeAxisFormatter(context);
     }
-    return sInstance;
+    return instance;
   }
 
   private ElapsedTimeAxisFormatter(Context context) {
     Resources res = context.getResources();
-    mSmallFormat = res.getString(R.string.elapsed_time_axis_format_small);
-    mLargeFormat = res.getString(R.string.elapsed_time_axis_format_large);
-    mSmallFormatTenths = res.getString(R.string.elapsed_time_axis_format_small_tenths);
-    mLargeFormatTenths = res.getString(R.string.elapsed_time_axis_format_large_tenths);
+    smallFormat = res.getString(R.string.elapsed_time_axis_format_small);
+    largeFormat = res.getString(R.string.elapsed_time_axis_format_large);
+    smallFormatTenths = res.getString(R.string.elapsed_time_axis_format_small_tenths);
+    largeFormatTenths = res.getString(R.string.elapsed_time_axis_format_large_tenths);
 
-    mFormatter = new ReusableFormatter();
+    formatter = new ReusableFormatter();
 
-    mCacheWithTenths = new LruCache<>(128 /* entries */);
-    mCacheWithoutTenths = new LruCache<>(128 /* entries */);
+    cacheWithTenths = new LruCache<>(128 /* entries */);
+    cacheWithoutTenths = new LruCache<>(128 /* entries */);
   }
 
   /**
@@ -73,10 +73,10 @@ public class ElapsedTimeAxisFormatter {
     String formattedString;
     if (includeTenths) {
       timeIndex = elapsedTimeMs / 100;
-      formattedString = mCacheWithTenths.get(timeIndex);
+      formattedString = cacheWithTenths.get(timeIndex);
     } else {
       timeIndex = elapsedTimeMs / 1000;
-      formattedString = mCacheWithoutTenths.get(timeIndex);
+      formattedString = cacheWithoutTenths.get(timeIndex);
     }
 
     // Cache hit
@@ -92,28 +92,27 @@ public class ElapsedTimeAxisFormatter {
           ElapsedTimeUtils.getTenthsOfSecs(absoluteElapsedTimeMs, hours, minutes, seconds);
       if (hours > 0) {
         formattedString =
-            mFormatter.format(mLargeFormatTenths, hours, minutes, seconds, tenths).toString();
+            formatter.format(largeFormatTenths, hours, minutes, seconds, tenths).toString();
       } else {
-        formattedString =
-            mFormatter.format(mSmallFormatTenths, minutes, seconds, tenths).toString();
+        formattedString = formatter.format(smallFormatTenths, minutes, seconds, tenths).toString();
       }
     } else {
       if (hours > 0) {
-        formattedString = mFormatter.format(mLargeFormat, hours, minutes, seconds).toString();
+        formattedString = formatter.format(largeFormat, hours, minutes, seconds).toString();
       } else {
-        formattedString = mFormatter.format(mSmallFormat, minutes, seconds).toString();
+        formattedString = formatter.format(smallFormat, minutes, seconds).toString();
       }
     }
 
     boolean isNegative = elapsedTimeMs < 0;
     if (isNegative) {
-      formattedString = mFormatter.format("-%s", formattedString).toString();
+      formattedString = formatter.format("-%s", formattedString).toString();
     }
 
     if (includeTenths) {
-      mCacheWithTenths.put(timeIndex, formattedString);
+      cacheWithTenths.put(timeIndex, formattedString);
     } else {
-      mCacheWithoutTenths.put(timeIndex, formattedString);
+      cacheWithoutTenths.put(timeIndex, formattedString);
     }
 
     return formattedString;

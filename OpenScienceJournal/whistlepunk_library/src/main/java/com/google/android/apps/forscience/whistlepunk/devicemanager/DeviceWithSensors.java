@@ -26,36 +26,36 @@ import java.util.List;
 import java.util.Map;
 
 public class DeviceWithSensors {
-  private final InputDeviceSpec mDevice;
-  private final List<String> mSensorKeys = new ArrayList<>();
+  private final InputDeviceSpec device;
+  private final List<String> sensorKeys = new ArrayList<>();
 
   public DeviceWithSensors(InputDeviceSpec device) {
-    mDevice = device;
+    this.device = device;
   }
 
   public void addSensorKey(String sensorKey) {
-    if (!mSensorKeys.contains(sensorKey)) {
-      mSensorKeys.add(sensorKey);
+    if (!sensorKeys.contains(sensorKey)) {
+      sensorKeys.add(sensorKey);
     }
   }
 
   public String getName() {
-    return mDevice.getName();
+    return device.getName();
   }
 
   public boolean isSameSensor(InputDeviceSpec spec) {
-    return mDevice.isSameSensor(spec);
+    return device.isSameSensor(spec);
   }
 
   void addToRegistry(ConnectableSensorRegistry registry, SensorRegistry sensorRegistry) {
-    registry.addMyDevice(mDevice, sensorRegistry, Lists.<String>newArrayList(mSensorKeys));
+    registry.addMyDevice(device, sensorRegistry, Lists.<String>newArrayList(sensorKeys));
   }
 
   public Drawable getIconDrawable(
       Context context,
       SensorAppearanceProvider appearanceProvider,
       Map<String, ConnectableSensor> sensorMap) {
-    Drawable selfDrawable = mDevice.getSensorAppearance().getIconDrawable(context);
+    Drawable selfDrawable = device.getSensorAppearance().getIconDrawable(context);
     if (selfDrawable != null) {
       return selfDrawable;
     }
@@ -71,7 +71,7 @@ public class DeviceWithSensors {
       Context context,
       SensorAppearanceProvider appearanceProvider,
       Map<String, ConnectableSensor> sensorMap) {
-    for (String sensorKey : mSensorKeys) {
+    for (String sensorKey : sensorKeys) {
       ConnectableSensor sensor = sensorMap.get(sensorKey);
       Drawable sensorDrawable = sensor.getAppearance(appearanceProvider).getIconDrawable(context);
       if (sensorDrawable != null) {
@@ -82,10 +82,10 @@ public class DeviceWithSensors {
   }
 
   public List<String> getSensorKeys() {
-    return mSensorKeys;
+    return sensorKeys;
   }
 
   public InputDeviceSpec getSpec() {
-    return mDevice;
+    return device;
   }
 }

@@ -32,20 +32,20 @@ public class AudioAnalyzer {
   private static final Comparator<Peak> FREQUENCY_ASCENDING =
       (first, second) -> (int) Math.signum(first.getFrequency() - second.getFrequency());
 
-  private final FftAnalyzer mFftAnalyzer;
-  private final GoertzelAnalyzer mGoertzelAnalyzer;
-  private final List<Peak> mPeaks = new ArrayList<>(20);
+  private final FftAnalyzer fftAnalyzer;
+  private final GoertzelAnalyzer goertzelAnalyzer;
+  private final List<Peak> peaks = new ArrayList<>(20);
   // Map approximate fundamental frequency to list of actual frequencies. We use a TreeMap
   // instead of an Android SparseArray so that this audio code can be transpiled with j2objc.
   private final Map<Integer, List<Double>> mapOfFundamentalFrequencies = new TreeMap<>();
 
   public AudioAnalyzer(int sampleRateInHz) {
-    mFftAnalyzer = new FftAnalyzer(sampleRateInHz);
-    mGoertzelAnalyzer = new GoertzelAnalyzer(sampleRateInHz);
+    fftAnalyzer = new FftAnalyzer(sampleRateInHz);
+    goertzelAnalyzer = new GoertzelAnalyzer(sampleRateInHz);
   }
 
   public Double detectFundamentalFrequency(short[] samples) {
-    mPeaks.clear();
+    peaks.clear();
     mapOfFundamentalFrequencies.clear();
 
     // Don't bother trying to determine the frequency if the buffer is half (or
@@ -64,21 +64,21 @@ public class AudioAnalyzer {
       return null;
     }
 
-    mFftAnalyzer.findPeaks(samples, mPeaks);
-    // At this point, mPeaks is sorted by FFT value, in descending order.
-    if (mPeaks.isEmpty()) {
+    fftAnalyzer.findPeaks(samples, peaks);
+    // At this point, peaks is sorted by FFT value, in descending order.
+    if (peaks.isEmpty()) {
       return null;
     }
 
     // Use Goertzel analyzer to more accurately determine the frequency of each peak.
-    for (Peak peak : mPeaks) {
+    for (Peak peak : peaks) {
       double frequency =
-          mGoertzelAnalyzer.findFrequencyWithHighestPower(samples, peak.getFrequencyEstimate());
+          goertzelAnalyzer.findFrequencyWithHighestPower(samples, peak.getFrequencyEstimate());
       peak.setFrequency(frequency);
     }
 
-    Peak tallestPeak = mPeaks.get(0);
-    if (mPeaks.size() == 1) {
+    Peak tallestPeak = peaks.get(0);
+    if (peaks.size() == 1) {
       return tallestPeak.getFrequency();
     }
 
@@ -98,19 +98,19 @@ public class AudioAnalyzer {
    * output. Returns null if no harmonic ratios are identified.
    */
   private Double determineFundamentalFrequencyFromHarmonics() {
-    Collections.sort(mPeaks, FREQUENCY_ASCENDING);
+    Collections.sort(peaks, FREQUENCY_ASCENDING);
 
     // Look for harmonic ratios to determine the fundamental frequency.
     List<Harmonic> harmonics = new ArrayList<>();
     // We look for harmonics 1 through 8, and even more if there are more than 8 peaks.
     // TODO(lizlooney): 8 is a hand-picked number that should be set via constructor.
-    int maxHarmonic = Math.max(8, mPeaks.size());
+    int maxHarmonic = Math.max(8, peaks.size());
     // Look at the ratios between peak frequencies.
-    for (int i = 0; i < mPeaks.size(); i++) {
-      Peak peakI = mPeaks.get(i);
+    for (int i = 0; i < peaks.size(); i++) {
+      Peak peakI = peaks.get(i);
       // Find harmonics between peakI and other peaks.
-      for (int j = i + 1; j < mPeaks.size(); j++) {
-        Peak peakJ = mPeaks.get(j);
+      for (int j = i + 1; j < peaks.size(); j++) {
+        Peak peakJ = peaks.get(j);
         Harmonic harmonic = identifyHarmonicRatio(peakI, peakJ, maxHarmonic);
         if (harmonic != null) {
           harmonics.add(harmonic);

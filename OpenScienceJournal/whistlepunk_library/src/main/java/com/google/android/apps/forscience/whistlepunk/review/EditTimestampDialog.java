@@ -40,11 +40,11 @@ public class EditTimestampDialog extends DialogFragment {
   private static final String KEY_CURRENT_MS = "keyCurrentMs";
 
   // TODO do we need to save these for rotation? Or can they be local vars?
-  private boolean mIsEditingStart;
-  private TimestampPickerController mPicker;
+  private boolean isEditingStart;
+  private TimestampPickerController picker;
 
-  private EditText mInputText;
-  private TimestampPickerController.TimestampPickerListener mListener;
+  private EditText inputText;
+  private TimestampPickerController.TimestampPickerListener listener;
 
   public static EditTimestampDialog newInstance(
       boolean isEditingStart, long minMs, long maxMs, long zeroMs, long currentMs) {
@@ -66,19 +66,19 @@ public class EditTimestampDialog extends DialogFragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mIsEditingStart = getArguments().getBoolean(KEY_EDITING_START);
-    mPicker =
+    isEditingStart = getArguments().getBoolean(KEY_EDITING_START);
+    picker =
         new TimestampPickerController(
             Locale.getDefault(),
             getActivity(),
-            mIsEditingStart,
+            isEditingStart,
             new TimestampPickerController.OnTimestampErrorListener() {
               @Override
               public void onTimestampError(int errorId) {
-                mInputText.setError(mInputText.getContext().getResources().getString(errorId));
+                inputText.setError(inputText.getContext().getResources().getString(errorId));
               }
             });
-    if (mListener != null) {
+    if (listener != null) {
       setupListener();
     }
   }
@@ -89,21 +89,21 @@ public class EditTimestampDialog extends DialogFragment {
     long maxMs = getArguments().getLong(KEY_MAX_MS);
     long zeroMs = getArguments().getLong(KEY_ZERO_MS);
     long currentMs = getArguments().getLong(KEY_CURRENT_MS);
-    mPicker.setTimestampRange(minMs, maxMs, zeroMs, currentMs);
+    picker.setTimestampRange(minMs, maxMs, zeroMs, currentMs);
 
     final AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
     View rootView =
         LayoutInflater.from(getActivity()).inflate(R.layout.edit_timestamp_dialog, null);
 
-    mInputText = (EditText) rootView.findViewById(R.id.timestamp_text);
-    mInputText.setText(mPicker.getTimeString());
+    inputText = (EditText) rootView.findViewById(R.id.timestamp_text);
+    inputText.setText(picker.getTimeString());
 
-    mInputText.setOnEditorActionListener(
+    inputText.setOnEditorActionListener(
         new TextView.OnEditorActionListener() {
           @Override
           public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-              if (mPicker.trySavingTimestamp(mInputText.getText().toString())) {
+              if (picker.trySavingTimestamp(inputText.getText().toString())) {
                 getDialog().dismiss();
               }
               return true;
@@ -114,7 +114,7 @@ public class EditTimestampDialog extends DialogFragment {
 
     alertDialog.setView(rootView);
     alertDialog.setTitle(
-        mIsEditingStart ? R.string.edit_crop_start_time_title : R.string.edit_crop_end_time_title);
+        isEditingStart ? R.string.edit_crop_start_time_title : R.string.edit_crop_end_time_title);
 
     alertDialog.setPositiveButton(
         android.R.string.ok,
@@ -147,7 +147,7 @@ public class EditTimestampDialog extends DialogFragment {
             new View.OnClickListener() {
               @Override
               public void onClick(View v) {
-                if (mPicker.trySavingTimestamp(mInputText.getText().toString())) {
+                if (picker.trySavingTimestamp(inputText.getText().toString())) {
                   dialog.dismiss();
                 }
               }
@@ -156,23 +156,23 @@ public class EditTimestampDialog extends DialogFragment {
 
   public void setOnPickerTimestampChangedListener(
       final TimestampPickerController.TimestampPickerListener listener) {
-    mListener = listener;
-    if (mPicker != null) {
+    this.listener = listener;
+    if (picker != null) {
       setupListener();
     }
   }
 
   private void setupListener() {
-    mPicker.setOnPickerTimestampChangedListener(
+    picker.setOnPickerTimestampChangedListener(
         new TimestampPickerController.TimestampPickerListener() {
           @Override
           public int isValidTimestamp(long timestamp, boolean isStartCrop) {
-            return mListener.isValidTimestamp(timestamp, isStartCrop);
+            return listener.isValidTimestamp(timestamp, isStartCrop);
           }
 
           @Override
           public void onPickerTimestampChanged(long timestamp, boolean isStartCrop) {
-            mListener.onPickerTimestampChanged(timestamp, isStartCrop);
+            listener.onPickerTimestampChanged(timestamp, isStartCrop);
             getDialog().dismiss();
           }
         });

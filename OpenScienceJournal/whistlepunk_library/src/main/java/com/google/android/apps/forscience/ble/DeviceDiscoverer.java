@@ -53,10 +53,10 @@ public abstract class DeviceDiscoverer {
     public int lastRssi;
   }
 
-  private final Context mContext;
-  private final BluetoothAdapter mBluetoothAdapter;
-  private final ArrayMap<String, DeviceRecord> mDevices;
-  private Callback mCallback;
+  private final Context context;
+  private final BluetoothAdapter bluetoothAdapter;
+  private final ArrayMap<String, DeviceRecord> devices;
+  private Callback callback;
 
   public static DeviceDiscoverer getNewInstance(Context context) {
     DeviceDiscoverer discoverer;
@@ -69,15 +69,15 @@ public abstract class DeviceDiscoverer {
   }
 
   protected DeviceDiscoverer(Context context) {
-    mContext = context.getApplicationContext();
+    this.context = context.getApplicationContext();
     BluetoothManager manager =
-        (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
-    mBluetoothAdapter = manager.getAdapter();
-    mDevices = new ArrayMap<>();
+        (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);
+    bluetoothAdapter = manager.getAdapter();
+    devices = new ArrayMap<>();
   }
 
   public BluetoothAdapter getBluetoothAdapter() {
-    return mBluetoothAdapter;
+    return bluetoothAdapter;
   }
 
   public void startScanning(Callback callback) {
@@ -85,9 +85,9 @@ public abstract class DeviceDiscoverer {
       throw new IllegalArgumentException("Callback must not be null");
     }
 
-    mCallback = callback;
+    this.callback = callback;
     // Clear out the older devices so we don't think they're still there.
-    mDevices.clear();
+    devices.clear();
     onStartScanning();
   }
 
@@ -95,29 +95,29 @@ public abstract class DeviceDiscoverer {
 
   public void stopScanning() {
     onStopScanning();
-    mCallback = null;
+    callback = null;
   }
 
   public abstract void onStopScanning();
 
   public boolean canScan() {
-    return mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
+    return bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
   }
 
   protected void addOrUpdateDevice(WhistlepunkBleDevice device, int rssi) {
-    DeviceRecord deviceRecord = mDevices.get(device.getAddress());
+    DeviceRecord deviceRecord = devices.get(device.getAddress());
     boolean previouslyFound = deviceRecord != null;
     if (!previouslyFound) {
       deviceRecord = new DeviceRecord();
       deviceRecord.device = device;
-      mDevices.put(device.getAddress(), deviceRecord);
+      devices.put(device.getAddress(), deviceRecord);
     }
     // Update the last RSSI and last seen
     deviceRecord.lastRssi = rssi;
     deviceRecord.lastSeenTimestampMs = SystemClock.uptimeMillis();
 
-    if (!previouslyFound && mCallback != null) {
-      mCallback.onDeviceFound(deviceRecord);
+    if (!previouslyFound && callback != null) {
+      callback.onDeviceFound(deviceRecord);
     }
   }
 }

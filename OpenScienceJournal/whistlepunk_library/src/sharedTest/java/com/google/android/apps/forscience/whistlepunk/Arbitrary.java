@@ -25,13 +25,13 @@ import java.util.Random;
 @SuppressWarnings("WeakerAccess")
 public class Arbitrary {
   // TODO(saff): share code with Weather?
-  private static Random sRandom = null;
+  private static Random random = null;
 
   private static Random getRandom() {
-    if (sRandom == null) {
-      sRandom = new Random();
+    if (random == null) {
+      random = new Random();
     }
-    return sRandom;
+    return random;
   }
 
   public static int integer() {

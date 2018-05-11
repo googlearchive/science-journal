@@ -48,18 +48,18 @@ public class AudioPlaybackController {
   private static final int PLAYBACK_STATUS_NOT_PLAYING = 0;
   private static final int PLAYBACK_STATUS_LOADING = 1;
   private static final int PLAYBACK_STATUS_PLAYING = 2;
-  private int mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
-  private SimpleJsynAudioGenerator mAudioGenerator;
-  private Handler mHandler;
-  private Runnable mPlaybackRunnable;
-  private AudioPlaybackListener mAudioPlaybackListener;
+  private int playbackStatus = PLAYBACK_STATUS_NOT_PLAYING;
+  private SimpleJsynAudioGenerator audioGenerator;
+  private Handler handler;
+  private Runnable playbackRunnable;
+  private AudioPlaybackListener audioPlaybackListener;
 
-  private double mYMin;
-  private double mYMax;
+  private double yMin;
+  private double yMax;
 
   public AudioPlaybackController(AudioPlaybackListener listener) {
-    mAudioGenerator = new SimpleJsynAudioGenerator();
-    mAudioPlaybackListener = listener;
+    audioGenerator = new SimpleJsynAudioGenerator();
+    audioPlaybackListener = listener;
   }
 
   public void startPlayback(
@@ -69,7 +69,7 @@ public class AudioPlaybackController {
       long xMinToLoad,
       final String trialId,
       final String sensorId) {
-    if (mPlaybackStatus != PLAYBACK_STATUS_NOT_PLAYING) {
+    if (playbackStatus != PLAYBACK_STATUS_NOT_PLAYING) {
       return;
     }
     final long xMax = lastTimestamp;
@@ -85,20 +85,20 @@ public class AudioPlaybackController {
       }
     }
 
-    mHandler = new Handler();
-    mPlaybackRunnable =
+    handler = new Handler();
+    playbackRunnable =
         new Runnable() {
-          boolean mFullyLoaded = false;
-          boolean mLoading = false;
+          boolean fullyLoaded = false;
+          boolean loading = false;
 
           @Override
           public void run() {
             if (audioData.size() == 0) {
-              if (mFullyLoaded) {
+              if (fullyLoaded) {
                 stopPlayback();
               } else {
                 // Wait for more data to come in.
-                mHandler.postDelayed(mPlaybackRunnable, LAST_TONE_DURATION_MS);
+                handler.postDelayed(playbackRunnable, LAST_TONE_DURATION_MS);
               }
               return;
             }
@@ -112,9 +112,9 @@ public class AudioPlaybackController {
             long lastTimestamp =
                 audioData.size() == 0 ? timestamp : audioData.get(audioData.size() - 1).getX();
             if (audioData.size() < DATAPOINTS_PER_AUDIO_PLAYBACK_LOAD / 10
-                && !mFullyLoaded
-                && !mLoading) {
-              mLoading = true;
+                && !fullyLoaded
+                && !loading) {
+              loading = true;
               dataController.getScalarReadings(
                   trialId,
                   sensorId, /* tier 0 */
@@ -124,9 +124,9 @@ public class AudioPlaybackController {
                   new MaybeConsumer<ScalarReadingList>() {
                     @Override
                     public void success(ScalarReadingList list) {
-                      mLoading = false;
+                      loading = false;
                       if (list.size() == 0) {
-                        mFullyLoaded = true;
+                        fullyLoaded = true;
                       }
                       audioData.addAll(list.asDataPoints());
                     }
@@ -141,9 +141,9 @@ public class AudioPlaybackController {
 
             // Now play the tone, and get set up for the next callback, if one is needed.
             try {
-              mAudioGenerator.addData(timestamp, point.getY(), mYMin, mYMax);
-              if (mAudioPlaybackListener != null) {
-                mAudioPlaybackListener.onTimestampUpdated(timestamp);
+              audioGenerator.addData(timestamp, point.getY(), yMin, yMax);
+              if (audioPlaybackListener != null) {
+                audioPlaybackListener.onTimestampUpdated(timestamp);
               }
             } finally {
               // If this is the second to last point, some special handling
@@ -152,10 +152,10 @@ public class AudioPlaybackController {
                 // Play the next note after the time between this point and the
                 // next point has elapsed.
                 // mPlaybackIndex is now the index of the next point.
-                mHandler.postDelayed(mPlaybackRunnable, audioData.get(0).getX() - timestamp);
+                handler.postDelayed(playbackRunnable, audioData.get(0).getX() - timestamp);
               } else {
                 // The last note gets some duration.
-                mHandler.postDelayed(mPlaybackRunnable, LAST_TONE_DURATION_MS);
+                handler.postDelayed(playbackRunnable, LAST_TONE_DURATION_MS);
               }
             }
           }
@@ -171,12 +171,12 @@ public class AudioPlaybackController {
         new MaybeConsumer<ScalarReadingList>() {
           @Override
           public void success(ScalarReadingList list) {
-            if (mAudioPlaybackListener != null) {
+            if (audioPlaybackListener != null) {
               audioData.addAll(list.asDataPoints());
-              mAudioGenerator.startPlaying();
-              mPlaybackRunnable.run();
-              mPlaybackStatus = PLAYBACK_STATUS_PLAYING;
-              mAudioPlaybackListener.onAudioPlaybackStarted();
+              audioGenerator.startPlaying();
+              playbackRunnable.run();
+              playbackStatus = PLAYBACK_STATUS_PLAYING;
+              audioPlaybackListener.onAudioPlaybackStarted();
             } else {
               stopPlayback();
             }
@@ -191,39 +191,39 @@ public class AudioPlaybackController {
           }
         });
 
-    mPlaybackStatus = PLAYBACK_STATUS_LOADING;
+    playbackStatus = PLAYBACK_STATUS_LOADING;
   }
 
   public void stopPlayback() {
-    if (mPlaybackStatus == PLAYBACK_STATUS_NOT_PLAYING) {
+    if (playbackStatus == PLAYBACK_STATUS_NOT_PLAYING) {
       return;
     }
-    mHandler.removeCallbacks(mPlaybackRunnable);
-    mAudioGenerator.stopPlaying();
-    mPlaybackStatus = PLAYBACK_STATUS_NOT_PLAYING;
-    if (mAudioPlaybackListener != null) {
-      mAudioPlaybackListener.onAudioPlaybackStopped();
+    handler.removeCallbacks(playbackRunnable);
+    audioGenerator.stopPlaying();
+    playbackStatus = PLAYBACK_STATUS_NOT_PLAYING;
+    if (audioPlaybackListener != null) {
+      audioPlaybackListener.onAudioPlaybackStopped();
     }
   }
 
   public void clearListener() {
-    mAudioPlaybackListener = null;
+    audioPlaybackListener = null;
   }
 
   public boolean isPlaying() {
-    return mPlaybackStatus == PLAYBACK_STATUS_PLAYING;
+    return playbackStatus == PLAYBACK_STATUS_PLAYING;
   }
 
   public boolean isNotPlaying() {
-    return mPlaybackStatus == PLAYBACK_STATUS_NOT_PLAYING;
+    return playbackStatus == PLAYBACK_STATUS_NOT_PLAYING;
   }
 
   public void setSonificationType(String sonificationType) {
-    mAudioGenerator.setSonificationType(sonificationType);
+    audioGenerator.setSonificationType(sonificationType);
   }
 
   public void setYAxisRange(double yMin, double yMax) {
-    mYMin = yMin;
-    mYMax = yMax;
+    this.yMin = yMin;
+    this.yMax = yMax;
   }
 }

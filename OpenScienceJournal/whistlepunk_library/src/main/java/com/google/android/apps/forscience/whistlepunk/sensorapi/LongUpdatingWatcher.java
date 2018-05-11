@@ -20,16 +20,16 @@ import android.view.View;
 
 /** TextWatcher that updates an ActiveBundle with a long value when the text is changed. */
 public class LongUpdatingWatcher extends OptionsUpdatingWatcher {
-  private final String mBundleKey;
+  private final String bundleKey;
 
   public LongUpdatingWatcher(ActiveBundle activeBundle, String bundleKey, View view) {
     super(activeBundle, view);
-    mBundleKey = bundleKey;
+    this.bundleKey = bundleKey;
   }
 
   @Override
   protected void applyUpdate(String string, ActiveBundle activeBundle) {
     Long value = Long.valueOf(string);
-    activeBundle.changeLong(mBundleKey, value);
+    activeBundle.changeLong(bundleKey, value);
   }
 }

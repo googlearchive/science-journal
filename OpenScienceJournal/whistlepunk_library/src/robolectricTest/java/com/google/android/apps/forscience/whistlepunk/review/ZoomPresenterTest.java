@@ -36,8 +36,8 @@ import org.robolectric.RuntimeEnvironment;
 @RunWith(RobolectricTestRunner.class)
 public class ZoomPresenterTest {
 
-  private final InMemorySensorDatabase mDatabase = new InMemorySensorDatabase();
-  private final MemoryMetadataManager mMetadataManager = new MemoryMetadataManager();
+  private final InMemorySensorDatabase database = new InMemorySensorDatabase();
+  private final MemoryMetadataManager metadataManager = new MemoryMetadataManager();
 
   @Test
   public void testTierZeroWhenNotManyDataPoints() {
@@ -125,7 +125,7 @@ public class ZoomPresenterTest {
   private SensorRecorder createRecorder(ManualSensor sensor) {
     return sensor.createRecorder(
         RuntimeEnvironment.application.getApplicationContext(),
-        mDatabase.makeSimpleRecordingController(mMetadataManager),
+        database.makeSimpleRecordingController(metadataManager),
         new RecordingSensorObserver());
   }
 }

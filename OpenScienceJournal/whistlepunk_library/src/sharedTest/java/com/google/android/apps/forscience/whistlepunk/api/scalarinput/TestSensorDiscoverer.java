@@ -33,18 +33,18 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
-  private final Executor mExecutor;
-  private String mServiceName;
-  private List<Device> mDevices = new ArrayList<>();
-  private Multimap<String, TestSensor> mSensors = HashMultimap.create();
+  private final Executor executor;
+  private String serviceName;
+  private List<Device> devices = new ArrayList<>();
+  private Multimap<String, TestSensor> sensors = HashMultimap.create();
 
   public TestSensorDiscoverer(String serviceName) {
     this(serviceName, MoreExecutors.directExecutor());
   }
 
   public TestSensorDiscoverer(String serviceName, Executor executor) {
-    mServiceName = serviceName;
-    mExecutor = executor;
+    this.serviceName = serviceName;
+    this.executor = executor;
   }
 
   @NonNull
@@ -72,17 +72,17 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
 
   @Override
   public String getName() throws RemoteException {
-    return mServiceName;
+    return serviceName;
   }
 
   public void addDevice(String deviceId, String name) {
-    mDevices.add(new Device(deviceId, name));
+    devices.add(new Device(deviceId, name));
   }
 
   @Override
   public void scanDevices(final IDeviceConsumer c) throws RemoteException {
-    for (final Device device : mDevices) {
-      mExecutor.execute(
+    for (final Device device : devices) {
+      executor.execute(
           new Runnable() {
             @Override
             public void run() {
@@ -94,7 +94,7 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
   }
 
   protected void onDevicesDone(final IDeviceConsumer c) {
-    mExecutor.execute(
+    executor.execute(
         new Runnable() {
           @Override
           public void run() {
@@ -108,11 +108,11 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
   }
 
   public void addSensor(String deviceId, TestSensor sensor) {
-    mSensors.put(deviceId, sensor);
+    sensors.put(deviceId, sensor);
   }
 
   public void removeSensor(String deviceId, String address) {
-    Collection<TestSensor> testSensors = mSensors.get(deviceId);
+    Collection<TestSensor> testSensors = sensors.get(deviceId);
     Iterator<TestSensor> iter = testSensors.iterator();
     while (iter.hasNext()) {
       if (iter.next().getSensorAddress().equals(address)) {
@@ -123,8 +123,8 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
 
   @Override
   public void scanSensors(String deviceId, final ISensorConsumer c) throws RemoteException {
-    for (final TestSensor sensor : mSensors.get(deviceId)) {
-      mExecutor.execute(
+    for (final TestSensor sensor : sensors.get(deviceId)) {
+      executor.execute(
           new Runnable() {
             @Override
             public void run() {
@@ -136,7 +136,7 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
   }
 
   protected void onSensorsDone(final ISensorConsumer c) {
-    mExecutor.execute(
+    executor.execute(
         new Runnable() {
           @Override
           public void run() {
@@ -174,17 +174,17 @@ public class TestSensorDiscoverer extends ISensorDiscoverer.Stub {
   }
 
   private class Device {
-    private final String mDeviceId;
-    private final String mName;
+    private final String deviceId;
+    private final String name;
 
     public Device(String deviceId, String name) {
-      mDeviceId = deviceId;
-      mName = name;
+      this.deviceId = deviceId;
+      this.name = name;
     }
 
     public void deliverTo(IDeviceConsumer c) {
       try {
-        c.onDeviceFound(mDeviceId, mName, null);
+        c.onDeviceFound(deviceId, name, null);
       } catch (RemoteException e) {
         throw new RuntimeException(e);
       }

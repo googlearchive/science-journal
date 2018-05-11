@@ -22,22 +22,22 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelV
 // from it as well.
 @Deprecated
 public abstract class LabelValue {
-  GoosciLabelValue.LabelValue mValue;
+  GoosciLabelValue.LabelValue value;
 
   public LabelValue(GoosciLabelValue.LabelValue value) {
-    mValue = value;
+    this.value = value;
   }
 
   public LabelValue() {
-    mValue = new GoosciLabelValue.LabelValue();
+    value = new GoosciLabelValue.LabelValue();
   }
 
   public GoosciLabelValue.LabelValue getValue() {
-    return mValue;
+    return value;
   }
 
   protected void setValue(GoosciLabelValue.LabelValue value) {
-    mValue = value;
+    this.value = value;
   }
 
   public abstract boolean canEditTimestamp();

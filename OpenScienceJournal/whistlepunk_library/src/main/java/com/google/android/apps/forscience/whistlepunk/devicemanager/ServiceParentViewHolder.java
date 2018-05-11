@@ -37,47 +37,47 @@ import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.common.base.Supplier;
 
 public class ServiceParentViewHolder extends OffsetParentViewHolder {
-  private final TextView mNameView;
-  private final ImageView mIcon;
-  private final ToggleArrow mCollapsedIcon;
-  private final ImageView mErrorIcon;
-  private final ImageButton mRefreshIcon;
-  private Animation mRotation;
-  private ServiceParentListItem mItem;
+  private final TextView nameView;
+  private final ImageView icon;
+  private final ToggleArrow collapsedIcon;
+  private final ImageView errorIcon;
+  private final ImageButton refreshIcon;
+  private Animation rotation;
+  private ServiceParentListItem item;
 
   public ServiceParentViewHolder(View itemView, Supplier<Integer> offsetSupplier) {
     super(itemView, offsetSupplier);
-    mNameView = (TextView) itemView.findViewById(R.id.service_name);
-    mIcon = (ImageView) itemView.findViewById(R.id.service_icon);
-    mCollapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
-    mErrorIcon = (ImageView) itemView.findViewById(R.id.btn_service_connection_error);
-    mRefreshIcon = (ImageButton) itemView.findViewById(R.id.btn_service_refresh);
+    nameView = (TextView) itemView.findViewById(R.id.service_name);
+    icon = (ImageView) itemView.findViewById(R.id.service_icon);
+    collapsedIcon = (ToggleArrow) itemView.findViewById(R.id.collapsed_icon);
+    errorIcon = (ImageView) itemView.findViewById(R.id.btn_service_connection_error);
+    refreshIcon = (ImageButton) itemView.findViewById(R.id.btn_service_refresh);
   }
 
   public void bind(
       final ServiceParentListItem item, FragmentManager fragmentManager, final Runnable onRefresh) {
-    mItem = item;
+    this.item = item;
     String name = item.getServiceName();
-    Context context = mIcon.getContext();
-    mNameView.setText(name);
+    Context context = this.icon.getContext();
+    nameView.setText(name);
 
     Drawable icon = item.getDeviceIcon(context);
     if (item.getProviderId().equals(BleSensorSpec.TYPE)) {
-      icon = ColorUtils.colorDrawable(mIcon.getContext(), icon, R.color.color_accent);
+      icon = ColorUtils.colorDrawable(this.icon.getContext(), icon, R.color.color_accent);
     }
-    mIcon.setImageDrawable(icon);
+    this.icon.setImageDrawable(icon);
 
     if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
-      mCollapsedIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-      mCollapsedIcon.setIsFocusable(false);
+      collapsedIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+      collapsedIcon.setIsFocusable(false);
       updateActionStrings(item.isInitiallyExpanded());
     } else {
-      mCollapsedIcon.setActionStrings(
+      collapsedIcon.setActionStrings(
           R.string.btn_expand_service_for, R.string.btn_contract_service_for, name);
     }
 
-    mCollapsedIcon.setActive(item.isInitiallyExpanded(), false);
-    mCollapsedIcon.setOnClickListener(
+    collapsedIcon.setActive(item.isInitiallyExpanded(), false);
+    collapsedIcon.setOnClickListener(
         new View.OnClickListener() {
           @Override
           public void onClick(View v) {
@@ -88,24 +88,24 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
         });
     final SensorDiscoverer.ServiceConnectionError error = item.getConnectionErrorIfAny();
     if (error == null) {
-      mErrorIcon.setVisibility(View.GONE);
-      mErrorIcon.setOnClickListener(null);
+      errorIcon.setVisibility(View.GONE);
+      errorIcon.setOnClickListener(null);
     } else {
-      mErrorIcon.setVisibility(View.VISIBLE);
-      mErrorIcon.setContentDescription(
+      errorIcon.setVisibility(View.VISIBLE);
+      errorIcon.setContentDescription(
           context
               .getResources()
               .getString(R.string.snackbar_source_error, error.getErrorMessage()));
-      mErrorIcon.setOnClickListener(getOnClickListener(error, fragmentManager));
+      errorIcon.setOnClickListener(getOnClickListener(error, fragmentManager));
     }
 
     boolean loading = item.isLoading();
     if (loading) {
       startLoadingAnimation();
     } else {
-      mRefreshIcon.setEnabled(true);
+      refreshIcon.setEnabled(true);
       stopRotation();
-      mRefreshIcon.setOnClickListener(
+      refreshIcon.setOnClickListener(
           new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,23 +117,23 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
           });
     }
 
-    mRefreshIcon.setContentDescription(
+    refreshIcon.setContentDescription(
         context.getResources().getString(R.string.refresh_device, name));
   }
 
   private void startLoadingAnimation() {
-    mRefreshIcon.setEnabled(false);
+    refreshIcon.setEnabled(false);
     stopRotation();
-    mRotation = AnimationUtils.loadAnimation(mRefreshIcon.getContext(), R.anim.reload_rotate);
-    mRefreshIcon.startAnimation(mRotation);
-    mRefreshIcon.setOnClickListener(null);
+    rotation = AnimationUtils.loadAnimation(refreshIcon.getContext(), R.anim.reload_rotate);
+    refreshIcon.startAnimation(rotation);
+    refreshIcon.setOnClickListener(null);
   }
 
   private void stopRotation() {
-    if (mRotation != null) {
-      mRotation.cancel();
-      mRotation = null;
-      mRefreshIcon.setRotation(0);
+    if (rotation != null) {
+      rotation.cancel();
+      rotation = null;
+      refreshIcon.setRotation(0);
     }
   }
 
@@ -157,8 +157,8 @@ public class ServiceParentViewHolder extends OffsetParentViewHolder {
   public void onExpansionToggled(boolean wasExpandedBefore) {
     super.onExpansionToggled(wasExpandedBefore);
     boolean isNowExpanded = !wasExpandedBefore;
-    mCollapsedIcon.setActive(isNowExpanded, true);
-    mItem.setIsCurrentlyExpanded(isNowExpanded);
+    collapsedIcon.setActive(isNowExpanded, true);
+    item.setIsCurrentlyExpanded(isNowExpanded);
     if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
       // For newer phones, we can update the content description on the row, and the arrow
       // does not need to be focusable for a11y.

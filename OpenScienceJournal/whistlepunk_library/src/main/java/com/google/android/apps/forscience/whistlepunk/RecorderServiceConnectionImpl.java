@@ -26,43 +26,43 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 class RecorderServiceConnectionImpl implements ServiceConnection, RecorderServiceConnection {
-  private final FailureListener mOnFailure;
-  private Queue<FallibleConsumer<IRecorderService>> mOperations = new LinkedList<>();
-  private IRecorderService mService;
+  private final FailureListener onFailure;
+  private Queue<FallibleConsumer<IRecorderService>> operations = new LinkedList<>();
+  private IRecorderService service;
 
   public RecorderServiceConnectionImpl(Context context, FailureListener onFailure) {
-    mOnFailure = onFailure;
+    this.onFailure = onFailure;
     context.bindService(new Intent(context, RecorderService.class), this, Context.BIND_AUTO_CREATE);
   }
 
   @Override
   public void onServiceConnected(ComponentName name, IBinder service) {
     RecorderService.Binder binder = (RecorderService.Binder) service;
-    mService = binder.getService();
-    while (!mOperations.isEmpty()) {
-      runOperation(mOperations.remove());
+    this.service = binder.getService();
+    while (!operations.isEmpty()) {
+      runOperation(operations.remove());
     }
   }
 
   private void runOperation(FallibleConsumer<IRecorderService> op) {
     try {
-      op.take(mService);
+      op.take(service);
     } catch (Exception e) {
-      mOnFailure.fail(e);
+      onFailure.fail(e);
     }
   }
 
   @Override
   public void onServiceDisconnected(ComponentName name) {
-    mService = null;
+    service = null;
   }
 
   @Override
   public void runWithService(FallibleConsumer<IRecorderService> c) {
-    if (mService != null) {
+    if (service != null) {
       runOperation(c);
     } else {
-      mOperations.add(c);
+      operations.add(c);
     }
   }
 }

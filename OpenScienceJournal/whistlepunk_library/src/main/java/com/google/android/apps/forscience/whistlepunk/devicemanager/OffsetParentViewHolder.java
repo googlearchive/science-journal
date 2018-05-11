@@ -20,7 +20,7 @@ import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import com.google.common.base.Supplier;
 
 public class OffsetParentViewHolder extends ParentViewHolder {
-  private final Supplier<Integer> mGlobalPositionOffset;
+  private final Supplier<Integer> globalPositionOffset;
 
   /**
    * Default constructor.
@@ -29,7 +29,7 @@ public class OffsetParentViewHolder extends ParentViewHolder {
    */
   public OffsetParentViewHolder(View itemView, Supplier<Integer> globalPositionOffset) {
     super(itemView);
-    mGlobalPositionOffset = globalPositionOffset;
+    this.globalPositionOffset = globalPositionOffset;
   }
 
   @Override
@@ -39,12 +39,12 @@ public class OffsetParentViewHolder extends ParentViewHolder {
         new ParentListItemExpandCollapseListener() {
           @Override
           public void onParentListItemExpanded(int position) {
-            superListener.onParentListItemExpanded(position - mGlobalPositionOffset.get());
+            superListener.onParentListItemExpanded(position - globalPositionOffset.get());
           }
 
           @Override
           public void onParentListItemCollapsed(int position) {
-            superListener.onParentListItemCollapsed(position - mGlobalPositionOffset.get());
+            superListener.onParentListItemCollapsed(position - globalPositionOffset.get());
           }
         });
   }

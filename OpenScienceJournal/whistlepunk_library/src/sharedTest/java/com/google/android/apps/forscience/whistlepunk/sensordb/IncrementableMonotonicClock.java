@@ -21,14 +21,14 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 /** A monotonic clock which only increments when requested. */
 public class IncrementableMonotonicClock implements Clock {
 
-  private long mNow = 0;
+  private long now = 0;
 
   @Override
   public long getNow() {
-    return mNow;
+    return now;
   }
 
   public void increment() {
-    mNow++;
+    now++;
   }
 }

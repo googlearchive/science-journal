@@ -31,8 +31,8 @@ public class ProtoSensorAppearance implements SensorAppearance {
   // TODO: Revisit this constant -- should it be even smaller, like 5?
   public static final int MAX_POINTS_AFTER_DECIMAL = 10;
 
-  private GoosciSensorAppearance.BasicSensorAppearance mProto;
-  private NumberFormat mNumberFormat;
+  private GoosciSensorAppearance.BasicSensorAppearance proto;
+  private NumberFormat numberFormat;
 
   public static SensorAppearance getAppearanceFromProtoOrProvider(
       GoosciSensorAppearance.BasicSensorAppearance proto,
@@ -48,18 +48,18 @@ public class ProtoSensorAppearance implements SensorAppearance {
   }
 
   public ProtoSensorAppearance(GoosciSensorAppearance.BasicSensorAppearance proto) {
-    mProto = proto;
-    mNumberFormat = SensorAppearanceProviderImpl.createNumberFormat(mProto.pointsAfterDecimal);
+    this.proto = proto;
+    numberFormat = SensorAppearanceProviderImpl.createNumberFormat(this.proto.pointsAfterDecimal);
   }
 
   @Override
   public String getName(Context context) {
-    return mProto.name;
+    return proto.name;
   }
 
   @Override
   public String getUnits(Context context) {
-    return mProto.units;
+    return proto.units;
   }
 
   @Override
@@ -69,7 +69,7 @@ public class ProtoSensorAppearance implements SensorAppearance {
 
   @Override
   public String getShortDescription(Context context) {
-    return mProto.shortDescription;
+    return proto.shortDescription;
   }
 
   @Override
@@ -101,11 +101,11 @@ public class ProtoSensorAppearance implements SensorAppearance {
 
   @Override
   public NumberFormat getNumberFormat() {
-    return mNumberFormat;
+    return numberFormat;
   }
 
   @Override
   public int getPointsAfterDecimal() {
-    return mProto.pointsAfterDecimal;
+    return proto.pointsAfterDecimal;
   }
 }

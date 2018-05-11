@@ -26,48 +26,48 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDat
 import io.reactivex.Single;
 
 public class MemorySensorEnvironment implements SensorEnvironment {
-  private final RecordingDataController mDataController;
-  private final Clock mClock;
-  private final AudioSource mAudioSource = new AudioSource();
-  private FakeBleClient mBleClient;
-  private SensorHistoryStorage mHistoryStorage;
+  private final RecordingDataController dataController;
+  private final Clock clock;
+  private final AudioSource audioSource = new AudioSource();
+  private FakeBleClient bleClient;
+  private SensorHistoryStorage historyStorage;
 
   public MemorySensorEnvironment(
       RecordingDataController dataController,
       FakeBleClient bleClient,
       SensorHistoryStorage shs,
       Clock clock) {
-    mDataController =
+    this.dataController =
         dataController != null
             ? dataController
             : new InMemorySensorDatabase().makeSimpleRecordingController();
-    mBleClient = bleClient;
-    mHistoryStorage = shs != null ? shs : new MemorySensorHistoryStorage();
-    mClock = clock;
+    this.bleClient = bleClient;
+    historyStorage = shs != null ? shs : new MemorySensorHistoryStorage();
+    this.clock = clock;
   }
 
   @Override
   public RecordingDataController getDataController() {
-    return mDataController;
+    return dataController;
   }
 
   @Override
   public Single<BleClient> getConnectedBleClient() {
-    return Single.just(mBleClient);
+    return Single.just(bleClient);
   }
 
   @Override
   public Clock getDefaultClock() {
-    return mClock;
+    return clock;
   }
 
   @Override
   public AudioSource getAudioSource() {
-    return mAudioSource;
+    return audioSource;
   }
 
   @Override
   public SensorHistoryStorage getSensorHistoryStorage() {
-    return mHistoryStorage;
+    return historyStorage;
   }
 }

@@ -20,18 +20,18 @@ import android.os.RemoteException;
 import com.google.android.apps.forscience.javalib.Consumer;
 
 class TestFinder extends Consumer<AppDiscoveryCallbacks> {
-  private final String mServiceId;
+  private final String serviceId;
   public ISensorObserver observer;
   public ISensorStatusListener listener;
 
   public TestFinder(String serviceId) {
-    mServiceId = serviceId;
+    this.serviceId = serviceId;
   }
 
   @Override
   public void take(AppDiscoveryCallbacks adc) {
     adc.onServiceFound(
-        mServiceId,
+        serviceId,
         new ISensorDiscoverer.Stub() {
           @Override
           public String getName() throws RemoteException {

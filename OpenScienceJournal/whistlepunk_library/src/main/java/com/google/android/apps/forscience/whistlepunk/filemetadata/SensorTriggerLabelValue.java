@@ -35,7 +35,7 @@ public class SensorTriggerLabelValue extends LabelValue {
 
   public SensorTriggerLabelValue(GoosciLabelValue.LabelValue value) {
     super(value);
-    mValue.type = GoosciLabelValue.LabelValue.ValueType.SENSOR_TRIGGER;
+    this.value.type = GoosciLabelValue.LabelValue.ValueType.SENSOR_TRIGGER;
   }
 
   @Override

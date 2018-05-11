@@ -25,8 +25,8 @@ public class DataRefresher extends Refresher {
 
   protected StreamConsumer streamConsumer;
   protected boolean streaming = false;
-  private double mValue;
-  private Clock mClock;
+  private double value;
+  private Clock clock;
 
   public DataRefresher(Scheduler scheduler, Clock clock) {
     this(scheduler, clock, SENSOR_REFRESH_RATE);
@@ -34,7 +34,7 @@ public class DataRefresher extends Refresher {
 
   public DataRefresher(Scheduler scheduler, Clock clock, int sensorRefreshRateMillis) {
     super(scheduler, Delay.millis(sensorRefreshRateMillis));
-    mClock = clock;
+    this.clock = clock;
   }
 
   public void setStreamConsumer(StreamConsumer consumer) {
@@ -53,20 +53,20 @@ public class DataRefresher extends Refresher {
   }
 
   public void setValue(double value) {
-    if (value != mValue) {
-      mValue = value;
+    if (value != this.value) {
+      this.value = value;
       refresh();
     }
   }
 
   public double getValue(long now) {
-    return mValue;
+    return value;
   }
 
   @Override
   protected boolean doRefresh() {
     if (streaming && streamConsumer != null) {
-      long now = mClock.getNow();
+      long now = clock.getNow();
       streamConsumer.addData(now, getValue(now));
     }
     return streaming;

@@ -26,15 +26,15 @@ public class StoringConsumer<T> implements MaybeConsumer<T> {
     return t.getValue();
   }
 
-  private T mValue;
+  private T value;
 
   @Override
   public void success(T value) {
-    mValue = value;
+    this.value = value;
   }
 
   public T getValue() {
-    return mValue;
+    return value;
   }
 
   @Override

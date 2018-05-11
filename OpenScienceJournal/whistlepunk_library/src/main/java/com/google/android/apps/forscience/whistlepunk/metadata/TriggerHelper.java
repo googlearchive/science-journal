@@ -41,59 +41,59 @@ public class TriggerHelper {
   private static final long TRIGGER_VIBRATION_DURATION_MS = 200;
   private static final long THROTTLE_LIMIT_MS = 200;
 
-  private static int sSoundId = -1;
-  private static SoundPool sSoundPool;
+  private static int soundId = -1;
+  private static SoundPool soundPool;
 
-  private Vibrator mVibrator;
-  private long mLastVibrationMs;
-  private long mLastAudioMs;
+  private Vibrator vibrator;
+  private long lastVibrationMs;
+  private long lastAudioMs;
 
   public TriggerHelper() {}
 
   public void doAudioAlert(Context context) {
     // Use a throttler to keep this from interrupting itself too much.
-    if (SystemClock.elapsedRealtime() - mLastAudioMs < THROTTLE_LIMIT_MS) {
+    if (SystemClock.elapsedRealtime() - lastAudioMs < THROTTLE_LIMIT_MS) {
       return;
     }
     SoundPool soundPool = getSoundPool(context);
-    if (sSoundId != -1) {
-      mLastAudioMs = SystemClock.elapsedRealtime();
-      soundPool.play(sSoundId, .8f, .8f, 0, 0, 1.0f);
+    if (soundId != -1) {
+      lastAudioMs = SystemClock.elapsedRealtime();
+      soundPool.play(soundId, .8f, .8f, 0, 0, 1.0f);
     }
   }
 
   private SoundPool getSoundPool(Context context) {
-    if (sSoundPool == null) {
+    if (TriggerHelper.soundPool == null) {
       if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-        sSoundPool = new SoundPool.Builder().build();
+        TriggerHelper.soundPool = new SoundPool.Builder().build();
       } else {
-        sSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        TriggerHelper.soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
       }
-      sSoundPool.load(context, R.raw.trigger_sound1, 0);
-      sSoundPool.setOnLoadCompleteListener(
+      TriggerHelper.soundPool.load(context, R.raw.trigger_sound1, 0);
+      TriggerHelper.soundPool.setOnLoadCompleteListener(
           new SoundPool.OnLoadCompleteListener() {
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-              sSoundId = sampleId;
+              soundId = sampleId;
               // Always play once directly after load, because only trying to do an
               // audio alert triggers a play.
-              sSoundPool.play(sSoundId, 1.0f, 1.0f, 0, 0, 1.0f);
+              TriggerHelper.soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);
             }
           });
     }
-    return sSoundPool;
+    return TriggerHelper.soundPool;
   }
 
   public void doVibrateAlert(Context context) {
     // Use a throttler to keep this from interrupting itself too much.
-    if (System.currentTimeMillis() - mLastVibrationMs < THROTTLE_LIMIT_MS) {
+    if (System.currentTimeMillis() - lastVibrationMs < THROTTLE_LIMIT_MS) {
       return;
     }
-    mLastVibrationMs = System.currentTimeMillis();
-    if (mVibrator == null) {
-      mVibrator = ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE));
+    lastVibrationMs = System.currentTimeMillis();
+    if (vibrator == null) {
+      vibrator = ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE));
     }
-    mVibrator.vibrate(TRIGGER_VIBRATION_DURATION_MS);
+    vibrator.vibrate(TRIGGER_VIBRATION_DURATION_MS);
   }
 
   public static boolean hasVibrator(Context context) {

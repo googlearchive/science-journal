@@ -31,14 +31,14 @@ public abstract class SensorChoice {
    * Unique ID for this source. Used for database lookup and communication with the (upcoming)
    * sensor service
    */
-  private final String mId;
+  private final String id;
 
   public SensorChoice(String id) {
-    mId = id;
+    this.id = id;
   }
 
   public String getId() {
-    return mId;
+    return id;
   }
 
   /**

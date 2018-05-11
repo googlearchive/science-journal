@@ -29,51 +29,51 @@ public class SimpleJsynAudioGenerator implements AudioGenerator {
   private static final String TAG = "SimpleJsynAudioGenerato";
   private static final int SAMPLE_RATE = 44100;
 
-  private final AndroidAudioForJSyn mAudioManager;
-  private final Synthesizer mSynth;
-  private JsynUnitVoiceAdapterInterface mAdapter = null;
-  private LineOut mLineOut;
-  private String mSonificationType = "";
+  private final AndroidAudioForJSyn audioManager;
+  private final Synthesizer synth;
+  private JsynUnitVoiceAdapterInterface adapter = null;
+  private LineOut lineOut;
+  private String sonificationType = "";
 
   public SimpleJsynAudioGenerator() {
     this(SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
   }
 
   public SimpleJsynAudioGenerator(String sonificationType) {
-    mAudioManager = new AndroidAudioForJSyn();
-    mSynth = JSyn.createSynthesizer(mAudioManager);
+    audioManager = new AndroidAudioForJSyn();
+    synth = JSyn.createSynthesizer(audioManager);
     // Add an output mixer.
-    mSynth.add(mLineOut = new LineOut());
+    synth.add(lineOut = new LineOut());
     setSonificationType(sonificationType);
   }
 
   @Override
   public void startPlaying() {
     // No input, dual channel (stereo) output.
-    mSynth.start(
+    synth.start(
         SAMPLE_RATE,
-        mAudioManager.getDefaultInputDeviceID(),
+        audioManager.getDefaultInputDeviceID(),
         0,
-        mAudioManager.getDefaultOutputDeviceID(),
+        audioManager.getDefaultOutputDeviceID(),
         2);
-    mLineOut.start();
+    lineOut.start();
   }
 
   @Override
   public void stopPlaying() {
-    if (mLineOut != null) {
-      mLineOut.stop();
+    if (lineOut != null) {
+      lineOut.stop();
     }
-    if (mSynth != null) {
-      mSynth.stop();
+    if (synth != null) {
+      synth.stop();
     }
   }
 
   @Override
   public void destroy() {
     reset();
-    mAdapter = null;
-    mLineOut = null;
+    adapter = null;
+    lineOut = null;
   }
 
   @Override
@@ -86,40 +86,40 @@ public class SimpleJsynAudioGenerator implements AudioGenerator {
   public void addData(long unusedTimestamp, double value, double min, double max) {
     // Assume data is only added near now, and in order.
     // TODO: use Jsyn scheduling to play data in timestamp order.
-    if (mAdapter == null) {
+    if (adapter == null) {
       return;
     }
     if (min >= max) {
       return;
     }
-    mAdapter.noteOn(value, min, max, mSynth.createTimeStamp());
+    adapter.noteOn(value, min, max, synth.createTimeStamp());
   }
 
   @Override
   public void setSonificationType(String sonificationType) {
-    if (TextUtils.equals(sonificationType, mSonificationType)) {
+    if (TextUtils.equals(sonificationType, this.sonificationType)) {
       return;
     }
-    mSonificationType = sonificationType;
-    if (mAdapter != null) {
+    this.sonificationType = sonificationType;
+    if (adapter != null) {
       disconnect();
     }
     ;
-    mAdapter = SonificationTypeAdapterFactory.getSonificationTypeAdapter(mSynth, sonificationType);
-    if (mAdapter != null) {
+    adapter = SonificationTypeAdapterFactory.getSonificationTypeAdapter(synth, sonificationType);
+    if (adapter != null) {
       // Connect the oscillator to the output (both stereo channels).
-      mAdapter.getVoice().getOutput().connect(0, mLineOut.input, 0);
-      mAdapter.getVoice().getOutput().connect(0, mLineOut.input, 1);
+      adapter.getVoice().getOutput().connect(0, lineOut.input, 0);
+      adapter.getVoice().getOutput().connect(0, lineOut.input, 1);
     } else {
       Log.wtf(TAG, "Unexpected sonfication type: " + sonificationType);
     }
   }
 
   private void disconnect() {
-    if (mAdapter != null) {
-      mAdapter.getVoice().getOutput().disconnect(0, mLineOut.input, 0);
-      mAdapter.getVoice().getOutput().disconnect(0, mLineOut.input, 1);
-      mAdapter = null;
+    if (adapter != null) {
+      adapter.getVoice().getOutput().disconnect(0, lineOut.input, 0);
+      adapter.getVoice().getOutput().disconnect(0, lineOut.input, 1);
+      adapter = null;
     }
   }
 }

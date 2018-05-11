@@ -35,7 +35,7 @@ public class ConductorVoice extends JsynUnitVoiceAdapter {
   public static final String TAG = "ConductorVoice";
   private static final boolean LOCAL_LOGV = false;
 
-  private final int[] mPitches;
+  private final int[] pitches;
 
   private static final int scale[] = {
     0 /* C */, 2 /* D */, 4 /* E */, 7 /* G */, 9 /* A */
@@ -53,9 +53,9 @@ public class ConductorVoice extends JsynUnitVoiceAdapter {
   double oldValue = Double.MIN_VALUE;
 
   public ConductorVoice(Synthesizer synth) {
-    mPitches = PitchGenerator.generatePitches(scale, PITCH_MIN, PITCH_MAX);
-    mVoice = new SineEnvelope();
-    synth.add(mVoice);
+    pitches = PitchGenerator.generatePitches(scale, PITCH_MIN, PITCH_MAX);
+    voice = new SineEnvelope();
+    synth.add(voice);
     EnvelopeDAHDSR DAHDSR = ((SineEnvelope) getVoice()).getDAHDSR();
     DAHDSR.hold.set(1000);
     DAHDSR.sustain.set(1000);
@@ -89,13 +89,13 @@ public class ConductorVoice extends JsynUnitVoiceAdapter {
       if (LOCAL_LOGV && oldValue != value) {
         Log.v(TAG, "value: " + value + " above threshold: " + thresh);
       }
-      int index = (int) Math.floor((value - thresh) / (max - thresh) * (mPitches.length - 1));
+      int index = (int) Math.floor((value - thresh) / (max - thresh) * (pitches.length - 1));
       if (index != prevIndex) {
         if (LOCAL_LOGV) {
           Log.v(TAG, "New Index: " + index);
         }
-        double freq = AudioMath.pitchToFrequency(mPitches[index]);
-        mVoice.noteOn(freq, AMP_VALUE, timeStamp);
+        double freq = AudioMath.pitchToFrequency(pitches[index]);
+        voice.noteOn(freq, AMP_VALUE, timeStamp);
         playing = true;
         prevIndex = index;
       }
@@ -103,7 +103,7 @@ public class ConductorVoice extends JsynUnitVoiceAdapter {
       if (playing && LOCAL_LOGV) {
         Log.v(TAG, "Note off with value: " + value + " and threshold " + thresh);
       }
-      mVoice.noteOff(timeStamp);
+      voice.noteOff(timeStamp);
       playing = false;
       prevIndex = -1;
     }

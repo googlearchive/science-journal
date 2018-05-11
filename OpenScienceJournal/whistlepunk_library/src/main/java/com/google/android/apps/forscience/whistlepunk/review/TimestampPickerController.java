@@ -54,19 +54,19 @@ public class TimestampPickerController {
     void onTimestampError(int errorId);
   }
 
-  private DateTime mRunStartTime;
-  private DateTime mRunEndTime;
-  private DateTime mZeroTime;
-  private DateTime mSelectedTime;
+  private DateTime runStartTime;
+  private DateTime runEndTime;
+  private DateTime zeroTime;
+  private DateTime selectedTime;
 
-  private String mNegativePrefix;
+  private String negativePrefix;
 
-  private PeriodFormatter mPeriodFormatter;
-  private Locale mLocale;
-  private boolean mIsStartCrop;
+  private PeriodFormatter periodFormatter;
+  private Locale locale;
+  private boolean isStartCrop;
 
-  private TimestampPickerListener mListener;
-  private OnTimestampErrorListener mErrorListener;
+  private TimestampPickerListener listener;
+  private OnTimestampErrorListener errorListener;
 
   public TimestampPickerController(
       Locale locale, Context context, boolean isStartCrop, OnTimestampErrorListener errorListener) {
@@ -87,12 +87,12 @@ public class TimestampPickerController {
       String hourMinuteDivider,
       String minuteSecondDivider,
       OnTimestampErrorListener errorListener) {
-    mLocale = locale;
-    mIsStartCrop = isStartCrop;
-    mErrorListener = errorListener;
-    mNegativePrefix = negativePrefix;
+    this.locale = locale;
+    this.isStartCrop = isStartCrop;
+    this.errorListener = errorListener;
+    this.negativePrefix = negativePrefix;
     // Builds the formatter, which will be used to read and write timestamp strings.
-    mPeriodFormatter =
+    periodFormatter =
         new PeriodFormatterBuilder()
             .rejectSignedValues(true) // Applies to all fields
             .printZeroAlways() // Applies to all fields
@@ -103,7 +103,7 @@ public class TimestampPickerController {
             .appendLiteral(minuteSecondDivider)
             .appendSecondsWithMillis()
             .toFormatter()
-            .withLocale(mLocale);
+            .withLocale(this.locale);
   }
 
   /**
@@ -116,39 +116,39 @@ public class TimestampPickerController {
    * @param currentValueMs The currently selected timestamp.
    */
   public void setTimestampRange(long minMs, long maxMs, long zeroMs, long currentValueMs) {
-    mRunStartTime = new DateTime(minMs);
-    mRunEndTime = new DateTime(maxMs);
-    mZeroTime = new DateTime(zeroMs);
-    mSelectedTime = new DateTime(currentValueMs);
+    runStartTime = new DateTime(minMs);
+    runEndTime = new DateTime(maxMs);
+    zeroTime = new DateTime(zeroMs);
+    selectedTime = new DateTime(currentValueMs);
   }
 
   public void setOnPickerTimestampChangedListener(
       TimestampPickerListener onPickerTimestampChangedListener) {
-    mListener = onPickerTimestampChangedListener;
+    listener = onPickerTimestampChangedListener;
   }
 
   public String getTimeString() {
     Duration duration;
     String prefix = "";
-    if (mSelectedTime.isAfter(mZeroTime) || mSelectedTime.isEqual(mZeroTime)) {
-      duration = new Duration(mZeroTime, mSelectedTime);
+    if (selectedTime.isAfter(zeroTime) || selectedTime.isEqual(zeroTime)) {
+      duration = new Duration(zeroTime, selectedTime);
     } else {
-      duration = new Duration(mSelectedTime, mZeroTime);
-      prefix = mNegativePrefix;
+      duration = new Duration(selectedTime, zeroTime);
+      prefix = negativePrefix;
     }
-    return prefix + mPeriodFormatter.print(duration.toPeriod());
+    return prefix + periodFormatter.print(duration.toPeriod());
   }
 
   /** Tries to save the timestamp back to the main activity. */
   public boolean trySavingTimestamp(String timeString) {
     int errorId = updateSelectedTime(timeString);
     if (errorId == NO_ERROR) {
-      if (mListener != null) {
-        mListener.onPickerTimestampChanged(mSelectedTime.getMillis(), mIsStartCrop);
+      if (listener != null) {
+        listener.onPickerTimestampChanged(selectedTime.getMillis(), isStartCrop);
       }
       return true;
     }
-    mErrorListener.onTimestampError(errorId);
+    errorListener.onTimestampError(errorId);
     return false;
   }
 
@@ -162,27 +162,27 @@ public class TimestampPickerController {
   @VisibleForTesting
   int updateSelectedTime(String timeString) {
     // See if it is negative separately from parsing.
-    boolean isNegative = timeString.startsWith(mNegativePrefix);
+    boolean isNegative = timeString.startsWith(negativePrefix);
     if (isNegative) {
       timeString = timeString.substring(1);
     }
     try {
-      Period selectedPeriod = mPeriodFormatter.parsePeriod(timeString);
+      Period selectedPeriod = periodFormatter.parsePeriod(timeString);
       if (isNegative) {
-        mSelectedTime = mZeroTime.minus(selectedPeriod);
+        selectedTime = zeroTime.minus(selectedPeriod);
       } else {
-        mSelectedTime = mZeroTime.plus(selectedPeriod);
+        selectedTime = zeroTime.plus(selectedPeriod);
       }
     } catch (IllegalArgumentException ex) {
       return R.string.timestamp_picker_format_error;
     }
 
     // Make sure it is in the run
-    if (mSelectedTime.isBefore(mRunStartTime) || mSelectedTime.isAfter(mRunEndTime)) {
+    if (selectedTime.isBefore(runStartTime) || selectedTime.isAfter(runEndTime)) {
       return R.string.timestamp_picker_range_error;
     }
-    if (mListener != null) {
-      return mListener.isValidTimestamp(mSelectedTime.getMillis(), mIsStartCrop);
+    if (listener != null) {
+      return listener.isValidTimestamp(selectedTime.getMillis(), isStartCrop);
     } else {
       return NO_ERROR;
     }
@@ -190,6 +190,6 @@ public class TimestampPickerController {
 
   @VisibleForTesting
   long getSelectedTime() {
-    return mSelectedTime.getMillis();
+    return selectedTime.getMillis();
   }
 }

@@ -85,10 +85,10 @@ public class SensorTypeProvider {
     }
   }
 
-  SensorType[] mSensors;
+  SensorType[] sensors;
 
   public SensorTypeProvider(Context context) {
-    mSensors =
+    sensors =
         new SensorType[] {
           new SensorType(
               context,
@@ -108,38 +108,38 @@ public class SensorTypeProvider {
   }
 
   public class SensorType {
-    private String mLabel;
-    private boolean mCustom;
-    private int mDrawableId;
-    private @SensorKind int mKind;
+    private String label;
+    private boolean custom;
+    private int drawableId;
+    private @SensorKind int kind;
 
     SensorType(
         Context context, @SensorKind int sensorKind, int nameId, int drawableId, boolean custom) {
-      mKind = sensorKind;
-      mLabel = context.getResources().getString(nameId);
-      mCustom = custom;
-      mDrawableId = drawableId;
+      kind = sensorKind;
+      label = context.getResources().getString(nameId);
+      this.custom = custom;
+      this.drawableId = drawableId;
     }
 
     public boolean isCustom() {
-      return mCustom;
+      return custom;
     }
 
     @Override
     public String toString() {
-      return mLabel;
+      return label;
     }
 
     public int getDrawableId() {
-      return mDrawableId;
+      return drawableId;
     }
 
     public @SensorKind int getSensorKind() {
-      return mKind;
+      return kind;
     }
   }
 
   public SensorType[] getSensors() {
-    return mSensors;
+    return sensors;
   }
 }

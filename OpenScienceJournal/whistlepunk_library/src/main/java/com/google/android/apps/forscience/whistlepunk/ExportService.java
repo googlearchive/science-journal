@@ -90,16 +90,16 @@ public class ExportService extends Service {
   private static final String ACTION_CLEAN_OLD_FILES =
       "com.google.android.apps.forscience.whistlepunk.action.CLEAN_OLD_FILES";
 
-  private final IBinder mBinder = new ExportServiceBinder();
+  private final IBinder binder = new ExportServiceBinder();
 
   // Make static so that all instances of this service can reach it.
-  private static final BehaviorSubject<ExportProgress> sProgressSubject =
+  private static final BehaviorSubject<ExportProgress> progressSubject =
       BehaviorSubject.createDefault(new ExportProgress("", ExportProgress.NOT_EXPORTING, 0));
 
   // Copied from IntentService: basically we do everything the same except wait to call stopSelf
   // until subscriptions finish.
-  private volatile Looper mServiceLooper;
-  private volatile ServiceHandler mServiceHandler;
+  private volatile Looper serviceLooper;
+  private volatile ServiceHandler serviceHandler;
 
   private final class ServiceHandler extends Handler {
     public ServiceHandler(Looper looper) {
@@ -123,16 +123,16 @@ public class ExportService extends Service {
     super.onCreate();
     HandlerThread thread = new HandlerThread("ExportService");
     thread.start();
-    mServiceLooper = thread.getLooper();
-    mServiceHandler = new ServiceHandler(mServiceLooper);
+    serviceLooper = thread.getLooper();
+    serviceHandler = new ServiceHandler(serviceLooper);
   }
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-    Message msg = mServiceHandler.obtainMessage();
+    Message msg = serviceHandler.obtainMessage();
     msg.arg1 = startId;
     msg.obj = intent;
-    mServiceHandler.sendMessage(msg);
+    serviceHandler.sendMessage(msg);
 
     return START_NOT_STICKY;
   }
@@ -215,11 +215,11 @@ public class ExportService extends Service {
   @Nullable
   @Override
   public IBinder onBind(Intent intent) {
-    return mBinder;
+    return binder;
   }
 
   public BehaviorSubject<ExportProgress> getProgressSubject() {
-    return sProgressSubject;
+    return progressSubject;
   }
 
   public static class ExportProgress {
@@ -228,60 +228,60 @@ public class ExportService extends Service {
     public static final int EXPORTING = 2;
     public static final int EXPORT_COMPLETE = 3;
 
-    private final String mId;
-    private final int mState;
-    private final int mProgress;
+    private final String id;
+    private final int state;
+    private final int progress;
 
-    private Throwable mError;
-    private Uri mFileUri;
+    private Throwable error;
+    private Uri fileUri;
 
     // id should be a UUID, like a trialId or an experimentId.
     public ExportProgress(String id, int state, int progress) {
-      mId = id;
-      mState = state;
-      mProgress = progress;
+      this.id = id;
+      this.state = state;
+      this.progress = progress;
     }
 
     public String getId() {
-      return mId;
+      return id;
     }
 
     public int getState() {
-      return mState;
+      return state;
     }
 
     public int getProgress() {
-      return mProgress;
+      return progress;
     }
 
     public Throwable getError() {
-      return mError;
+      return error;
     }
 
     public Uri getFileUri() {
-      return mFileUri;
+      return fileUri;
     }
 
     @Override
     public String toString() {
-      return "State: " + mState + " progress " + mProgress;
+      return "State: " + state + " progress " + progress;
     }
 
     public static ExportProgress getComplete(String id, Uri fileUri) {
       ExportProgress progress = new ExportProgress(id, EXPORT_COMPLETE, 0);
-      progress.mFileUri = fileUri;
+      progress.fileUri = fileUri;
       return progress;
     }
 
     public static ExportProgress fromThrowable(String id, Throwable throwable) {
       ExportProgress progress = new ExportProgress(id, ERROR, 0);
-      progress.mError = throwable;
+      progress.error = throwable;
       return progress;
     }
   }
 
   public static void resetProgress(String id) {
-    sProgressSubject.onNext(new ExportProgress(id, ExportProgress.NOT_EXPORTING, 0));
+    progressSubject.onNext(new ExportProgress(id, ExportProgress.NOT_EXPORTING, 0));
   }
 
   public static Observable<ExportProgress> bind(Context context) {
@@ -434,7 +434,7 @@ public class ExportService extends Service {
             || exportProgress.getProgress() % 20 == 0)) {
       Log.d(TAG, "Updating progress " + exportProgress + " from " + this);
     }
-    sProgressSubject.onNext(exportProgress);
+    progressSubject.onNext(exportProgress);
   }
 
   @NonNull
@@ -557,17 +557,17 @@ public class ExportService extends Service {
 
   private class TrialDataWriter implements Observer<ScalarReading> {
 
-    private final long mFirstTimeStamp;
-    private final long mLastTimeStamp;
-    private long mCurrentTimestamp = -1;
-    private long mFirstTimeStampWritten = -1;
+    private final long firstTimeStamp;
+    private final long lastTimeStamp;
+    private long currentTimestamp = -1;
+    private long firstTimeStampWritten = -1;
 
-    private ArrayMap<String, Double> mCurrentRow = new ArrayMap<>();
-    private OutputStreamWriter mOutputStreamWriter;
-    private final String mFileName;
-    private final boolean mRelativeTime;
-    private final String[] mSensorIds;
-    private final String mTrialId;
+    private ArrayMap<String, Double> currentRow = new ArrayMap<>();
+    private OutputStreamWriter outputStreamWriter;
+    private final String fileName;
+    private final boolean relativeTime;
+    private final String[] sensorIds;
+    private final String trialId;
 
     public TrialDataWriter(
         String trialId,
@@ -576,12 +576,12 @@ public class ExportService extends Service {
         String[] sensorIds,
         long firstTimeStamp,
         long lastTimeStamp) {
-      mTrialId = trialId;
-      mFileName = fileName;
-      mRelativeTime = relativeTime;
-      mSensorIds = sensorIds;
-      mFirstTimeStamp = firstTimeStamp;
-      mLastTimeStamp = lastTimeStamp;
+      this.trialId = trialId;
+      this.fileName = fileName;
+      this.relativeTime = relativeTime;
+      this.sensorIds = sensorIds;
+      this.firstTimeStamp = firstTimeStamp;
+      this.lastTimeStamp = lastTimeStamp;
     }
 
     @Override
@@ -598,7 +598,7 @@ public class ExportService extends Service {
         }
       }
 
-      File file = new File(storageDir.getPath(), mFileName);
+      File file = new File(storageDir.getPath(), fileName);
       FileOutputStream fs;
       try {
         fs = new FileOutputStream(file);
@@ -607,98 +607,98 @@ public class ExportService extends Service {
         return;
       }
 
-      mOutputStreamWriter = new OutputStreamWriter(fs);
+      outputStreamWriter = new OutputStreamWriter(fs);
       try {
-        mOutputStreamWriter.write(mRelativeTime ? "relative_time" : "timestamp");
+        outputStreamWriter.write(relativeTime ? "relative_time" : "timestamp");
         // Loop through sensor IDs and output them here as column names.
-        for (int index = 0, length = mSensorIds.length; index < length; ++index) {
-          mOutputStreamWriter.write(",");
-          mOutputStreamWriter.write(mSensorIds[index].replace(",", "_"));
+        for (int index = 0, length = sensorIds.length; index < length; ++index) {
+          outputStreamWriter.write(",");
+          outputStreamWriter.write(sensorIds[index].replace(",", "_"));
         }
-        mOutputStreamWriter.write("\n");
+        outputStreamWriter.write("\n");
       } catch (IOException e) {
         onError(e);
         return;
       }
-      updateProgress(new ExportProgress(mTrialId, ExportProgress.EXPORTING, 0));
+      updateProgress(new ExportProgress(trialId, ExportProgress.EXPORTING, 0));
     }
 
     @Override
     public void onNext(ScalarReading scalarReading) {
       // Check if we have a different timestamp than the current row.
-      if (scalarReading.getCollectedTimeMillis() != mCurrentTimestamp) {
-        if (mCurrentRow != null && mCurrentTimestamp != -1) {
+      if (scalarReading.getCollectedTimeMillis() != currentTimestamp) {
+        if (currentRow != null && currentTimestamp != -1) {
           writeRow();
         }
-        mCurrentRow.clear();
+        currentRow.clear();
       }
       // If not, just add to current row.
-      mCurrentRow.put(scalarReading.getSensorTag(), scalarReading.getValue());
-      if (mCurrentTimestamp == -1) {
-        mFirstTimeStampWritten = scalarReading.getCollectedTimeMillis();
+      currentRow.put(scalarReading.getSensorTag(), scalarReading.getValue());
+      if (currentTimestamp == -1) {
+        firstTimeStampWritten = scalarReading.getCollectedTimeMillis();
       }
-      mCurrentTimestamp = scalarReading.getCollectedTimeMillis();
+      currentTimestamp = scalarReading.getCollectedTimeMillis();
       int progress =
           (int)
-              (((mCurrentTimestamp - mFirstTimeStamp) / (double) (mLastTimeStamp - mFirstTimeStamp))
+              (((currentTimestamp - firstTimeStamp) / (double) (lastTimeStamp - firstTimeStamp))
                   * 100);
-      updateProgress(new ExportProgress(mTrialId, ExportProgress.EXPORTING, progress));
+      updateProgress(new ExportProgress(trialId, ExportProgress.EXPORTING, progress));
     }
 
     @Override
     public void onError(Throwable throwable) {
       // End writing stream.
       closeStreamIfNecessary();
-      updateProgress(ExportProgress.fromThrowable(mTrialId, throwable));
+      updateProgress(ExportProgress.fromThrowable(trialId, throwable));
     }
 
     @Override
     public void onComplete() {
       // Write the last row if necessary.
-      if (!mCurrentRow.isEmpty()) {
+      if (!currentRow.isEmpty()) {
         writeRow();
       }
 
       // End writing stream.
       closeStreamIfNecessary();
-      updateProgress(ExportProgress.getComplete(mTrialId, getFileUri(mFileName)));
+      updateProgress(ExportProgress.getComplete(trialId, getFileUri(fileName)));
     }
 
     private void writeRow() {
       // If so, if current row, then write it out (the old one)!
       try {
-        if (mOutputStreamWriter == null) {
+        if (outputStreamWriter == null) {
           onError(new IllegalStateException("Output stream closed."));
         }
-        mOutputStreamWriter.write(getTimestampString(mCurrentTimestamp));
-        for (int index = 0, length = mSensorIds.length; index < length; ++index) {
+        outputStreamWriter.write(getTimestampString(currentTimestamp));
+        for (int index = 0, length = sensorIds.length; index < length; ++index) {
           String value = "";
-          if (mCurrentRow.containsKey(mSensorIds[index])) {
-            value = Double.toString(mCurrentRow.get(mSensorIds[index]));
+          if (currentRow.containsKey(sensorIds[index])) {
+            value = Double.toString(currentRow.get(sensorIds[index]));
           }
-          mOutputStreamWriter.write(",");
-          mOutputStreamWriter.write(value);
+          outputStreamWriter.write(",");
+          outputStreamWriter.write(value);
         }
-        mOutputStreamWriter.write("\n");
+        outputStreamWriter.write("\n");
       } catch (IOException e) {
         onError(e);
       }
     }
 
     private String getTimestampString(long time) {
-      return Long.toString(mRelativeTime ? time - mFirstTimeStampWritten : time);
+      return Long.toString(relativeTime ? time - firstTimeStampWritten : time);
     }
 
     private void closeStreamIfNecessary() {
-      if (mOutputStreamWriter != null) {
+      if (outputStreamWriter != null) {
         try {
-          mOutputStreamWriter.close();
+          outputStreamWriter.close();
         } catch (IOException e) {
           Log.e(TAG, "File close failed: " + e.toString());
           onError(e);
           return;
         } finally {
-          mOutputStreamWriter = null;
+          outputStreamWriter = null;
         }
       }
     }

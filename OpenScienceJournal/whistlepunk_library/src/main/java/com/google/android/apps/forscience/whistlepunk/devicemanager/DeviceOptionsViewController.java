@@ -49,26 +49,26 @@ public class DeviceOptionsViewController {
   private static final String KEY_PIN_STATE = "pin_state";
   private static final String KEY_FREQ_STATE = "freq_state";
 
-  private View mView;
-  private DataController mDataController;
-  private final String mExperimentId;
-  private SensorTypeProvider mSensorTypeProvider;
-  private PinTypeProvider mPinTypeProvider;
-  private String mSensorId;
-  private ExternalSensorSpec mSensor;
-  private Spinner mSensorTypeSpinner;
-  private Spinner mCustomPinSpinner;
-  private CheckBox mFrequencyCheckbox;
+  private View view;
+  private DataController dataController;
+  private final String experimentId;
+  private SensorTypeProvider sensorTypeProvider;
+  private PinTypeProvider pinTypeProvider;
+  private String sensorId;
+  private ExternalSensorSpec sensor;
+  private Spinner sensorTypeSpinner;
+  private Spinner customPinSpinner;
+  private CheckBox frequencyCheckbox;
 
   public DeviceOptionsViewController(
       Context context, DataController dataController, String experimentId) {
-    mDataController = dataController;
-    mExperimentId = experimentId;
-    mView = LayoutInflater.from(context).inflate(R.layout.device_options_dialog, null);
-    mSensorTypeProvider = new SensorTypeProvider(context);
+    this.dataController = dataController;
+    this.experimentId = experimentId;
+    this.view = LayoutInflater.from(context).inflate(R.layout.device_options_dialog, null);
+    sensorTypeProvider = new SensorTypeProvider(context);
     final ArrayAdapter<SensorTypeProvider.SensorType> adapter =
         new ArrayAdapter<SensorTypeProvider.SensorType>(
-            context, android.R.layout.simple_spinner_item, mSensorTypeProvider.getSensors()) {
+            context, android.R.layout.simple_spinner_item, sensorTypeProvider.getSensors()) {
           @Override
           public View getView(int position, View convertView, ViewGroup parent) {
             TextView view = (TextView) super.getView(position, convertView, parent);
@@ -85,13 +85,15 @@ public class DeviceOptionsViewController {
           }
         };
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    mSensorTypeSpinner = (Spinner) mView.findViewById(R.id.sensor_type_spinner);
-    mSensorTypeSpinner.setAdapter(adapter);
-    mSensorTypeSpinner.setOnItemSelectedListener(
+    sensorTypeSpinner = (Spinner) this.view.findViewById(R.id.sensor_type_spinner);
+    sensorTypeSpinner.setAdapter(adapter);
+    sensorTypeSpinner.setOnItemSelectedListener(
         new AdapterView.OnItemSelectedListener() {
 
           public void onItemSelected(AdapterView<?> arg0, View view, int position, long id) {
-            LinearLayout layout = (LinearLayout) mView.findViewById(R.id.spinner_custom_layout);
+            LinearLayout layout =
+                (LinearLayout)
+                    DeviceOptionsViewController.this.view.findViewById(R.id.spinner_custom_layout);
             if (adapter.getItem(position).isCustom()) {
               layout.setVisibility(LinearLayout.VISIBLE);
             } else {
@@ -102,31 +104,31 @@ public class DeviceOptionsViewController {
           public void onNothingSelected(AdapterView<?> arg0) {}
         });
 
-    mPinTypeProvider = new PinTypeProvider();
+    pinTypeProvider = new PinTypeProvider();
 
     ArrayAdapter<PinTypeProvider.PinType> pinTypeAdapter =
         new ArrayAdapter<PinTypeProvider.PinType>(
-            context, android.R.layout.simple_spinner_item, mPinTypeProvider.getPins());
+            context, android.R.layout.simple_spinner_item, pinTypeProvider.getPins());
     pinTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    mCustomPinSpinner = (Spinner) mView.findViewById(R.id.spinner_custom_pin);
-    mCustomPinSpinner.setAdapter(pinTypeAdapter);
+    customPinSpinner = (Spinner) this.view.findViewById(R.id.spinner_custom_pin);
+    customPinSpinner.setAdapter(pinTypeAdapter);
 
-    mFrequencyCheckbox = (CheckBox) mView.findViewById(R.id.spinner_custom_frequency_checkbox);
+    frequencyCheckbox = (CheckBox) this.view.findViewById(R.id.spinner_custom_frequency_checkbox);
   }
 
   public void commit(final DeviceOptionsDialog.DeviceOptionsListener optionsListener) {
     final ExternalSensorSpec sensor = getOptions();
 
     maybeReplaceSensor(
-        mDataController,
-        mExperimentId,
-        mSensorId,
+        dataController,
+        experimentId,
+        sensorId,
         sensor,
         new LoggingConsumer<String>(TAG, "replacing sensor") {
           @Override
           public void success(String newSensorId) {
-            optionsListener.onExperimentSensorReplaced(mSensorId, newSensorId);
-            mSensorId = newSensorId;
+            optionsListener.onExperimentSensorReplaced(sensorId, newSensorId);
+            sensorId = newSensorId;
           }
         });
   }
@@ -166,24 +168,24 @@ public class DeviceOptionsViewController {
   }
 
   public void setSensor(String sensorId, ExternalSensorSpec sensor, Bundle savedInstanceState) {
-    mSensorId = sensorId;
-    mSensor = sensor;
+    this.sensorId = sensorId;
+    this.sensor = sensor;
 
     if (savedInstanceState != null) {
-      mSensorTypeSpinner.onRestoreInstanceState(savedInstanceState.getParcelable(KEY_TYPE_STATE));
-      mCustomPinSpinner.onRestoreInstanceState(savedInstanceState.getParcelable(KEY_PIN_STATE));
-      mFrequencyCheckbox.onRestoreInstanceState(savedInstanceState.getParcelable(KEY_FREQ_STATE));
-    } else if (BleSensorSpec.TYPE.equals(mSensor.getType())) {
+      sensorTypeSpinner.onRestoreInstanceState(savedInstanceState.getParcelable(KEY_TYPE_STATE));
+      customPinSpinner.onRestoreInstanceState(savedInstanceState.getParcelable(KEY_PIN_STATE));
+      frequencyCheckbox.onRestoreInstanceState(savedInstanceState.getParcelable(KEY_FREQ_STATE));
+    } else if (BleSensorSpec.TYPE.equals(this.sensor.getType())) {
       // TODO: config for other sensor types?
 
-      BleSensorSpec bleSensor = (BleSensorSpec) mSensor;
+      BleSensorSpec bleSensor = (BleSensorSpec) this.sensor;
       // Load from sensor if we don't have saved state.
-      SensorTypeProvider.SensorType[] sensors = mSensorTypeProvider.getSensors();
+      SensorTypeProvider.SensorType[] sensors = sensorTypeProvider.getSensors();
       @SensorTypeProvider.SensorKind int type = bleSensor.getSensorType();
       boolean found = false;
       for (int i = 0; i < sensors.length; i++) {
         if (sensors[i].getSensorKind() == type) {
-          mSensorTypeSpinner.setSelection(i);
+          sensorTypeSpinner.setSelection(i);
           found = true;
           break;
         }
@@ -192,9 +194,9 @@ public class DeviceOptionsViewController {
         Log.e(TAG, "Expected to find sensor type " + type + " in " + Arrays.toString(sensors));
       }
 
-      mCustomPinSpinner.setSelection(findPinIndex(bleSensor.getCustomPin()));
+      customPinSpinner.setSelection(findPinIndex(bleSensor.getCustomPin()));
 
-      mFrequencyCheckbox.setChecked(bleSensor.getCustomFrequencyEnabled());
+      frequencyCheckbox.setChecked(bleSensor.getCustomFrequencyEnabled());
     }
   }
 
@@ -204,7 +206,7 @@ public class DeviceOptionsViewController {
       // TODO: Better way to default without hard coding, although pins are not translatable.
       return 0;
     }
-    PinTypeProvider.PinType[] pins = mPinTypeProvider.getPins();
+    PinTypeProvider.PinType[] pins = pinTypeProvider.getPins();
     for (int i = 0; i < pins.length; i++) {
       if (pins[i].toString().equals(customPin)) {
         return i;
@@ -215,35 +217,35 @@ public class DeviceOptionsViewController {
   }
 
   public ExternalSensorSpec getOptions() {
-    if (mSensor == null) {
+    if (sensor == null) {
       return null;
     }
 
     SensorTypeProvider.SensorType item =
-        (SensorTypeProvider.SensorType) mSensorTypeSpinner.getSelectedItem();
+        (SensorTypeProvider.SensorType) sensorTypeSpinner.getSelectedItem();
 
-    if (mSensor.getType().equals(BleSensorSpec.TYPE)) {
+    if (sensor.getType().equals(BleSensorSpec.TYPE)) {
       // TODO: what about other sensor types?
 
-      BleSensorSpec bleSensor = (BleSensorSpec) mSensor;
+      BleSensorSpec bleSensor = (BleSensorSpec) sensor;
       bleSensor.setSensorType(item.getSensorKind());
       // TODO: test that these are always set correctly.
       PinTypeProvider.PinType pinItem =
-          (PinTypeProvider.PinType) mCustomPinSpinner.getSelectedItem();
+          (PinTypeProvider.PinType) customPinSpinner.getSelectedItem();
       bleSensor.setCustomPin(pinItem.toString());
-      bleSensor.setCustomFrequencyEnabled(mFrequencyCheckbox.isChecked());
+      bleSensor.setCustomFrequencyEnabled(frequencyCheckbox.isChecked());
     }
-    return mSensor;
+    return sensor;
   }
 
   public View getView() {
-    return mView;
+    return view;
   }
 
   public void onSaveInstanceState(Bundle outState) {
-    outState.putParcelable(KEY_TYPE_STATE, mSensorTypeSpinner.onSaveInstanceState());
-    outState.putParcelable(KEY_PIN_STATE, mCustomPinSpinner.onSaveInstanceState());
-    outState.putParcelable(KEY_FREQ_STATE, mFrequencyCheckbox.onSaveInstanceState());
+    outState.putParcelable(KEY_TYPE_STATE, sensorTypeSpinner.onSaveInstanceState());
+    outState.putParcelable(KEY_PIN_STATE, customPinSpinner.onSaveInstanceState());
+    outState.putParcelable(KEY_FREQ_STATE, frequencyCheckbox.onSaveInstanceState());
   }
 }
 

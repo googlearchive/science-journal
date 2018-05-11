@@ -98,8 +98,8 @@ public final class AccessibilityUtils {
 
   private static class TouchDelegateGroup extends TouchDelegate {
 
-    private static final Rect sRect = new Rect();
-    private List<TouchDelegate> mDelegateList;
+    private static final Rect rect = new Rect();
+    private List<TouchDelegate> delegateList;
 
     /**
      * Constructor
@@ -107,8 +107,8 @@ public final class AccessibilityUtils {
      * @param delegateView The view that should receive motion events
      */
     public TouchDelegateGroup(View delegateView, List<TouchDelegate> touchDelegates) {
-      super(sRect, delegateView);
-      mDelegateList = touchDelegates;
+      super(rect, delegateView);
+      delegateList = touchDelegates;
     }
 
     @Override
@@ -118,7 +118,7 @@ public final class AccessibilityUtils {
       boolean result = false;
       // Check against all the touchDelegates in the list -- this could be an
       // ACTION_MOVE or ACTION_UP that impacts a view that isn't at the (x,y) of an event.
-      for (TouchDelegate touchDelegate : mDelegateList) {
+      for (TouchDelegate touchDelegate : delegateList) {
         result = touchDelegate.onTouchEvent(event) || result;
       }
       return result;
