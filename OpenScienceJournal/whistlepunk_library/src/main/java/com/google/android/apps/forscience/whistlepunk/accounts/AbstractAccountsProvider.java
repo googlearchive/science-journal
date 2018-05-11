@@ -19,6 +19,9 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 import android.content.Context;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /** An abstract base class for accounts providers. */
 abstract class AbstractAccountsProvider implements AccountsProvider {
@@ -27,6 +30,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   private final Object lockCurrentAccount = new Object();
   private AppAccount currentAccount;
   private AppAccount currentAccountOverride;
+  private final Map<String, AppAccount> accountsByKey = new HashMap<>();
 
   AbstractAccountsProvider(Context context) {
     applicationContext = context.getApplicationContext();
@@ -76,16 +80,28 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
     }
   }
 
+  @Override
+  public AppAccount getAccountByKey(String accountKey) {
+    return accountsByKey.get(accountKey);
+  }
+
   /**
    * Sets the current account and publishes it to observers if the current account override has not
    * been set.
    */
   protected void setCurrentAccount(AppAccount currentAccount) {
     synchronized (lockCurrentAccount) {
+      // Add the account to the accountsByKey map.
+      accountsByKey.put(currentAccount.getAccountKey(), currentAccount);
+
       this.currentAccount = currentAccount;
       if (currentAccountOverride == null) {
         observableCurrentAccount.onNext(currentAccount);
       }
     }
+  }
+
+  protected void removeAccounts(Set<String> accountKeysToRemove) {
+    accountsByKey.keySet().removeAll(accountKeysToRemove);
   }
 }

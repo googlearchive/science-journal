@@ -20,6 +20,14 @@ import java.io.File;
 
 /** An interface which represents an account. */
 public interface AppAccount {
+  /**
+   * Returns the name of this account, or empty string if the account is the non-signed in account.
+   */
+  String getAccountName();
+
+  /** Returns the key of this account. The key should include a leading namespace. */
+  String getAccountKey();
+
   /** Returns true if this account is a signed-in account. */
   boolean isSignedIn();
 

@@ -26,6 +26,16 @@ public final class NonSignedInAccount implements AppAccount {
   }
 
   @Override
+  public String getAccountName() {
+    return "";
+  }
+
+  @Override
+  public String getAccountKey() {
+    return "com.google.nsi:none";
+  }
+
+  @Override
   public boolean isSignedIn() {
     return false;
   }

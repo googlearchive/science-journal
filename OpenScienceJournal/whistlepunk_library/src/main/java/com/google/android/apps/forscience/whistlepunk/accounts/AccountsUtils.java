@@ -56,22 +56,22 @@ public class AccountsUtils {
   }
 
   /**
-   * Removes the files, preferences, and databases associated with all accounts whose account name
-   * is not present in the given set.
+   * Removes the files, preferences, and databases associated with all accounts whose account key is
+   * not present in the given set.
    *
    * <p>Should be called from a background IO thread.
+   *
+   * @return the set of account keys that were removed
    */
-  static void removeOtherAccounts(Context context, Set<String> accountNames) {
-    Set<String> accountKeys = new HashSet<>();
-    for (String accountName : accountNames) {
-      accountKeys.add(getAccountKey(accountName));
-    }
+  static Set<String> removeOtherAccounts(Context context, Set<String> accountKeys) {
+    Set<String> accountKeysRemoved = new HashSet<>();
 
     // Remove files for accounts which are no longer present.
     for (File filesDir : getFilesDirsForAllAccounts(context)) {
       String accountKey = getAccountKeyFromFile(context, filesDir);
       if (accountKey != null) {
         if (!accountKeys.contains(accountKey)) {
+          accountKeysRemoved.add(accountKey);
           try {
             deleteRecursively(filesDir);
           } catch (IOException e) {
@@ -91,10 +91,13 @@ public class AccountsUtils {
       String accountKey = getAccountKeyFromPrefKey(prefKey);
       if (accountKey != null) {
         if (!accountKeys.contains(accountKey)) {
+          accountKeysRemoved.add(accountKey);
           sharedPreferences.edit().remove(prefKey).apply();
         }
       }
     }
+
+    return accountKeysRemoved;
   }
 
   private static void deleteRecursively(File fileOrDirectory) throws IOException {
@@ -120,13 +123,16 @@ public class AccountsUtils {
   }
 
   /**
-   * Returns the account key for the given account name. The account key is used to separate file
-   * storage and preferences for different accounts.
+   * Returns the account key for the given namespace and account name. The account key is used to
+   * separate file storage and preferences for different accounts.
    */
-  private static String getAccountKey(String accountName) {
+  static String getAccountKey(String namespace, String accountName) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(namespace), "namespace is null or empty!");
     Preconditions.checkArgument(
         !Strings.isNullOrEmpty(accountName), "accountName is null or empty!");
-    return Hashing.md5().hashString(accountName, StandardCharsets.UTF_8).toString();
+    return namespace
+        + ":"
+        + Hashing.md5().hashString(accountName, StandardCharsets.UTF_8);
   }
 
   /**
@@ -146,13 +152,12 @@ public class AccountsUtils {
   }
 
   /**
-   * Returns the files directory for the account with the given name. If the directory doesn't
-   * already exist, it is created.
+   * Returns the files directory for the account with the given account key. If the directory
+   * doesn't already exist, it is created.
    */
-  static File getFilesDir(String accountName, Context context) {
-    Preconditions.checkArgument(
-        !Strings.isNullOrEmpty(accountName), "accountName is null or empty!");
-    File accountDir = new File(getAccountsParentDirectory(context), getAccountKey(accountName));
+  static File getFilesDir(String accountKey, Context context) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(accountKey), "accountKey is null or empty!");
+    File accountDir = new File(getAccountsParentDirectory(context), accountKey);
     if (!accountDir.exists()) {
       if (!accountDir.mkdirs()) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -164,15 +169,10 @@ public class AccountsUtils {
     return accountDir;
   }
 
-  /** Returns the database file name that combines the given accountName and dbName. */
-  static String getDatabaseFileName(String accountName, String dbName) {
-    Preconditions.checkArgument(
-        !Strings.isNullOrEmpty(accountName), "accountName is null or empty!");
-    return DB_NAME_PREFIX
-        + DB_NAME_DELIMITER
-        + getAccountKey(accountName)
-        + DB_NAME_DELIMITER
-        + dbName;
+  /** Returns the database file name that combines the given accountKey and dbName. */
+  static String getDatabaseFileName(String accountKey, String dbName) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(accountKey), "accountKey is null or empty!");
+    return DB_NAME_PREFIX + DB_NAME_DELIMITER + accountKey + DB_NAME_DELIMITER + dbName;
   }
 
   /**
@@ -189,15 +189,10 @@ public class AccountsUtils {
     return null;
   }
 
-  /** Returns the preference key that combines the given accountName and prefKey. */
-  static String getPrefKey(String accountName, String prefKey) {
-    Preconditions.checkArgument(
-        !Strings.isNullOrEmpty(accountName), "accountName is null or empty!");
-    return PREF_KEY_PREFIX
-        + PREF_KEY_DELIMITER
-        + getAccountKey(accountName)
-        + PREF_KEY_DELIMITER
-        + prefKey;
+  /** Returns the preference key that combines the given accountKey and prefKey. */
+  static String getPrefKey(String accountKey, String prefKey) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(accountKey), "accountKey is null or empty!");
+    return PREF_KEY_PREFIX + PREF_KEY_DELIMITER + accountKey + PREF_KEY_DELIMITER + prefKey;
   }
 
   public static int getUnclaimedExperimentCount(Context context) {

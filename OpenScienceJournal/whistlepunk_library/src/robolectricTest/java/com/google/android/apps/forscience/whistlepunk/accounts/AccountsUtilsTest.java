@@ -34,9 +34,16 @@ import org.robolectric.RuntimeEnvironment;
 /** Tests for the AccountsUtils class. */
 @RunWith(RobolectricTestRunner.class)
 public class AccountsUtilsTest {
+  private static final String NAMESPACE = "com.google.test";
   private static final String ACCOUNT_NAME_1 = "account1@gmail.com";
+  private static final String ACCOUNT_KEY_1 =
+      AccountsUtils.getAccountKey(NAMESPACE, ACCOUNT_NAME_1);
   private static final String ACCOUNT_NAME_2 = "account2@gmail.com";
+  private static final String ACCOUNT_KEY_2 =
+      AccountsUtils.getAccountKey(NAMESPACE, ACCOUNT_NAME_2);
   private static final String ACCOUNT_NAME_3 = "account3@gmail.com";
+  private static final String ACCOUNT_KEY_3 =
+      AccountsUtils.getAccountKey(NAMESPACE, ACCOUNT_NAME_3);
 
   private Context context;
   private SharedPreferences sharedPreferences;
@@ -60,8 +67,8 @@ public class AccountsUtilsTest {
     // Setup - For each of three accounts, create files representing 5 experiments and set a
     // preference.
     // TODO(lizlooney): Create a database.
-    for (String accountName : ImmutableSet.of(ACCOUNT_NAME_1, ACCOUNT_NAME_2, ACCOUNT_NAME_3)) {
-      File accountFilesDir = AccountsUtils.getFilesDir(accountName, context);
+    for (String accountKey : ImmutableSet.of(ACCOUNT_KEY_1, ACCOUNT_KEY_2, ACCOUNT_KEY_3)) {
+      File accountFilesDir = AccountsUtils.getFilesDir(accountKey, context);
       File experimentsDir = new File(accountFilesDir, "experiments");
       for (int i = 1; i <= 5; i++) {
         String experimentId = "experiment_id_" + i;
@@ -72,23 +79,23 @@ public class AccountsUtilsTest {
       assertThat(accountFilesDir.list()).hasLength(1);
       assertThat(experimentsDir.list()).hasLength(5);
       String accountPrefKey =
-          AccountsUtils.getPrefKey(accountName, "key_default_experiment_created");
+          AccountsUtils.getPrefKey(accountKey, "key_default_experiment_created");
       sharedPreferences.edit().putBoolean(accountPrefKey, true).apply();
       assertThat(sharedPreferences.contains(accountPrefKey)).isTrue();
     }
-    File account1FilesDir = AccountsUtils.getFilesDir(ACCOUNT_NAME_1, context);
-    File account2FilesDir = AccountsUtils.getFilesDir(ACCOUNT_NAME_2, context);
-    File account3FilesDir = AccountsUtils.getFilesDir(ACCOUNT_NAME_3, context);
+    File account1FilesDir = AccountsUtils.getFilesDir(ACCOUNT_KEY_1, context);
+    File account2FilesDir = AccountsUtils.getFilesDir(ACCOUNT_KEY_2, context);
+    File account3FilesDir = AccountsUtils.getFilesDir(ACCOUNT_KEY_3, context);
 
     // Remove accounts other than accounts 2 and 3.
-    AccountsUtils.removeOtherAccounts(context, ImmutableSet.of(ACCOUNT_NAME_2, ACCOUNT_NAME_3));
+    AccountsUtils.removeOtherAccounts(context, ImmutableSet.of(ACCOUNT_KEY_2, ACCOUNT_KEY_3));
 
     // Directory for account 1 no longer exists.
     assertThat(account1FilesDir.exists()).isFalse();
     // Preference for account 1 no longer exists.
     assertThat(
             sharedPreferences.contains(
-                AccountsUtils.getPrefKey(ACCOUNT_NAME_1, "key_default_experiment_created")))
+                AccountsUtils.getPrefKey(ACCOUNT_KEY_1, "key_default_experiment_created")))
         .isFalse();
     // TODO(lizlooney): Check that the database for account 1 no longer exists.
 
@@ -100,48 +107,48 @@ public class AccountsUtilsTest {
     // Preferences for accounts 2 and 3 still there.
     assertThat(
             sharedPreferences.getBoolean(
-                AccountsUtils.getPrefKey(ACCOUNT_NAME_2, "key_default_experiment_created"), false))
+                AccountsUtils.getPrefKey(ACCOUNT_KEY_2, "key_default_experiment_created"), false))
         .isTrue();
     assertThat(
             sharedPreferences.getBoolean(
-                AccountsUtils.getPrefKey(ACCOUNT_NAME_3, "key_default_experiment_created"), false))
+                AccountsUtils.getPrefKey(ACCOUNT_KEY_3, "key_default_experiment_created"), false))
         .isTrue();
     // TODO(lizlooney): Check that the databases for accounts 2 and 3 still exist.
   }
 
   @Test
   public void getFilesDir() throws Exception {
-    File account1FilesDir = AccountsUtils.getFilesDir(ACCOUNT_NAME_1, context);
+    File account1FilesDir = AccountsUtils.getFilesDir(ACCOUNT_KEY_1, context);
     assertThat(account1FilesDir.exists()).isTrue();
     assertThat(account1FilesDir.isDirectory()).isTrue();
     assertThat(account1FilesDir.getParent()).isEqualTo(context.getFilesDir() + "/accounts");
 
     // The files directory for a different account should be different.
-    File account2FilesDir = AccountsUtils.getFilesDir(ACCOUNT_NAME_2, context);
+    File account2FilesDir = AccountsUtils.getFilesDir(ACCOUNT_KEY_2, context);
     assertThat(account1FilesDir).isNotEqualTo(account2FilesDir);
   }
 
   @Test
   public void getDatabaseFileName() throws Exception {
-    String account1DatabaseFileName = AccountsUtils.getDatabaseFileName(ACCOUNT_NAME_1, "runs");
+    String account1DatabaseFileName = AccountsUtils.getDatabaseFileName(ACCOUNT_KEY_1, "runs");
     assertThat(account1DatabaseFileName).startsWith("account.");
     assertThat(account1DatabaseFileName).endsWith(".runs");
 
     // The database file name for a different account should be different.
-    String account2DatabaseFileName = AccountsUtils.getDatabaseFileName(ACCOUNT_NAME_2, "runs");
+    String account2DatabaseFileName = AccountsUtils.getDatabaseFileName(ACCOUNT_KEY_2, "runs");
     assertThat(account1DatabaseFileName).isNotEqualTo(account2DatabaseFileName);
   }
 
   @Test
   public void getPrefKeyForAccount() throws Exception {
     String account1PrefKey =
-        AccountsUtils.getPrefKey(ACCOUNT_NAME_1, "key_default_experiment_created");
+        AccountsUtils.getPrefKey(ACCOUNT_KEY_1, "key_default_experiment_created");
     assertThat(account1PrefKey).startsWith("account_");
     assertThat(account1PrefKey).endsWith("_key_default_experiment_created");
 
     // The pref key for a different account should be different.
     String account2PrefKey =
-        AccountsUtils.getPrefKey(ACCOUNT_NAME_2, "key_default_experiment_created");
+        AccountsUtils.getPrefKey(ACCOUNT_KEY_2, "key_default_experiment_created");
     assertThat(account1PrefKey).isNotEqualTo(account2PrefKey);
   }
 

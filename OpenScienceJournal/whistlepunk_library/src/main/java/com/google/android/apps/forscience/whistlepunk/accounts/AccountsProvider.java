@@ -88,4 +88,7 @@ public interface AccountsProvider {
    *     intented to be used during the transition from non-signed-in to signed-in.
    */
   AppAccount getCurrentAccountIgnoringClaimExperimentsMode();
+
+  /** @return the account with the given key, or null if no known account has the given key. */
+  AppAccount getAccountByKey(String accountKey);
 }
