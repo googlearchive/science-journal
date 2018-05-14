@@ -205,6 +205,9 @@ public class BleSensorSpec extends ExternalSensorSpec {
 
   @VisibleForTesting
   public boolean equals(Object other) {
+    if (other == null) {
+      return false;
+    }
     // Cheating!  Only for tests
     return toString().equals(other.toString());
   }
