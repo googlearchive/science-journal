@@ -122,6 +122,7 @@ public class ExperimentDetailsFragment extends Fragment
   public static final String ARG_ACCOUNT_KEY = "account_key";
   public static final String ARG_EXPERIMENT_ID = "experiment_id";
   public static final String ARG_CREATE_TASK = "create_task";
+  public static final String ARG_CLAIM_EXPERIMENTS_MODE = "claim_experiments_mode";
   private static final String TAG = "ExperimentDetails";
 
   /** Boolen extra for savedInstanceState with the state of includeArchived experiments. */
@@ -132,6 +133,7 @@ public class ExperimentDetailsFragment extends Fragment
 
   private AppAccount appAccount;
   private String experimentId;
+  private boolean claimExperimentsMode;
   private Experiment experiment;
   private BehaviorSubject<Experiment> loadedExperiment = BehaviorSubject.create();
   private ScalarDisplayOptions scalarDisplayOptions;
@@ -152,12 +154,16 @@ public class ExperimentDetailsFragment extends Fragment
    *     to the experiment list. If {@code false}, use the default navigation.
    */
   public static ExperimentDetailsFragment newInstance(
-      AppAccount appAccount, String experimentId, boolean createTaskStack) {
+      AppAccount appAccount,
+      String experimentId,
+      boolean createTaskStack,
+      boolean claimExperimentsMode) {
     ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
     Bundle args = new Bundle();
     args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(ARG_EXPERIMENT_ID, experimentId);
     args.putBoolean(ARG_CREATE_TASK, createTaskStack);
+    args.putBoolean(ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
     fragment.setArguments(args);
     return fragment;
   }
@@ -177,6 +183,7 @@ public class ExperimentDetailsFragment extends Fragment
 
     appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
+    claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
     setHasOptionsMenu(true);
   }
 
@@ -455,17 +462,14 @@ public class ExperimentDetailsFragment extends Fragment
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
-    menu.findItem(R.id.action_archive_experiment)
-        .setVisible(experiment != null && !experiment.isArchived());
-    menu.findItem(R.id.action_unarchive_experiment)
-        .setVisible(experiment != null && experiment.isArchived());
+    menu.findItem(R.id.action_archive_experiment).setVisible(canArchive());
+    menu.findItem(R.id.action_unarchive_experiment).setVisible(canUnarchive());
     // Disable archive option when recording.
     menu.findItem(R.id.action_archive_experiment).setEnabled(!isRecording());
-    menu.findItem(R.id.action_delete_experiment).setEnabled(experiment != null && !isRecording());
+    menu.findItem(R.id.action_delete_experiment).setEnabled(canDelete());
     menu.findItem(R.id.action_include_archived).setVisible(!includeArchived);
     menu.findItem(R.id.action_exclude_archived).setVisible(includeArchived);
-    menu.findItem(R.id.action_edit_experiment)
-        .setVisible(experiment != null && !experiment.isArchived());
+    menu.findItem(R.id.action_edit_experiment).setVisible(canEdit());
 
     boolean isShareIntentValid =
         FileMetadataManager.validateShareIntent(getContext(), appAccount, experimentId);
@@ -541,7 +545,7 @@ public class ExperimentDetailsFragment extends Fragment
       deleteCurrentExperiment();
       return;
     }
-    if (!TextUtils.isEmpty(experiment.getTitle()) || experiment.isArchived()) {
+    if (!TextUtils.isEmpty(experiment.getTitle()) || !canEdit()) {
       goToExperimentList();
       return;
     }
@@ -607,7 +611,7 @@ public class ExperimentDetailsFragment extends Fragment
       return true;
     }
 
-    if (TextUtils.isEmpty(experiment.getTitle()) && !experiment.isArchived()) {
+    if (TextUtils.isEmpty(experiment.getTitle()) && canEdit()) {
       displayNamePrompt();
       // We are handling this.
       return true;
@@ -625,6 +629,11 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   private void goToExperimentList() {
+    if (claimExperimentsMode) {
+      getActivity().finish();
+      return;
+    }
+
     Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
     if (upIntent == null) {
       // This is cheating a bit.  Currently, upIntent has only been observed to be null
@@ -889,30 +898,40 @@ public class ExperimentDetailsFragment extends Fragment
         noteViewHolder.relativeTimeView.setTime(label.getTimeStamp());
         noteViewHolder.durationText.setVisibility(View.GONE);
 
-        noteViewHolder.menuButton.setOnClickListener(
-            view -> {
-              Context context = noteViewHolder.menuButton.getContext();
-              popupMenu =
-                  new PopupMenu(
-                      context,
-                      noteViewHolder.menuButton,
-                      Gravity.NO_GRAVITY,
-                      R.attr.actionOverflowMenuStyle,
-                      0);
-              setupNoteMenu(item);
-              popupMenu.show();
-            });
-        holder.itemView.setOnClickListener(
-            view -> {
-              if (!isRecording()) {
-                // Can't click into details pages when recording.
-                LabelDetailsActivity.launchFromExpDetails(
-                    holder.itemView.getContext(),
-                    parentReference.get().appAccount,
-                    experiment.getExperimentId(),
-                    label);
-              }
-            });
+        // For now (pending response from UX), in claimExperimentsMode, we hide the
+        // noteViewHolder.menuButton and we don't launch the LabelDetailsActivity if the user
+        // clicks on the label.
+        if (parentReference.get().claimExperimentsMode) {
+          // TODO(lizlooney): Check with UX: should we hide the menu button or just disable items
+          // on the menu?
+          noteViewHolder.menuButton.setVisibility(View.GONE);
+        } else {
+          noteViewHolder.menuButton.setOnClickListener(
+              view -> {
+                Context context = noteViewHolder.menuButton.getContext();
+                popupMenu =
+                    new PopupMenu(
+                        context,
+                        noteViewHolder.menuButton,
+                        Gravity.NO_GRAVITY,
+                        R.attr.actionOverflowMenuStyle,
+                        0);
+                setupNoteMenu(item);
+                popupMenu.show();
+              });
+
+          holder.itemView.setOnClickListener(
+              view -> {
+                if (!isRecording()) {
+                  // Can't click into details pages when recording.
+                  LabelDetailsActivity.launchFromExpDetails(
+                      holder.itemView.getContext(),
+                      parentReference.get().appAccount,
+                      experiment.getExperimentId(),
+                      label);
+                }
+              });
+        }
       }
       if (type == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
         View archivedIndicator = holder.itemView.findViewById(R.id.archived_indicator);
@@ -939,19 +958,26 @@ public class ExperimentDetailsFragment extends Fragment
           holder.menuButton.getDrawable(),
           R.color.text_color_light_grey);
 
-      holder.menuButton.setOnClickListener(
-          view -> {
-            Context context = holder.menuButton.getContext();
-            popupMenu =
-                new PopupMenu(
-                    context,
-                    holder.menuButton,
-                    Gravity.NO_GRAVITY,
-                    R.attr.actionOverflowMenuStyle,
-                    0);
-            setupTrialMenu(item);
-            popupMenu.show();
-          });
+      // For now (pending response from UX), in claimExperimentsMode, we hide the holder.menuButton.
+      if (parentReference.get().claimExperimentsMode) {
+        // TODO(lizlooney): Check with UX: should we hide the menu button or just disable items
+        // on the menu?
+        holder.menuButton.setVisibility(View.GONE);
+      } else {
+        holder.menuButton.setOnClickListener(
+            view -> {
+              Context context = holder.menuButton.getContext();
+              popupMenu =
+                  new PopupMenu(
+                      context,
+                      holder.menuButton,
+                      Gravity.NO_GRAVITY,
+                      R.attr.actionOverflowMenuStyle,
+                      0);
+              setupTrialMenu(item);
+              popupMenu.show();
+            });
+      }
     }
 
     private void setupCaption(DetailsViewHolder holder, String caption) {
@@ -1414,8 +1440,7 @@ public class ExperimentDetailsFragment extends Fragment
                   0 /* sensor index deprecated */,
                   false /* from record */,
                   false /* create task */,
-                  // TODO(lizlooney): set read only appropriately
-                  false /* read only */,
+                  parentReference.get().claimExperimentsMode,
                   null));
     }
 
@@ -1438,8 +1463,7 @@ public class ExperimentDetailsFragment extends Fragment
               selectedSensorIndex,
               false /* from record */,
               false /* create task */,
-              // TODO(lizlooney): set read only appropriately
-              false /* read only */,
+              parentReference.get().claimExperimentsMode,
               null);
         }
       };
@@ -1745,5 +1769,21 @@ public class ExperimentDetailsFragment extends Fragment
         title = (TextView) itemView.findViewById(R.id.title);
       }
     }
+  }
+
+  private boolean canArchive() {
+    return canEdit();
+  }
+
+  private boolean canUnarchive() {
+    return experiment != null && experiment.isArchived() && !claimExperimentsMode;
+  }
+
+  private boolean canDelete() {
+    return experiment != null && !isRecording() && !claimExperimentsMode;
+  }
+
+  private boolean canEdit() {
+    return experiment != null && !experiment.isArchived() && !claimExperimentsMode;
   }
 }

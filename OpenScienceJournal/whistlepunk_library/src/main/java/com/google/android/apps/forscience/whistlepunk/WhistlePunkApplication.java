@@ -126,10 +126,10 @@ public abstract class WhistlePunkApplication extends Application {
   }
 
   public static Intent getLaunchIntentForPanesActivity(
-      Context context, AppAccount appAccount, String experimentId) {
+      Context context, AppAccount appAccount, String experimentId, boolean claimExperimentsMode) {
     return getAppServices(context)
         .getNavigator()
-        .launchIntentForPanesActivity(context, appAccount, experimentId);
+        .launchIntentForPanesActivity(context, appAccount, experimentId, claimExperimentsMode);
   }
 
   @Override
@@ -186,8 +186,11 @@ public abstract class WhistlePunkApplication extends Application {
     return new ActivityNavigator() {
       @Override
       public Intent launchIntentForPanesActivity(
-          Context context, AppAccount appAccount, String experimentId) {
-        return PanesActivity.launchIntent(context, appAccount, experimentId);
+          Context context,
+          AppAccount appAccount,
+          String experimentId,
+          boolean claimExperimentsMode) {
+        return PanesActivity.launchIntent(context, appAccount, experimentId, claimExperimentsMode);
       }
     };
   }

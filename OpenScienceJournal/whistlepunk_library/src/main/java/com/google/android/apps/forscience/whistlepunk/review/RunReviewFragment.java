@@ -116,7 +116,7 @@ public class RunReviewFragment extends Fragment
   public static final String ARG_START_LABEL_ID = "start_label_id";
   public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
   public static final String ARG_CREATE_TASK = "create_task";
-  public static final String ARG_READ_ONLY = "read_only";
+  public static final String ARG_CLAIM_EXPERIMENTS_MODE = "claim_experiments_mode";
   private static final String TAG = "RunReviewFragment";
 
   private static final String KEY_SELECTED_SENSOR_INDEX = "selected_sensor_index";
@@ -149,7 +149,7 @@ public class RunReviewFragment extends Fragment
   private String trialId;
   private String experimentId;
   private int selectedSensorIndex = 0;
-  private boolean readOnly;
+  private boolean claimExperimentsMode;
   private GraphOptionsController graphOptionsController;
   private ScalarDisplayOptions scalarDisplayOptions;
   private ChartController chartController;
@@ -172,10 +172,12 @@ public class RunReviewFragment extends Fragment
    * Use this factory method to create a new instance of this fragment using the provided
    * parameters.
    *
+   * @param appAccount the account that owns the experiment
+   * @param experimentId the experiment id
    * @param startLabelId the startLabelId that joins the labels identifying this run
    * @param sensorIndex the initial sensor to select in run review
    * @param createTask if {@code true}, will create tasks when navigating up
-   * @param readOnly if {@code true}, run cannot be modified
+   * @param claimExperimentsMode if {@code true}, run cannot be modified
    * @return A new instance of fragment RunReviewFragment.
    */
   public static RunReviewFragment newInstance(
@@ -184,7 +186,7 @@ public class RunReviewFragment extends Fragment
       String startLabelId,
       int sensorIndex,
       boolean createTask,
-      boolean readOnly) {
+      boolean claimExperimentsMode) {
     RunReviewFragment fragment = new RunReviewFragment();
     Bundle args = new Bundle();
     args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
@@ -192,7 +194,7 @@ public class RunReviewFragment extends Fragment
     args.putString(ARG_START_LABEL_ID, startLabelId);
     args.putInt(ARG_SENSOR_INDEX, sensorIndex);
     args.putBoolean(ARG_CREATE_TASK, createTask);
-    args.putBoolean(ARG_READ_ONLY, readOnly);
+    args.putBoolean(ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
     fragment.setArguments(args);
     return fragment;
   }
@@ -253,7 +255,7 @@ public class RunReviewFragment extends Fragment
       trialId = getArguments().getString(ARG_START_LABEL_ID);
       selectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
       experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
-      readOnly = getArguments().getBoolean(ARG_READ_ONLY);
+      claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
     }
     if (savedInstanceState != null) {
       if (savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
@@ -486,14 +488,14 @@ public class RunReviewFragment extends Fragment
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    if (!readOnly) {
+    if (!claimExperimentsMode) {
       inflater.inflate(R.menu.menu_run_review, menu);
     }
   }
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
-    if (!readOnly) {
+    if (!claimExperimentsMode) {
       menu.findItem(R.id.action_graph_options).setVisible(false); // b/29771945
 
       // Hide some menu buttons if the run isn't loaded yet.
@@ -544,16 +546,19 @@ public class RunReviewFragment extends Fragment
       Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
       if (experiment != null) {
         String accountKey = appAccount.getAccountKey();
+        // Ensure that we set the values we need to go up to PanesActivity from RunReview after
+        // starting the app from a notification (b/66162829).
         upIntent.putExtra(PanesActivity.EXTRA_ACCOUNT_KEY, accountKey);
-        // This should be the only one that matters, I think, but leaving the others
-        // for potential legacy cases (b/66162829)
         upIntent.putExtra(PanesActivity.EXTRA_EXPERIMENT_ID, experimentId);
+        upIntent.putExtra(PanesActivity.EXTRA_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
 
         upIntent.putExtra(ExperimentDetailsFragment.ARG_ACCOUNT_KEY, accountKey);
         upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, experimentId);
         upIntent.putExtra(
             ExperimentDetailsFragment.ARG_CREATE_TASK,
             getArguments().getBoolean(ARG_CREATE_TASK, false));
+        upIntent.putExtra(
+            ExperimentDetailsFragment.ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
         upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         getActivity().startActivity(upIntent, null);
       } else if (getActivity() != null) {
@@ -786,7 +791,7 @@ public class RunReviewFragment extends Fragment
     pinnedNoteAdapter =
         new PinnedNoteAdapter(
             appAccount, trial, trial.getFirstTimestamp(), trial.getLastTimestamp(), experimentId);
-    if (!readOnly) {
+    if (!claimExperimentsMode) {
       pinnedNoteAdapter.setListItemModifyListener(
           new PinnedNoteAdapter.ListItemEditListener() {
             @Override

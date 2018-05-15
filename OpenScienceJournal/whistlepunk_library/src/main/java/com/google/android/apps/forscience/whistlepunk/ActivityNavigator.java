@@ -28,10 +28,14 @@ public interface ActivityNavigator {
       new ActivityNavigator() {
         @Override
         public Intent launchIntentForPanesActivity(
-            Context context, AppAccount appAccount, String experimentId) {
+            Context context,
+            AppAccount appAccount,
+            String experimentId,
+            boolean claimExperimentsMode) {
           return null;
         }
       };
 
-  Intent launchIntentForPanesActivity(Context context, AppAccount appAccount, String experimentId);
+  Intent launchIntentForPanesActivity(
+      Context context, AppAccount appAccount, String experimentId, boolean claimExperimentsMode);
 }

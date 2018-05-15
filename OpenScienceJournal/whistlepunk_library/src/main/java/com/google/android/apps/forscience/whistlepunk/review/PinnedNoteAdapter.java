@@ -147,17 +147,23 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
     int viewType = getItemViewType(position);
     if (viewType == TYPE_ADD_LABEL) {
-      holder.itemView.setOnClickListener(view -> clickListener.onAddLabelButtonClicked());
+      if (clickListener != null) {
+        holder.itemView.setOnClickListener(view -> clickListener.onAddLabelButtonClicked());
+      } else {
+        holder.itemView.setVisibility(View.GONE);
+      }
       return;
     }
 
     if (viewType == TYPE_CAPTION) {
-      EditText editText = (EditText) holder.itemView.findViewById(R.id.caption);
-      editText.setText(trial.getCaptionText());
-      editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
-      editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
-      RxTextView.afterTextChangeEvents(editText)
-          .subscribe(event -> editListener.onCaptionEdit(editText.getText().toString()));
+      if (editListener != null) {
+        EditText editText = (EditText) holder.itemView.findViewById(R.id.caption);
+        editText.setText(trial.getCaptionText());
+        editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
+        RxTextView.afterTextChangeEvents(editText)
+            .subscribe(event -> editListener.onCaptionEdit(editText.getText().toString()));
+      }
       return;
     }
 
@@ -214,20 +220,22 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
     // Notes out of range are not clickable.
     if (startTimestamp <= label.getTimeStamp() && label.getTimeStamp() < endTimestamp) {
-      noteHolder.durationText.setOnClickListener(
-          new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-              clickListener.onLabelTimestampClicked(label);
-            }
-          });
-      noteHolder.itemView.setOnClickListener(
-          new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-              clickListener.onLabelClicked(label);
-            }
-          });
+      if (clickListener != null) {
+        noteHolder.durationText.setOnClickListener(
+            new View.OnClickListener() {
+              @Override
+              public void onClick(View view) {
+                clickListener.onLabelTimestampClicked(label);
+              }
+            });
+        noteHolder.itemView.setOnClickListener(
+            new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                clickListener.onLabelClicked(label);
+              }
+            });
+      }
     }
   }
 

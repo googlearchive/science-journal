@@ -265,7 +265,8 @@ public class MainActivity extends ActivityWithNavigationView {
                                 WhistlePunkApplication.getLaunchIntentForPanesActivity(
                                     MainActivity.this,
                                     currentAccount,
-                                    experiment.getExperimentId()));
+                                    experiment.getExperimentId(),
+                                    false /* claimExperimentsMode */));
                           }
                         });
               }
@@ -490,7 +491,7 @@ public class MainActivity extends ActivityWithNavigationView {
       public void onRecordingSaved(String runId, Experiment experiment) {
         boolean fromRecord = true;
         boolean createTask = true;
-        boolean readOnly = false;
+        boolean claimExperimentsMode = false;
         RunReviewActivity.launch(
             MainActivity.this,
             currentAccount,
@@ -499,7 +500,7 @@ public class MainActivity extends ActivityWithNavigationView {
             0,
             fromRecord,
             createTask,
-            readOnly,
+            claimExperimentsMode,
             null);
       }
 

@@ -577,7 +577,10 @@ public class ExportService extends Service {
                       activity -> {
                         activity.startActivity(
                             WhistlePunkApplication.getLaunchIntentForPanesActivity(
-                                context, appAccount, progress.getId()));
+                                context,
+                                appAccount,
+                                progress.getId(),
+                                false /* claimExperimentsMode */));
                       });
             });
 

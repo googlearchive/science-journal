@@ -156,7 +156,7 @@ public class UpdateRunFragment extends Fragment {
     upIntent.putExtra(RunReviewFragment.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     upIntent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
     upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, experimentId);
-    upIntent.putExtra(RunReviewFragment.ARG_READ_ONLY, false);
+    upIntent.putExtra(RunReviewFragment.ARG_CLAIM_EXPERIMENTS_MODE, false);
     NavUtils.navigateUpTo(getActivity(), upIntent);
   }
 }

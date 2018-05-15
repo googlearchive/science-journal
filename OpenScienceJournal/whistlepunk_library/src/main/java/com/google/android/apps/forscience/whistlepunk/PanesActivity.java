@@ -61,6 +61,7 @@ public class PanesActivity extends AppCompatActivity
   private static final String TAG = "PanesActivity";
   public static final String EXTRA_ACCOUNT_KEY = "accountKey";
   public static final String EXTRA_EXPERIMENT_ID = "experimentId";
+  public static final String EXTRA_CLAIM_EXPERIMENTS_MODE = "claimExperimentsMode";
   private static final String KEY_SELECTED_TAB_INDEX = "selectedTabIndex";
   private static final String KEY_DRAWER_STATE = "drawerState";
   private final SnackbarManager snackbarManager;
@@ -78,23 +79,37 @@ public class PanesActivity extends AppCompatActivity
   private int initialDrawerState = -1;
   private RxEvent paused = new RxEvent();
   private AppAccount appAccount;
+  private boolean claimExperimentsMode;
 
   public PanesActivity() {
     snackbarManager = new SnackbarManager();
   }
 
+  private DrawerLayoutState newDrawerLayoutState(
+      int activityHeight, int drawerState, Experiment experiment) {
+    return new DrawerLayoutState(activityHeight, drawerState, experiment, claimExperimentsMode);
+  }
+
   public static class DrawerLayoutState {
     private final int activityHeight;
     private final int drawerState;
-    private Experiment experiment;
+    private final Experiment experiment;
+    private final boolean claimExperimentsMode;
 
-    private DrawerLayoutState(int activityHeight, int drawerState, Experiment experiment) {
+    private DrawerLayoutState(
+        int activityHeight, int drawerState, Experiment experiment, boolean claimExperimentsMode) {
       this.activityHeight = activityHeight;
       this.drawerState = drawerState;
       this.experiment = experiment;
+      this.claimExperimentsMode = claimExperimentsMode;
     }
 
     public int getAvailableHeight() {
+      if (claimExperimentsMode) {
+        // No control bar in claim experiments mode.
+        return 0;
+      }
+
       if (experiment.isArchived()) {
         // No matter the state, the control bar is hidden when archived.
         return 0;
@@ -242,16 +257,19 @@ public class PanesActivity extends AppCompatActivity
         Observable<DrawerLayoutState> layoutState);
   }
 
-  public static void launch(Context context, AppAccount appAccount, String experimentId) {
-    Intent intent = launchIntent(context, appAccount, experimentId);
+  public static void launch(
+      Context context, AppAccount appAccount, String experimentId, boolean claimExperimentsMode) {
+    Intent intent = launchIntent(context, appAccount, experimentId, claimExperimentsMode);
     context.startActivity(intent);
   }
 
   @NonNull
-  public static Intent launchIntent(Context context, AppAccount appAccount, String experimentId) {
+  public static Intent launchIntent(
+      Context context, AppAccount appAccount, String experimentId, boolean claimExperimentsMode) {
     Intent intent = new Intent(context, PanesActivity.class);
     intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
+    intent.putExtra(EXTRA_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
     return intent;
   }
 
@@ -288,6 +306,7 @@ public class PanesActivity extends AppCompatActivity
 
     appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
     String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
+    claimExperimentsMode = getIntent().getBooleanExtra(EXTRA_CLAIM_EXPERIMENTS_MODE, false);
 
     selectedTabIndex = 0;
     if (savedInstanceState != null) {
@@ -403,7 +422,7 @@ public class PanesActivity extends AppCompatActivity
     View controlBarSpacer = findViewById(R.id.control_bar_spacer);
     FrameLayout controlBar = findViewById(R.id.bottom_control_bar);
 
-    if (!experiment.isArchived()) {
+    if (!experiment.isArchived() && !claimExperimentsMode) {
       setCoordinatorBehavior(
           experimentPane,
           new BottomDependentBehavior() {
@@ -511,6 +530,7 @@ public class PanesActivity extends AppCompatActivity
 
       initializeToolPicker(toolPicker, pager, experiment, bottomSheet, experimentPane);
     } else {
+      // Either the experiment is archived or we are in claim experiments mode.
       controlBar.setVisibility(View.GONE);
       controlBarSpacer.setVisibility(View.GONE);
       bottomSheet.setVisibility(View.GONE);
@@ -617,7 +637,7 @@ public class PanesActivity extends AppCompatActivity
             activityHeight.distinctUntilChanged(),
             bottomSheetState.distinctUntilChanged(),
             activeExperiment.toObservable(),
-            DrawerLayoutState::new)
+            this::newDrawerLayoutState)
         .filter(state -> state.getAvailableHeight() >= 0);
   }
 
@@ -645,7 +665,7 @@ public class PanesActivity extends AppCompatActivity
       boolean createTaskStack = true;
       experimentFragment =
           ExperimentDetailsFragment.newInstance(
-              appAccount, experiment.getExperimentId(), createTaskStack);
+              appAccount, experiment.getExperimentId(), createTaskStack, claimExperimentsMode);
 
       fragmentManager.beginTransaction().replace(R.id.experiment_pane, experimentFragment).commit();
     } else {

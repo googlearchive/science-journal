@@ -52,7 +52,7 @@ public class RunReviewActivity extends MetadataActivity {
       int activeSensorIndex,
       boolean fromRecord,
       boolean createTask,
-      boolean readOnly,
+      boolean claimExperimentsMode,
       Bundle options) {
     // TODO(saff): fancy schmancy material transition here (see specs)
     final Intent intent = new Intent(context, RunReviewActivity.class);
@@ -62,7 +62,7 @@ public class RunReviewActivity extends MetadataActivity {
     intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, activeSensorIndex);
     intent.putExtra(EXTRA_FROM_RECORD, fromRecord);
     intent.putExtra(EXTRA_CREATE_TASK, createTask);
-    intent.putExtra(RunReviewFragment.ARG_READ_ONLY, readOnly);
+    intent.putExtra(RunReviewFragment.ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
     context.startActivity(intent, options);
   }
 
@@ -84,7 +84,7 @@ public class RunReviewActivity extends MetadataActivity {
               getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
               getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
               getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true),
-              getIntent().getExtras().getBoolean(RunReviewFragment.ARG_READ_ONLY));
+              getIntent().getExtras().getBoolean(RunReviewFragment.ARG_CLAIM_EXPERIMENTS_MODE));
       getSupportFragmentManager()
           .beginTransaction()
           .add(R.id.container, fragment, FRAGMENT_TAG)

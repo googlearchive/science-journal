@@ -174,7 +174,7 @@ class ControlBarController {
 
     Intent launchIntent =
         WhistlePunkApplication.getLaunchIntentForPanesActivity(
-            anchorView.getContext(), appAccount, experimentId);
+            anchorView.getContext(), appAccount, experimentId, false /* claimExperimentsMode */);
 
     // This isn't currently used, but does ensure this intent doesn't match any other intent.
     // See b/31616891

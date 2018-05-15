@@ -129,6 +129,10 @@ public class ExperimentListFragment extends Fragment
   public void onResume() {
     super.onResume();
     setProgressBarVisible(progressBarVisible);
+    // TODO(lizlooney): Update this code for claim experiments mode. We'll need to have two
+    // AppAccounts that we know about: the non-signed-in account which "owns" the experiments we
+    // will show and the account that is claiming the experiments.
+
     // The experiments for the current account need to be loaded now and whenever the current
     // accounts changes.
     WhistlePunkApplication.getAppServices(getActivity())
@@ -201,7 +205,10 @@ public class ExperimentListFragment extends Fragment
                                 TrackerConstants.LABEL_EXPERIMENT_LIST,
                                 0);
                         launchPanesActivity(
-                            v.getContext(), currentAccount, experiment.getExperimentId());
+                            v.getContext(),
+                            currentAccount,
+                            experiment.getExperimentId(),
+                            false /* claimExperimentsMode */);
                       }
                     }));
 
@@ -209,15 +216,16 @@ public class ExperimentListFragment extends Fragment
   }
 
   public static void launchPanesActivity(
-      Context context, AppAccount appAccount, String experimentId) {
+      Context context, AppAccount appAccount, String experimentId, boolean claimExperimentsMode) {
     context.startActivity(
-        WhistlePunkApplication.getLaunchIntentForPanesActivity(context, appAccount, experimentId));
+        WhistlePunkApplication.getLaunchIntentForPanesActivity(
+            context, appAccount, experimentId, claimExperimentsMode));
   }
 
   private void loadExperiments() {
-    AppAccount appAccount = currentAccount;
     PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
     PerfTrackerProvider.TimerToken loadExperimentTimer = perfTracker.startTimer();
+    AppAccount appAccount = currentAccount;
     getDataController()
         .getExperimentOverviews(
             includeArchived,
@@ -562,8 +570,13 @@ public class ExperimentListFragment extends Fragment
       holder.cardView.setOnClickListener(
           v -> {
             if (!parentReference.get().progressBarVisible) {
+              // TODO(lizlooney): set claimExperimentsMode correctly for Claim Experiments Mode.
+              boolean claimExperimentsMode = false;
               launchPanesActivity(
-                  v.getContext(), parentReference.get().currentAccount, overview.experimentId);
+                  v.getContext(),
+                  parentReference.get().currentAccount,
+                  overview.experimentId,
+                  claimExperimentsMode);
             }
           });
 
