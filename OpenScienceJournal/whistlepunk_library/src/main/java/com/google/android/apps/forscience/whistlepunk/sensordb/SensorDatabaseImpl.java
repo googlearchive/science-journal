@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Pair;
 import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
@@ -84,9 +85,10 @@ public class SensorDatabaseImpl implements SensorDatabase {
 
   private final SQLiteOpenHelper openHelper;
 
-  public SensorDatabaseImpl(Context context, String name) {
+  public SensorDatabaseImpl(Context context, AppAccount appAccount, String name) {
     openHelper =
-        new SQLiteOpenHelper(context, name, null, DbVersions.CURRENT) {
+        new SQLiteOpenHelper(
+            context, appAccount.getDatabaseFileName(name), null, DbVersions.CURRENT) {
           @Override
           public void onCreate(SQLiteDatabase db) {
             db.execSQL(ScalarSensorsTable.CREATION_SQL);

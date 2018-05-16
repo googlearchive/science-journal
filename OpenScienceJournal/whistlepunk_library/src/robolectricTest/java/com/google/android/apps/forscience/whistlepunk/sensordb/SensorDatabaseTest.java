@@ -21,6 +21,8 @@ import static org.junit.Assert.fail;
 
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
@@ -45,7 +47,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testAddScalarReading() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     long timestamp = Arbitrary.integer();
     double value = Arbitrary.doubleFloat();
     db.addScalarReading("id", "tag", 0, timestamp, value);
@@ -58,7 +61,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testAddScalarReadingLimits() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 1, 1.0);
     db.addScalarReading("id", "tag", 0, 2, 2.0);
     db.addScalarReading("id", "tag", 0, 3, 3.0);
@@ -71,7 +75,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testAddScalarReadingNoLimits() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 1, 1.0);
     db.addScalarReading("id", "tag", 0, 2, 2.0);
     db.addScalarReading("id", "tag", 0, 3, 3.0);
@@ -86,7 +91,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testAddScalarReadingTags() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 1, 1.0);
     db.addScalarReading("id", "tag", 0, 2, 2.0);
     db.addScalarReading("id", "other", 0, 3, 3.0);
@@ -98,7 +104,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testAddScalarReadingLimitsNewestFirst() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 1, 1.0);
     db.addScalarReading("id", "tag", 0, 2, 2.0);
     db.addScalarReading("id", "tag", 0, 3, 3.0);
@@ -111,7 +118,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testAddScalarReadingRange() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 1, 1.0);
     db.addScalarReading("id", "tag", 0, 2, 2.0);
     db.addScalarReading("id", "tag", 0, 3, 3.0);
@@ -134,7 +142,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testTiers() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 0, 0.0);
     db.addScalarReading("id", "tag", 1, 1, 1.0);
 
@@ -151,7 +160,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testFirstTagAfter() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tagBefore", 0, 1, 1.0);
     db.addScalarReading("id", "tagAfter", 0, 3, 2.0);
     assertEquals("tagAfter", db.getFirstDatabaseTagAfter(2));
@@ -159,7 +169,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testFirstTagAfterWithMultipleAfters() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tagBefore", 0, 1, 1.0);
     db.addScalarReading("id", "tagAfter", 0, 3, 2.0);
     db.addScalarReading("id", "tagFurtherAfter", 0, 5, 3.0);
@@ -168,7 +179,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testDeleteReadings() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 0, 0.0);
     db.addScalarReading("id", "tag", 0, 1, 1.0);
     db.addScalarReading("id", "tag", 0, 101, 2.0);
@@ -204,7 +216,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testObservable_oneSensor() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 0, 0.0);
     db.addScalarReading("id", "tag", 0, 1, 1.5);
     db.addScalarReading("id", "tag", 0, 101, 2.0);
@@ -223,7 +236,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testObservable_multipleSensors() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 0, 0.0);
     db.addScalarReading("id", "tag", 0, 3, 1.0);
     db.addScalarReading("id", "tag", 0, 101, 2.0);
@@ -247,7 +261,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testObservable_mutipleRuns() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     db.addScalarReading("id", "tag", 0, 0, 0.0);
     db.addScalarReading("id", "tag", 0, 1, 1.0);
     db.addScalarReading("id", "tag", 0, 2, 0.0);
@@ -273,7 +288,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testObservable_paging() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
 
     int pageSize = 10;
     int total = pageSize * 10;
@@ -298,7 +314,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testGetScalarReadingProtos() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     long timestamp = Arbitrary.integer();
     double value = Arbitrary.doubleFloat();
 
@@ -331,7 +348,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testGetScalarReadingProtosDefaultTrialId() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     long timestamp = Arbitrary.integer();
     double value = Arbitrary.doubleFloat();
 
@@ -363,7 +381,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testGetScalarReadingSensorProtos() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     long timestamp = Arbitrary.integer();
     double value = Arbitrary.doubleFloat();
     db.addScalarReading("id", "foo", 0, timestamp, value);
@@ -380,7 +399,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testGetScalarReadingSensorProtosEmptyResult() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     long timestamp = Arbitrary.integer();
     double value = Arbitrary.doubleFloat();
     db.addScalarReading("id", "foo", 0, timestamp, value);
@@ -397,7 +417,8 @@ public class SensorDatabaseTest {
 
   @Test
   public void testGetScalarReadingProtosAsList() {
-    SensorDatabaseImpl db = new SensorDatabaseImpl(getContext(), TEST_DATABASE_NAME);
+    SensorDatabaseImpl db =
+        new SensorDatabaseImpl(getContext(), getAppAccount(), TEST_DATABASE_NAME);
     long timestamp = Arbitrary.integer();
     double value = Arbitrary.doubleFloat();
 
@@ -445,5 +466,9 @@ public class SensorDatabaseTest {
 
   private Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
   }
 }
