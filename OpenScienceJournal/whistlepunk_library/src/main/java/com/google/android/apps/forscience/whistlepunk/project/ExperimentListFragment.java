@@ -21,6 +21,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import androidx.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import androidx.fragment.app.Fragment;
@@ -36,6 +37,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,7 +55,10 @@ import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AccountsUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
@@ -81,6 +86,9 @@ public class ExperimentListFragment extends Fragment
   /** Boolean extra for savedInstanceState with the state of includeArchived experiments. */
   private static final String EXTRA_INCLUDE_ARCHIVED = "includeArchived";
 
+  private static final String ARG_ACCOUNT_KEY = "accountKey";
+  private static final String ARG_CLAIM_EXPERIMENTS_MODE = "claimExperimentsMode";
+  private static final String ARG_CLAIMING_ACCOUNT_KEY = "claimingAccountKey";
   private static final String ARG_USE_PANES = "usePanes";
   private static final String KEY_DEFAULT_EXPERIMENT_CREATED = "key_default_experiment_created";
 
@@ -88,12 +96,46 @@ public class ExperimentListFragment extends Fragment
   private boolean includeArchived;
   private boolean progressBarVisible = false;
   private final RxEvent destroyed = new RxEvent();
-  private AppAccount currentAccount;
-  private final RxEvent paused = new RxEvent();
+  private AppAccount appAccount;
+  private boolean requireSignedInAccount;
+  private boolean claimExperimentsMode;
+  private AppAccount claimingAccount;
 
-  public static ExperimentListFragment newInstance(boolean usePanes) {
+  public static ExperimentListFragment newInstance(AppAccount appAccount, boolean usePanes) {
+    return newInstance(createArguments(appAccount, usePanes));
+  }
+
+  private static ExperimentListFragment newInstance(Bundle arguments) {
+    ExperimentListFragment fragment = new ExperimentListFragment();
+    fragment.setArguments(arguments);
+    return fragment;
+  }
+
+  private static Bundle createArguments(AppAccount appAccount, boolean usePanes) {
+    Bundle args = new Bundle();
+    args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
+    args.putBoolean(ARG_USE_PANES, usePanes);
+    return args;
+  }
+
+  public static ExperimentListFragment reuseOrCreateInstance(
+      @Nullable Fragment fragment, AppAccount appAccount, boolean usePanes) {
+    Bundle newArguments = createArguments(appAccount, usePanes);
+    if (fragment instanceof ExperimentListFragment
+        && newArguments.equals(fragment.getArguments())) {
+      return (ExperimentListFragment) fragment;
+    }
+    return newInstance(newArguments);
+  }
+
+  public static ExperimentListFragment newInstanceForClaimExperimentsMode(
+      Context context, AppAccount claimingAccount, boolean usePanes) {
+    NonSignedInAccount nonSignedInAccount = NonSignedInAccount.getInstance(context);
     ExperimentListFragment fragment = new ExperimentListFragment();
     Bundle args = new Bundle();
+    args.putString(ARG_ACCOUNT_KEY, nonSignedInAccount.getAccountKey());
+    args.putBoolean(ARG_CLAIM_EXPERIMENTS_MODE, true);
+    args.putString(ARG_CLAIMING_ACCOUNT_KEY, claimingAccount.getAccountKey());
     args.putBoolean(ARG_USE_PANES, usePanes);
     fragment.setArguments(args);
     return fragment;
@@ -111,9 +153,28 @@ public class ExperimentListFragment extends Fragment
             busy -> {
               setProgressBarVisible(busy);
             });
-    if (savedInstanceState != null) {
-      includeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
+
+    AccountsProvider accountsProvider =
+        WhistlePunkApplication.getAppServices(getContext()).getAccountsProvider();
+    requireSignedInAccount = accountsProvider.requireSignedInAccount();
+
+    appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
+
+    claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
+    if (claimExperimentsMode) {
+      claimingAccount =
+          WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_CLAIMING_ACCOUNT_KEY);
+
+      // In claim experiments mode, we always start with showing archived experiments, even if the
+      // user hid them previously.
+      includeArchived = true;
       getActivity().invalidateOptionsMenu();
+
+    } else {
+      if (savedInstanceState != null) {
+        includeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
+        getActivity().invalidateOptionsMenu();
+      }
     }
     setHasOptionsMenu(true);
   }
@@ -129,33 +190,13 @@ public class ExperimentListFragment extends Fragment
   public void onResume() {
     super.onResume();
     setProgressBarVisible(progressBarVisible);
-    // TODO(lizlooney): Update this code for claim experiments mode. We'll need to have two
-    // AppAccounts that we know about: the non-signed-in account which "owns" the experiments we
-    // will show and the account that is claiming the experiments.
-
-    // The experiments for the current account need to be loaded now and whenever the current
-    // accounts changes.
-    WhistlePunkApplication.getAppServices(getActivity())
-        .getAccountsProvider()
-        .getObservableCurrentAccount()
-        .takeUntil(paused.happens())
-        .subscribe(
-            appAccount -> {
-              currentAccount = appAccount;
-              loadExperiments();
-            });
+    loadExperiments();
   }
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putBoolean(EXTRA_INCLUDE_ARCHIVED, includeArchived);
-  }
-
-  @Override
-  public void onPause() {
-    paused.onHappened();
-    super.onPause();
   }
 
   @Override
@@ -191,26 +232,30 @@ public class ExperimentListFragment extends Fragment
 
     FloatingActionButton newExperimentButton =
         (FloatingActionButton) view.findViewById(R.id.new_experiment);
-    newExperimentButton.setOnClickListener(
-        v ->
-            getDataController()
-                .createExperiment(
-                    new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
-                      @Override
-                      public void success(final Experiment experiment) {
-                        WhistlePunkApplication.getUsageTracker(getActivity())
-                            .trackEvent(
-                                TrackerConstants.CATEGORY_EXPERIMENTS,
-                                TrackerConstants.ACTION_CREATE,
-                                TrackerConstants.LABEL_EXPERIMENT_LIST,
-                                0);
-                        launchPanesActivity(
-                            v.getContext(),
-                            currentAccount,
-                            experiment.getExperimentId(),
-                            false /* claimExperimentsMode */);
-                      }
-                    }));
+    if (claimExperimentsMode) {
+      newExperimentButton.setVisibility(View.GONE);
+    } else {
+      newExperimentButton.setOnClickListener(
+          v ->
+              getDataController()
+                  .createExperiment(
+                      new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
+                        @Override
+                        public void success(final Experiment experiment) {
+                          WhistlePunkApplication.getUsageTracker(getActivity())
+                              .trackEvent(
+                                  TrackerConstants.CATEGORY_EXPERIMENTS,
+                                  TrackerConstants.ACTION_CREATE,
+                                  TrackerConstants.LABEL_EXPERIMENT_LIST,
+                                  0);
+                          launchPanesActivity(
+                              v.getContext(),
+                              appAccount,
+                              experiment.getExperimentId(),
+                              false /* claimExperimentsMode */);
+                        }
+                      }));
+    }
 
     return view;
   }
@@ -222,10 +267,28 @@ public class ExperimentListFragment extends Fragment
             context, appAccount, experimentId, claimExperimentsMode));
   }
 
+  private boolean shouldShowClaimExperimentsCard() {
+    // We should prompt to claim experiments if:
+    // we are not already in claim experiments mode
+    // and there is one or more experiments in unclaimed storage.
+    return !claimExperimentsMode
+        && requireSignedInAccount
+        && AccountsUtils.getUnclaimedExperimentCount(getContext()) >= 1;
+  }
+
+  private boolean shouldShowAddExperimentsToDriveCard() {
+    return claimExperimentsMode;
+  }
+
   private void loadExperiments() {
+    // Don't show any experiments until the user has signed in.
+    if (!claimExperimentsMode && requireSignedInAccount && !appAccount.isSignedIn()) {
+      attachToExperiments(new ArrayList<>());
+      return;
+    }
+
     PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
     PerfTrackerProvider.TimerToken loadExperimentTimer = perfTracker.startTimer();
-    AppAccount appAccount = currentAccount;
     getDataController()
         .getExperimentOverviews(
             includeArchived,
@@ -234,13 +297,17 @@ public class ExperimentListFragment extends Fragment
               @Override
               public void success(List<GoosciUserMetadata.ExperimentOverview> experiments) {
                 // In case the account changes multiple times quickly, ignore the results if
-                // the account we just loaded is no longer the current account.
-                if (!appAccount.equals(currentAccount)) {
+                // the activity is now null.
+                if (getActivity() == null) {
                   return;
                 }
-                if (experiments.isEmpty() && !wasDefaultExperimentCreated()) {
+                if (experiments.isEmpty()
+                    && !wasDefaultExperimentCreated()
+                    && !shouldShowClaimExperimentsCard()) {
                   // If there are no experiments and we've never made a default one,
                   // create the default experiment and set the boolean to true.
+                  // Note that we don't create the default experiment if the user is
+                  // prompted to claim unclaimed experiments.
                   createDefaultExperiment();
                   perfTracker.stopTimer(
                       loadExperimentTimer, TrackerConstants.PRIMES_DEFAULT_EXPERIMENT_CREATED);
@@ -255,12 +322,12 @@ public class ExperimentListFragment extends Fragment
   }
 
   private boolean wasDefaultExperimentCreated() {
-    String prefKey = currentAccount.getPreferenceKey(KEY_DEFAULT_EXPERIMENT_CREATED);
+    String prefKey = appAccount.getPreferenceKey(KEY_DEFAULT_EXPERIMENT_CREATED);
     return PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(prefKey, false);
   }
 
   private void setDefaultExperimentCreated() {
-    String prefKey = currentAccount.getPreferenceKey(KEY_DEFAULT_EXPERIMENT_CREATED);
+    String prefKey = appAccount.getPreferenceKey(KEY_DEFAULT_EXPERIMENT_CREATED);
     PreferenceManager.getDefaultSharedPreferences(getActivity())
         .edit()
         .putBoolean(prefKey, true)
@@ -342,7 +409,7 @@ public class ExperimentListFragment extends Fragment
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController(currentAccount);
+    return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
   public void setProgressBarVisible(boolean visible) {
@@ -437,12 +504,20 @@ public class ExperimentListFragment extends Fragment
       dateString = date;
       experimentOverview = null;
     }
+
+    ExperimentListItem(int viewType) {
+      this.viewType = viewType;
+      dateString = null;
+      experimentOverview = null;
+    }
   }
 
   public static class ExperimentListAdapter extends RecyclerView.Adapter<ViewHolder> {
     static final int VIEW_TYPE_EXPERIMENT = 0;
     static final int VIEW_TYPE_EMPTY = 1;
     static final int VIEW_TYPE_DATE = 2;
+    static final int VIEW_TYPE_CLAIM_EXPERIMENTS = 3;
+    static final int VIEW_TYPE_ADD_EXPERIMENTS_TO_DRIVE = 4;
     private final Drawable placeHolderImage;
 
     private final List<ExperimentListItem> items;
@@ -470,26 +545,34 @@ public class ExperimentListFragment extends Fragment
         List<GoosciUserMetadata.ExperimentOverview> experimentOverviews, boolean includeArchived) {
       this.includeArchived = includeArchived;
       items.clear();
-      if (experimentOverviews.size() == 0) {
-        notifyDataSetChanged();
-        return;
+      if (parentReference.get().shouldShowClaimExperimentsCard()) {
+        items.add(new ExperimentListItem(VIEW_TYPE_CLAIM_EXPERIMENTS));
       }
-      // Sort most recent first
-      Collections.sort(
-          experimentOverviews, (eo1, eo2) -> Long.compare(eo2.lastUsedTimeMs, eo1.lastUsedTimeMs));
-      String date = "";
-      for (GoosciUserMetadata.ExperimentOverview overview : experimentOverviews) {
-        // Only show the year if it is not this year.
-        calendar.setTime(new Date(overview.lastUsedTimeMs));
-        String nextDate =
-            DateFormat.format(
-                    calendar.get(Calendar.YEAR) == currentYear ? "MMMM" : monthYearFormat, calendar)
-                .toString();
-        if (!TextUtils.equals(date, nextDate)) {
-          date = nextDate;
-          items.add(new ExperimentListItem(date));
+      if (parentReference.get().shouldShowAddExperimentsToDriveCard()) {
+        items.add(new ExperimentListItem(VIEW_TYPE_ADD_EXPERIMENTS_TO_DRIVE));
+      }
+      if (experimentOverviews.isEmpty()) {
+        items.add(new ExperimentListItem(VIEW_TYPE_EMPTY));
+      } else {
+        // Sort most recent first
+        Collections.sort(
+            experimentOverviews,
+            (eo1, eo2) -> Long.compare(eo2.lastUsedTimeMs, eo1.lastUsedTimeMs));
+        String date = "";
+        for (GoosciUserMetadata.ExperimentOverview overview : experimentOverviews) {
+          // Only show the year if it is not this year.
+          calendar.setTime(new Date(overview.lastUsedTimeMs));
+          String nextDate =
+              DateFormat.format(
+                      calendar.get(Calendar.YEAR) == currentYear ? "MMMM" : monthYearFormat,
+                      calendar)
+                  .toString();
+          if (!TextUtils.equals(date, nextDate)) {
+            date = nextDate;
+            items.add(new ExperimentListItem(date));
+          }
+          items.add(new ExperimentListItem(overview));
         }
-        items.add(new ExperimentListItem(overview));
       }
       notifyDataSetChanged();
     }
@@ -502,37 +585,59 @@ public class ExperimentListFragment extends Fragment
         view = inflater.inflate(R.layout.empty_list, parent, false);
       } else if (viewType == VIEW_TYPE_DATE) {
         view = inflater.inflate(R.layout.experiment_date, parent, false);
-      } else {
-        view = inflater.inflate(R.layout.project_experiment_overview, parent, false);
+      } else if (viewType == VIEW_TYPE_CLAIM_EXPERIMENTS) {
+        view = inflater.inflate(R.layout.claim_experiments_card, parent, false);
+      } else if (viewType == VIEW_TYPE_ADD_EXPERIMENTS_TO_DRIVE) {
+        view = inflater.inflate(R.layout.add_experiments_to_drive_card, parent, false);
+      } else { // VIEW_TYPE_EXPERIMENT
+        view =
+            inflater.inflate(
+                parentReference.get().claimExperimentsMode
+                    ? R.layout.claim_experiment_overview
+                    : R.layout.project_experiment_overview,
+                parent,
+                false);
       }
-      return new ViewHolder(view, viewType);
+      return new ViewHolder(view, viewType, parentReference.get().claimExperimentsMode);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-      if (items.isEmpty()) {
-        // Empty view holder doesn't need any binding logic.
-        return;
-      }
       if (items.get(position).viewType == VIEW_TYPE_EXPERIMENT) {
         bindExperiment(holder, items.get(position));
       } else if (items.get(position).viewType == VIEW_TYPE_DATE) {
         ((TextView) holder.itemView).setText(items.get(position).dateString);
+      } else if (items.get(position).viewType == VIEW_TYPE_CLAIM_EXPERIMENTS) {
+        Context context = holder.itemView.getContext();
+        int unclaimedExperimentCount = AccountsUtils.getUnclaimedExperimentCount(context);
+        // If there is just one unclaimed experiment, the text is already correct. If there is more
+        // than one unclaimed experiment, we need to set the text.
+        if (unclaimedExperimentCount > 1) {
+          TextView textView = holder.itemView.findViewById(R.id.text_claim_experiments);
+          textView.setText(
+              context
+                  .getResources()
+                  .getString(
+                      R.string.claim_experiments_card_text_multiple, unclaimedExperimentCount));
+        }
+        holder.claimButton.setOnClickListener(
+            v -> {
+              ClaimExperimentsActivity.launch(
+                  v.getContext(),
+                  parentReference.get().appAccount,
+                  parentReference.get().getArguments().getBoolean(ARG_USE_PANES));
+            });
       }
     }
 
     @Override
     public int getItemCount() {
-      return items.isEmpty() ? 1 : items.size();
+      return items.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-      if (items.isEmpty()) {
-        return VIEW_TYPE_EMPTY;
-      } else {
-        return items.get(position).viewType;
-      }
+      return items.get(position).viewType;
     }
 
     private void bindExperiment(final ViewHolder holder, final ExperimentListItem item) {
@@ -570,77 +675,84 @@ public class ExperimentListFragment extends Fragment
       holder.cardView.setOnClickListener(
           v -> {
             if (!parentReference.get().progressBarVisible) {
-              // TODO(lizlooney): set claimExperimentsMode correctly for Claim Experiments Mode.
-              boolean claimExperimentsMode = false;
               launchPanesActivity(
                   v.getContext(),
-                  parentReference.get().currentAccount,
+                  parentReference.get().appAccount,
                   overview.experimentId,
-                  claimExperimentsMode);
+                  parentReference.get().claimExperimentsMode);
             }
           });
 
-      Context context = holder.menuButton.getContext();
-      boolean isShareIntentValid =
-          FileMetadataManager.validateShareIntent(
-              context, parentReference.get().currentAccount, overview.experimentId);
-      holder.menuButton.setOnClickListener(
-          v -> {
-            int position = items.indexOf(item);
+      if (parentReference.get().claimExperimentsMode) {
+        holder.menuButton.setVisibility(View.GONE);
+        // TODO(lizlooney): Add click listeners for holder.driveButton, holder.shareButton, and
+        // holder.deleteButton.
+      } else {
+        Context context = holder.menuButton.getContext();
+        boolean isShareIntentValid =
+            FileMetadataManager.validateShareIntent(
+                context, parentReference.get().appAccount, overview.experimentId);
+        holder.menuButton.setOnClickListener(
+            v -> {
+              int position = items.indexOf(item);
 
-            popupMenu =
-                new PopupMenu(
-                    context,
-                    holder.menuButton,
-                    Gravity.NO_GRAVITY,
-                    R.attr.actionOverflowMenuStyle,
-                    0);
-            popupMenu
-                .getMenuInflater()
-                .inflate(R.menu.menu_experiment_overview, popupMenu.getMenu());
-            popupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!overview.isArchived);
-            popupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(overview.isArchived);
-            popupMenu
-                .getMenu()
-                .findItem(R.id.menu_item_export_experiment)
-                .setVisible(isShareIntentValid && !overview.isArchived);
+              popupMenu =
+                  new PopupMenu(
+                      context,
+                      holder.menuButton,
+                      Gravity.NO_GRAVITY,
+                      R.attr.actionOverflowMenuStyle,
+                      0);
+              popupMenu
+                  .getMenuInflater()
+                  .inflate(R.menu.menu_experiment_overview, popupMenu.getMenu());
+              popupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!overview.isArchived);
+              popupMenu
+                  .getMenu()
+                  .findItem(R.id.menu_item_unarchive)
+                  .setVisible(overview.isArchived);
+              popupMenu
+                  .getMenu()
+                  .findItem(R.id.menu_item_export_experiment)
+                  .setVisible(isShareIntentValid && !overview.isArchived);
 
-            popupMenu.setOnMenuItemClickListener(
-                menuItem -> {
-                  if (parentReference.get().progressBarVisible) {
-                    return true;
-                  }
-                  if (menuItem.getItemId() == R.id.menu_item_archive) {
-                    setExperimentArchived(overview, position, true);
-                    return true;
-                  } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
-                    setExperimentArchived(overview, position, false);
-                    return true;
-                  } else if (menuItem.getItemId() == R.id.menu_item_delete) {
-                    snackbarManager.hideVisibleSnackbar();
-                    parentReference.get().confirmDelete(overview.experimentId);
-                    return true;
-                  } else if (menuItem.getItemId() == R.id.menu_item_export_experiment) {
-                    WhistlePunkApplication.getUsageTracker(parentReference.get().getActivity())
-                        .trackEvent(
-                            TrackerConstants.CATEGORY_EXPERIMENTS,
-                            TrackerConstants.ACTION_SHARED,
-                            TrackerConstants.LABEL_EXPERIMENT_LIST,
-                            0);
-                    parentReference.get().setProgressBarVisible(true);
-                    ExportService.handleExperimentExportClick(
-                        context, parentReference.get().currentAccount, overview.experimentId);
-                    return true;
-                  }
-                  return false;
-                });
-            popupMenu.setOnDismissListener(menu -> popupMenu = null);
-            popupMenu.show();
-          });
+              popupMenu.setOnMenuItemClickListener(
+                  menuItem -> {
+                    if (parentReference.get().progressBarVisible) {
+                      return true;
+                    }
+                    if (menuItem.getItemId() == R.id.menu_item_archive) {
+                      setExperimentArchived(overview, position, true);
+                      return true;
+                    } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
+                      setExperimentArchived(overview, position, false);
+                      return true;
+                    } else if (menuItem.getItemId() == R.id.menu_item_delete) {
+                      snackbarManager.hideVisibleSnackbar();
+                      parentReference.get().confirmDelete(overview.experimentId);
+                      return true;
+                    } else if (menuItem.getItemId() == R.id.menu_item_export_experiment) {
+                      WhistlePunkApplication.getUsageTracker(parentReference.get().getActivity())
+                          .trackEvent(
+                              TrackerConstants.CATEGORY_EXPERIMENTS,
+                              TrackerConstants.ACTION_SHARED,
+                              TrackerConstants.LABEL_EXPERIMENT_LIST,
+                              0);
+                      parentReference.get().setProgressBarVisible(true);
+                      ExportService.handleExperimentExportClick(
+                          context, parentReference.get().appAccount, overview.experimentId);
+                      return true;
+                    }
+                    return false;
+                  });
+              popupMenu.setOnDismissListener(menu -> popupMenu = null);
+              popupMenu.show();
+            });
+      }
 
       if (!TextUtils.isEmpty(overview.imagePath)) {
         PictureUtils.loadExperimentOverviewImage(
-            parentReference.get().currentAccount, holder.experimentImage, overview.imagePath);
+            parentReference.get().appAccount, holder.experimentImage, overview.imagePath);
       } else {
         // Make sure the scale type is correct for the placeholder
         holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -794,10 +906,14 @@ public class ExperimentListFragment extends Fragment
     public View archivedIndicator;
     public View cardView;
     public ImageButton menuButton;
+    public ImageButton driveButton;
+    public ImageButton shareButton;
+    public ImageButton deleteButton;
+    public Button claimButton;
 
     int viewType;
 
-    public ViewHolder(View itemView, int viewType) {
+    public ViewHolder(View itemView, int viewType, boolean claimExperimentsMode) {
       super(itemView);
       this.viewType = viewType;
       if (viewType == ExperimentListAdapter.VIEW_TYPE_EXPERIMENT) {
@@ -806,6 +922,13 @@ public class ExperimentListFragment extends Fragment
         experimentTitle = (TextView) itemView.findViewById(R.id.experiment_title);
         archivedIndicator = itemView.findViewById(R.id.archived_indicator);
         menuButton = (ImageButton) itemView.findViewById(R.id.menu_button);
+        if (claimExperimentsMode) {
+          driveButton = (ImageButton) itemView.findViewById(R.id.drive_button);
+          shareButton = (ImageButton) itemView.findViewById(R.id.share_button);
+          deleteButton = (ImageButton) itemView.findViewById(R.id.delete_button);
+        }
+      } else if (viewType == ExperimentListAdapter.VIEW_TYPE_CLAIM_EXPERIMENTS) {
+        claimButton = (Button) itemView.findViewById(R.id.btn_claim_experiments);
       }
     }
   }

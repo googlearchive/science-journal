@@ -29,11 +29,13 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   final BehaviorSubject<AppAccount> observableCurrentAccount = BehaviorSubject.create();
   private final Object lockCurrentAccount = new Object();
   private AppAccount currentAccount;
-  private AppAccount currentAccountOverride;
   private final Map<String, AppAccount> accountsByKey = new HashMap<>();
 
   AbstractAccountsProvider(Context context) {
     applicationContext = context.getApplicationContext();
+
+    NonSignedInAccount nonSignedInAccount = NonSignedInAccount.getInstance(applicationContext);
+    accountsByKey.put(nonSignedInAccount.getAccountKey(), nonSignedInAccount);
   }
 
   @Override
@@ -44,7 +46,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   @Override
   public final AppAccount getCurrentAccount() {
     synchronized (lockCurrentAccount) {
-      return (currentAccountOverride != null) ? currentAccountOverride : currentAccount;
+      return currentAccount;
     }
   }
 
@@ -54,35 +56,12 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   }
 
   @Override
-  public void setClaimExperimentsMode(boolean claimExperimentsMode) {
-    synchronized (lockCurrentAccount) {
-      if (claimExperimentsMode) {
-        currentAccountOverride = NonSignedInAccount.getInstance(applicationContext);
-        observableCurrentAccount.onNext(currentAccountOverride);
-      } else {
-        currentAccountOverride = null;
-        observableCurrentAccount.onNext(currentAccount);
-      }
-    }
-  }
-
-  @Override
-  public boolean getClaimExperimentsMode() {
-    synchronized (lockCurrentAccount) {
-      return currentAccountOverride != null;
-    }
-  }
-
-  @Override
-  public AppAccount getCurrentAccountIgnoringClaimExperimentsMode() {
-    synchronized (lockCurrentAccount) {
-      return currentAccount;
-    }
-  }
-
-  @Override
   public AppAccount getAccountByKey(String accountKey) {
-    return accountsByKey.get(accountKey);
+    AppAccount appAccount = accountsByKey.get(accountKey);
+    if (appAccount != null) {
+      return appAccount;
+    }
+    throw new IllegalArgumentException("The accountKey is not associated with a known AppAccount");
   }
 
   /**
@@ -95,9 +74,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
       accountsByKey.put(currentAccount.getAccountKey(), currentAccount);
 
       this.currentAccount = currentAccount;
-      if (currentAccountOverride == null) {
-        observableCurrentAccount.onNext(currentAccount);
-      }
+      observableCurrentAccount.onNext(currentAccount);
     }
   }
 

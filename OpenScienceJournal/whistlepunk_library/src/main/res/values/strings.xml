@@ -1566,6 +1566,36 @@ Permissions notice:
     <!-- Button text for not signed in fragment [CHAR_LIMIT=NONE] -->
     <string name="get_started">Get started</string>
 
+    <!-- Headline for Claim experiments card [CHAR_LIMIT=30] -->
+    <string name="claim_experiments_card_headline">Claim past experiments</string>
+
+    <!-- Text for Claim experiments card when there is 1 unclaimed experiment [CHAR_LIMIT=80] -->
+    <string name="claim_experiments_card_text_one">There is 1 unclaimed experiment on this device.</string>
+
+    <!-- Text for Claim experiments card when there are more than 1 unclaimed experiments [CHAR_LIMIT=80] -->
+    <string name="claim_experiments_card_text_multiple">There are <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> unclaimed experiments on this device.</string>
+
+    <!-- Text for claim experiments card button [CHAR_LIMIT=30] -->
+    <string name="claim_experiments_card_button_text">Claim experiments</string>
+
+    <!-- Claim experiments activity title [CHAR_LIMIT=30] -->
+    <string name="title_activity_claim_experiments">Claim experiments</string>
+
+    <!-- Headline for Add experiments to Drive card [CHAR_LIMIT=30] -->
+    <string name="add_experiments_to_drive_card_headline">Add experiments to Google Drive</string>
+
+    <!-- Text for Add experiments to Drive card [CHAR_LIMIT=80] -->
+    <string name="add_experiments_to_drive_card_text">Experiments cannot be edited and will remain on the device until they are either claimed or deleted</string>
+
+    <!-- Context description for button which adds an experiment to drive [CHAR_LIMIT=50]-->
+    <string name="drive_btn_content_description">Add experiment to drive</string>
+
+    <!-- Context description for button which shares an experiment [CHAR_LIMIT=50]-->
+    <string name="share_btn_content_description">Share experiment</string>
+
+    <!-- Context description for button which deletes an experiment [CHAR_LIMIT=50]-->
+    <string name="delete_btn_content_description">Delete experiment</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 

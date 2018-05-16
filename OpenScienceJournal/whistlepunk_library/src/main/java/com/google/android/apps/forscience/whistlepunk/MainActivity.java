@@ -36,7 +36,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -48,6 +47,9 @@ import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 public class MainActivity extends ActivityWithNavigationView {
   private static final String TAG = "MainActivity";
   public static final String ARG_SELECTED_NAV_ITEM_ID = "selected_nav_item_id";
+  // TODO(lizlooney): It looks like the ARG_USE_PANES value is always true. Investigate whether the
+  // ARG_USE_PANES value is ever false and if not, remove the argument in MainActivity,
+  // ExperimentListFragment, and ClaimExperimentsActivity.
   public static final String ARG_USE_PANES = "use_panes";
   protected static final int NO_SELECTED_ITEM = -1;
 
@@ -71,10 +73,12 @@ public class MainActivity extends ActivityWithNavigationView {
     super.onCreate(savedInstanceState);
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
     accountsProvider = WhistlePunkApplication.getAppServices(this).getAccountsProvider();
+    currentAccount = accountsProvider.getCurrentAccount();
     if (showRequiredScreensIfNeeded()) {
       return;
     }
     setContentView(R.layout.activity_main);
+    accountsProvider.connectAccountSwitcher(this);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -117,7 +121,8 @@ public class MainActivity extends ActivityWithNavigationView {
 
     setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-    currentAccount = NonSignedInAccount.getInstance(this);
+    // Clean up old files from previous exports.
+    ExportService.cleanOldFiles(this, currentAccount);
   }
 
   private int getSavedItemId(Bundle savedInstanceState) {
@@ -147,12 +152,7 @@ public class MainActivity extends ActivityWithNavigationView {
     accountsProvider
         .getObservableCurrentAccount()
         .takeUntil(pause.happens())
-        .subscribe(
-            appAccount -> {
-              currentAccount = appAccount;
-              // Clean up old files from previous exports.
-              ExportService.cleanOldFiles(this, currentAccount);
-            });
+        .subscribe(this::onAccountSwitched);
 
     if (!isMultiWindowEnabled()) {
       updateRecorderControllerForResume();
@@ -232,6 +232,7 @@ public class MainActivity extends ActivityWithNavigationView {
 
   @Override
   protected void onStop() {
+    accountsProvider.disconnectAccountSwitcher(this);
     if (isMultiWindowEnabled()) {
       updateRecorderControllerForPause();
     }
@@ -314,14 +315,12 @@ public class MainActivity extends ActivityWithNavigationView {
     if (menuItem.getItemId() == R.id.navigation_item_experiments) {
       FragmentManager fragmentManager = getSupportFragmentManager();
       FragmentTransaction transaction = fragmentManager.beginTransaction();
-      Fragment fragment;
       int itemId = menuItem.getItemId();
 
       final String tag = String.valueOf(itemId);
-      fragment = getSupportFragmentManager().findFragmentByTag(tag);
-      if (fragment == null) {
-        fragment = ExperimentListFragment.newInstance(shouldUsePanes());
-      }
+      Fragment fragment =
+          ExperimentListFragment.reuseOrCreateInstance(
+              fragmentManager.findFragmentByTag(tag), currentAccount, shouldUsePanes());
       adjustActivityForSelectedItem(itemId);
 
       titleToRestore = getTitleToRestore(menuItem);
@@ -522,5 +521,21 @@ public class MainActivity extends ActivityWithNavigationView {
         }
       }
     };
+  }
+
+  private void onAccountSwitched(AppAccount appAccount) {
+    if (currentAccount.equals(appAccount)) {
+      return;
+    }
+    currentAccount = appAccount;
+
+    // Clean up old files from previous exports.
+    ExportService.cleanOldFiles(this, currentAccount);
+
+    // Navigate to experiments list.
+    int selectedNavItemId = R.id.navigation_item_experiments;
+    MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
+    navigationView.setCheckedItem(selectedNavItemId);
+    onNavigationItemSelected(item);
   }
 }

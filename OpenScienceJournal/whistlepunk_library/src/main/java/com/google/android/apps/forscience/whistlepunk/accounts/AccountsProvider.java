@@ -77,18 +77,6 @@ public interface AccountsProvider {
    */
   Observable<AppAccount> getObservableCurrentAccount();
 
-  /** Sets whether claim experiments mode is on or off. */
-  void setClaimExperimentsMode(boolean claimExperimentsMode);
-
-  /** @return whether claim experiments mode is on or off. */
-  boolean getClaimExperimentsMode();
-
-  /**
-   * @return the current account, ignoring whether claim experiments mode is on or off. This is
-   *     intented to be used during the transition from non-signed-in to signed-in.
-   */
-  AppAccount getCurrentAccountIgnoringClaimExperimentsMode();
-
   /** @return the account with the given key, or null if no known account has the given key. */
   AppAccount getAccountByKey(String accountKey);
 }
