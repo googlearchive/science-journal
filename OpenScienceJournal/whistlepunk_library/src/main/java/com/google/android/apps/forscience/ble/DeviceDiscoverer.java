@@ -53,7 +53,6 @@ public abstract class DeviceDiscoverer {
     public int lastRssi;
   }
 
-  private final Context context;
   private final BluetoothAdapter bluetoothAdapter;
   private final ArrayMap<String, DeviceRecord> devices;
   private Callback callback;
@@ -69,14 +68,13 @@ public abstract class DeviceDiscoverer {
   }
 
   protected DeviceDiscoverer(Context context) {
-    this.context = context.getApplicationContext();
     BluetoothManager manager =
-        (BluetoothManager) this.context.getSystemService(Context.BLUETOOTH_SERVICE);
-    bluetoothAdapter = manager.getAdapter();
+        (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+    bluetoothAdapter = manager == null ? null : manager.getAdapter();
     devices = new ArrayMap<>();
   }
 
-  public BluetoothAdapter getBluetoothAdapter() {
+  BluetoothAdapter getBluetoothAdapter() {
     return bluetoothAdapter;
   }
 
@@ -101,7 +99,8 @@ public abstract class DeviceDiscoverer {
   public abstract void onStopScanning();
 
   public boolean canScan() {
-    return bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
+    // This may only be possible in emulators
+    return bluetoothAdapter != null && bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
   }
 
   protected void addOrUpdateDevice(WhistlepunkBleDevice device, int rssi) {
