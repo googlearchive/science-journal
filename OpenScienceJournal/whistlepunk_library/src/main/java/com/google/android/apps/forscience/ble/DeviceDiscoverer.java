@@ -99,7 +99,7 @@ public abstract class DeviceDiscoverer {
   public abstract void onStopScanning();
 
   public boolean canScan() {
-    // This may only be possible in emulators
+    // It may only be possible for bluetoothAdapter to be null in emulators
     return bluetoothAdapter != null && bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
   }
 
