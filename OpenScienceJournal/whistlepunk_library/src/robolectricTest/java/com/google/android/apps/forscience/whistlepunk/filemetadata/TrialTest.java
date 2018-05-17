@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
+import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
@@ -41,7 +42,9 @@ public class TrialTest {
     labelProto.labelId = "labelId";
     labelProto.timestampMs = 1;
     trialProto.labels[0] = labelProto;
+    Experiment experiment = ExperimentCreator.newExperimentForTesting(1, "id", 1);
     Trial trial = Trial.fromTrial(trialProto);
+    experiment.addTrial(trial);
 
     assertEquals(trial.getLabelCount(), 1);
 
@@ -54,9 +57,7 @@ public class TrialTest {
     trial.addLabel(second);
     assertEquals(trial.getLabelCount(), 2);
 
-    trial
-        .deleteLabelAndReturnAssetDeleter(label, getAppAccount(), "experimentId")
-        .accept(getContext());
+    trial.deleteLabelAndReturnAssetDeleter(experiment, label, getAppAccount()).accept(getContext());
     assertEquals(trial.getLabelCount(), 1);
   }
 

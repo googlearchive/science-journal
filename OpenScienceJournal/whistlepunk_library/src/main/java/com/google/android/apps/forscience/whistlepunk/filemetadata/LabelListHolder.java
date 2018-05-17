@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import io.reactivex.functions.Consumer;
 import java.util.Collections;
@@ -48,7 +49,18 @@ public abstract class LabelListHolder {
     sortLabels();
   }
 
-  public abstract void updateLabel(Experiment experiment, Label label);
+  public void updateLabel(Experiment experiment, Label label) {
+    updateLabel(
+        experiment,
+        label,
+        Change.newModifyTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
+  }
+
+  public void updateLabel(Experiment experiment, Label label, Change change) {
+    updateLabel(label);
+    experiment.addChange(change);
+  }
 
   void updateLabelWithoutSorting(Label label) {
     for (int i = 0; i < labels.size(); i++) {
@@ -60,7 +72,18 @@ public abstract class LabelListHolder {
     }
   }
 
-  public abstract void updateLabelWithoutSorting(Experiment experiment, Label label);
+  public void updateLabelWithoutSorting(Experiment experiment, Label label) {
+    updateLabelWithoutSorting(
+        experiment,
+        label,
+        Change.newModifyTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
+  }
+
+  public void updateLabelWithoutSorting(Experiment experiment, Label label, Change change) {
+    updateLabelWithoutSorting(label);
+    experiment.addChange(change);
+  }
 
   /** Adds a label to the object's list of labels. The list will still be sorted by timestamp. */
   void addLabel(Label label) {
@@ -71,7 +94,36 @@ public abstract class LabelListHolder {
     }
   }
 
-  public abstract void addLabel(Experiment experiment, Label label);
+  public void addLabel(Experiment experiment, Label label) {
+    addLabel(
+        experiment,
+        label,
+        Change.newAddTypeChange(
+            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
+  }
+
+  public void addLabel(Experiment experiment, Label label, Change change) {
+    addLabel(label);
+    experiment.addChange(change);
+  }
+
+  /**
+   * Deletes a label from this object, without writing a change. Used for merging.
+   *
+   * <p>Returns a Runnable that also deletes the assets this label referenced. This should be
+   * executed when the deletion is final (user opts not to undo).
+   */
+  Consumer<Context> deleteLabelAndReturnAssetDeleterWithoutRecordingChange(
+      Experiment experiment, Label toDelete, AppAccount appAccount) {
+    for (Label label : labels) {
+      if (TextUtils.equals(label.getLabelId(), toDelete.getLabelId())) {
+        labels.remove(label);
+        break;
+      }
+    }
+    return context ->
+        deleteLabelAssets(toDelete, context, appAccount, experiment.getExperimentId());
+  }
 
   /**
    * Deletes a label from this object.
@@ -80,14 +132,24 @@ public abstract class LabelListHolder {
    * executed when the deletion is final (user opts not to undo).
    */
   public Consumer<Context> deleteLabelAndReturnAssetDeleter(
-      Label toDelete, AppAccount appAccount, String experimentId) {
+      Experiment experiment, Label toDelete, Change change, AppAccount appAccount) {
     for (Label label : labels) {
       if (TextUtils.equals(label.getLabelId(), toDelete.getLabelId())) {
         labels.remove(label);
+        experiment.addChange(change);
         break;
       }
     }
-    return context -> deleteLabelAssets(toDelete, context, appAccount, experimentId);
+    return context ->
+        deleteLabelAssets(toDelete, context, appAccount, experiment.getExperimentId());
+  }
+
+  public Consumer<Context> deleteLabelAndReturnAssetDeleter(
+      Experiment experiment, Label toDelete, AppAccount appAccount) {
+    String labelId = toDelete.getLabelId();
+    Change change =
+        Change.newDeleteTypeChange(GoosciExperiment.ChangedElement.ElementType.NOTE, labelId);
+    return deleteLabelAndReturnAssetDeleter(experiment, toDelete, change, appAccount);
   }
 
   protected void deleteLabelAssets(

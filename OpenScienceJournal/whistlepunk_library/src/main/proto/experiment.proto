@@ -146,7 +146,7 @@ message Change {
     // existing UUID.
     MODIFY = 3;
 
-    // Used to signify changes that take place during a merge, such as
+    // Used to signify changes that take place during a mergeFrom, such as
     // Editing the title of an experiment to contain two titles. May be unused.
     MERGE = 4;
   }

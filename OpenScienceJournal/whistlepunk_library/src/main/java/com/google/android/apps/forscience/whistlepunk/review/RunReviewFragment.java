@@ -897,7 +897,7 @@ public class RunReviewFragment extends Fragment
   private void deleteLabel(Label item) {
     // Delete the item immediately.
     Consumer<Context> assetDeleter =
-        getTrial().deleteLabelAndReturnAssetDeleter(item, appAccount, experimentId);
+        getTrial().deleteLabelAndReturnAssetDeleter(experiment, item, appAccount);
     RxDataController.updateExperiment(getDataController(), experiment)
         .subscribe(() -> onLabelDelete(new DeletedLabel(item, assetDeleter)));
   }

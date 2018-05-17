@@ -181,11 +181,11 @@ abstract class LabelDetailsFragment extends Fragment {
 
   private Consumer<Context> deleteLabelFromExperiment(Experiment experiment) {
     if (TextUtils.isEmpty(trialId)) {
-      return experiment.deleteLabelAndReturnAssetDeleter(originalLabel, appAccount);
+      return experiment.deleteLabelAndReturnAssetDeleter(experiment, originalLabel, appAccount);
     } else {
       return experiment
           .getTrial(trialId)
-          .deleteLabelAndReturnAssetDeleter(originalLabel, appAccount, experimentId);
+          .deleteLabelAndReturnAssetDeleter(experiment, originalLabel, appAccount);
     }
   }
 

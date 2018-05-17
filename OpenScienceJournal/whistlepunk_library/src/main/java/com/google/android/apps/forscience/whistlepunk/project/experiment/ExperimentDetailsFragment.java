@@ -721,7 +721,7 @@ public class ExperimentDetailsFragment extends Fragment
   void deleteLabel(Label label) {
     if (getActivity() != null) {
       Consumer<Context> assetDeleter =
-          experiment.deleteLabelAndReturnAssetDeleter(label, appAccount);
+          experiment.deleteLabelAndReturnAssetDeleter(experiment, label, appAccount);
       RxDataController.updateExperiment(getDataController(), experiment)
           .subscribe(() -> onLabelDelete(new DeletedLabel(label, assetDeleter)));
     }

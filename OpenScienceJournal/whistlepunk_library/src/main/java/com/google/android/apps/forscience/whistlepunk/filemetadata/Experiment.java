@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
+import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -26,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -36,7 +38,10 @@ import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a Science Journal experiment. All changes should be made using the getters and setters
@@ -46,6 +51,8 @@ import java.util.List;
  */
 // TODO: Get the ExperimentOverview photo path from labels and trials at load and change.
 public class Experiment extends LabelListHolder {
+  private static final String TAG = "Experiment";
+
   private GoosciUserMetadata.ExperimentOverview experimentOverview;
   private GoosciExperiment.Experiment proto;
   private List<GoosciSensorLayout.SensorLayout> sensorLayouts;
@@ -175,10 +182,19 @@ public class Experiment extends LabelListHolder {
   }
 
   public void setTitle(String title) {
-    this.title = title;
-    addChange(
+    setTitle(
+        title,
         Change.newModifyTypeChange(
             GoosciExperiment.ChangedElement.ElementType.EXPERIMENT, getExperimentId()));
+  }
+
+  public void setTitle(String title, Change change) {
+    this.title = title;
+    addChange(change);
+  }
+
+  private void setTitleWithoutRecordingChange(String title) {
+    this.title = title;
   }
 
   public String getDisplayTitle(Context context) {
@@ -208,6 +224,19 @@ public class Experiment extends LabelListHolder {
 
   public void setImagePath(String imagePath) {
     this.imagePath = imagePath;
+    addChange(Change.newModifyTypeChange(ElementType.EXPERIMENT, getExperimentId()));
+  }
+
+  /**
+   * Sets the image path in the Experiment without adding a change to the history. Should only be
+   * used for merging experiments.
+   */
+  public void setImagePathWithoutRecordingChange(String imagePath) {
+    this.imagePath = imagePath;
+  }
+
+  public String getImagePath() {
+    return imagePath;
   }
 
   /**
@@ -314,6 +343,20 @@ public class Experiment extends LabelListHolder {
     return null;
   }
 
+  /** Updates a trial without writing a change. Used for merging. */
+  private void updateTrialWithoutRecordingChange(Trial trial) {
+    for (int i = 0; i < trials.size(); i++) {
+      Trial next = trials.get(i);
+      if (TextUtils.equals(trial.getTrialId(), next.getTrialId())) {
+        trials.set(i, trial);
+        break;
+      }
+    }
+
+    // Update may involve crop, so re-sort just in case!
+    sortTrials();
+  }
+
   /**
    * Updates a trial.
    *
@@ -329,35 +372,59 @@ public class Experiment extends LabelListHolder {
     }
     // Update may involve crop, so re-sort just in case!
     sortTrials();
-    addChange(
-        Change.newModifyTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.TRIAL, trial.getTrialId()));
+    addChange(Change.newModifyTypeChange(ElementType.TRIAL, trial.getTrialId()));
   }
 
   /**
    * Adds a new trial to the experiment.
    *
    * @param trial
+   * @param change
    */
-  public void addTrial(Trial trial) {
+  public void addTrial(Trial trial, Change change) {
     trials.add(trial);
     trialCount = trials.size();
     trial.setTrialNumberInExperiment(++totalTrials);
     sortTrials();
-    addChange(
-        Change.newAddTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.TRIAL, trial.getTrialId()));
+    addChange(change);
+  }
+
+  public void addTrial(Trial trial) {
+    addTrial(trial, Change.newAddTypeChange(ElementType.TRIAL, trial.getTrialId()));
+  }
+
+  /** Adds a new trial to the experiment without recording the change. Used for merges. */
+  private void addTrialwithoutRecordingChange(Trial trial) {
+    trials.add(trial);
+    trialCount = trials.size();
+    trial.setTrialNumberInExperiment(++totalTrials);
+    sortTrials();
+  }
+
+  /** Removes a trial from the experiment, without recording a change. Used for merging */
+  // TODO(b/79353972) Test this
+  public void deleteTrialWithoutRecordingChange(
+      Trial trial, Context context, AppAccount appAccount) {
+    trial.deleteContents(context, appAccount, getExperimentId());
+    trials.remove(trial);
+    trialCount = trials.size();
   }
 
   /** Removes a trial from the experiment. */
   // TODO(b/79353972) Test this
   public void deleteTrial(Trial trial, Context context, AppAccount appAccount) {
+    deleteTrial(
+        trial,
+        Change.newDeleteTypeChange(ElementType.TRIAL, trial.getTrialId()),
+        context,
+        appAccount);
+  }
+
+  public void deleteTrial(Trial trial, Change change, Context context, AppAccount appAccount) {
     trial.deleteContents(context, appAccount, getExperimentId());
     trials.remove(trial);
     trialCount = trials.size();
-    addChange(
-        Change.newDeleteTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.TRIAL, trial.getTrialId()));
+    addChange(change);
   }
 
   /** Removes the assets from this experiment. */
@@ -590,33 +657,7 @@ public class Experiment extends LabelListHolder {
     }
   }
 
-  @Override
-  public void addLabel(Experiment experiment, Label label) {
-    addLabel(label);
-    addChange(
-        Change.newAddTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
-  }
 
-  @Override
-  public void updateLabel(Experiment experiment, Label label) {
-    updateLabel(label);
-    addChange(
-        Change.newModifyTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
-  }
-
-  @Override
-  public void updateLabelWithoutSorting(Experiment experiment, Label label) {
-    updateLabelWithoutSorting(label);
-    addChange(
-        Change.newModifyTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
-  }
-
-  public Consumer<Context> deleteLabelAndReturnAssetDeleter(Label item, AppAccount appAccount) {
-    return deleteLabelAndReturnAssetDeleter(item, appAccount, getExperimentId());
-  }
 
   public boolean isEmpty() {
     return getLabelCount() == 0
@@ -641,5 +682,313 @@ public class Experiment extends LabelListHolder {
 
   int getMinorVersion() {
     return proto.fileVersion.minorVersion;
+  }
+
+  /**
+   * Finds a label with a given id within an experiment, whether in the experiment itself, or nested
+   * under a trial.
+   *
+   * @param labelId the id of the label to find.
+   * @return the label that corresponds to the Id, or null.
+   */
+  public Label getLabel(String labelId) {
+    for (Label label : labels) {
+      if (label.getLabelId().equals(labelId)) {
+        return label;
+      }
+    }
+    for (Trial trial : trials) {
+      for (Label label : trial.getLabels()) {
+        if (label.getLabelId().equals(labelId)) {
+          return label;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Finds a the id of the trial that contains a given labelId, or null if the id isn't found, or if
+   * it is found in the root experiment.
+   *
+   * @param labelId the id of the label to find.
+   * @return the id of the trial that contains the label, or null.
+   */
+  public String getTrialIdForLabel(String labelId) {
+    for (Label label : labels) {
+      if (label.getLabelId().equals(labelId)) {
+        return null;
+      }
+    }
+    for (Trial trial : trials) {
+      for (Label label : trial.getLabels()) {
+        if (label.getLabelId().equals(labelId)) {
+          return trial.getTrialId();
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Merges the supplied externalExperiment into this experiment. The externalExperiment is not
+   * modified by this operation, but should no longer be used, as it is outdated. However, merging
+   * an experiment twice should not cause any problems, as the mergeFrom is deterministic and
+   * records all changes to the newly merged experiment.
+   *
+   * <p>Based on http://go/sj-merge
+   *
+   * @param externalExperiment The Experiment to mergeFrom into this one.
+   * @param context The current Context.
+   */
+  public void mergeFrom(Experiment externalExperiment, Context context, AppAccount appAccount) {
+    // First, we have to calculate the changes made in the local and external experiment.
+    List<Change> localChanges = changes;
+    List<Change> externalChanges = externalExperiment.getChanges();
+
+    Set<Change> localOnly = new LinkedHashSet<>();
+    Set<Change> externalOnly = new LinkedHashSet<>();
+
+    localOnly.addAll(localChanges);
+    localOnly.removeAll(externalChanges);
+
+    externalOnly.addAll(externalChanges);
+    externalOnly.removeAll(localChanges);
+
+    // Next, we have to add all of the external-only change records to the local change log.
+    for (Change c : externalOnly) {
+      addChange(c);
+    }
+
+    // Now, build a set of every element that changed externally and locally. This way,
+    // we can intersect those sets to find conflicts.
+    HashMap<String, Change> changedExternalElements = new HashMap<>();
+    for (Change external : externalOnly) {
+      changedExternalElements.put(external.getChangedElementId(), external);
+    }
+
+    HashMap<String, Change> changedLocalElements = new HashMap<>();
+    for (Change local : localOnly) {
+      changedLocalElements.put(local.getChangedElementId(), local);
+    }
+
+    // For each external changed element, see if that element was also changed locally. If it was,
+    // Solve the conflict. If it wasn't, copy the element to the local experiment.
+    // N.B., this deals with changed ELEMENTS, not changes. So if there are 2 edits made to a note,
+    // we only have to deal with it once, as the final state is already recorded. We have copied
+    // the change record above, so future merges will be aware of the full history.
+    for (Change external : changedExternalElements.values()) {
+      if (changedLocalElements.containsKey(external.getChangedElementId())) {
+        handleConflictMerge(externalExperiment, context, external);
+      } else {
+        handleNoConflictMerge(externalExperiment, context, external, appAccount);
+      }
+    }
+  }
+
+  private void handleNoConflictMerge(
+      Experiment externalExperiment, Context context, Change external, AppAccount appAccount) {
+    // If there is no conflict, we can just copy the change
+    switch (external.getChangedElementType()) {
+      case ElementType.NOTE:
+        copyNoteChange(externalExperiment, context, external, appAccount);
+        break;
+      case ElementType.EXPERIMENT:
+        copyExperimentChange(externalExperiment);
+        break;
+      case ElementType.TRIAL:
+        copyTrialChange(externalExperiment, context, external, appAccount);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private void copyTrialChange(
+      Experiment externalExperiment, Context context, Change external, AppAccount appAccount) {
+    String trialId = external.getChangedElementId();
+    Trial externalTrial = externalExperiment.getTrial(trialId);
+    Trial localTrial = getTrial(trialId);
+
+    if (externalTrial != null) {
+      // If the external trial exists, we have to copy it to the local experiment.
+      if (localTrial != null) {
+        // If the local trial exists, this is an update, not an add. In either case, we don't want
+        // to add our change to the changelog, as it has already been copied.
+        updateTrialWithoutRecordingChange(externalTrial);
+      } else {
+        addTrialwithoutRecordingChange(externalTrial);
+      }
+    } else {
+      // If the external trial does not exist, it was deleted, so we should delete from the local
+      // experiment as well. Don't record the change to the changelog.
+      if (localTrial != null) {
+        deleteTrialWithoutRecordingChange(localTrial, context, appAccount);
+      }
+    }
+  }
+
+  private void copyExperimentChange(Experiment externalExperiment) {
+    // This copies changes to the overall experiment: the title and the image path. These can't
+    // be added or deleted, really. They are just updated to/from blank strings.
+    // Don't record the change to the changelog.
+    setTitleWithoutRecordingChange(externalExperiment.getTitle());
+    setImagePathWithoutRecordingChange(externalExperiment.getImagePath());
+  }
+
+  private void copyNoteChange(
+      Experiment externalExperiment, Context context, Change external, AppAccount appAccount) {
+    // Copying notes is a little complicated, because they can be in either the root experiment, or
+    // attached to a trial, so we have to hunt around for them.
+    Label externalLabel = externalExperiment.getLabel(external.getChangedElementId());
+    if (externalLabel == null) {
+      // This is a delete, so let's make sure the label gets deleted locally.
+      // First, find out if this label already exists in a local trial.
+      String trialId = getTrialIdForLabel(external.getChangedElementId());
+      if (trialId != null) {
+        // Yep, it is in a local trial. So, get the trial, as well as the Local (not-deleted) label.
+        Trial trial = getTrial(trialId);
+        Label label = trial.getLabel(external.getChangedElementId());
+        // Delete the local label, without writing a change.
+        Consumer<Context> assetDeleter =
+            trial.deleteLabelAndReturnAssetDeleterWithoutRecordingChange(this, label, appAccount);
+        try {
+          assetDeleter.accept(context);
+        } catch (Exception e) {
+          Log.e(TAG, "Exception", e);
+        }
+      } else {
+        // Nope, it's not in a local trial. It must be in the local experiment, or this label was
+        // created and deleted between merges from the external source.
+        Label label = getLabel(external.getChangedElementId());
+        if (label != null) {
+          // If the label does exist, delete it without writing the change to the changelog. If it
+          // doesn't exist, that's fine, we wanted to delete it anyway.
+          Consumer<Context> assetDeleter =
+              deleteLabelAndReturnAssetDeleterWithoutRecordingChange(this, label, appAccount);
+          try {
+            assetDeleter.accept(context);
+          } catch (Exception e) {
+            Log.e(TAG, "Exception", e);
+          }
+        }
+      }
+    } else {
+      // This is not a delete. The label still exists in the external experiment.
+      // Find if the label is associated with a trial, externally.
+      String trialId = externalExperiment.getTrialIdForLabel(external.getChangedElementId());
+      if (trialId != null) {
+        // It's a trial label! So get the trial from the local experiment.
+        Trial trial = getTrial(trialId);
+        if (trial != null) {
+          // If the trial exists in the local experiment, let's copy the label from external to
+          // local, without copying the change.
+          Label localLabel = getLabel(external.getChangedElementId());
+          // If the label exists locally, update it.
+          if (localLabel != null) {
+            trial.updateLabel(externalLabel);
+          } else {
+            // Otherwise, add it.
+            trial.addLabel(externalLabel);
+          }
+        } else {
+          // If the trial doesn't exist locally, let's copy the whole external trial. There's a
+          // chance this will be reduntant, but it's unlikely that there will be many such copies,
+          // so let's not worry about optimizing too much. Copying the trial brings al of the
+          // associated labels with it.
+          Trial externalTrial = externalExperiment.getTrial(trialId);
+          addTrialwithoutRecordingChange(externalTrial);
+        }
+      } else {
+        // This label is an experiment label, not trial. That's simpler.
+        Label label = getLabel(external.getChangedElementId());
+        if (label != null) {
+          // The label exists locally already, so let's update it. Don't record the change.
+          updateLabel(externalLabel);
+        } else {
+          // The label does not exist locally. We have to add it, without recording a change.
+          addLabel(externalLabel);
+        }
+      }
+    }
+  }
+
+  // Handles merges where there are potential conflicts between local and external.
+  private void handleConflictMerge(
+      Experiment externalExperiment, Context context, Change external) {
+    if (external.getChangedElementType() == ElementType.NOTE) {
+      handleNoteConflict(externalExperiment, external);
+    } else if (external.getChangedElementType() == ElementType.EXPERIMENT) {
+      handleExperimentConflict(externalExperiment);
+    } else if (external.getChangedElementType() == ElementType.TRIAL) {
+      handleTrialConflict(externalExperiment, context, external);
+    }
+  }
+
+  private void handleTrialConflict(
+      Experiment externalExperiment, Context context, Change external) {
+    Trial externalTrial = externalExperiment.getTrial(external.getChangedElementId());
+    Trial localTrial = getTrial(external.getChangedElementId());
+
+    if (externalTrial != null) {
+      if (localTrial == null) {
+        // Don't write a change here.
+        addTrialwithoutRecordingChange(externalTrial);
+      } else {
+        if (localTrial != null) {
+          // Both local and external have been edited. This is a title change.
+          if (!localTrial.getTitle(context).equals(externalTrial.getTitle(context))) {
+            localTrial.setTitle(
+                localTrial.getTitle(context) + " " + externalTrial.getTitle(context));
+          }
+        }
+      }
+    }
+  }
+
+  private void handleExperimentConflict(Experiment externalExperiment) {
+    // If the experiment is edited in both experiments, we will take the external imagepath, and
+    // combine the titles (if the titles are different).
+    // We won't get experiment delete changes, because those are reflected in the experimentlibrary,
+    // and we won't get experiment add conflicts, because the IDs are UUIDs and won't conflict.
+    if (!getTitle().equals(externalExperiment.getTitle())) {
+      setTitleWithoutRecordingChange(getTitle() + " " + externalExperiment.getTitle());
+    }
+    setImagePathWithoutRecordingChange(externalExperiment.getImagePath());
+  }
+
+  private void handleNoteConflict(Experiment externalExperiment, Change external) {
+    Label externalLabel = externalExperiment.getLabel(external.getChangedElementId());
+    if (externalLabel == null) {
+      // This is a delete. When there has been a local change and a remote delete, keep the local
+      // change. Alternatively, the local was also deleted, so we can keep that delete, too.
+    } else {
+      // This is an edit.
+      // Determine if it's a trial note or an experiment one.
+      String trialId = externalExperiment.getTrialIdForLabel(external.getChangedElementId());
+      if (trialId != null) {
+        // It's a trial note
+        Trial trial = getTrial(trialId);
+        // Get the local trial.
+        if (trial != null) {
+          // The local trial exists. That means either a) the trial contains a different version
+          // of the label, or b) the label has been deleted. Either way, we have to create a new
+          // label and add it to the trial. This is a change that is not known to the change log
+          // so we DO have to write a change, here.
+          trial.addLabel(this, Label.copyOf(externalLabel));
+        } else {
+          // The trial doesn't exist. It's been deleted. Let's ressurect the trial. We don't have to
+          // record the change, as the ID will be the same.
+          Trial externalTrial = externalExperiment.getTrial(trialId);
+          addTrialwithoutRecordingChange(externalTrial);
+        }
+      } else {
+        // This is an experiment label. Either the experiment label has been deleted locally, or
+        // it has been edited. Either way, we have to create a new label and add it to the
+        // experiment. Once again, that ID is NOT known to the change log, so we have to add this
+        // to the log.
+        addLabel(this, Label.copyOf(externalLabel));
+      }
+    }
   }
 }

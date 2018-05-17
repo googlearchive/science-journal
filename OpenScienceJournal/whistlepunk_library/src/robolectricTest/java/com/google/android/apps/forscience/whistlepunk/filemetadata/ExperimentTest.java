@@ -22,9 +22,14 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -39,6 +44,14 @@ import org.robolectric.RuntimeEnvironment;
 /** Tests for the Experiment class which involve labels, which use Parcelable. */
 @RunWith(RobolectricTestRunner.class)
 public class ExperimentTest {
+
+  private static Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
+  }
 
   private GoosciExperiment.Experiment makeExperimentWithLabels(long[] labelTimes) {
     GoosciExperiment.Experiment result = new GoosciExperiment.Experiment();
@@ -343,7 +356,557 @@ public class ExperimentTest {
     assertEquals(7, experiment.getChanges().size());
   }
 
-  private Context getContext() {
-    return RuntimeEnvironment.application.getApplicationContext();
+  @Test
+  public void testMergeIdenticalExperiments() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+    experimentServer.setTitle("Title");
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals("Title", experimentServer.getTitle());
+    assertEquals(1, experimentServer.getChanges().size());
+  }
+
+  @Test
+  public void testMergeIdenticalExperimentsWithTwoChanges() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+    experimentServer.setTitle("Title");
+    experimentServer.setTitle("Title2");
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals("Title2", experimentServer.getTitle());
+    assertEquals(2, experimentServer.getChanges().size());
+  }
+
+  @Test
+  public void testMergeChangedExperimentTitleChange() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+    experimentServer.setTitle("Title");
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    experimentClient.setTitle("Title2");
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals("Title2", experimentServer.getTitle());
+    assertEquals(2, experimentServer.getChanges().size());
+  }
+
+  @Test
+  public void testMergeChangedExperimentTitleChangeTwice() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+    experimentServer.setTitle("Title");
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    experimentClient.setTitle("Title2");
+    experimentClient.setTitle("Title3");
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals("Title3", experimentServer.getTitle());
+    assertEquals(3, experimentServer.getChanges().size());
+  }
+
+  @Test
+  public void testMergeChangedExperimentTitleChangeConflict() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+    experimentServer.setTitle("Title");
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    experimentServer.setTitle("Title2");
+
+    experimentClient.setTitle("Title3");
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals("Title2 Title3", experimentServer.getTitle());
+    assertEquals(3, experimentServer.getChanges().size());
+  }
+
+  @Test
+  public void testMergeExperimentsLabelAddOnly() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    experimentClient.addLabel(experimentClient, label);
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(0, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(0, experimentServer.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+  }
+
+  @Test
+  public void testMergeExperimentsLabelAddAndEdit() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    experimentServer.addLabel(experimentServer, label);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    Label label2 = Label.fromLabel(label.getLabelProto());
+    Caption caption2 = new Caption();
+    caption2.text = "caption2";
+    label2.setCaption(caption2);
+    experimentClient.updateLabel(experimentClient, label2);
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    assertEquals(
+        experimentClient.getLabel(label2.getLabelId()).getCaptionText(),
+        experimentServer.getLabel(label2.getLabelId()).getCaptionText());
+  }
+
+  @Test
+  public void testMergeExperimentsLabelAddAndDelete() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    experimentServer.addLabel(experimentServer, label);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    experimentClient.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(0, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(0, experimentClient.getLabelCount());
+    assertEquals(0, experimentServer.getLabelCount());
+  }
+
+  @Test
+  public void testMergeExperimentsLabelAddAndEditDelete() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    experimentServer.addLabel(experimentServer, label);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    Label label2 = Label.fromLabel(label.getLabelProto());
+    Caption caption2 = new Caption();
+    caption2.text = "caption";
+    label2.setCaption(caption2);
+
+    experimentClient.updateLabel(experimentClient, label2);
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    experimentClient.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
+
+    assertEquals(3, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(0, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(3, experimentClient.getChanges().size());
+    assertEquals(3, experimentServer.getChanges().size());
+
+    assertEquals(0, experimentClient.getLabelCount());
+    assertEquals(0, experimentServer.getLabelCount());
+  }
+
+  @Test
+  public void testMergeExperimentsTrialAddOnly() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Trial trial = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    experimentClient.addTrial(trial);
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(0, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getTrialCount());
+    assertEquals(0, experimentServer.getTrialCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getTrialCount());
+    assertEquals(1, experimentServer.getTrialCount());
+  }
+
+  @Test
+  public void testMergeExperimentsTrialNoteAdd() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Trial trial = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+
+    experimentServer.addTrial(trial);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    Trial clientTrial = experimentClient.getTrial(trial.getTrialId());
+
+    clientTrial.addLabel(experimentClient, label);
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, clientTrial.getLabelCount());
+    assertEquals(0, trial.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(1, clientTrial.getLabelCount());
+    assertEquals(1, trial.getLabelCount());
+  }
+
+  @Test
+  public void testMergeExperimentsTrialNoteUpdate() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Trial trial = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+
+    experimentServer.addTrial(trial);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    trial.addLabel(label);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    Label label2 =
+        Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    Caption caption2 = new Caption();
+    caption2.text = "caption2";
+    label2.setCaption(caption2);
+
+    Trial clientTrial = experimentClient.getTrial(trial.getTrialId());
+
+    clientTrial.updateLabel(experimentClient, label2);
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, clientTrial.getLabelCount());
+    assertEquals(1, trial.getLabelCount());
+
+    assertEquals("caption", experimentServer.getLabel(label.getLabelId()).getCaptionText());
+
+    assertEquals("caption2", experimentClient.getLabel(label.getLabelId()).getCaptionText());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(1, clientTrial.getLabelCount());
+    assertEquals(1, trial.getLabelCount());
+
+    assertEquals("caption2", experimentServer.getLabel(label.getLabelId()).getCaptionText());
+
+    assertEquals("caption2", experimentClient.getLabel(label.getLabelId()).getCaptionText());
+  }
+
+  @Test
+  public void testMergeExperimentsTrialNoteDelete() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Trial trial = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+
+    experimentServer.addTrial(trial);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    trial.addLabel(label);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    Trial clientTrial = experimentClient.getTrial(trial.getTrialId());
+
+    clientTrial.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(0, clientTrial.getLabelCount());
+    assertEquals(1, trial.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(0, clientTrial.getLabelCount());
+    assertEquals(0, trial.getLabelCount());
+  }
+
+  @Test
+  public void testMergeExperimentsAddTrialAndNoteAndDeleteTrial() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    Trial trial = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+
+    experimentClient.addTrial(trial);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+    trial.addLabel(experimentClient, label);
+
+    assertEquals(1, trial.getLabelCount());
+
+    trial.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
+
+    assertEquals(3, experimentClient.getChanges().size());
+    assertEquals(0, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getTrialCount());
+    assertEquals(0, experimentServer.getTrialCount());
+
+    assertEquals(0, trial.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(3, experimentClient.getChanges().size());
+    assertEquals(3, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getTrialCount());
+    assertEquals(1, experimentServer.getTrialCount());
+
+    assertEquals(0, experimentServer.getTrial(trial.getTrialId()).getLabelCount());
+  }
+
+  @Test
+  public void testMergeExperimentsNoteEditConflict() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    experimentServer.addLabel(experimentServer, label);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    Label label2 =
+        Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    Caption caption2 = new Caption();
+    caption2.text = "caption2";
+    label2.setCaption(caption2);
+
+    experimentClient.updateLabel(experimentClient, label2);
+
+    Label label3 =
+        Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    Caption caption3 = new Caption();
+    caption3.text = "caption3";
+    label3.setCaption(caption3);
+
+    experimentServer.updateLabel(experimentServer, label3);
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(4, experimentServer.getChanges().size());
+    assertEquals(2, experimentServer.getLabelCount());
+  }
+
+  @Test
+  public void testMergeExperimentsNoteEditLocallyDeletedExternalConflict() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    experimentServer.addLabel(experimentServer, label);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    experimentClient.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
+
+    Label label3 =
+        Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    Caption caption3 = new Caption();
+    caption3.text = "caption3";
+    label3.setCaption(caption3);
+
+    experimentServer.updateLabel(experimentServer, label3);
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(0, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(3, experimentServer.getChanges().size());
+    assertEquals(1, experimentServer.getLabelCount());
+  }
+
+  @Test
+  public void testMergeExperimentsNoteEditedExternallyDeletedLocallyConflict() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    experimentServer.addLabel(experimentServer, label);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    Label label2 =
+        Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    Caption caption2 = new Caption();
+    caption2.text = "caption2";
+    label2.setCaption(caption2);
+
+    experimentClient.updateLabel(experimentServer, label2);
+
+    experimentServer.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(0, experimentServer.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(4, experimentServer.getChanges().size());
+    assertEquals(1, experimentServer.getLabelCount());
   }
 }

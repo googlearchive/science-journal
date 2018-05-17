@@ -31,7 +31,6 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -369,27 +368,12 @@ public class Trial extends LabelListHolder {
     return trial.trialNumberInExperiment;
   }
 
-  @Override
-  public void addLabel(Experiment experiment, Label label) {
-    addLabel(label);
-    experiment.addChange(
-        Change.newAddTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
-  }
-
-  @Override
-  public void updateLabel(Experiment experiment, Label label) {
-    updateLabel(label);
-    experiment.addChange(
-        Change.newModifyTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
-  }
-
-  @Override
-  public void updateLabelWithoutSorting(Experiment experiment, Label label) {
-    updateLabelWithoutSorting(label);
-    experiment.addChange(
-        Change.newModifyTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.NOTE, label.getLabelId()));
+  public Label getLabel(String labelId) {
+    for (Label label : labels) {
+      if (label.getLabelId().equals(labelId)) {
+        return label;
+      }
+    }
+    return null;
   }
 }
