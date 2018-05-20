@@ -22,6 +22,7 @@ import static com.google.android.apps.forscience.whistlepunk.filemetadata.FileMe
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -49,7 +50,9 @@ public class AccountsUtils {
   private static final String PREF_KEY_DELIMITER = "_";
 
   private static final String DB_NAME_PREFIX = "account";
-  private static final String DB_NAME_DELIMITER = ".";
+  private static final String DB_NAME_DELIMITER = "_";
+
+  private static final String NAMESPACE_DELIMITER = ":";
 
   private AccountsUtils() {
     // prevent construction
@@ -83,7 +86,17 @@ public class AccountsUtils {
       }
     }
 
-    // TODO(lizlooney): remove databases for accounts which are no longer present.
+    // Remove databases for accounts which are no longer present.
+    String[] databaseList = context.databaseList();
+    for (String databaseFileName : databaseList) {
+      String accountKey = getAccountKeyFromDatabaseFileName(databaseFileName);
+      if (accountKey != null) {
+        if (!accountKeys.contains(accountKey)) {
+          accountKeysRemoved.add(accountKey);
+          context.deleteDatabase(databaseFileName);
+        }
+      }
+    }
 
     // Remove preferences for accounts which are no longer present.
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -129,15 +142,31 @@ public class AccountsUtils {
   static String getAccountKey(String namespace, String accountName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(namespace), "namespace is null or empty!");
     Preconditions.checkArgument(
+        !namespace.contains(PREF_KEY_DELIMITER),
+        "namespace contains illegal character \"%s\" !",
+        PREF_KEY_DELIMITER);
+    Preconditions.checkArgument(
+        !namespace.contains(DB_NAME_DELIMITER),
+        "namespace contains illegal character \"%s\" !",
+        DB_NAME_DELIMITER);
+    Preconditions.checkArgument(
+        !namespace.contains(NAMESPACE_DELIMITER),
+        "namespace contains illegal character \"%s\" !",
+        NAMESPACE_DELIMITER);
+    Preconditions.checkArgument(
         !Strings.isNullOrEmpty(accountName), "accountName is null or empty!");
-    return namespace + ":" + Hashing.md5().hashString(accountName, StandardCharsets.UTF_8);
+
+    return namespace
+        + NAMESPACE_DELIMITER
+        + Hashing.md5().hashString(accountName, StandardCharsets.UTF_8);
   }
 
   /**
    * Returns the account key associated with the given file or null if the file does not belong to
    * an account.
    */
-  private static String getAccountKeyFromFile(Context context, File file) {
+  @VisibleForTesting
+  static String getAccountKeyFromFile(Context context, File file) {
     File accountsParentDir = getAccountsParentDirectory(context);
     while (file != null) {
       File parent = file.getParentFile();
@@ -167,6 +196,21 @@ public class AccountsUtils {
     return accountDir;
   }
 
+  /**
+   * Returns the account key associated with the given database file name or null if the database
+   * file name does not belong to an account.
+   */
+  @VisibleForTesting
+  static String getAccountKeyFromDatabaseFileName(String databaseFileName) {
+    String prefixWithDelimiter = DB_NAME_PREFIX + DB_NAME_DELIMITER;
+    if (databaseFileName.startsWith(prefixWithDelimiter)) {
+      int beginningOfAccountKey = prefixWithDelimiter.length();
+      int endOfAccountKey = databaseFileName.indexOf(DB_NAME_DELIMITER, beginningOfAccountKey);
+      return databaseFileName.substring(beginningOfAccountKey, endOfAccountKey);
+    }
+    return null;
+  }
+
   /** Returns the database file name that combines the given accountKey and dbName. */
   static String getDatabaseFileName(String accountKey, String dbName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(accountKey), "accountKey is null or empty!");
@@ -177,7 +221,8 @@ public class AccountsUtils {
    * Returns the account key associated with the given preference key or null if the preference key
    * does not belong to an account.
    */
-  private static String getAccountKeyFromPrefKey(String prefKey) {
+  @VisibleForTesting
+  static String getAccountKeyFromPrefKey(String prefKey) {
     String prefixWithDelimiter = PREF_KEY_PREFIX + PREF_KEY_DELIMITER;
     if (prefKey.startsWith(prefixWithDelimiter)) {
       int beginningOfAccountKey = prefixWithDelimiter.length();
