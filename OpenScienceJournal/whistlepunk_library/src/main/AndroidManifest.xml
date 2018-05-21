@@ -62,15 +62,6 @@
             android:name=".DataService"
             android:enabled="true"
             android:exported="false"/>
-        <service
-            android:name=".PublicRecorderService"
-            android:enabled="true"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="com.google.android.apps.forscience.whistlepunk.OBSERVER" />
-            </intent-filter>
-        </service>
 
         <activity
             android:name=".MainActivity"
