@@ -57,7 +57,7 @@ public class ExperimentLibraryManager {
    * @param experimentId The experiment to find.
    * @return The SyncExperiment if found, or null.
    */
-  private GoosciExperimentLibrary.SyncExperiment getExperiment(String experimentId) {
+  GoosciExperimentLibrary.SyncExperiment getExperiment(String experimentId) {
     for (GoosciExperimentLibrary.SyncExperiment experiment : proto.syncExperiment) {
       if (experimentId.equals(experiment.experimentId)) {
         return experiment;
@@ -89,6 +89,60 @@ public class ExperimentLibraryManager {
   }
 
   /**
+   * Adds an existing SyncExperiment proto to the ExperimentLibrary, if one does not already exist.
+   *
+   * @param experiment The SyncEcperiment to add.
+   */
+  void addExperiment(GoosciExperimentLibrary.SyncExperiment experiment) {
+    if (getExperiment(experiment.experimentId) != null) {
+      throw new IllegalArgumentException("Experiment already exists");
+    }
+
+    ArrayList<GoosciExperimentLibrary.SyncExperiment> experiments =
+        new ArrayList<>(Arrays.asList(proto.syncExperiment));
+    experiments.add(experiment);
+
+    proto.syncExperiment =
+        experiments.toArray(new GoosciExperimentLibrary.SyncExperiment[experiments.size()]);
+  }
+
+  /**
+   * Updates an existing SyncExperiment proto to the latest values between the library and another
+   * version of the SyncExperiment.
+   *
+   * @param experiment The SyncExperiment to update
+   * @param serverArchived The archive state seen when last synced to the server, from the
+   *        LocalSyncManager.
+   */
+  private void updateExperiment(
+      GoosciExperimentLibrary.SyncExperiment experiment, boolean serverArchived) {
+    GoosciExperimentLibrary.SyncExperiment toMerge = getExperiment(experiment.experimentId);
+    if (toMerge == null) {
+      addExperiment(experiment);
+    } else {
+      if (experiment.lastOpened > toMerge.lastOpened) {
+        toMerge.lastOpened = experiment.lastOpened;
+      }
+      if (experiment.lastModified > toMerge.lastModified) {
+        toMerge.lastModified = experiment.lastModified;
+      }
+      if (experiment.deleted) {
+        toMerge.deleted = true;
+      }
+      
+      // serverArchived is the state that we saw on the server during the last sync.
+      // If we unarchived locally, and it was unarchived remotely since the last sync, both the
+      // passed-in experiment and the local experiment will be false, and the serverArchived will
+      // be true.
+      // If only one of local and passed-in unarchived, serverArchived will be true, and one of the
+      //experiments will be false, and we want to keep whichever one changed.
+      if (experiment.archived != serverArchived) {
+        toMerge.archived = experiment.archived;
+      }
+    }
+  }
+
+  /**
    * Sets the specified experiment's archived state on the local device.
    *
    * @param experimentId The experiment to update.
@@ -96,6 +150,16 @@ public class ExperimentLibraryManager {
    */
   public void setArchived(String experimentId, boolean archived) {
     getExperiment(experimentId).archived = archived;
+  }
+
+  /**
+   * Gets the specified experiment's archived state on the local device.
+   *
+   * @param experimentId The experiment to get state for.
+   * @return Whether or not the experiment is locally archived.
+   */
+  public boolean isArchived(String experimentId) {
+    return getExperiment(experimentId).archived;
   }
 
   /**
@@ -107,6 +171,16 @@ public class ExperimentLibraryManager {
   public void setDeleted(String experimentId, boolean deleted) {
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
     experiment.deleted = deleted;
+  }
+
+  /**
+   * Gets the specified experiment's deleted state on the local device.
+   *
+   * @param experimentId The experiment to get state for.
+   * @return Whether or not the experiment is locally deleted.
+   */
+  public boolean isDeleted(String experimentId) {
+    return getExperiment(experimentId).deleted;
   }
 
   /**
@@ -130,6 +204,16 @@ public class ExperimentLibraryManager {
   }
 
   /**
+   * Gets the specified experiment's last opened time.
+   *
+   * @param experimentId The experiment get times from.
+   * @return the last opened time for the experiment, in millis.
+   */
+  public long getOpened(String experimentId) {
+    return getExperiment(experimentId).lastOpened;
+  }
+
+  /**
    * Sets the specified experiment's last modified time to now.
    *
    * @param experimentId The experiment to update.
@@ -147,5 +231,31 @@ public class ExperimentLibraryManager {
   public void setModified(String experimentId, long timeInMillis) {
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
     experiment.lastModified = timeInMillis;
+  }
+
+  /**
+   * Gets the specified experiment's last modified time.
+   *
+   * @param experimentId The experiment get times from.
+   * @return the last modified time for the experiment, in millis.
+   */
+  public long getModified(String experimentId) {
+    return getExperiment(experimentId).lastModified;
+  }
+
+  /**
+   * Merges newer changes from one library into this one.
+   *
+   * @param library The experiment to merge from.
+   */
+  public void merge(
+      GoosciExperimentLibrary.ExperimentLibrary library, LocalSyncManager syncManager) {
+    for (GoosciExperimentLibrary.SyncExperiment experiment : library.syncExperiment) {
+      boolean serverArchived = false;
+      if (syncManager.hasExperiment(experiment.experimentId)) {
+        serverArchived = syncManager.getServerArchived(experiment.experimentId);
+      }
+      updateExperiment(experiment, serverArchived);
+    }
   }
 }

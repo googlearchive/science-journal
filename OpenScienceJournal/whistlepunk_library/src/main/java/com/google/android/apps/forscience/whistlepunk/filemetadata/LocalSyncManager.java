@@ -49,6 +49,15 @@ public class LocalSyncManager {
   }
 
   /**
+   * Checks if an experiment is known.
+   *
+   * @param experimentId The id of the experiment to manage.
+   */
+  public boolean hasExperiment(String experimentId) {
+    return getExperimentStatus(experimentId) != null;
+  }
+
+  /**
    * Adds an Experiment to be managed.
    *
    * @param experimentId The id of the experiment to manage.
