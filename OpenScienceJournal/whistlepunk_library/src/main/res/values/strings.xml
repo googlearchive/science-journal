@@ -1609,12 +1609,11 @@ Permissions notice:
     <!-- Headline for Claim experiments card [CHAR_LIMIT=30] -->
     <string name="claim_experiments_card_headline">Claim past experiments</string>
 
-    <!-- TODO(lizlooney): use plurals here. -->
-    <!-- Text for Claim experiments card when there is 1 unclaimed experiment [CHAR_LIMIT=80] -->
-    <string name="claim_experiments_card_text_one">There is 1 unclaimed experiment on this device.</string>
-
-    <!-- Text for Claim experiments card when there is more than 1 unclaimed experiments [CHAR_LIMIT=80] -->
-    <string name="claim_experiments_card_text_multiple">There are <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> unclaimed experiments on this device.</string>
+    <!-- Text for Claim experiments card when there are unclaimed experiments [CHAR_LIMIT=80] -->
+    <plurals name="claim_experiments_card_text" translation_description="Plural form for Text for Claim experiments card when there are unclaimed experiments">
+      <item quantity="one">There is <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> unclaimed experiment on this device.</item>
+      <item quantity="other">There are <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> unclaimed experiments on this device.</item>
+    </plurals>
 
     <!-- Text for claim experiments card button [CHAR_LIMIT=30] -->
     <string name="claim_experiments_card_button_text">Claim experiments</string>

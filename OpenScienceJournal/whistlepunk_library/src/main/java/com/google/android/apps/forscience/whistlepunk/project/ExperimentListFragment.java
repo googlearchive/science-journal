@@ -610,16 +610,14 @@ public class ExperimentListFragment extends Fragment
       } else if (items.get(position).viewType == VIEW_TYPE_CLAIM_EXPERIMENTS) {
         Context context = holder.itemView.getContext();
         int unclaimedExperimentCount = AccountsUtils.getUnclaimedExperimentCount(context);
-        // If there is just one unclaimed experiment, the text is already correct. If there is more
-        // than one unclaimed experiment, we need to set the text.
-        if (unclaimedExperimentCount > 1) {
-          TextView textView = holder.itemView.findViewById(R.id.text_claim_experiments);
-          textView.setText(
-              context
-                  .getResources()
-                  .getString(
-                      R.string.claim_experiments_card_text_multiple, unclaimedExperimentCount));
-        }
+        TextView textView = holder.itemView.findViewById(R.id.text_claim_experiments);
+        textView.setText(
+            context
+                .getResources()
+                .getQuantityString(
+                    R.plurals.claim_experiments_card_text,
+                    unclaimedExperimentCount,
+                    unclaimedExperimentCount));
         holder.claimButton.setOnClickListener(
             v -> {
               ClaimExperimentsActivity.launch(
