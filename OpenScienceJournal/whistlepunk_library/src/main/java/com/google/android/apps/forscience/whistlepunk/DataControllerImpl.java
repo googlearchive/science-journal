@@ -43,6 +43,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Range;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
@@ -655,5 +656,53 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   @Override
   public AppAccount getAppAccount() {
     return appAccount;
+  }
+
+  @Override
+  public void moveAllExperimentsToAnotherAccount(
+      AppAccount otherAccount, final MaybeConsumer<Success> onSuccess) {
+    cachedExperiments.clear();
+    background(
+        metaDataThread,
+        onSuccess,
+        new Callable<Success>() {
+          @Override
+          public Success call() throws Exception {
+            moveAllExperimentsToAnotherAccountOnDataThread(otherAccount);
+            return Success.SUCCESS;
+          }
+        });
+  }
+
+  private void moveAllExperimentsToAnotherAccountOnDataThread(AppAccount otherAccount)
+      throws IOException {
+    metaDataManager.moveAllExperimentsToAnotherAccount(otherAccount);
+  }
+
+  @Override
+  public void deleteAllExperiments(final MaybeConsumer<Success> onSuccess) {
+    background(
+        metaDataThread,
+        onSuccess,
+        new Callable<Success>() {
+          @Override
+          public Success call() throws Exception {
+            deleteAllExperimentsOnDataThread();
+            cachedExperiments.clear();
+            return Success.SUCCESS;
+          }
+        });
+  }
+
+  private void deleteAllExperimentsOnDataThread() {
+    List<GoosciUserMetadata.ExperimentOverview> experiments =
+        blockingGetExperimentOverviews(true /* includeArchived */);
+    for (GoosciUserMetadata.ExperimentOverview overview : experiments) {
+      Experiment experiment =
+          cachedExperiments.containsKey(overview.experimentId)
+              ? cachedExperiments.get(overview.experimentId).get()
+              : metaDataManager.getExperimentById(overview.experimentId);
+      deleteExperimentOnDataThread(experiment);
+    }
   }
 }

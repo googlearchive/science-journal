@@ -67,7 +67,9 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLa
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
@@ -652,6 +654,57 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @Override
   public void saveImmediately() {
     getFileMetadataManager().saveImmediately();
+  }
+
+  @Override
+  public void moveAllExperimentsToAnotherAccount(AppAccount otherAccount) throws IOException {
+    // Move experiment files.
+    File sourceExperimentsRoot = FileMetadataManager.getExperimentsRootDirectory(appAccount);
+    File[] sourceFiles = sourceExperimentsRoot.listFiles();
+    if (sourceFiles != null) {
+      File targetExperimentsRoot = FileMetadataManager.getExperimentsRootDirectory(otherAccount);
+      // If the current account doesn't have any experiments yet, which is the common case, move
+      // the experiments root directory in one call.
+      if (!targetExperimentsRoot.exists()) {
+        Files.move(sourceExperimentsRoot, targetExperimentsRoot);
+      } else if (targetExperimentsRoot.listFiles() == null) {
+        // Remove the empty target experiments root before moving the source experiments root.
+        targetExperimentsRoot.delete();
+        Files.move(sourceExperimentsRoot, targetExperimentsRoot);
+      } else {
+        // If the current account already has some experiments, move the experiments one by one.
+        if (!targetExperimentsRoot.exists() && !targetExperimentsRoot.mkdir()) {
+          if (Log.isLoggable(TAG, Log.ERROR)) {
+            Log.e(TAG, "Failed to create experiments directory.");
+          }
+          // TODO(lizlooney): Handle this situation!
+          return;
+        } else {
+          for (File sourceFile : sourceFiles) {
+            File targetFile = new File(targetExperimentsRoot, sourceFile.getName());
+            Files.move(sourceFile, targetFile);
+          }
+        }
+      }
+    }
+
+    // Move user_metadata.proto.
+    File sourceUserMetadataFile = FileMetadataManager.getUserMetadataFile(appAccount);
+    File targetUserMetadataFile = FileMetadataManager.getUserMetadataFile(otherAccount);
+    Files.move(sourceUserMetadataFile, targetUserMetadataFile);
+
+    // Move experiment and sensor databases.
+    ImmutableList<String> filesToMove =
+        ImmutableList.of("main.db", "main.db-journal", "sensors.db", "sensors.db-journal");
+    String[] sourceNames = context.databaseList();
+    for (String sourceName : sourceNames) {
+      if (filesToMove.contains(sourceName)) {
+        File sourceFile = context.getDatabasePath(sourceName);
+        String targetName = otherAccount.getDatabaseFileName(sourceName);
+        File targetFile = new File(sourceFile.getParentFile(), targetName);
+        Files.move(sourceFile, targetFile);
+      }
+    }
   }
 
   private static void updateDatabaseExperiment(SQLiteDatabase db, Experiment experiment) {

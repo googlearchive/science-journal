@@ -222,6 +222,11 @@
             android:exported="false"
             />
         <activity
+            android:name=".accounts.OldUserOptionPromptActivity"
+            android:theme="@style/AppTheme.OldUserOptionPrompt"
+            android:exported="false"
+            />
+        <activity
             android:name=".project.ClaimExperimentsActivity"
             android:exported="false"
             android:label="@string/title_activity_claim_experiments"

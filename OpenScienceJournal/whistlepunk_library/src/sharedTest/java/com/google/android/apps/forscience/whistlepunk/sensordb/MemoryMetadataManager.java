@@ -21,6 +21,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
@@ -219,4 +220,9 @@ public class MemoryMetadataManager implements MetaDataManager {
 
   @Override
   public void saveImmediately() {}
+
+  @Override
+  public void moveAllExperimentsToAnotherAccount(AppAccount otherAccount) {
+    throw new UnsupportedOperationException();
+  }
 }

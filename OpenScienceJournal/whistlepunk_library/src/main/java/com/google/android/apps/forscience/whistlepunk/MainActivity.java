@@ -36,6 +36,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NotSignedInYetActivity;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -157,8 +159,8 @@ public class MainActivity extends ActivityWithNavigationView {
     if (!isMultiWindowEnabled()) {
       updateRecorderControllerForResume();
     }
-    // If we get to here, it's safe to log the mode we are in: user has completed age
-    // verification.
+    // If we get to here, it's safe to log the mode we are in: user has signed in and/or
+    // completed age verification.
     WhistlePunkApplication.getUsageTracker(this)
         .trackEvent(
             TrackerConstants.CATEGORY_APP,
@@ -289,6 +291,26 @@ public class MainActivity extends ActivityWithNavigationView {
    * @return true iff the activity has been finished
    */
   private boolean showRequiredScreensIfNeeded() {
+    if (accountsProvider.requireSignedInAccount() && !accountsProvider.isSignedIn()) {
+      // Before letting the user sign in, get the DataController for the NonSignedInAccount and
+      // call DataController.getLastUsedUnarchivedExperiment, which will upgrade the database, if
+      // necessary.
+      NonSignedInAccount nonSignedInAccount = NonSignedInAccount.getInstance(this);
+      AppSingleton.getInstance(this)
+          .getDataController(nonSignedInAccount)
+          .getLastUsedUnarchivedExperiment(
+              new LoggingConsumer<Experiment>(
+                  TAG, "getting last used experiment to force database upgrade") {
+                @Override
+                public void success(Experiment experiment) {
+                  // Let the user sign in.
+                  Intent intent = new Intent(MainActivity.this, NotSignedInYetActivity.class);
+                  startActivity(intent);
+                  finish();
+                }
+              });
+      return true;
+    }
     if (AgeVerifier.shouldShowUserAge(this)) {
       rememberAttemptingImport();
       Intent intent = new Intent(this, AgeVerifier.class);

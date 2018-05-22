@@ -145,4 +145,11 @@ public class StubDataController implements DataController {
   public AppAccount getAppAccount() {
     return null;
   }
+
+  @Override
+  public void moveAllExperimentsToAnotherAccount(
+      AppAccount otherAccount, MaybeConsumer<Success> onSuccess) {}
+
+  @Override
+  public void deleteAllExperiments(MaybeConsumer<Success> onSuccess) {}
 }

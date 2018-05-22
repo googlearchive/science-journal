@@ -145,4 +145,9 @@ public interface DataController {
   void addMyDevice(InputDeviceSpec spec, MaybeConsumer<Success> onSuccess);
 
   AppAccount getAppAccount();
+
+  void moveAllExperimentsToAnotherAccount(
+      AppAccount otherAccount, MaybeConsumer<Success> onSuccess);
+
+  void deleteAllExperiments(MaybeConsumer<Success> onSuccess);
 }

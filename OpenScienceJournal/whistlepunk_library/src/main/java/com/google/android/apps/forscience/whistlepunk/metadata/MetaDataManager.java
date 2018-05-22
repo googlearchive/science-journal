@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.content.ContentResolver;
 import android.net.Uri;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -108,4 +109,6 @@ public interface MetaDataManager {
 
   /** Any unsaved or cached data should be saved immediately. */
   void saveImmediately();
+
+  void moveAllExperimentsToAnotherAccount(AppAccount otherAccount) throws IOException;
 }

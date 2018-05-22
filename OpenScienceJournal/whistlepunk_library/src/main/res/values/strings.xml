@@ -1566,13 +1566,54 @@ Permissions notice:
     <!-- Button text for not signed in fragment [CHAR_LIMIT=NONE] -->
     <string name="get_started">Get started</string>
 
+    <!-- Headline for old user option prompt activity [CHAR_LIMIT=30] -->
+    <string name="old_user_option_prompt_headline">Introducing Backup and Sync</string>
+
+    <!-- First paragraph for old user option prompt activity [CHAR_LIMIT=80] -->
+    <string name="old_user_option_prompt_first_paragraph">Science Journal now syncs your experiments across devices using Google Drive.</string>
+
+    <!-- Second paragraph for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=80] -->
+    <plurals name="old_user_option_prompt_second_paragraph"
+             translation_description="Plural form for second paragraph of old user option prompt activity when there are unclaimed experiments">
+      <item quantity="one">You have <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> experiment on this device. To continue, select an option.</item>
+      <item quantity="other">You have <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> experiments on this device. To continue, select an option.</item>
+    </plurals>
+
+    <!-- Headline for Drive choice [CHAR_LIMIT=30] -->
+    <string name="drive_choice_headline">Save all your experiments</string>
+
+    <!-- Text for Drive choice [CHAR_LIMIT=60] -->
+    <string name="drive_choice_text">All your experiments will be added to Drive</string>
+
+    <!-- Headline for Delete choice [CHAR_LIMIT=30] -->
+    <string name="delete_choice_headline">Delete all your experiments</string>
+
+    <!-- Text for Delete choice [CHAR_LIMIT=60] -->
+    <string name="delete_choice_text">None of your experiments will be added to Drive</string>
+
+    <!-- Headline for Select choice [CHAR_LIMIT=30] -->
+    <string name="select_choice_headline">Select experiments to save</string>
+
+    <!-- Text for Select choice [CHAR_LIMIT=60] -->
+    <string name="select_choice_text">Choose which experiments to save to Drive</string>
+
+    <!-- Headline for Delete All Prompt [CHAR_LIMIT=30] -->
+    <string name="delete_all_prompt_headline">Delete all your experiments?</string>
+
+    <!-- Text for Delete All Prompt [CHAR_LIMIT=150] -->
+    <string name="delete_all_prompt_text">All of your data, including archived experiments, will be deleted. You cannot undo this action.</string>
+
+    <!-- Yes button for Delete All Prompt [CHAR_LIMIT=20] -->
+    <string name="delete_all_prompt_yes">Yes, delete</string>
+
     <!-- Headline for Claim experiments card [CHAR_LIMIT=30] -->
     <string name="claim_experiments_card_headline">Claim past experiments</string>
 
+    <!-- TODO(lizlooney): use plurals here. -->
     <!-- Text for Claim experiments card when there is 1 unclaimed experiment [CHAR_LIMIT=80] -->
     <string name="claim_experiments_card_text_one">There is 1 unclaimed experiment on this device.</string>
 
-    <!-- Text for Claim experiments card when there are more than 1 unclaimed experiments [CHAR_LIMIT=80] -->
+    <!-- Text for Claim experiments card when there is more than 1 unclaimed experiments [CHAR_LIMIT=80] -->
     <string name="claim_experiments_card_text_multiple">There are <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> unclaimed experiments on this device.</string>
 
     <!-- Text for claim experiments card button [CHAR_LIMIT=30] -->

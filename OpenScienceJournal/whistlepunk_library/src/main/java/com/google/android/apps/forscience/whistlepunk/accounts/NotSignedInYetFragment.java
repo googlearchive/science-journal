@@ -17,7 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -31,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 
 /** Fragment that tells the user to explore their world. */
 public class NotSignedInYetFragment extends Fragment {
+  private static final String KEY_OLD_USER_OPTION_PROMPT_SHOWN = "key_old_user_option_prompt_shown";
 
   private AccountsProvider accountsProvider;
   private boolean showingAccountSwitcherDialog;
@@ -58,7 +61,7 @@ public class NotSignedInYetFragment extends Fragment {
 
   private void initialize() {
     if (accountsProvider.isSignedIn()) {
-      relaunchMainActivity();
+      afterSignIn();
       return;
     }
 
@@ -86,7 +89,7 @@ public class NotSignedInYetFragment extends Fragment {
   private void getStartedClicked() {
     if (accountsProvider.isSignedIn()) {
       // This shouldn't happen, but if it does, just make this screen go away.
-      relaunchMainActivity();
+      afterSignIn();
       return;
     }
 
@@ -96,10 +99,24 @@ public class NotSignedInYetFragment extends Fragment {
     }
   }
 
-  private void relaunchMainActivity() {
+  private void afterSignIn() {
     FragmentActivity activity = getActivity();
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+
+    Intent intent;
+
+    // If there are any unclaimed experiments and we've never shown OldUserOptionPromptActivity,
+    // show it now.
+    if (AccountsUtils.getUnclaimedExperimentCount(activity) >= 1
+        && !sharedPreferences.getBoolean(KEY_OLD_USER_OPTION_PROMPT_SHOWN, false)) {
+      sharedPreferences.edit().putBoolean(KEY_OLD_USER_OPTION_PROMPT_SHOWN, true).apply();
+      intent = new Intent(activity, OldUserOptionPromptActivity.class);
+    } else {
+      // Otherwise, just go to MainActivity.
+      intent = new Intent(activity, MainActivity.class);
+    }
+
     activity.finish();
-    Intent intent = new Intent(activity, MainActivity.class);
     activity.startActivity(intent);
   }
 }
