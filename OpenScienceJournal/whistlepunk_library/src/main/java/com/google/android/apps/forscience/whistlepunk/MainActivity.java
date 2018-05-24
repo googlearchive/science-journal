@@ -60,7 +60,6 @@ public class MainActivity extends ActivityWithNavigationView {
 
   private AccountsProvider accountsProvider;
   private AppAccount currentAccount;
-  private final RxEvent paused = new RxEvent();
   private FeedbackProvider feedbackProvider;
   private NavigationView navigationView;
   private MultiTouchDrawerLayout drawerLayout;
@@ -68,7 +67,7 @@ public class MainActivity extends ActivityWithNavigationView {
   private boolean isRecording = false;
 
   /** Receives an event every time the activity pauses */
-  RxEvent pause = new RxEvent();
+  private final RxEvent pause = new RxEvent();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -217,9 +216,8 @@ public class MainActivity extends ActivityWithNavigationView {
 
   @Override
   protected void onPause() {
-    paused.onHappened();
     if (!isMultiWindowEnabled()) {
-      updateRecorderControllerForPause();
+      pause.onHappened();
     }
     super.onPause();
   }
@@ -236,7 +234,7 @@ public class MainActivity extends ActivityWithNavigationView {
   protected void onStop() {
     accountsProvider.disconnectAccountSwitcher(this);
     if (isMultiWindowEnabled()) {
-      updateRecorderControllerForPause();
+      pause.onHappened();
     }
     super.onStop();
   }
@@ -278,10 +276,6 @@ public class MainActivity extends ActivityWithNavigationView {
 
   private void rememberAttemptingImport() {
     AppSingleton.getInstance(this).setMostRecentOpenWasImport(isAttemptingImport());
-  }
-
-  private void updateRecorderControllerForPause() {
-    pause.onHappened();
   }
 
   /**
