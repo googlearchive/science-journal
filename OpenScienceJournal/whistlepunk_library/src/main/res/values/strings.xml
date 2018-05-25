@@ -1630,11 +1630,44 @@ Permissions notice:
     <!-- Context description for button which adds an experiment to drive [CHAR_LIMIT=50]-->
     <string name="drive_btn_content_description">Add experiment to drive</string>
 
+    <!-- Text for add experiment to drive confirmation dialog [CHAR_LIMIT=30] -->
+    <string name="drive_confirmation_text">Add to Drive?</string>
+
+    <!-- Yes button add experiment to drive confirmation dialog [CHAR_LIMIT=20] -->
+    <string name="drive_confirmation_yes">ADD TO DRIVE</string>
+
+    <!-- Text for experiment added message [CHAR_LIMIT=50] -->
+    <string name="experiment_added_text">Experiment added to <xliff:g id="account_name">%1$s</xliff:g></string>
+
     <!-- Context description for button which shares an experiment [CHAR_LIMIT=50]-->
     <string name="share_btn_content_description">Share experiment</string>
 
     <!-- Context description for button which deletes an experiment [CHAR_LIMIT=50]-->
     <string name="delete_btn_content_description">Delete experiment</string>
+
+    <!-- Menu item label to claim all remaining unclaimed experiments [CHAR_LIMIT=50]-->
+    <string name="action_claim_unclaimed_experiments">Claim all</string>
+
+    <!-- Text for claim all remaining unclaimed experiments confirmation dialog [CHAR_LIMIT=80] -->
+    <plurals name="claim_all_confirmation_text" translation_description="Plural form for text for claim all remaining unclaimed experiments confirmation dialog">
+      <item quantity="one">Add <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> remaining experiment to Google Drive for <xliff:g id="account_name">%2$s</xliff:g>?</item>
+      <item quantity="other">Add <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> remaining experiments to Google Drive for <xliff:g id="account_name">%2$s</xliff:g>?</item>
+    </plurals>
+
+    <!-- Yes button for claim all remaining unclaimed experiments confirmation dialog [CHAR_LIMIT=20] -->
+    <string name="claim_all_confirmation_yes">ADD TO DRIVE</string>
+
+    <!-- Menu item label to delete all remaining unclaimed experiments [CHAR_LIMIT=50]-->
+    <string name="action_delete_unclaimed_experiments">Delete all</string>
+
+    <!-- Text for delete all remaining unclaimed experiments confirmation dialog [CHAR_LIMIT=50] -->
+    <plurals name="delete_all_confirmation_text" translation_description="Plural form for text for delete all remaining unclaimed experiments confirmation dialog">
+      <item quantity="one">Delete <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> remaining experiment?</item>
+      <item quantity="other">Delete <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> remaining experiments?</item>
+    </plurals>
+
+    <!-- Yes button for delete all remaining unclaimed experiments confirmation dialog [CHAR_LIMIT=20] -->
+    <string name="delete_all_confirmation_yes">DELETE</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
