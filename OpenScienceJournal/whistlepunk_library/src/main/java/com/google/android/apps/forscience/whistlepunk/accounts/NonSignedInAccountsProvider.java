@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.app.Activity;
 import android.content.Context;
-import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
 
 /** An accounts provider which supports a user with no signed-in account. */
@@ -58,8 +58,7 @@ public final class NonSignedInAccountsProvider extends AbstractAccountsProvider 
   }
 
   @Override
-  public void showAccountSwitcherDialog(
-      FragmentActivity fragmentActivity, Runnable onFinishedCallback) {
+  public void showAccountSwitcherDialog(Fragment fragment, int requestCode) {
     throw new IllegalStateException("Accounts not supported");
   }
 }

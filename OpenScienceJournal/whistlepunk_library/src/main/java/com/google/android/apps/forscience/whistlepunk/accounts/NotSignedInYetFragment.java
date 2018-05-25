@@ -35,6 +35,8 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 public class NotSignedInYetFragment extends Fragment {
   private static final String KEY_OLD_USER_OPTION_PROMPT_SHOWN = "key_old_user_option_prompt_shown";
 
+  private static final int REQUEST_CODE_ACCOUNT_SWITCHER = 217;
+
   private AccountsProvider accountsProvider;
   private boolean showingAccountSwitcherDialog;
 
@@ -70,9 +72,15 @@ public class NotSignedInYetFragment extends Fragment {
       // this screen (without the user pressing "GET STARTED").
       if (!showingAccountSwitcherDialog) {
         showingAccountSwitcherDialog = true;
-        accountsProvider.showAccountSwitcherDialog(
-            getActivity(), this::onAccountSwitcherDialogFinished);
+        accountsProvider.showAccountSwitcherDialog(this, REQUEST_CODE_ACCOUNT_SWITCHER);
       }
+    }
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == REQUEST_CODE_ACCOUNT_SWITCHER) {
+      onAccountSwitcherDialogFinished();
     }
   }
 

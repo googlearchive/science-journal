@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.app.Activity;
-import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
 import io.reactivex.Observable;
 
@@ -51,7 +51,7 @@ public interface AccountsProvider {
   void showAddAccountDialog(Activity activity);
 
   /** Shows the dialog where the user chooses an account. */
-  void showAccountSwitcherDialog(FragmentActivity fragmentActivity, Runnable onFinishedCallback);
+  void showAccountSwitcherDialog(Fragment fragment, int requestCode);
 
   /** Returns true if the current account is a signed-in account. */
   boolean isSignedIn();
