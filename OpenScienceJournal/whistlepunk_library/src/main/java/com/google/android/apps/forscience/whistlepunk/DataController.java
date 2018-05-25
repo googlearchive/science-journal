@@ -147,7 +147,10 @@ public interface DataController {
   AppAccount getAppAccount();
 
   void moveAllExperimentsToAnotherAccount(
-      AppAccount otherAccount, MaybeConsumer<Success> onSuccess);
+      AppAccount targetAccount, MaybeConsumer<Success> onSuccess);
 
   void deleteAllExperiments(MaybeConsumer<Success> onSuccess);
+
+  void moveExperimentToAnotherAccount(
+      String experimentId, AppAccount targetAccount, MaybeConsumer<Success> onSuccess);
 }

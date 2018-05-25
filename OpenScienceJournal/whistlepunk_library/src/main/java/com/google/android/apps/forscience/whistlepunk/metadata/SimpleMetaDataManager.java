@@ -657,12 +657,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   @Override
-  public void moveAllExperimentsToAnotherAccount(AppAccount otherAccount) throws IOException {
+  public void moveAllExperimentsToAnotherAccount(AppAccount targetAccount) throws IOException {
     // Move experiment files.
     File sourceExperimentsRoot = FileMetadataManager.getExperimentsRootDirectory(appAccount);
     File[] sourceFiles = sourceExperimentsRoot.listFiles();
     if (sourceFiles != null) {
-      File targetExperimentsRoot = FileMetadataManager.getExperimentsRootDirectory(otherAccount);
+      File targetExperimentsRoot = FileMetadataManager.getExperimentsRootDirectory(targetAccount);
       // If the current account doesn't have any experiments yet, which is the common case, move
       // the experiments root directory in one call.
       if (!targetExperimentsRoot.exists()) {
@@ -690,7 +690,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     // Move user_metadata.proto.
     File sourceUserMetadataFile = FileMetadataManager.getUserMetadataFile(appAccount);
-    File targetUserMetadataFile = FileMetadataManager.getUserMetadataFile(otherAccount);
+    File targetUserMetadataFile = FileMetadataManager.getUserMetadataFile(targetAccount);
     Files.move(sourceUserMetadataFile, targetUserMetadataFile);
 
     // Move experiment and sensor databases.
@@ -700,11 +700,42 @@ public class SimpleMetaDataManager implements MetaDataManager {
     for (String sourceName : sourceNames) {
       if (filesToMove.contains(sourceName)) {
         File sourceFile = context.getDatabasePath(sourceName);
-        String targetName = otherAccount.getDatabaseFileName(sourceName);
+        String targetName = targetAccount.getDatabaseFileName(sourceName);
         File targetFile = new File(sourceFile.getParentFile(), targetName);
         Files.move(sourceFile, targetFile);
       }
     }
+  }
+
+  @Override
+  public void beforeMovingExperimentToAnotherAccount(Experiment experiment) {
+    // This SimpleMetadataManager is losing the experiment.
+    getFileMetadataManager().beforeMovingExperimentToAnotherAccount(experiment);
+  }
+
+  @Override
+  public void moveExperimentToAnotherAccount(Experiment experiment, AppAccount targetAccount)
+      throws IOException {
+    // Move experiment directory.
+    File sourceExperimentDirectory =
+        FileMetadataManager.getExperimentDirectory(appAccount, experiment.getExperimentId());
+    File targetExperimentDirectory =
+        FileMetadataManager.getExperimentDirectory(targetAccount, experiment.getExperimentId());
+    File parent = targetExperimentDirectory.getParentFile();
+    if (!parent.exists() && !parent.mkdir()) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "Failed to create parent directory.");
+      }
+      // TODO(lizlooney): Handle this situation!
+      throw new IOException("Failed to create parent directory " + parent);
+    }
+    Files.move(sourceExperimentDirectory, targetExperimentDirectory);
+  }
+
+  @Override
+  public void afterMovingExperimentFromAnotherAccount(Experiment experiment) {
+    // This SimpleMetadataManager is gaining the experiment.
+    getFileMetadataManager().afterMovingExperimentFromAnotherAccount(experiment);
   }
 
   private static void updateDatabaseExperiment(SQLiteDatabase db, Experiment experiment) {

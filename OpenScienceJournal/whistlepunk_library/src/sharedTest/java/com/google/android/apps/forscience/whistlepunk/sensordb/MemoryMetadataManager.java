@@ -36,6 +36,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -222,7 +223,23 @@ public class MemoryMetadataManager implements MetaDataManager {
   public void saveImmediately() {}
 
   @Override
-  public void moveAllExperimentsToAnotherAccount(AppAccount otherAccount) {
+  public void moveAllExperimentsToAnotherAccount(AppAccount targetAccount) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void beforeMovingExperimentToAnotherAccount(Experiment experiment) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void moveExperimentToAnotherAccount(Experiment experiment, AppAccount targetAccount)
+      throws IOException {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void afterMovingExperimentFromAnotherAccount(Experiment experiment) {
     throw new UnsupportedOperationException();
   }
 }

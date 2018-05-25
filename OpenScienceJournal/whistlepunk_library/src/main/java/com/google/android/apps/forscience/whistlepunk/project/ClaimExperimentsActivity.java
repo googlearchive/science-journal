@@ -22,7 +22,9 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 
@@ -34,6 +36,9 @@ public class ClaimExperimentsActivity extends AppCompatActivity {
   private static final String FRAGMENT_TAG = "ClaimExperiments";
   private static final String ARG_ACCOUNT_KEY = "accountKey";
   private static final String ARG_USE_PANES = "usePanes";
+
+  /** Receives an event every time the activity pauses */
+  private final RxEvent pause = new RxEvent();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,20 @@ public class ClaimExperimentsActivity extends AppCompatActivity {
           .add(R.id.container, fragment, FRAGMENT_TAG)
           .commit();
     }
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    AppSingleton appSingleton = AppSingleton.getInstance(this);
+    appSingleton.setResumedActivity(this);
+    pause.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
+  }
+
+  @Override
+  protected void onPause() {
+    pause.onHappened();
+    super.onPause();
   }
 
   @Override

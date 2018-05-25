@@ -70,6 +70,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
   private DataControllerImpl makeDataControllerImpl(
       MemoryMetadataManager manager, Map<String, SensorProvider> providerMap, Clock clock) {
     return new DataControllerImpl(
+        null, // context
         StubAppAccount.getInstance(),
         this,
         MoreExecutors.directExecutor(),

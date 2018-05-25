@@ -110,5 +110,12 @@ public interface MetaDataManager {
   /** Any unsaved or cached data should be saved immediately. */
   void saveImmediately();
 
-  void moveAllExperimentsToAnotherAccount(AppAccount otherAccount) throws IOException;
+  void moveAllExperimentsToAnotherAccount(AppAccount targetAccount) throws IOException;
+
+  void beforeMovingExperimentToAnotherAccount(Experiment experiment);
+
+  void moveExperimentToAnotherAccount(Experiment experiment, AppAccount targetAccount)
+      throws IOException;
+
+  void afterMovingExperimentFromAnotherAccount(Experiment experiment);
 }

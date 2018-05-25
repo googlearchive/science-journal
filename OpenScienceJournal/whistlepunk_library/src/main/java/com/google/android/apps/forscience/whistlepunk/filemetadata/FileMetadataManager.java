@@ -459,6 +459,20 @@ public class FileMetadataManager {
     experimentLibraryManager.setDeleted(experimentId, true);
   }
 
+  public void beforeMovingExperimentToAnotherAccount(Experiment experiment) {
+    // This FileMetadataManager is losing the experiment.
+    activeExperimentCache.beforeMovingExperimentToAnotherAccount(experiment.getExperimentId());
+    userMetadataManager.deleteExperimentOverview(experiment.getExperimentId());
+    experimentLibraryManager.setDeleted(experiment.getExperimentId(), true);
+  }
+
+  public void afterMovingExperimentFromAnotherAccount(Experiment experiment) {
+    // This FileMetadataManager is gaining the experiment.
+    userMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
+    localSyncManager.addExperiment(experiment.getExperimentId());
+    experimentLibraryManager.addExperiment(experiment.getExperimentId());
+  }
+
   public void updateExperiment(Experiment experiment) {
     activeExperimentCache.updateExperiment(experiment);
 

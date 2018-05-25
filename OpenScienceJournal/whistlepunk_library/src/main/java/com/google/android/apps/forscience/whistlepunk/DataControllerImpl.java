@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
@@ -35,6 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
@@ -53,6 +55,7 @@ import java.util.concurrent.Executor;
 
 public class DataControllerImpl implements DataController, RecordingDataController {
   private static final String TAG = "DataControllerImpl";
+  private final Context context;
   private final AppAccount appAccount;
   private final SensorDatabase sensorDatabase;
   private final Executor uiThread;
@@ -67,6 +70,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   private ConnectableSensor.Connector connector;
 
   public DataControllerImpl(
+      Context context,
       AppAccount appAccount,
       SensorDatabase sensorDatabase,
       Executor uiThread,
@@ -76,6 +80,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       Clock clock,
       Map<String, SensorProvider> providerMap,
       ConnectableSensor.Connector connector) {
+    this.context = context;
     this.appAccount = appAccount;
     this.sensorDatabase = sensorDatabase;
     this.uiThread = uiThread;
@@ -660,7 +665,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
   @Override
   public void moveAllExperimentsToAnotherAccount(
-      AppAccount otherAccount, final MaybeConsumer<Success> onSuccess) {
+      AppAccount targetAccount, final MaybeConsumer<Success> onSuccess) {
     cachedExperiments.clear();
     background(
         metaDataThread,
@@ -668,15 +673,16 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         new Callable<Success>() {
           @Override
           public Success call() throws Exception {
-            moveAllExperimentsToAnotherAccountOnDataThread(otherAccount);
+            moveAllExperimentsToAnotherAccountOnDataThread(targetAccount);
             return Success.SUCCESS;
           }
         });
   }
 
-  private void moveAllExperimentsToAnotherAccountOnDataThread(AppAccount otherAccount)
+  private void moveAllExperimentsToAnotherAccountOnDataThread(AppAccount targetAccount)
       throws IOException {
-    metaDataManager.moveAllExperimentsToAnotherAccount(otherAccount);
+    metaDataManager.saveImmediately();
+    metaDataManager.moveAllExperimentsToAnotherAccount(targetAccount);
   }
 
   @Override
@@ -704,5 +710,57 @@ public class DataControllerImpl implements DataController, RecordingDataControll
               : metaDataManager.getExperimentById(overview.experimentId);
       deleteExperimentOnDataThread(experiment);
     }
+  }
+
+  @Override
+  public void moveExperimentToAnotherAccount(
+      String experimentId, AppAccount targetAccount, MaybeConsumer<Success> onSuccess) {
+    if (cachedExperiments.containsKey(experimentId)) {
+      cachedExperiments.remove(experimentId);
+    }
+    getExperimentById(
+        experimentId,
+        MaybeConsumers.chainFailure(
+            onSuccess,
+            new Consumer<Experiment>() {
+              @Override
+              public void take(final Experiment experiment) {
+                background(
+                    metaDataThread,
+                    onSuccess,
+                    new Callable<Success>() {
+                      @Override
+                      public Success call() throws Exception {
+                        moveExperimentToAnotherAccountOnDataThread(experiment, targetAccount);
+                        return Success.SUCCESS;
+                      }
+                    });
+              }
+            }));
+  }
+
+  private void moveExperimentToAnotherAccountOnDataThread(
+      Experiment experiment, AppAccount targetAccount) throws IOException {
+    DataControllerImpl targetDataController =
+        (DataControllerImpl) AppSingleton.getInstance(context).getDataController(targetAccount);
+
+    metaDataManager.saveImmediately();
+
+    metaDataManager.beforeMovingExperimentToAnotherAccount(experiment);
+
+    // Move files.
+    metaDataManager.moveExperimentToAnotherAccount(experiment, targetAccount);
+
+    // Move scalar sensor data.
+    List<GoosciScalarSensorData.ScalarSensorDataDump> scalarSensorData =
+        sensorDatabase.getScalarReadingProtosAsList(experiment.getExperimentProto());
+    ScalarSensorDumpReader scalarSensorDumpReader =
+        new ScalarSensorDumpReader(targetDataController);
+    scalarSensorDumpReader.readData(scalarSensorData);
+    for (Trial trial : experiment.getTrials()) {
+      removeTrialSensorData(trial);
+    }
+
+    targetDataController.metaDataManager.afterMovingExperimentFromAnotherAccount(experiment);
   }
 }

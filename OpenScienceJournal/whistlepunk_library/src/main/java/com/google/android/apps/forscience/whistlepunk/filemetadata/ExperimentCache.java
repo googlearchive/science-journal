@@ -207,6 +207,15 @@ class ExperimentCache {
     experiment.deleteContents(context, appAccount);
   }
 
+  void beforeMovingExperimentToAnotherAccount(String localExperimentId) {
+    // This ExperimentCache is losing the experiment.
+    if (activeExperiment != null
+        && TextUtils.equals(
+            activeExperiment.getExperimentOverview().experimentId, localExperimentId)) {
+      activeExperiment = null;
+    }
+  }
+
   /**
    * Used to set the active experiment when the experiment already exists, not when it's being made
    * for the first time. Sets the dirty bit to true, then starts a timer if needed to make sure that

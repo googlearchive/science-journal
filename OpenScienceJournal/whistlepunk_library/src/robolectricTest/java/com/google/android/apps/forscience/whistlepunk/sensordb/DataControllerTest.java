@@ -232,6 +232,7 @@ public class DataControllerTest {
     IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
     DataController dc =
         new DataControllerImpl(
+            null, // context
             null, // appAccount
             null, // sensorDatabase
             null, // uiThread

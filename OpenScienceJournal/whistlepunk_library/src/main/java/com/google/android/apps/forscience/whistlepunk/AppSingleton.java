@@ -145,6 +145,7 @@ public class AppSingleton {
     if (dataController == null) {
       dataController =
           new DataControllerImpl(
+              applicationContext,
               appAccount,
               new SensorDatabaseImpl(applicationContext, appAccount, SENSOR_DATABASE_NAME),
               getUiThreadExecutor(),

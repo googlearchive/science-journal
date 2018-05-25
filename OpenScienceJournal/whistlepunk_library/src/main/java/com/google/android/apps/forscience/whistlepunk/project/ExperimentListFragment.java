@@ -426,6 +426,8 @@ public class ExperimentListFragment extends Fragment
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
+    // TODO(b/80138816): In claim experiments mode, we also need "Claim all" and "Delete all" on the
+    // overflow menu.
     inflater.inflate(R.menu.menu_experiment_list, menu);
   }
 
@@ -619,12 +621,11 @@ public class ExperimentListFragment extends Fragment
                     unclaimedExperimentCount,
                     unclaimedExperimentCount));
         holder.claimButton.setOnClickListener(
-            v -> {
-              ClaimExperimentsActivity.launch(
-                  v.getContext(),
-                  parentReference.get().appAccount,
-                  parentReference.get().getArguments().getBoolean(ARG_USE_PANES));
-            });
+            v ->
+                ClaimExperimentsActivity.launch(
+                    v.getContext(),
+                    parentReference.get().appAccount,
+                    parentReference.get().getArguments().getBoolean(ARG_USE_PANES)));
       }
     }
 
@@ -681,15 +682,20 @@ public class ExperimentListFragment extends Fragment
             }
           });
 
+      Context context = holder.menuButton.getContext();
+      boolean isShareIntentValid =
+          FileMetadataManager.validateShareIntent(
+              context, parentReference.get().appAccount, overview.experimentId);
       if (parentReference.get().claimExperimentsMode) {
         holder.menuButton.setVisibility(View.GONE);
-        // TODO(lizlooney): Add click listeners for holder.driveButton, holder.shareButton, and
-        // holder.deleteButton.
+        holder.driveButton.setOnClickListener(v -> claimExperiment(overview.experimentId));
+        if (isShareIntentValid) {
+          holder.shareButton.setOnClickListener(v -> exportExperiment(overview.experimentId));
+        } else {
+          holder.shareButton.setVisibility(View.GONE);
+        }
+        holder.deleteButton.setOnClickListener(v -> deleteExperiment(overview.experimentId));
       } else {
-        Context context = holder.menuButton.getContext();
-        boolean isShareIntentValid =
-            FileMetadataManager.validateShareIntent(
-                context, parentReference.get().appAccount, overview.experimentId);
         holder.menuButton.setOnClickListener(
             v -> {
               int position = items.indexOf(item);
@@ -726,19 +732,10 @@ public class ExperimentListFragment extends Fragment
                       setExperimentArchived(overview, position, false);
                       return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_delete) {
-                      snackbarManager.hideVisibleSnackbar();
-                      parentReference.get().confirmDelete(overview.experimentId);
+                      deleteExperiment(overview.experimentId);
                       return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_export_experiment) {
-                      WhistlePunkApplication.getUsageTracker(parentReference.get().getActivity())
-                          .trackEvent(
-                              TrackerConstants.CATEGORY_EXPERIMENTS,
-                              TrackerConstants.ACTION_SHARED,
-                              TrackerConstants.LABEL_EXPERIMENT_LIST,
-                              0);
-                      parentReference.get().setProgressBarVisible(true);
-                      ExportService.handleExperimentExportClick(
-                          context, parentReference.get().appAccount, overview.experimentId);
+                      exportExperiment(overview.experimentId);
                       return true;
                     }
                     return false;
@@ -882,6 +879,42 @@ public class ExperimentListFragment extends Fragment
         items.remove(0);
         notifyDataSetChanged();
       }
+    }
+
+    private void claimExperiment(String experimentId) {
+      // TODO(lizlooney): Show a confirmation here since the action is not undo-able.
+      // "Add to Drive?" CANCEL / ADD TO DRIVE
+      parentReference
+          .get()
+          .getDataController()
+          .moveExperimentToAnotherAccount(
+              experimentId,
+              parentReference.get().claimingAccount,
+              new LoggingConsumer<Success>(TAG, "claimExperiments") {
+                @Override
+                public void success(Success value) {
+                  onExperimentDeleted(experimentId);
+                  // TODO(lizlooney): Show a message "Experiment added to <account name>"
+                }
+              });
+    }
+
+    private void deleteExperiment(String experimentId) {
+      snackbarManager.hideVisibleSnackbar();
+      parentReference.get().confirmDelete(experimentId);
+    }
+
+    private void exportExperiment(String experimentId) {
+      Context context = parentReference.get().getContext();
+      WhistlePunkApplication.getUsageTracker(context)
+          .trackEvent(
+              TrackerConstants.CATEGORY_EXPERIMENTS,
+              TrackerConstants.ACTION_SHARED,
+              TrackerConstants.LABEL_EXPERIMENT_LIST,
+              0);
+      parentReference.get().setProgressBarVisible(true);
+      ExportService.handleExperimentExportClick(
+          context, parentReference.get().appAccount, experimentId);
     }
 
     public void onDestroy() {
