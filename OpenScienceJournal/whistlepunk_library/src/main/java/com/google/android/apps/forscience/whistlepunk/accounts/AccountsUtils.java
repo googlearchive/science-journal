@@ -26,10 +26,8 @@ import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.hash.Hashing;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -136,10 +134,10 @@ public class AccountsUtils {
   }
 
   /**
-   * Returns the account key for the given namespace and account name. The account key is used to
-   * separate file storage and preferences for different accounts.
+   * Returns the account key for the given namespace and account id. The account key is used to
+   * separate file storage, database storage, and preferences for different accounts.
    */
-  static String getAccountKey(String namespace, String accountName) {
+  static String makeAccountKey(String namespace, String accountId) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(namespace), "namespace is null or empty!");
     Preconditions.checkArgument(
         !namespace.contains(PREF_KEY_DELIMITER),
@@ -153,12 +151,9 @@ public class AccountsUtils {
         !namespace.contains(NAMESPACE_DELIMITER),
         "namespace contains illegal character \"%s\" !",
         NAMESPACE_DELIMITER);
-    Preconditions.checkArgument(
-        !Strings.isNullOrEmpty(accountName), "accountName is null or empty!");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(accountId), "accountId is null or empty!");
 
-    return namespace
-        + NAMESPACE_DELIMITER
-        + Hashing.md5().hashString(accountName, StandardCharsets.UTF_8);
+    return namespace + NAMESPACE_DELIMITER + accountId;
   }
 
   /**

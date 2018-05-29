@@ -39,15 +39,12 @@ import org.robolectric.RuntimeEnvironment;
 @RunWith(RobolectricTestRunner.class)
 public class AccountsUtilsTest {
   private static final String NAMESPACE = "com.google.test";
-  private static final String ACCOUNT_NAME_1 = "account1@gmail.com";
-  private static final String ACCOUNT_KEY_1 =
-      AccountsUtils.getAccountKey(NAMESPACE, ACCOUNT_NAME_1);
-  private static final String ACCOUNT_NAME_2 = "account2@gmail.com";
-  private static final String ACCOUNT_KEY_2 =
-      AccountsUtils.getAccountKey(NAMESPACE, ACCOUNT_NAME_2);
-  private static final String ACCOUNT_NAME_3 = "account3@gmail.com";
-  private static final String ACCOUNT_KEY_3 =
-      AccountsUtils.getAccountKey(NAMESPACE, ACCOUNT_NAME_3);
+  private static final String ACCOUNT_ID_1 = "1234567890";
+  private static final String ACCOUNT_KEY_1 = AccountsUtils.makeAccountKey(NAMESPACE, ACCOUNT_ID_1);
+  private static final String ACCOUNT_ID_2 = "ABCDEFGHIJ";
+  private static final String ACCOUNT_KEY_2 = AccountsUtils.makeAccountKey(NAMESPACE, ACCOUNT_ID_2);
+  private static final String ACCOUNT_ID_3 = "klmnopqrst";
+  private static final String ACCOUNT_KEY_3 = AccountsUtils.makeAccountKey(NAMESPACE, ACCOUNT_ID_3);
 
   private Context context;
   private SharedPreferences sharedPreferences;
@@ -142,7 +139,7 @@ public class AccountsUtilsTest {
   }
 
   @Test
-  public void getAccountKey() throws Exception {
+  public void makeAccountKey() throws Exception {
     // Check that the three account keys are all different.
     assertThat(ACCOUNT_KEY_1).isNotEqualTo(ACCOUNT_KEY_2);
     assertThat(ACCOUNT_KEY_1).isNotEqualTo(ACCOUNT_KEY_3);
@@ -155,20 +152,20 @@ public class AccountsUtilsTest {
 
     // Check that namespace can't be null, empty, or contain a "_" or ":"
     assertThrows(
-        IllegalArgumentException.class, () -> AccountsUtils.getAccountKey(null, ACCOUNT_NAME_1));
+        IllegalArgumentException.class, () -> AccountsUtils.makeAccountKey(null, ACCOUNT_ID_1));
     assertThrows(
-        IllegalArgumentException.class, () -> AccountsUtils.getAccountKey("", ACCOUNT_NAME_1));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> AccountsUtils.getAccountKey("com_google_test", ACCOUNT_NAME_1));
+        IllegalArgumentException.class, () -> AccountsUtils.makeAccountKey("", ACCOUNT_ID_1));
     assertThrows(
         IllegalArgumentException.class,
-        () -> AccountsUtils.getAccountKey("com:google:test", ACCOUNT_NAME_1));
+        () -> AccountsUtils.makeAccountKey("com_google_test", ACCOUNT_ID_1));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> AccountsUtils.makeAccountKey("com:google:test", ACCOUNT_ID_1));
 
-    // Check that accountName can't be null or empty.
+    // Check that accountId can't be null or empty.
     assertThrows(
-        IllegalArgumentException.class, () -> AccountsUtils.getAccountKey(NAMESPACE, null));
-    assertThrows(IllegalArgumentException.class, () -> AccountsUtils.getAccountKey(NAMESPACE, ""));
+        IllegalArgumentException.class, () -> AccountsUtils.makeAccountKey(NAMESPACE, null));
+    assertThrows(IllegalArgumentException.class, () -> AccountsUtils.makeAccountKey(NAMESPACE, ""));
   }
 
   @Test
