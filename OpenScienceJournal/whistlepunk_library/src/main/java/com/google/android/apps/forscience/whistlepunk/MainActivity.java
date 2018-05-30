@@ -32,8 +32,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
@@ -43,7 +41,6 @@ import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
-import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 
 /** The main activity. */
 public class MainActivity extends ActivityWithNavigationView {
@@ -477,66 +474,6 @@ public class MainActivity extends ActivityWithNavigationView {
     if (fragment != null) {
       fragment.onActivityResult(requestCode, resultCode, data);
     }
-  }
-
-  // TODO: this is unused now.  Does any of this need to go into PanesActivity?
-  public RecordFragment.UICallbacks getRecordFragmentCallbacks() {
-    return new RecordFragment.UICallbacks() {
-      @Override
-      public void onRecordingRequested(String experimentName, boolean userInitiated) {
-        ActionBar actionBar = getSupportActionBar();
-        supportInvalidateOptionsMenu();
-        int toolbarColorResource = R.color.recording_toolbar_color;
-        int statusBarColorResource = R.color.recording_status_bar_color;
-        actionBar.setSubtitle(R.string.recording_title_label);
-        updateToolbarColors(toolbarColorResource, statusBarColorResource);
-      }
-
-      @Override
-      public void onRecordingStopped() {
-        ActionBar actionBar = getSupportActionBar();
-        supportInvalidateOptionsMenu();
-        int toolbarColorResource = R.color.color_primary;
-        int statusBarColorResource = R.color.color_primary_dark;
-        updateToolbarColors(toolbarColorResource, statusBarColorResource);
-        actionBar.setSubtitle(null);
-      }
-
-      @Override
-      public void onRecordingSaved(String runId, Experiment experiment) {
-        boolean fromRecord = true;
-        boolean createTask = true;
-        boolean claimExperimentsMode = false;
-        RunReviewActivity.launch(
-            MainActivity.this,
-            currentAccount,
-            runId,
-            experiment.getExperimentId(),
-            0,
-            fromRecord,
-            createTask,
-            claimExperimentsMode,
-            null);
-      }
-
-      private void updateToolbarColors(int toolbarColorResource, int statusBarColorResource) {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-        // Update the toolbar and status bar colors.
-        toolbar.setBackgroundResource(toolbarColorResource);
-        if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-          Window window = getWindow();
-          if (statusBarColorResource == R.color.color_primary_dark) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-          } else {
-            // For any color that is not the default, need to clear this flag so that
-            // we can draw the right color.
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-          }
-          window.setStatusBarColor(getResources().getColor(statusBarColorResource));
-        }
-      }
-    };
   }
 
   private void onAccountSwitched(AppAccount appAccount) {
