@@ -45,11 +45,11 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
     findViewById(R.id.select_view).setOnClickListener(v -> pickAndChooseExperiments());
 
     int unclaimedExperimentCount = AccountsUtils.getUnclaimedExperimentCount(this);
-    TextView secondParagraph = findViewById(R.id.text_second_paragraph);
-    secondParagraph.setText(
+    TextView thirdParagraph = findViewById(R.id.text_third_paragraph);
+    thirdParagraph.setText(
         getResources()
             .getQuantityString(
-                R.plurals.old_user_option_prompt_second_paragraph,
+                R.plurals.old_user_option_prompt_third_paragraph,
                 unclaimedExperimentCount,
                 unclaimedExperimentCount));
   }

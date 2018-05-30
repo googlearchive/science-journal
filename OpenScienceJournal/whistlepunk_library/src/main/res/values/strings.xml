@@ -1573,11 +1573,17 @@ Permissions notice:
     <string name="old_user_option_prompt_first_paragraph">Science Journal now syncs your experiments across devices using Google Drive.</string>
 
     <!-- Second paragraph for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=80] -->
-    <plurals name="old_user_option_prompt_second_paragraph"
+    <string name="old_user_option_prompt_second_paragraph">The current device settings have been transferred to your account and can be modified in the settings menu.</string>
+
+    <!-- Third paragraph for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=80] -->
+    <plurals name="old_user_option_prompt_third_paragraph"
              translation_description="Plural form for second paragraph of old user option prompt activity when there are unclaimed experiments">
-      <item quantity="one">You have <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> experiment on this device. To continue, select an option.</item>
-      <item quantity="other">You have <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> experiments on this device. To continue, select an option.</item>
+      <item quantity="one">You also have <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> experiment stored on this device.</item>
+      <item quantity="other">You also have <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> experiments stored on this device.</item>
     </plurals>
+
+    <!-- Fourth paragraph for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=80] -->
+    <string name="old_user_option_prompt_fourth_paragraph">To continue, select an option:</string>
 
     <!-- Headline for Drive choice [CHAR_LIMIT=30] -->
     <string name="drive_choice_headline">Save all your experiments</string>

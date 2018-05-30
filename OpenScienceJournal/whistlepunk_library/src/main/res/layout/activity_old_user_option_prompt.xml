@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="87dp"
+            android:layout_marginTop="31dp"
             android:layout_marginStart="40dp"
             android:layout_marginEnd="40dp"
             android:text="@string/old_user_option_prompt_headline"
@@ -57,12 +57,33 @@
             />
 
         <TextView
-            android:id="@+id/text_second_paragraph"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginStart="40dp"
             android:layout_marginEnd="40dp"
+            android:text="@string/old_user_option_prompt_second_paragraph"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            />
+
+        <TextView
+            android:id="@+id/text_third_paragraph"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:text="@string/old_user_option_prompt_fourth_paragraph"
             android:textColor="@android:color/black"
             android:textSize="18sp"
             />
@@ -106,7 +127,7 @@
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/drive_choice_headline"
                     android:textStyle="bold"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     />
                 <TextView
                     android:layout_width="match_parent"
@@ -115,7 +136,7 @@
                     android:layout_marginEnd="10dp"
                     android:textColor="#4a4a4a"
                     android:text="@string/drive_choice_text"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     />
             </LinearLayout>
         </LinearLayout>
@@ -159,7 +180,7 @@
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/delete_choice_headline"
                     android:textStyle="bold"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     />
                 <TextView
                     android:layout_width="match_parent"
@@ -168,7 +189,7 @@
                     android:layout_marginEnd="10dp"
                     android:textColor="#4a4a4a"
                     android:text="@string/delete_choice_text"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     />
             </LinearLayout>
         </LinearLayout>
@@ -212,7 +233,7 @@
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/select_choice_headline"
                     android:textStyle="bold"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     />
                 <TextView
                     android:layout_width="match_parent"
@@ -221,7 +242,7 @@
                     android:layout_marginEnd="10dp"
                     android:textColor="#4a4a4a"
                     android:text="@string/select_choice_text"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     />
             </LinearLayout>
         </LinearLayout>
