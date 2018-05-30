@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,12 +34,23 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 /** Activity that lets the user choose what to do with their old experiments. */
 public class OldUserOptionPromptActivity extends AppCompatActivity {
   private static final String TAG = "OldUserOptionPrompt";
+  private static final String EXTRA_ACCOUNT_KEY = "accountKey";
+
+  private AppAccount appAccount;
+
+  static void launch(Context context, AppAccount appAccount) {
+    Intent intent = new Intent(context, OldUserOptionPromptActivity.class);
+    intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
+    context.startActivity(intent);
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_old_user_option_prompt);
+
+    appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
 
     findViewById(R.id.drive_view).setOnClickListener(v -> moveAllExperiments());
     findViewById(R.id.delete_view).setOnClickListener(v -> showDeleteAllPrompt());
@@ -64,14 +76,12 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
     NonSignedInAccount nonSignedInAccount = NonSignedInAccount.getInstance(this);
     DataController dataController =
         AppSingleton.getInstance(this).getDataController(nonSignedInAccount);
-    AppAccount currentAccount =
-        WhistlePunkApplication.getAppServices(this).getAccountsProvider().getCurrentAccount();
     // TODO(lizlooney): handle errors. From saff during code review: Since this is such an
     // important part of data ownership, I think we might want to explicitly use a MaybeConsumer
     // with a Toast onError so the user is notified if for some reason this doesn't work (most
     // likely cause I can think of is disk space pressure).
     dataController.moveAllExperimentsToAnotherAccount(
-        currentAccount,
+        appAccount,
         new LoggingConsumer<Success>(TAG, "moveAllExperiments") {
           @Override
           public void success(Success value) {

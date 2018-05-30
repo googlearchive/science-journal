@@ -22,6 +22,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.support.design.navigation.NavigationView;
 import android.support.design.widget.Snackbar;
 import androidx.fragment.app.Fragment;
@@ -34,7 +35,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NotSignedInYetActivity;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
@@ -52,11 +52,17 @@ public class MainActivity extends ActivityWithNavigationView {
   public static final String ARG_USE_PANES = "use_panes";
   protected static final int NO_SELECTED_ITEM = -1;
 
+  /**
+   * The ARG_SELECTED_NAV_ITEM_ID value from onCreate's savedInstanceState if there is one, or
+   * NO_SELECTED_ITEM.
+   */
+  private int savedItemId;
+
   /** Used to store the last screen title. For use in {@link #restoreActionBar()}. */
   private CharSequence titleToRestore;
 
   private AccountsProvider accountsProvider;
-  private AppAccount currentAccount;
+  @Nullable private AppAccount currentAccount;
   private FeedbackProvider feedbackProvider;
   private NavigationView navigationView;
   private MultiTouchDrawerLayout drawerLayout;
@@ -65,16 +71,22 @@ public class MainActivity extends ActivityWithNavigationView {
 
   /** Receives an event every time the activity pauses */
   private final RxEvent pause = new RxEvent();
+  /** Receives an event every time the current account changes */
+  private final RxEvent currentAccountChanging = new RxEvent();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    savedItemId =
+        (savedInstanceState == null)
+            ? NO_SELECTED_ITEM
+            : savedInstanceState.getInt(ARG_SELECTED_NAV_ITEM_ID, NO_SELECTED_ITEM);
+
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
+
     accountsProvider = WhistlePunkApplication.getAppServices(this).getAccountsProvider();
-    currentAccount = accountsProvider.getCurrentAccount();
-    if (showRequiredScreensIfNeeded()) {
-      return;
-    }
+
     setContentView(R.layout.activity_main);
     accountsProvider.connectAccountSwitcher(this);
 
@@ -100,35 +112,7 @@ public class MainActivity extends ActivityWithNavigationView {
 
     feedbackProvider = WhistlePunkApplication.getAppServices(this).getFeedbackProvider();
 
-    Bundle extras = getIntent().getExtras();
-    int selectedNavItemId = R.id.navigation_item_experiments;
-
-    int savedItemId = getSavedItemId(savedInstanceState);
-    if (savedItemId != NO_SELECTED_ITEM) {
-      selectedNavItemId = savedItemId;
-    } else if (extras != null) {
-      selectedNavItemId = extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
-    }
-    MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
-    if (item == null) {
-      selectedNavItemId = R.id.navigation_item_experiments;
-      item = navigationView.getMenu().findItem(selectedNavItemId);
-    }
-    navigationView.setCheckedItem(selectedNavItemId);
-    onNavigationItemSelected(item);
-
     setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-    // Clean up old files from previous exports.
-    ExportService.cleanOldFiles(this, currentAccount);
-  }
-
-  private int getSavedItemId(Bundle savedInstanceState) {
-    if (savedInstanceState == null) {
-      return NO_SELECTED_ITEM;
-    } else {
-      return savedInstanceState.getInt(ARG_SELECTED_NAV_ITEM_ID, NO_SELECTED_ITEM);
-    }
   }
 
   @Override
@@ -147,13 +131,35 @@ public class MainActivity extends ActivityWithNavigationView {
     if (showRequiredScreensIfNeeded()) {
       return;
     }
+
+    // Navigate to the desired fragment, based on saved state or intent extras, or (by default)
+    // the experiments list.
+    Bundle extras = getIntent().getExtras();
+    int selectedNavItemId;
+    if (savedItemId != NO_SELECTED_ITEM) {
+      selectedNavItemId = savedItemId;
+    } else if (extras != null) {
+      selectedNavItemId = extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
+    } else {
+      selectedNavItemId = R.id.navigation_item_experiments;
+    }
+    MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
+    if (item == null) {
+      selectedNavItemId = R.id.navigation_item_experiments;
+      item = navigationView.getMenu().findItem(selectedNavItemId);
+    }
+    navigationView.setCheckedItem(selectedNavItemId);
+    onNavigationItemSelected(item);
+
+    // Subscribe to account switches.
     accountsProvider
         .getObservableCurrentAccount()
         .takeUntil(pause.happens())
         .subscribe(this::onAccountSwitched);
 
     if (!isMultiWindowEnabled()) {
-      updateRecorderControllerForResume();
+      // Subscribe to the recording status.
+      watchRecordingStatus();
     }
     // If we get to here, it's safe to log the mode we are in: user has signed in and/or
     // completed age verification.
@@ -165,26 +171,6 @@ public class MainActivity extends ActivityWithNavigationView {
                 ? TrackerConstants.LABEL_MODE_NONCHILD
                 : TrackerConstants.LABEL_MODE_CHILD,
             0);
-    if (isAttemptingImport()) {
-      WhistlePunkApplication.getUsageTracker(this)
-          .trackEvent(
-              TrackerConstants.CATEGORY_EXPERIMENTS,
-              TrackerConstants.ACTION_IMPORTED,
-              TrackerConstants.LABEL_EXPERIMENT_LIST,
-              0);
-
-      if (!isRecording) {
-        ExportService.handleExperimentImport(this, currentAccount, getIntent().getData());
-      } else {
-        AccessibilityUtils.makeSnackbar(
-                findViewById(R.id.drawer_layout),
-                getResources().getString(R.string.import_failed_recording),
-                Snackbar.LENGTH_SHORT)
-            .show();
-      }
-
-      setIntent(null);
-    }
   }
 
   public boolean isAttemptingImport() {
@@ -214,6 +200,7 @@ public class MainActivity extends ActivityWithNavigationView {
   @Override
   protected void onPause() {
     if (!isMultiWindowEnabled()) {
+      // Dispose of the recording status subscription.
       pause.onHappened();
     }
     super.onPause();
@@ -223,7 +210,8 @@ public class MainActivity extends ActivityWithNavigationView {
   protected void onStart() {
     super.onStart();
     if (isMultiWindowEnabled()) {
-      updateRecorderControllerForResume();
+      // Subscribe to the recording status.
+      watchRecordingStatus();
     }
   }
 
@@ -231,6 +219,7 @@ public class MainActivity extends ActivityWithNavigationView {
   protected void onStop() {
     accountsProvider.disconnectAccountSwitcher(this);
     if (isMultiWindowEnabled()) {
+      // Dispose of the recording status subscription.
       pause.onHappened();
     }
     super.onStop();
@@ -240,31 +229,48 @@ public class MainActivity extends ActivityWithNavigationView {
     return MultiWindowUtils.isMultiWindowEnabled(getApplicationContext());
   }
 
-  private void updateRecorderControllerForResume() {
+  /**
+   * Subscribes to the recording status for the current account, until either RxEvents pause or
+   * currentAccountChanging happens. This method is called when the MainActivity is resumed (or
+   * started for multi-window) and after the currentAccounts has changed.
+   *
+   * <p>RxEvent pause is triggered when the MainActivity is paused (or stopped for multi-window).
+   *
+   * <p>RxEvent currentAccountChanging is triggered when the current account is changing (before the
+   * call to watchRecordingStatus).
+   */
+  private void watchRecordingStatus() {
+    if (currentAccount == null) {
+      return;
+    }
     AppSingleton singleton = AppSingleton.getInstance(this);
     RecorderController rc = singleton.getRecorderController(currentAccount);
 
     // TODO: extract and test
     rc.watchRecordingStatus()
         .takeUntil(pause.happens())
+        .takeUntil(currentAccountChanging.happens())
         .subscribe(
             status -> {
               isRecording = status.isRecording();
               // TODO: Add experimentId to RecordingStatus
               if (isRecording) {
                 rememberAttemptingImport();
+                final AppAccount appAccount = currentAccount;
                 singleton
                     .getDataController(currentAccount)
                     .getLastUsedUnarchivedExperiment(
                         new LoggingConsumer<Experiment>(TAG, "getting last used experiment") {
                           @Override
                           public void success(Experiment experiment) {
-                            startActivity(
-                                WhistlePunkApplication.getLaunchIntentForPanesActivity(
-                                    MainActivity.this,
-                                    currentAccount,
-                                    experiment.getExperimentId(),
-                                    false /* claimExperimentsMode */));
+                            if (appAccount.equals(currentAccount)) {
+                              startActivity(
+                                  WhistlePunkApplication.getLaunchIntentForPanesActivity(
+                                      MainActivity.this,
+                                      currentAccount,
+                                      experiment.getExperimentId(),
+                                      false /* claimExperimentsMode */));
+                            }
                           }
                         });
               }
@@ -283,23 +289,8 @@ public class MainActivity extends ActivityWithNavigationView {
    */
   private boolean showRequiredScreensIfNeeded() {
     if (accountsProvider.requireSignedInAccount() && !accountsProvider.isSignedIn()) {
-      // Before letting the user sign in, get the DataController for the NonSignedInAccount and
-      // call DataController.getLastUsedUnarchivedExperiment, which will upgrade the database, if
-      // necessary.
-      NonSignedInAccount nonSignedInAccount = NonSignedInAccount.getInstance(this);
-      AppSingleton.getInstance(this)
-          .getDataController(nonSignedInAccount)
-          .getLastUsedUnarchivedExperiment(
-              new LoggingConsumer<Experiment>(
-                  TAG, "getting last used experiment to force database upgrade") {
-                @Override
-                public void success(Experiment experiment) {
-                  // Let the user sign in.
-                  Intent intent = new Intent(MainActivity.this, NotSignedInYetActivity.class);
-                  startActivity(intent);
-                  finish();
-                }
-              });
+      startActivity(new Intent(this, NotSignedInYetActivity.class));
+      finish();
       return true;
     }
     if (AgeVerifier.shouldShowUserAge(this)) {
@@ -326,6 +317,9 @@ public class MainActivity extends ActivityWithNavigationView {
       return false;
     }
     if (menuItem.getItemId() == R.id.navigation_item_experiments) {
+      if (currentAccount == null) {
+        return false;
+      }
       FragmentManager fragmentManager = getSupportFragmentManager();
       FragmentTransaction transaction = fragmentManager.beginTransaction();
       int itemId = menuItem.getItemId();
@@ -477,9 +471,8 @@ public class MainActivity extends ActivityWithNavigationView {
   }
 
   private void onAccountSwitched(AppAccount appAccount) {
-    if (currentAccount.equals(appAccount)) {
-      return;
-    }
+    // Dispose of the recording status subscription for the old current account.
+    currentAccountChanging.onHappened();
     currentAccount = appAccount;
 
     // Clean up old files from previous exports.
@@ -490,5 +483,30 @@ public class MainActivity extends ActivityWithNavigationView {
     MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
     navigationView.setCheckedItem(selectedNavItemId);
     onNavigationItemSelected(item);
+
+    // Subscribe to the recording status for the new current account.
+    watchRecordingStatus();
+
+    if (isAttemptingImport()) {
+      WhistlePunkApplication.getUsageTracker(this)
+          .trackEvent(
+              TrackerConstants.CATEGORY_EXPERIMENTS,
+              TrackerConstants.ACTION_IMPORTED,
+              TrackerConstants.LABEL_EXPERIMENT_LIST,
+              0);
+
+      if (!isRecording) {
+        ExportService.handleExperimentImport(this, currentAccount, getIntent().getData());
+      } else {
+        AccessibilityUtils.makeSnackbar(
+                findViewById(R.id.drawer_layout),
+                getResources().getString(R.string.import_failed_recording),
+                Snackbar.LENGTH_SHORT)
+            .show();
+      }
+
+      // Clear the intent so we don't try to import again.
+      setIntent(null);
+    }
   }
 }

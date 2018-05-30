@@ -57,18 +57,6 @@ public interface AccountsProvider {
   boolean isSignedIn();
 
   /**
-   * Returns the current account.
-   *
-   * <p>Most callers that need the current account should use {@link #getObservableCurrentAccount}
-   * instead of this method. This method should only be used in cases where observing the current
-   * account is not feasible.
-   *
-   * @return the current account
-   */
-  // TODO(b/78523529): Remove this method. Use getObservableCurrentAccount instead.
-  AppAccount getCurrentAccount();
-
-  /**
    * Returns an {@link Observable} that publishes the current account.
    *
    * <p>This is the preferred way to access the current account.

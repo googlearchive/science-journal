@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
+import androidx.annotation.Nullable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import java.util.HashMap;
@@ -40,13 +41,8 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
 
   @Override
   public final boolean isSignedIn() {
-    return getCurrentAccount().isSignedIn();
-  }
-
-  @Override
-  public final AppAccount getCurrentAccount() {
     synchronized (lockCurrentAccount) {
-      return currentAccount;
+      return currentAccount != null && currentAccount.isSignedIn();
     }
   }
 
@@ -62,6 +58,13 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
       return appAccount;
     }
     throw new IllegalArgumentException("The accountKey is not associated with a known AppAccount");
+  }
+
+  @Nullable
+  protected final AppAccount getCurrentAccount() {
+    synchronized (lockCurrentAccount) {
+      return currentAccount;
+    }
   }
 
   /**
