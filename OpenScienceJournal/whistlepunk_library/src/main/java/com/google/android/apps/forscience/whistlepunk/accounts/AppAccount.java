@@ -22,10 +22,16 @@ import java.io.File;
 public interface AppAccount {
   /**
    * Returns the name of this account, or empty string if the account is the non-signed in account.
+   * The name of an account may change over time. For example, for a google account, the name is an
+   * email address and may be changed.
    */
   String getAccountName();
 
-  /** Returns the key of this account. The key should include a leading namespace. */
+  /**
+   * Returns the key of this account. The key should include a namespace prefix and should not ever
+   * change. The key will be used to separate file and database storage as well as preferences. The
+   * accountKey is also used as the key in the {@link AbstractAccountsProvider#accountsByKey} map.
+   */
   String getAccountKey();
 
   /** Returns true if this account is a signed-in account. */
