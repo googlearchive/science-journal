@@ -666,7 +666,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   @Override
   public void moveAllExperimentsToAnotherAccount(
       AppAccount targetAccount, final MaybeConsumer<Success> onSuccess) {
-    cachedExperiments.clear();
     background(
         metaDataThread,
         onSuccess,
@@ -674,6 +673,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
           @Override
           public Success call() throws Exception {
             moveAllExperimentsToAnotherAccountOnDataThread(targetAccount);
+            cachedExperiments.clear();
             return Success.SUCCESS;
           }
         });
@@ -682,7 +682,21 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   private void moveAllExperimentsToAnotherAccountOnDataThread(AppAccount targetAccount)
       throws IOException {
     metaDataManager.saveImmediately();
-    metaDataManager.moveAllExperimentsToAnotherAccount(targetAccount);
+
+    if (metaDataManager.canMoveAllExperimentsToAnotherAccount(targetAccount)) {
+      metaDataManager.moveAllExperimentsToAnotherAccount(targetAccount);
+    } else {
+      // Move each experiment, one at a time.
+      List<GoosciUserMetadata.ExperimentOverview> experiments =
+          blockingGetExperimentOverviews(true /* includeArchived */);
+      for (GoosciUserMetadata.ExperimentOverview overview : experiments) {
+        Experiment experiment =
+            cachedExperiments.containsKey(overview.experimentId)
+                ? cachedExperiments.get(overview.experimentId).get()
+                : metaDataManager.getExperimentById(overview.experimentId);
+        moveExperimentToAnotherAccountOnDataThread(experiment, targetAccount);
+      }
+    }
   }
 
   @Override

@@ -110,6 +110,18 @@ public interface MetaDataManager {
   /** Any unsaved or cached data should be saved immediately. */
   void saveImmediately();
 
+  /**
+   * Returns true if moveAllExperimentsToAnotherAccount can be used to move all experiments to the
+   * target account. If this method removes false, experiments should be removed one at a time.
+   */
+  boolean canMoveAllExperimentsToAnotherAccount(AppAccount targetAccount);
+
+  /**
+   * Moves experiment root directory, user_metadata.proto, and experiment and sensor databases, from
+   * this account to the targetAccount.
+   *
+   * @throws IllegalStateException if {@link #canMoveAllExperimentsToAnotherAccount} is false.
+   */
   void moveAllExperimentsToAnotherAccount(AppAccount targetAccount) throws IOException;
 
   void beforeMovingExperimentToAnotherAccount(Experiment experiment);

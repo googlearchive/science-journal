@@ -426,9 +426,8 @@ public class ExperimentListFragment extends Fragment
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    // TODO(b/80138816): In claim experiments mode, we also need "Claim all" and "Delete all" on the
-    // overflow menu.
-    inflater.inflate(R.menu.menu_experiment_list, menu);
+    inflater.inflate(
+        claimExperimentsMode ? R.menu.menu_claim_experiments : R.menu.menu_experiment_list, menu);
   }
 
   @Override
@@ -453,8 +452,37 @@ public class ExperimentListFragment extends Fragment
       loadExperiments();
       getActivity().invalidateOptionsMenu();
       return true;
+    } else if (id == R.id.action_claim_unclaimed_experiments) {
+      claimUnclaimedExperiments();
+      return true;
+    } else if (id == R.id.action_delete_unclaimed_experiments) {
+      deleteUnclaimedExperiments();
+      return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  private void claimUnclaimedExperiments() {
+    getDataController()
+        .moveAllExperimentsToAnotherAccount(
+            claimingAccount,
+            new LoggingConsumer<Success>(TAG, "claimUnclaimedExperiments") {
+              @Override
+              public void success(Success value) {
+                getActivity().finish();
+              }
+            });
+  }
+
+  private void deleteUnclaimedExperiments() {
+    getDataController()
+        .deleteAllExperiments(
+            new LoggingConsumer<Success>(TAG, "deleteUnclaimedExperiments") {
+              @Override
+              public void success(Success value) {
+                getActivity().finish();
+              }
+            });
   }
 
   private void confirmDelete(String experimentId) {
@@ -485,9 +513,18 @@ public class ExperimentListFragment extends Fragment
                               TrackerConstants.ACTION_DELETED,
                               TrackerConstants.LABEL_EXPERIMENT_LIST,
                               0);
+                      maybeFinishClaimExperimentsMode();
                     }
                   });
             });
+  }
+
+  private void maybeFinishClaimExperimentsMode() {
+    // If the item count is now 1, then the only item is the
+    // add_experiments_to_drive_card. There are no unclaimed experiments left.
+    if (claimExperimentsMode && experimentListAdapter.getItemCount() == 1) {
+      getActivity().finish();
+    }
   }
 
   static class ExperimentListItem {
@@ -894,7 +931,10 @@ public class ExperimentListFragment extends Fragment
                 @Override
                 public void success(Success value) {
                   onExperimentDeleted(experimentId);
+
                   // TODO(lizlooney): Show a message "Experiment added to <account name>"
+
+                  parentReference.get().maybeFinishClaimExperimentsMode();
                 }
               });
     }

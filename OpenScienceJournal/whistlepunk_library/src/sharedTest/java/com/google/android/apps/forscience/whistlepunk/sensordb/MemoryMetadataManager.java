@@ -223,6 +223,11 @@ public class MemoryMetadataManager implements MetaDataManager {
   public void saveImmediately() {}
 
   @Override
+  public boolean canMoveAllExperimentsToAnotherAccount(AppAccount targetAccount) {
+    return false;
+  }
+
+  @Override
   public void moveAllExperimentsToAnotherAccount(AppAccount targetAccount) {
     throw new UnsupportedOperationException();
   }
