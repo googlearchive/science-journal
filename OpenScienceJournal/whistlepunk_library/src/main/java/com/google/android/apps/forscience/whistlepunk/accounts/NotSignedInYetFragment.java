@@ -42,6 +42,7 @@ public class NotSignedInYetFragment extends Fragment {
   private AccountsProvider accountsProvider;
   private AppAccount currentAccount;
   private boolean showingAccountSwitcherDialog;
+  private boolean afterSignInDone;
 
   @Override
   public View onCreateView(
@@ -61,15 +62,17 @@ public class NotSignedInYetFragment extends Fragment {
   @Override
   public void onResume() {
     super.onResume();
-    accountsProvider
-        .getObservableCurrentAccount()
-        .takeUntil(pause.happens())
-        .subscribe(
-            appAccount -> {
-              currentAccount = appAccount;
-              checkIfSignedIn();
-            });
     checkIfSignedIn();
+    if (!afterSignInDone) {
+      accountsProvider
+          .getObservableCurrentAccount()
+          .takeUntil(pause.happens())
+          .subscribe(
+              appAccount -> {
+                currentAccount = appAccount;
+                checkIfSignedIn();
+              });
+    }
   }
 
   @Override
@@ -135,6 +138,10 @@ public class NotSignedInYetFragment extends Fragment {
   }
 
   private void afterSignIn() {
+    if (afterSignInDone) {
+      return;
+    }
+    afterSignInDone = true;
     FragmentActivity activity = getActivity();
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
 

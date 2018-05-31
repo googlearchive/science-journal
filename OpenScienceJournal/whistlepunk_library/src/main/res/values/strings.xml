@@ -495,6 +495,23 @@
     <!-- Summary of developer option to enable memory leak detection [CHAR_LIMIT=none] -->
     <string name="enable_smooth_scrolling_on_refresh_summary" translatable="false">Disable to reduce likelihood of crash with large experiment</string>
 
+    <!-- Title of developer option for require google account [CHAR_LIMIT=35] -->
+    <string name="require_google_account" translatable="false">Require Google account</string>
+
+    <!-- Summary of developer option for require google account [CHAR_LIMIT=none] -->
+    <string name="require_google_account_summary" translatable="false">Click to require signing in to a Google account.</string>
+
+    <!-- Title for require Google account alert [CHAR_LIMIT=30] -->
+    <string name="require_google_account_alert_title">Require Google account?</string>
+
+    <!-- Message for require Google account alert [CHAR_LIMIT=300] -->
+    <string name="require_google_account_alert_message">
+      If you click OK, the app will be killed and when it restarts, signing in to a Google account
+      will be required.
+      \n\nOnce this setting has been turned on, it cannot be turned off. You can only undo this
+      action by uninstalling the app.
+    </string>
+
     <!-- Default sonification type name [CHAR_LIMIT=30] -->
     <string name="default_sonification">Default</string>
 

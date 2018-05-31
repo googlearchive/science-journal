@@ -25,6 +25,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import androidx.annotation.VisibleForTesting;
+import androidx.appcompat.app.AlertDialog;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 
 /** Holder for Developer Testing Options */
@@ -40,6 +41,7 @@ public class DevOptionsFragment extends PreferenceFragment {
   public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
   private static final String KEY_PERF_DEBUG_SCREEN = "show_perf_tracker_debug";
   public static final String KEY_SMOOTH_SCROLL = "enable_smooth_scrolling_to_bottom";
+  private static final String KEY_REQUIRE_GOOGLE_ACCOUNT = "require_google_account";
   private static final String KEY_AGE_STATUS = "age_status";
 
   public static DevOptionsFragment newInstance() {
@@ -74,6 +76,15 @@ public class DevOptionsFragment extends PreferenceFragment {
       getPreferenceScreen().removePreference(leakPref);
     }
 
+    Preference prefRequireGoogleAccount = findPreference(KEY_REQUIRE_GOOGLE_ACCOUNT);
+    // Enable the preference if require Google account is off.
+    // Disable the preference if require Google account is on.
+    prefRequireGoogleAccount.setEnabled(
+        !prefRequireGoogleAccount
+            .getSharedPreferences()
+            .getBoolean(KEY_REQUIRE_GOOGLE_ACCOUNT, false));
+    prefRequireGoogleAccount.setOnPreferenceClickListener(this::promptBeforeRequireGoogleAccount);
+
     Preference prefTrackerPref = findPreference(KEY_PERF_DEBUG_SCREEN);
     prefTrackerPref.setOnPreferenceClickListener(
         preference -> {
@@ -97,6 +108,25 @@ public class DevOptionsFragment extends PreferenceFragment {
   @Override
   public void onPause() {
     super.onPause();
+  }
+
+  private boolean promptBeforeRequireGoogleAccount(Preference prefRequireGoogleAccount) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(prefRequireGoogleAccount.getContext());
+    builder.setTitle(R.string.require_google_account_alert_title);
+    builder.setMessage(R.string.require_google_account_alert_message);
+    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+    builder.setPositiveButton(
+        android.R.string.ok,
+        (dialog, which) -> {
+          prefRequireGoogleAccount
+              .getEditor()
+              .putBoolean(KEY_REQUIRE_GOOGLE_ACCOUNT, true)
+              .commit();
+          dialog.dismiss();
+          System.exit(0);
+        });
+    builder.create().show();
+    return true;
   }
 
   @VisibleForTesting
@@ -135,6 +165,10 @@ public class DevOptionsFragment extends PreferenceFragment {
 
   public static boolean isSmoothScrollingToBottomEnabled(Context context) {
     return getBoolean(KEY_SMOOTH_SCROLL, true, context);
+  }
+
+  public static boolean requireGoogleAccount(Context context) {
+    return getBoolean(KEY_REQUIRE_GOOGLE_ACCOUNT, false, context);
   }
 
   private static boolean getBoolean(String key, boolean defaultBool, Context context) {
