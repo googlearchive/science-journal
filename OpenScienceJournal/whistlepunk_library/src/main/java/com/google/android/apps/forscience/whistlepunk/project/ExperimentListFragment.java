@@ -20,11 +20,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import androidx.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
@@ -91,6 +93,9 @@ public class ExperimentListFragment extends Fragment
   private static final String ARG_CLAIMING_ACCOUNT_KEY = "claimingAccountKey";
   private static final String ARG_USE_PANES = "usePanes";
   private static final String KEY_DEFAULT_EXPERIMENT_CREATED = "key_default_experiment_created";
+
+  /** Duration of snackbar length long. 3.5 seconds */
+  private static final int LONG_DELAY_MILLIS = 3500;
 
   private ExperimentListAdapter experimentListAdapter;
   private boolean includeArchived;
@@ -725,7 +730,8 @@ public class ExperimentListFragment extends Fragment
               context, parentReference.get().appAccount, overview.experimentId);
       if (parentReference.get().claimExperimentsMode) {
         holder.menuButton.setVisibility(View.GONE);
-        holder.driveButton.setOnClickListener(v -> claimExperiment(overview.experimentId));
+        holder.driveButton.setOnClickListener(
+            v -> promptBeforeClaimExperiment(overview.experimentId));
         if (isShareIntentValid) {
           holder.shareButton.setOnClickListener(v -> exportExperiment(overview.experimentId));
         } else {
@@ -846,26 +852,44 @@ public class ExperimentListFragment extends Fragment
       }
     }
 
+    private void showClaimedSnackbar() {
+      if (parentReference.get() == null) {
+        return;
+      }
+      String accountName = parentReference.get().claimingAccount.getAccountName();
+      String message =
+          parentReference
+              .get()
+              .getResources()
+              .getString(R.string.experiment_added_text, accountName);
+      showSnackbar(message, null /* undoOnClickListener */);
+    }
+
     private void showArchivedSnackbar(
         GoosciUserMetadata.ExperimentOverview overview, int position, boolean archived) {
       if (parentReference.get() == null) {
         return;
       }
+      String message =
+          parentReference
+              .get()
+              .getResources()
+              .getString(
+                  archived
+                      ? R.string.archived_experiment_message
+                      : R.string.unarchived_experiment_message);
+      // We only seem to show "undo" for archiving items, not unarchiving them.
+      View.OnClickListener undoOnClickListener =
+          archived ? view -> setExperimentArchived(overview, position, !archived) : null;
+      showSnackbar(message, undoOnClickListener);
+    }
+
+    private void showSnackbar(String message, @Nullable View.OnClickListener undoOnClickListener) {
       Snackbar bar =
           AccessibilityUtils.makeSnackbar(
-              parentReference.get().getView(),
-              parentReference
-                  .get()
-                  .getResources()
-                  .getString(
-                      archived
-                          ? R.string.archived_experiment_message
-                          : R.string.unarchived_experiment_message),
-              Snackbar.LENGTH_LONG);
-      if (archived) {
-        // We only seem to show "undo" for archiving items, not unarchiving them.
-        bar.setAction(
-            R.string.action_undo, view -> setExperimentArchived(overview, position, !archived));
+              parentReference.get().getView(), message, Snackbar.LENGTH_LONG);
+      if (undoOnClickListener != null) {
+        bar.setAction(R.string.action_undo, undoOnClickListener);
       }
       snackbarManager.showSnackbar(bar);
     }
@@ -899,28 +923,39 @@ public class ExperimentListFragment extends Fragment
 
     private void removeExperiment(int index) {
       items.remove(index);
-      if (items.size() > 1) {
-        notifyItemRemoved(index);
-        // Make sure the item before is not a date that has no children.
-        // If it is, remove it too.
-        // Index cannot be 0 because the first item is a date.
-        if (items.get(index - 1).viewType == VIEW_TYPE_DATE
-            && ((items.size() > index && items.get(index).viewType == VIEW_TYPE_DATE)
-                || (items.size() == index))) {
+      notifyItemRemoved(index);
+
+      // Remove the previous item if it is a date with no children.
+      // We don't need to index check that index is zero because there must be a date card
+      // somewhere above the experiment we just removed. So, an experiment is never at index zero.
+      if (items.get(index - 1).viewType == VIEW_TYPE_DATE) {
+        // The previous item is a date.
+        // If there are no items after that date, or the item after that date is also a date
+        if (index == items.size() || items.get(index).viewType == VIEW_TYPE_DATE) {
           items.remove(index - 1);
-          notifyItemRemoved(index - 1);
+          if (items.isEmpty()) {
+            notifyDataSetChanged();
+          } else {
+            notifyItemRemoved(index - 1);
+          }
         }
-      } else {
-        // The last experiment was just removed.
-        // All that's left is one date! Remove it.
-        items.remove(0);
-        notifyDataSetChanged();
       }
     }
 
+    private void promptBeforeClaimExperiment(String experimentId) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(parentReference.get().getContext());
+      builder.setTitle(R.string.drive_confirmation_text);
+      builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+      builder.setPositiveButton(
+          R.string.drive_confirmation_yes,
+          (dialog, which) -> {
+            claimExperiment(experimentId);
+            dialog.dismiss();
+          });
+      builder.create().show();
+    }
+
     private void claimExperiment(String experimentId) {
-      // TODO(lizlooney): Show a confirmation here since the action is not undo-able.
-      // "Add to Drive?" CANCEL / ADD TO DRIVE
       parentReference
           .get()
           .getDataController()
@@ -931,10 +966,17 @@ public class ExperimentListFragment extends Fragment
                 @Override
                 public void success(Success value) {
                   onExperimentDeleted(experimentId);
-
-                  // TODO(lizlooney): Show a message "Experiment added to <account name>"
-
-                  parentReference.get().maybeFinishClaimExperimentsMode();
+                  showClaimedSnackbar();
+                  // When the snackbar disappears, finish claim experiments mode if there are no
+                  // experiments left.
+                  new Handler()
+                      .postDelayed(
+                          () -> {
+                            if (parentReference.get() != null) {
+                              parentReference.get().maybeFinishClaimExperimentsMode();
+                            }
+                          },
+                          LONG_DELAY_MILLIS);
                 }
               });
     }
