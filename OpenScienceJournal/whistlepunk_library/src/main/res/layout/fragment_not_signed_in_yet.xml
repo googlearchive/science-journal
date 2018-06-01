@@ -19,16 +19,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#4a138b"
+    android:background="@drawable/12_splashscreen"
     >
 
-  <!-- TODO(lizlooney): replace ../drawable/splashscreen_group.png with the imported svg -->
-  <ImageView
+  <View
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="1"
-      android:src="@drawable/splashscreen_group"
-      android:importantForAccessibility="no"
       />
 
   <TextView
