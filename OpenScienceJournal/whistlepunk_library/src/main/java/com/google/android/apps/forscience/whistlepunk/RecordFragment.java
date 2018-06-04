@@ -1265,7 +1265,7 @@ public class RecordFragment extends PanesToolFragment
     if (!sensorsActuallyAdded.isEmpty()) {
       boolean discoveryEnabled =
           featureDiscoveryProvider.isEnabled(
-              getActivity(), FeatureDiscoveryProvider.FEATURE_NEW_EXTERNAL_SENSOR);
+              getActivity(), getAppAccount(), FeatureDiscoveryProvider.FEATURE_NEW_EXTERNAL_SENSOR);
       if (discoveryEnabled) {
         // If (unusually) more than one external sensor was added for
         // the first time on the screen, highlight the left-most one,
@@ -1317,6 +1317,7 @@ public class RecordFragment extends PanesToolFragment
     if (view != null) {
       featureDiscoveryProvider.show(
           ((AppCompatActivity) getActivity()),
+          getAppAccount(),
           FeatureDiscoveryProvider.FEATURE_NEW_EXTERNAL_SENSOR,
           sensorId);
     }

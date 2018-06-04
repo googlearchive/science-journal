@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.opensource.modules;
 
 import android.content.Context;
 import androidx.fragment.app.FragmentActivity;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import dagger.Module;
 import dagger.Provides;
@@ -29,12 +30,13 @@ public class FeatureDiscoveryModule {
   public FeatureDiscoveryProvider provideFeatureDiscoveryProvider() {
     return new FeatureDiscoveryProvider() {
       @Override
-      public boolean isEnabled(Context context, String feature) {
+      public boolean isEnabled(Context context, AppAccount appAccount, String feature) {
         return false;
       }
 
       @Override
-      public void show(FragmentActivity activity, String feature, String tag) {}
+      public void show(
+          FragmentActivity activity, AppAccount appAccount, String feature, String tag) {}
     };
   }
 }
