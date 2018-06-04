@@ -1,5 +1,7 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
+import android.accounts.Account;
+import androidx.annotation.Nullable;
 import java.io.File;
 
 /** An stub implementation of {@link AppAccount}. */
@@ -14,6 +16,12 @@ public final class StubAppAccount implements AppAccount {
   }
 
   private StubAppAccount() {}
+
+  @Nullable
+  @Override
+  public Account getAccount() {
+    return null;
+  }
 
   @Override
   public String getAccountName() {

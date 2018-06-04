@@ -16,10 +16,16 @@
 
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
+import android.accounts.Account;
+import androidx.annotation.Nullable;
 import java.io.File;
 
 /** An interface which represents an account. */
 public interface AppAccount {
+  /** Returns the account for this AppAccount, or null if there is no account. */
+  @Nullable
+  Account getAccount();
+
   /**
    * Returns the name of this account, or empty string if the account is the non-signed in account.
    * The name of an account may change over time. For example, for a google account, the name is an
