@@ -458,13 +458,34 @@ public class ExperimentListFragment extends Fragment
       getActivity().invalidateOptionsMenu();
       return true;
     } else if (id == R.id.action_claim_unclaimed_experiments) {
-      claimUnclaimedExperiments();
+      confirmClaimUnclaimedExperiments();
       return true;
     } else if (id == R.id.action_delete_unclaimed_experiments) {
-      deleteUnclaimedExperiments();
+      confirmDeleteUnclaimedExperiments();
       return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  private void confirmClaimUnclaimedExperiments() {
+    Context context = getContext();
+    int unclaimedExperimentCount = AccountsUtils.getUnclaimedExperimentCount(context);
+    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    builder.setTitle(
+        context
+            .getResources()
+            .getQuantityString(
+                R.plurals.claim_all_confirmation_text,
+                unclaimedExperimentCount,
+                unclaimedExperimentCount));
+    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+    builder.setPositiveButton(
+        R.string.claim_all_confirmation_yes,
+        (dialog, which) -> {
+          claimUnclaimedExperiments();
+          dialog.dismiss();
+        });
+    builder.create().show();
   }
 
   private void claimUnclaimedExperiments() {
@@ -477,6 +498,20 @@ public class ExperimentListFragment extends Fragment
                 getActivity().finish();
               }
             });
+  }
+
+  private void confirmDeleteUnclaimedExperiments() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+    builder.setTitle(R.string.delete_all_prompt_headline);
+    builder.setMessage(R.string.delete_all_prompt_text);
+    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+    builder.setPositiveButton(
+        R.string.delete_all_prompt_yes,
+        (dialog, which) -> {
+          deleteUnclaimedExperiments();
+          dialog.dismiss();
+        });
+    builder.create().show();
   }
 
   private void deleteUnclaimedExperiments() {
