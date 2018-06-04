@@ -17,6 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
+import android.preference.Preference;
+import android.preference.PreferenceFragment;
+import android.preference.TwoStatePreference;
 import androidx.annotation.Nullable;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
@@ -31,6 +34,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   private final Object lockCurrentAccount = new Object();
   private AppAccount currentAccount;
   private final Map<String, AppAccount> accountsByKey = new HashMap<>();
+  private final Map<String, Boolean> accountBasedPreferenceKeys = new HashMap<>();
 
   AbstractAccountsProvider(Context context) {
     applicationContext = context.getApplicationContext();
@@ -58,6 +62,39 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
       return appAccount;
     }
     throw new IllegalArgumentException("The accountKey is not associated with a known AppAccount");
+  }
+
+  @Override
+  public void registerAccountBasedPreferenceKey(String prefKey, Boolean defaultValue) {
+    accountBasedPreferenceKeys.put(prefKey, defaultValue);
+  }
+
+  @Override
+  public void adjustPreferenceFragment(PreferenceFragment preferenceFragment) {
+    AppAccount appAccount = getCurrentAccount();
+    if (appAccount != null) {
+      for (Map.Entry<String, Boolean> entry : accountBasedPreferenceKeys.entrySet()) {
+        String key = entry.getKey();
+        Preference preference = preferenceFragment.findPreference(key);
+        if (preference != null) {
+          // Adjust the preference's key and checked value with the key and checked value from the
+          // account-based preference.
+          String accountPreferenceKey = appAccount.getPreferenceKey(key);
+          preference.setKey(accountPreferenceKey);
+          if (preference instanceof TwoStatePreference) {
+            boolean defaultValue = entry.getValue();
+            boolean value =
+                preference.getSharedPreferences().getBoolean(accountPreferenceKey, defaultValue);
+            ((TwoStatePreference) preference).setChecked(value);
+          } else {
+            throw new UnsupportedOperationException(
+                "Adjustment for "
+                    + preference.getClass().getSimpleName()
+                    + " has not been implemented");
+          }
+        }
+      }
+    }
   }
 
   @Nullable

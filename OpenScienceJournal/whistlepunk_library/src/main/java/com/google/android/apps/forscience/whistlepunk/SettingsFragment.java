@@ -64,6 +64,10 @@ public class SettingsFragment extends PreferenceFragment {
     } else {
       throw new IllegalStateException("SettingsFragment type " + type + " is unknown.");
     }
+
+    WhistlePunkApplication.getAppServices(getActivity())
+        .getAccountsProvider()
+        .adjustPreferenceFragment(this);
   }
 
   @Override
