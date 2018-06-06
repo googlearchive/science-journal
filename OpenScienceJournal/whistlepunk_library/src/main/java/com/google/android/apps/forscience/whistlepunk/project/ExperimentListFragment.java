@@ -796,7 +796,7 @@ public class ExperimentListFragment extends Fragment
               popupMenu
                   .getMenu()
                   .findItem(R.id.menu_item_export_experiment)
-                  .setVisible(isShareIntentValid && !overview.isArchived);
+                  .setVisible(isShareIntentValid);
 
               popupMenu.setOnMenuItemClickListener(
                   menuItem -> {
