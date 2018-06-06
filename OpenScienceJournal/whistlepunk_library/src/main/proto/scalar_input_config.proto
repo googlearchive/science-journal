@@ -15,6 +15,9 @@
  */
 
 syntax = "proto2";
+import "third_party/android/nanoproto/nano_descriptor.proto";
+option (proto2.nano.file_as_lite) = false;
+
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciScalarInput";
