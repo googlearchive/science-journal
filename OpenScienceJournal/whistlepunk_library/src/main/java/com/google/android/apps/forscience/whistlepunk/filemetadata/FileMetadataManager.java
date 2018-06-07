@@ -37,6 +37,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
@@ -64,6 +65,7 @@ public class FileMetadataManager {
   static final String ASSETS_DIRECTORY = "assets";
   public static final String EXPERIMENTS_DIRECTORY = "experiments";
   public static final String EXPERIMENT_FILE = "experiment.proto";
+  public static final String EXPERIMENT_LIBRARY_FILE = "experiment_library.proto";
   private static final String TAG = "FileMetadataManager";
   private static final String USER_METADATA_FILE = "user_metadata.proto";
 
@@ -144,6 +146,10 @@ public class FileMetadataManager {
 
   public static File getUserMetadataFile(AppAccount appAccount) {
     return new File(getFilesDir(appAccount), USER_METADATA_FILE);
+  }
+
+  public static File getExperimentLibraryFile(AppAccount appAccount) {
+    return new File(getFilesDir(appAccount), EXPERIMENT_LIBRARY_FILE);
   }
 
   public static File getAssetsDirectory(AppAccount appAccount, String experimentId) {
@@ -759,5 +765,16 @@ public class FileMetadataManager {
 
   public List<GoosciDeviceSpec.DeviceSpec> getMyDevices() {
     return userMetadataManager.getMyDevices();
+  }
+
+  private static void writeProtoToFile(byte[] protoBytes, File file) throws IOException{
+    try (FileOutputStream fos = new FileOutputStream(file)) {
+      fos.write(protoBytes);
+    }
+  }
+
+  public static void writeExperimentLibraryFile(
+      GoosciExperimentLibrary.ExperimentLibrary library, AppAccount appAccount) throws IOException {
+    writeProtoToFile(ProtoUtils.makeBlob(library), getExperimentLibraryFile(appAccount));
   }
 }
