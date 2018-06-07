@@ -1606,19 +1606,19 @@ Permissions notice:
     <string name="drive_choice_headline">Save all your experiments</string>
 
     <!-- Text for Drive choice [CHAR_LIMIT=60] -->
-    <string name="drive_choice_text">All your experiments will be added to Drive</string>
+    <string name="drive_choice_text">All your experiments will be added to Google Drive</string>
 
     <!-- Headline for Delete choice [CHAR_LIMIT=30] -->
     <string name="delete_choice_headline">Delete all your experiments</string>
 
     <!-- Text for Delete choice [CHAR_LIMIT=60] -->
-    <string name="delete_choice_text">None of your experiments will be added to Drive</string>
+    <string name="delete_choice_text">None of your experiments will be added to Google Drive</string>
 
     <!-- Headline for Select choice [CHAR_LIMIT=30] -->
     <string name="select_choice_headline">Select experiments to save</string>
 
     <!-- Text for Select choice [CHAR_LIMIT=60] -->
-    <string name="select_choice_text">Choose which experiments to save to Drive</string>
+    <string name="select_choice_text">Choose which experiments to save to Google Drive</string>
 
     <!-- Headline for Delete All Prompt [CHAR_LIMIT=30] -->
     <string name="delete_all_prompt_headline">Delete all your experiments?</string>
@@ -1651,13 +1651,13 @@ Permissions notice:
     <string name="add_experiments_to_drive_card_text">Experiments cannot be edited and will remain on the device until they are either claimed or deleted</string>
 
     <!-- Context description for button which adds an experiment to drive [CHAR_LIMIT=50]-->
-    <string name="drive_btn_content_description">Add experiment to drive</string>
+    <string name="drive_btn_content_description">Add experiment to Google Drive</string>
 
     <!-- Text for add experiment to drive confirmation dialog [CHAR_LIMIT=30] -->
-    <string name="drive_confirmation_text">Add to Drive?</string>
+    <string name="drive_confirmation_text">Add to Google Drive?</string>
 
     <!-- Yes button add experiment to drive confirmation dialog [CHAR_LIMIT=20] -->
-    <string name="drive_confirmation_yes">Add to drive</string>
+    <string name="drive_confirmation_yes">Add to Google Drive</string>
 
     <!-- Text for experiment added message [CHAR_LIMIT=50] -->
     <string name="experiment_added_text">Experiment added to <xliff:g id="account_name">%1$s</xliff:g></string>

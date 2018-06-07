@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
@@ -37,6 +36,7 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
   private static final String EXTRA_ACCOUNT_KEY = "accountKey";
 
   private AppAccount appAccount;
+  private int unclaimedExperimentCount;
 
   static void launch(Context context, AppAccount appAccount) {
     Intent intent = new Intent(context, OldUserOptionPromptActivity.class);
@@ -52,11 +52,11 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
 
     appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
 
-    findViewById(R.id.drive_view).setOnClickListener(v -> moveAllExperiments());
+    findViewById(R.id.drive_view).setOnClickListener(v -> showMoveAllExperimentsPrompt());
     findViewById(R.id.delete_view).setOnClickListener(v -> showDeleteAllPrompt());
     findViewById(R.id.select_view).setOnClickListener(v -> pickAndChooseExperiments());
 
-    int unclaimedExperimentCount = AccountsUtils.getUnclaimedExperimentCount(this);
+    unclaimedExperimentCount = AccountsUtils.getUnclaimedExperimentCount(this);
     TextView thirdParagraph = findViewById(R.id.text_third_paragraph);
     thirdParagraph.setText(
         getResources()
@@ -69,6 +69,24 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
   @Override
   public void onBackPressed() {
     launchMainActivity();
+  }
+
+  private void showMoveAllExperimentsPrompt() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setTitle(
+        getResources()
+            .getQuantityString(
+                R.plurals.claim_all_confirmation_text,
+                unclaimedExperimentCount,
+                unclaimedExperimentCount));
+    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
+    builder.setPositiveButton(
+        R.string.claim_all_confirmation_yes,
+        (dialog, which) -> {
+          moveAllExperiments();
+          dialog.dismiss();
+        });
+    builder.create().show();
   }
 
   private void moveAllExperiments() {
@@ -94,22 +112,12 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
     builder.setTitle(R.string.delete_all_prompt_headline);
     builder.setMessage(R.string.delete_all_prompt_text);
-    builder.setNegativeButton(
-        android.R.string.cancel,
-        new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface d, int which) {
-            d.cancel();
-          }
-        });
+    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
     builder.setPositiveButton(
         R.string.delete_all_prompt_yes,
-        new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface d, int which) {
-            deleteAllExperiments();
-            d.dismiss();
-          }
+        (dialog, which) -> {
+          deleteAllExperiments();
+          dialog.dismiss();
         });
     builder.create().show();
   }

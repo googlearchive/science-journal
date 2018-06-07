@@ -127,7 +127,7 @@
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/drive_choice_headline"
                     android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     />
                 <TextView
                     android:layout_width="match_parent"
@@ -136,7 +136,7 @@
                     android:layout_marginEnd="10dp"
                     android:textColor="#4a4a4a"
                     android:text="@string/drive_choice_text"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     />
             </LinearLayout>
         </LinearLayout>
@@ -180,7 +180,7 @@
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/delete_choice_headline"
                     android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     />
                 <TextView
                     android:layout_width="match_parent"
@@ -189,7 +189,7 @@
                     android:layout_marginEnd="10dp"
                     android:textColor="#4a4a4a"
                     android:text="@string/delete_choice_text"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     />
             </LinearLayout>
         </LinearLayout>
@@ -233,7 +233,7 @@
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/select_choice_headline"
                     android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     />
                 <TextView
                     android:layout_width="match_parent"
@@ -242,7 +242,7 @@
                     android:layout_marginEnd="10dp"
                     android:textColor="#4a4a4a"
                     android:text="@string/select_choice_text"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     />
             </LinearLayout>
         </LinearLayout>
