@@ -24,12 +24,16 @@ import androidx.annotation.IntDef;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.common.base.Preconditions;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** Displays settings, dev options or about fragments as activity. */
 public class SettingsActivity extends AppCompatActivity {
 
+  private static final String KEY_ACCOUNT_KEY = "accountKey";
   private static final String KEY_TYPE = "type";
   private static final String KEY_TITLE = "title";
 
@@ -47,6 +51,8 @@ public class SettingsActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_settings);
 
+    AppAccount appAccount = WhistlePunkApplication.getAccount(this, getIntent(), KEY_ACCOUNT_KEY);
+
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
       actionBar.setDisplayHomeAsUpEnabled(true);
@@ -56,10 +62,10 @@ public class SettingsActivity extends AppCompatActivity {
     Fragment fragment;
     switch (settingsType) {
       case TYPE_ABOUT:
-        fragment = SettingsFragment.newInstance(TYPE_ABOUT);
+        fragment = SettingsFragment.newInstance(appAccount, TYPE_ABOUT);
         break;
       case TYPE_SETTINGS:
-        fragment = SettingsFragment.newInstance(TYPE_SETTINGS);
+        fragment = SettingsFragment.newInstance(appAccount, TYPE_SETTINGS);
         break;
       case TYPE_DEV_OPTIONS:
         fragment = DevOptionsFragment.newInstance();
@@ -81,7 +87,16 @@ public class SettingsActivity extends AppCompatActivity {
 
   public static Intent getLaunchIntent(
       Context context, CharSequence title, @SettingsType int type) {
+    // Make sure this version is not used for TYPE_SETTINGS. We need the current AppAccount for
+    // TYPE_SETTINGS.
+    Preconditions.checkArgument(type != TYPE_SETTINGS);
+    return getLaunchIntent(context, NonSignedInAccount.getInstance(context), title, type);
+  }
+
+  public static Intent getLaunchIntent(
+      Context context, AppAccount appAccount, CharSequence title, @SettingsType int type) {
     Intent intent = new Intent(context, SettingsActivity.class);
+    intent.putExtra(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(KEY_TYPE, type);
     intent.putExtra(KEY_TITLE, title);
     return intent;

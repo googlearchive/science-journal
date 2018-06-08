@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.preference.PreferenceManager;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Files;
 import java.io.File;
@@ -45,14 +44,13 @@ public class AccountsUtilsTest {
   private static final String ACCOUNT_KEY_2 = AccountsUtils.makeAccountKey(NAMESPACE, ACCOUNT_ID_2);
   private static final String ACCOUNT_ID_3 = "klmnopqrst";
   private static final String ACCOUNT_KEY_3 = AccountsUtils.makeAccountKey(NAMESPACE, ACCOUNT_ID_3);
+  private static final String KEY_DEFAULT_EXPERIMENT_CREATED = "key_default_experiment_created";
 
   private Context context;
-  private SharedPreferences sharedPreferences;
 
   @Before
   public void setUp() throws Exception {
     context = RuntimeEnvironment.application.getApplicationContext();
-    sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     tearDown(); // Clean up, just in case previous test crashed.
   }
 
@@ -93,15 +91,29 @@ public class AccountsUtilsTest {
       SQLiteDatabase db = dbHelper.getReadableDatabase();
       assertThat(Arrays.asList(context.databaseList())).contains(dbName);
 
-      // Create a preference.
-      String accountPrefKey =
-          AccountsUtils.getPrefKey(accountKey, "key_default_experiment_created");
-      sharedPreferences.edit().putBoolean(accountPrefKey, true).apply();
-      assertThat(sharedPreferences.contains(accountPrefKey)).isTrue();
+      // Set a preference.
+      String sharedPreferencesName = AccountsUtils.getSharedPreferencesName(accountKey);
+      SharedPreferences sharedPreferences = context.getSharedPreferences(sharedPreferencesName, 0);
+      sharedPreferences.edit().putBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, true).commit();
+      assertThat(sharedPreferences.contains(KEY_DEFAULT_EXPERIMENT_CREATED)).isTrue();
     }
+
+    // Verify that all the account files exist.
     File account1FilesDir = AccountsUtils.getFilesDir(ACCOUNT_KEY_1, context);
+    assertThat(account1FilesDir.exists()).isTrue();
     File account2FilesDir = AccountsUtils.getFilesDir(ACCOUNT_KEY_2, context);
+    assertThat(account2FilesDir.exists()).isTrue();
     File account3FilesDir = AccountsUtils.getFilesDir(ACCOUNT_KEY_3, context);
+    assertThat(account3FilesDir.exists()).isTrue();
+    File account1SharedPreferencesFile =
+        getSharedPreferencesFile(AccountsUtils.getSharedPreferencesName(ACCOUNT_KEY_1));
+    assertThat(account1SharedPreferencesFile.exists()).isTrue();
+    File account2SharedPreferencesFile =
+        getSharedPreferencesFile(AccountsUtils.getSharedPreferencesName(ACCOUNT_KEY_2));
+    assertThat(account2SharedPreferencesFile.exists()).isTrue();
+    File account3SharedPreferencesFile =
+        getSharedPreferencesFile(AccountsUtils.getSharedPreferencesName(ACCOUNT_KEY_3));
+    assertThat(account3SharedPreferencesFile.exists()).isTrue();
 
     // Remove accounts other than accounts 2 and 3.
     AccountsUtils.removeOtherAccounts(context, ImmutableSet.of(ACCOUNT_KEY_2, ACCOUNT_KEY_3));
@@ -111,10 +123,13 @@ public class AccountsUtilsTest {
     // Database for account 1 no longer exists.
     assertThat(Arrays.asList(context.databaseList()))
         .doesNotContain(AccountsUtils.getDatabaseFileName(ACCOUNT_KEY_1, "sensors.db"));
-    // Preference for account 1 no longer exists.
-    assertThat(
-            sharedPreferences.contains(
-                AccountsUtils.getPrefKey(ACCOUNT_KEY_1, "key_default_experiment_created")))
+    // SharedPreferences file for account 1 no longer exists.
+    assertThat(account1SharedPreferencesFile.exists()).isFalse();
+    // If we re-create the SharedPreferences, KEY_DEFAULT_EXPERIMENT_CREATED is not there.
+    SharedPreferences account1SharedPreferences =
+        context.getSharedPreferences(AccountsUtils.getSharedPreferencesName(ACCOUNT_KEY_1), 0);
+    assertThat(account1SharedPreferences.contains(KEY_DEFAULT_EXPERIMENT_CREATED)).isFalse();
+    assertThat(account1SharedPreferences.getBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, false))
         .isFalse();
 
     // Directories for accounts 2 and 3 still have 5 experiments each.
@@ -127,14 +142,18 @@ public class AccountsUtilsTest {
         .contains(AccountsUtils.getDatabaseFileName(ACCOUNT_KEY_2, "sensors.db"));
     assertThat(Arrays.asList(context.databaseList()))
         .contains(AccountsUtils.getDatabaseFileName(ACCOUNT_KEY_3, "sensors.db"));
-    // Preferences for accounts 2 and 3 still there.
-    assertThat(
-            sharedPreferences.getBoolean(
-                AccountsUtils.getPrefKey(ACCOUNT_KEY_2, "key_default_experiment_created"), false))
+    // SharedPreferences for accounts 2 and 3 still there.
+    assertThat(account2SharedPreferencesFile.exists()).isTrue();
+    assertThat(account3SharedPreferencesFile.exists()).isTrue();
+    SharedPreferences account2SharedPreferences =
+        context.getSharedPreferences(AccountsUtils.getSharedPreferencesName(ACCOUNT_KEY_2), 0);
+    assertThat(account2SharedPreferences.contains(KEY_DEFAULT_EXPERIMENT_CREATED)).isTrue();
+    assertThat(account2SharedPreferences.getBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, false))
         .isTrue();
-    assertThat(
-            sharedPreferences.getBoolean(
-                AccountsUtils.getPrefKey(ACCOUNT_KEY_3, "key_default_experiment_created"), false))
+    SharedPreferences account3SharedPreferences =
+        context.getSharedPreferences(AccountsUtils.getSharedPreferencesName(ACCOUNT_KEY_3), 0);
+    assertThat(account3SharedPreferences.contains(KEY_DEFAULT_EXPERIMENT_CREATED)).isTrue();
+    assertThat(account3SharedPreferences.getBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, false))
         .isTrue();
   }
 
@@ -204,26 +223,48 @@ public class AccountsUtilsTest {
     // The database file name for a different account should be different.
     String account2DatabaseFileName = AccountsUtils.getDatabaseFileName(ACCOUNT_KEY_2, "runs");
     assertThat(account1DatabaseFileName).isNotEqualTo(account2DatabaseFileName);
+
+    // Check that accountKey can't be null or empty.
+    assertThrows(
+        IllegalArgumentException.class, () -> AccountsUtils.getDatabaseFileName(null, "runs"));
+    assertThrows(
+        IllegalArgumentException.class, () -> AccountsUtils.getDatabaseFileName("", "runs"));
+    // Check that dbName can't be null or empty.
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> AccountsUtils.getDatabaseFileName(ACCOUNT_KEY_1, null));
+    assertThrows(
+        IllegalArgumentException.class, () -> AccountsUtils.getDatabaseFileName(ACCOUNT_KEY_1, ""));
+    // Check that dbName can't already be associated with an account.
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> AccountsUtils.getDatabaseFileName(ACCOUNT_KEY_1, account1DatabaseFileName));
   }
 
   @Test
-  public void getAccountKeyFromPrefKey() throws Exception {
-    String account1PrefKey =
-        AccountsUtils.getPrefKey(ACCOUNT_KEY_1, "key_default_experiment_created");
-    assertThat(AccountsUtils.getAccountKeyFromPrefKey(account1PrefKey)).isEqualTo(ACCOUNT_KEY_1);
+  public void getAccountKeyFromSharedPreferencesFileName() throws Exception {
+    String account1SharedPreferencesFileName =
+        AccountsUtils.getSharedPreferencesName(ACCOUNT_KEY_1) + ".xml";
+    assertThat(
+            AccountsUtils.getAccountKeyFromSharedPreferencesFileName(
+                account1SharedPreferencesFileName))
+        .isEqualTo(ACCOUNT_KEY_1);
   }
 
   @Test
-  public void getPrefKeyForAccount() throws Exception {
-    String account1PrefKey =
-        AccountsUtils.getPrefKey(ACCOUNT_KEY_1, "key_default_experiment_created");
-    assertThat(account1PrefKey).startsWith("account_");
-    assertThat(account1PrefKey).endsWith("_key_default_experiment_created");
+  public void getSharedPreferencesName() throws Exception {
+    String account1SharedPreferencesName = AccountsUtils.getSharedPreferencesName(ACCOUNT_KEY_1);
+    assertThat(account1SharedPreferencesName).startsWith("account_");
+    assertThat(account1SharedPreferencesName).endsWith("_");
 
-    // The pref key for a different account should be different.
-    String account2PrefKey =
-        AccountsUtils.getPrefKey(ACCOUNT_KEY_2, "key_default_experiment_created");
-    assertThat(account1PrefKey).isNotEqualTo(account2PrefKey);
+    // The SharedPreferences name for a different account should be different.
+    String account2SharedPreferencesName = AccountsUtils.getSharedPreferencesName(ACCOUNT_KEY_2);
+    assertThat(account1SharedPreferencesName).isNotEqualTo(account2SharedPreferencesName);
+
+    // Check that accountKey can't be null or empty.
+    assertThrows(
+        IllegalArgumentException.class, () -> AccountsUtils.getSharedPreferencesName(null));
+    assertThrows(IllegalArgumentException.class, () -> AccountsUtils.getSharedPreferencesName(""));
   }
 
   @Test
@@ -249,5 +290,9 @@ public class AccountsUtilsTest {
     if (!fileOrDirectory.delete()) {
       throw new Exception("Could not delete " + fileOrDirectory);
     }
+  }
+
+  private File getSharedPreferencesFile(String name) {
+    return new File(context.getApplicationInfo().dataDir + "/shared_prefs/" + name + ".xml");
   }
 }

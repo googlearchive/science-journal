@@ -49,6 +49,6 @@ public interface AppAccount {
   /** Returns the file name of the database with the given name for this account. */
   String getDatabaseFileName(String name);
 
-  /** Returns the preference key, combining the given prefKey with this account. */
-  String getPreferenceKey(String prefKey);
+  /** Returns the name of the SharedPreferences for this account. */
+  String getSharedPreferencesName();
 }

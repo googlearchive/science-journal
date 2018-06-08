@@ -86,6 +86,10 @@ public class MainActivity extends ActivityWithNavigationView {
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
 
     accountsProvider = WhistlePunkApplication.getAppServices(this).getAccountsProvider();
+    accountsProvider.registerAccountBasedPreferenceKey(
+        ExperimentListFragment.KEY_DEFAULT_EXPERIMENT_CREATED, false);
+    accountsProvider.registerAccountBasedPreferenceKey(
+        AccountsProvider.KEY_OLD_PREFERENCES_COPIED, false);
 
     setContentView(R.layout.activity_main);
     accountsProvider.connectAccountSwitcher(this);
@@ -349,15 +353,15 @@ public class MainActivity extends ActivityWithNavigationView {
       } else if (itemId == R.id.navigation_item_settings) {
         intent =
             SettingsActivity.getLaunchIntent(
-                this, menuItem.getTitle(), SettingsActivity.TYPE_SETTINGS);
+                this, currentAccount, menuItem.getTitle(), SettingsActivity.TYPE_SETTINGS);
       } else if (itemId == R.id.navigation_item_about) {
         intent =
             SettingsActivity.getLaunchIntent(
-                this, menuItem.getTitle(), SettingsActivity.TYPE_ABOUT);
+                this, currentAccount, menuItem.getTitle(), SettingsActivity.TYPE_ABOUT);
       } else if (itemId == R.id.dev_testing_options) {
         intent =
             SettingsActivity.getLaunchIntent(
-                this, menuItem.getTitle(), SettingsActivity.TYPE_DEV_OPTIONS);
+                this, currentAccount, menuItem.getTitle(), SettingsActivity.TYPE_DEV_OPTIONS);
       } else if (itemId == R.id.navigation_item_feedback) {
         feedbackProvider.sendFeedback(
             new LoggingConsumer<Boolean>(TAG, "Send feedback") {

@@ -18,10 +18,8 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
@@ -215,9 +213,6 @@ public class AppSingleton {
   public SensorRegistry getSensorRegistry() {
     if (sensorRegistry == null) {
       sensorRegistry = SensorRegistry.createWithBuiltinSensors(applicationContext);
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-      prefs.registerOnSharedPreferenceChangeListener(
-          (sprefs, key) -> sensorRegistry.refreshBuiltinSensors(applicationContext));
     }
     return sensorRegistry;
   }

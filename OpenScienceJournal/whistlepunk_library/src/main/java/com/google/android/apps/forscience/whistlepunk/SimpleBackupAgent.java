@@ -24,6 +24,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import com.google.android.apps.forscience.whistlepunk.accounts.AccountsUtils;
+import com.google.common.collect.ObjectArrays;
 import java.io.IOException;
 
 /**
@@ -36,18 +38,20 @@ public class SimpleBackupAgent extends BackupAgentHelper {
   private static final String TAG = "SimpleBackupAgent";
 
   // Allocate a helper and add it to the backup agent.
-  // This currently backs up all the default SharedPreferences.
-  // This assumption and code should be updated if we decide not to backup and restore the user's
-  // manually entered Birthday, or if we allow multiple sign-in and need to store
-  // SharedPreferences elsewhere.
+  // This currently backs up all the default SharedPreferences as well as any account specific
+  // SharedPreferences files.
   @Override
   public void onCreate() {
-    String prefsName = getDefaultStoredPreferencesName(getApplicationContext());
-    SharedPreferencesBackupHelper helper = new SharedPreferencesBackupHelper(this, prefsName);
+    Context context = getApplicationContext();
+    String defaultPrefsName = getDefaultSharedPreferencesName(context);
+    String[] accountsPrefsNames = AccountsUtils.getSharedPreferencesNamesForAllAccounts(context);
+    SharedPreferencesBackupHelper helper =
+        new SharedPreferencesBackupHelper(
+            this, ObjectArrays.concat(defaultPrefsName, accountsPrefsNames));
     addHelper(PREFS_BACKUP_KEY, helper);
   }
 
-  private String getDefaultStoredPreferencesName(Context context) {
+  private String getDefaultSharedPreferencesName(Context context) {
     if (AndroidVersionUtils.isApiLevelAtLeastNougat()) {
       return PreferenceManager.getDefaultSharedPreferencesName(context);
     } else {

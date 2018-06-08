@@ -17,11 +17,11 @@
 package com.google.android.apps.forscience.whistlepunk.project;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import androidx.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -94,7 +94,7 @@ public class ExperimentListFragment extends Fragment
   private static final String ARG_CLAIM_EXPERIMENTS_MODE = "claimExperimentsMode";
   private static final String ARG_CLAIMING_ACCOUNT_KEY = "claimingAccountKey";
   private static final String ARG_USE_PANES = "usePanes";
-  private static final String KEY_DEFAULT_EXPERIMENT_CREATED = "key_default_experiment_created";
+  public static final String KEY_DEFAULT_EXPERIMENT_CREATED = "key_default_experiment_created";
 
   /** Duration of snackbar length long. 3.5 seconds */
   private static final int LONG_DELAY_MILLIS = 3500;
@@ -332,17 +332,16 @@ public class ExperimentListFragment extends Fragment
             });
   }
 
+  private SharedPreferences getSharedPreferences() {
+    return AccountsUtils.getSharedPreferences(getContext(), appAccount);
+  }
+
   private boolean wasDefaultExperimentCreated() {
-    String prefKey = appAccount.getPreferenceKey(KEY_DEFAULT_EXPERIMENT_CREATED);
-    return PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(prefKey, false);
+    return getSharedPreferences().getBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, false);
   }
 
   private void setDefaultExperimentCreated() {
-    String prefKey = appAccount.getPreferenceKey(KEY_DEFAULT_EXPERIMENT_CREATED);
-    PreferenceManager.getDefaultSharedPreferences(getActivity())
-        .edit()
-        .putBoolean(prefKey, true)
-        .apply();
+    getSharedPreferences().edit().putBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, true).apply();
   }
 
   private void createDefaultExperiment() {

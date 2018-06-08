@@ -21,14 +21,12 @@ import static com.google.android.apps.forscience.whistlepunk.filemetadata.FileMe
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -44,8 +42,14 @@ public class AccountsUtils {
    */
   private static final String ACCOUNTS_PARENT_DIRECTORY_NAME = "accounts";
 
-  private static final String PREF_KEY_PREFIX = "account";
-  private static final String PREF_KEY_DELIMITER = "_";
+  /**
+   * Name of the subdirectory within the app's data directory that holds the SharedPreferences
+   * files.
+   */
+  private static final String SHARED_PREFS_DIRECTORY_NAME = "shared_prefs";
+
+  private static final String SHARED_PREFS_NAME_PREFIX = "account";
+  private static final String SHARED_PREFS_NAME_DELIMITER = "_";
 
   private static final String DB_NAME_PREFIX = "account";
   private static final String DB_NAME_DELIMITER = "_";
@@ -57,28 +61,21 @@ public class AccountsUtils {
   }
 
   /**
-   * Removes the files, preferences, and databases associated with all accounts whose account key is
-   * not present in the given set.
+   * Removes the files, SharedPreferences files, and databases associated with all accounts whose
+   * account key is not present in the given set.
    *
    * <p>Should be called from a background IO thread.
-   *
-   * @return the set of account keys that were removed
    */
-  static Set<String> removeOtherAccounts(Context context, Set<String> accountKeys) {
-    Set<String> accountKeysRemoved = new HashSet<>();
-
+  static void removeOtherAccounts(Context context, Set<String> accountKeys) {
     // Remove files for accounts which are no longer present.
     for (File filesDir : getFilesDirsForAllAccounts(context)) {
       String accountKey = getAccountKeyFromFile(context, filesDir);
-      if (accountKey != null) {
-        if (!accountKeys.contains(accountKey)) {
-          accountKeysRemoved.add(accountKey);
-          try {
-            deleteRecursively(filesDir);
-          } catch (IOException e) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-              Log.e(TAG, "Failed to delete account directory.", e);
-            }
+      if (!accountKeys.contains(accountKey)) {
+        try {
+          deleteRecursively(filesDir);
+        } catch (IOException e) {
+          if (Log.isLoggable(TAG, Log.ERROR)) {
+            Log.e(TAG, "Failed to delete account directory.", e);
           }
         }
       }
@@ -90,25 +87,24 @@ public class AccountsUtils {
       String accountKey = getAccountKeyFromDatabaseFileName(databaseFileName);
       if (accountKey != null) {
         if (!accountKeys.contains(accountKey)) {
-          accountKeysRemoved.add(accountKey);
           context.deleteDatabase(databaseFileName);
         }
       }
     }
 
     // Remove preferences for accounts which are no longer present.
-    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-    for (String prefKey : new HashSet<>(sharedPreferences.getAll().keySet())) {
-      String accountKey = getAccountKeyFromPrefKey(prefKey);
-      if (accountKey != null) {
-        if (!accountKeys.contains(accountKey)) {
-          accountKeysRemoved.add(accountKey);
-          sharedPreferences.edit().remove(prefKey).apply();
-        }
+    for (File sharedPreferencesFile : getSharedPreferencesFilesForAllAccounts(context)) {
+      String accountKey =
+          getAccountKeyFromSharedPreferencesFileName(sharedPreferencesFile.getName());
+      if (!accountKeys.contains(accountKey)) {
+        // Clear the SharedPreferences.
+        SharedPreferences sharedPreferences =
+            getSharedPreferences(context, getSharedPreferencesName(sharedPreferencesFile));
+        sharedPreferences.edit().clear().commit();
+        // Delete the SharedPreferences file.
+        sharedPreferencesFile.delete();
       }
     }
-
-    return accountKeysRemoved;
   }
 
   private static void deleteRecursively(File fileOrDirectory) throws IOException {
@@ -127,10 +123,24 @@ public class AccountsUtils {
     return new File(context.getFilesDir(), ACCOUNTS_PARENT_DIRECTORY_NAME);
   }
 
-  /** Returns the existing files directories for all accounts. */
+  /** Returns the existing files directories for all signed-in accounts. */
   private static File[] getFilesDirsForAllAccounts(Context context) {
-    File[] files = getAccountsParentDirectory(context).listFiles();
-    return (files != null) ? files : new File[0];
+    try {
+      File parentDir = getAccountsParentDirectory(context);
+      if (parentDir.exists() && parentDir.isDirectory()) {
+        // Filter out files that don't have an account key.
+        File[] files = parentDir.listFiles((f) -> getAccountKeyFromFile(context, f) != null);
+        if (files != null) {
+          return files;
+        }
+      }
+    } catch (Exception e) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "Failed to get files directories for all accounts.", e);
+      }
+    }
+
+    return new File[0];
   }
 
   /**
@@ -140,9 +150,9 @@ public class AccountsUtils {
   static String makeAccountKey(String namespace, String accountId) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(namespace), "namespace is null or empty!");
     Preconditions.checkArgument(
-        !namespace.contains(PREF_KEY_DELIMITER),
+        !namespace.contains(SHARED_PREFS_NAME_DELIMITER),
         "namespace contains illegal character \"%s\" !",
-        PREF_KEY_DELIMITER);
+        SHARED_PREFS_NAME_DELIMITER);
     Preconditions.checkArgument(
         !namespace.contains(DB_NAME_DELIMITER),
         "namespace contains illegal character \"%s\" !",
@@ -209,28 +219,86 @@ public class AccountsUtils {
   /** Returns the database file name that combines the given accountKey and dbName. */
   static String getDatabaseFileName(String accountKey, String dbName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(accountKey), "accountKey is null or empty!");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(dbName), "dbName is null or empty!");
+    Preconditions.checkArgument(
+        getAccountKeyFromDatabaseFileName(dbName) == null,
+        "dbName must not already be associated with an AppAccount");
     return DB_NAME_PREFIX + DB_NAME_DELIMITER + accountKey + DB_NAME_DELIMITER + dbName;
   }
 
   /**
-   * Returns the account key associated with the given preference key or null if the preference key
-   * does not belong to an account.
+   * Returns the account key associated with the given SharedPreferences file name or null if the
+   * SharedPreferences file name does not belong to an account.
    */
   @VisibleForTesting
-  static String getAccountKeyFromPrefKey(String prefKey) {
-    String prefixWithDelimiter = PREF_KEY_PREFIX + PREF_KEY_DELIMITER;
-    if (prefKey.startsWith(prefixWithDelimiter)) {
+  static String getAccountKeyFromSharedPreferencesFileName(String sharedPreferencesFileName) {
+    String prefixWithDelimiter = SHARED_PREFS_NAME_PREFIX + SHARED_PREFS_NAME_DELIMITER;
+    if (sharedPreferencesFileName.startsWith(prefixWithDelimiter)) {
       int beginningOfAccountKey = prefixWithDelimiter.length();
-      int endOfAccountKey = prefKey.indexOf(PREF_KEY_DELIMITER, beginningOfAccountKey);
-      return prefKey.substring(beginningOfAccountKey, endOfAccountKey);
+      int endOfAccountKey =
+          sharedPreferencesFileName.indexOf(SHARED_PREFS_NAME_DELIMITER, beginningOfAccountKey);
+      return sharedPreferencesFileName.substring(beginningOfAccountKey, endOfAccountKey);
     }
     return null;
   }
 
-  /** Returns the preference key that combines the given accountKey and prefKey. */
-  static String getPrefKey(String accountKey, String prefKey) {
+  /** Returns the name of the SharedPreferences for the given accountKey. */
+  static String getSharedPreferencesName(String accountKey) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(accountKey), "accountKey is null or empty!");
-    return PREF_KEY_PREFIX + PREF_KEY_DELIMITER + accountKey + PREF_KEY_DELIMITER + prefKey;
+    return SHARED_PREFS_NAME_PREFIX
+        + SHARED_PREFS_NAME_DELIMITER
+        + accountKey
+        + SHARED_PREFS_NAME_DELIMITER;
+  }
+
+  private static String getSharedPreferencesName(File file) {
+    String name = file.getName();
+    // Remove ".xml".
+    if (name.endsWith(".xml")) {
+      name = name.substring(0, name.length() - 4);
+    }
+    return name;
+  }
+
+  /** Returns the existing SharedPreferences files for all signed-in accounts. */
+  private static File[] getSharedPreferencesFilesForAllAccounts(Context context) {
+    try {
+      File parentDir = new File(context.getApplicationInfo().dataDir, SHARED_PREFS_DIRECTORY_NAME);
+      if (parentDir.exists() && parentDir.isDirectory()) {
+        // Filter out files that don't have an account key.
+        File[] files =
+            parentDir.listFiles((d, n) -> getAccountKeyFromSharedPreferencesFileName(n) != null);
+        if (files != null) {
+          return files;
+        }
+      }
+    } catch (Exception e) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "Failed to get SharedPreferences names for all accounts.", e);
+      }
+    }
+
+    return new File[0];
+  }
+
+  /** Returns the names of existing SharedPreferences for all signed-in accounts. */
+  public static String[] getSharedPreferencesNamesForAllAccounts(Context context) {
+    File[] files = getSharedPreferencesFilesForAllAccounts(context);
+    String[] names = new String[files.length];
+    for (int i = 0; i < files.length; i++) {
+      names[i] = getSharedPreferencesName(files[i]);
+    }
+    return names;
+  }
+
+  private static SharedPreferences getSharedPreferences(
+      Context context, String sharedPreferencesName) {
+    return context.getSharedPreferences(sharedPreferencesName, Context.MODE_PRIVATE);
+  }
+
+  /** Returns the SharedPreferences for the given AppAccount. */
+  public static SharedPreferences getSharedPreferences(Context context, AppAccount appAccount) {
+    return getSharedPreferences(context, appAccount.getSharedPreferencesName());
   }
 
   public static int getUnclaimedExperimentCount(Context context) {

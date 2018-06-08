@@ -17,10 +17,11 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.TwoStatePreference;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import androidx.annotation.Nullable;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import java.util.HashMap;
@@ -34,13 +35,12 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   private final Object lockCurrentAccount = new Object();
   private AppAccount currentAccount;
   private final Map<String, AppAccount> accountsByKey = new HashMap<>();
-  private final Map<String, Boolean> accountBasedPreferenceKeys = new HashMap<>();
+  private final Map<String, Object> accountBasedPreferenceKeys = new HashMap<>();
 
   AbstractAccountsProvider(Context context) {
     applicationContext = context.getApplicationContext();
 
-    NonSignedInAccount nonSignedInAccount = NonSignedInAccount.getInstance(applicationContext);
-    accountsByKey.put(nonSignedInAccount.getAccountKey(), nonSignedInAccount);
+    addAccount(NonSignedInAccount.getInstance(applicationContext));
   }
 
   @Override
@@ -58,43 +58,29 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   @Override
   public AppAccount getAccountByKey(String accountKey) {
     AppAccount appAccount = accountsByKey.get(accountKey);
-    if (appAccount != null) {
-      return appAccount;
-    }
-    throw new IllegalArgumentException("The accountKey is not associated with a known AppAccount");
+    Preconditions.checkArgument(
+        appAccount != null, "The accountKey must be associated with a known AppAccount");
+    return appAccount;
   }
 
   @Override
-  public void registerAccountBasedPreferenceKey(String prefKey, Boolean defaultValue) {
+  public Set<AppAccount> getAccounts() {
+    return ImmutableSet.copyOf(accountsByKey.values());
+  }
+
+  @Override
+  public void registerAccountBasedPreferenceKey(String prefKey, Object defaultValue) {
+    Preconditions.checkArgument(prefKey != null, "The prefKey must not be null.");
+    Preconditions.checkArgument(
+        defaultValue instanceof Boolean
+            || defaultValue instanceof Float
+            || defaultValue instanceof Integer
+            || defaultValue instanceof Long
+            || defaultValue instanceof String
+            || defaultValue instanceof Set,
+        "The defaultValue must be Boolean, Float, Integer, Long, String, or Set<String>.");
+
     accountBasedPreferenceKeys.put(prefKey, defaultValue);
-  }
-
-  @Override
-  public void adjustPreferenceFragment(PreferenceFragment preferenceFragment) {
-    AppAccount appAccount = getCurrentAccount();
-    if (appAccount != null) {
-      for (Map.Entry<String, Boolean> entry : accountBasedPreferenceKeys.entrySet()) {
-        String key = entry.getKey();
-        Preference preference = preferenceFragment.findPreference(key);
-        if (preference != null) {
-          // Adjust the preference's key and checked value with the key and checked value from the
-          // account-based preference.
-          String accountPreferenceKey = appAccount.getPreferenceKey(key);
-          preference.setKey(accountPreferenceKey);
-          if (preference instanceof TwoStatePreference) {
-            boolean defaultValue = entry.getValue();
-            boolean value =
-                preference.getSharedPreferences().getBoolean(accountPreferenceKey, defaultValue);
-            ((TwoStatePreference) preference).setChecked(value);
-          } else {
-            throw new UnsupportedOperationException(
-                "Adjustment for "
-                    + preference.getClass().getSimpleName()
-                    + " has not been implemented");
-          }
-        }
-      }
-    }
   }
 
   @Nullable
@@ -110,15 +96,68 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
    */
   protected void setCurrentAccount(AppAccount currentAccount) {
     synchronized (lockCurrentAccount) {
-      // Add the account to the accountsByKey map.
-      accountsByKey.put(currentAccount.getAccountKey(), currentAccount);
+      addAccount(currentAccount);
 
       this.currentAccount = currentAccount;
+
+      // Copy the account-based preferences from the non-signed-in account to the current account.
+      copyAccountBasedPreferencesToAccount(currentAccount);
+
       observableCurrentAccount.onNext(currentAccount);
     }
   }
 
-  protected void removeAccounts(Set<String> accountKeysToRemove) {
-    accountsByKey.keySet().removeAll(accountKeysToRemove);
+  protected void addAccount(AppAccount appAccount) {
+    // Add the account to the accountsByKey map.
+    accountsByKey.put(appAccount.getAccountKey(), appAccount);
+  }
+
+  private void copyAccountBasedPreferencesToAccount(AppAccount appAccount) {
+    if (!appAccount.isSignedIn()) {
+      return;
+    }
+
+    SharedPreferences sharedPreferencesForAccount =
+        AccountsUtils.getSharedPreferences(applicationContext, appAccount);
+
+    boolean alreadyCopied =
+        sharedPreferencesForAccount.getBoolean(KEY_OLD_PREFERENCES_COPIED, false);
+    if (alreadyCopied) {
+      return;
+    }
+
+    SharedPreferences.Editor editor = sharedPreferencesForAccount.edit();
+
+    SharedPreferences defaultSharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(applicationContext);
+
+    for (Map.Entry<String, Object> entry : accountBasedPreferenceKeys.entrySet()) {
+      String key = entry.getKey();
+      if (defaultSharedPreferences.contains(key)) {
+        Object defaultValue = entry.getValue();
+        if (defaultValue instanceof Boolean) {
+          boolean value = defaultSharedPreferences.getBoolean(key, (Boolean) defaultValue);
+          editor.putBoolean(key, value);
+        } else if (defaultValue instanceof Float) {
+          float value = defaultSharedPreferences.getFloat(key, (Float) defaultValue);
+          editor.putFloat(key, value);
+        } else if (defaultValue instanceof Integer) {
+          int value = defaultSharedPreferences.getInt(key, (Integer) defaultValue);
+          editor.putInt(key, value);
+        } else if (defaultValue instanceof Long) {
+          long value = defaultSharedPreferences.getLong(key, (Long) defaultValue);
+          editor.putLong(key, value);
+        } else if (defaultValue instanceof String) {
+          String value = defaultSharedPreferences.getString(key, (String) defaultValue);
+          editor.putString(key, value);
+        } else if (defaultValue instanceof Set) {
+          Set<String> value =
+              defaultSharedPreferences.getStringSet(key, (Set<String>) defaultValue);
+          editor.putStringSet(key, value);
+        }
+      }
+    }
+
+    editor.putBoolean(KEY_OLD_PREFERENCES_COPIED, true).apply();
   }
 }

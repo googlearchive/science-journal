@@ -49,8 +49,8 @@ public final class StubAppAccount implements AppAccount {
   }
 
   @Override
-  public String getPreferenceKey(String prefKey) {
-    return prefKey;
+  public String getSharedPreferencesName() {
+    return "default";
   }
 
   @Override

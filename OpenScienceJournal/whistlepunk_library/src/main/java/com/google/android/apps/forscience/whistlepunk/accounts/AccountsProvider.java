@@ -17,13 +17,19 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.app.Activity;
-import android.preference.PreferenceFragment;
 import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
 import io.reactivex.Observable;
+import java.util.Set;
 
 /** An interface which provides account management. */
 public interface AccountsProvider {
+  /**
+   * Shared preference key used to store whether old preferences have been copied to a particular
+   * account.
+   */
+  public static final String KEY_OLD_PREFERENCES_COPIED = "old_preferences_copied";
+
   /** @return true if a signed-in account is supported; false otherwise */
   boolean supportSignedInAccount();
 
@@ -69,15 +75,12 @@ public interface AccountsProvider {
   /** @return the account with the given key, or null if no known account has the given key. */
   AppAccount getAccountByKey(String accountKey);
 
-  /**
-   * Registers the given preference key as an account-based preference. Only preferences that are
-   * used in preference screens need to be registered.
-   */
-  void registerAccountBasedPreferenceKey(String prefKey, Boolean defaultValue);
+  /** @return the set of known accounts, including the NonSignedInAccount. */
+  Set<AppAccount> getAccounts();
 
   /**
-   * Adjusts keys and values of Preferences in the given PreferenceFragment that have been registerd
-   * as account-based preferences.
+   * Registers the given preference key as an account-based preference. All preferences that should
+   * be copied from the non-signed-in account to a signed-in account must be registered.
    */
-  void adjustPreferenceFragment(PreferenceFragment preferenceFragment);
+  void registerAccountBasedPreferenceKey(String prefKey, Object defaultValue);
 }

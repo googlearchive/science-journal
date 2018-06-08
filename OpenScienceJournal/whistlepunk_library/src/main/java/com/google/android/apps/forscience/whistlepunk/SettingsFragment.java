@@ -24,6 +24,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.SettingsActivity.SettingsType;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 
 /** Holder for Settings, About, etc. */
@@ -31,13 +32,15 @@ public class SettingsFragment extends PreferenceFragment {
 
   private static final String TAG = "SettingsFragment";
 
+  private static final String KEY_ACCOUNT_KEY = "accountKey";
   private static final String KEY_TYPE = "type";
 
   private static final String KEY_VERSION = "version";
   private static final String KEY_OPEN_SOURCE = "open_source";
 
-  public static SettingsFragment newInstance(@SettingsType int type) {
+  public static SettingsFragment newInstance(AppAccount appAccount, @SettingsType int type) {
     Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putInt(KEY_TYPE, type);
     SettingsFragment fragment = new SettingsFragment();
     fragment.setArguments(args);
@@ -49,25 +52,30 @@ public class SettingsFragment extends PreferenceFragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Context context = getActivity();
+
+    AppAccount appAccount =
+        WhistlePunkApplication.getAccount(context, getArguments(), KEY_ACCOUNT_KEY);
+
     int type = getArguments().getInt(KEY_TYPE);
     if (type == SettingsActivity.TYPE_ABOUT) {
+      // TODO(lizlooney): Does the about box have any account-based settings? If so, we need to
+      // call
+      // getPreferenceManager().setSharedPreferencesName(appAccount.getSharedPreferencesName());
       addPreferencesFromResource(R.xml.about);
 
-      Context context = getContext();
       Preference licensePreference = findPreference(KEY_OPEN_SOURCE);
       licensePreference.setIntent(
           WhistlePunkApplication.getAppServices(context).getLicenseProvider().getIntent(context));
 
       loadVersion(context);
     } else if (type == SettingsActivity.TYPE_SETTINGS) {
+      // Use the SharedPreferences for the account.
+      getPreferenceManager().setSharedPreferencesName(appAccount.getSharedPreferencesName());
       addPreferencesFromResource(R.xml.settings);
     } else {
       throw new IllegalStateException("SettingsFragment type " + type + " is unknown.");
     }
-
-    WhistlePunkApplication.getAppServices(getActivity())
-        .getAccountsProvider()
-        .adjustPreferenceFragment(this);
   }
 
   @Override

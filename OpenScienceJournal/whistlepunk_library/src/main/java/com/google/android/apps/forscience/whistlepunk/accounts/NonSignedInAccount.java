@@ -59,8 +59,9 @@ public final class NonSignedInAccount implements AppAccount {
   }
 
   @Override
-  public String getPreferenceKey(String prefKey) {
-    return prefKey;
+  public String getSharedPreferencesName() {
+    // Return the name of the default SharedPreferences.
+    return applicationContext.getPackageName() + "_preferences";
   }
 
   @Override
