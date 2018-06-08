@@ -62,6 +62,8 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AccountsUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncService;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -196,6 +198,10 @@ public class ExperimentListFragment extends Fragment
     super.onResume();
     setProgressBarVisible(progressBarVisible);
     loadExperiments();
+
+    // TODO(vannem) Use these.
+    CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
+    CloudSyncService syncService = syncProvider.getServiceForAccount(appAccount);
   }
 
   @Override

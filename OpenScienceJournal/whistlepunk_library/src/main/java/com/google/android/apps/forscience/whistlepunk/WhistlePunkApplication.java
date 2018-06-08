@@ -28,6 +28,7 @@ import android.os.Bundle;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
@@ -59,6 +60,8 @@ public abstract class WhistlePunkApplication extends Application {
   @Inject PerfTrackerProvider perfTrackerProvider;
 
   @Inject LicenseProvider licenseProvider;
+
+  @Inject CloudSyncProvider cloudSyncProvider;
 
   private final AppServices appServices =
       new AppServices() {
@@ -94,6 +97,11 @@ public abstract class WhistlePunkApplication extends Application {
         @Override
         public LicenseProvider getLicenseProvider() {
           return licenseProvider;
+        }
+
+        @Override
+        public CloudSyncProvider getCloudSyncProvider() {
+          return cloudSyncProvider;
         }
       };
 
@@ -218,5 +226,9 @@ public abstract class WhistlePunkApplication extends Application {
 
   public static AppAccount getAccount(Context context, Intent intent, String key) {
     return getAccount(context, intent.getExtras(), key);
+  }
+
+  public static CloudSyncProvider getCloudSyncProvider(Context context) {
+    return getAppServices(context).getCloudSyncProvider();
   }
 }

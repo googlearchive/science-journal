@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.opensource.components;
 
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.modules.CloudSyncModule;
 import com.google.android.apps.forscience.whistlepunk.modules.ContextModule;
 import com.google.android.apps.forscience.whistlepunk.modules.InputDeviceModule;
 import com.google.android.apps.forscience.whistlepunk.modules.NativeBleDiscovererModule;
@@ -40,7 +41,8 @@ import dagger.Component;
       ContextModule.class,
       PerfTrackerModule.class,
       NonSignedInAccountsModule.class,
-      LicenseModule.class
+      LicenseModule.class,
+      CloudSyncModule.class
     })
 public interface OpenSourceComponent {
   void inject(WhistlePunkApplication app);

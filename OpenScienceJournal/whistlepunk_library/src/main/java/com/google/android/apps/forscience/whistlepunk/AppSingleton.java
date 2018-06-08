@@ -313,7 +313,12 @@ public class AppSingleton {
   public ExperimentLibraryManager getExperimentLibraryManager(AppAccount appAccount) {
     ExperimentLibraryManager experimentLibraryManager = experimentLibraryManagers.get(appAccount);
     if (experimentLibraryManager == null) {
-      experimentLibraryManager = new ExperimentLibraryManager();
+      experimentLibraryManager =
+          new ExperimentLibraryManager(
+              appAccount,
+              WhistlePunkApplication.getAppServices(applicationContext)
+                  .getCloudSyncProvider()
+                  .getServiceForAccount(appAccount));
       experimentLibraryManagers.put(appAccount, experimentLibraryManager);
     }
     return experimentLibraryManager;

@@ -17,6 +17,8 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.StubCloudSyncProvider;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.licenses.LicenseProvider;
@@ -59,6 +61,11 @@ public interface AppServices {
         public LicenseProvider getLicenseProvider() {
           return LicenseProvider.STUB;
         }
+
+        @Override
+        public CloudSyncProvider getCloudSyncProvider() {
+          return new StubCloudSyncProvider();
+        }
       };
 
   RefWatcher getRefWatcher();
@@ -74,4 +81,6 @@ public interface AppServices {
   AccountsProvider getAccountsProvider();
 
   LicenseProvider getLicenseProvider();
+
+  CloudSyncProvider getCloudSyncProvider();
 }

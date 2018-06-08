@@ -16,6 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncService;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,18 +30,25 @@ import java.util.Arrays;
  */
 public class ExperimentLibraryManager {
   private GoosciExperimentLibrary.ExperimentLibrary proto;
+  private final AppAccount account;
+  private final CloudSyncService syncService;
 
   /** Constructor for an ExperimentLibraryManager that creates a new ExperimentLibrary. */
-  public ExperimentLibraryManager() {
-    proto = new GoosciExperimentLibrary.ExperimentLibrary();
+  public ExperimentLibraryManager(AppAccount account, CloudSyncService syncService) {
+    this(new GoosciExperimentLibrary.ExperimentLibrary(), account, syncService);
   }
 
   /**
    * Constructor for an ExperimentLibraryManager using an existing ExperimentLibrary. Useful for
    * testing.
    */
-  public ExperimentLibraryManager(GoosciExperimentLibrary.ExperimentLibrary library) {
+  public ExperimentLibraryManager(
+      GoosciExperimentLibrary.ExperimentLibrary library,
+      AppAccount account,
+      CloudSyncService syncService) {
     proto = library;
+    this.account = account;
+    this.syncService = syncService;
   }
 
   /**

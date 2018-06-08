@@ -22,14 +22,31 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.StubCloudSyncService;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 /** Tests for the ExperimentLibraryManager class. */
 @RunWith(RobolectricTestRunner.class)
 public class ExperimentLibraryManagerTest {
+
+  private ExperimentLibraryManager getTestManager(
+      GoosciExperimentLibrary.ExperimentLibrary library) {
+    return new ExperimentLibraryManager(
+        library,
+        NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()),
+        new StubCloudSyncService());
+  }
+
+  private ExperimentLibraryManager getTestManager() {
+    return new ExperimentLibraryManager(
+        NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()),
+        new StubCloudSyncService());
+  }
 
   @Test
   public void testSetArchived() {
@@ -41,7 +58,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    ExperimentLibraryManager manager = new ExperimentLibraryManager(library);
+    ExperimentLibraryManager manager = getTestManager(library);
     manager.setArchived("id", false);
     assertFalse(experiment.archived);
     manager.setArchived("id", true);
@@ -58,7 +75,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    ExperimentLibraryManager manager = new ExperimentLibraryManager(library);
+    ExperimentLibraryManager manager = getTestManager(library);
     manager.setDeleted("id", false);
     assertFalse(experiment.deleted);
     manager.setDeleted("id", true);
@@ -75,7 +92,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    ExperimentLibraryManager manager = new ExperimentLibraryManager(library);
+    ExperimentLibraryManager manager = getTestManager(library);
     manager.setOpened("id", 10);
     assertEquals(experiment.lastOpened, 10);
     manager.setOpened("id", 20);
@@ -92,7 +109,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    ExperimentLibraryManager manager = new ExperimentLibraryManager(library);
+    ExperimentLibraryManager manager = getTestManager(library);
     manager.setModified("id", 10);
     assertEquals(experiment.lastModified, 10);
     manager.setModified("id", 20);
@@ -101,7 +118,7 @@ public class ExperimentLibraryManagerTest {
 
   @Test
   public void testUpdateWithNewExperiment() {
-    ExperimentLibraryManager manager = new ExperimentLibraryManager();
+    ExperimentLibraryManager manager = getTestManager();
     manager.addExperiment("id");
 
     assertNull(manager.getExperiment("id2"));
@@ -122,7 +139,7 @@ public class ExperimentLibraryManagerTest {
 
   @Test
   public void testUpdateTimesWithExistingExperiment() {
-    ExperimentLibraryManager manager = new ExperimentLibraryManager();
+    ExperimentLibraryManager manager = getTestManager();
     manager.addExperiment("id");
     manager.setModified("id", 100);
     manager.setOpened("id", 100);
@@ -145,7 +162,7 @@ public class ExperimentLibraryManagerTest {
 
   @Test
   public void testUpdateSomeTimesWithExistingExperiment() {
-    ExperimentLibraryManager manager = new ExperimentLibraryManager();
+    ExperimentLibraryManager manager = getTestManager();
     manager.addExperiment("id");
     manager.setModified("id", 100);
     manager.setOpened("id", 100);
@@ -168,7 +185,7 @@ public class ExperimentLibraryManagerTest {
 
   @Test
   public void testUpdateDeleteWithExistingExperiment() {
-    ExperimentLibraryManager manager = new ExperimentLibraryManager();
+    ExperimentLibraryManager manager = getTestManager();
     manager.addExperiment("id");
     manager.setDeleted("id", false);
 
@@ -188,7 +205,7 @@ public class ExperimentLibraryManagerTest {
 
   @Test
   public void testDontUpdateDeleteIfExistingAlreadyDeleted() {
-    ExperimentLibraryManager manager = new ExperimentLibraryManager();
+    ExperimentLibraryManager manager = getTestManager();
     manager.addExperiment("id");
     manager.setDeleted("id", true);
 
@@ -208,7 +225,7 @@ public class ExperimentLibraryManagerTest {
 
   @Test
   public void testUpdateArchivedIfMergeSourceChanged() {
-    ExperimentLibraryManager manager = new ExperimentLibraryManager();
+    ExperimentLibraryManager manager = getTestManager();
     manager.addExperiment("id");
     manager.setArchived("id", false);
 
@@ -231,7 +248,7 @@ public class ExperimentLibraryManagerTest {
 
   @Test
   public void testDontUpdateArchivedIfMergeSourceUnchanged() {
-    ExperimentLibraryManager manager = new ExperimentLibraryManager();
+    ExperimentLibraryManager manager = getTestManager();
     manager.addExperiment("id");
     manager.setArchived("id", true);
 
