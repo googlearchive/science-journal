@@ -16,9 +16,11 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncService;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -29,8 +31,10 @@ import java.util.Arrays;
  * be saved.
  */
 public class ExperimentLibraryManager {
+  private static final String TAG = "experimentLibrary";
   private GoosciExperimentLibrary.ExperimentLibrary proto;
   private final AppAccount account;
+  //TODO(vannem) Use this
   private final CloudSyncService syncService;
 
   /** Constructor for an ExperimentLibraryManager that creates a new ExperimentLibrary. */
@@ -95,6 +99,7 @@ public class ExperimentLibraryManager {
 
     proto.syncExperiment =
         experiments.toArray(new GoosciExperimentLibrary.SyncExperiment[experiments.size()]);
+    writeExperimentLibrary();
   }
 
   /**
@@ -113,6 +118,7 @@ public class ExperimentLibraryManager {
 
     proto.syncExperiment =
         experiments.toArray(new GoosciExperimentLibrary.SyncExperiment[experiments.size()]);
+    writeExperimentLibrary();
   }
 
   /**
@@ -138,7 +144,7 @@ public class ExperimentLibraryManager {
       if (experiment.deleted) {
         toMerge.deleted = true;
       }
-      
+
       // serverArchived is the state that we saw on the server during the last sync.
       // If we unarchived locally, and it was unarchived remotely since the last sync, both the
       // passed-in experiment and the local experiment will be false, and the serverArchived will
@@ -159,6 +165,7 @@ public class ExperimentLibraryManager {
    */
   public void setArchived(String experimentId, boolean archived) {
     getExperiment(experimentId).archived = archived;
+    writeExperimentLibrary();
   }
 
   /**
@@ -180,6 +187,7 @@ public class ExperimentLibraryManager {
   public void setDeleted(String experimentId, boolean deleted) {
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
     experiment.deleted = deleted;
+    writeExperimentLibrary();
   }
 
   /**
@@ -210,6 +218,7 @@ public class ExperimentLibraryManager {
   public void setOpened(String experimentId, long timeInMillis) {
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
     experiment.lastOpened = timeInMillis;
+    writeExperimentLibrary();
   }
 
   /**
@@ -240,6 +249,7 @@ public class ExperimentLibraryManager {
   public void setModified(String experimentId, long timeInMillis) {
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
     experiment.lastModified = timeInMillis;
+    writeExperimentLibrary();
   }
 
   /**
@@ -265,6 +275,18 @@ public class ExperimentLibraryManager {
         serverArchived = syncManager.getServerArchived(experiment.experimentId);
       }
       updateExperiment(experiment, serverArchived);
+    }
+    writeExperimentLibrary();
+  }
+
+  private void writeExperimentLibrary() {
+    try {
+      FileMetadataManager.writeExperimentLibraryFile(proto, account);
+    } catch (IOException ioe) {
+      // Would like to do something else here, but not sure what else there really is to do.
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "ExperimentLibrary Write failed", ioe);
+      }
     }
   }
 }

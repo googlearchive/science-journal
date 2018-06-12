@@ -25,9 +25,11 @@ import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
@@ -308,8 +310,11 @@ public class AppSingleton {
   public ExperimentLibraryManager getExperimentLibraryManager(AppAccount appAccount) {
     ExperimentLibraryManager experimentLibraryManager = experimentLibraryManagers.get(appAccount);
     if (experimentLibraryManager == null) {
+      GoosciExperimentLibrary.ExperimentLibrary library =
+          FileMetadataManager.readExperimentLibraryFile(appAccount);
       experimentLibraryManager =
           new ExperimentLibraryManager(
+              library,
               appAccount,
               WhistlePunkApplication.getAppServices(applicationContext)
                   .getCloudSyncProvider()
