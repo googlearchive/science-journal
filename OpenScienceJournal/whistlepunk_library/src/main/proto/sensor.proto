@@ -147,6 +147,8 @@ message Data {
 // submessages are relative to the timestamp_key base.
 
 message Error {
+  option (proto2.nano.message_as_lite) = true;
+
   required string error = 1;  // Text description of error.
 };
 
