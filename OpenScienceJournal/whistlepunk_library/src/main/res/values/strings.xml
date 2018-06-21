@@ -1672,7 +1672,9 @@ Permissions notice:
     <!-- Menu item label to delete all remaining unclaimed experiments [CHAR_LIMIT=50]-->
     <string name="action_delete_unclaimed_experiments">Delete all</string>
 
+    <!-- message when Google Drive cannot be reached due to potential network issue. [CHAR_LIMIT=100] -->
+    <string name="drive_sync_cannot_reach_google_drive">Can\'t reach Google Drive. Check your connection.</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
-
 </resources>
