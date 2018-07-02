@@ -48,6 +48,7 @@ import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
+import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
@@ -436,8 +437,16 @@ public class ExperimentListFragment extends Fragment
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    inflater.inflate(
-        claimExperimentsMode ? R.menu.menu_claim_experiments : R.menu.menu_experiment_list, menu);
+    if (claimExperimentsMode) {
+      inflater.inflate(R.menu.menu_claim_experiments, menu);
+      ColorUtils.colorDrawable(
+          getContext(),
+          menu.findItem(R.id.run_review_overflow_menu).getIcon(),
+          R.color.claim_experiments_action_bar_text);
+
+    } else {
+      inflater.inflate(R.menu.menu_experiment_list, menu);
+    }
   }
 
   @Override

@@ -20,9 +20,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -50,7 +52,11 @@ public class ClaimExperimentsActivity extends AppCompatActivity {
         WhistlePunkApplication.getAccount(this, getIntent(), ARG_ACCOUNT_KEY);
 
     ActionBar actionBar = getSupportActionBar();
-    actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
+    actionBar.setHomeAsUpIndicator(
+        ColorUtils.colorDrawable(
+            this,
+            ContextCompat.getDrawable(this, R.drawable.ic_close_white_24dp),
+            R.color.claim_experiments_action_bar_text));
     actionBar.setHomeActionContentDescription(android.R.string.cancel);
     actionBar.setTitle(getString(R.string.title_activity_claim_experiments));
     actionBar.setSubtitle(claimingAccount.getAccountName());

@@ -124,4 +124,10 @@
         <item name="android:maxHeight">26dip</item>
     </style>
 
+    <style name="AppTheme.ClaimExperiments" parent="Theme.AppCompat.Light">
+        <item name="colorPrimaryDark">@color/claim_experiments_status_bar</item>
+        <item name="colorPrimary">@color/claim_experiments_action_bar</item>
+        <item name="titleTextColor">@color/claim_experiments_action_bar_text</item>
+        <item name="subtitleTextColor">@color/claim_experiments_action_bar_text</item>
+    </style>
 </resources>

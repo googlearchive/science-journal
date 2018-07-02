@@ -233,7 +233,7 @@
             android:exported="false"
             android:label="@string/title_activity_claim_experiments"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme.ClaimExperiments">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.google.android.apps.forscience.whistlepunk.project.MainActivity"/>

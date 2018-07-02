@@ -64,6 +64,9 @@
     <color name="thumb_color_transparent">#57000000</color>
     <color name="snackbar_action_color">#f8f081</color>
     <color name="picture_background_color">#262626</color>
+    <color name="claim_experiments_status_bar">#818181</color> -->
+    <color name="claim_experiments_action_bar">#f2f2f2</color> -->
+    <color name="claim_experiments_action_bar_text">#5d5d5d</color> -->
 
     <integer name="trigger_drawable_alpha">192</integer>
     <integer name="home_disabled_drawable_alpha">127</integer>
