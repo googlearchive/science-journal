@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.project;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -577,7 +578,10 @@ public class ExperimentListFragment extends Fragment
     // If the item count is now 1, then the only item is the
     // add_experiments_to_drive_card. There are no unclaimed experiments left.
     if (claimExperimentsMode && experimentListAdapter.getItemCount() == 1) {
-      getActivity().finish();
+      Activity activity = getActivity();
+      if (activity != null) {
+        activity.finish();
+      }
     }
   }
 
