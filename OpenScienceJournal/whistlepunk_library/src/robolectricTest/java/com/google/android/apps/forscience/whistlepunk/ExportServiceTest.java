@@ -55,23 +55,30 @@ public class ExportServiceTest {
   }
 
   @Test
-  public void makeFilenameWhenShort() {
+  public void makeCSVFilenameWhenShort() {
     Trial trial = makeTrial("runTitle");
-    String filename = ExportService.makeExportFilename("experiment", trial.getRawTitle());
+    String filename = ExportService.makeCSVExportFilename("experiment", trial.getRawTitle());
     assertEquals("experiment runTitle.csv", filename);
   }
 
   @Test
-  public void makeFilenameWhenTooLong() {
+  public void makeCSVFilenameWhenTooLong() {
     String veryLongString = "012345678901234567890123456789012345678901234567890123456789";
     Trial trial = makeTrial("runTitle" + veryLongString);
 
     String filename =
-        ExportService.makeExportFilename("experiment" + veryLongString, trial.getRawTitle());
+        ExportService.makeCSVExportFilename("experiment" + veryLongString, trial.getRawTitle());
     assertEquals(80, filename.length());
     assertEquals(
         "experiment01234567890123456789018953cd53 runTitle0123456789012345678a7c9ddcd.csv",
         filename);
+  }
+
+  @Test
+  public void makeSJFilenameWhenUnsanitized() {
+    String experimentName = "/Untitled_Experiment/0/";
+    String filename = ExportService.makeSJExportFilename(experimentName);
+    assertEquals("_Untitled_Experiment_0_.sj", filename);
   }
 
   private Trial makeTrial(String runTitle) {

@@ -234,7 +234,7 @@ public class FileMetadataManager {
                     zipFile =
                         new File(
                             getExperimentExportDirectory(appAccount),
-                            ExportService.truncate(experimentName, 70) + ".sj");
+                            ExportService.makeSJExportFilename(experimentName));
                   } catch (IOException ioException) {
                     s.onError(ioException);
                     return;

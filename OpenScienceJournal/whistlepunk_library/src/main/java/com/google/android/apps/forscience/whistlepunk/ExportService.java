@@ -349,7 +349,7 @@ public class ExportService extends Service {
     Experiment experiment = RxDataController.getExperimentById(dc, experimentId).blockingGet();
     Trial trial = experiment.getTrial(trialId);
 
-    String fileName = makeExportFilename(experiment.getDisplayTitle(this), trial.getTitle(this));
+    String fileName = makeCSVExportFilename(experiment.getDisplayTitle(this), trial.getTitle(this));
     // Start observing sensor data from here, while grouping them into timestamp equal rows.
     // Then write the rows out.
     Range<Long> range = Range.closed(trial.getFirstTimestamp(), trial.getLastTimestamp());
@@ -436,10 +436,18 @@ public class ExportService extends Service {
 
   @NonNull
   @VisibleForTesting
-  public static String makeExportFilename(String experimentName, String trialName) {
-    // 40 chars of experimentname + 35 chars of run title + " " + ".csv" = 80 chars
+  public static String makeCSVExportFilename(String experimentName, String trialName) {
+    // 40 chars of experimentName + 35 chars of run title + " " + ".csv" = 80 chars
     return sanitizeFilename(truncate(experimentName, 40) + " " + truncate(trialName, 35) + ".csv");
   }
+
+  @NonNull
+  @VisibleForTesting
+  public static String makeSJExportFilename(String experimentName) {
+    // 70 chars of experimentName + ".sj"
+    return sanitizeFilename(truncate(experimentName, 70) + ".sj");
+  }
+
 
   public static String truncate(String string, int maxLength) {
     int hexLength = 8;
