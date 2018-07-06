@@ -37,8 +37,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="31dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginEnd="40dp"
+            android:layout_marginStart="37dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="20dp"
             android:text="@string/old_user_option_prompt_headline"
             android:textStyle="bold"
             android:textColor="@android:color/black"
@@ -48,50 +49,49 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginEnd="40dp"
+            android:layout_marginStart="37dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="17dp"
             android:text="@string/old_user_option_prompt_first_paragraph"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="17sp"
             />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginEnd="40dp"
+            android:layout_marginStart="37dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="17dp"
             android:text="@string/old_user_option_prompt_second_paragraph"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="17sp"
             />
 
         <TextView
             android:id="@+id/text_third_paragraph"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginEnd="40dp"
+            android:layout_marginStart="37dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="17dp"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="17sp"
             />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginEnd="40dp"
+            android:layout_marginStart="37dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="34dp"
             android:text="@string/old_user_option_prompt_fourth_paragraph"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
+            android:textSize="17sp"
             />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="40dp"
             android:background="#979797"
             />
@@ -99,7 +99,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="40dp"
             android:orientation="horizontal"
             android:clickable="true"
@@ -108,8 +107,8 @@
             >
             <ImageView
                 android:layout_centerVertical="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
                 android:src="@drawable/drive_choice1_36px"
                 android:contentDescription="@null"
@@ -122,21 +121,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
+                    android:layout_marginTop="8dp"
                     android:layout_marginStart="14dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="2dp"
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/drive_choice_headline"
                     android:textStyle="bold"
-                    android:textSize="14sp"
+                    android:textSize="18sp"
                     />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_marginEnd="52dp"
+                    android:layout_marginBottom="8dp"
                     android:textColor="#4a4a4a"
                     android:text="@string/drive_choice_text"
-                    android:textSize="13sp"
+                    android:textSize="16sp"
                     />
             </LinearLayout>
         </LinearLayout>
@@ -144,7 +145,6 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="40dp"
             android:background="#979797"
             />
@@ -152,7 +152,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="40dp"
             android:orientation="horizontal"
             android:clickable="true"
@@ -161,8 +160,8 @@
             >
             <ImageView
                 android:layout_centerVertical="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
                 android:src="@drawable/delete_choice2_36px"
                 android:contentDescription="@null"
@@ -175,21 +174,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
+                    android:layout_marginTop="8dp"
                     android:layout_marginStart="14dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="2dp"
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/delete_choice_headline"
                     android:textStyle="bold"
-                    android:textSize="14sp"
+                    android:textSize="18sp"
                     />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_marginEnd="52dp"
+                    android:layout_marginBottom="8dp"
                     android:textColor="#4a4a4a"
                     android:text="@string/delete_choice_text"
-                    android:textSize="13sp"
+                    android:textSize="16sp"
                     />
             </LinearLayout>
         </LinearLayout>
@@ -197,7 +198,6 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="40dp"
             android:background="#979797"
             />
@@ -205,7 +205,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="40dp"
             android:orientation="horizontal"
             android:clickable="true"
@@ -214,8 +213,8 @@
             >
             <ImageView
                 android:layout_centerVertical="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
                 android:src="@drawable/select_choice3_36px"
                 android:contentDescription="@null"
@@ -228,21 +227,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
+                    android:layout_marginTop="8dp"
                     android:layout_marginStart="14dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="2dp"
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/select_choice_headline"
                     android:textStyle="bold"
-                    android:textSize="14sp"
+                    android:textSize="18sp"
                     />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_marginEnd="52dp"
+                    android:layout_marginBottom="8dp"
                     android:textColor="#4a4a4a"
                     android:text="@string/select_choice_text"
-                    android:textSize="13sp"
+                    android:textSize="16sp"
                     />
             </LinearLayout>
         </LinearLayout>
