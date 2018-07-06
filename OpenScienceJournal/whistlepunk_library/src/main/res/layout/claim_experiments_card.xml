@@ -21,7 +21,6 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/cardview_margin_sides"
     android:layout_marginEnd="@dimen/cardview_margin_sides"
-    android:layout_marginTop="@dimen/cardview_margin"
     android:layout_marginBottom="@dimen/cardview_margin"
     android:foreground="?attr/selectableItemBackground"
     android:focusable="true"
@@ -66,7 +65,7 @@
                     android:textColor="@color/text_color_dark_grey"
                     android:text="@string/claim_experiments_card_headline"
                     android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:textSize="20sp"
                     />
 
                 <TextView
@@ -76,8 +75,7 @@
                     android:layout_marginStart="14dp"
                     android:layout_marginEnd="20dp"
                     android:textColor="@color/text_color_dark_grey"
-                    android:textSize="12sp"
-                    android:lineSpacingMultiplier="1.5"
+                    android:textSize="18sp"
                     />
 
             </LinearLayout>
@@ -88,14 +86,11 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/accessibility_touch_target_min_size"
             android:layout_marginStart="17dp"
-            android:layout_marginTop="11dp"
-            android:layout_marginBottom="18dp"
             android:layout_alignParentBottom="true"
-            android:clickable="false"
             android:text="@string/claim_experiments_card_button_text"
             android:textAllCaps="true"
-            android:textColor="#4090e2"
-            android:textSize="14sp"
+            android:textColor="@color/color_accent"
+            android:textSize="16sp"
             android:background="?attr/selectableItemBackgroundBorderless"
             />
     </LinearLayout>
