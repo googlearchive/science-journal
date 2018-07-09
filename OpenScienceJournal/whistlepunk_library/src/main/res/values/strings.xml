@@ -1456,7 +1456,7 @@ Permissions notice:
     <string name="experiment_cover_description">Choose an experiment photo</string>
 
     <!-- Content description for button to take a picture to use as the experiment image [CHAR_LIMIT=NONE] -->
-    <string name="btn_take_picture_content_description">Shutter</string>
+    <string name="btn_take_picture_content_description">Take picture</string>
 
     <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
     <string name="tab_description_gallery">Choose picture</string>
