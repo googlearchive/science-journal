@@ -960,13 +960,11 @@ Permissions notice:
 
     <!-- The title for the option to enable third-party sensors [CHAR_LIMIT=35] -->
     <string name="third_party_sensors_option_title">Scan for third-party sensors</string>
-    -
     <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
     <string name="third_party_sensors_option_summary">Look for apps that support the third-party sensor API, and enable adding those sensors to experiments.</string>
 
     <!-- The title for the option to enable third-party sensors [CHAR_LIMIT=35] -->
     <string name="use_new_manage_devices_ux_option_title" translatable="false">Use new manage devices screen</string>
-    -
     <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
     <string name="use_new_manage_devices_ux_option_summary" translatable="false">Temporary until fully ready.</string>
 
