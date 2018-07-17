@@ -1640,10 +1640,10 @@ Permissions notice:
     <!-- Context description for button which adds an experiment to drive [CHAR_LIMIT=50]-->
     <string name="drive_btn_content_description">Add experiment to Google Drive</string>
 
-    <!-- Text for add experiment to drive confirmation dialog [CHAR_LIMIT=30] -->
+    <!-- Text for add experiment to drive confirmation dialog [CHAR_LIMIT=50] -->
     <string name="drive_confirmation_text">Add to Google Drive?</string>
 
-    <!-- Yes button add experiment to drive confirmation dialog [CHAR_LIMIT=20] -->
+    <!-- Yes button add experiment to drive confirmation dialog [CHAR_LIMIT=50] -->
     <string name="drive_confirmation_yes">Add to Google Drive</string>
 
     <!-- Text for experiment added message [CHAR_LIMIT=50] -->
