@@ -48,6 +48,11 @@ public class ExperimentLibraryManagerTest {
         new StubCloudSyncService());
   }
 
+  private LocalSyncManager getTestLocalSyncManager() {
+    return new LocalSyncManager(
+        NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
+  }
+
   @Test
   public void testSetArchived() {
     GoosciExperimentLibrary.ExperimentLibrary library =
@@ -131,7 +136,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    manager.merge(library, new LocalSyncManager());
+    manager.merge(library, getTestLocalSyncManager());
 
     assertNotNull(manager.getExperiment("id"));
     assertNotNull(manager.getExperiment("id2"));
@@ -154,7 +159,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    manager.merge(library, new LocalSyncManager());
+    manager.merge(library, getTestLocalSyncManager());
 
     assertEquals(200, manager.getModified("id"));
     assertEquals(300, manager.getOpened("id"));
@@ -177,7 +182,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    manager.merge(library, new LocalSyncManager());
+    manager.merge(library, getTestLocalSyncManager());
 
     assertEquals(200, manager.getModified("id"));
     assertEquals(100, manager.getOpened("id"));
@@ -198,7 +203,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    manager.merge(library, new LocalSyncManager());
+    manager.merge(library, getTestLocalSyncManager());
 
     assertTrue(manager.isDeleted("id"));
   }
@@ -218,7 +223,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    manager.merge(library, new LocalSyncManager());
+    manager.merge(library, getTestLocalSyncManager());
 
     assertTrue(manager.isDeleted("id"));
   }
@@ -238,7 +243,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    LocalSyncManager localSync = new LocalSyncManager();
+    LocalSyncManager localSync = getTestLocalSyncManager();
     localSync.addExperiment("id");
     localSync.setServerArchived("id", false);
     manager.merge(library, localSync);
@@ -261,7 +266,7 @@ public class ExperimentLibraryManagerTest {
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
 
-    LocalSyncManager localSync = new LocalSyncManager();
+    LocalSyncManager localSync = getTestLocalSyncManager();
     localSync.addExperiment("id");
     localSync.setServerArchived("id", false);
     manager.merge(library, localSync);

@@ -20,9 +20,11 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 /** Tests for the LocalSyncManager class. */
 @RunWith(RobolectricTestRunner.class)
@@ -30,7 +32,9 @@ public class LocalSyncManagerTest {
 
   @Test
   public void testSetDirty() {
-    LocalSyncManager manager = new LocalSyncManager();
+    LocalSyncManager manager =
+        new LocalSyncManager(
+            NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
     manager.addExperiment("id");
 
     manager.setDirty("id", false);
@@ -41,7 +45,9 @@ public class LocalSyncManagerTest {
 
   @Test
   public void testSetLastSyncedVersion() {
-    LocalSyncManager manager = new LocalSyncManager();
+    LocalSyncManager manager =
+        new LocalSyncManager(
+            NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
     manager.addExperiment("id");
 
     manager.setLastSyncedVersion("id", 2);
@@ -52,7 +58,9 @@ public class LocalSyncManagerTest {
 
   @Test
   public void testSetServerArchived() {
-    LocalSyncManager manager = new LocalSyncManager();
+    LocalSyncManager manager =
+        new LocalSyncManager(
+            NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
     manager.addExperiment("id");
 
     manager.setServerArchived("id", false);
@@ -63,7 +71,9 @@ public class LocalSyncManagerTest {
 
   @Test
   public void testSetDownloaded() {
-    LocalSyncManager manager = new LocalSyncManager();
+    LocalSyncManager manager =
+        new LocalSyncManager(
+            NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
     manager.addExperiment("id");
 
     manager.setDownloaded("id", false);

@@ -39,6 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
@@ -68,6 +69,7 @@ public class FileMetadataManager {
   public static final String EXPERIMENTS_DIRECTORY = "experiments";
   public static final String EXPERIMENT_FILE = "experiment.proto";
   public static final String EXPERIMENT_LIBRARY_FILE = "experiment_library.proto";
+  public static final String SYNC_STATUS_FILE = "sync_status.proto";
   private static final String TAG = "FileMetadataManager";
   private static final String USER_METADATA_FILE = "user_metadata.proto";
 
@@ -152,6 +154,10 @@ public class FileMetadataManager {
 
   public static File getExperimentLibraryFile(AppAccount appAccount) {
     return new File(getFilesDir(appAccount), EXPERIMENT_LIBRARY_FILE);
+  }
+
+  public static File getLocalSyncStatusFile(AppAccount appAccount) {
+    return new File(getFilesDir(appAccount), SYNC_STATUS_FILE);
   }
 
   public static File getAssetsDirectory(AppAccount appAccount, String experimentId) {
@@ -769,7 +775,7 @@ public class FileMetadataManager {
     return userMetadataManager.getMyDevices();
   }
 
-  private static void writeProtoToFile(byte[] protoBytes, File file) throws IOException{
+  private static void writeProtoToFile(byte[] protoBytes, File file) throws IOException {
     try (FileOutputStream fos = new FileOutputStream(file)) {
       fos.write(protoBytes);
     }
@@ -796,5 +802,29 @@ public class FileMetadataManager {
       }
     }
     return library;
+  }
+
+  public static void writeLocalSyncStatusFile(
+      GoosciLocalSyncStatus.LocalSyncStatus status, AppAccount appAccount) throws IOException {
+    writeProtoToFile(ProtoUtils.makeBlob(status), getLocalSyncStatusFile(appAccount));
+  }
+
+  public static GoosciLocalSyncStatus.LocalSyncStatus readLocalSyncStatusFile(
+      AppAccount appAccount) {
+    GoosciLocalSyncStatus.LocalSyncStatus status = new GoosciLocalSyncStatus.LocalSyncStatus();
+    File statusFile = getLocalSyncStatusFile(appAccount);
+    if (statusFile.canRead()) {
+      byte[] statusBytes = new byte[(int) statusFile.length()];
+      try (FileInputStream fis = new FileInputStream(statusFile);
+          DataInputStream dis = new DataInputStream(fis);) {
+        dis.readFully(statusBytes);
+        status = MessageNano.mergeFrom(status, statusBytes);
+      } catch (Exception e) {
+        if (Log.isLoggable(TAG, Log.ERROR)) {
+          Log.e(TAG, "Exception reading Local Sync Status file", e);
+        }
+      }
+    }
+    return status;
   }
 }

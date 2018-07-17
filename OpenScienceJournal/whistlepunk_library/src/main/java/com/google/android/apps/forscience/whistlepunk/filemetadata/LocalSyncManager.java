@@ -16,7 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import android.util.Log;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -27,16 +30,20 @@ import java.util.Arrays;
  * be saved.
  */
 public class LocalSyncManager {
+  private static final String TAG = "localSyncManager";
   private GoosciLocalSyncStatus.LocalSyncStatus proto;
+  private final AppAccount account;
 
   /** Constructor for an LocalSyncManager that creates a new LocalSyncStatus proto. */
-  public LocalSyncManager() {
-    proto = new GoosciLocalSyncStatus.LocalSyncStatus();
+  public LocalSyncManager(AppAccount account) {
+    this(new GoosciLocalSyncStatus.LocalSyncStatus(), account);
   }
 
   /** Constructor for an LocalSyncManager using an existing LocalSyncStatus. Useful for testing. */
-  public LocalSyncManager(GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus) {
+  public LocalSyncManager(
+      GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus, AppAccount account) {
     proto = localSyncStatus;
+    this.account = account;
   }
 
   /**
@@ -46,6 +53,7 @@ public class LocalSyncManager {
    */
   public void setLocalSyncStatus(GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus) {
     proto = localSyncStatus;
+    writeLocalSyncStatus();
   }
 
   /**
@@ -69,6 +77,7 @@ public class LocalSyncManager {
     status.experimentId = experimentId;
     list.add(status);
     proto.experimentStatus = list.toArray(new GoosciLocalSyncStatus.ExperimentStatus[0]);
+    writeLocalSyncStatus();
   }
 
   /**
@@ -100,6 +109,7 @@ public class LocalSyncManager {
   public void setDirty(String experimentId, boolean dirty) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     status.dirty = dirty;
+    writeLocalSyncStatus();
   }
 
   /**
@@ -123,6 +133,7 @@ public class LocalSyncManager {
   public void setLastSyncedVersion(String experimentId, long version) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     status.lastSyncedVersion = version;
+    writeLocalSyncStatus();
   }
 
   /**
@@ -145,6 +156,7 @@ public class LocalSyncManager {
   public void setServerArchived(String experimentId, boolean archived) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     status.serverArchived = archived;
+    writeLocalSyncStatus();
   }
 
   /**
@@ -167,6 +179,7 @@ public class LocalSyncManager {
   public void setDownloaded(String experimentId, boolean downloaded) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     status.downloaded = downloaded;
+    writeLocalSyncStatus();
   }
 
   /**
@@ -178,5 +191,16 @@ public class LocalSyncManager {
   public boolean getDownloaded(String experimentId) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     return status.downloaded;
+  }
+
+  private void writeLocalSyncStatus() {
+    try {
+      FileMetadataManager.writeLocalSyncStatusFile(proto, account);
+    } catch (IOException ioe) {
+      // Would like to do something else here, but not sure what else there really is to do.
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "LocalSyncStatus Write failed", ioe);
+      }
+    }
   }
 }

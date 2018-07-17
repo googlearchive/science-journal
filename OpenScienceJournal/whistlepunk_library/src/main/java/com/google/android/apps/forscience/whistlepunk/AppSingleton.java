@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.ble.BleClientImpl;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
@@ -301,7 +302,10 @@ public class AppSingleton {
   public LocalSyncManager getLocalSyncManager(AppAccount appAccount) {
     LocalSyncManager localSyncManager = localSyncManagers.get(appAccount);
     if (localSyncManager == null) {
-      localSyncManager = new LocalSyncManager();
+      // TODO(b/111549646) Fix this IO on the main thread.
+      GoosciLocalSyncStatus.LocalSyncStatus status =
+          FileMetadataManager.readLocalSyncStatusFile(appAccount);
+      localSyncManager = new LocalSyncManager(status, appAccount);
       localSyncManagers.put(appAccount, localSyncManager);
     }
     return localSyncManager;
