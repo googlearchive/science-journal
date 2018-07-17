@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NotSignedInYetActivity;
+import com.google.android.apps.forscience.whistlepunk.accounts.OldUserOptionPromptActivity;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -292,8 +293,11 @@ public class MainActivity extends ActivityWithNavigationView {
    * @return true iff the activity has been finished
    */
   private boolean showRequiredScreensIfNeeded() {
-    if (accountsProvider.requireSignedInAccount() && !accountsProvider.isSignedIn()) {
-      startActivity(new Intent(this, NotSignedInYetActivity.class));
+    if (NotSignedInYetActivity.maybeLaunch(this)) {
+      finish();
+      return true;
+    }
+    if (OldUserOptionPromptActivity.maybeLaunch(this)) {
       finish();
       return true;
     }

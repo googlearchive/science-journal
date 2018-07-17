@@ -25,43 +25,48 @@
   <TextView
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:layout_marginTop="42dp"
+      android:layout_marginStart="33dp"
+      android:layout_marginEnd="32dp"
       android:layout_gravity="center_horizontal"
-      android:layout_marginTop="78dp"
-      android:text="@string/explore_your_world"
-      android:fontFamily="sans-serif-medium"
-      android:textSize="26sp"
-      android:textColor="@color/text_color_white"
-      />
-
-  <TextView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="center_horizontal"
-      android:layout_marginTop="17sp"
-      android:gravity="center"
-      android:text="@string/use_science_journal"
+      android:text="@string/sign_in_text"
       android:fontFamily="sans-serif-regular"
-      android:textSize="18sp"
+      android:textSize="17sp"
       android:textColor="@color/text_color_white"
       />
 
   <Button
-      android:id="@+id/btn_get_started"
+      android:id="@+id/btn_sign_in"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:minHeight="@dimen/accessibility_touch_target_min_size"
       android:layout_gravity="center_horizontal"
-      android:layout_marginTop="66dp"
+      android:layout_marginTop="36dp"
       android:paddingTop="10dp"
       android:paddingBottom="10dp"
-      android:paddingLeft="15dp"
-      android:paddingRight="15dp"
-      android:text="@string/get_started"
+      android:paddingStart="27dp"
+      android:paddingEnd="27dp"
+      android:text="@string/sign_in_button"
       android:fontFamily="sans-serif-medium"
       android:textAllCaps="true"
       android:textSize="16sp"
       android:background="@android:color/white"
       android:textColor="#4a90e2"
+      />
+
+  <Button
+      android:id="@+id/btn_learn_more"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/accessibility_touch_target_min_size"
+      android:layout_gravity="center_horizontal"
+      android:layout_marginTop="20dp"
+      android:text="@string/sign_in_learn_more_button"
+      android:fontFamily="sans-serif-medium"
+      android:textAllCaps="true"
+      android:textSize="16sp"
+      android:textColor="@color/text_color_white"
+      android:background="@android:color/transparent"
       />
 
 </LinearLayout>

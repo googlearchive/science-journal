@@ -1570,24 +1570,27 @@ Permissions notice:
     <!-- Button text for not signed in fragment [CHAR_LIMIT=NONE] -->
     <string name="get_started">Get started</string>
 
+    <!-- Text for sign in fragment [CHAR_LIMIT=400] -->
+    <string name="sign_in_text">Experiment data for Science Journal is saved and made available across devices using Google Drive and requires signing in with a Google account.\n\nIf you have existing data on this device, once signed in, you can save your existing experiments to Google Drive. Your experiments are stored in a \u201CScience Journal\u201D folder in your Google Drive account.</string>
+
+    <!-- Button text for sign in button on sign in fragment [CHAR_LIMIT=25] -->
+    <string name="sign_in_button">Sign in</string>
+
+    <!-- Button text for learn more button on sign in fragment [CHAR_LIMIT=25] -->
+    <string name="sign_in_learn_more_button">Learn more</string>
+
+    <!-- URL to go to when learn more button on sign in fragment is clicked. DO NOT TRANSLATE -->
+    <string name="sign_in_learn_more_url" translatable="false">http://g.co/ScienceJournal/Backup</string>
+
     <!-- Headline for old user option prompt activity [CHAR_LIMIT=30] -->
-    <string name="old_user_option_prompt_headline">Introducing Backup and Sync</string>
+    <string name="old_user_option_prompt_headline">Back up to Google Drive</string>
 
-    <!-- First paragraph for old user option prompt activity [CHAR_LIMIT=180] -->
-    <string name="old_user_option_prompt_first_paragraph">Your data is now synced across devices using Google Drive. Your experiments are stored in a new folder named \u201CScience Journal\u201D.</string>
-
-    <!-- Second paragraph for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=80] -->
-    <string name="old_user_option_prompt_second_paragraph">The current device settings have been transferred to your account and can be modified in the settings menu.</string>
-
-    <!-- Third paragraph for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=80] -->
-    <plurals name="old_user_option_prompt_third_paragraph"
-             translation_description="Plural form for second paragraph of old user option prompt activity when there are unclaimed experiments">
-      <item quantity="one">You currently have <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> experiment stored on this device.</item>
-      <item quantity="other">You currently have <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> experiments stored on this device.</item>
+    <!-- Text for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=140] -->
+    <plurals name="old_user_option_prompt_text"
+             translation_description="Plural form for text of old user option prompt activity when there are unclaimed experiments">
+      <item quantity="one">Welcome back, you currently have <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> experiment stored on this device.\n\nTo continue select an option:</item>
+      <item quantity="other">Welcome back, you currently have <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> experiments stored on this device.\n\nTo continue select an option:</item>
     </plurals>
-
-    <!-- Fourth paragraph for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=80] -->
-    <string name="old_user_option_prompt_fourth_paragraph">To continue select an option:</string>
 
     <!-- Headline for Drive choice [CHAR_LIMIT=30] -->
     <string name="drive_choice_headline">Save all your experiments</string>
@@ -1621,8 +1624,8 @@ Permissions notice:
 
     <!-- Text for Claim experiments card when there are unclaimed experiments [CHAR_LIMIT=80] -->
     <plurals name="claim_experiments_card_text" translation_description="Plural form for Text for Claim experiments card when there are unclaimed experiments">
-      <item quantity="one">There is <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> unclaimed experiment on this device.</item>
-      <item quantity="other">There are <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> unclaimed experiments on this device.</item>
+      <item quantity="one">There is <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> unclaimed experiment on this device.</item>
+      <item quantity="other">There are <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> unclaimed experiments on this device.</item>
     </plurals>
 
     <!-- Text for claim experiments card button [CHAR_LIMIT=30] -->
@@ -1661,7 +1664,7 @@ Permissions notice:
     <!-- Text for claim all remaining unclaimed experiments confirmation dialog [CHAR_LIMIT=80] -->
     <plurals name="claim_all_confirmation_text" translation_description="Plural form for text for claim all remaining unclaimed experiments confirmation dialog">
       <item quantity="one">Your experiment will be added to your Google Drive</item>
-      <item quantity="other">All <xliff:g id="count_of_unclaimed_experiments">%1$s</xliff:g> experiments will be added to your Google Drive</item>
+      <item quantity="other">All <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> experiments will be added to your Google Drive</item>
     </plurals>
 
     <!-- Yes button for claim all remaining unclaimed experiments confirmation dialog [CHAR_LIMIT=20] -->

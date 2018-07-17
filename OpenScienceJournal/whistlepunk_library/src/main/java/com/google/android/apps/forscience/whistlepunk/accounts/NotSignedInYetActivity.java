@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -31,6 +32,19 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 public class NotSignedInYetActivity extends AppCompatActivity {
   private static final String TAG = "NotSignedInYetActivity";
   private static final String FRAGMENT_TAG = "NotSignedInYet";
+
+  public static boolean maybeLaunch(Context context) {
+    AccountsProvider accountsProvider =
+        WhistlePunkApplication.getAppServices(context).getAccountsProvider();
+    if (accountsProvider.requireSignedInAccount() && !accountsProvider.isSignedIn()) {
+      Intent intent = new Intent(context, NotSignedInYetActivity.class);
+      context.startActivity(intent);
+      return true;
+    }
+
+    // Return false to indicate to the caller that we did not launch NotSignedInYetActivity.
+    return false;
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {

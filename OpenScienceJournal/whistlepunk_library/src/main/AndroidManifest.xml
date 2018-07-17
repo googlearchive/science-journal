@@ -224,6 +224,11 @@
             android:exported="false"
             />
         <activity
+            android:name=".accounts.SignInActivity"
+            android:theme="@style/AppTheme.SignIn"
+            android:exported="false"
+            />
+        <activity
             android:name=".accounts.OldUserOptionPromptActivity"
             android:theme="@style/AppTheme.OldUserOptionPrompt"
             android:exported="false"
