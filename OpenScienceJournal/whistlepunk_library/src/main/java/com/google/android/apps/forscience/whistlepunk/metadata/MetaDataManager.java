@@ -36,6 +36,9 @@ public interface MetaDataManager {
   /** Creates a new experiment. */
   Experiment newExperiment();
 
+  /** Adds the specified experiment. */
+  void addExperiment(Experiment experiment);
+
   /** Deletes the experiment and any associated trials and labels and their assets. */
   void deleteExperiment(Experiment experiment);
 

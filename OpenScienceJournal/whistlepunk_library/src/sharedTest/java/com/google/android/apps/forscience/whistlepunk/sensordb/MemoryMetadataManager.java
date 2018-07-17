@@ -66,6 +66,11 @@ public class MemoryMetadataManager implements MetaDataManager {
     return newExperiment(timestamp, experimentId);
   }
 
+  @Override
+  public void addExperiment(Experiment experiment) {
+    experiments.add(0, experiment);
+  }
+
   @NonNull
   public Experiment newExperiment(long timestamp, String experimentId) {
     Experiment experiment = Experiment.newExperiment(timestamp, experimentId, 0);

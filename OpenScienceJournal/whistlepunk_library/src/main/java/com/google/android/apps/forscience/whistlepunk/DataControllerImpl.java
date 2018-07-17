@@ -370,6 +370,54 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   @Override
+  public void addExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+    if (cachedExperiments.containsKey(experiment.getExperimentId())) {
+      throw new IllegalArgumentException(
+          "Adding experiment already returned by DataController: " + experiment);
+    }
+
+    background(
+        metaDataThread,
+        onSuccess,
+        () -> {
+          metaDataManager.addExperiment(experiment);
+          return Success.SUCCESS;
+        });
+  }
+
+  @Override
+  public void mergeExperiment(
+      String experimentId, Experiment toMerge, MaybeConsumer<Success> onSuccess) {
+    MaybeConsumer<Experiment> onSuccessWrapper =
+        MaybeConsumers.chainFailure(
+            onSuccess,
+            new Consumer<Experiment>() {
+              @Override
+              public void take(Experiment experiment) {
+                cachedExperiments.put(experimentId, new WeakReference<>(experiment));
+                onSuccess.success(Success.SUCCESS);
+              }
+            });
+    background(
+        metaDataThread,
+        onSuccessWrapper,
+        new Callable<Experiment>() {
+          @Override
+          public Experiment call() throws Exception {
+            Experiment result = metaDataManager.getExperimentById(experimentId);
+            if (result == null) {
+              throw new IllegalArgumentException(
+                  "Could not find experiment with id " + experimentId);
+            }
+            result.mergeFrom(toMerge, context, appAccount);
+            metaDataManager.updateExperiment(result);
+            metaDataManager.saveImmediately();
+            return result;
+          }
+        });
+  }
+
+  @Override
   public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
     if (!cachedExperiments.containsKey(experiment.getExperimentId())) {
       throw new IllegalArgumentException(

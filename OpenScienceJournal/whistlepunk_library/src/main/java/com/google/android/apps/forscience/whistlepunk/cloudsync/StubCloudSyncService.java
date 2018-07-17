@@ -14,4 +14,9 @@ public class StubCloudSyncService implements CloudSyncService {
   public void syncExperimentLibrary(Context context) throws IOException {
     Log.i(TAG, "Stubbed Experiment Library Sync!");
   }
+
+  @Override
+  public void syncExperimentProto(Context context, String experimentId) throws IOException {
+    Log.i(TAG, "Stubbed Experiment Proto Sync!");
+  }
 }

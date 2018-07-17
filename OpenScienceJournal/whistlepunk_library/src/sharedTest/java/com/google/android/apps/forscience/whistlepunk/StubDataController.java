@@ -79,11 +79,18 @@ public class StubDataController implements DataController {
   public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {}
 
   @Override
+  public void mergeExperiment(String experimentId, Experiment toMerge,
+      MaybeConsumer<Success> onSuccess) {}
+
+  @Override
   public void importExperimentFromZip(
       Uri zipUri, ContentResolver resolver, MaybeConsumer<String> onSuccess) {}
 
   @Override
   public void saveImmediately(MaybeConsumer<Success> onSuccess) {}
+
+  @Override
+  public void addExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {}
 
   @Override
   public String generateNewLabelId() {

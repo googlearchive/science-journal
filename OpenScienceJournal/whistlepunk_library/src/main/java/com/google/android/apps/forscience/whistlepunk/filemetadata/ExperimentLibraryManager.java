@@ -263,6 +263,28 @@ public class ExperimentLibraryManager {
   }
 
   /**
+   * Sets the specified experiment's file id.
+   *
+   * @param experimentId The experiment to update.
+   * @param fileId The file id for the experiment.
+   */
+  public void setFileId(String experimentId, String fileId) {
+    GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
+    experiment.fileId = fileId;
+    writeExperimentLibrary();
+  }
+
+  /**
+   * Gets the specified experiment's file id.
+   *
+   * @param experimentId The experiment get the file id from.
+   * @return the file id for the experiment.
+   */
+  public String getFileId(String experimentId) {
+    return getExperiment(experimentId).fileId;
+  }
+
+  /**
    * Merges newer changes from one library into this one.
    *
    * @param library The experiment to merge from.

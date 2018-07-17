@@ -598,6 +598,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
     return getFileMetadataManager().newExperiment();
   }
 
+  @Override
+  public void addExperiment(Experiment experiment) {
+    getFileMetadataManager().addExperiment(experiment);
+  }
+
   @VisibleForTesting
   Experiment newDatabaseExperiment() {
     return newDatabaseExperiment(DEFAULT_PROJECT_ID);

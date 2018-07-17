@@ -72,7 +72,11 @@ public interface DataController {
 
   void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
+  void mergeExperiment(String experimentId, Experiment toMerge, MaybeConsumer<Success> onSuccess);
+
   void saveImmediately(MaybeConsumer<Success> onSuccess);
+
+  void addExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
   String generateNewLabelId();
 
