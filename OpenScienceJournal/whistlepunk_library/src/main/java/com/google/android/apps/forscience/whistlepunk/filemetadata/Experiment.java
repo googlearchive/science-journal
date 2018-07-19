@@ -20,7 +20,6 @@ import android.content.Context;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
@@ -168,9 +167,6 @@ public class Experiment extends LabelListHolder {
 
   public void setArchived(Context context, AppAccount appAccount, boolean archived) {
     isArchived = archived;
-    AppSingleton.getInstance(context)
-        .getExperimentLibraryManager(appAccount)
-        .setArchived(getExperimentId(), archived);
   }
 
   public boolean isArchived() {

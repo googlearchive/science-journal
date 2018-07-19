@@ -18,7 +18,11 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary.ExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import org.robolectric.RuntimeEnvironment;
@@ -59,11 +63,12 @@ public class ExperimentCreator {
 
   private static void addToManagers(Context context, Experiment experiment) {
     AppAccount appAccount = NonSignedInAccount.getInstance(context);
-    AppSingleton.getInstance(context)
-        .getExperimentLibraryManager(appAccount)
-        .addExperiment(experiment.getExperimentId());
-    AppSingleton.getInstance(context)
-        .getLocalSyncManager(appAccount)
-        .addExperiment(experiment.getExperimentId());
+    ExperimentLibraryManager elm =
+        AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount);
+    elm.setLibrary(new ExperimentLibrary());
+    elm.addExperiment(experiment.getExperimentId());
+    LocalSyncManager lsm = AppSingleton.getInstance(context).getLocalSyncManager(appAccount);
+    lsm.setLocalSyncStatus(new LocalSyncStatus());
+    lsm.addExperiment(experiment.getExperimentId());
   }
 }

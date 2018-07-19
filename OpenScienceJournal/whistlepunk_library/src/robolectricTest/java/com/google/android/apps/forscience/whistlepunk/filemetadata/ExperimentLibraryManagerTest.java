@@ -23,8 +23,9 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
-import com.google.android.apps.forscience.whistlepunk.cloudsync.StubCloudSyncService;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary.ExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -38,18 +39,16 @@ public class ExperimentLibraryManagerTest {
       GoosciExperimentLibrary.ExperimentLibrary library) {
     return new ExperimentLibraryManager(
         library,
-        NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()),
-        new StubCloudSyncService());
+        NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
   }
 
   private ExperimentLibraryManager getTestManager() {
-    return new ExperimentLibraryManager(
-        NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()),
-        new StubCloudSyncService());
+    return new ExperimentLibraryManager(new ExperimentLibrary(),
+        NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
   }
 
   private LocalSyncManager getTestLocalSyncManager() {
-    return new LocalSyncManager(
+    return new LocalSyncManager(new LocalSyncStatus(),
         NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
   }
 

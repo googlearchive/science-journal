@@ -16,9 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncService;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,25 +34,22 @@ public class ExperimentLibraryManager {
   private static final String TAG = "experimentLibrary";
   private GoosciExperimentLibrary.ExperimentLibrary proto;
   private final AppAccount account;
-  //TODO(vannem) Use this
-  private final CloudSyncService syncService;
 
   /** Constructor for an ExperimentLibraryManager that creates a new ExperimentLibrary. */
-  public ExperimentLibraryManager(AppAccount account, CloudSyncService syncService) {
-    this(new GoosciExperimentLibrary.ExperimentLibrary(), account, syncService);
+  public ExperimentLibraryManager(AppAccount account) {
+    this(null, account);
   }
 
   /**
    * Constructor for an ExperimentLibraryManager using an existing ExperimentLibrary. Useful for
    * testing.
    */
+  @VisibleForTesting
   public ExperimentLibraryManager(
       GoosciExperimentLibrary.ExperimentLibrary library,
-      AppAccount account,
-      CloudSyncService syncService) {
+      AppAccount account) {
     proto = library;
     this.account = account;
-    this.syncService = syncService;
   }
 
   /**
@@ -71,6 +68,7 @@ public class ExperimentLibraryManager {
    * @return The SyncExperiment if found, or null.
    */
   GoosciExperimentLibrary.SyncExperiment getExperiment(String experimentId) {
+    populateExperimentLibraryManager();
     for (GoosciExperimentLibrary.SyncExperiment experiment : proto.syncExperiment) {
       if (experimentId.equals(experiment.experimentId)) {
         return experiment;
@@ -309,6 +307,15 @@ public class ExperimentLibraryManager {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "ExperimentLibrary Write failed", ioe);
       }
+    }
+  }
+
+  // Reads the saved experiment library manager file from disk, if the Library has not already
+  // been set to a non-null value. This lets us move initialization of this object to the background
+  // TODO(b/111649596) Test this
+  private void populateExperimentLibraryManager() {
+    if (proto == null) {
+      proto = FileMetadataManager.readExperimentLibraryFile(account);
     }
   }
 }

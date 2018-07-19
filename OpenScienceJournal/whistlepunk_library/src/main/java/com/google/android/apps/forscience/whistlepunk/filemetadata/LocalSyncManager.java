@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
@@ -36,10 +37,11 @@ public class LocalSyncManager {
 
   /** Constructor for an LocalSyncManager that creates a new LocalSyncStatus proto. */
   public LocalSyncManager(AppAccount account) {
-    this(new GoosciLocalSyncStatus.LocalSyncStatus(), account);
+    this(null, account);
   }
 
   /** Constructor for an LocalSyncManager using an existing LocalSyncStatus. Useful for testing. */
+  @VisibleForTesting
   public LocalSyncManager(
       GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus, AppAccount account) {
     proto = localSyncStatus;
@@ -53,7 +55,6 @@ public class LocalSyncManager {
    */
   public void setLocalSyncStatus(GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus) {
     proto = localSyncStatus;
-    writeLocalSyncStatus();
   }
 
   /**
@@ -62,6 +63,7 @@ public class LocalSyncManager {
    * @param experimentId The id of the experiment to manage.
    */
   public boolean hasExperiment(String experimentId) {
+    populateLocalSyncManager();
     return getExperimentStatus(experimentId) != null;
   }
 
@@ -71,6 +73,7 @@ public class LocalSyncManager {
    * @param experimentId The id of the experiment to manage.
    */
   public void addExperiment(String experimentId) {
+    populateLocalSyncManager();
     ArrayList<GoosciLocalSyncStatus.ExperimentStatus> list =
         new ArrayList<>(Arrays.asList(proto.experimentStatus));
     GoosciLocalSyncStatus.ExperimentStatus status = new GoosciLocalSyncStatus.ExperimentStatus();
@@ -87,6 +90,7 @@ public class LocalSyncManager {
    * @return The ExperimentStatus of the experiment, or null if not found.
    */
   private GoosciLocalSyncStatus.ExperimentStatus getExperimentStatus(String experimentId) {
+    populateLocalSyncManager();
     if (experimentId.isEmpty()) {
       return null;
     }
@@ -201,6 +205,16 @@ public class LocalSyncManager {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "LocalSyncStatus Write failed", ioe);
       }
+    }
+  }
+
+  // Reads the saved local sync status file from disk, if the Library has not already
+  // been set to a non-null value. This lets us move initialization of this object to the background
+  // thread.
+  // TODO(b/111649596) Test this
+  private void populateLocalSyncManager() {
+    if (proto == null) {
+      proto = FileMetadataManager.readLocalSyncStatusFile(account);
     }
   }
 }

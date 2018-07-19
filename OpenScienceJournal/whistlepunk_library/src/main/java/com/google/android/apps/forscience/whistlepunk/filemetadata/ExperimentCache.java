@@ -321,6 +321,10 @@ class ExperimentCache {
       failureListener.onNewerVersionDetected(activeExperiment.getExperimentOverview());
     }
 
+    ExperimentLibraryManager elm =
+        AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount);
+    elm.setArchived(activeExperiment.getExperimentId(), activeExperiment.isArchived());
+
     File experimentFile = getExperimentFile(activeExperiment.getExperimentOverview());
     boolean success =
         experimentProtoFileHelper.writeToFile(

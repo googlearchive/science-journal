@@ -17,13 +17,17 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
@@ -60,6 +64,12 @@ public class FileMetadataManagerTest {
   public void testSingleExperiment() {
     IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
     FileMetadataManager fmm = new FileMetadataManager(getContext(), getAppAccount(), clock);
+    LocalSyncManager lsm =
+        AppSingleton.getInstance(getContext()).getLocalSyncManager(getAppAccount());
+    lsm.setLocalSyncStatus(new LocalSyncStatus());
+    ExperimentLibraryManager elm =
+        AppSingleton.getInstance(getContext()).getExperimentLibraryManager(getAppAccount());
+    elm.setLibrary(new ExperimentLibrary());
     Experiment experiment = fmm.newExperiment();
     assertEquals(experiment.getCreationTimeMs(), clock.getNow());
     assertEquals(
@@ -93,6 +103,12 @@ public class FileMetadataManagerTest {
   public void testMultipleExperiments() {
     IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
     FileMetadataManager fmm = new FileMetadataManager(getContext(), getAppAccount(), clock);
+    LocalSyncManager lsm =
+        AppSingleton.getInstance(getContext()).getLocalSyncManager(getAppAccount());
+    lsm.setLocalSyncStatus(new LocalSyncStatus());
+    ExperimentLibraryManager elm =
+        AppSingleton.getInstance(getContext()).getExperimentLibraryManager(getAppAccount());
+    elm.setLibrary(new ExperimentLibrary());
     Experiment first = fmm.newExperiment();
     clock.increment();
     Experiment second = fmm.newExperiment();
@@ -104,9 +120,11 @@ public class FileMetadataManagerTest {
     assertEquals(3, fmm.getExperimentOverviews(false).size());
 
     third.setArchived(getContext(), getAppAccount(), true);
+    assertFalse(elm.isArchived(third.getExperimentId()));
     fmm.updateExperiment(third);
     assertEquals(second.getExperimentId(), fmm.getLastUsedUnarchivedExperiment().getExperimentId());
     assertEquals(2, fmm.getExperimentOverviews(false).size());
+    assertTrue(elm.isArchived(third.getExperimentId()));
 
     // Doesn't re-use colors
     assertTrue(
