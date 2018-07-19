@@ -449,4 +449,34 @@ public class SensorDatabaseImpl implements SensorDatabase {
     String[] selectionArgs = selectionAndArgs.second;
     openHelper.getWritableDatabase().delete(ScalarSensorsTable.NAME, selection, selectionArgs);
   }
+
+  @Override
+  public GoosciScalarSensorData.ScalarSensorData getScalarReadingProtosForTrial(
+      GoosciExperiment.Experiment experiment, String trialId) {
+    GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
+    List<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList =
+        getScalarReadingProtosForTrialAsList(experiment, trialId);
+    data.sensors = sensorDataList.toArray(GoosciScalarSensorData.ScalarSensorDataDump.emptyArray());
+    return data;
+  }
+
+  private List<GoosciScalarSensorData.ScalarSensorDataDump> getScalarReadingProtosForTrialAsList(
+      GoosciExperiment.Experiment experiment, String trialId) {
+    ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList = new ArrayList<>();
+    for (GoosciTrial.Trial trial : experiment.trials) {
+      if (!trial.trialId.equals(trialId)) {
+        continue;
+      }
+      GoosciTrial.Range range = trial.recordingRange;
+      // This protects against corrupted trials with invalid range end times.
+      if (range.endMs > range.startMs) {
+        TimeRange timeRange = TimeRange.oldest(Range.closed(range.startMs, range.endMs));
+        for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
+          String tag = sensor.sensorId;
+          sensorDataList.add(getScalarReadingSensorProtos(trial.trialId, tag, timeRange));
+        }
+      }
+    }
+    return sensorDataList;
+  }
 }

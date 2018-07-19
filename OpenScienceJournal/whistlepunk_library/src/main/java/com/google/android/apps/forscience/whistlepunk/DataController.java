@@ -33,6 +33,8 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import io.reactivex.Observable;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -157,4 +159,7 @@ public interface DataController {
 
   void moveExperimentToAnotherAccount(
       String experimentId, AppAccount targetAccount, MaybeConsumer<Success> onSuccess);
+
+  void writeTrialProtoToFile(
+      String experimentId, String trialId, final MaybeConsumer<File> onSuccess) throws IOException;
 }

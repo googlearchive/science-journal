@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.StubAppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment.Experiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
@@ -162,6 +163,26 @@ public class InMemorySensorDatabase implements SensorDatabase {
     }
 
     return sensorDataList;
+  }
+
+  @Override
+  public GoosciScalarSensorData.ScalarSensorData getScalarReadingProtosForTrial(
+      Experiment experiment, String trialId) {
+    ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList = new ArrayList<>();
+    for (GoosciTrial.Trial trial : experiment.trials) {
+      if (!trial.trialId.equals(trialId)) {
+        continue;
+      }
+      GoosciTrial.Range range = trial.recordingRange;
+      TimeRange timeRange = TimeRange.oldest(Range.closed(range.startMs, range.endMs));
+      for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
+        String tag = sensor.sensorId;
+        sensorDataList.add(getScalarReadingSensorProtos(tag, timeRange));
+      }
+    }
+    GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
+    data.sensors = sensorDataList.toArray(GoosciScalarSensorData.ScalarSensorDataDump.emptyArray());
+    return data;
   }
 
   public GoosciScalarSensorData.ScalarSensorDataDump getScalarReadingSensorProtos(

@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -45,6 +46,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Range;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -824,5 +827,43 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     }
 
     targetDataController.metaDataManager.afterMovingExperimentFromAnotherAccount(experiment);
+  }
+
+  @Override
+  public void writeTrialProtoToFile(
+      String experimentId, String trialId, final MaybeConsumer<File> onSuccess) throws IOException {
+    getExperimentById(
+        experimentId,
+        MaybeConsumers.chainFailure(
+            onSuccess,
+            new Consumer<Experiment>() {
+              @Override
+              public void take(final Experiment experiment) {
+                background(
+                    metaDataThread,
+                    onSuccess,
+                    new Callable<File>() {
+                      @Override
+                      public File call() throws Exception {
+                        GoosciScalarSensorData.ScalarSensorData proto =
+                            sensorDatabase.getScalarReadingProtosForTrial(
+                                experiment.getExperimentProto(), trialId);
+                        File sensorProtoFile =
+                            new File(
+                                FileMetadataManager.getExperimentDirectory(
+                                    appAccount, experiment.getExperimentId()),
+                                FileMetadataManager.getProtoFileName(trialId));
+                        try (FileOutputStream sensorStream =
+                            new FileOutputStream(sensorProtoFile)) {
+                          byte[] sensorBytes = ProtoUtils.makeBlob(proto);
+                          sensorStream.write(sensorBytes);
+                          return sensorProtoFile;
+                        } catch (IOException ioException) {
+                          return null;
+                        }
+                      }
+                    });
+              }
+            }));
   }
 }

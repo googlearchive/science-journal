@@ -32,6 +32,8 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import io.reactivex.Observable;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -163,4 +165,8 @@ public class StubDataController implements DataController {
   @Override
   public void moveExperimentToAnotherAccount(
       String experimentId, AppAccount targetAccount, MaybeConsumer<Success> onSuccess) {}
+
+  @Override
+  public void writeTrialProtoToFile(
+      String experimentId, String trialId, MaybeConsumer<File> onSuccess) throws IOException {}
 }

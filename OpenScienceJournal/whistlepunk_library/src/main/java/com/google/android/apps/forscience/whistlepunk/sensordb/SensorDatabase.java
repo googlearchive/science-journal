@@ -80,4 +80,11 @@ public interface SensorDatabase {
    */
   List<GoosciScalarSensorData.ScalarSensorDataDump> getScalarReadingProtosAsList(
       GoosciExperiment.Experiment experiment);
+
+  /**
+   * Get a ScalarSensorData proto that contains all of the sensor data for the given trial.
+   * Primarily used for drive sync.
+   */
+  GoosciScalarSensorData.ScalarSensorData getScalarReadingProtosForTrial(
+      GoosciExperiment.Experiment experiment, String trialId);
 }
