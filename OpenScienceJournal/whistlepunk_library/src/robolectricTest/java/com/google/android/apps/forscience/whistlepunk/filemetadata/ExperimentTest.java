@@ -365,7 +365,14 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(0, sync.getImageDownloads().size());
+    assertEquals(0, sync.getImageUploads().size());
+
+    assertEquals(0, sync.getTrialDownloads().size());
+    assertEquals(0, sync.getTrialUploads().size());
 
     assertEquals("Title", experimentServer.getTitle());
     assertEquals(1, experimentServer.getChanges().size());
@@ -381,7 +388,14 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(0, sync.getImageDownloads().size());
+    assertEquals(0, sync.getImageUploads().size());
+
+    assertEquals(0, sync.getTrialDownloads().size());
+    assertEquals(0, sync.getTrialUploads().size());
 
     assertEquals("Title2", experimentServer.getTitle());
     assertEquals(2, experimentServer.getChanges().size());
@@ -440,6 +454,40 @@ public class ExperimentTest {
   }
 
   @Test
+  public void testMergeExperimentsImageLabelAddOnly() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    pictureLabelValue.filePath = "foo";
+    Label label = Label.newLabel(1, ValueType.PICTURE);
+    label.setLabelProtoData(pictureLabelValue);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    experimentClient.addLabel(experimentClient, label);
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(0, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(0, experimentServer.getLabelCount());
+
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(1, sync.getImageDownloads().size());
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+  }
+
+  @Test
   public void testMergeExperimentsLabelAddOnly() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
@@ -473,11 +521,11 @@ public class ExperimentTest {
   public void testMergeExperimentsLabelAddAndEdit() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
-    Label label = Label.newLabel(1, ValueType.TEXT);
-
-    Caption caption = new Caption();
-    caption.text = "caption";
-    label.setCaption(caption);
+    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    pictureLabelValue.filePath = "foo";
+    Label label = Label.newLabel(1, ValueType.PICTURE);
+    label.setLabelProtoData(pictureLabelValue);
 
     experimentServer.addLabel(experimentServer, label);
 
@@ -486,15 +534,19 @@ public class ExperimentTest {
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
     Label label2 = Label.fromLabel(label.getLabelProto());
-    Caption caption2 = new Caption();
-    caption2.text = "caption2";
-    label2.setCaption(caption2);
+    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue2 =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    pictureLabelValue.filePath = "bar";
+    label2.setLabelProtoData(pictureLabelValue2);
     experimentClient.updateLabel(experimentClient, label2);
 
     assertEquals(2, experimentClient.getChanges().size());
     assertEquals(1, experimentServer.getChanges().size());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(1, sync.getImageDownloads().size());
 
     assertEquals(2, experimentClient.getChanges().size());
     assertEquals(2, experimentServer.getChanges().size());
@@ -511,10 +563,11 @@ public class ExperimentTest {
   public void testMergeExperimentsLabelAddAndDelete() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
-    Label label = Label.newLabel(1, ValueType.TEXT);
-    Caption caption = new Caption();
-    caption.text = "caption";
-    label.setCaption(caption);
+    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    pictureLabelValue.filePath = "foo";
+    Label label = Label.newLabel(1, ValueType.PICTURE);
+    label.setLabelProtoData(pictureLabelValue);
 
     experimentServer.addLabel(experimentServer, label);
 
@@ -530,7 +583,11 @@ public class ExperimentTest {
     assertEquals(0, experimentClient.getLabelCount());
     assertEquals(1, experimentServer.getLabelCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(0, sync.getImageDownloads().size());
+    assertEquals(0, sync.getImageUploads().size());
 
     assertEquals(2, experimentClient.getChanges().size());
     assertEquals(2, experimentServer.getChanges().size());
@@ -543,10 +600,11 @@ public class ExperimentTest {
   public void testMergeExperimentsLabelAddAndEditDelete() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
-    Label label = Label.newLabel(1, ValueType.TEXT);
-    Caption caption = new Caption();
-    caption.text = "caption";
-    label.setCaption(caption);
+    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    pictureLabelValue.filePath = "foo";
+    Label label = Label.newLabel(1, ValueType.PICTURE);
+    label.setLabelProtoData(pictureLabelValue);
 
     experimentServer.addLabel(experimentServer, label);
 
@@ -555,10 +613,10 @@ public class ExperimentTest {
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
     Label label2 = Label.fromLabel(label.getLabelProto());
-    Caption caption2 = new Caption();
-    caption2.text = "caption";
-    label2.setCaption(caption2);
-
+    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue2 =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    pictureLabelValue.filePath = "bar";
+    label2.setLabelProtoData(pictureLabelValue2);
     experimentClient.updateLabel(experimentClient, label2);
 
     assertEquals(2, experimentClient.getChanges().size());
@@ -572,7 +630,11 @@ public class ExperimentTest {
     assertEquals(0, experimentClient.getLabelCount());
     assertEquals(1, experimentServer.getLabelCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(0, sync.getImageDownloads().size());
+    assertEquals(0, sync.getImageUploads().size());
 
     assertEquals(3, experimentClient.getChanges().size());
     assertEquals(3, experimentServer.getChanges().size());
@@ -620,10 +682,11 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    Label label = Label.newLabel(1, ValueType.TEXT);
-    Caption caption = new Caption();
-    caption.text = "caption";
-    label.setCaption(caption);
+    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    pictureLabelValue.filePath = "foo";
+    Label label = Label.newLabel(1, ValueType.PICTURE);
+    label.setLabelProtoData(pictureLabelValue);
 
     Trial clientTrial = experimentClient.getTrial(trial.getTrialId());
 
@@ -635,12 +698,57 @@ public class ExperimentTest {
     assertEquals(1, clientTrial.getLabelCount());
     assertEquals(0, trial.getLabelCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(1, sync.getImageDownloads().size());
+    assertEquals(0, sync.getImageUploads().size());
 
     assertEquals(2, experimentClient.getChanges().size());
     assertEquals(2, experimentServer.getChanges().size());
 
     assertEquals(1, clientTrial.getLabelCount());
+    assertEquals(1, trial.getLabelCount());
+  }
+
+  @Test
+  public void testMergeExperimentsTrialNoteAddLocally() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Trial trial = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+
+    experimentServer.addTrial(trial);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    pictureLabelValue.filePath = "foo";
+    Label label = Label.newLabel(1, ValueType.PICTURE);
+    label.setLabelProtoData(pictureLabelValue);
+
+    Trial serverTrial = experimentServer.getTrial(trial.getTrialId());
+
+    serverTrial.addLabel(experimentServer, label);
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(1, serverTrial.getLabelCount());
+    assertEquals(1, trial.getLabelCount());
+
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(0, sync.getImageDownloads().size());
+    assertEquals(1, sync.getImageUploads().size());
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(1, serverTrial.getLabelCount());
     assertEquals(1, trial.getLabelCount());
   }
 

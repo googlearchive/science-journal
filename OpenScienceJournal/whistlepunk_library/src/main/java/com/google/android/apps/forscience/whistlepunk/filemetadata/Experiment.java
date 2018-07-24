@@ -737,13 +737,16 @@ public class Experiment extends LabelListHolder {
    * @param externalExperiment The Experiment to mergeFrom into this one.
    * @param context The current Context.
    */
-  public void mergeFrom(Experiment externalExperiment, Context context, AppAccount appAccount) {
+  public FileSyncCollection mergeFrom(
+      Experiment externalExperiment, Context context, AppAccount appAccount) {
     // First, we have to calculate the changes made in the local and external experiment.
     List<Change> localChanges = changes;
     List<Change> externalChanges = externalExperiment.getChanges();
 
     Set<Change> localOnly = new LinkedHashSet<>();
     Set<Change> externalOnly = new LinkedHashSet<>();
+
+    FileSyncCollection filesToSync = new FileSyncCollection();
 
     localOnly.addAll(localChanges);
     localOnly.removeAll(externalChanges);
@@ -775,25 +778,53 @@ public class Experiment extends LabelListHolder {
     // the change record above, so future merges will be aware of the full history.
     for (Change external : changedExternalElements.values()) {
       if (changedLocalElements.containsKey(external.getChangedElementId())) {
-        handleConflictMerge(externalExperiment, context, external);
+        handleConflictMerge(externalExperiment, context, external, filesToSync);
+        changedLocalElements.remove(external.getChangedElementId());
       } else {
-        handleNoConflictMerge(externalExperiment, context, external, appAccount);
+        handleNoConflictMerge(externalExperiment, context, external, appAccount, filesToSync);
       }
+    }
+    for (Change local : changedLocalElements.values()) {
+      handleLocalOnlyMerge(local, filesToSync);
+    }
+
+    return filesToSync;
+  }
+
+  private void handleLocalOnlyMerge(Change local, FileSyncCollection filesToSync) {
+    // If there is no conflict, we can just copy the change
+    switch (local.getChangedElementType()) {
+      case ElementType.NOTE:
+        Label label = getLabel(local.getChangedElementId());
+        if (label != null && label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+          filesToSync.addImageUpload(label.getPictureLabelValue().filePath);
+        }
+        break;
+      case ElementType.TRIAL:
+        filesToSync.addTrialUpload(local.getChangedElementId());
+        break;
+      case ElementType.EXPERIMENT:
+      default:
+        break;
     }
   }
 
   private void handleNoConflictMerge(
-      Experiment externalExperiment, Context context, Change external, AppAccount appAccount) {
+      Experiment externalExperiment,
+      Context context,
+      Change external,
+      AppAccount appAccount,
+      FileSyncCollection filesToSync) {
     // If there is no conflict, we can just copy the change
     switch (external.getChangedElementType()) {
       case ElementType.NOTE:
-        copyNoteChange(externalExperiment, context, external, appAccount);
+        copyNoteChange(externalExperiment, context, external, appAccount, filesToSync);
         break;
       case ElementType.EXPERIMENT:
         copyExperimentChange(externalExperiment);
         break;
       case ElementType.TRIAL:
-        copyTrialChange(externalExperiment, context, external, appAccount);
+        copyTrialChange(externalExperiment, context, external, appAccount, filesToSync);
         break;
       default:
         break;
@@ -801,12 +832,17 @@ public class Experiment extends LabelListHolder {
   }
 
   private void copyTrialChange(
-      Experiment externalExperiment, Context context, Change external, AppAccount appAccount) {
+      Experiment externalExperiment,
+      Context context,
+      Change external,
+      AppAccount appAccount,
+      FileSyncCollection filesToSync) {
     String trialId = external.getChangedElementId();
     Trial externalTrial = externalExperiment.getTrial(trialId);
     Trial localTrial = getTrial(trialId);
 
     if (externalTrial != null) {
+      filesToSync.addTrialDownload(trialId);
       // If the external trial exists, we have to copy it to the local experiment.
       if (localTrial != null) {
         // If the local trial exists, this is an update, not an add. In either case, we don't want
@@ -833,7 +869,11 @@ public class Experiment extends LabelListHolder {
   }
 
   private void copyNoteChange(
-      Experiment externalExperiment, Context context, Change external, AppAccount appAccount) {
+      Experiment externalExperiment,
+      Context context,
+      Change external,
+      AppAccount appAccount,
+      FileSyncCollection filesToSync) {
     // Copying notes is a little complicated, because they can be in either the root experiment, or
     // attached to a trial, so we have to hunt around for them.
     Label externalLabel = externalExperiment.getLabel(external.getChangedElementId());
@@ -870,6 +910,9 @@ public class Experiment extends LabelListHolder {
         }
       }
     } else {
+      if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+        filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
+      }
       // This is not a delete. The label still exists in the external experiment.
       // Find if the label is associated with a trial, externally.
       String trialId = externalExperiment.getTrialIdForLabel(external.getChangedElementId());
@@ -911,18 +954,24 @@ public class Experiment extends LabelListHolder {
 
   // Handles merges where there are potential conflicts between local and external.
   private void handleConflictMerge(
-      Experiment externalExperiment, Context context, Change external) {
+      Experiment externalExperiment,
+      Context context,
+      Change external,
+      FileSyncCollection filesToSync) {
     if (external.getChangedElementType() == ElementType.NOTE) {
-      handleNoteConflict(externalExperiment, external);
+      handleNoteConflict(externalExperiment, external, filesToSync);
     } else if (external.getChangedElementType() == ElementType.EXPERIMENT) {
       handleExperimentConflict(externalExperiment);
     } else if (external.getChangedElementType() == ElementType.TRIAL) {
-      handleTrialConflict(externalExperiment, context, external);
+      handleTrialConflict(externalExperiment, context, external, filesToSync);
     }
   }
 
   private void handleTrialConflict(
-      Experiment externalExperiment, Context context, Change external) {
+      Experiment externalExperiment,
+      Context context,
+      Change external,
+      FileSyncCollection filesToSync) {
     Trial externalTrial = externalExperiment.getTrial(external.getChangedElementId());
     Trial localTrial = getTrial(external.getChangedElementId());
 
@@ -930,6 +979,7 @@ public class Experiment extends LabelListHolder {
       if (localTrial == null) {
         // Don't write a change here.
         addTrialwithoutRecordingChange(externalTrial);
+        filesToSync.addTrialUpload(externalTrial.getTrialId());
       } else {
         if (localTrial != null) {
           // Both local and external have been edited. This is a title change.
@@ -953,7 +1003,8 @@ public class Experiment extends LabelListHolder {
     setImagePathWithoutRecordingChange(externalExperiment.getImagePath());
   }
 
-  private void handleNoteConflict(Experiment externalExperiment, Change external) {
+  private void handleNoteConflict(
+      Experiment externalExperiment, Change external, FileSyncCollection filesToSync) {
     Label externalLabel = externalExperiment.getLabel(external.getChangedElementId());
     if (externalLabel == null) {
       // This is a delete. When there has been a local change and a remote delete, keep the local
@@ -972,11 +1023,24 @@ public class Experiment extends LabelListHolder {
           // label and add it to the trial. This is a change that is not known to the change log
           // so we DO have to write a change, here.
           trial.addLabel(this, Label.copyOf(externalLabel));
+          if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+            filesToSync.addImageUpload(externalLabel.getPictureLabelValue().filePath);
+          }
+
+          Label localLabel = getLabel(external.getChangedElementId());
+          if (localLabel != null) {
+            if (localLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+              filesToSync.addImageDownload(localLabel.getPictureLabelValue().filePath);
+            }
+          }
         } else {
           // The trial doesn't exist. It's been deleted. Let's ressurect the trial. We don't have to
           // record the change, as the ID will be the same.
           Trial externalTrial = externalExperiment.getTrial(trialId);
           addTrialwithoutRecordingChange(externalTrial);
+          if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+            filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
+          }
         }
       } else {
         // This is an experiment label. Either the experiment label has been deleted locally, or
@@ -984,6 +1048,16 @@ public class Experiment extends LabelListHolder {
         // experiment. Once again, that ID is NOT known to the change log, so we have to add this
         // to the log.
         addLabel(this, Label.copyOf(externalLabel));
+        if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+          filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
+        }
+
+        Label localLabel = getLabel(external.getChangedElementId());
+        if (localLabel != null) {
+          if (localLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+            filesToSync.addImageUpload(localLabel.getPictureLabelValue().filePath);
+          }
+        }
       }
     }
   }
