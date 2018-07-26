@@ -1582,7 +1582,7 @@ Permissions notice:
     <!-- URL to go to when learn more button on sign in fragment is clicked. DO NOT TRANSLATE -->
     <string name="sign_in_learn_more_url" translatable="false">http://g.co/ScienceJournal/Backup</string>
 
-    <!-- Headline for old user option prompt activity [CHAR_LIMIT=30] -->
+    <!-- Headline for old user option prompt activity [CHAR_LIMIT=50] -->
     <string name="old_user_option_prompt_headline">Back up to Google Drive</string>
 
     <!-- Text for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=140] -->
