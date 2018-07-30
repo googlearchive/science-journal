@@ -40,14 +40,19 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
   private int unclaimedExperimentCount;
 
   public static boolean maybeLaunch(Context context) {
-    // If there are any unclaimed experiments and the user hasn't previously chosen an option in
-    // OldUserOptionPromptActivity, show OldUserOptionPromptActivity now.
-    if (AccountsUtils.getUnclaimedExperimentCount(context) >= 1) {
-      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-      if (!sharedPreferences.getBoolean(KEY_OLD_USER_OPTION_CHOSEN, false)) {
-        Intent intent = new Intent(context, OldUserOptionPromptActivity.class);
-        context.startActivity(intent);
-        return true;
+    if (WhistlePunkApplication.getAppServices(context)
+        .getAccountsProvider()
+        .requireSignedInAccount()) {
+      // If there are any unclaimed experiments and the user hasn't previously chosen an option in
+      // OldUserOptionPromptActivity, show OldUserOptionPromptActivity now.
+      if (AccountsUtils.getUnclaimedExperimentCount(context) >= 1) {
+        SharedPreferences sharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(context);
+        if (!sharedPreferences.getBoolean(KEY_OLD_USER_OPTION_CHOSEN, false)) {
+          Intent intent = new Intent(context, OldUserOptionPromptActivity.class);
+          context.startActivity(intent);
+          return true;
+        }
       }
     }
     // Return false to indicate to the caller that we did not launch OldUserOptionPromptActivity.
