@@ -62,7 +62,8 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     relativeTimeView = (RelativeTimeTextView) itemView.findViewById(R.id.relative_time_text);
   }
 
-  public void setNote(Label label, AppAccount appAccount, String experimentId) {
+  public void setNote(
+      Label label, AppAccount appAccount, String experimentId, boolean claimExperimentsMode) {
     if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
       String text = label.getTextLabelValue().text;
       image.setVisibility(View.GONE);
@@ -80,7 +81,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     } else {
       text.setVisibility(View.GONE);
       // Deal with the caption, which is applicable to everything but text labels.
-      setupCaption(label.getCaptionText());
+      setupCaption(label.getCaptionText(), claimExperimentsMode);
     }
 
     if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
@@ -111,14 +112,14 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         menuButton.getContext(), menuButton.getDrawable(), R.color.text_color_light_grey);
   }
 
-  private void setupCaption(String caption) {
+  private void setupCaption(String caption, boolean claimExperimentsMode) {
     if (!TextUtils.isEmpty(caption)) {
       captionView.setVisibility(View.VISIBLE);
       captionTextView.setText(caption);
       captionIcon.setVisibility(View.GONE);
     } else {
       captionView.setVisibility(View.GONE);
-      captionIcon.setVisibility(View.VISIBLE);
+      captionIcon.setVisibility(claimExperimentsMode ? View.GONE : View.VISIBLE);
     }
   }
 

@@ -488,14 +488,24 @@ public class RunReviewFragment extends Fragment
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    if (!claimExperimentsMode) {
-      inflater.inflate(R.menu.menu_run_review, menu);
-    }
+    inflater.inflate(R.menu.menu_run_review, menu);
   }
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
-    if (!claimExperimentsMode) {
+    if (claimExperimentsMode) {
+      // In claim experiments mode, hide all menu items except export and delete.
+      menu.findItem(R.id.action_export).setVisible(shouldShowExport());
+      menu.findItem(R.id.action_run_review_delete).setVisible(true);
+      menu.findItem(R.id.action_run_review_archive).setVisible(false);
+      menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
+      menu.findItem(R.id.action_run_review_edit).setVisible(false);
+      menu.findItem(R.id.action_run_review_crop).setVisible(false);
+      menu.findItem(R.id.action_run_review_audio_settings).setVisible(false);
+      menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
+      menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
+      menu.findItem(R.id.action_graph_options).setVisible(false);
+    } else {
       menu.findItem(R.id.action_graph_options).setVisible(false); // b/29771945
 
       // Hide some menu buttons if the run isn't loaded yet.
@@ -790,22 +800,29 @@ public class RunReviewFragment extends Fragment
 
     pinnedNoteAdapter =
         new PinnedNoteAdapter(
-            appAccount, trial, trial.getFirstTimestamp(), trial.getLastTimestamp(), experimentId);
-    if (!claimExperimentsMode) {
-      pinnedNoteAdapter.setListItemModifyListener(
-          new PinnedNoteAdapter.ListItemEditListener() {
-            @Override
-            public void onLabelEditTime(final Label item) {
+            appAccount,
+            trial,
+            trial.getFirstTimestamp(),
+            trial.getLastTimestamp(),
+            experimentId,
+            claimExperimentsMode);
+    pinnedNoteAdapter.setListItemModifyListener(
+        new PinnedNoteAdapter.ListItemEditListener() {
+          @Override
+          public void onLabelEditTime(final Label item) {
+            if (!claimExperimentsMode) {
               onEditNoteTimestamp(item);
             }
+          }
 
-            @Override
-            public void onLabelDelete(Label item) {
-              deleteLabel(item);
-            }
+          @Override
+          public void onLabelDelete(Label item) {
+            deleteLabel(item);
+          }
 
-            @Override
-            public void onCaptionEdit(String updatedCaption) {
+          @Override
+          public void onCaptionEdit(String updatedCaption) {
+            if (!claimExperimentsMode) {
               GoosciCaption.Caption caption = new GoosciCaption.Caption();
               caption.text = updatedCaption;
               caption.lastEditedTimestamp = System.currentTimeMillis();
@@ -814,12 +831,14 @@ public class RunReviewFragment extends Fragment
                   .updateExperiment(
                       experimentId, LoggingConsumer.expectSuccess(TAG, "update caption"));
             }
-          });
+          }
+        });
 
-      pinnedNoteAdapter.setListItemClickListener(
-          new PinnedNoteAdapter.ListItemClickListener() {
-            @Override
-            public void onLabelClicked(Label item) {
+    pinnedNoteAdapter.setListItemClickListener(
+        new PinnedNoteAdapter.ListItemClickListener() {
+          @Override
+          public void onLabelClicked(Label item) {
+            if (!claimExperimentsMode) {
               LabelDetailsActivity.launchFromRunReview(
                   getActivity(),
                   appAccount,
@@ -830,23 +849,25 @@ public class RunReviewFragment extends Fragment
                   getArguments().getBoolean(ARG_CREATE_TASK),
                   getArguments().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD));
             }
+          }
 
-            @Override
-            public void onAddLabelButtonClicked() {
-              if (experiment != null && !runReviewOverlay.getIsCropping()) {
-                launchLabelAdd(
-                    null,
-                    Math.max(runReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
-              }
+          @Override
+          public void onAddLabelButtonClicked() {
+            if (!claimExperimentsMode && experiment != null && !runReviewOverlay.getIsCropping()) {
+              launchLabelAdd(
+                  null,
+                  Math.max(runReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
             }
+          }
 
-            @Override
-            public void onLabelTimestampClicked(Label item) {
+          @Override
+          public void onLabelTimestampClicked(Label item) {
+            if (!claimExperimentsMode) {
               // TODO: Animate to the active timestamp.
               runReviewOverlay.setActiveTimestamp(item.getTimeStamp());
             }
-          });
-    }
+          }
+        });
 
     pinnedNoteList.setAdapter(pinnedNoteAdapter);
 

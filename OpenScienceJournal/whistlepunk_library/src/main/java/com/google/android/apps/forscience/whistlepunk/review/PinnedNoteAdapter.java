@@ -84,11 +84,12 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
   }
 
-  private AppAccount appAccount;
-  private Trial trial;
+  private final AppAccount appAccount;
+  private final Trial trial;
   private long startTimestamp;
   private long endTimestamp;
-  private String experimentId;
+  private final String experimentId;
+  private final boolean claimExperimentsMode;
   private ListItemEditListener editListener;
   private ListItemClickListener clickListener;
 
@@ -97,12 +98,14 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       Trial trial,
       long startTimestamp,
       long endTimestamp,
-      String experimentId) {
+      String experimentId,
+      boolean claimExperimentsMode) {
     this.appAccount = appAccount;
     this.trial = trial;
     this.startTimestamp = startTimestamp;
     this.endTimestamp = endTimestamp;
     this.experimentId = experimentId;
+    this.claimExperimentsMode = claimExperimentsMode;
   }
 
   public void updateRunTimestamps(long startTimestamp, long endTimestamp) {
@@ -147,7 +150,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
     int viewType = getItemViewType(position);
     if (viewType == TYPE_ADD_LABEL) {
-      if (clickListener != null) {
+      if (!claimExperimentsMode) {
         holder.itemView.setOnClickListener(view -> clickListener.onAddLabelButtonClicked());
       } else {
         holder.itemView.setVisibility(View.GONE);
@@ -156,7 +159,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     if (viewType == TYPE_CAPTION) {
-      if (editListener != null) {
+      if (!claimExperimentsMode) {
         EditText editText = (EditText) holder.itemView.findViewById(R.id.caption);
         editText.setText(trial.getCaptionText());
         editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
@@ -169,7 +172,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     final NoteViewHolder noteHolder = (NoteViewHolder) holder;
     final Label label = trial.getLabels().get(position - 1);
-    noteHolder.setNote(label, appAccount, experimentId);
+    noteHolder.setNote(label, appAccount, experimentId, claimExperimentsMode);
 
     // Do work specific to RunReview.
     noteHolder.relativeTimeView.setVisibility(View.GONE);
@@ -178,49 +181,48 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         getNoteTimeContentDescription(
             label.getTimeStamp(), startTimestamp, noteHolder.durationText.getContext()));
 
-    if (editListener != null) {
-      final Context context = noteHolder.menuButton.getContext();
-      final Intent shareIntent = getPhotoShareIntent(label, context);
-      noteHolder.menuButton.setOnClickListener(
-          v -> {
-            popupMenu =
-                new PopupMenu(
-                    context,
-                    noteHolder.menuButton,
-                    Gravity.NO_GRAVITY,
-                    R.attr.actionOverflowMenuStyle,
-                    0);
-            popupMenu.getMenuInflater().inflate(R.menu.menu_note, popupMenu.getMenu());
-            if (!label.canEditTimestamp()) {
-              popupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
-            }
-            popupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(shareIntent != null);
-            popupMenu.setOnDismissListener(menu -> popupMenu = null);
-            popupMenu.setOnMenuItemClickListener(
-                item -> {
-                  int itemId = item.getItemId();
-                  if (itemId == R.id.btn_edit_note_time) {
-                    editListener.onLabelEditTime(label);
-                    return true;
-                  } else if (itemId == R.id.btn_delete_note) {
-                    editListener.onLabelDelete(label);
-                    return true;
-                  } else if (itemId == R.id.btn_share_photo) {
-                    context.startActivity(
-                        Intent.createChooser(
-                            shareIntent,
-                            context.getResources().getString(R.string.export_photo_chooser_title)));
+    final Context context = noteHolder.menuButton.getContext();
+    final Intent shareIntent = getPhotoShareIntent(label, context);
+    noteHolder.menuButton.setOnClickListener(
+        v -> {
+          popupMenu =
+              new PopupMenu(
+                  context,
+                  noteHolder.menuButton,
+                  Gravity.NO_GRAVITY,
+                  R.attr.actionOverflowMenuStyle,
+                  0);
+          popupMenu.getMenuInflater().inflate(R.menu.menu_note, popupMenu.getMenu());
+          if (claimExperimentsMode || !label.canEditTimestamp()) {
+            popupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
+          }
+          popupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(shareIntent != null);
+          popupMenu.setOnDismissListener(menu -> popupMenu = null);
+          popupMenu.setOnMenuItemClickListener(
+              item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.btn_edit_note_time) {
+                  editListener.onLabelEditTime(label);
+                  return true;
+                } else if (itemId == R.id.btn_delete_note) {
+                  editListener.onLabelDelete(label);
+                  return true;
+                } else if (itemId == R.id.btn_share_photo) {
+                  context.startActivity(
+                      Intent.createChooser(
+                          shareIntent,
+                          context.getResources().getString(R.string.export_photo_chooser_title)));
 
-                    return true;
-                  }
-                  return false;
-                });
-            popupMenu.show();
-          });
-    }
-    // Notes out of range are not clickable.
-    if (startTimestamp <= label.getTimeStamp() && label.getTimeStamp() < endTimestamp) {
-      if (clickListener != null) {
+                  return true;
+                }
+                return false;
+              });
+          popupMenu.show();
+        });
+
+    if (!claimExperimentsMode) {
+      // Notes out of range are not clickable.
+      if (startTimestamp <= label.getTimeStamp() && label.getTimeStamp() < endTimestamp) {
         noteHolder.durationText.setOnClickListener(
             new View.OnClickListener() {
               @Override

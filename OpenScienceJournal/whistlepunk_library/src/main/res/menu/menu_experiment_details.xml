@@ -65,8 +65,14 @@
                 app:showAsAction="never"
                 />
             <item
-                android:id="@+id/action_export_experiment"
+                android:id="@+id/action_remove_cover_image"
                 android:orderInCategory="104"
+                android:title="@string/action_remove_cover_image"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/action_export_experiment"
+                android:orderInCategory="105"
                 android:title="@string/send_copy_action"
                 android:icon="@drawable/menu_share"
                 app:showAsAction="never"

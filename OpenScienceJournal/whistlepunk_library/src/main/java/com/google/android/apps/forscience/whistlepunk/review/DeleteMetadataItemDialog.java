@@ -31,6 +31,7 @@ public class DeleteMetadataItemDialog extends DialogFragment {
   private static final String ARG_EXTRAS = "extras";
 
   public static final String KEY_ITEM_ID = "item_id";
+  public static final String KEY_REMOVE_COVER_IMAGE = "remove_cover_image";
 
   public interface DeleteDialogListener {
 
@@ -49,6 +50,13 @@ public class DeleteMetadataItemDialog extends DialogFragment {
   public static DeleteMetadataItemDialog newInstance(int titleId, int messageId, String itemId) {
     Bundle extras = new Bundle();
     extras.putString(KEY_ITEM_ID, itemId);
+    return newInstance(titleId, messageId, extras);
+  }
+
+  public static DeleteMetadataItemDialog newInstance(
+      int titleId, int messageId, boolean removeCoverImage) {
+    Bundle extras = new Bundle();
+    extras.putBoolean(KEY_REMOVE_COVER_IMAGE, removeCoverImage);
     return newInstance(titleId, messageId, extras);
   }
 

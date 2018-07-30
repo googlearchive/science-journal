@@ -417,14 +417,19 @@ public class ExperimentDetailsFragment extends Fragment
     if (activity != null) {
       ActionBar actionBar = activity.getSupportActionBar();
       if (actionBar != null) {
-        final Drawable upArrow =
-            ContextCompat.getDrawable(activity, R.drawable.ic_arrow_back_white_24dp);
-        if (disabled) {
-          upArrow.setAlpha(getResources().getInteger(R.integer.home_disabled_drawable_alpha));
+        if (claimExperimentsMode) {
+          actionBar.setHomeAsUpIndicator(
+              ContextCompat.getDrawable(activity, R.drawable.ic_close_white_24dp));
         } else {
-          upArrow.setAlpha(getResources().getInteger(R.integer.home_enabled_drawable_alpha));
+          final Drawable upArrow =
+              ContextCompat.getDrawable(activity, R.drawable.ic_arrow_back_white_24dp);
+          if (disabled) {
+            upArrow.setAlpha(getResources().getInteger(R.integer.home_disabled_drawable_alpha));
+          } else {
+            upArrow.setAlpha(getResources().getInteger(R.integer.home_enabled_drawable_alpha));
+          }
+          actionBar.setHomeAsUpIndicator(upArrow);
         }
-        actionBar.setHomeAsUpIndicator(upArrow);
       }
     }
   }
@@ -467,6 +472,7 @@ public class ExperimentDetailsFragment extends Fragment
     // Disable archive option when recording.
     menu.findItem(R.id.action_archive_experiment).setEnabled(!isRecording());
     menu.findItem(R.id.action_delete_experiment).setEnabled(canDelete());
+    menu.findItem(R.id.action_remove_cover_image).setVisible(canRemoveCoverImage());
     menu.findItem(R.id.action_include_archived).setVisible(!includeArchived);
     menu.findItem(R.id.action_exclude_archived).setVisible(includeArchived);
     menu.findItem(R.id.action_edit_experiment).setVisible(canEdit());
@@ -513,6 +519,8 @@ public class ExperimentDetailsFragment extends Fragment
       return true;
     } else if (itemId == R.id.action_delete_experiment) {
       confirmDeleteExperiment();
+    } else if (itemId == R.id.action_remove_cover_image) {
+      confirmRemoveCoverImage();
     } else if (itemId == R.id.action_export_experiment) {
       WhistlePunkApplication.getUsageTracker(getActivity())
           .trackEvent(
@@ -540,16 +548,19 @@ public class ExperimentDetailsFragment extends Fragment
 
   // Prompt the user to name the experiment if they haven't yet.
   private void displayNamePromptOrGoUp() {
-    if (experiment.isEmpty()) {
-      // Experiment is empty. No reason to keep it.
-      deleteCurrentExperiment();
-      return;
+    if (!claimExperimentsMode) {
+      if (experiment.isEmpty()) {
+        // Experiment is empty. No reason to keep it.
+        deleteCurrentExperiment();
+        return;
+      }
+      if (TextUtils.isEmpty(experiment.getTitle()) && canEdit()) {
+        // Prompt the user to name the experiment if they haven't yet.
+        displayNamePrompt();
+        return;
+      }
     }
-    if (!TextUtils.isEmpty(experiment.getTitle()) || !canEdit()) {
-      goToExperimentList();
-      return;
-    }
-    displayNamePrompt();
+    goToExperimentList();
   }
 
   private void deleteCurrentExperiment() {
@@ -604,18 +615,19 @@ public class ExperimentDetailsFragment extends Fragment
       startActivity(intent);
       return true;
     }
-
-    if (experiment.isEmpty()) {
+    
+    if (!claimExperimentsMode && experiment.isEmpty()) {
       // Experiment is empty. No reason to keep it.
       deleteCurrentExperiment();
       return true;
     }
 
-    if (TextUtils.isEmpty(experiment.getTitle()) && canEdit()) {
+    if (!claimExperimentsMode && TextUtils.isEmpty(experiment.getTitle()) && canEdit()) {
       displayNamePrompt();
       // We are handling this.
       return true;
     }
+    
     if (getActivity().isTaskRoot()) {
       goToExperimentList();
       return true;
@@ -788,6 +800,15 @@ public class ExperimentDetailsFragment extends Fragment
     dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
   }
 
+  private void confirmRemoveCoverImage() {
+    DeleteMetadataItemDialog dialog =
+        DeleteMetadataItemDialog.newInstance(
+            R.string.remove_cover_image_dialog_title,
+            R.string.remove_cover_image_confirm,
+            true /* removeCoverImage */);
+    dialog.show(getChildFragmentManager(), DeleteMetadataItemDialog.TAG);
+  }
+
   @Override
   public void requestDelete(Bundle extras) {
     String trialId = extras.getString(DeleteMetadataItemDialog.KEY_ITEM_ID);
@@ -796,6 +817,20 @@ public class ExperimentDetailsFragment extends Fragment
       experiment.deleteTrial(experiment.getTrial(trialId), getActivity(), appAccount);
       RxDataController.updateExperiment(getDataController(), experiment)
           .subscribe(() -> adapter.onTrialDeleted(trialId));
+    } else if (extras.getBoolean(DeleteMetadataItemDialog.KEY_REMOVE_COVER_IMAGE, false)) {
+      // Remove the cover image.
+      experiment.setImagePath("");
+      getDataController()
+          .updateExperiment(
+              experimentId,
+              new LoggingConsumer<Success>(TAG, "Remove cover image") {
+                @Override
+                public void success(Success value) {
+                  // Reload the data to refresh experiment item.
+                  loadExperimentData(experiment);
+                  getActivity().invalidateOptionsMenu();
+                }
+              });
     } else {
       getDataController()
           .deleteExperiment(
@@ -892,34 +927,31 @@ public class ExperimentDetailsFragment extends Fragment
 
         NoteViewHolder noteViewHolder = (NoteViewHolder) holder;
         noteViewHolder.setNote(
-            label, parentReference.get().appAccount, experiment.getExperimentId());
+            label,
+            parentReference.get().appAccount,
+            experiment.getExperimentId(),
+            parentReference.get().claimExperimentsMode);
 
         // Work specific to ExperimentDetails
         noteViewHolder.relativeTimeView.setTime(label.getTimeStamp());
         noteViewHolder.durationText.setVisibility(View.GONE);
 
-        // For now (pending response from UX), in claimExperimentsMode, we hide the
-        // noteViewHolder.menuButton and we don't launch the LabelDetailsActivity if the user
-        // clicks on the label.
-        if (parentReference.get().claimExperimentsMode) {
-          // TODO(lizlooney): Check with UX: should we hide the menu button or just disable items
-          // on the menu?
-          noteViewHolder.menuButton.setVisibility(View.GONE);
-        } else {
-          noteViewHolder.menuButton.setOnClickListener(
-              view -> {
-                Context context = noteViewHolder.menuButton.getContext();
-                popupMenu =
-                    new PopupMenu(
-                        context,
-                        noteViewHolder.menuButton,
-                        Gravity.NO_GRAVITY,
-                        R.attr.actionOverflowMenuStyle,
-                        0);
-                setupNoteMenu(item);
-                popupMenu.show();
-              });
+        noteViewHolder.menuButton.setOnClickListener(
+            view -> {
+              Context context = noteViewHolder.menuButton.getContext();
+              popupMenu =
+                  new PopupMenu(
+                      context,
+                      noteViewHolder.menuButton,
+                      Gravity.NO_GRAVITY,
+                      R.attr.actionOverflowMenuStyle,
+                      0);
+              setupNoteMenu(item);
+              popupMenu.show();
+            });
 
+        // Don't launch LabelDetailsActivity in claim experiments mode.
+        if (!parentReference.get().claimExperimentsMode) {
           holder.itemView.setOnClickListener(
               view -> {
                 if (!isRecording()) {
@@ -958,26 +990,19 @@ public class ExperimentDetailsFragment extends Fragment
           holder.menuButton.getDrawable(),
           R.color.text_color_light_grey);
 
-      // For now (pending response from UX), in claimExperimentsMode, we hide the holder.menuButton.
-      if (parentReference.get().claimExperimentsMode) {
-        // TODO(lizlooney): Check with UX: should we hide the menu button or just disable items
-        // on the menu?
-        holder.menuButton.setVisibility(View.GONE);
-      } else {
-        holder.menuButton.setOnClickListener(
-            view -> {
-              Context context = holder.menuButton.getContext();
-              popupMenu =
-                  new PopupMenu(
-                      context,
-                      holder.menuButton,
-                      Gravity.NO_GRAVITY,
-                      R.attr.actionOverflowMenuStyle,
-                      0);
-              setupTrialMenu(item);
-              popupMenu.show();
-            });
-      }
+      holder.menuButton.setOnClickListener(
+          view -> {
+            Context context = holder.menuButton.getContext();
+            popupMenu =
+                new PopupMenu(
+                    context,
+                    holder.menuButton,
+                    Gravity.NO_GRAVITY,
+                    R.attr.actionOverflowMenuStyle,
+                    0);
+            setupTrialMenu(item);
+            popupMenu.show();
+          });
     }
 
     private void setupCaption(DetailsViewHolder holder, String caption) {
@@ -998,9 +1023,17 @@ public class ExperimentDetailsFragment extends Fragment
 
     private void setupTrialMenu(ExperimentDetailItem item) {
       popupMenu.getMenuInflater().inflate(R.menu.menu_experiment_trial, popupMenu.getMenu());
-      boolean archived = item.getTrial().isArchived();
-      popupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
-      popupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
+      if (parentReference.get().claimExperimentsMode) {
+        // Remove both archive and unarchive menu items, as these are not allowed in
+        // claimExperimentsMode.
+        popupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(false);
+        popupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(false);
+      } else {
+        // Show either archive or unarchive (not both), based on current archived state.
+        boolean archived = item.getTrial().isArchived();
+        popupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
+        popupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
+      }
       popupMenu.setOnMenuItemClickListener(
           menuItem -> {
             if (parentReference.get() != null && parentReference.get().isVisible()) {
@@ -1785,5 +1818,11 @@ public class ExperimentDetailsFragment extends Fragment
 
   private boolean canEdit() {
     return experiment != null && !experiment.isArchived() && !claimExperimentsMode;
+  }
+
+  private boolean canRemoveCoverImage() {
+    return experiment != null
+        && !TextUtils.isEmpty(experiment.getImagePath())
+        && claimExperimentsMode;
   }
 }

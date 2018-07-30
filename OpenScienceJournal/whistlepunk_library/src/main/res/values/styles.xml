@@ -135,4 +135,10 @@
         <item name="titleTextColor">@color/claim_experiments_action_bar_text</item>
         <item name="subtitleTextColor">@color/claim_experiments_action_bar_text</item>
     </style>
+
+    <style name="preview_experiment_details" parent="Theme.AppCompat.Light">
+        <item name="colorPrimaryDark">@color/preview_experiment_details_status_bar</item>
+        <item name="colorPrimary">@color/preview_experiment_details_action_bar</item>
+        <item name="titleTextColor">@color/preview_experiment_details_action_bar_text</item>
+    </style>
 </resources>

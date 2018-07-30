@@ -287,6 +287,10 @@ public class PanesActivity extends AppCompatActivity
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
+    claimExperimentsMode = getIntent().getBooleanExtra(EXTRA_CLAIM_EXPERIMENTS_MODE, false);
+    if (claimExperimentsMode) {
+      setTheme(R.style.preview_experiment_details);
+    }
     super.onCreate(savedInstanceState);
     permissions = new RxPermissions(this);
     PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(this);
@@ -306,7 +310,6 @@ public class PanesActivity extends AppCompatActivity
 
     appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
     String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
-    claimExperimentsMode = getIntent().getBooleanExtra(EXTRA_CLAIM_EXPERIMENTS_MODE, false);
 
     selectedTabIndex = 0;
     if (savedInstanceState != null) {
