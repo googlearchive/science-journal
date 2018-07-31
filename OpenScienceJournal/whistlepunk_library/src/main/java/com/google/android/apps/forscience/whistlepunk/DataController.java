@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncCollection;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -74,7 +75,8 @@ public interface DataController {
 
   void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
-  void mergeExperiment(String experimentId, Experiment toMerge, MaybeConsumer<Success> onSuccess);
+  void mergeExperiment(
+      String experimentId, Experiment toMerge, MaybeConsumer<FileSyncCollection> onSuccess);
 
   void saveImmediately(MaybeConsumer<Success> onSuccess);
 

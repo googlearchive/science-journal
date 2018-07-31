@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncCollection;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -43,6 +44,7 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Range;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
@@ -384,38 +386,33 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         onSuccess,
         () -> {
           metaDataManager.addExperiment(experiment);
+          cacheExperiment(experiment);
           return Success.SUCCESS;
         });
   }
 
   @Override
   public void mergeExperiment(
-      String experimentId, Experiment toMerge, MaybeConsumer<Success> onSuccess) {
-    MaybeConsumer<Experiment> onSuccessWrapper =
-        MaybeConsumers.chainFailure(
-            onSuccess,
-            new Consumer<Experiment>() {
-              @Override
-              public void take(Experiment experiment) {
-                cachedExperiments.put(experimentId, new WeakReference<>(experiment));
-                onSuccess.success(Success.SUCCESS);
-              }
-            });
+      String experimentId, Experiment toMerge, MaybeConsumer<FileSyncCollection> onSuccess) {
     background(
         metaDataThread,
-        onSuccessWrapper,
-        new Callable<Experiment>() {
+        onSuccess,
+        new Callable<FileSyncCollection>() {
           @Override
-          public Experiment call() throws Exception {
+          public FileSyncCollection call() throws Exception {
             Experiment result = metaDataManager.getExperimentById(experimentId);
             if (result == null) {
               throw new IllegalArgumentException(
                   "Could not find experiment with id " + experimentId);
             }
-            result.mergeFrom(toMerge, context, appAccount);
+            FileSyncCollection sync = result.mergeFrom(toMerge, context, appAccount);
+            if (Strings.isNullOrEmpty(result.getTitle())) {
+              result.setTitle(toMerge.getTitle());
+            }
             metaDataManager.updateExperiment(result);
             metaDataManager.saveImmediately();
-            return result;
+            cachedExperiments.put(experimentId, new WeakReference<>(result));
+            return sync;
           }
         });
   }

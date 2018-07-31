@@ -6,12 +6,12 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 @SuppressWarnings("RedundantIfStatement")
 public class StubCloudSyncProvider implements CloudSyncProvider {
   private static final String TAG = "StubCloudSyncProvider";
-  private static final CloudSyncService service = new StubCloudSyncService();
+  private static final CloudSyncManager service = new StubCloudSyncManager();
 
   public StubCloudSyncProvider() {}
 
   @Override
-  public CloudSyncService getServiceForAccount(AppAccount appAccount) {
+  public CloudSyncManager getServiceForAccount(AppAccount appAccount) {
     return service;
   }
 }

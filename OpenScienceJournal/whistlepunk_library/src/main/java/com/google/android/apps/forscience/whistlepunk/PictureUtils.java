@@ -190,7 +190,7 @@ public class PictureUtils {
    * i.e. it already includes experiments/experiment_id/assets as well as the filename. This
    * function prepends the root directory of internal storage to that relative path.
    */
-  private static String getExperimentOverviewFullImagePath(
+  public static String getExperimentOverviewFullImagePath(
       AppAccount appAccount, String relativeFilePath) {
     return FileMetadataManager.getFilesDir(appAccount) + "/" + relativeFilePath;
   }

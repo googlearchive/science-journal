@@ -33,6 +33,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -64,8 +65,8 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AccountsUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
-import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncService;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -77,6 +78,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMe
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -201,9 +203,16 @@ public class ExperimentListFragment extends Fragment
     setProgressBarVisible(progressBarVisible);
     loadExperiments();
 
-    // TODO(vannem) Use these.
     CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
-    CloudSyncService syncService = syncProvider.getServiceForAccount(appAccount);
+    CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
+
+    try {
+      syncService.syncExperimentLibrary(getContext());
+    } catch (IOException ioe) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "IOE", ioe);
+      }
+    }
   }
 
   @Override

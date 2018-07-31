@@ -88,6 +88,20 @@ public class Experiment extends LabelListHolder {
     return new Experiment(proto, experimentOverview);
   }
 
+  public static Experiment newExperiment(
+      Context context,
+      AppAccount appAccount,
+      ExperimentLibraryManager elm,
+      long creationTime,
+      String experimentId,
+      int colorIndex,
+      long lastUsedTime) {
+    Experiment newExperiment = Experiment.newExperiment(creationTime, experimentId, colorIndex);
+    newExperiment.setLastUsedTime(elm.getOpened(experimentId));
+    newExperiment.setArchived(context, appAccount, elm.isArchived(experimentId));
+    return newExperiment;
+  }
+
   /** Populates the Experiment from an existing proto. */
   public static Experiment fromExperiment(
       GoosciExperiment.Experiment experiment,
@@ -219,7 +233,7 @@ public class Experiment extends LabelListHolder {
   }
 
   public void setImagePath(String imagePath) {
-    this.imagePath = imagePath;
+    setImagePathWithoutRecordingChange(imagePath);
     addChange(Change.newModifyTypeChange(ElementType.EXPERIMENT, getExperimentId()));
   }
 
@@ -997,8 +1011,11 @@ public class Experiment extends LabelListHolder {
     // combine the titles (if the titles are different).
     // We won't get experiment delete changes, because those are reflected in the experimentlibrary,
     // and we won't get experiment add conflicts, because the IDs are UUIDs and won't conflict.
-    if (!getTitle().equals(externalExperiment.getTitle())) {
+    if (!getTitle().equals(externalExperiment.getTitle())
+        && !getTitle().equals(getExperimentId())) {
       setTitleWithoutRecordingChange(getTitle() + " " + externalExperiment.getTitle());
+    } else if (!getTitle().equals(externalExperiment.getTitle())) {
+      setTitleWithoutRecordingChange(externalExperiment.getTitle());
     }
     setImagePathWithoutRecordingChange(externalExperiment.getImagePath());
   }

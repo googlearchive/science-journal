@@ -23,6 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperiment
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Manages a Science Journal experiment library. All changes should be made using the getters and
@@ -289,6 +290,7 @@ public class ExperimentLibraryManager {
    */
   public void merge(
       GoosciExperimentLibrary.ExperimentLibrary library, LocalSyncManager syncManager) {
+    populateExperimentLibraryManager();
     for (GoosciExperimentLibrary.SyncExperiment experiment : library.syncExperiment) {
       boolean serverArchived = false;
       if (syncManager.hasExperiment(experiment.experimentId)) {
@@ -297,6 +299,15 @@ public class ExperimentLibraryManager {
       updateExperiment(experiment, serverArchived);
     }
     writeExperimentLibrary();
+  }
+
+  public List<String> getKnownExperiments() {
+    populateExperimentLibraryManager();
+    ArrayList<String> experiments = new ArrayList<>();
+    for (GoosciExperimentLibrary.SyncExperiment experiment : proto.syncExperiment) {
+      experiments.add(experiment.experimentId);
+    }
+    return experiments;
   }
 
   private void writeExperimentLibrary() {

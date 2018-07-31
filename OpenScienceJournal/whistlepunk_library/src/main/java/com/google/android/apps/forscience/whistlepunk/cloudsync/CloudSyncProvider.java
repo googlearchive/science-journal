@@ -21,11 +21,11 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 /** An interface which provides cloud sync management. */
 public interface CloudSyncProvider {
   /**
-   * Creates, if necessary, and returns a CloudSyncService configured for the AppAccount.
+   * Creates, if necessary, and returns a CloudSyncManager configured for the AppAccount.
    *
    * @param appAccount the account that should be associated with data synced through the returned
    *     service.
-   * @return a CloudSyncService configured for the AppAccount.
+   * @return a CloudSyncManager configured for the AppAccount.
    */
-  CloudSyncService getServiceForAccount(AppAccount appAccount);
+  CloudSyncManager getServiceForAccount(AppAccount appAccount);
 }
