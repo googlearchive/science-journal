@@ -1001,6 +1001,7 @@ public class Experiment extends LabelListHolder {
           if (!localTrial.getTitle(context).equals(externalTrial.getTitle(context))) {
             localTrial.setTitle(
                 localTrial.getTitle(context) + " " + externalTrial.getTitle(context));
+            updateTrial(localTrial);
           }
         }
       }

@@ -139,6 +139,7 @@ public class UpdateRunFragment extends Fragment {
 
   private void saveAndReturn() {
     experiment.getTrial(runId).setTitle(runTitle.getText().toString().trim());
+    experiment.updateTrial(experiment.getTrial(runId));
     getDataController()
         .updateExperiment(
             experimentId,

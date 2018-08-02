@@ -343,16 +343,22 @@ public class ExperimentTest {
     assertEquals(trial.getLabelCount(), 1);
     assertEquals(5, experiment.getChanges().size());
 
+    trial.setTitle("foo");
+    experiment.updateTrial(trial);
+
+    assertEquals(trial.getLabelCount(), 1);
+    assertEquals(6, experiment.getChanges().size());
+
     Label label2 = trial.getLabels().get(0);
     label2.setTimestamp(10);
     trial.updateLabel(experiment, label2);
     assertEquals(10, trial.getLabels().get(0).getTimeStamp());
-    assertEquals(6, experiment.getChanges().size());
+    assertEquals(7, experiment.getChanges().size());
 
     label2.setTimestamp(20);
     trial.updateLabelWithoutSorting(experiment, label2);
     assertEquals(20, trial.getLabels().get(0).getTimeStamp());
-    assertEquals(7, experiment.getChanges().size());
+    assertEquals(8, experiment.getChanges().size());
   }
 
   @Test
