@@ -481,7 +481,7 @@ public class ExperimentDetailsFragment extends Fragment
         FileMetadataManager.validateShareIntent(getContext(), appAccount, experimentId);
 
     menu.findItem(R.id.action_export_experiment)
-        .setVisible(experiment != null && !experiment.isArchived() && isShareIntentValid);
+        .setVisible(experiment != null && isShareIntentValid);
     menu.findItem(R.id.action_export_experiment).setEnabled(!isRecording());
     setHomeButtonState(isRecording());
   }
@@ -615,7 +615,7 @@ public class ExperimentDetailsFragment extends Fragment
       startActivity(intent);
       return true;
     }
-    
+
     if (!claimExperimentsMode && experiment.isEmpty()) {
       // Experiment is empty. No reason to keep it.
       deleteCurrentExperiment();
@@ -627,7 +627,7 @@ public class ExperimentDetailsFragment extends Fragment
       // We are handling this.
       return true;
     }
-    
+
     if (getActivity().isTaskRoot()) {
       goToExperimentList();
       return true;
