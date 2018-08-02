@@ -71,7 +71,7 @@ public class ExperimentTest {
     // No labels on creation
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
-    assertEquals(experiment.getLabelCount(), 0);
+    assertEquals(0, experiment.getLabelCount());
     assertEquals(experiment.getLabels(), Collections.emptyList());
 
     // Add a label manually, outside of the proto
@@ -81,7 +81,7 @@ public class ExperimentTest {
     labelProto.protoData = MessageNano.toByteArray(labelValueProto);
     labelProto.type = GoosciLabel.Label.ValueType.PICTURE;
     experiment.getLabels().add(Label.fromLabel(labelProto));
-    assertEquals(experiment.getLabelCount(), 1);
+    assertEquals(1, experiment.getLabelCount());
 
     // Make sure the proto gets updated properly
     proto.labels = new GoosciLabel.Label[1];
@@ -94,12 +94,12 @@ public class ExperimentTest {
     assertTrue(
         MessageNano.messageNanoEquals(
             experiment2.getLabels().get(0).getPictureLabelValue(), labelValueProto));
-    assertEquals(experiment2.getLabelCount(), 1);
+    assertEquals(1, experiment2.getLabelCount());
     List<Label> labels = experiment2.getLabels();
     labels.add(Label.newLabel(20, GoosciLabel.Label.ValueType.TEXT));
-    assertEquals(experiment2.getLabelCount(), 2);
+    assertEquals(2, experiment2.getLabelCount());
 
-    assertEquals(experiment2.getExperimentProto().labels.length, 2);
+    assertEquals(2, experiment2.getExperimentProto().labels.length);
   }
 
   @Test
@@ -115,13 +115,13 @@ public class ExperimentTest {
     assertEquals(experiment.getLabelsForRange(range), Collections.<Label>emptyList());
 
     range.endMs = 200;
-    assertEquals(experiment.getLabelsForRange(range).size(), 3);
+    assertEquals(3, experiment.getLabelsForRange(range).size());
 
     range.endMs = 300;
-    assertEquals(experiment.getLabelsForRange(range).size(), 4);
+    assertEquals(4, experiment.getLabelsForRange(range).size());
 
     range.startMs = 100;
-    assertEquals(experiment.getLabelsForRange(range).size(), 3);
+    assertEquals(3, experiment.getLabelsForRange(range).size());
   }
 
   @Test
@@ -131,16 +131,15 @@ public class ExperimentTest {
     // No changes on creation
     Experiment experiment =
         Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
-    assertEquals(experiment.getChanges().size(), 0);
+    assertEquals(0, experiment.getChanges().size());
 
     experiment.addChange(new Change());
     experiment.addChange(new Change());
-    assertEquals(experiment.getChanges().size(), 2);
+    assertEquals(2, experiment.getChanges().size());
 
-    Experiment experiment2 =
-        Experiment.fromExperiment(
-            experiment.getExperimentProto(), new GoosciUserMetadata.ExperimentOverview());
-    assertEquals(experiment.getChanges().size(), 2);
+    Experiment experiment2 = Experiment.fromExperiment(
+        experiment.getExperimentProto(), new GoosciUserMetadata.ExperimentOverview());
+    assertEquals(2, experiment2.getChanges().size());
   }
 
   @Test
@@ -151,7 +150,7 @@ public class ExperimentTest {
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
             getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
-    assertEquals(experiment.getTrialCount(), 0);
+    assertEquals(0, experiment.getTrialCount());
     assertEquals(experiment.getTrials(), Collections.emptyList());
 
     // Trials on creation that overlap with notes should get those notes added properly.
@@ -167,7 +166,7 @@ public class ExperimentTest {
     Experiment experiment1 =
         ExperimentCreator.newExperimentForTesting(
             getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
-    assertEquals(experiment1.getTrialCount(), 1);
+    assertEquals(1, experiment1.getTrialCount());
 
     // Adding a new trial should work as expected.
     GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
@@ -182,7 +181,7 @@ public class ExperimentTest {
     assertEquals(experiment1.getTrialCount(), 2);
 
     // Getting the proto includes trial updates
-    assertEquals(experiment1.getExperimentProto().trials.length, 2);
+    assertEquals(2, experiment1.getExperimentProto().trials.length);
   }
 
   @Test
@@ -197,10 +196,10 @@ public class ExperimentTest {
     experiment.addTrial(Trial.newTrial(10, noLayouts, new FakeAppearanceProvider(), getContext()));
     experiment.addTrial(Trial.newTrial(20, noLayouts, new FakeAppearanceProvider(), getContext()));
 
-    assertEquals(experiment.getTrials().size(), 2);
-    assertEquals(experiment.getTrials(true, /* include invalid */ true).size(), 2);
-    assertEquals(experiment.getTrials(false, true).size(), 2);
-    assertEquals(experiment.getTrials(true, false).size(), 0);
+    assertEquals(2, experiment.getTrials().size());
+    assertEquals(2, experiment.getTrials(true, /* include invalid */ true).size());
+    assertEquals(2, experiment.getTrials(false, true).size());
+    assertEquals(0, experiment.getTrials(true, false).size());
 
     GoosciTrial.Trial validProto = new GoosciTrial.Trial();
     GoosciTrial.Range range = new GoosciTrial.Range();
@@ -211,9 +210,9 @@ public class ExperimentTest {
     Trial valid = Trial.fromTrial(validProto);
     experiment.addTrial(valid);
 
-    assertEquals(experiment.getTrials(false, true).size(), 3);
-    assertEquals(experiment.getTrials(true, false).size(), 1);
-    assertEquals(experiment.getTrials(false, false).size(), 1);
+    assertEquals(3, experiment.getTrials(false, true).size());
+    assertEquals(1, experiment.getTrials(true, false).size());
+    assertEquals(1, experiment.getTrials(false, false).size());
 
     GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
     GoosciTrial.Range archivedRange = new GoosciTrial.Range();
@@ -225,10 +224,10 @@ public class ExperimentTest {
     Trial archived = Trial.fromTrial(archivedProto);
     experiment.addTrial(archived);
 
-    assertEquals(experiment.getTrials(true, true).size(), 4);
-    assertEquals(experiment.getTrials(/* include archived */ false, true).size(), 3);
-    assertEquals(experiment.getTrials(true, false).size(), 2);
-    assertEquals(experiment.getTrials(false, false).size(), 1);
+    assertEquals(4, experiment.getTrials(true, true).size());
+    assertEquals(3, experiment.getTrials(/* include archived */ false, true).size());
+    assertEquals(2, experiment.getTrials(true, false).size());
+    assertEquals(1, experiment.getTrials(false, false).size());
   }
 
   @Test
@@ -244,8 +243,8 @@ public class ExperimentTest {
 
     // Try to get the proto *before* converting the objects into lists.
     GoosciExperiment.Experiment result = experiment.getExperimentProto();
-    assertEquals(result.labels.length, 4);
-    assertEquals(result.trials.length, 1);
+    assertEquals(4, result.labels.length);
+    assertEquals(1, result.trials.length);
   }
 
   @Test
@@ -347,12 +346,12 @@ public class ExperimentTest {
     Label label2 = trial.getLabels().get(0);
     label2.setTimestamp(10);
     trial.updateLabel(experiment, label2);
-    assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
+    assertEquals(10, trial.getLabels().get(0).getTimeStamp());
     assertEquals(6, experiment.getChanges().size());
 
     label2.setTimestamp(20);
     trial.updateLabelWithoutSorting(experiment, label2);
-    assertEquals(trial.getLabels().get(0).getTimeStamp(), 20);
+    assertEquals(20, trial.getLabels().get(0).getTimeStamp());
     assertEquals(7, experiment.getChanges().size());
   }
 
@@ -447,10 +446,13 @@ public class ExperimentTest {
     experimentServer.setTitle("Title2");
 
     experimentClient.setTitle("Title3");
+
+    assertEquals(0, experimentServer.getLabels().size());
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
 
-    assertEquals("Title2 Title3", experimentServer.getTitle());
-    assertEquals(3, experimentServer.getChanges().size());
+    assertEquals("Title3", experimentServer.getTitle());
+    assertEquals(1, experimentServer.getLabels().size());
+    assertEquals(4, experimentServer.getChanges().size());
   }
 
   @Test

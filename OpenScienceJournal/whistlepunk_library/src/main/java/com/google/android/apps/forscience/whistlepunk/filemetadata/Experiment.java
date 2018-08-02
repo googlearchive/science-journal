@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperi
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
@@ -1013,7 +1014,16 @@ public class Experiment extends LabelListHolder {
     // and we won't get experiment add conflicts, because the IDs are UUIDs and won't conflict.
     if (!getTitle().equals(externalExperiment.getTitle())
         && !getTitle().equals(getExperimentId())) {
-      setTitleWithoutRecordingChange(getTitle() + " " + externalExperiment.getTitle());
+      GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
+      labelValue.text = getTitle();
+      Label label =
+          Label.newLabelWithValue(
+              externalExperiment.getLastUsedTime(),
+              GoosciLabel.Label.ValueType.TEXT,
+              labelValue,
+              null);
+      addLabel(this, label);
+      setTitleWithoutRecordingChange(externalExperiment.getTitle());
     } else if (!getTitle().equals(externalExperiment.getTitle())) {
       setTitleWithoutRecordingChange(externalExperiment.getTitle());
     }
