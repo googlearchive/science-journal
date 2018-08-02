@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertFalse; 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -121,10 +121,12 @@ public class ExperimentLibraryManagerTest {
   }
 
   @Test
-  public void testUpdateWithNewExperiment() {
+  public void testUpdateWithNewExperimentAndFolderId() {
     ExperimentLibraryManager manager = getTestManager();
     manager.addExperiment("id");
+    manager.setFolderId("foo");
 
+    assertEquals("foo", manager.getFolderId());
     assertNull(manager.getExperiment("id2"));
 
     GoosciExperimentLibrary.ExperimentLibrary library =
@@ -134,11 +136,13 @@ public class ExperimentLibraryManagerTest {
     experiment.experimentId = "id2";
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
+    library.folderId = "bar";
 
     manager.merge(library, getTestLocalSyncManager());
 
     assertNotNull(manager.getExperiment("id"));
     assertNotNull(manager.getExperiment("id2"));
+    assertEquals("bar", manager.getFolderId());
   }
 
   @Test
@@ -271,5 +275,12 @@ public class ExperimentLibraryManagerTest {
     manager.merge(library, localSync);
 
     assertTrue(manager.isArchived("id"));
+  }
+
+  @Test
+  public void testSetGetFolderId() {
+    ExperimentLibraryManager manager = getTestManager();
+    manager.setFolderId("FolderId");
+    assertEquals("FolderId", manager.getFolderId());
   }
 }

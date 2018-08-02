@@ -20,6 +20,7 @@ import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -291,6 +292,9 @@ public class ExperimentLibraryManager {
   public void merge(
       GoosciExperimentLibrary.ExperimentLibrary library, LocalSyncManager syncManager) {
     populateExperimentLibraryManager();
+    if (!Strings.isNullOrEmpty(library.folderId)) {
+      proto.folderId = library.folderId;
+    }
     for (GoosciExperimentLibrary.SyncExperiment experiment : library.syncExperiment) {
       boolean serverArchived = false;
       if (syncManager.hasExperiment(experiment.experimentId)) {
@@ -328,5 +332,16 @@ public class ExperimentLibraryManager {
     if (proto == null) {
       proto = FileMetadataManager.readExperimentLibraryFile(account);
     }
+  }
+
+  public void setFolderId(String folderId) {
+    populateExperimentLibraryManager();
+    proto.folderId = folderId;
+    writeExperimentLibrary();
+  }
+
+  public String getFolderId() {
+    populateExperimentLibraryManager();
+    return proto.folderId;
   }
 }

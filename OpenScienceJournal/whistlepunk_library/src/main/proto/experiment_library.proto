@@ -26,9 +26,12 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 // The overall collection of Experiments known to the user.
-// Next Tag: 2
+// Next Tag: 3
+// LINT: LEGACY_NAMES
 message ExperimentLibrary {
   repeated SyncExperiment syncExperiment = 1;
+  // The folder ID of the "Science Journal" folder.
+  optional string folderId = 2;
 }
 
 // A single experiment to be synced to Drive.
