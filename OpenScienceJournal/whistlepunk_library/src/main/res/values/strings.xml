@@ -1673,6 +1673,9 @@ Permissions notice:
     <!-- Menu item label to delete all remaining unclaimed experiments [CHAR_LIMIT=50]-->
     <string name="action_delete_unclaimed_experiments">Delete all</string>
 
+    <!-- Menu item label to sync now [CHAR_LIMIT=50]-->
+    <string name="action_sync">Sync</string>
+
     <!-- Menu option for removing the cover image of an experiment [CHAR_LIMIT=50] -->
     <string name="action_remove_cover_image">Remove cover image</string>
 

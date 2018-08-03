@@ -487,8 +487,27 @@ public class ExperimentListFragment extends Fragment
     } else if (id == R.id.action_delete_unclaimed_experiments) {
       confirmDeleteUnclaimedExperiments();
       return true;
+    } else if (id == R.id.action_sync) {
+      syncNow();
+      return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  private void syncNow() {
+    CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
+    CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
+
+    try {
+      if (Log.isLoggable(TAG, Log.INFO)) {
+        Log.i(TAG, "User-triggered sync");
+      }
+      syncService.syncExperimentLibrary(getContext());
+    } catch (IOException ioe) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "IOE", ioe);
+      }
+    }
   }
 
   private void confirmClaimUnclaimedExperiments() {
