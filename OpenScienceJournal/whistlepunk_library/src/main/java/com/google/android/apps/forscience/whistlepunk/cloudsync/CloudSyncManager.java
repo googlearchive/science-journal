@@ -11,4 +11,7 @@ public interface CloudSyncManager {
 
   /** Syncs the Experiment Proto file to cloud storage */
   void syncExperimentProto(Context context, String experimentId) throws IOException;
+
+  /** Deletes an Experiment Package from Drive */
+  void deleteExperimentPackage(Context context, String experimentId);
 }
