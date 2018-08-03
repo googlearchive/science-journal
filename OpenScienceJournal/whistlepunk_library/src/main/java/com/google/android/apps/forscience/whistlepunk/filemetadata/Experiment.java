@@ -451,6 +451,8 @@ public class Experiment extends LabelListHolder {
   @VisibleForTesting
   public void deleteTrialOnlyForTesting(Trial trial) {
     trials.remove(trial);
+    trialCount = trials.size();
+    addChange(Change.newDeleteTypeChange(ElementType.TRIAL, trial.getTrialId()));
   }
 
   private void sortTrials() {
@@ -816,7 +818,9 @@ public class Experiment extends LabelListHolder {
         }
         break;
       case ElementType.TRIAL:
-        filesToSync.addTrialUpload(local.getChangedElementId());
+        if (getTrial(local.getChangedElementId()) != null) {
+          filesToSync.addTrialUpload(local.getChangedElementId());
+        }
         break;
       case ElementType.EXPERIMENT:
       default:

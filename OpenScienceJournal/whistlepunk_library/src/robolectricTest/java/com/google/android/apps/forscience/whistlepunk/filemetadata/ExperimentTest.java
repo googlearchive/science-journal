@@ -1025,4 +1025,36 @@ public class ExperimentTest {
     assertEquals(4, experimentServer.getChanges().size());
     assertEquals(1, experimentServer.getLabelCount());
   }
+
+  @Test
+  public void testMergeDeletedTrialsNotUploaded() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Trial trial1 = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+    experimentServer.addTrial(trial1);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    Trial trial2 = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+    experimentServer.addTrial(trial2);
+
+    experimentServer.deleteTrialOnlyForTesting(trial1);
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(3, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getTrialCount());
+    assertEquals(1, experimentServer.getTrialCount());
+
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(1, sync.getTrialUploads().size());
+    assertTrue(sync.getTrialUploads().contains(trial2.getTrialId()));
+  }
 }
