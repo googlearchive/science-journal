@@ -139,7 +139,11 @@ public class MainActivity extends ActivityWithNavigationView {
 
     // Navigate to the desired fragment, based on saved state or intent extras, or (by default)
     // the experiments list.
-    Bundle extras = getIntent().getExtras();
+    Intent intent = getIntent();
+    Bundle extras = null;
+    if (intent != null) {
+      extras = intent.getExtras();
+    }
     int selectedNavItemId;
     if (savedItemId != NO_SELECTED_ITEM) {
       selectedNavItemId = savedItemId;
@@ -400,6 +404,10 @@ public class MainActivity extends ActivityWithNavigationView {
   }
 
   private boolean shouldUsePanes() {
+    Intent intent = getIntent();
+    if (intent == null) {
+      return true;
+    }
     return getIntent().getBooleanExtra(ARG_USE_PANES, true);
   }
 
