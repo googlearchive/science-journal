@@ -136,7 +136,8 @@ class ExperimentCache {
     if (isDifferentFromActive(experiment.getExperimentOverview())) {
       immediateWriteIfActiveChanging(experiment.getExperimentOverview());
     }
-    experimentLibraryManager.setOpened(experiment.getExperimentId(), System.currentTimeMillis());
+    experimentLibraryManager.setOpened(experiment.getExperimentId());
+    experimentLibraryManager.setModified(experiment.getExperimentId());
     localSyncManager.setDirty(experiment.getExperimentId(), true);
     activeExperiment = experiment;
     startWriteTimer();

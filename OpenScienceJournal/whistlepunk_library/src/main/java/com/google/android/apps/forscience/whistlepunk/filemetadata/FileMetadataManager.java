@@ -486,6 +486,9 @@ public class FileMetadataManager {
     userMetadataManager.addExperimentOverview(experiment.getExperimentOverview());
     localSyncManager.addExperiment(experiment.getExperimentId());
     experimentLibraryManager.addExperiment(experiment.getExperimentId());
+    experimentLibraryManager.setModified(
+        experiment.getExperimentId(), experiment.getLastUsedTime());
+    experimentLibraryManager.setOpened(experiment.getExperimentId(), experiment.getLastUsedTime());
   }
 
   public void updateExperiment(Experiment experiment) {
