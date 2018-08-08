@@ -349,6 +349,20 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   @Override
+  public Experiment blockingGetExperimentById(String experimentId) {
+    if (cachedExperiments.containsKey(experimentId)) {
+      Experiment experiment = cachedExperiments.get(experimentId).get();
+      if (experiment != null) {
+        return experiment;
+      }
+    }
+
+    Experiment experiment = metaDataManager.getExperimentById(experimentId);
+    cachedExperiments.put(experimentId, new WeakReference<Experiment>(experiment));
+    return experiment;
+  }
+
+  @Override
   public void updateExperiment(final String experimentId, MaybeConsumer<Success> onSuccess) {
     if (!cachedExperiments.containsKey(experimentId)) {
       onSuccess.fail(new Exception("Experiment not loaded"));

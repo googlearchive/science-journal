@@ -76,6 +76,11 @@ public class StubDataController implements DataController {
   public void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess) {}
 
   @Override
+  public Experiment blockingGetExperimentById(String experimentId) {
+    return null;
+  }
+
+  @Override
   public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {}
 
   @Override
