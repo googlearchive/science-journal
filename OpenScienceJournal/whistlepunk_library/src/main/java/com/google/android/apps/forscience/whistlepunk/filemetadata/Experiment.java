@@ -795,20 +795,21 @@ public class Experiment extends LabelListHolder {
     // the change record above, so future merges will be aware of the full history.
     for (Change external : changedExternalElements.values()) {
       if (changedLocalElements.containsKey(external.getChangedElementId())) {
-        handleConflictMerge(externalExperiment, context, external, filesToSync);
+        handleConflictMerge(externalExperiment, context, appAccount, external, filesToSync);
         changedLocalElements.remove(external.getChangedElementId());
       } else {
         handleNoConflictMerge(externalExperiment, context, external, appAccount, filesToSync);
       }
     }
     for (Change local : changedLocalElements.values()) {
-      handleLocalOnlyMerge(local, filesToSync);
+      handleLocalOnlyMerge(appAccount, local, filesToSync);
     }
 
     return filesToSync;
   }
 
-  private void handleLocalOnlyMerge(Change local, FileSyncCollection filesToSync) {
+  private void handleLocalOnlyMerge(
+      AppAccount appAccount, Change local, FileSyncCollection filesToSync) {
     // If there is no conflict, we can just copy the change
     switch (local.getChangedElementType()) {
       case ElementType.NOTE:
@@ -823,6 +824,14 @@ public class Experiment extends LabelListHolder {
         }
         break;
       case ElementType.EXPERIMENT:
+        if (getImagePath() != null) {
+          java.io.File overviewImage =
+              new java.io.File(
+                  PictureUtils.getExperimentOverviewFullImagePath(appAccount, getImagePath()));
+          filesToSync.addImageUpload(
+              FileMetadataManager.getRelativePathInExperiment(getExperimentId(), overviewImage));
+        }
+        break;
       default:
         break;
     }
@@ -840,7 +849,7 @@ public class Experiment extends LabelListHolder {
         copyNoteChange(externalExperiment, context, external, appAccount, filesToSync);
         break;
       case ElementType.EXPERIMENT:
-        copyExperimentChange(externalExperiment);
+        copyExperimentChange(appAccount, externalExperiment, filesToSync);
         break;
       case ElementType.TRIAL:
         copyTrialChange(externalExperiment, context, external, appAccount, filesToSync);
@@ -879,12 +888,22 @@ public class Experiment extends LabelListHolder {
     }
   }
 
-  private void copyExperimentChange(Experiment externalExperiment) {
+  private void copyExperimentChange(
+      AppAccount appAccount, Experiment externalExperiment, FileSyncCollection filesToSync) {
     // This copies changes to the overall experiment: the title and the image path. These can't
     // be added or deleted, really. They are just updated to/from blank strings.
     // Don't record the change to the changelog.
     setTitleWithoutRecordingChange(externalExperiment.getTitle());
     setImagePathWithoutRecordingChange(externalExperiment.getImagePath());
+    if (externalExperiment.getImagePath() != null) {
+      java.io.File overviewImage =
+          new java.io.File(
+              PictureUtils.getExperimentOverviewFullImagePath(
+                  appAccount, externalExperiment.getImagePath()));
+      filesToSync.addImageDownload(
+          FileMetadataManager.getRelativePathInExperiment(
+              externalExperiment.getExperimentId(), overviewImage));
+    }
   }
 
   private void copyNoteChange(
@@ -975,12 +994,13 @@ public class Experiment extends LabelListHolder {
   private void handleConflictMerge(
       Experiment externalExperiment,
       Context context,
+      AppAccount appAccount,
       Change external,
       FileSyncCollection filesToSync) {
     if (external.getChangedElementType() == ElementType.NOTE) {
       handleNoteConflict(externalExperiment, external, filesToSync);
     } else if (external.getChangedElementType() == ElementType.EXPERIMENT) {
-      handleExperimentConflict(externalExperiment);
+      handleExperimentConflict(appAccount, externalExperiment, filesToSync);
     } else if (external.getChangedElementType() == ElementType.TRIAL) {
       handleTrialConflict(externalExperiment, context, external, filesToSync);
     }
@@ -1012,7 +1032,8 @@ public class Experiment extends LabelListHolder {
     }
   }
 
-  private void handleExperimentConflict(Experiment externalExperiment) {
+  private void handleExperimentConflict(
+      AppAccount appAccount, Experiment externalExperiment, FileSyncCollection filesToSync) {
     // If the experiment is edited in both experiments, we will take the external imagepath, and
     // combine the titles (if the titles are different).
     // We won't get experiment delete changes, because those are reflected in the experimentlibrary,
@@ -1033,6 +1054,15 @@ public class Experiment extends LabelListHolder {
       setTitleWithoutRecordingChange(externalExperiment.getTitle());
     }
     setImagePathWithoutRecordingChange(externalExperiment.getImagePath());
+    if (externalExperiment.getImagePath() != null) {
+      java.io.File overviewImage =
+          new java.io.File(
+              PictureUtils.getExperimentOverviewFullImagePath(
+                  appAccount, externalExperiment.getImagePath()));
+      filesToSync.addImageDownload(
+          FileMetadataManager.getRelativePathInExperiment(
+              externalExperiment.getExperimentId(), overviewImage));
+    }
   }
 
   private void handleNoteConflict(
