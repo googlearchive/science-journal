@@ -34,7 +34,7 @@ import io.reactivex.Observable;
  * The control bar is at the bottom of the observe fragment and holds buttons for taking snapshots,
  * starting recording, etc
  */
-class ControlBarController {
+public class ControlBarController {
   private final AppAccount appAccount;
   private final String experimentId;
   private SnackbarManager snackbarManager;

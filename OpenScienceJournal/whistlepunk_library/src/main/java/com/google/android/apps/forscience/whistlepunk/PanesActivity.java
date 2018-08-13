@@ -44,12 +44,15 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
+import com.google.common.collect.ImmutableList;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PanesActivity extends AppCompatActivity
     implements RecordFragment.CallbacksProvider,
@@ -73,8 +76,7 @@ public class PanesActivity extends AppCompatActivity
   private BehaviorSubject<Integer> activityHeight = BehaviorSubject.create();
   private BehaviorSubject<Integer> bottomSheetState = BehaviorSubject.create();
   private ImageButton grabber;
-  private ToolTab[] toolTabs =
-      new ToolTab[] {ToolTab.NOTES, ToolTab.OBSERVE, ToolTab.CAMERA, ToolTab.GALLERY};
+  protected List<ToolTab> toolTabs;
   private RxPermissions permissions;
   private int initialDrawerState = -1;
   private RxEvent paused = new RxEvent();
@@ -83,6 +85,14 @@ public class PanesActivity extends AppCompatActivity
 
   public PanesActivity() {
     snackbarManager = new SnackbarManager();
+  }
+
+  protected List<ToolTab> getToolTabs() {
+    if (toolTabs == null) {
+      toolTabs = new ArrayList<>(
+          ImmutableList.of(ToolTab.NOTES, ToolTab.OBSERVE, ToolTab.CAMERA, ToolTab.GALLERY));
+    }
+    return toolTabs;
   }
 
   private DrawerLayoutState newDrawerLayoutState(
@@ -133,7 +143,8 @@ public class PanesActivity extends AppCompatActivity
     }
   }
 
-  private abstract static class ToolTab {
+  /** Tab which exposes the UI for a given observation type */
+  public abstract static class ToolTab {
     private static ToolTab NOTES =
         new ToolTab(R.string.tab_description_add_note, R.drawable.ic_comment_white_24dp, "NOTES") {
           @Override
@@ -228,7 +239,7 @@ public class PanesActivity extends AppCompatActivity
     private final int iconId;
     private final String loggingName;
 
-    ToolTab(int contentDescriptionId, int iconId, String loggingName) {
+    public ToolTab(int contentDescriptionId, int iconId, String loggingName) {
       this.contentDescriptionId = contentDescriptionId;
       this.iconId = iconId;
       this.loggingName = loggingName;
@@ -484,7 +495,7 @@ public class PanesActivity extends AppCompatActivity
 
             @Override
             public Fragment getItem(int position) {
-              if (position >= toolTabs.length) {
+              if (position >= getToolTabs().size()) {
                 return null;
               }
               return getToolTab(position)
@@ -492,12 +503,12 @@ public class PanesActivity extends AppCompatActivity
             }
 
             private ToolTab getToolTab(int position) {
-              return toolTabs[position];
+              return getToolTabs().get(position);
             }
 
             @Override
             public int getCount() {
-              return toolTabs.length;
+              return getToolTabs().size();
             }
 
             @Override
@@ -566,7 +577,7 @@ public class PanesActivity extends AppCompatActivity
     bottomBehavior.setPeekHeight(
         getResources().getDimensionPixelSize(R.dimen.panes_toolbar_height));
 
-    for (ToolTab tab : toolTabs) {
+    for (ToolTab tab : getToolTabs()) {
       TabLayout.Tab layoutTab = toolPicker.newTab();
       layoutTab.setContentDescription(tab.getContentDescriptionId());
       layoutTab.setIcon(tab.getIconId());
@@ -735,7 +746,7 @@ public class PanesActivity extends AppCompatActivity
       dimensions.append(
           TrackerConstants.PANES_DRAWER_STATE, bottomBehavior.getDrawerStateForLogging());
       dimensions.append(
-          TrackerConstants.PANES_TOOL_NAME, toolTabs[selectedTabIndex].getLoggingName());
+          TrackerConstants.PANES_TOOL_NAME, getToolTabs().get(selectedTabIndex).getLoggingName());
     }
     WhistlePunkApplication.getUsageTracker(this)
         .trackDimensionEvent(TrackerConstants.CATEGORY_PANES, action, dimensions);

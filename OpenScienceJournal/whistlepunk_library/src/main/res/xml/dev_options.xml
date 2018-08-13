@@ -31,6 +31,13 @@
     />
 
     <CheckBoxPreference
+        android:key="enable_sketch_pane"
+        android:defaultValue="false"
+        android:title="@string/enable_sketch_pane_title"
+        android:summary="@string/enable_sketch_pane_summary"
+        />
+
+    <CheckBoxPreference
         android:key="dev_tools"
         android:defaultValue="false"
         android:title="@string/dev_tools_title"

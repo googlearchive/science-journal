@@ -987,6 +987,12 @@ Permissions notice:
     <!-- Summary of developer option to display a synthetic sine wave [CHAR_LIMIT=none] -->
     <string name="enable_sine_wave_sensor_summary">Enable experimental synthetic sine wave sensor</string>
 
+    <!-- Title of developer option to display a pane for sketching [CHAR_LIMIT=35]-->
+    <string name="enable_sketch_pane_title">Enable sketch pane</string>
+
+    <!-- Summary of developer option to enable pane for sketching [CHAR_LIMIT=none] -->
+    <string name="enable_sketch_pane_summary">Enable pane for sketching</string>
+
     <!-- Menu option to change the audio settings [CHAR_LIMIT=25] -->
     <string name="menu_item_audio_settings">Audio settings</string>
 
@@ -1410,6 +1416,9 @@ Permissions notice:
 
     <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
     <string name="tab_description_camera">Take photo</string>
+
+    <!-- Content description for tab icon to draw with Ink [CHAR_LIMIT=none] -->
+    <string name="tab_description_ink">Draw</string>
 
     <!-- Button to view more notes in a trial [CHAR_LIMIT=50] -->
     <string name="load_more_notes_btn">View more notes</string>
