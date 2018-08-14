@@ -71,8 +71,6 @@ public interface DataController {
 
   void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess);
 
-  Experiment blockingGetExperimentById(String experimentId);
-
   void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess);
 
   void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);

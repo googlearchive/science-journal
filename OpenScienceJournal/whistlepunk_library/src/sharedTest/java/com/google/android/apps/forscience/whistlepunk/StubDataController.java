@@ -76,11 +76,6 @@ public class StubDataController implements DataController {
   public void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess) {}
 
   @Override
-  public Experiment blockingGetExperimentById(String experimentId) {
-    return null;
-  }
-
-  @Override
   public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {}
 
   @Override
@@ -172,7 +167,7 @@ public class StubDataController implements DataController {
   public void moveExperimentToAnotherAccount(
       String experimentId, AppAccount targetAccount, MaybeConsumer<Success> onSuccess) {}
 
-  @Override
   public void writeTrialProtoToFile(
-      String experimentId, String trialId, MaybeConsumer<File> onSuccess) throws IOException {}
+      String experimentId, String trialId, final MaybeConsumer<File> onSuccess)
+      throws IOException {}
 }

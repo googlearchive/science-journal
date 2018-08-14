@@ -17,12 +17,14 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncCollection;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.io.File;
 
 /** Utility methods for bridging DataController calls with code that uses Rx */
 public class RxDataController {
@@ -32,6 +34,19 @@ public class RxDataController {
    */
   public static Completable updateExperiment(DataController dc, Experiment e) {
     return MaybeConsumers.buildCompleteable(mc -> dc.updateExperiment(e.getExperimentId(), mc));
+  }
+
+  public static Completable deleteExperiment(DataController dc, Experiment e) {
+    return MaybeConsumers.buildCompleteable(mc -> dc.updateExperiment(e, mc));
+  }
+
+  public static Single<FileSyncCollection> mergeExperiment(
+      DataController dc, String id, Experiment toMerge) {
+    return MaybeConsumers.buildSingle(mc -> dc.mergeExperiment(id, toMerge, mc));
+  }
+
+  public static Completable addExperiment(DataController dc, Experiment e) {
+    return MaybeConsumers.buildCompleteable(mc -> dc.addExperiment(e, mc));
   }
 
   public static Completable updateLabel(
@@ -69,5 +84,10 @@ public class RxDataController {
       Label label, DataController dc, Experiment experiment, String trialId) {
     experiment.getTrial(trialId).addLabel(experiment, label);
     return updateExperiment(dc, experiment);
+  }
+
+  public static Single<File> writeTrialProtoToFile(
+      DataController dc, String experimentId, String trialId) {
+    return MaybeConsumers.buildSingle(mc -> dc.writeTrialProtoToFile(experimentId, trialId, mc));
   }
 }
