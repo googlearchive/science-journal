@@ -27,6 +27,8 @@ import androidx.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import androidx.fragment.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
@@ -88,7 +90,7 @@ import java.util.List;
 
 /** Experiment List Fragment lists all experiments. */
 public class ExperimentListFragment extends Fragment
-    implements DeleteMetadataItemDialog.DeleteDialogListener {
+    implements DeleteMetadataItemDialog.DeleteDialogListener, OnRefreshListener {
   private static final String TAG = "ExperimentListFragment";
 
   /** Boolean extra for savedInstanceState with the state of includeArchived experiments. */
@@ -107,10 +109,12 @@ public class ExperimentListFragment extends Fragment
   private boolean includeArchived;
   private boolean progressBarVisible = false;
   private final RxEvent destroyed = new RxEvent();
+  private final RxEvent paused = new RxEvent();
   private AppAccount appAccount;
   private boolean requireSignedInAccount;
   private boolean claimExperimentsMode;
   private AppAccount claimingAccount;
+  private SwipeRefreshLayout swipeLayout;
 
   public static ExperimentListFragment newInstance(AppAccount appAccount, boolean usePanes) {
     return newInstance(createArguments(appAccount, usePanes));
@@ -205,24 +209,16 @@ public class ExperimentListFragment extends Fragment
 
     AppSingleton.getInstance(getContext())
         .whenSyncBusyChanges()
-        .takeUntil(destroyed.happens())
+        .takeUntil(paused.happens())
         .subscribe(
             busy -> {
               if (!busy) {
                 loadExperiments();
+                swipeLayout.setRefreshing(false);
               }
             });
 
-    CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
-    CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
-
-    try {
-      syncService.syncExperimentLibrary(getContext());
-    } catch (IOException ioe) {
-      if (Log.isLoggable(TAG, Log.ERROR)) {
-        Log.e(TAG, "IOE", ioe);
-      }
-    }
+    syncNow("Sync On Resume");
   }
 
   @Override
@@ -240,12 +236,28 @@ public class ExperimentListFragment extends Fragment
   }
 
   @Override
+  public void onPause() {
+    paused.onHappened();
+    super.onPause();
+  }
+
+
+  @Override public void onRefresh() {
+    syncNow("Sync on Pulldown");
+  }
+
+
+  @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_experiment_list, container, false);
     final RecyclerView detailList = (RecyclerView) view.findViewById(R.id.details);
 
     experimentListAdapter = new ExperimentListAdapter(this);
+
+    swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+    swipeLayout.setOnRefreshListener(this);
+
     // TODO: Adjust the column count based on breakpoint specs when available.
     int column_count = 2;
     GridLayoutManager manager = new GridLayoutManager(getActivity(), column_count);
@@ -498,19 +510,19 @@ public class ExperimentListFragment extends Fragment
       confirmDeleteUnclaimedExperiments();
       return true;
     } else if (id == R.id.action_sync) {
-      syncNow();
+      syncNow("Sync from menu");
       return true;
     }
     return super.onOptionsItemSelected(item);
   }
 
-  private void syncNow() {
+  private void syncNow(String logMessage) {
     CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
     CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
 
     try {
       if (Log.isLoggable(TAG, Log.INFO)) {
-        Log.i(TAG, "User-triggered sync");
+        Log.i(TAG, logMessage);
       }
       syncService.syncExperimentLibrary(getContext());
     } catch (IOException ioe) {

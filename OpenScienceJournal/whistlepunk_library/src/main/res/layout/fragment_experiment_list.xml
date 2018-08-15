@@ -22,15 +22,22 @@
     android:fitsSystemWindows="true"
     tools:context=".project.ExperimentListFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/details"
+    <android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipe_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:paddingBottom="@dimen/list_bottom_padding"
-        android:paddingTop="8dp"
-        android:clipToPadding="false"
-        />
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/details"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:paddingBottom="@dimen/list_bottom_padding"
+            android:paddingTop="8dp"
+            android:clipToPadding="false"
+            />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/new_experiment"
