@@ -203,6 +203,16 @@ public class ExperimentListFragment extends Fragment
     setProgressBarVisible(progressBarVisible);
     loadExperiments();
 
+    AppSingleton.getInstance(getContext())
+        .whenSyncBusyChanges()
+        .takeUntil(destroyed.happens())
+        .subscribe(
+            busy -> {
+              if (!busy) {
+                loadExperiments();
+              }
+            });
+
     CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
     CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
 
