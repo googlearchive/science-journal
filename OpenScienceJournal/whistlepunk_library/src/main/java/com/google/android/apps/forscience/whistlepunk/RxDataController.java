@@ -37,7 +37,7 @@ public class RxDataController {
   }
 
   public static Completable deleteExperiment(DataController dc, Experiment e) {
-    return MaybeConsumers.buildCompleteable(mc -> dc.updateExperiment(e, mc));
+    return MaybeConsumers.buildCompleteable(mc -> dc.deleteExperiment(e, mc));
   }
 
   public static Single<FileSyncCollection> mergeExperiment(
