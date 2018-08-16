@@ -218,6 +218,8 @@ public class ExperimentListFragment extends Fragment
               }
             });
 
+
+    swipeLayout.setRefreshing(true);
     syncNow("Sync On Resume");
   }
 
@@ -510,6 +512,7 @@ public class ExperimentListFragment extends Fragment
       confirmDeleteUnclaimedExperiments();
       return true;
     } else if (id == R.id.action_sync) {
+      swipeLayout.setRefreshing(true);
       syncNow("Sync from menu");
       return true;
     }
