@@ -23,7 +23,6 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 import "gadget_info.proto";
 
@@ -40,6 +39,8 @@ import "gadget_info.proto";
 //
 // Added in V2.
 message DeviceSpec {
+  option (proto2.nano.message_as_lite) = false;
+
   // Provider, address, hostid, etc.
   optional GadgetInfo info = 1;
 

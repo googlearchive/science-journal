@@ -23,7 +23,6 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 import "device_spec.proto";
 import "version.proto";
@@ -33,6 +32,8 @@ import "version.proto";
  * Added in V2.
  */
 message UserMetadata {
+  option (proto2.nano.message_as_lite) = false;
+
   // Experiment state that is per-user, such as whether the experiment is
   // archived.
   repeated ExperimentOverview experiments = 1;
@@ -60,6 +61,8 @@ message UserMetadata {
  * experiment.
  */
 message ExperimentOverview {
+  option (proto2.nano.message_as_lite) = false;
+
   // Our local lookup Id for this experiment.
   optional string experimentId = 1;
 

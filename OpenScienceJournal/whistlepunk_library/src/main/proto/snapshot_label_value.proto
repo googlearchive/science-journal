@@ -23,7 +23,6 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 import "sensor_spec.proto";
 
@@ -32,7 +31,11 @@ import "sensor_spec.proto";
  * set of snapshotted values from one or more sensors. Added in V2.
  */
 message SnapshotLabelValue {
+  option (proto2.nano.message_as_lite) = false;
+
   message SensorSnapshot {
+    option (proto2.nano.message_as_lite) = false;
+
     // The sensor that recorded the value
     optional SensorSpec sensor = 1;
 

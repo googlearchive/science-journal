@@ -23,7 +23,6 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 import "sensor_spec.proto";
 import "sensor_trigger_information.proto";
@@ -33,6 +32,8 @@ import "sensor_trigger_information.proto";
  * sensor trigger label's data. Added in V2.
  */
 message SensorTriggerLabelValue {
+  option (proto2.nano.message_as_lite) = false;
+
   // The sensor that recorded the trigger.
   optional SensorSpec sensor = 1;
 

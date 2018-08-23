@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciSensorTriggerInformation";
@@ -28,11 +27,15 @@ option optimize_for = LITE_RUNTIME;
 // TriggerInformation contains metadata users can set and edit on a particular
 // trigger.
 message TriggerInformation {
+  option (proto2.nano.message_as_lite) = false;
+
   // The value at which this trigger fires.
   optional double valueToTrigger = 3;
 
   // What data pattern causes the trigger to fire?
   enum TriggerWhen {
+    option (proto2.nano.enum_as_lite) = false;
+
     TRIGGER_WHEN_AT = 0;
     TRIGGER_WHEN_RISES_ABOVE = 1;
     TRIGGER_WHEN_DROPS_BELOW = 2;
@@ -43,6 +46,8 @@ message TriggerInformation {
 
   // What type of action should be taken when the trigger fires?
   enum TriggerActionType {
+    option (proto2.nano.enum_as_lite) = false;
+
     TRIGGER_ACTION_START_RECORDING = 0;
     TRIGGER_ACTION_STOP_RECORDING = 1;
     TRIGGER_ACTION_NOTE = 2;
@@ -53,6 +58,8 @@ message TriggerInformation {
   // The type of alert to use when the trigger fires, if this is an
   // TRIGGER_ACTION_ALERT type.
   enum TriggerAlertType {
+    option (proto2.nano.enum_as_lite) = false;
+
     TRIGGER_ALERT_VISUAL = 1;
     TRIGGER_ALERT_AUDIO = 2;
     TRIGGER_ALERT_PHYSICAL = 3;

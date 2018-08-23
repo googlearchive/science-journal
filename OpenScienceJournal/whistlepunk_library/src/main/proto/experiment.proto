@@ -25,7 +25,6 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 import "label.proto";
 import "trial.proto";
@@ -39,6 +38,8 @@ import "version.proto";
  * Added in V2.
  */
 message Experiment {
+  option (proto2.nano.message_as_lite) = false;
+
   // The timestamp that this experiment was created.
   optional int64 creationTimeMs = 1;
 
@@ -75,6 +76,8 @@ message Experiment {
 
   // Version 1.1: Added
   message SensorEntry {
+    option (proto2.nano.message_as_lite) = false;
+
     // The sensor ID associated with this within this experiment.
     // This has no global uniqueness or parseable meaning outside this
     // experiment
@@ -117,6 +120,8 @@ message Experiment {
  * sensors.
  */
 message ExperimentSensor {
+  option (proto2.nano.message_as_lite) = false;
+
   // The sensor ID
   optional string sensorId = 1;
 
@@ -130,7 +135,11 @@ message ExperimentSensor {
  * for resoving conflicts between client and server.
  */
 message Change {
+  option (proto2.nano.message_as_lite) = false;
+
   enum ChangeType {
+    option (proto2.nano.enum_as_lite) = false;
+
     // Default. Do not use.
     UNKNOWN = 0;
 
@@ -165,7 +174,11 @@ message Change {
  * An indication of what element was changed by this change.
  */
 message ChangedElement {
+  option (proto2.nano.message_as_lite) = false;
+
   enum ElementType {
+    option (proto2.nano.enum_as_lite) = false;
+
     // Default. Do not use.
     UNKNOWN = 0;
 

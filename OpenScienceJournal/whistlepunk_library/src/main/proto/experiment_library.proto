@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciExperimentLibrary";
@@ -29,6 +28,8 @@ option optimize_for = LITE_RUNTIME;
 // Next Tag: 3
 // LINT: LEGACY_NAMES
 message ExperimentLibrary {
+  option (proto2.nano.message_as_lite) = false;
+
   repeated SyncExperiment syncExperiment = 1;
   // The folder ID of the "Science Journal" folder.
   optional string folderId = 2;
@@ -37,6 +38,8 @@ message ExperimentLibrary {
 // A single experiment to be synced to Drive.
 // Next Tag: 7
 message SyncExperiment {
+  option (proto2.nano.message_as_lite) = false;
+
   // The Drive fileId.
   optional string fileId = 1;
 

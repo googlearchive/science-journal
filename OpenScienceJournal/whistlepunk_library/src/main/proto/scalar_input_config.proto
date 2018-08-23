@@ -16,7 +16,6 @@
 
 syntax = "proto2";
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
@@ -24,6 +23,8 @@ option java_outer_classname = "GoosciScalarInput";
 option optimize_for = LITE_RUNTIME;
 
 message ScalarInputConfig {
+  option (proto2.nano.message_as_lite) = false;
+
   // The package name of the service providing the input sensor.
   optional string service_id = 1;
 

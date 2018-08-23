@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciTextLabelValue";
@@ -30,6 +29,8 @@ option optimize_for = LITE_RUNTIME;
  * set of snapshotted values from one or more sensors. Added in V2.
  */
 message TextLabelValue {
+  option (proto2.nano.message_as_lite) = false;
+
   // The user's text.
   optional string text = 1;
 };

@@ -23,11 +23,12 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 import "icon_path.proto";
 
 message BasicSensorAppearance {
+  option (proto2.nano.message_as_lite) = false;
+
   // An experiment may be recorded in one locale and displayed in another
   // locale. We will not attempt to store all possible translations of a
   // sensor’s name just in case it is displayed in a different locale. However,

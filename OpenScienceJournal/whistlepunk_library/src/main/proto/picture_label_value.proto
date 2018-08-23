@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciPictureLabelValue";
@@ -30,6 +29,8 @@ option optimize_for = LITE_RUNTIME;
  * data about a picture. Added in V2.
  */
 message PictureLabelValue {
+  option (proto2.nano.message_as_lite) = false;
+
   // The path to the picture file. This is relative to the experiments folder,
   // for example: if the filePath is "assets/picture.jpg", and the experiment is
   // stored in folder "experiment_17", this means the picture can be loaded from

@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciIcon";
@@ -27,7 +26,11 @@ option optimize_for = LITE_RUNTIME;
 
 // the path to an image that is used to represent a sensor
 message IconPath {
+  option (proto2.nano.message_as_lite) = false;
+
   enum PathType {
+    option (proto2.nano.enum_as_lite) = false;
+
     // The path string is the sensor id used by the Android implementation for
     // the built-in sensor.  Internal code should look up the appropriate icon
     // and display it.

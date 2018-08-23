@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciSensor";
@@ -28,14 +27,20 @@ option optimize_for = LITE_RUNTIME;
 // Common messages which can go Phone -> Device or Device -> Phone.
 
 message Empty {
+  option (proto2.nano.message_as_lite) = false;
+
 }  // TODO(dek): replace with an import of empty.proto
 
 message Version {
+  option (proto2.nano.message_as_lite) = false;
+
   // See
   // https://docs.google.com/document/d/10SgMM-_myVyfZQZ_afLipPv_x4aq4gQG2FTrY3oktXM/edit#
   // for version policy and implementation details. Encode new versions using
   // https://goosci.googlesource.com/android/+/master/proto/version_codec.py
   enum VersionEnum {
+    option (proto2.nano.enum_as_lite) = false;
+
     option allow_alias = true;
     V_1_0_0 = 0x800;
 
@@ -46,17 +51,23 @@ message Version {
 // Analog pin number refers to the numeric value in A0, A1, A2... use
 // this to request values from an analog pin on the Device.
 message AnalogPin {
+  option (proto2.nano.message_as_lite) = false;
+
   required int32 pin = 1;
 };
 
 // Digital pin number refers to the numeric value in D2, D3... use
 // this to request values from a digital pin on the Device.
 message DigitalPin {
+  option (proto2.nano.message_as_lite) = false;
+
   required int32 pin = 1;
 };
 
 // Data type of a scalar
 enum DataType {
+  option (proto2.nano.enum_as_lite) = false;
+
   ANALOG = 1;
   DIGITAL = 2;
   FLOAT = 3;
@@ -68,11 +79,15 @@ enum DataType {
 // such as a Gooball orientation sensor that returns vectors of
 // floats.
 message VirtualPin {
+  option (proto2.nano.message_as_lite) = false;
+
   required int32 pin = 1;
 };
 
 // Pin of a specific type.
 message Pin {
+  option (proto2.nano.message_as_lite) = false;
+
   oneof pin {
     AnalogPin analog_pin = 10;
     DigitalPin digital_pin = 11;
@@ -86,6 +101,8 @@ message Pin {
 // request.  If count is greater than 1, then the Device should return values
 // every frequency milliseconds until the count is exceeded.
 message Interval {
+  option (proto2.nano.message_as_lite) = false;
+
   required int32 count = 1;
   optional int32 frequency = 2;
 };
@@ -95,6 +112,8 @@ message Interval {
 // used to synchronize the (inaccurate) clock on the device to the the
 // (accurate) clock on the phone.
 message SensorDataRequest {
+  option (proto2.nano.message_as_lite) = false;
+
   required uint32 timestamp_key = 1;
   required Interval interval = 2;
   repeated Pin pin = 3;
@@ -105,6 +124,8 @@ message SensorDataRequest {
 // AnalogValue contains a stream of single-dimensional integer values
 // collected from an analog pin on the Device.
 message AnalogValue {
+  option (proto2.nano.message_as_lite) = false;
+
   required uint32 value = 1;
 };
 // DigitalValue contains a stream of single-dimensional boolean values
@@ -112,25 +133,35 @@ message AnalogValue {
 // represent DigitalValues, although packed bytes would be a more
 // efficient encoding.
 message DigitalValue {
+  option (proto2.nano.message_as_lite) = false;
+
   required bool value = 1;
 };
 // FloatValue contains a stream of single-dimensional floating point values
 // synthesized by the Firmware from data collected on the Device.
 message FloatValue {
+  option (proto2.nano.message_as_lite) = false;
+
   required float value = 1;
 };
 // IntValue contains a stream of single-dimensional integer values
 // synthesized by the Firmware from data collected on the Device.
 message IntValue {
+  option (proto2.nano.message_as_lite) = false;
+
   required int32 value = 1;
 };
 // StringValue contains a stream of single-dimensional string values
 // synthesized by the Firmware from data collected on the Device.
 message StringValue {
+  option (proto2.nano.message_as_lite) = false;
+
   required string value = 1;
 };
 
 message Data {
+  option (proto2.nano.message_as_lite) = false;
+
   required Pin pin = 1;
   oneof value {
     AnalogValue analog_value = 10;
@@ -153,6 +184,8 @@ message Error {
 };
 
 message SensorData {
+  option (proto2.nano.message_as_lite) = false;
+
   required uint32 timestamp_key = 1;
   oneof result {
     Error error = 10;

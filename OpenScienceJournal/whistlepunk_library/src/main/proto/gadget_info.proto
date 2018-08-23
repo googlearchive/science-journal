@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciGadgetInfo";
@@ -29,7 +28,11 @@ option optimize_for = LITE_RUNTIME;
 // a data stream) that has been seen on this platform.  Please see usage in
 // context in sensor_spec.proto and device_spec.proto Added in V2
 message GadgetInfo {
+  option (proto2.nano.message_as_lite) = false;
+
   enum Platform {
+    option (proto2.nano.enum_as_lite) = false;
+
     ANDROID = 0;
     IOS = 1;
   }

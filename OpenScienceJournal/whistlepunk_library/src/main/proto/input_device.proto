@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "InputDevice";
@@ -26,6 +25,8 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 message InputDeviceConfig {
+  option (proto2.nano.message_as_lite) = false;
+
   // id of the provider that found this device (see
   // SensorProvider#getProviderId)
   optional string provider_id = 1;

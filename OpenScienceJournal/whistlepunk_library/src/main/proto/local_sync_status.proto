@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 import "third_party/android/nanoproto/nano_descriptor.proto";
-option (proto2.nano.file_as_lite) = false;
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciLocalSyncStatus";
@@ -27,11 +26,15 @@ option optimize_for = LITE_RUNTIME;
 
 // The sync status of every locally known experiment.
 message LocalSyncStatus {
+  option (proto2.nano.message_as_lite) = false;
+
   repeated ExperimentStatus experimentStatus = 1;
 }
 
 // The sync status of a single experiment.
 message ExperimentStatus {
+  option (proto2.nano.message_as_lite) = false;
+
   // The Experiment ID.
   optional string experimentId = 1;
   // Whether or not the experiment has any local changes.
