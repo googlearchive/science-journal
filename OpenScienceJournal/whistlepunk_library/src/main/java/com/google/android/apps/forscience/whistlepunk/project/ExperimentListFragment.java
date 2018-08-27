@@ -205,7 +205,9 @@ public class ExperimentListFragment extends Fragment
   public void onResume() {
     super.onResume();
     setProgressBarVisible(progressBarVisible);
-    loadExperiments();
+    if (claimExperimentsMode) {
+      loadExperiments();
+    }
 
     AppSingleton.getInstance(getContext())
         .whenSyncBusyChanges()
