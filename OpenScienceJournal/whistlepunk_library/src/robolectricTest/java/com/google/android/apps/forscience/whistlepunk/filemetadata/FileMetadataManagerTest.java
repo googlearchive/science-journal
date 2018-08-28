@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -120,7 +119,8 @@ public class FileMetadataManagerTest {
     assertEquals(3, fmm.getExperimentOverviews(false).size());
 
     third.setArchived(getContext(), getAppAccount(), true);
-    assertFalse(elm.isArchived(third.getExperimentId()));
+    elm.setArchived(third.getExperimentId(), true);
+    assertTrue(elm.isArchived(third.getExperimentId()));
     fmm.updateExperiment(third);
     assertEquals(second.getExperimentId(), fmm.getLastUsedUnarchivedExperiment().getExperimentId());
     assertEquals(2, fmm.getExperimentOverviews(false).size());

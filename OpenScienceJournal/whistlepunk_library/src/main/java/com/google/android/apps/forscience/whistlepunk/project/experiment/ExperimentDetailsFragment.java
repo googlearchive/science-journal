@@ -75,6 +75,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
@@ -459,6 +460,10 @@ public class ExperimentDetailsFragment extends Fragment
     return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
+  private ExperimentLibraryManager getExperimentLibraryManager() {
+    return AppSingleton.getInstance(getActivity()).getExperimentLibraryManager(appAccount);
+  }
+
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
@@ -672,6 +677,7 @@ public class ExperimentDetailsFragment extends Fragment
   private void setExperimentArchived(final boolean archived) {
     final Context context = getContext();
     experiment.setArchived(context, appAccount, archived);
+    getExperimentLibraryManager().setArchived(experimentId, archived);
     getDataController()
         .updateExperiment(
             experimentId,

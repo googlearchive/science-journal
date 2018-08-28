@@ -150,9 +150,10 @@ public class ExperimentLibraryManager {
       // passed-in experiment and the local experiment will be false, and the serverArchived will
       // be true.
       // If only one of local and passed-in unarchived, serverArchived will be true, and one of the
-      //experiments will be false, and we want to keep whichever one changed.
-      if (experiment.archived != serverArchived) {
-        toMerge.archived = experiment.archived;
+      // experiments will be false, and we want to keep whichever one changed, and which is
+      // is different from server archived.
+      if (experiment.archived != toMerge.archived) {
+        toMerge.archived = !serverArchived;
       }
     }
   }

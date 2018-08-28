@@ -134,6 +134,7 @@ public class ExperimentLibraryManagerTest {
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id2";
+    experiment.archived = true;
 
     library.syncExperiment = new GoosciExperimentLibrary.SyncExperiment[] {experiment};
     library.folderId = "bar";
@@ -143,6 +144,8 @@ public class ExperimentLibraryManagerTest {
     assertNotNull(manager.getExperiment("id"));
     assertNotNull(manager.getExperiment("id2"));
     assertEquals("bar", manager.getFolderId());
+    assertFalse(manager.isArchived("id"));
+    assertTrue(manager.isArchived("id2"));
   }
 
   @Test

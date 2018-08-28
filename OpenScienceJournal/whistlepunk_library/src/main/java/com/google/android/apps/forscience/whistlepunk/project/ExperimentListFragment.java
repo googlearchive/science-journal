@@ -70,6 +70,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
@@ -457,6 +458,10 @@ public class ExperimentListFragment extends Fragment
 
   private DataController getDataController() {
     return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
+  }
+
+  private ExperimentLibraryManager getExperimentLibraryManager() {
+    return AppSingleton.getInstance(getActivity()).getExperimentLibraryManager(appAccount);
   }
 
   public void setProgressBarVisible(boolean visible) {
@@ -921,10 +926,12 @@ public class ExperimentListFragment extends Fragment
       Context context = parentReference.get().getContext();
       overview.isArchived = archived;
       DataController dataController = parentReference.get().getDataController();
+      ExperimentLibraryManager elm = parentReference.get().getExperimentLibraryManager();
       RxDataController.getExperimentById(dataController, overview.experimentId)
           .subscribe(
               fullExperiment -> {
                 fullExperiment.setArchived(context, dataController.getAppAccount(), archived);
+                elm.setArchived(fullExperiment.getExperimentId(), archived);
                 dataController.updateExperiment(
                     overview.experimentId,
                     new LoggingConsumer<Success>(TAG, "set archived bit") {
