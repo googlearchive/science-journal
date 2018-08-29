@@ -39,6 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
@@ -225,7 +226,9 @@ public class ExportService extends Service {
 
   @Override
   public void onDestroy() {
-    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "Destroying service");
+    if (Log.isLoggable(TAG, Log.DEBUG)) {
+      Log.d(TAG, "Destroying service");
+    }
     super.onDestroy();
   }
 
@@ -520,6 +523,10 @@ public class ExportService extends Service {
     }
   }
 
+  public static boolean canShare(Context context, AppAccount appAccount) {
+    return appAccount.isSignedIn() || AgeVerifier.isOver13(AgeVerifier.getUserAge(context));
+  }
+
   public static void handleExperimentExportClick(
       Context context, AppAccount appAccount, String experimentId) {
     AppSingleton appSingleton = AppSingleton.getInstance(context);
@@ -543,14 +550,14 @@ public class ExportService extends Service {
               Uri fileUri = progress.getFileUri();
               appSingleton
                   .onNextActivity()
-                  .subscribe(activity -> launchExportChooser(activity, fileUri));
+                  .subscribe(activity -> launchExportChooser(activity, appAccount, fileUri));
             });
 
     ExportService.exportExperiment(context, appAccount, experimentId);
   }
 
-  public static void launchExportChooser(Context context, Uri fileUri) {
-    Intent shareIntent = FileMetadataManager.getShareIntent(context, fileUri);
+  public static void launchExportChooser(Context context, AppAccount appAccount, Uri fileUri) {
+    Intent shareIntent = FileMetadataManager.getShareIntent(context, appAccount, fileUri);
     AppSingleton.getInstance(context).setExportServiceBusy(false);
     context.startActivity(
         Intent.createChooser(

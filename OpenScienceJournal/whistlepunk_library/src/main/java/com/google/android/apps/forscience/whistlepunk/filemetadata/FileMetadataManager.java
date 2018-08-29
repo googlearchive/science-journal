@@ -40,7 +40,6 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
-import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -356,11 +355,11 @@ public class FileMetadataManager {
             context,
             context.getPackageName(),
             FileMetadataManager.getExperimentFile(appAccount, experimentId, "experiment.proto"));
-    return FileMetadataManager.getShareIntent(context, experimentProto) != null;
+    return FileMetadataManager.getShareIntent(context, appAccount, experimentProto) != null;
   }
 
-  public static Intent getShareIntent(Context context, Uri exportFile) {
-    if (!AgeVerifier.isOver13(AgeVerifier.getUserAge(context))) {
+  public static Intent getShareIntent(Context context, AppAccount appAccount, Uri exportFile) {
+    if (!ExportService.canShare(context, appAccount)) {
       return null;
     }
     Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -388,7 +387,7 @@ public class FileMetadataManager {
       String imageName,
       String imageCaption) {
 
-    if (!AgeVerifier.isOver13(AgeVerifier.getUserAge(context))) {
+    if (!ExportService.canShare(context, appAccount)) {
       return null;
     }
 
