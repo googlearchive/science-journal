@@ -349,7 +349,8 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   @Override
-  public void updateExperiment(final String experimentId, MaybeConsumer<Success> onSuccess) {
+  public void updateExperiment(
+      final String experimentId, long lastUpdateTime, MaybeConsumer<Success> onSuccess) {
     if (!cachedExperiments.containsKey(experimentId)) {
       onSuccess.fail(new Exception("Experiment not loaded"));
       return;
@@ -360,7 +361,42 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       return;
     }
 
-    updateExperiment(experiment, onSuccess);
+    updateExperiment(experiment, lastUpdateTime, onSuccess);
+  }
+
+  @Override
+  public void updateExperiment(final String experimentId, MaybeConsumer<Success> onSuccess) {
+    updateExperiment(experimentId, clock.getNow(), onSuccess);
+  }
+
+  @Override
+  public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+    updateExperiment(experiment, clock.getNow(), onSuccess);
+  }
+
+  @Override
+  public void updateExperiment(
+      Experiment experiment, long lastUsedTime, MaybeConsumer<Success> onSuccess) {
+    if (!cachedExperiments.containsKey(experiment.getExperimentId())) {
+      throw new IllegalArgumentException(
+          "Updating experiment not returned by DataController: " + experiment);
+    }
+
+    if (cachedExperiments.get(experiment.getExperimentId()).get() != experiment) {
+      throw new IllegalArgumentException(
+          "Updating different instance of experiment than is managed by DataController: "
+              + experiment);
+    }
+
+    // Every time we update the experiment, we can update its last used time.
+    experiment.setLastUsedTime(lastUsedTime);
+    background(
+        metaDataThread,
+        onSuccess,
+        () -> {
+          metaDataManager.updateExperiment(experiment);
+          return Success.SUCCESS;
+        });
   }
 
   @Override
@@ -414,30 +450,6 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             cachedExperiments.put(experimentId, new WeakReference<>(result));
             return sync;
           }
-        });
-  }
-
-  @Override
-  public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
-    if (!cachedExperiments.containsKey(experiment.getExperimentId())) {
-      throw new IllegalArgumentException(
-          "Updating experiment not returned by DataController: " + experiment);
-    }
-
-    if (cachedExperiments.get(experiment.getExperimentId()).get() != experiment) {
-      throw new IllegalArgumentException(
-          "Updating different instance of experiment than is managed by DataController: "
-              + experiment);
-    }
-
-    // Every time we update the experiment, we can update its last used time.
-    experiment.setLastUsedTime(clock.getNow());
-    background(
-        metaDataThread,
-        onSuccess,
-        () -> {
-          metaDataManager.updateExperiment(experiment);
-          return Success.SUCCESS;
         });
   }
 

@@ -71,9 +71,13 @@ public interface DataController {
 
   void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess);
 
+  void updateExperiment(String experimentId, long lastUpdateTime, MaybeConsumer<Success> onSuccess);
+
   void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess);
 
   void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
+
+  void updateExperiment(Experiment experiment, long lastUsedTime, MaybeConsumer<Success> onSuccess);
 
   void mergeExperiment(
       String experimentId, Experiment toMerge, MaybeConsumer<FileSyncCollection> onSuccess);

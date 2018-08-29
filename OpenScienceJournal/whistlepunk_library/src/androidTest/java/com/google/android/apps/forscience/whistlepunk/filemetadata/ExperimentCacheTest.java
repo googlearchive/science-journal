@@ -116,8 +116,12 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
 
   public void testExperimentWithChanges() {
     Experiment experiment = Experiment.newExperiment(10, "exp_localId", 0);
+    ExperimentLibraryManager elm =
+        new ExperimentLibraryManager(
+            NonSignedInAccount.getInstance(getInstrumentation().getContext()),
+            new GooSciExperimentLibrary.ExperimentLibrary());
     ExperimentCache cache =
-        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0);
+        new ExperimentCache(getInstrumentation().getContext(), getFailureFailsListener(), 0, 1000);
     cache.createNewExperiment(experiment);
     assertTrue(cache.needsWrite());
 
@@ -126,6 +130,8 @@ public class ExperimentCacheTest extends InstrumentationTestCase {
 
     experiment.setTitle("Title");
     cache.updateExperiment(experiment);
+    assertEquals(elm.getModified(experiment.getExperimentId()), experiment.getLastUsedTime());
+    assertEquals(elm.getOpened(experiment.getExperimentId()), experiment.getLastUsedTime());
     assertTrue(cache.needsWrite());
     cache.writeActiveExperimentFile();
 

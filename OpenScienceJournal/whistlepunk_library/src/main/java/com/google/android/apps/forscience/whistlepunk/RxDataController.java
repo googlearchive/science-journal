@@ -36,6 +36,11 @@ public class RxDataController {
     return MaybeConsumers.buildCompleteable(mc -> dc.updateExperiment(e.getExperimentId(), mc));
   }
 
+  public static Completable updateExperiment(DataController dc, Experiment e, long lastUsedTime) {
+    return MaybeConsumers.buildCompleteable(
+        mc -> dc.updateExperiment(e.getExperimentId(), lastUsedTime, mc));
+  }
+
   public static Completable deleteExperiment(DataController dc, Experiment e) {
     return MaybeConsumers.buildCompleteable(mc -> dc.deleteExperiment(e, mc));
   }

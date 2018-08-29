@@ -96,6 +96,21 @@ class ExperimentCache {
   @VisibleForTesting
   ExperimentCache(
       Context context, AppAccount appAccount, FailureListener failureListener, long writeDelayMs) {
+    this(
+        context,
+        appAccount,
+        failureListener,
+        writeDelayMs,
+        AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount));
+  }
+
+  @VisibleForTesting
+  ExperimentCache(
+      Context context,
+      AppAccount appAccount,
+      FailureListener failureListener,
+      long writeDelayMs,
+      ExperimentLibraryManager elm) {
     this.context = context;
     this.appAccount = appAccount;
     this.failureListener = failureListener;
@@ -111,8 +126,7 @@ class ExperimentCache {
     this.writeDelayMs = writeDelayMs;
 
     localSyncManager = AppSingleton.getInstance(context).getLocalSyncManager(appAccount);
-    experimentLibraryManager =
-        AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount);
+    experimentLibraryManager = elm;
   }
 
   @VisibleForTesting
@@ -138,8 +152,9 @@ class ExperimentCache {
     if (isDifferentFromActive(experiment.getExperimentOverview())) {
       immediateWriteIfActiveChanging(experiment.getExperimentOverview());
     }
-    experimentLibraryManager.setOpened(experiment.getExperimentId());
-    experimentLibraryManager.setModified(experiment.getExperimentId());
+    experimentLibraryManager.setOpened(experiment.getExperimentId(), experiment.getLastUsedTime());
+    experimentLibraryManager.setModified(
+        experiment.getExperimentId(), experiment.getLastUsedTime());
     localSyncManager.setDirty(experiment.getExperimentId(), true);
     activeExperiment = experiment;
     startWriteTimer();
