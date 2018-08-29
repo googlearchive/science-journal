@@ -38,7 +38,6 @@ public class DevOptionsFragment extends PreferenceFragment {
   private static final String KEY_STRICT_MODE = "strict_mode";
   public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
   public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
-  public static final String KEY_SKETCH_PANE = "enable_sketch_pane";
   private static final String KEY_PERF_DEBUG_SCREEN = "show_perf_tracker_debug";
   public static final String KEY_SMOOTH_SCROLL = "enable_smooth_scrolling_to_bottom";
   private static final String KEY_AGE_STATUS = "age_status";
@@ -132,10 +131,6 @@ public class DevOptionsFragment extends PreferenceFragment {
 
   public static boolean isAmbientTemperatureSensorEnabled(Context context) {
     return getBoolean(KEY_AMBIENT_TEMPERATURE_SENSOR, false, context);
-  }
-
-  public static boolean isSketchPaneEnabled(Context context) {
-    return getBoolean(KEY_SKETCH_PANE, false, context);
   }
 
   public static boolean isSmoothScrollingToBottomEnabled(Context context) {
