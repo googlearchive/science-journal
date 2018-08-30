@@ -29,7 +29,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperi
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
@@ -1000,7 +999,7 @@ public class Experiment extends LabelListHolder {
     if (external.getChangedElementType() == ElementType.NOTE) {
       handleNoteConflict(externalExperiment, external, filesToSync);
     } else if (external.getChangedElementType() == ElementType.EXPERIMENT) {
-      handleExperimentConflict(appAccount, externalExperiment, filesToSync);
+      handleExperimentConflict(appAccount, context, externalExperiment, filesToSync);
     } else if (external.getChangedElementType() == ElementType.TRIAL) {
       handleTrialConflict(externalExperiment, context, external, filesToSync);
     }
@@ -1023,8 +1022,12 @@ public class Experiment extends LabelListHolder {
         if (localTrial != null) {
           // Both local and external have been edited. This is a title change.
           if (!localTrial.getTitle(context).equals(externalTrial.getTitle(context))) {
-            localTrial.setTitle(
-                localTrial.getTitle(context) + " " + externalTrial.getTitle(context));
+            localTrial.setTitle(context
+              .getResources()
+              .getString(
+                  R.string.experiment_title_concatenator,
+                  localTrial.getTitle(context),
+                  externalTrial.getTitle(context)));
             updateTrial(localTrial);
           }
         }
@@ -1033,23 +1036,23 @@ public class Experiment extends LabelListHolder {
   }
 
   private void handleExperimentConflict(
-      AppAccount appAccount, Experiment externalExperiment, FileSyncCollection filesToSync) {
+      AppAccount appAccount,
+      Context context,
+      Experiment externalExperiment,
+      FileSyncCollection filesToSync) {
     // If the experiment is edited in both experiments, we will take the external imagepath, and
     // combine the titles (if the titles are different).
     // We won't get experiment delete changes, because those are reflected in the experimentlibrary,
     // and we won't get experiment add conflicts, because the IDs are UUIDs and won't conflict.
     if (!getTitle().equals(externalExperiment.getTitle())
         && !getTitle().equals(getExperimentId())) {
-      GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
-      labelValue.text = getTitle();
-      Label label =
-          Label.newLabelWithValue(
-              externalExperiment.getLastUsedTime(),
-              GoosciLabel.Label.ValueType.TEXT,
-              labelValue,
-              null);
-      addLabel(this, label);
-      setTitleWithoutRecordingChange(externalExperiment.getTitle());
+      setTitleWithoutRecordingChange(
+          context
+              .getResources()
+              .getString(
+                  R.string.experiment_title_concatenator,
+                  getTitle(),
+                  externalExperiment.getTitle()));
     } else if (!getTitle().equals(externalExperiment.getTitle())) {
       setTitleWithoutRecordingChange(externalExperiment.getTitle());
     }

@@ -1691,6 +1691,9 @@ Permissions notice:
     <!-- message when Google Drive cannot be reached due to potential network issue. [CHAR_LIMIT=100] -->
     <string name="drive_sync_cannot_reach_google_drive">Can\'t reach Google Drive. Check your connection.</string>
 
+    <!-- String format used to concatenate two titles that have been edited in conflict. [CHAR_LIMIT=5] -->
+    <string name="experiment_title_concatenator"><xliff:g id="first_title">%1$s</xliff:g> / <xliff:g id="second_title">%2$s</xliff:g></string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 </resources>

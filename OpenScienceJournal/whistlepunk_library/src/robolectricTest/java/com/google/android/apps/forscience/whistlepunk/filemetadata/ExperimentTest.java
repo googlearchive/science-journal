@@ -453,12 +453,10 @@ public class ExperimentTest {
 
     experimentClient.setTitle("Title3");
 
-    assertEquals(0, experimentServer.getLabels().size());
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
 
-    assertEquals("Title3", experimentServer.getTitle());
-    assertEquals(1, experimentServer.getLabels().size());
-    assertEquals(4, experimentServer.getChanges().size());
+    assertEquals("Title2 / Title3", experimentServer.getTitle());
+    assertEquals(3, experimentServer.getChanges().size());
   }
 
   @Test
