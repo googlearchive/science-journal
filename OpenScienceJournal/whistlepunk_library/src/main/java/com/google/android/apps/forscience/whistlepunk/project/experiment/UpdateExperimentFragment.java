@@ -59,6 +59,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 /** Fragment for saving/updating experiment details (title, description...etc). */
 public class UpdateExperimentFragment extends Fragment {
@@ -211,7 +212,10 @@ public class UpdateExperimentFragment extends Fragment {
                         public void onPermissionGranted() {
                           pictureLabelPath =
                               PictureUtils.capturePictureLabel(
-                                  getActivity(), appAccount, experimentId, experimentId);
+                                  getActivity(),
+                                  appAccount,
+                                  experimentId,
+                                  UUID.randomUUID().toString());
                         }
 
                         @Override
@@ -256,7 +260,8 @@ public class UpdateExperimentFragment extends Fragment {
 
         // Use the experiment ID to name the project image.
         imageFile =
-            PictureUtils.createImageFile(getActivity(), appAccount, experimentId, experimentId);
+            PictureUtils.createImageFile(
+                getActivity(), appAccount, experimentId, UUID.randomUUID().toString());
         copyUriToFile(getActivity(), data.getData(), imageFile);
         success = true;
       } catch (IOException e) {
