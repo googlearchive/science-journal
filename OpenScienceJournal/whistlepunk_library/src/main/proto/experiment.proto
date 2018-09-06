@@ -190,11 +190,15 @@ message ChangedElement {
 
     // The whole experiment. Used to indicate the Title.
     EXPERIMENT = 3;
+
+    // A caption. Id should refer to the parent element.
+    CAPTION = 4;
   }
 
   // The type of element changed.
   optional ElementType type = 1;
 
-  // The ExperimentID, LabelID or TrialID UUID of the edited element.
+  // The ExperimentID, LabelID or TrialID UUID of the edited element, or in the
+  // case of caption, the ID of the parent.
   optional string id = 2;
 }
