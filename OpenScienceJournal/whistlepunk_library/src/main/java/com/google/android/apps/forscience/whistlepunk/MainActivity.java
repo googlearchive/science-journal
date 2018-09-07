@@ -110,8 +110,8 @@ public class MainActivity extends ActivityWithNavigationView {
     navigationView = (NavigationView) findViewById(R.id.navigation);
     navigationView.setNavigationItemSelectedListener(this);
 
-    // Only show dev testing options for (1) user-debug devices (2) debug APK builds
-    if (DevOptionsFragment.shouldHideTestingOptions(this)) {
+    // Only show dev testing options when requested.
+    if (!DevOptionsFragment.shouldShowTestingOptions()) {
       navigationView.getMenu().removeItem(R.id.dev_testing_options);
     }
 

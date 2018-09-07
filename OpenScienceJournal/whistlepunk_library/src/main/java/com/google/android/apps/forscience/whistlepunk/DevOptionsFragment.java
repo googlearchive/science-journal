@@ -42,15 +42,18 @@ public class DevOptionsFragment extends PreferenceFragment {
   public static final String KEY_SMOOTH_SCROLL = "enable_smooth_scrolling_to_bottom";
   private static final String KEY_AGE_STATUS = "age_status";
 
+  private static boolean showTestingOptions = false;
+
   public static DevOptionsFragment newInstance() {
     return new DevOptionsFragment();
   }
 
-  static boolean shouldHideTestingOptions(Context context) {
-    if (!isDebugVersion()) {
-      return true;
-    }
-    return Build.TYPE.equals("user") && !BuildConfig.DEBUG;
+  static boolean shouldShowTestingOptions() {
+    return showTestingOptions;
+  }
+
+  public static void setShowTestingOptions(boolean show) {
+    showTestingOptions = show;
   }
 
   @Override
