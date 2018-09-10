@@ -87,7 +87,7 @@ public class FileMetadataManagerTest {
             GoosciLabel.Label.ValueType.TEXT,
             new GoosciTextLabelValue.TextLabelValue(),
             null));
-    fmm.updateExperiment(experiment);
+    fmm.updateExperiment(experiment, true);
 
     Experiment saved = fmm.getLastUsedUnarchivedExperiment();
     assertEquals("Title", saved.getTitle());
@@ -121,7 +121,7 @@ public class FileMetadataManagerTest {
     third.setArchived(getContext(), getAppAccount(), true);
     elm.setArchived(third.getExperimentId(), true);
     assertTrue(elm.isArchived(third.getExperimentId()));
-    fmm.updateExperiment(third);
+    fmm.updateExperiment(third, true);
     assertEquals(second.getExperimentId(), fmm.getLastUsedUnarchivedExperiment().getExperimentId());
     assertEquals(2, fmm.getExperimentOverviews(false).size());
     assertTrue(elm.isArchived(third.getExperimentId()));

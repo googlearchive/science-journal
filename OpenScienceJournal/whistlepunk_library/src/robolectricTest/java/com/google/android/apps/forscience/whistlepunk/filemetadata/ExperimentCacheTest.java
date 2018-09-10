@@ -159,9 +159,9 @@ public class ExperimentCacheTest {
     assertFalse(cache.needsWrite());
 
     experiment.setTitle("Title");
-    cache.updateExperiment(experiment);
+    cache.updateExperiment(experiment, true);
+    assertTrue(lsm.getDirty(experiment.getExperimentId()));
     assertEquals(elm.getModified(experiment.getExperimentId()), experiment.getLastUsedTime());
-    assertEquals(elm.getOpened(experiment.getExperimentId()), experiment.getLastUsedTime());
     assertTrue(cache.needsWrite());
     cache.writeActiveExperimentFile();
 
@@ -182,7 +182,7 @@ public class ExperimentCacheTest {
     cache.createNewExperiment(experiment);
     assertEquals(10, cache.getActiveExperimentForTests().getCreationTimeMs());
     experiment.setTitle("Title");
-    cache.updateExperiment(experiment);
+    cache.updateExperiment(experiment, false);
 
     Experiment second = Experiment.newExperiment(20, "exp_secondId", 0);
     elm.addExperiment(second.getExperimentId());
@@ -346,7 +346,8 @@ public class ExperimentCacheTest {
     Experiment experiment = Experiment.fromExperiment(proto, overview);
     elm.addExperiment(experiment.getExperimentId());
     lsm.addExperiment(experiment.getExperimentId());
-    cache.updateExperiment(experiment); // Set this one to active so we can try to write it.
+    cache.updateExperiment(experiment, false); // Set this one to active so we can try to write it.
+    assertFalse(lsm.getDirty(experiment.getExperimentId()));
     cache.writeActiveExperimentFile();
     assertEquals(1, mFailureCount);
   }

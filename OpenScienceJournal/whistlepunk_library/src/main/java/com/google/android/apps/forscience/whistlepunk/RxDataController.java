@@ -33,12 +33,19 @@ public class RxDataController {
    *     <em>must</em> subscribe to this completeable to deal with errors and force execution.
    */
   public static Completable updateExperiment(DataController dc, Experiment e) {
-    return MaybeConsumers.buildCompleteable(mc -> dc.updateExperiment(e.getExperimentId(), mc));
+    return MaybeConsumers.buildCompleteable(
+        mc -> dc.updateExperiment(e.getExperimentId(), false, mc));
   }
 
   public static Completable updateExperiment(DataController dc, Experiment e, long lastUsedTime) {
     return MaybeConsumers.buildCompleteable(
-        mc -> dc.updateExperiment(e.getExperimentId(), lastUsedTime, mc));
+        mc -> dc.updateExperiment(e.getExperimentId(), lastUsedTime, false, mc));
+  }
+
+  public static Completable updateExperiment(
+      DataController dc, Experiment e, long lastUsedTime, boolean shouldMarkDirty) {
+    return MaybeConsumers.buildCompleteable(
+        mc -> dc.updateExperiment(e.getExperimentId(), lastUsedTime, shouldMarkDirty, mc));
   }
 
   public static Completable deleteExperiment(DataController dc, Experiment e) {

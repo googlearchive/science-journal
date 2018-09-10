@@ -85,7 +85,7 @@ public class CropHelperTest {
   // because we aren't checking the "pre-crop" values, so empty stats are fine here.
   private void setEmptyStats(Experiment experiment, String trialId) {
     experiment.getTrial(trialId).setStats(new TrialStats("sensor"));
-    metadataManager.updateExperiment(experiment);
+    metadataManager.updateExperiment(experiment, true);
   }
 
   private Trial makeCommonTrial() {

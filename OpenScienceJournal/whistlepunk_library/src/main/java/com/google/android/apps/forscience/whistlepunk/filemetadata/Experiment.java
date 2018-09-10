@@ -97,7 +97,7 @@ public class Experiment extends LabelListHolder {
       int colorIndex,
       long lastUsedTime) {
     Experiment newExperiment = Experiment.newExperiment(creationTime, experimentId, colorIndex);
-    newExperiment.setLastUsedTime(elm.getOpened(experimentId));
+    newExperiment.setLastUsedTime(elm.getModified(experimentId));
     newExperiment.setArchived(context, appAccount, elm.isArchived(experimentId));
     return newExperiment;
   }

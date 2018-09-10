@@ -230,7 +230,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
       }
 
       // Now that all the labels have their assets in the right place, we can save them.
-      fileMetadataManager.updateExperiment(experiment);
+      fileMetadataManager.updateExperiment(experiment, true);
       fileMetadataManager.saveImmediately();
 
       deleteDatabaseExperiment(db, experiment, context);
@@ -645,8 +645,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   @Override
-  public void updateExperiment(Experiment experiment) {
-    getFileMetadataManager().updateExperiment(experiment);
+  public void updateExperiment(Experiment experiment, boolean setDirty) {
+    getFileMetadataManager().updateExperiment(experiment, setDirty);
   }
 
   @Override

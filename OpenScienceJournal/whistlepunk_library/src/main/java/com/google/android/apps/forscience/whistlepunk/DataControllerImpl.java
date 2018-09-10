@@ -118,7 +118,9 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                       public Success call() throws Exception {
                         metaDataManager.removeSensorFromExperiment(oldSensorId, experimentId);
                         metaDataManager.addSensorToExperiment(newSensorId, experimentId);
-                        metaDataManager.updateExperiment(experiment);
+                        // No need to mark the experiment as dirty, as sensors do not sync.
+                        // True would also be ok, but would just add an extra sync.
+                        metaDataManager.updateExperiment(experiment, false);
                         return Success.SUCCESS;
                       }
                     });
@@ -350,7 +352,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
   @Override
   public void updateExperiment(
-      final String experimentId, long lastUpdateTime, MaybeConsumer<Success> onSuccess) {
+      final String experimentId,
+      long lastUpdateTime,
+      boolean setDirty,
+      MaybeConsumer<Success> onSuccess) {
     if (!cachedExperiments.containsKey(experimentId)) {
       onSuccess.fail(new Exception("Experiment not loaded"));
       return;
@@ -361,22 +366,31 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       return;
     }
 
-    updateExperiment(experiment, lastUpdateTime, onSuccess);
+    updateExperiment(experiment, lastUpdateTime, setDirty, onSuccess);
   }
 
   @Override
   public void updateExperiment(final String experimentId, MaybeConsumer<Success> onSuccess) {
-    updateExperiment(experimentId, clock.getNow(), onSuccess);
-  }
-
-  @Override
-  public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
-    updateExperiment(experiment, clock.getNow(), onSuccess);
+    updateExperiment(experimentId, clock.getNow(), true, onSuccess);
   }
 
   @Override
   public void updateExperiment(
-      Experiment experiment, long lastUsedTime, MaybeConsumer<Success> onSuccess) {
+      final String experimentId, boolean setDirty, MaybeConsumer<Success> onSuccess) {
+    updateExperiment(experimentId, clock.getNow(), setDirty, onSuccess);
+  }
+
+  @Override
+  public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+    updateExperiment(experiment, clock.getNow(), false, onSuccess);
+  }
+
+  @Override
+  public void updateExperiment(
+      Experiment experiment,
+      long lastUsedTime,
+      boolean setDirty,
+      MaybeConsumer<Success> onSuccess) {
     if (!cachedExperiments.containsKey(experiment.getExperimentId())) {
       throw new IllegalArgumentException(
           "Updating experiment not returned by DataController: " + experiment);
@@ -394,7 +408,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
         metaDataThread,
         onSuccess,
         () -> {
-          metaDataManager.updateExperiment(experiment);
+          metaDataManager.updateExperiment(experiment, setDirty);
           return Success.SUCCESS;
         });
   }
@@ -445,7 +459,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
             if (Strings.isNullOrEmpty(result.getTitle())) {
               result.setTitle(toMerge.getTitle());
             }
-            metaDataManager.updateExperiment(result);
+            metaDataManager.updateExperiment(result, false);
             metaDataManager.saveImmediately();
             cachedExperiments.put(experimentId, new WeakReference<>(result));
             return sync;
@@ -617,7 +631,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                       @Override
                       public Success call() throws Exception {
                         metaDataManager.removeSensorFromExperiment(sensorId, experimentId);
-                        metaDataManager.updateExperiment(experiment);
+                        metaDataManager.updateExperiment(experiment, false);
                         return Success.SUCCESS;
                       }
                     });

@@ -487,11 +487,10 @@ public class FileMetadataManager {
     experimentLibraryManager.addExperiment(experiment.getExperimentId());
     experimentLibraryManager.setModified(
         experiment.getExperimentId(), experiment.getLastUsedTime());
-    experimentLibraryManager.setOpened(experiment.getExperimentId(), experiment.getLastUsedTime());
   }
 
-  public void updateExperiment(Experiment experiment) {
-    activeExperimentCache.updateExperiment(experiment);
+  public void updateExperiment(Experiment experiment, boolean setDirty) {
+    activeExperimentCache.updateExperiment(experiment, setDirty);
 
     // TODO: Only do this if strictly necessary, instead of every time?
     // Or does updateExperiment mean the last updated time should change, and we need a clock?
@@ -579,7 +578,7 @@ public class FileMetadataManager {
     if (containsExperimentImage) {
       overview.imagePath = EXPERIMENTS_DIRECTORY + "/" + experimentId + "/" + COVER_IMAGE_FILE;
     }
-    updateExperiment(Experiment.fromExperiment(proto, overview));
+    updateExperiment(Experiment.fromExperiment(proto, overview), true);
     File dataFile = new File(externalPath, "sensorData.proto");
 
     if (dataFile.exists()) {

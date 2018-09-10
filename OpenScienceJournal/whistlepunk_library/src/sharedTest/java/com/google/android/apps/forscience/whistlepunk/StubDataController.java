@@ -77,17 +77,27 @@ public class StubDataController implements DataController {
 
   @Override
   public void updateExperiment(
-      String experimentId, long lastUpdateTime, MaybeConsumer<Success> onSuccess) {}
+      String experimentId,
+      long lastUpdateTime,
+      boolean setDirty,
+      MaybeConsumer<Success> onSuccess) {}
 
   @Override
   public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {}
+
+  @Override
+  public void updateExperiment(
+      String experimentId, boolean setDirty, MaybeConsumer<Success> onSuccess) {}
 
   @Override
   public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {}
 
   @Override
   public void updateExperiment(
-      Experiment experiment, long lastUsedTime, MaybeConsumer<Success> onSuccess) {}
+      Experiment experiment,
+      long lastUsedTime,
+      boolean setDirty,
+      MaybeConsumer<Success> onSuccess) {}
 
   @Override
   public void mergeExperiment(

@@ -150,14 +150,13 @@ class ExperimentCache {
   }
 
   /** Updates the given experiment. */
-  void updateExperiment(Experiment experiment) {
+  void updateExperiment(Experiment experiment, boolean setDirty) {
     if (isDifferentFromActive(experiment.getExperimentOverview())) {
       immediateWriteIfActiveChanging(experiment.getExperimentOverview());
     }
-    experimentLibraryManager.setOpened(experiment.getExperimentId(), experiment.getLastUsedTime());
     experimentLibraryManager.setModified(
         experiment.getExperimentId(), experiment.getLastUsedTime());
-    localSyncManager.setDirty(experiment.getExperimentId(), true);
+    localSyncManager.setDirty(experiment.getExperimentId(), setDirty);
     activeExperiment = experiment;
     startWriteTimer();
   }
@@ -352,7 +351,9 @@ class ExperimentCache {
       CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
 
       try {
-        syncService.syncExperimentLibrary(context);
+        if (localSyncManager.getDirty(activeExperiment.getExperimentId())) {
+          syncService.syncExperimentLibrary(context);
+        }
       } catch (IOException ioe) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, "IOE", ioe);

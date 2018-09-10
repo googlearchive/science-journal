@@ -180,7 +180,7 @@ public class SimpleMetaDataManagerTest {
         Label.newLabelWithValue(2, GoosciLabel.Label.ValueType.PICTURE, labelValue, caption);
     experiment.addLabel(experiment, pictureLabel);
 
-    metaDataManager.updateExperiment(experiment);
+    metaDataManager.updateExperiment(experiment, true);
 
     List<Label> labels =
         metaDataManager.getExperimentById(experiment.getExperimentId()).getLabels();

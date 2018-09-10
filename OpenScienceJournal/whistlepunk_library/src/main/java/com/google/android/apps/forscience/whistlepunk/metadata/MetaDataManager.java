@@ -43,7 +43,7 @@ public interface MetaDataManager {
   void deleteExperiment(Experiment experiment);
 
   /** Updates experiment details, including the experiment's labels. */
-  void updateExperiment(Experiment experiment);
+  void updateExperiment(Experiment experiment, boolean setDirty);
 
   /** Add an existing experiment. */
   Experiment importExperimentFromZip(Uri zipUri, ContentResolver resolver) throws IOException;

@@ -85,7 +85,7 @@ public class MemoryMetadataManager implements MetaDataManager {
   }
 
   @Override
-  public void updateExperiment(Experiment experiment) {
+  public void updateExperiment(Experiment experiment, boolean setDirty) {
     layouts.put(experiment.getExperimentId(), experiment.getSensorLayouts());
   }
 
