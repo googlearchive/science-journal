@@ -101,7 +101,8 @@ class ExperimentCache {
         appAccount,
         failureListener,
         writeDelayMs,
-        AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount));
+        AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount),
+        AppSingleton.getInstance(context).getLocalSyncManager(appAccount));
   }
 
   @VisibleForTesting
@@ -110,7 +111,8 @@ class ExperimentCache {
       AppAccount appAccount,
       FailureListener failureListener,
       long writeDelayMs,
-      ExperimentLibraryManager elm) {
+      ExperimentLibraryManager elm,
+      LocalSyncManager lsm) {
     this.context = context;
     this.appAccount = appAccount;
     this.failureListener = failureListener;
@@ -125,7 +127,7 @@ class ExperimentCache {
         };
     this.writeDelayMs = writeDelayMs;
 
-    localSyncManager = AppSingleton.getInstance(context).getLocalSyncManager(appAccount);
+    localSyncManager = lsm;
     experimentLibraryManager = elm;
   }
 
@@ -337,6 +339,7 @@ class ExperimentCache {
       // If the major version is too new, or the minor version is too new, we can't save this.
       // TODO: Or should this throw onWriteFailed?
       failureListener.onNewerVersionDetected(activeExperiment.getExperimentOverview());
+      return;
     }
 
     File experimentFile = getExperimentFile(activeExperiment.getExperimentOverview());
