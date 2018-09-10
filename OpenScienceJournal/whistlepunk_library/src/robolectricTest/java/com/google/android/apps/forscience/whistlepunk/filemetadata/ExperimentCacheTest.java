@@ -180,7 +180,7 @@ public class ExperimentCacheTest {
     elm.addExperiment(experiment.getExperimentId());
     lsm.addExperiment(experiment.getExperimentId());
     cache.createNewExperiment(experiment);
-    assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 10);
+    assertEquals(10, cache.getActiveExperimentForTests().getCreationTimeMs());
     experiment.setTitle("Title");
     cache.updateExperiment(experiment);
 
@@ -188,11 +188,11 @@ public class ExperimentCacheTest {
     elm.addExperiment(second.getExperimentId());
     lsm.addExperiment(second.getExperimentId());
     cache.createNewExperiment(second);
-    assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 20);
+    assertEquals(20, cache.getActiveExperimentForTests().getCreationTimeMs());
 
     cache.getExperiment(experiment.getExperimentOverview());
-    assertEquals(cache.getActiveExperimentForTests().getCreationTimeMs(), 10);
-    assertEquals(cache.getActiveExperimentForTests().getTitle(), "Title");
+    assertEquals(10, cache.getActiveExperimentForTests().getCreationTimeMs());
+    assertEquals("Title", cache.getActiveExperimentForTests().getTitle());
   }
 
   @Test
@@ -259,8 +259,8 @@ public class ExperimentCacheTest {
     proto.fileVersion.minorVersion = 0;
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
-    assertEquals(proto.fileVersion.version, 1);
-    assertEquals(proto.fileVersion.minorVersion, 1);
+    assertEquals(1, proto.fileVersion.version);
+    assertEquals(1, proto.fileVersion.minorVersion);
   }
 
   @Test
@@ -272,10 +272,10 @@ public class ExperimentCacheTest {
     proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 2, 500);
-    assertEquals(proto.fileVersion.version, 1);
-    assertEquals(proto.fileVersion.minorVersion, 2);
-    assertEquals(proto.fileVersion.platformVersion, 500);
-    assertEquals(proto.fileVersion.platform, GoosciGadgetInfo.GadgetInfo.Platform.ANDROID);
+    assertEquals(1, proto.fileVersion.version);
+    assertEquals(2, proto.fileVersion.minorVersion);
+    assertEquals(500, proto.fileVersion.platformVersion);
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
   }
 
   @Test
@@ -287,10 +287,10 @@ public class ExperimentCacheTest {
     proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 2, 500);
-    assertEquals(proto.fileVersion.version, 1);
-    assertEquals(proto.fileVersion.minorVersion, 2);
-    assertEquals(proto.fileVersion.platformVersion, 1000);
-    assertEquals(proto.fileVersion.platform, GoosciGadgetInfo.GadgetInfo.Platform.ANDROID);
+    assertEquals(1, proto.fileVersion.version);
+    assertEquals(2, proto.fileVersion.minorVersion);
+    assertEquals(1000, proto.fileVersion.platformVersion);
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
   }
 
   @Test
@@ -302,10 +302,10 @@ public class ExperimentCacheTest {
     proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.IOS;
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 2, 500);
-    assertEquals(proto.fileVersion.version, 1);
-    assertEquals(proto.fileVersion.minorVersion, 2);
-    assertEquals(proto.fileVersion.platformVersion, 500);
-    assertEquals(proto.fileVersion.platform, GoosciGadgetInfo.GadgetInfo.Platform.ANDROID);
+    assertEquals(1, proto.fileVersion.version);
+    assertEquals(2, proto.fileVersion.minorVersion);
+    assertEquals(500, proto.fileVersion.platformVersion);
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
   }
 
   @Test
@@ -316,9 +316,9 @@ public class ExperimentCacheTest {
     proto.fileVersion.platformVersion = 0;
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
-    assertEquals(proto.fileVersion.version, 1);
-    assertEquals(proto.fileVersion.minorVersion, 1);
-    assertEquals(proto.fileVersion.platformVersion, 1);
+    assertEquals(1, proto.fileVersion.version);
+    assertEquals(1, proto.fileVersion.minorVersion);
+    assertEquals(1, proto.fileVersion.platformVersion);
   }
 
   @Test
@@ -337,8 +337,8 @@ public class ExperimentCacheTest {
         ExperimentCache.MINOR_VERSION,
         ExperimentCache.PLATFORM_VERSION);
     // Version should be unchanged -- don't upgrade minor version.
-    assertEquals(proto.fileVersion.version, ExperimentCache.VERSION);
-    assertEquals(proto.fileVersion.minorVersion, ExperimentCache.MINOR_VERSION + 1);
+    assertEquals(ExperimentCache.VERSION, proto.fileVersion.version);
+    assertEquals(ExperimentCache.MINOR_VERSION + 1, proto.fileVersion.minorVersion);
 
     // But no errors yet -- didn't try to save it.
     assertEquals(0, mFailureCount);
