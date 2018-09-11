@@ -677,6 +677,49 @@ public class ExperimentTest {
   }
 
   @Test
+  public void testMergeExperimentsTrialAddAndDeleteLocalAndEditRemotely() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Trial trial = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+    trial.setTitle("Foo");
+
+    experimentServer.addTrial(trial);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    trial.setTitle("Bar");
+    experimentClient.updateTrial(trial);
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getTrialCount());
+    assertEquals(1, experimentServer.getTrialCount());
+
+    Trial toDelete = experimentServer.getTrial(trial.getTrialId());
+    experimentServer.deleteTrialOnlyForTesting(toDelete);
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(2, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getTrialCount());
+    assertEquals(0, experimentServer.getTrialCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+
+    assertEquals(2, experimentClient.getChanges().size());
+    assertEquals(3, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getTrialCount());
+    assertEquals(0, experimentServer.getTrialCount());
+  }
+
+  @Test
   public void testMergeExperimentsTrialNoteAdd() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
@@ -978,7 +1021,7 @@ public class ExperimentTest {
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
 
     assertEquals(3, experimentServer.getChanges().size());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertEquals(0, experimentServer.getLabelCount());
   }
 
   @Test
@@ -1020,8 +1063,8 @@ public class ExperimentTest {
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
 
-    assertEquals(4, experimentServer.getChanges().size());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertEquals(3, experimentServer.getChanges().size());
+    assertEquals(0, experimentServer.getLabelCount());
   }
 
   @Test

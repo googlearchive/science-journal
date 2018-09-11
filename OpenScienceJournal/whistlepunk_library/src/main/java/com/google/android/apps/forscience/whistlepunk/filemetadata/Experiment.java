@@ -928,7 +928,9 @@ public class Experiment extends LabelListHolder {
         try {
           assetDeleter.accept(context);
         } catch (Exception e) {
-          Log.e(TAG, "Exception", e);
+          if (Log.isLoggable(TAG, Log.ERROR)) {
+            Log.e(TAG, "Asset Deletion Failed", e);
+          }
         }
       } else {
         // Nope, it's not in a local trial. It must be in the local experiment, or this label was
@@ -942,7 +944,9 @@ public class Experiment extends LabelListHolder {
           try {
             assetDeleter.accept(context);
           } catch (Exception e) {
-            Log.e(TAG, "Exception", e);
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+              Log.e(TAG, "Asset Deletion Failed", e);
+            }
           }
         }
       }
@@ -997,27 +1001,26 @@ public class Experiment extends LabelListHolder {
       Change external,
       FileSyncCollection filesToSync) {
     if (external.getChangedElementType() == ElementType.NOTE) {
-      handleNoteConflict(externalExperiment, external, filesToSync);
+      handleNoteConflict(externalExperiment, context, appAccount, external, filesToSync);
     } else if (external.getChangedElementType() == ElementType.EXPERIMENT) {
       handleExperimentConflict(appAccount, context, externalExperiment, filesToSync);
     } else if (external.getChangedElementType() == ElementType.TRIAL) {
-      handleTrialConflict(externalExperiment, context, external, filesToSync);
+      handleTrialConflict(externalExperiment, context, appAccount, external);
     }
   }
 
   private void handleTrialConflict(
       Experiment externalExperiment,
       Context context,
-      Change external,
-      FileSyncCollection filesToSync) {
+      AppAccount appAccount,
+      Change external) {
     Trial externalTrial = externalExperiment.getTrial(external.getChangedElementId());
     Trial localTrial = getTrial(external.getChangedElementId());
 
-    if (externalTrial != null) {
-      if (localTrial == null) {
-        // Don't write a change here.
-        addTrialwithoutRecordingChange(externalTrial);
-        filesToSync.addTrialUpload(externalTrial.getTrialId());
+    if (localTrial != null) {
+      if (externalTrial == null) {
+        // Delete the local trial
+        deleteTrialWithoutRecordingChange(localTrial, context, appAccount);
       } else {
         if (localTrial != null) {
           // Both local and external have been edited. This is a title change.
@@ -1069,58 +1072,81 @@ public class Experiment extends LabelListHolder {
   }
 
   private void handleNoteConflict(
-      Experiment externalExperiment, Change external, FileSyncCollection filesToSync) {
+      Experiment externalExperiment,
+      Context context,
+      AppAccount appAccount,
+      Change external,
+      FileSyncCollection filesToSync) {
     Label externalLabel = externalExperiment.getLabel(external.getChangedElementId());
-    if (externalLabel == null) {
-      // This is a delete. When there has been a local change and a remote delete, keep the local
-      // change. Alternatively, the local was also deleted, so we can keep that delete, too.
+    Label localLabel = getLabel(external.getChangedElementId());
+    if (localLabel == null) {
+      // This is a delete. When there has been a local delete and a remote change, keep the local
+      // delete. Alternatively, the remote was also deleted, so we can keep that delete, too.
     } else {
-      // This is an edit.
+      // This is a local edit.
       // Determine if it's a trial note or an experiment one.
-      String trialId = externalExperiment.getTrialIdForLabel(external.getChangedElementId());
+      String trialId = getTrialIdForLabel(external.getChangedElementId());
       if (trialId != null) {
         // It's a trial note
         Trial trial = getTrial(trialId);
         // Get the local trial.
         if (trial != null) {
           // The local trial exists. That means either a) the trial contains a different version
-          // of the label, or b) the label has been deleted. Either way, we have to create a new
-          // label and add it to the trial. This is a change that is not known to the change log
-          // so we DO have to write a change, here.
-          trial.addLabel(this, Label.copyOf(externalLabel));
-          if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-            filesToSync.addImageUpload(externalLabel.getPictureLabelValue().filePath);
-          }
-
-          Label localLabel = getLabel(external.getChangedElementId());
-          if (localLabel != null) {
-            if (localLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-              filesToSync.addImageDownload(localLabel.getPictureLabelValue().filePath);
+          // of the label, or b) the label has been deleted. If edited, we have to create a new
+          // label and add it to the trial. If deleted, we have to delete the local trial.
+          // This is a change that is not known to the change log so we DO have to write a change,
+          // here. If the trial doesn't exist, it has been deleted itself, and we can move on.
+          if (externalLabel != null) {
+            trial.addLabel(this, Label.copyOf(externalLabel));
+            if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+              filesToSync.addImageUpload(externalLabel.getPictureLabelValue().filePath);
             }
-          }
-        } else {
-          // The trial doesn't exist. It's been deleted. Let's ressurect the trial. We don't have to
-          // record the change, as the ID will be the same.
-          Trial externalTrial = externalExperiment.getTrial(trialId);
-          addTrialwithoutRecordingChange(externalTrial);
-          if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-            filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
+
+            if (localLabel != null) {
+              if (localLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+                filesToSync.addImageDownload(localLabel.getPictureLabelValue().filePath);
+              }
+            }
+          } else {
+            // The label was deleted externally
+            Consumer<Context> assetDeleter =
+                trial.deleteLabelAndReturnAssetDeleterWithoutRecordingChange(
+                    this, localLabel, appAccount);
+            try {
+              assetDeleter.accept(context);
+            } catch (Exception e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+              Log.e(TAG, "Asset Deletion Failed", e);
+            }
+            }
           }
         }
       } else {
-        // This is an experiment label. Either the experiment label has been deleted locally, or
-        // it has been edited. Either way, we have to create a new label and add it to the
-        // experiment. Once again, that ID is NOT known to the change log, so we have to add this
-        // to the log.
-        addLabel(this, Label.copyOf(externalLabel));
-        if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-          filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
-        }
+        // This is an experiment label. Either the experiment label has been deleted remotely, or
+        // it has been edited. If it was deleted, we have to delete it locally, and if it's been
+        // edited, we need to add a new label to the experiment. Once again, that ID is NOT known
+        // to the change log, so we have to add this to the log.
+        if (externalLabel != null) {
+          addLabel(this, Label.copyOf(externalLabel));
+          if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+            filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
+          }
 
-        Label localLabel = getLabel(external.getChangedElementId());
-        if (localLabel != null) {
-          if (localLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-            filesToSync.addImageUpload(localLabel.getPictureLabelValue().filePath);
+          if (localLabel != null) {
+            if (localLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+              filesToSync.addImageUpload(localLabel.getPictureLabelValue().filePath);
+            }
+          }
+        } else {
+          // The label was deleted externally.
+          Consumer<Context> assetDeleter =
+              deleteLabelAndReturnAssetDeleterWithoutRecordingChange(this, localLabel, appAccount);
+          try {
+            assetDeleter.accept(context);
+          } catch (Exception e) {
+            if (Log.isLoggable(TAG, Log.ERROR)) {
+              Log.e(TAG, "Asset Deletion Failed", e);
+            }
           }
         }
       }
