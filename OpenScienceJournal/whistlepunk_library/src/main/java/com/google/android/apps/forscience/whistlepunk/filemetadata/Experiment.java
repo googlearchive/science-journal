@@ -742,6 +742,10 @@ public class Experiment extends LabelListHolder {
     return null;
   }
 
+  public static String getChangeMapKey(Change change) {
+    return change.getChangedElementId() + change.getChangedElementType();
+  }
+
   /**
    * Merges the supplied externalExperiment into this experiment. The externalExperiment is not
    * modified by this operation, but should no longer be used, as it is outdated. However, merging
@@ -779,12 +783,12 @@ public class Experiment extends LabelListHolder {
     // we can intersect those sets to find conflicts.
     HashMap<String, Change> changedExternalElements = new HashMap<>();
     for (Change external : externalOnly) {
-      changedExternalElements.put(external.getChangedElementId(), external);
+      changedExternalElements.put(getChangeMapKey(external), external);
     }
 
     HashMap<String, Change> changedLocalElements = new HashMap<>();
     for (Change local : localOnly) {
-      changedLocalElements.put(local.getChangedElementId(), local);
+      changedLocalElements.put(getChangeMapKey(local), local);
     }
 
     // For each external changed element, see if that element was also changed locally. If it was,
@@ -793,9 +797,9 @@ public class Experiment extends LabelListHolder {
     // we only have to deal with it once, as the final state is already recorded. We have copied
     // the change record above, so future merges will be aware of the full history.
     for (Change external : changedExternalElements.values()) {
-      if (changedLocalElements.containsKey(external.getChangedElementId())) {
+      if (changedLocalElements.containsKey(getChangeMapKey(external))) {
         handleConflictMerge(externalExperiment, context, appAccount, external, filesToSync);
-        changedLocalElements.remove(external.getChangedElementId());
+        changedLocalElements.remove(getChangeMapKey(external));
       } else {
         handleNoConflictMerge(externalExperiment, context, external, appAccount, filesToSync);
       }
