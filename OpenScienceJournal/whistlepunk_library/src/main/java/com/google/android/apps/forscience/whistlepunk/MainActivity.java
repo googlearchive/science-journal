@@ -343,7 +343,7 @@ public class MainActivity extends ActivityWithNavigationView {
       adjustActivityForSelectedItem(itemId);
 
       titleToRestore = getTitleToRestore(menuItem);
-      transaction.replace(R.id.content_container, fragment, tag).commit();
+      transaction.replace(R.id.content_container, fragment, tag).commitAllowingStateLoss();
       if (menuItem.isCheckable()) {
         menuItem.setChecked(true);
       }
