@@ -527,19 +527,13 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void syncNow(String logMessage) {
-    if (appAccount.isSignedIn()) {
-      CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
-      CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
-
-      try {
-        if (Log.isLoggable(TAG, Log.INFO)) {
-          Log.i(TAG, logMessage);
-        }
-        syncService.syncExperimentLibrary(getContext());
-      } catch (IOException ioe) {
-        if (Log.isLoggable(TAG, Log.ERROR)) {
-          Log.e(TAG, "IOE", ioe);
-        }
+    CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
+    CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
+    try {
+      syncService.syncExperimentLibrary(getContext(), logMessage);
+    } catch (IOException ioe) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "IOE", ioe);
       }
     }
   }

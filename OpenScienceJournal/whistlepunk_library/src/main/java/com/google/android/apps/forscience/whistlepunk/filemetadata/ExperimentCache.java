@@ -347,18 +347,15 @@ class ExperimentCache {
             experimentFile, activeExperiment.getExperimentProto(), getUsageTracker());
     if (success) {
       activeExperimentNeedsWrite = false;
-      if (appAccount.isSignedIn()) {
-        CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(context);
-        CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
-
-        try {
-          if (localSyncManager.getDirty(activeExperiment.getExperimentId())) {
-            syncService.syncExperimentLibrary(context);
-          }
-        } catch (IOException ioe) {
-          if (Log.isLoggable(TAG, Log.ERROR)) {
-            Log.e(TAG, "IOE", ioe);
-          }
+      CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(context);
+      CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
+      try {
+        if (localSyncManager.getDirty(activeExperiment.getExperimentId())) {
+          syncService.syncExperimentLibrary(context, "Sync on Experiment write");
+        }
+      } catch (IOException ioe) {
+        if (Log.isLoggable(TAG, Log.ERROR)) {
+          Log.e(TAG, "IOE", ioe);
         }
       }
     } else {

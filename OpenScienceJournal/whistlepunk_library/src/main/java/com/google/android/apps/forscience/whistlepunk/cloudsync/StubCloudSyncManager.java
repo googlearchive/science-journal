@@ -11,9 +11,9 @@ public class StubCloudSyncManager implements CloudSyncManager {
   public StubCloudSyncManager() {}
 
   @Override
-  public void syncExperimentLibrary(Context context) throws IOException {
+  public void syncExperimentLibrary(Context context, String logMessage) throws IOException {
     if (Log.isLoggable(TAG, Log.INFO)) {
-      Log.i(TAG, "Stubbed Experiment Library Sync!");
+      Log.i(TAG, "Stubbed Experiment Library Sync! " + logMessage);
     }
   }
 
