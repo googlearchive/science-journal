@@ -216,8 +216,11 @@ public class ExperimentListFragment extends Fragment
         .subscribe(
             busy -> {
               if (!busy) {
-                loadExperiments();
-                swipeLayout.setRefreshing(false);
+                Handler uiHandler = new Handler(getContext().getMainLooper());
+                uiHandler.post(() -> {
+                  loadExperiments();
+                  swipeLayout.setRefreshing(false);
+                });
               }
             });
 
