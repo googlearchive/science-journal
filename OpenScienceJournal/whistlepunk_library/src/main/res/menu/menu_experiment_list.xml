@@ -17,6 +17,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
+    <item
+        android:id="@+id/action_network_disconnected"
+        android:icon="@drawable/ic_signal_wifi_statusbar_connected_no_internet_white_24dp"
+        android:visible="false"
+        android:enabled="false"
+        app:showAsAction="always"
+        />
     <item android:id="@+id/run_review_overflow_menu"
         android:icon="@drawable/ic_menu_moreoverflow_mtrl_alpha"
         android:title="@string/run_review_overflow_menu_content_description"

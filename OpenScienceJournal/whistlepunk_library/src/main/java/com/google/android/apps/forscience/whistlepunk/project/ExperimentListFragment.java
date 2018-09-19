@@ -17,10 +17,14 @@
 package com.google.android.apps.forscience.whistlepunk.project;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.Nullable;
@@ -111,11 +115,14 @@ public class ExperimentListFragment extends Fragment
   private boolean progressBarVisible = false;
   private final RxEvent destroyed = new RxEvent();
   private final RxEvent paused = new RxEvent();
+  private final IntentFilter networkIntentFilter = new IntentFilter();
   private AppAccount appAccount;
   private boolean requireSignedInAccount;
   private boolean claimExperimentsMode;
   private AppAccount claimingAccount;
   private SwipeRefreshLayout swipeLayout;
+  private ConnectivityBroadcastReceiver connectivityBroadcastReceiver;
+  private Menu optionsMenu = null;
 
   public static ExperimentListFragment newInstance(AppAccount appAccount, boolean usePanes) {
     return newInstance(createArguments(appAccount, usePanes));
@@ -157,7 +164,9 @@ public class ExperimentListFragment extends Fragment
     return fragment;
   }
 
-  public ExperimentListFragment() {}
+  public ExperimentListFragment() {
+    networkIntentFilter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
+  }
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -210,6 +219,9 @@ public class ExperimentListFragment extends Fragment
       loadExperiments();
     }
 
+    connectivityBroadcastReceiver = new ConnectivityBroadcastReceiver();
+    getContext().registerReceiver(connectivityBroadcastReceiver, networkIntentFilter);
+
     AppSingleton.getInstance(getContext())
         .whenSyncBusyChanges()
         .takeUntil(paused.happens())
@@ -245,6 +257,7 @@ public class ExperimentListFragment extends Fragment
 
   @Override
   public void onPause() {
+    getContext().unregisterReceiver(connectivityBroadcastReceiver);
     paused.onHappened();
     super.onPause();
   }
@@ -491,12 +504,28 @@ public class ExperimentListFragment extends Fragment
     } else {
       inflater.inflate(R.menu.menu_experiment_list, menu);
     }
+    optionsMenu = menu;
+    updateNetworkStatusIcon();
   }
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
     menu.findItem(R.id.action_include_archived).setVisible(!includeArchived);
     menu.findItem(R.id.action_exclude_archived).setVisible(includeArchived);
+    optionsMenu = menu;
+    updateNetworkStatusIcon();
+  }
+
+  private void updateNetworkStatusIcon() {
+    if (optionsMenu == null) {
+      return;
+    }
+    ConnectivityManager cm =
+        (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+    boolean shouldShowIcon =
+        cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
+    optionsMenu.findItem(R.id.action_network_disconnected).setVisible(shouldShowIcon);
+    optionsMenu.findItem(R.id.action_network_disconnected).setEnabled(shouldShowIcon);
   }
 
   @Override
@@ -525,6 +554,10 @@ public class ExperimentListFragment extends Fragment
       swipeLayout.setRefreshing(true);
       syncNow("Sync from menu");
       return true;
+    } else if (id == R.id.action_network_disconnected) {
+      Resources res = getActivity().getResources();
+      experimentListAdapter.showSnackbar(
+          res.getString(R.string.drive_sync_cannot_reach_google_drive), null);
     }
     return super.onOptionsItemSelected(item);
   }
@@ -998,7 +1031,7 @@ public class ExperimentListFragment extends Fragment
       showSnackbar(message, undoOnClickListener);
     }
 
-    private void showSnackbar(String message, @Nullable View.OnClickListener undoOnClickListener) {
+    public void showSnackbar(String message, @Nullable View.OnClickListener undoOnClickListener) {
       Snackbar bar =
           AccessibilityUtils.makeSnackbar(
               parentReference.get().getView(), message, Snackbar.LENGTH_LONG);
@@ -1157,6 +1190,14 @@ public class ExperimentListFragment extends Fragment
       } else if (viewType == ExperimentListAdapter.VIEW_TYPE_CLAIM_EXPERIMENTS) {
         claimButton = (Button) itemView.findViewById(R.id.btn_claim_experiments);
       }
+    }
+  }
+
+  private class ConnectivityBroadcastReceiver extends BroadcastReceiver {
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      updateNetworkStatusIcon();
     }
   }
 }
