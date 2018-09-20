@@ -37,7 +37,7 @@ import android.util.Log;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
@@ -379,7 +379,8 @@ public class ExportService extends Service {
     DataController dc = getDataController(appAccount).blockingGet();
     Experiment experiment = RxDataController.getExperimentById(dc, experimentId).blockingGet();
     File file =
-        FileMetadataManager.getFileForExport(getApplicationContext(), appAccount, experiment, dc)
+        FileMetadataUtil.getInstance()
+            .getFileForExport(getApplicationContext(), appAccount, experiment, dc)
             .blockingGet();
 
     updateProgress(
@@ -492,7 +493,8 @@ public class ExportService extends Service {
       return FileProvider.getUriForFile(
           getApplicationContext(),
           getPackageName(),
-          new File(FileMetadataManager.getExperimentExportDirectory(appAccount), fileName));
+          new File(
+              FileMetadataUtil.getInstance().getExperimentExportDirectory(appAccount), fileName));
     } catch (IOException ioe) {
       Log.e(TAG, "Error getting export file", ioe);
       return null;
@@ -510,7 +512,7 @@ public class ExportService extends Service {
               deleteAllFiles(storageDir);
 
               File exportExperimentDir =
-                  new File(FileMetadataManager.getExperimentExportDirectory(appAccount));
+                  new File(FileMetadataUtil.getInstance().getExperimentExportDirectory(appAccount));
               deleteAllFiles(exportExperimentDir);
             });
   }
@@ -557,7 +559,8 @@ public class ExportService extends Service {
   }
 
   public static void launchExportChooser(Context context, AppAccount appAccount, Uri fileUri) {
-    Intent shareIntent = FileMetadataManager.getShareIntent(context, appAccount, fileUri);
+    Intent shareIntent =
+        FileMetadataUtil.getInstance().getShareIntent(context, appAccount, fileUri);
     AppSingleton.getInstance(context).setExportServiceBusy(false);
     context.startActivity(
         Intent.createChooser(

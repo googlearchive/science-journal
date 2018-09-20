@@ -52,7 +52,7 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.common.io.ByteStreams;
 import io.reactivex.subjects.BehaviorSubject;
 import java.io.File;
@@ -269,7 +269,7 @@ public class UpdateExperimentFragment extends Fragment {
       }
       if (success) {
         String relativePathInExperiment =
-            FileMetadataManager.getRelativePathInExperiment(experimentId, imageFile);
+            FileMetadataUtil.getInstance().getRelativePathInExperiment(experimentId, imageFile);
         String overviewPath =
             PictureUtils.getExperimentOverviewRelativeImagePath(
                 experimentId, relativePathInExperiment);

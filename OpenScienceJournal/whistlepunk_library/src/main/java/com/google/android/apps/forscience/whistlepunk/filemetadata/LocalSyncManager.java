@@ -199,7 +199,7 @@ public class LocalSyncManager {
 
   private void writeLocalSyncStatus() {
     try {
-      FileMetadataManager.writeLocalSyncStatusFile(proto, account);
+      FileMetadataUtil.getInstance().writeLocalSyncStatusFile(proto, account);
     } catch (IOException ioe) {
       // Would like to do something else here, but not sure what else there really is to do.
       if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -214,7 +214,7 @@ public class LocalSyncManager {
   // TODO(b/111649596) Test this
   private void populateLocalSyncManager() {
     if (proto == null) {
-      proto = FileMetadataManager.readLocalSyncStatusFile(account);
+      proto = FileMetadataUtil.getInstance().readLocalSyncStatusFile(account);
     }
   }
 }

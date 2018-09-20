@@ -518,7 +518,7 @@ class ExperimentCache {
   }
 
   private File getExperimentDirectory(String localExperimentId) {
-    return FileMetadataManager.getExperimentDirectory(appAccount, localExperimentId);
+    return FileMetadataUtil.getInstance().getExperimentDirectory(appAccount, localExperimentId);
   }
 
   private File getAssetsDirectory(File experimentDirectory) {

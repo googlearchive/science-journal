@@ -76,7 +76,7 @@ public class UserMetadataManager {
       Context context, AppAccount appAccount, FailureListener failureListener) {
     this.failureListener = failureListener;
     overviewProtoFileHelper = new ProtoFileHelper<>();
-    userMetadataFile = FileMetadataManager.getUserMetadataFile(appAccount);
+    userMetadataFile = FileMetadataUtil.getInstance().getUserMetadataFile(appAccount);
     backgroundWriteThread = Executors.newSingleThreadExecutor();
     handler = new Handler();
     writeRunnable =

@@ -29,7 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncCollection;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -873,9 +873,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                                 experiment.getExperimentProto(), trialId);
                         File sensorProtoFile =
                             new File(
-                                FileMetadataManager.getExperimentDirectory(
-                                    appAccount, experiment.getExperimentId()),
-                                FileMetadataManager.getProtoFileName(trialId));
+                                FileMetadataUtil.getInstance()
+                                    .getExperimentDirectory(
+                                        appAccount, experiment.getExperimentId()),
+                                FileMetadataUtil.getInstance().getProtoFileName(trialId));
                         try (FileOutputStream sensorStream =
                             new FileOutputStream(sensorProtoFile)) {
                           byte[] sensorBytes = ProtoUtils.makeBlob(proto);

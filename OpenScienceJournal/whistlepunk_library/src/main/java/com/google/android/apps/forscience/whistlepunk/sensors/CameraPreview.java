@@ -41,7 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.PanesBottomSheetBehavior;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import io.reactivex.Maybe;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -375,7 +375,8 @@ public class CameraPreview extends SurfaceView {
               out.write(bytes);
               // Pass back the relative path for saving in the label.
               onSuccess.success(
-                  FileMetadataManager.getRelativePathInExperiment(experimentId, photoFile));
+                  FileMetadataUtil.getInstance()
+                      .getRelativePathInExperiment(experimentId, photoFile));
               startPreview();
               // If the original, uncropped photo was rotated in EXIF, we have to re-rotate it
               // by getting an ExifInterface to the new JPEG and writing the rotation

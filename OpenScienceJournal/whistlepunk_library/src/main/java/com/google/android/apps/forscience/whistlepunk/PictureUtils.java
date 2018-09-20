@@ -34,7 +34,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.signature.ObjectKey;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class PictureUtils {
       Context context, AppAccount appAccount, String experimentId, String uuid) {
     // Create an image file name using the uuid of the item it is attached to.
     String imageFileName = String.format(PICTURE_NAME_TEMPLATE, uuid);
-    File storageDir = FileMetadataManager.getAssetsDirectory(appAccount, experimentId);
+    File storageDir = FileMetadataUtil.getInstance().getAssetsDirectory(appAccount, experimentId);
     File imageFile = new File(storageDir, imageFileName);
     return imageFile;
   }
@@ -99,7 +99,7 @@ public class PictureUtils {
         }
         takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         startable.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-        return FileMetadataManager.getRelativePathInExperiment(experimentId, photoFile);
+        return FileMetadataUtil.getInstance().getRelativePathInExperiment(experimentId, photoFile);
       }
     }
     return null;
@@ -111,7 +111,9 @@ public class PictureUtils {
 
   public static void launchExternalEditor(
       Activity activity, AppAccount appAccount, String experimentId, String relativeFilePath) {
-    File file = FileMetadataManager.getExperimentFile(appAccount, experimentId, relativeFilePath);
+    File file =
+        FileMetadataUtil.getInstance()
+            .getExperimentFile(appAccount, experimentId, relativeFilePath);
     String extension = MimeTypeMap.getFileExtensionFromUrl(file.getAbsolutePath());
     String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     if (!TextUtils.isEmpty(type)) {
@@ -150,8 +152,9 @@ public class PictureUtils {
       // Nothing we can do, return
       return;
     }
-
-    File file = FileMetadataManager.getExperimentFile(appAccount, experimentId, relativeFilePath);
+    File file =
+        FileMetadataUtil.getInstance()
+            .getExperimentFile(appAccount, experimentId, relativeFilePath);
     // Use last modified time as part of the signature to force a glide cache refresh.
     GlideApp.with(context)
         .load(file.getAbsolutePath())
@@ -176,13 +179,17 @@ public class PictureUtils {
 
   public static String getExperimentImagePath(
       Context context, AppAccount appAccount, String experimentId, String relativeFilePath) {
-    File file = FileMetadataManager.getExperimentFile(appAccount, experimentId, relativeFilePath);
+    File file =
+        FileMetadataUtil.getInstance()
+            .getExperimentFile(appAccount, experimentId, relativeFilePath);
     return file.getAbsolutePath();
   }
 
   public static String getExperimentOverviewRelativeImagePath(
       String experimentId, String relativeFilePath) {
-    return FileMetadataManager.getRelativePathInFilesDir(experimentId, relativeFilePath).toString();
+    return FileMetadataUtil.getInstance()
+        .getRelativePathInFilesDir(experimentId, relativeFilePath)
+        .toString();
   }
 
   /**
@@ -192,7 +199,7 @@ public class PictureUtils {
    */
   public static String getExperimentOverviewFullImagePath(
       AppAccount appAccount, String relativeFilePath) {
-    return FileMetadataManager.getFilesDir(appAccount) + "/" + relativeFilePath;
+    return FileMetadataUtil.getInstance().getFilesDir(appAccount) + "/" + relativeFilePath;
   }
 
   public static void loadExperimentOverviewImage(

@@ -75,7 +75,7 @@ import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -448,7 +448,8 @@ public class ExperimentListFragment extends Fragment
               GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
                   new GoosciPictureLabelValue.PictureLabelValue();
               goosciPictureLabel.filePath =
-                  FileMetadataManager.getRelativePathInExperiment(e.getExperimentId(), pictureFile);
+                  FileMetadataUtil.getInstance()
+                      .getRelativePathInExperiment(e.getExperimentId(), pictureFile);
               pictureLabel.setLabelProtoData(goosciPictureLabel);
               pictureLabel.setCaption(caption);
               e.addLabel(e, pictureLabel);
@@ -871,8 +872,9 @@ public class ExperimentListFragment extends Fragment
 
       Context context = holder.menuButton.getContext();
       boolean isShareIntentValid =
-          FileMetadataManager.validateShareIntent(
-              context, parentReference.get().appAccount, overview.experimentId);
+          FileMetadataUtil.getInstance()
+              .validateShareIntent(
+                  context, parentReference.get().appAccount, overview.experimentId);
       if (parentReference.get().claimExperimentsMode) {
         holder.menuButton.setVisibility(View.GONE);
         holder.driveButton.setOnClickListener(

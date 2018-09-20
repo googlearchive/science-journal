@@ -47,7 +47,7 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableS
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
@@ -117,7 +117,7 @@ public class SimpleMetaDataManagerTest {
   @After
   public void tearDown() {
     getContext().getDatabasePath("test.main.db").delete();
-    File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getAppAccount());
+    File sharedMetadataFile = FileMetadataUtil.getInstance().getUserMetadataFile(getAppAccount());
     sharedMetadataFile.delete();
   }
 

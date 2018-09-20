@@ -112,7 +112,8 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       }
     } else {
       // The sub-files are all within the assets folder of this experiment
-      File assetsDir = FileMetadataManager.getAssetsDirectory(appAccount, parentDocumentId);
+      File assetsDir =
+          FileMetadataUtil.getInstance().getAssetsDirectory(appAccount, parentDocumentId);
       for (File file : assetsDir.listFiles()) {
         MatrixCursor.RowBuilder row = result.newRow();
         row.add(
@@ -157,7 +158,10 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
     } else {
       // It is a file
       File file =
-          new File(FileMetadataManager.getExperimentsRootDirectory(appAccount) + "/" + documentId);
+          new File(
+              FileMetadataUtil.getInstance().getExperimentsRootDirectory(appAccount)
+                  + "/"
+                  + documentId);
       addAssetToRow(row, file);
     }
     return result;
@@ -175,7 +179,10 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
     AppAccount appAccount = NonSignedInAccount.getInstance(getContext());
 
     final File file =
-        new File(FileMetadataManager.getExperimentsRootDirectory(appAccount) + "/" + documentId);
+        new File(
+            FileMetadataUtil.getInstance().getExperimentsRootDirectory(appAccount)
+                + "/"
+                + documentId);
     final boolean isWrite = (mode.indexOf('w') != -1);
     if (isWrite) {
       return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE);

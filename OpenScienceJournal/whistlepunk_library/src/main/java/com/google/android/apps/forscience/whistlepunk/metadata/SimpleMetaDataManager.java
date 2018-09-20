@@ -48,6 +48,7 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableS
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
@@ -294,7 +295,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
       File newFile =
           PictureUtils.createImageFile(context, appAccount, experimentId, label.getLabelId());
       pictureLabelValue.filePath =
-          FileMetadataManager.getRelativePathInExperiment(experimentId, newFile);
+          FileMetadataUtil.getInstance().getRelativePathInExperiment(experimentId, newFile);
       try (FileChannel input = new FileInputStream(oldFile).getChannel();
           FileChannel output = new FileOutputStream(newFile).getChannel()) {
         // Copy the file contents over to internal storage from external.
@@ -663,8 +664,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @Override
   public boolean canMoveAllExperimentsToAnotherAccount(AppAccount targetAccount) {
-    return !FileMetadataManager.getExperimentsRootDirectory(targetAccount).exists()
-        && !FileMetadataManager.getUserMetadataFile(targetAccount).exists();
+    return !FileMetadataUtil.getInstance().getExperimentsRootDirectory(targetAccount).exists()
+        && !FileMetadataUtil.getInstance().getUserMetadataFile(targetAccount).exists();
   }
 
   @Override
@@ -675,13 +676,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     // Move experiment root directory.
-    File sourceExperimentsRoot = FileMetadataManager.getExperimentsRootDirectory(appAccount);
-    File targetExperimentsRoot = FileMetadataManager.getExperimentsRootDirectory(targetAccount);
+    File sourceExperimentsRoot =
+        FileMetadataUtil.getInstance().getExperimentsRootDirectory(appAccount);
+    File targetExperimentsRoot =
+        FileMetadataUtil.getInstance().getExperimentsRootDirectory(targetAccount);
     Files.move(sourceExperimentsRoot, targetExperimentsRoot);
 
     // Move user_metadata.proto.
-    File sourceUserMetadataFile = FileMetadataManager.getUserMetadataFile(appAccount);
-    File targetUserMetadataFile = FileMetadataManager.getUserMetadataFile(targetAccount);
+    File sourceUserMetadataFile = FileMetadataUtil.getInstance().getUserMetadataFile(appAccount);
+    File targetUserMetadataFile = FileMetadataUtil.getInstance().getUserMetadataFile(targetAccount);
     Files.move(sourceUserMetadataFile, targetUserMetadataFile);
 
     // Move experiment and sensor databases.
@@ -709,9 +712,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
       throws IOException {
     // Move experiment directory.
     File sourceExperimentDirectory =
-        FileMetadataManager.getExperimentDirectory(appAccount, experiment.getExperimentId());
+        FileMetadataUtil.getInstance()
+            .getExperimentDirectory(appAccount, experiment.getExperimentId());
     File targetExperimentDirectory =
-        FileMetadataManager.getExperimentDirectory(targetAccount, experiment.getExperimentId());
+        FileMetadataUtil.getInstance()
+            .getExperimentDirectory(targetAccount, experiment.getExperimentId());
     File parent = targetExperimentDirectory.getParentFile();
     if (!parent.exists() && !parent.mkdir()) {
       if (Log.isLoggable(TAG, Log.ERROR)) {

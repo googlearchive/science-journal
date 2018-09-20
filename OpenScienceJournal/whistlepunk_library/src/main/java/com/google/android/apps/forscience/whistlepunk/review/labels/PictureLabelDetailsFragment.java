@@ -32,7 +32,7 @@ import android.widget.ImageView;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
 /** Details view controller for PictureLabel */
@@ -94,12 +94,13 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
     inflater.inflate(R.menu.menu_picture_label_details, menu);
     getContext();
     shareIntent =
-        FileMetadataManager.createPhotoShareIntent(
-            getContext(),
-            appAccount,
-            experimentId,
-            originalLabel.getPictureLabelValue().filePath,
-            originalLabel.getCaptionText());
+        FileMetadataUtil.getInstance()
+            .createPhotoShareIntent(
+                getContext(),
+                appAccount,
+                experimentId,
+                originalLabel.getPictureLabelValue().filePath,
+                originalLabel.getCaptionText());
     if (shareIntent != null) {
       menu.findItem(R.id.btn_share_photo).setVisible(true);
     }

@@ -76,7 +76,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
@@ -483,7 +483,7 @@ public class ExperimentDetailsFragment extends Fragment
     menu.findItem(R.id.action_edit_experiment).setVisible(canEdit());
 
     boolean isShareIntentValid =
-        FileMetadataManager.validateShareIntent(getContext(), appAccount, experimentId);
+        FileMetadataUtil.getInstance().validateShareIntent(getContext(), appAccount, experimentId);
 
     menu.findItem(R.id.action_export_experiment)
         .setVisible(experiment != null && isShareIntentValid);
@@ -1068,12 +1068,13 @@ public class ExperimentDetailsFragment extends Fragment
         if (parentReference.get() != null) {
           context = parentReference.get().getContext();
           shareIntent =
-              FileMetadataManager.createPhotoShareIntent(
-                  context,
-                  parentReference.get().appAccount,
-                  experiment.getExperimentId(),
-                  item.getLabel().getPictureLabelValue().filePath,
-                  item.getLabel().getCaptionText());
+              FileMetadataUtil.getInstance()
+                  .createPhotoShareIntent(
+                      context,
+                      parentReference.get().appAccount,
+                      experiment.getExperimentId(),
+                      item.getLabel().getPictureLabelValue().filePath,
+                      item.getLabel().getCaptionText());
           if (shareIntent != null) {
             popupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(true);
           }

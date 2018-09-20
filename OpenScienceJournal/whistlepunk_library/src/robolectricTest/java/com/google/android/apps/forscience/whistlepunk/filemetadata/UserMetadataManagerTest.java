@@ -37,6 +37,7 @@ import org.robolectric.RuntimeEnvironment;
 @RunWith(RobolectricTestRunner.class)
 public class UserMetadataManagerTest {
   private int failureCount = 0;
+  private FileMetadataUtil fileMetadataUtil = new FileMetadataUtil();
 
   private UserMetadataManager.FailureListener getFailureFailsListener() {
     return new UserMetadataManager.FailureListener() {
@@ -87,7 +88,7 @@ public class UserMetadataManagerTest {
   }
 
   private void cleanUp() {
-    File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getAppAccount());
+    File sharedMetadataFile = FileMetadataUtil.getInstance().getUserMetadataFile(getAppAccount());
     sharedMetadataFile.delete();
     failureCount = 0;
   }

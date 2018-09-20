@@ -317,7 +317,7 @@ public class ExperimentLibraryManager {
 
   private void writeExperimentLibrary() {
     try {
-      FileMetadataManager.writeExperimentLibraryFile(proto, account);
+      FileMetadataUtil.getInstance().writeExperimentLibraryFile(proto, account);
     } catch (IOException ioe) {
       // Would like to do something else here, but not sure what else there really is to do.
       if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -331,7 +331,7 @@ public class ExperimentLibraryManager {
   // TODO(b/111649596) Test this
   private void populateExperimentLibraryManager() {
     if (proto == null) {
-      proto = FileMetadataManager.readExperimentLibraryFile(account);
+      proto = FileMetadataUtil.getInstance().readExperimentLibraryFile(account);
     }
   }
 

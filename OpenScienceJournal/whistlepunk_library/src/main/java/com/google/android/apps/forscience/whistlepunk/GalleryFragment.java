@@ -41,7 +41,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
@@ -217,7 +217,8 @@ public class GalleryFragment extends PanesToolFragment
                       UpdateExperimentFragment.copyUriToFile(
                           addButton.getContext(), Uri.parse(selectedImage), imageFile);
                       labelValue.filePath =
-                          FileMetadataManager.getRelativePathInExperiment(experimentId, imageFile);
+                          FileMetadataUtil.getInstance()
+                              .getRelativePathInExperiment(experimentId, imageFile);
                     } catch (IOException e) {
                       if (Log.isLoggable(TAG, Log.DEBUG)) {
                         Log.d(TAG, e.getMessage());

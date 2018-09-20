@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -44,6 +45,8 @@ import org.robolectric.RuntimeEnvironment;
 @RunWith(RobolectricTestRunner.class)
 public class FileMetadataManagerTest {
 
+  private final FileMetadataUtil fileMetadataUtil = FileMetadataUtil.getInstance();
+
   @Before
   public void setUp() {
     cleanUp();
@@ -55,7 +58,7 @@ public class FileMetadataManagerTest {
   }
 
   private void cleanUp() {
-    File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(getAppAccount());
+    File sharedMetadataFile = fileMetadataUtil.getUserMetadataFile(getAppAccount());
     sharedMetadataFile.delete();
   }
 
@@ -145,24 +148,23 @@ public class FileMetadataManagerTest {
     File file =
         new File(getAppAccount().getFilesDir() + "/experiments/experiment182/assets/cats.png");
     assertEquals(
-        "assets/cats.png", FileMetadataManager.getRelativePathInExperiment("experiment182", file));
+        "assets/cats.png", fileMetadataUtil.getRelativePathInExperiment("experiment182", file));
 
     // No match should return an empty string.
-    assertEquals("", FileMetadataManager.getRelativePathInExperiment("experiment42", file));
+    assertEquals("", fileMetadataUtil.getRelativePathInExperiment("experiment42", file));
 
     File result =
-        FileMetadataManager.getExperimentFile(getAppAccount(), "experiment182", "assets/cats.png");
+        fileMetadataUtil.getExperimentFile(getAppAccount(), "experiment182", "assets/cats.png");
     assertEquals(file.getAbsolutePath(), result.getAbsolutePath());
 
     assertEquals(
         "experiments/experiment182/assets/cats.png",
-        FileMetadataManager.getRelativePathInFilesDir("experiment182", "assets/cats.png")
-            .toString());
+        fileMetadataUtil.getRelativePathInFilesDir("experiment182", "assets/cats.png").toString());
 
     File exportDir = new File(getAppAccount().getFilesDir().toString(), "/exported_experiments");
     assertEquals(
         exportDir.getAbsolutePath().toString(),
-        FileMetadataManager.getExperimentExportDirectory(getAppAccount()));
+        fileMetadataUtil.getExperimentExportDirectory(getAppAccount()));
   }
 
   @Test
@@ -172,35 +174,35 @@ public class FileMetadataManagerTest {
     fileVersion.minorVersion = 1;
     fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
     fileVersion.platformVersion = 1;
-    assertEquals(true, FileMetadataManager.canImportFromVersion(fileVersion));
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion));
 
     fileVersion.minorVersion = 2;
-    assertEquals(true, FileMetadataManager.canImportFromVersion(fileVersion));
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion));
 
     fileVersion.minorVersion = 3;
-    assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
 
     fileVersion.version = 2;
     fileVersion.minorVersion = 1;
-    assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
 
     fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.IOS;
     fileVersion.version = 1;
     fileVersion.minorVersion = 1;
     fileVersion.platformVersion = 1;
-    assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
 
     fileVersion.platformVersion = 2;
-    assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
 
     fileVersion.platformVersion = 3;
-    assertEquals(true, FileMetadataManager.canImportFromVersion(fileVersion));
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion));
 
     fileVersion.minorVersion = 2;
-    assertEquals(true, FileMetadataManager.canImportFromVersion(fileVersion));
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion));
 
     fileVersion.minorVersion = 3;
-    assertEquals(false, FileMetadataManager.canImportFromVersion(fileVersion));
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
   }
 
   private static Context getContext() {

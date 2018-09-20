@@ -34,7 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -245,12 +245,13 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     if (label.getType() != GoosciLabel.Label.ValueType.PICTURE) {
       return null;
     } else {
-      return FileMetadataManager.createPhotoShareIntent(
-          context,
-          appAccount,
-          experimentId,
-          label.getPictureLabelValue().filePath,
-          label.getCaptionText());
+      return FileMetadataUtil.getInstance()
+          .createPhotoShareIntent(
+              context,
+              appAccount,
+              experimentId,
+              label.getPictureLabelValue().filePath,
+              label.getCaptionText());
     }
   }
 

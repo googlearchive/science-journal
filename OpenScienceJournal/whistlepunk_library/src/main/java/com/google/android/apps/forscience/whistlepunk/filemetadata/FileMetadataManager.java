@@ -18,38 +18,23 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import androidx.annotation.VisibleForTesting;
-import androidx.core.content.FileProvider;
 import android.util.Log;
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ColorAllocator;
-import com.google.android.apps.forscience.whistlepunk.DataController;
-import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
-import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
-import com.google.protobuf.nano.MessageNano;
 import io.reactivex.Single;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -58,7 +43,6 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 /** MetadataManager backed by a file-based system using internal storage. */
 // TODO: Extend MetadataManager
@@ -138,277 +122,6 @@ public class FileMetadataManager {
     colorAllocator =
         new ColorAllocator(
             applicationContext.getResources().getIntArray(R.array.experiment_colors_array).length);
-  }
-
-  /**
-   * Returns the files directory for the given account. This method should be used instead of
-   * context.getFilesDir().
-   */
-  public static File getFilesDir(AppAccount appAccount) {
-    return appAccount.getFilesDir();
-  }
-
-  public static File getUserMetadataFile(AppAccount appAccount) {
-    return new File(getFilesDir(appAccount), USER_METADATA_FILE);
-  }
-
-  public static File getExperimentLibraryFile(AppAccount appAccount) {
-    return new File(getFilesDir(appAccount), EXPERIMENT_LIBRARY_FILE);
-  }
-
-  public static File getLocalSyncStatusFile(AppAccount appAccount) {
-    return new File(getFilesDir(appAccount), SYNC_STATUS_FILE);
-  }
-
-  public static File getAssetsDirectory(AppAccount appAccount, String experimentId) {
-    return new File(getExperimentDirectory(appAccount, experimentId), ASSETS_DIRECTORY);
-  }
-
-  public static File getExperimentDirectory(AppAccount appAccount, String experimentId) {
-    return new File(getExperimentsRootDirectory(appAccount), experimentId);
-  }
-
-  public static File getExperimentsRootDirectory(AppAccount appAccount) {
-    return new File(getFilesDir(appAccount), EXPERIMENTS_DIRECTORY);
-  }
-
-  public static File getExternalExperimentsDirectory(Context context) {
-    return context.getExternalFilesDir(null);
-  }
-
-  /**
-   * Gets the relative path to a file within an experiment. For example, if the file is a picture
-   * pic.png in the assets/ directory of experiment xyz, this will return just "assets/pic.png". If
-   * the file is not in xyz but the experimentId passed in is xyz, this will return an empty string.
-   */
-  public static String getRelativePathInExperiment(String experimentId, File file) {
-    String absolutePath = file.getAbsolutePath();
-    int start = absolutePath.indexOf(experimentId);
-    if (start < 0) {
-      // This file is not part of this experiment.
-      return "";
-    } else {
-      return absolutePath.substring(start + experimentId.length() + 1);
-    }
-  }
-
-  public static String getExperimentExportDirectory(AppAccount appAccount) throws IOException {
-    File dir = new File(getFilesDir(appAccount), "exported_experiments");
-    if (!dir.exists() && !dir.mkdir()) {
-      throw new IOException("Can't create experiments directory");
-    }
-    return dir.toString();
-  }
-
-  /** Gets a file in an experiment from a relative path to that file within the experiment. */
-  public static File getExperimentFile(
-      AppAccount appAccount, String experimentId, String relativePath) {
-    return new File(getExperimentDirectory(appAccount, experimentId), relativePath);
-  }
-
-  /**
-   * Gets the relative path to the file from the accounts's files directory. This can be used to
-   * create the imagePath in UserMetadata.ExperimentOverview.
-   */
-  public static File getRelativePathInFilesDir(String experimentId, String relativePath) {
-    return new File(new File(EXPERIMENTS_DIRECTORY, experimentId), relativePath);
-  }
-
-  /**
-   * Immediately saves the file to be sure the in-storage protos are consistent with memory, and
-   * starts the Export Service to produce an SJ file.
-   */
-  public static Single<File> getFileForExport(
-      Context context, AppAccount appAccount, Experiment experiment, DataController dc) {
-    return Single.create(
-        s -> {
-          dc.saveImmediately(
-              new MaybeConsumer<Success>() {
-                @Override
-                public void success(Success result) {
-                  String sensorProtoFileName =
-                      getExperimentDirectory(appAccount, experiment.getExperimentId())
-                          + "/sensorData.proto";
-
-                  File zipFile;
-                  String experimentName = experiment.getTitle();
-                  if (experimentName.isEmpty()) {
-                    experimentName =
-                        context.getResources().getString(R.string.default_experiment_name);
-                  }
-                  try {
-                    zipFile =
-                        new File(
-                            getExperimentExportDirectory(appAccount),
-                            ExportService.makeSJExportFilename(experimentName));
-                  } catch (IOException ioException) {
-                    s.onError(ioException);
-                    return;
-                  }
-
-                  dc.getScalarReadingProtosInBackground(
-                      experiment.getExperimentProto(),
-                      new MaybeConsumer<GoosciScalarSensorData.ScalarSensorData>() {
-                        @Override
-                        public void success(GoosciScalarSensorData.ScalarSensorData sensorData) {
-                          try (FileOutputStream sensorStream =
-                              new FileOutputStream(sensorProtoFileName)) {
-                            byte[] sensorBytes = ProtoUtils.makeBlob(sensorData);
-                            sensorStream.write(sensorBytes);
-
-                          } catch (IOException ioException) {
-                            s.onError(ioException);
-                            return;
-                          }
-
-                          try (FileOutputStream fos = new FileOutputStream(zipFile);
-                              ZipOutputStream zos = new ZipOutputStream(fos);) {
-                            File experimentDirectory =
-                                getExperimentDirectory(appAccount, experiment.getExperimentId());
-                            zipDirectory(experimentDirectory, zos, "");
-
-                            if (!experiment.getExperimentOverview().imagePath.isEmpty()) {
-                              File experimentImage =
-                                  new File(
-                                      getFilesDir(appAccount),
-                                      experiment.getExperimentOverview().imagePath);
-                              zipExperimentImage(experimentImage, zos);
-                            }
-                          } catch (IOException ioException) {
-                            s.onError(ioException);
-                            return;
-                          }
-                          s.onSuccess(zipFile);
-                        }
-
-                        @Override
-                        public void fail(Exception e) {
-                          s.onError(e);
-                          return;
-                        }
-                      });
-                }
-
-                @Override
-                public void fail(Exception e) {
-                  s.onError(e);
-                }
-              });
-        });
-  }
-
-  public static void zipDirectory(File directory, ZipOutputStream zipOutputStream, String path)
-      throws IOException {
-    File[] fileList = directory.listFiles();
-    for (File f : fileList) {
-      if (f.isDirectory()) {
-        zipDirectory(f, zipOutputStream, path + f.getName() + "/");
-        continue;
-      }
-      FileInputStream fis = new FileInputStream(f.getAbsolutePath());
-      String zipPath = path + f.getName();
-      if (!zipPath.equals(COVER_IMAGE_FILE)) {
-        ZipEntry zipEntry = new ZipEntry(zipPath);
-        zipOutputStream.putNextEntry(zipEntry);
-
-        byte[] bytes = new byte[1024];
-        int length;
-        while ((length = fis.read(bytes)) >= 0) {
-          zipOutputStream.write(bytes, 0, length);
-        }
-        zipOutputStream.closeEntry();
-      }
-
-      fis.close();
-    }
-  }
-
-  public static void zipExperimentImage(File image, ZipOutputStream zipOutputStream)
-      throws IOException {
-    FileInputStream fis = new FileInputStream(image.getAbsolutePath());
-    ZipEntry zipEntry = new ZipEntry(COVER_IMAGE_FILE);
-
-    try {
-      zipOutputStream.putNextEntry(zipEntry);
-
-      byte[] bytes = new byte[1024];
-      int length;
-      while ((length = fis.read(bytes)) >= 0) {
-        zipOutputStream.write(bytes, 0, length);
-      }
-    } catch (ZipException zipException) {
-      // Already zipped the cover image, because the image name was COVER_IMAGE_FILE.
-      // This is ok.
-      Log.d(TAG, "Trying to zip the cover again.", zipException);
-    }
-
-    zipOutputStream.closeEntry();
-    fis.close();
-  }
-
-  public static boolean validateShareIntent(
-      Context context, AppAccount appAccount, String experimentId) {
-    // Get a low-cost known-good file to test if anything can handle our intent.
-    // This won't be used for the actual intent.
-    Uri experimentProto =
-        FileProvider.getUriForFile(
-            context,
-            context.getPackageName(),
-            FileMetadataManager.getExperimentFile(appAccount, experimentId, "experiment.proto"));
-    return FileMetadataManager.getShareIntent(context, appAccount, experimentProto) != null;
-  }
-
-  public static Intent getShareIntent(Context context, AppAccount appAccount, Uri exportFile) {
-    if (!ExportService.canShare(context, appAccount)) {
-      return null;
-    }
-    Intent shareIntent = new Intent(Intent.ACTION_SEND);
-    shareIntent.setType("application/x-zip");
-    shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-    shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    shareIntent.putExtra(Intent.EXTRA_STREAM, exportFile);
-
-    PackageManager packageManager = context.getPackageManager();
-
-    // Don't worry, this is fast.
-    List activities =
-        packageManager.queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY);
-
-    if (activities.size() > 0) {
-      return shareIntent;
-    }
-    return null;
-  }
-
-  public static Intent createPhotoShareIntent(
-      Context context,
-      AppAccount appAccount,
-      String experimentId,
-      String imageName,
-      String imageCaption) {
-
-    if (!ExportService.canShare(context, appAccount)) {
-      return null;
-    }
-
-    Intent shareIntent = new Intent(Intent.ACTION_SEND);
-    shareIntent.setType("image/*");
-    File imageFile =
-        new File(FileMetadataManager.getExperimentDirectory(appAccount, experimentId), imageName);
-    Uri uri = FileProvider.getUriForFile(context, context.getPackageName(), imageFile);
-
-    shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-    shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-    shareIntent.putExtra(Intent.EXTRA_TEXT, imageCaption);
-
-    PackageManager packageManager = context.getPackageManager();
-    List activities =
-        packageManager.queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY);
-
-    if (activities.size() > 0) {
-      return shareIntent;
-    }
-    return null;
   }
 
   /**
@@ -547,9 +260,11 @@ public class FileMetadataManager {
     try {
       newExperiment = newExperiment();
       experimentId = newExperiment.getExperimentId();
-      File externalFilesDir = getExternalExperimentsDirectory(context);
+      File externalFilesDir =
+          FileMetadataUtil.getInstance().getExternalExperimentsDirectory(context);
       externalPath = new File(externalFilesDir, experimentId);
-      File internalPath = getExperimentDirectory(appAccount, experimentId);
+      File internalPath =
+          FileMetadataUtil.getInstance().getExperimentDirectory(appAccount, experimentId);
       // Blocking get is ok as this is already on a background thread.
       containsExperimentImage =
           unzipExperimentFile(appContext, data, resolver, externalPath, internalPath).blockingGet();
@@ -563,7 +278,7 @@ public class FileMetadataManager {
       deleteExperiment(experimentId);
       throw new ZipException("Corrupt or Missing Experiment Proto");
     }
-    if (!canImportFromVersion(proto.fileVersion)) {
+    if (!FileMetadataUtil.getInstance().canImportFromVersion(proto.fileVersion)) {
       deleteExperiment(experimentId);
       // TODO: better error message
       throw new ZipException("Cannot import from file version: " + versionToString(proto));
@@ -612,26 +327,6 @@ public class FileMetadataManager {
         + fileVersion.platform
         + "."
         + fileVersion.platformVersion;
-  }
-
-  @VisibleForTesting
-  public static boolean canImportFromVersion(Version.FileVersion fileVersion) {
-    switch (fileVersion.platform) {
-      case GoosciGadgetInfo.GadgetInfo.Platform.ANDROID:
-        return fileVersion.version == 1 && fileVersion.minorVersion <= 2;
-      case GoosciGadgetInfo.GadgetInfo.Platform.IOS:
-        if (fileVersion.version != 1) {
-          return false;
-        }
-        if (fileVersion.minorVersion == 1) {
-          return fileVersion.platformVersion >= 3;
-        }
-        return fileVersion.minorVersion == 2;
-    }
-
-    // Not IOS or Android?  Did we finally release on Commodore 64?  Well, as long as it's
-    // using a released file version.
-    return fileVersion.version == 1 && fileVersion.minorVersion == 2;
   }
 
   private Single<Boolean> unzipExperimentFile(
@@ -775,62 +470,5 @@ public class FileMetadataManager {
 
   public List<GoosciDeviceSpec.DeviceSpec> getMyDevices() {
     return userMetadataManager.getMyDevices();
-  }
-
-  private static void writeProtoToFile(byte[] protoBytes, File file) throws IOException {
-    try (FileOutputStream fos = new FileOutputStream(file)) {
-      fos.write(protoBytes);
-    }
-  }
-
-  public static void writeExperimentLibraryFile(
-      GoosciExperimentLibrary.ExperimentLibrary library, AppAccount appAccount) throws IOException {
-    writeProtoToFile(ProtoUtils.makeBlob(library), getExperimentLibraryFile(appAccount));
-  }
-
-  public static GoosciExperimentLibrary.ExperimentLibrary readExperimentLibraryFile(
-      AppAccount appAccount) {
-    GoosciExperimentLibrary.ExperimentLibrary library =
-        new GoosciExperimentLibrary.ExperimentLibrary();
-    File libraryFile = getExperimentLibraryFile(appAccount);
-    if (libraryFile.canRead()) {
-      byte[] libraryBytes = new byte[(int) libraryFile.length()];
-      try (FileInputStream fis = new FileInputStream(libraryFile);
-          DataInputStream dis = new DataInputStream(fis);) {
-        dis.readFully(libraryBytes);
-        library = MessageNano.mergeFrom(library, libraryBytes);
-      } catch (Exception e) {
-        Log.e(TAG, "Exception reading Experiment Library file", e);
-      }
-    }
-    return library;
-  }
-
-  public static void writeLocalSyncStatusFile(
-      GoosciLocalSyncStatus.LocalSyncStatus status, AppAccount appAccount) throws IOException {
-    writeProtoToFile(ProtoUtils.makeBlob(status), getLocalSyncStatusFile(appAccount));
-  }
-
-  public static GoosciLocalSyncStatus.LocalSyncStatus readLocalSyncStatusFile(
-      AppAccount appAccount) {
-    GoosciLocalSyncStatus.LocalSyncStatus status = new GoosciLocalSyncStatus.LocalSyncStatus();
-    File statusFile = getLocalSyncStatusFile(appAccount);
-    if (statusFile.canRead()) {
-      byte[] statusBytes = new byte[(int) statusFile.length()];
-      try (FileInputStream fis = new FileInputStream(statusFile);
-          DataInputStream dis = new DataInputStream(fis);) {
-        dis.readFully(statusBytes);
-        status = MessageNano.mergeFrom(status, statusBytes);
-      } catch (Exception e) {
-        if (Log.isLoggable(TAG, Log.ERROR)) {
-          Log.e(TAG, "Exception reading Local Sync Status file", e);
-        }
-      }
-    }
-    return status;
-  }
-
-  public static String getProtoFileName(String protoId) {
-    return protoId + DOT_PROTO;
   }
 }
