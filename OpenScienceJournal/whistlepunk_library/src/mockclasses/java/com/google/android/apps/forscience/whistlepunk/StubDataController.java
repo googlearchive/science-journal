@@ -70,38 +70,56 @@ public class StubDataController implements DataController {
   public void createExperiment(MaybeConsumer<Experiment> onSuccess) {}
 
   @Override
-  public void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {}
+  public void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
 
   @Override
-  public void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess) {}
+  public void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess) {
+    Experiment e = Experiment.newExperiment(0, experimentId, 0);
+    e.setTitle("Experiment Title");
+    onSuccess.success(e);
+  }
 
   @Override
   public void updateExperiment(
       String experimentId,
       long lastUpdateTime,
       boolean setDirty,
-      MaybeConsumer<Success> onSuccess) {}
+      MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
 
   @Override
-  public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {}
+  public void updateExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
 
   @Override
   public void updateExperiment(
-      String experimentId, boolean setDirty, MaybeConsumer<Success> onSuccess) {}
+      String experimentId, boolean setDirty, MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
 
   @Override
-  public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {}
+  public void updateExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
 
   @Override
   public void updateExperiment(
       Experiment experiment,
       long lastUsedTime,
       boolean setDirty,
-      MaybeConsumer<Success> onSuccess) {}
+      MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
 
   @Override
   public void mergeExperiment(
-      String experimentId, Experiment toMerge, MaybeConsumer<FileSyncCollection> onSuccess) {}
+      String experimentId, Experiment toMerge, MaybeConsumer<FileSyncCollection> onSuccess) {
+    onSuccess.success(new FileSyncCollection());
+  }
 
   @Override
   public void importExperimentFromZip(

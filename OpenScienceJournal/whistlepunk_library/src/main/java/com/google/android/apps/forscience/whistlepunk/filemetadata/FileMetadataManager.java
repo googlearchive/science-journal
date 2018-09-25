@@ -67,6 +67,20 @@ public class FileMetadataManager {
   private ColorAllocator colorAllocator;
 
   public FileMetadataManager(Context applicationContext, AppAccount appAccount, Clock clock) {
+    this(
+        applicationContext,
+        appAccount,
+        clock,
+        AppSingleton.getInstance(applicationContext).getExperimentLibraryManager(appAccount),
+        AppSingleton.getInstance(applicationContext).getLocalSyncManager(appAccount));
+  }
+
+  public FileMetadataManager(
+      Context applicationContext,
+      AppAccount appAccount,
+      Clock clock,
+      ExperimentLibraryManager elm,
+      LocalSyncManager lsm) {
     this.appAccount = appAccount;
     this.clock = clock;
     // TODO: Probably pass failure listeners from a higher level in order to propagate them
@@ -116,9 +130,8 @@ public class FileMetadataManager {
     activeExperimentCache = new ExperimentCache(applicationContext, appAccount, failureListener);
     userMetadataManager =
         new UserMetadataManager(applicationContext, appAccount, userMetadataListener);
-    localSyncManager = AppSingleton.getInstance(applicationContext).getLocalSyncManager(appAccount);
-    experimentLibraryManager =
-        AppSingleton.getInstance(applicationContext).getExperimentLibraryManager(appAccount);
+    localSyncManager = lsm;
+    experimentLibraryManager = elm;
     colorAllocator =
         new ColorAllocator(
             applicationContext.getResources().getIntArray(R.array.experiment_colors_array).length);
