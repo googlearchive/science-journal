@@ -346,6 +346,14 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void loadExperiments() {
+    // Old fragments can still be alive, but not part of the activity, when resuming.
+    // See https://stackoverflow.com/questions/9727173/ ...
+    // support-fragmentpageradapter-holds-reference-to-old-fragments/9745935#9745935
+    // This prevents a crash, but I suspect there's a deeper solution we can investigate, later.
+    // TODO(b/116717025}
+    if (getActivity() == null) {
+      return;
+    }
     // Don't show any experiments until the user has signed in.
     if (!claimExperimentsMode && requireSignedInAccount && !appAccount.isSignedIn()) {
       attachToExperiments(new ArrayList<>());
