@@ -93,7 +93,22 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-/** Experiment List Fragment lists all experiments. */
+/**
+ * Experiment List Fragment lists all experiments that belong to an account. This fragment is used
+ * in MainActivity and in ClaimExperimentsAcitivty. The claimExperimentsMode field can be used to
+ * determine whether it is in ClaimExperimentsAcitivty.
+ *
+ * <p>When used in MainActivity, the appAccount field is the "current" account, which may be the
+ * NonSignedInAccount.
+ *
+ * <p>When used in ClaimExperimentsAcitivty, the appAccount field is the NonSignedInAccount and the
+ * claimingAccount field is the "current" signed-in account.
+ *
+ * <p>Note that the options menu is different based on whether claimExperimentsMode is true or
+ * false. In claimExperimentsMode, the menu items for action_sync and action_network_disconnected do
+ * not exist. Care should be taken to check for null before dereferencing the result of
+ * Menu.findItem for these ids.
+ */
 public class ExperimentListFragment extends Fragment
     implements DeleteMetadataItemDialog.DeleteDialogListener, OnRefreshListener {
   private static final String TAG = "ExperimentListFragment";
@@ -165,7 +180,7 @@ public class ExperimentListFragment extends Fragment
   }
 
   public ExperimentListFragment() {
-    networkIntentFilter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
+    networkIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
   }
 
   @Override
@@ -215,9 +230,6 @@ public class ExperimentListFragment extends Fragment
   public void onResume() {
     super.onResume();
     setProgressBarVisible(progressBarVisible);
-    if (claimExperimentsMode) {
-      loadExperiments();
-    }
 
     connectivityBroadcastReceiver = new ConnectivityBroadcastReceiver();
     getContext().registerReceiver(connectivityBroadcastReceiver, networkIntentFilter);
@@ -337,7 +349,7 @@ public class ExperimentListFragment extends Fragment
     // we are not already in claim experiments mode
     // and there is one or more experiments in unclaimed storage.
     return !claimExperimentsMode
-        && requireSignedInAccount
+        && appAccount.isSignedIn()
         && AccountsUtils.getUnclaimedExperimentCount(getContext()) >= 1;
   }
 
@@ -354,7 +366,7 @@ public class ExperimentListFragment extends Fragment
     if (getActivity() == null) {
       return;
     }
-    // Don't show any experiments until the user has signed in.
+    // If a signed-in account is required, don't show any experiments until the user has signed in.
     if (!claimExperimentsMode && requireSignedInAccount && !appAccount.isSignedIn()) {
       attachToExperiments(new ArrayList<>());
       return;
@@ -521,6 +533,10 @@ public class ExperimentListFragment extends Fragment
   public void onPrepareOptionsMenu(Menu menu) {
     menu.findItem(R.id.action_include_archived).setVisible(!includeArchived);
     menu.findItem(R.id.action_exclude_archived).setVisible(includeArchived);
+    MenuItem menuItemSync = menu.findItem(R.id.action_sync);
+    if (menuItemSync != null) {
+      menuItemSync.setVisible(appAccount.isSignedIn());
+    }
     optionsMenu = menu;
     updateNetworkStatusIcon();
   }
@@ -529,12 +545,16 @@ public class ExperimentListFragment extends Fragment
     if (optionsMenu == null) {
       return;
     }
-    ConnectivityManager cm =
-        (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-    boolean shouldShowIcon =
-        cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
-    optionsMenu.findItem(R.id.action_network_disconnected).setVisible(shouldShowIcon);
-    optionsMenu.findItem(R.id.action_network_disconnected).setEnabled(shouldShowIcon);
+    MenuItem menuItemActionNetworkDisconnected =
+        optionsMenu.findItem(R.id.action_network_disconnected);
+    if (menuItemActionNetworkDisconnected != null) {
+      ConnectivityManager cm =
+          (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+      boolean shouldShowIcon =
+          cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
+      menuItemActionNetworkDisconnected.setVisible(shouldShowIcon);
+      menuItemActionNetworkDisconnected.setEnabled(shouldShowIcon);
+    }
   }
 
   @Override
@@ -572,14 +592,19 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void syncNow(String logMessage) {
-    CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
-    CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
-    try {
-      syncService.syncExperimentLibrary(getContext(), logMessage);
-    } catch (IOException ioe) {
-      if (Log.isLoggable(TAG, Log.ERROR)) {
-        Log.e(TAG, "IOE", ioe);
+    if (appAccount.isSignedIn()) {
+      CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
+      CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
+      try {
+        syncService.syncExperimentLibrary(getContext(), logMessage);
+      } catch (IOException ioe) {
+        if (Log.isLoggable(TAG, Log.ERROR)) {
+          Log.e(TAG, "IOE", ioe);
+        }
       }
+    } else {
+      loadExperiments();
+      swipeLayout.setRefreshing(false);
     }
   }
 
