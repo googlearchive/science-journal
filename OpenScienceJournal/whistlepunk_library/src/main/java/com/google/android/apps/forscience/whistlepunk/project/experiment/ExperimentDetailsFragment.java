@@ -740,7 +740,7 @@ public class ExperimentDetailsFragment extends Fragment
     if (getActivity() != null) {
       Consumer<Context> assetDeleter =
           experiment.deleteLabelAndReturnAssetDeleter(experiment, label, appAccount);
-      RxDataController.updateExperiment(getDataController(), experiment)
+      RxDataController.updateExperiment(getDataController(), experiment, true)
           .subscribe(() -> onLabelDelete(new DeletedLabel(label, assetDeleter)));
     }
   }
@@ -775,7 +775,7 @@ public class ExperimentDetailsFragment extends Fragment
   private void setTrialArchived(Trial trial, boolean toArchive) {
     trial.setArchived(toArchive);
     experiment.updateTrial(trial);
-    RxDataController.updateExperiment(getDataController(), experiment)
+    RxDataController.updateExperiment(getDataController(), experiment, true)
         .subscribe(
             () -> {
               adapter.onTrialArchivedStateChanged(trial, includeArchived);
@@ -821,7 +821,7 @@ public class ExperimentDetailsFragment extends Fragment
     if (!TextUtils.isEmpty(trialId)) {
       // Then we were trying to delete a trial.
       experiment.deleteTrial(experiment.getTrial(trialId), getActivity(), appAccount);
-      RxDataController.updateExperiment(getDataController(), experiment)
+      RxDataController.updateExperiment(getDataController(), experiment, true)
           .subscribe(() -> adapter.onTrialDeleted(trialId));
     } else if (extras.getBoolean(DeleteMetadataItemDialog.KEY_REMOVE_COVER_IMAGE, false)) {
       // Remove the cover image.

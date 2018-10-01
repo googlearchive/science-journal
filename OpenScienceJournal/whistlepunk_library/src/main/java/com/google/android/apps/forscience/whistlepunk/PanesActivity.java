@@ -884,7 +884,7 @@ public class PanesActivity extends AppCompatActivity
           } else {
             e.getTrial(trialId).addLabel(e, label);
           }
-          RxDataController.updateExperiment(getDataController(), e)
+          RxDataController.updateExperiment(getDataController(), e, true)
               .subscribe(() -> onLabelAdded(trialId));
         });
   }

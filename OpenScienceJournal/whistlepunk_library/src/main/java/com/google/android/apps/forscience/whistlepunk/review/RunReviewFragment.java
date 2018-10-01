@@ -919,7 +919,7 @@ public class RunReviewFragment extends Fragment
     // Delete the item immediately.
     Consumer<Context> assetDeleter =
         getTrial().deleteLabelAndReturnAssetDeleter(experiment, item, appAccount);
-    RxDataController.updateExperiment(getDataController(), experiment)
+    RxDataController.updateExperiment(getDataController(), experiment, true)
         .subscribe(() -> onLabelDelete(new DeletedLabel(item, assetDeleter)));
   }
 
@@ -1634,7 +1634,7 @@ public class RunReviewFragment extends Fragment
     Trial trial = experiment.getTrial(trialId);
     trial.updateLabel(experiment, label);
     experiment.updateTrial(trial);
-    RxDataController.updateExperiment(getDataController(), experiment)
+    RxDataController.updateExperiment(getDataController(), experiment, true)
         .subscribe(MaybeConsumers.toCompletableObserver(onLabelEdit(label)));
   }
 

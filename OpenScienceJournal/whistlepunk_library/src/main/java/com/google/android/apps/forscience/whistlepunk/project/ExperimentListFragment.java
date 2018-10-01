@@ -476,7 +476,7 @@ public class ExperimentListFragment extends Fragment
 
               // TODO: Add a recording item if required by b/64844798.
 
-              RxDataController.updateExperiment(dataController, e)
+              RxDataController.updateExperiment(dataController, e, true)
                   .subscribe(
                       () -> {
                         setDefaultExperimentCreated();

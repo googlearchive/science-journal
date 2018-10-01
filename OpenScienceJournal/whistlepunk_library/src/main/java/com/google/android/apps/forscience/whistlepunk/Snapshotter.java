@@ -65,7 +65,7 @@ public class Snapshotter {
         .flatMap(
             label -> {
               labelListHolder.addLabel(selectedExperiment, label);
-              return RxDataController.updateExperiment(dataController, selectedExperiment)
+              return RxDataController.updateExperiment(dataController, selectedExperiment, true)
                   .andThen(Single.just(label));
             });
   }

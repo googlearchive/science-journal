@@ -141,7 +141,7 @@ public class NameExperimentDialog extends DialogFragment {
               // Set the title to something so that we don't try to save it again later.
               String title = getResources().getString(R.string.default_experiment_name);
               experiment.setTitle(title);
-              RxDataController.updateExperiment(dc, experiment)
+              RxDataController.updateExperiment(dc, experiment, true)
                   .subscribe(
                       () -> {
                         super.onCancel(dialog);
@@ -159,7 +159,7 @@ public class NameExperimentDialog extends DialogFragment {
                 title = getResources().getString(R.string.default_experiment_name);
               }
               experiment.setTitle(title);
-              RxDataController.updateExperiment(dc, experiment)
+              RxDataController.updateExperiment(dc, experiment, true)
                   .subscribe(
                       () ->
                           ((OnExperimentTitleChangeListener) getParentFragment())

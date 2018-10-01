@@ -28,24 +28,17 @@ import java.io.File;
 
 /** Utility methods for bridging DataController calls with code that uses Rx */
 public class RxDataController {
-  /**
-   * @return a {@link Completable} that completes when updateExperiment is successful. Caller
-   *     <em>must</em> subscribe to this completeable to deal with errors and force execution.
-   */
-  public static Completable updateExperiment(DataController dc, Experiment e) {
-    return MaybeConsumers.buildCompleteable(
-        mc -> dc.updateExperiment(e.getExperimentId(), false, mc));
-  }
-
-  public static Completable updateExperiment(DataController dc, Experiment e, long lastUsedTime) {
-    return MaybeConsumers.buildCompleteable(
-        mc -> dc.updateExperiment(e.getExperimentId(), lastUsedTime, false, mc));
-  }
 
   public static Completable updateExperiment(
       DataController dc, Experiment e, long lastUsedTime, boolean shouldMarkDirty) {
     return MaybeConsumers.buildCompleteable(
         mc -> dc.updateExperiment(e.getExperimentId(), lastUsedTime, shouldMarkDirty, mc));
+  }
+
+  public static Completable updateExperiment(
+      DataController dc, Experiment e, boolean shouldMarkDirty) {
+    return MaybeConsumers.buildCompleteable(
+        mc -> dc.updateExperiment(e.getExperimentId(), shouldMarkDirty, mc));
   }
 
   public static Completable deleteExperiment(DataController dc, Experiment e) {
@@ -64,7 +57,7 @@ public class RxDataController {
   public static Completable updateLabel(
       DataController dc, LabelListHolder h, Label l, Experiment e) {
     h.updateLabel(e, l);
-    return updateExperiment(dc, e);
+    return updateExperiment(dc, e, true);
   }
 
   public static Single<Experiment> getExperimentById(DataController dc, String experimentId) {
@@ -95,7 +88,7 @@ public class RxDataController {
   public static Completable addTrialLabel(
       Label label, DataController dc, Experiment experiment, String trialId) {
     experiment.getTrial(trialId).addLabel(experiment, label);
-    return updateExperiment(dc, experiment);
+    return updateExperiment(dc, experiment, false);
   }
 
   public static Single<File> writeTrialProtoToFile(

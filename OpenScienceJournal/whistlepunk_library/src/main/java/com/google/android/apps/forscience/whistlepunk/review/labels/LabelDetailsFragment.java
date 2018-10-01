@@ -139,7 +139,7 @@ abstract class LabelDetailsFragment extends Fragment {
       Trial trial = experiment.getTrial(trialId);
       trial.updateLabel(experiment, originalLabel);
       experiment.updateTrial(trial);
-      RxDataController.updateExperiment(getDataController(), experiment)
+      RxDataController.updateExperiment(getDataController(), experiment, true)
           .subscribe(LoggingConsumer.observe(TAG, "update"));
     }
   }
@@ -171,7 +171,7 @@ abstract class LabelDetailsFragment extends Fragment {
         .flatMap(
             experiment -> {
               Consumer<Context> assetDeleter = deleteLabelFromExperiment(experiment);
-              return RxDataController.updateExperiment(getDataController(), experiment)
+              return RxDataController.updateExperiment(getDataController(), experiment, true)
                   .andThen(Maybe.just(assetDeleter));
             })
         .subscribe(
