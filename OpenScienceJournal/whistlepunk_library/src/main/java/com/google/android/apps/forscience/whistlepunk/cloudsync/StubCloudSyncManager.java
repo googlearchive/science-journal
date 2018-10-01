@@ -16,18 +16,4 @@ public class StubCloudSyncManager implements CloudSyncManager {
       Log.i(TAG, "Stubbed Experiment Library Sync! " + logMessage);
     }
   }
-
-  @Override
-  public void syncExperimentProto(Context context, String experimentId) throws IOException {
-    if (Log.isLoggable(TAG, Log.INFO)) {
-      Log.i(TAG, "Stubbed Experiment Proto Sync!");
-    }
-  }
-
-  @Override
-  public void deleteExperimentPackage(Context context, String experimentId) {
-    if (Log.isLoggable(TAG, Log.INFO)) {
-      Log.i(TAG, "Stubbed Experiment Package Delete!");
-    }
-  }
 }
