@@ -92,8 +92,9 @@ public final class TrackerConstants {
   public static final String LABEL_EXPERIMENT_LIST = "experiment_list";
   public static final String LABEL_UPDATE_EXPERIMENT = "update_experiment";
 
-  public static final String LABEL_MODE_CHILD = "child";
-  public static final String LABEL_MODE_NONCHILD = "nonchild";
+  public static final String LABEL_MODE_SIGNED_IN = "signedin";
+  public static final String LABEL_MODE_SIGNED_OUT_CHILD = "child";
+  public static final String LABEL_MODE_SIGNED_OUT_NONCHILD = "nonchild";
 
   // Values
   private static final long VALUE_TYPE_TEXT = 0;

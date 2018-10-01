@@ -526,7 +526,7 @@ public class ExportService extends Service {
   }
 
   public static boolean canShare(Context context, AppAccount appAccount) {
-    return appAccount.isSignedIn() || AgeVerifier.isOver13(AgeVerifier.getUserAge(context));
+    return appAccount.isSignedIn() || AgeVerifier.isUserOver13(context);
   }
 
   public static void handleExperimentExportClick(

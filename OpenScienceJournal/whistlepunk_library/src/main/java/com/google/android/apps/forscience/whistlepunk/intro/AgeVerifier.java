@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import androidx.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
@@ -38,14 +39,10 @@ public class AgeVerifier extends AppCompatActivity {
   /** Set to true to debug age verifier after going through it once. */
   private static final boolean DEBUG_AGE_VERIFIER = false;
 
-  /** Long key which stores the user age input. */
-  private static final String KEY_USER_AGE = "user_age";
-
   /**
-   * Boolean key which stores if the user has been through this screen before. Need this separate
-   * because we can't tell if the user's age is really 1/1/1970 or not.
+   * Boolean key which stores whether the user was over 13 at the time they entered their birthday.
    */
-  private static final String KEY_USER_AGE_SET = "user_age_set";
+  private static final String KEY_USER_OVER_13 = "user_over_13";
 
   private SharedPreferences preferences;
   private DatePicker datePicker;
@@ -63,17 +60,13 @@ public class AgeVerifier extends AppCompatActivity {
     calendar.set(1900, 0, 1);
     datePicker.setMinDate(calendar.getTimeInMillis());
     // Max date is today.
-    datePicker.setMaxDate(System.currentTimeMillis());
-    long time = getUserAge(preferences);
-    boolean noTimeSet = time == 0;
-    if (noTimeSet) {
-      time = datePicker.getMaxDate();
-    }
+    long time = System.currentTimeMillis();
+    datePicker.setMaxDate(time);
     calendar.setTimeInMillis(time);
     // If no time set, set the calendar 1 year back so that people can still access all the
     // months and days. Otherwise, use the remembered date.
     datePicker.updateDate(
-        calendar.get(Calendar.YEAR) - (noTimeSet ? 1 : 0),
+        calendar.get(Calendar.YEAR) - 1,
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH));
 
@@ -86,8 +79,7 @@ public class AgeVerifier extends AppCompatActivity {
             calendar.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
             preferences
                 .edit()
-                .putLong(KEY_USER_AGE, calendar.getTimeInMillis())
-                .putBoolean(KEY_USER_AGE_SET, true)
+                .putBoolean(KEY_USER_OVER_13, isOver13(calendar.getTimeInMillis()))
                 .apply();
             finish();
             Intent intent = new Intent(AgeVerifier.this, MainActivity.class);
@@ -119,14 +111,15 @@ public class AgeVerifier extends AppCompatActivity {
         .requireSignedInAccount()) {
       return false;
     }
-    return !PreferenceManager.getDefaultSharedPreferences(context)
-        .getBoolean(KEY_USER_AGE_SET, false);
+    return !PreferenceManager.getDefaultSharedPreferences(context).contains(KEY_USER_OVER_13);
   }
 
-  public static long getUserAge(Context context) {
-    return getUserAge(PreferenceManager.getDefaultSharedPreferences(context));
+  public static boolean isUserOver13(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(KEY_USER_OVER_13, false);
   }
 
+  @VisibleForTesting
   public static boolean isOver13(long birthTime) {
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeInMillis(System.currentTimeMillis());
@@ -135,7 +128,20 @@ public class AgeVerifier extends AppCompatActivity {
     return birthTime <= calendar.getTimeInMillis();
   }
 
-  private static long getUserAge(SharedPreferences preferences) {
-    return preferences.getLong(KEY_USER_AGE, 0);
+  public static void forgetAge(Context context) {
+    /** Long key which previously stored the user age input. */
+    final String oldKeyUserAge = "user_age";
+
+    /** Boolean key which previously stored if the user has entered their birthdate. */
+    final String oldKeyUserAgeSet = "user_age_set";
+
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+    if (sharedPreferences.contains(oldKeyUserAge)) {
+      SharedPreferences.Editor editor = sharedPreferences.edit();
+      editor.putBoolean(KEY_USER_OVER_13, isOver13(sharedPreferences.getLong(oldKeyUserAge, 0)));
+      editor.remove(oldKeyUserAge);
+      editor.remove(oldKeyUserAgeSet);
+      editor.commit();
+    }
   }
 }

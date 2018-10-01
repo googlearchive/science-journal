@@ -79,6 +79,8 @@ public class MainActivity extends ActivityWithNavigationView {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    AgeVerifier.forgetAge(this);
+
     savedItemId =
         (savedInstanceState == null)
             ? NO_SELECTED_ITEM
@@ -172,14 +174,14 @@ public class MainActivity extends ActivityWithNavigationView {
     }
     // If we get to here, it's safe to log the mode we are in: user has signed in and/or
     // completed age verification.
+    String labelMode =
+        accountsProvider.isSignedIn()
+            ? TrackerConstants.LABEL_MODE_SIGNED_IN
+            : (AgeVerifier.isUserOver13(this)
+                ? TrackerConstants.LABEL_MODE_SIGNED_OUT_NONCHILD
+                : TrackerConstants.LABEL_MODE_SIGNED_OUT_CHILD);
     WhistlePunkApplication.getUsageTracker(this)
-        .trackEvent(
-            TrackerConstants.CATEGORY_APP,
-            TrackerConstants.ACTION_SET_MODE,
-            AgeVerifier.isOver13(AgeVerifier.getUserAge(this))
-                ? TrackerConstants.LABEL_MODE_NONCHILD
-                : TrackerConstants.LABEL_MODE_CHILD,
-            0);
+        .trackEvent(TrackerConstants.CATEGORY_APP, TrackerConstants.ACTION_SET_MODE, labelMode, 0);
   }
 
   public boolean isAttemptingImport() {

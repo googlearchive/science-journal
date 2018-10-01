@@ -87,7 +87,7 @@ public class DevOptionsFragment extends PreferenceFragment {
 
     Preference ageStatusPreference = findPreference(KEY_AGE_STATUS);
     ageStatusPreference.setTitle(
-        AgeVerifier.isOver13(AgeVerifier.getUserAge(context))
+        AgeVerifier.isUserOver13(context)
             ? context.getResources().getString(R.string.age_status_over_13)
             : context.getResources().getString(R.string.age_status_under_13));
   }
