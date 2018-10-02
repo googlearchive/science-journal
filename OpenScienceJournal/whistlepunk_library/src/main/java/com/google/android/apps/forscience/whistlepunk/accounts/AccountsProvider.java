@@ -20,6 +20,8 @@ import android.app.Activity;
 import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
 import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
 import java.util.Set;
 
 /** An interface which provides account management. */
@@ -30,20 +32,22 @@ public interface AccountsProvider {
    */
   public static final String KEY_OLD_PREFERENCES_COPIED = "old_preferences_copied";
 
-  /** @return true if a signed-in account is supported; false otherwise */
-  boolean supportSignedInAccount();
+  /** Indicates whether a signed-in account is supported. */
+  Single<Boolean> supportSignedInAccount();
 
-  /** @return true if a signed-in account is required to use Science Journal; false otherwise */
-  boolean requireSignedInAccount();
+  /** Indicates whether a signed-in account is required to use Science Journal. */
+  Single<Boolean> requireSignedInAccount();
 
   /** @return the number of accounts on the device. */
   int getAccountCount();
 
   /**
-   * Connects the account switcher, if necessary. Must be called during onCreate of the main
+   * Installs the account switcher, if necessary. Must be called during onCreate of the main
    * activity, after {@link Activity#setContentView}.
+   *
+   * @return a {@link Disposable} that should be disposed when the given activity is destroyed.
    */
-  void connectAccountSwitcher(ActivityWithNavigationView activity);
+  Disposable installAccountSwitcher(ActivityWithNavigationView activity);
 
   /**
    * Disconnects the account switcher, if necessary. Must be called during onStop of the main

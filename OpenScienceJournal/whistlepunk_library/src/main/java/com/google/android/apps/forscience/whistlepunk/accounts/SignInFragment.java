@@ -84,11 +84,7 @@ public class SignInFragment extends Fragment {
 
   private void afterSignIn() {
     FragmentActivity activity = getActivity();
-
-    // Launch OldUserOptionPromptActivity or go to MainActivity.
-    if (!OldUserOptionPromptActivity.maybeLaunch(activity)) {
-      activity.startActivity(new Intent(activity, MainActivity.class));
-    }
+    activity.startActivity(new Intent(activity, MainActivity.class));
     activity.finish();
   }
 

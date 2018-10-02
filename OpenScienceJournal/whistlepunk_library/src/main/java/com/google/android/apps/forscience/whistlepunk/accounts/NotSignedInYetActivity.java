@@ -33,10 +33,10 @@ public class NotSignedInYetActivity extends AppCompatActivity {
   private static final String TAG = "NotSignedInYetActivity";
   private static final String FRAGMENT_TAG = "NotSignedInYet";
 
-  public static boolean maybeLaunch(Context context) {
+  public static boolean maybeLaunch(Context context, boolean requireSignedInAccount) {
     AccountsProvider accountsProvider =
         WhistlePunkApplication.getAppServices(context).getAccountsProvider();
-    if (accountsProvider.requireSignedInAccount() && !accountsProvider.isSignedIn()) {
+    if (requireSignedInAccount && !accountsProvider.isSignedIn()) {
       Intent intent = new Intent(context, NotSignedInYetActivity.class);
       context.startActivity(intent);
       return true;

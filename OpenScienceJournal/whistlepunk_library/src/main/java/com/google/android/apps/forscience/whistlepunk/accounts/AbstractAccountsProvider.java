@@ -23,6 +23,8 @@ import androidx.annotation.Nullable;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import io.reactivex.subjects.BehaviorSubject;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +33,8 @@ import java.util.Set;
 /** An abstract base class for accounts providers. */
 abstract class AbstractAccountsProvider implements AccountsProvider {
   final Context applicationContext;
+  final Single<Boolean> singleSupportSignedInAccount;
+  final Single<Boolean> singleRequireSignedInAccount;
   final BehaviorSubject<AppAccount> observableCurrentAccount = BehaviorSubject.create();
   private final Object lockCurrentAccount = new Object();
   private AppAccount currentAccount;
@@ -40,7 +44,26 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   AbstractAccountsProvider(Context context) {
     applicationContext = context.getApplicationContext();
 
+    singleSupportSignedInAccount =
+        Single.<Boolean>create(emitter -> determineSupportSignedInAccount(emitter)).cache();
+    singleRequireSignedInAccount =
+        Single.<Boolean>create(emitter -> determineRequireSignedInAccount(emitter)).cache();
+
     addAccount(NonSignedInAccount.getInstance(applicationContext));
+  }
+
+  protected abstract void determineSupportSignedInAccount(SingleEmitter<Boolean> emitter);
+
+  protected abstract void determineRequireSignedInAccount(SingleEmitter<Boolean> emitter);
+
+  @Override
+  public final Single<Boolean> supportSignedInAccount() {
+    return singleSupportSignedInAccount;
+  }
+
+  @Override
+  public final Single<Boolean> requireSignedInAccount() {
+    return singleRequireSignedInAccount;
   }
 
   @Override

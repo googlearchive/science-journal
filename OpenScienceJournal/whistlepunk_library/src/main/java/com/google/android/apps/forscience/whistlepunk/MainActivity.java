@@ -31,6 +31,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
@@ -42,6 +43,9 @@ import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 
 /** The main activity. */
 public class MainActivity extends ActivityWithNavigationView {
@@ -64,6 +68,7 @@ public class MainActivity extends ActivityWithNavigationView {
 
   private AccountsProvider accountsProvider;
   @Nullable private AppAccount currentAccount;
+
   private FeedbackProvider feedbackProvider;
   private NavigationView navigationView;
   private MultiTouchDrawerLayout drawerLayout;
@@ -74,6 +79,9 @@ public class MainActivity extends ActivityWithNavigationView {
   private final RxEvent pause = new RxEvent();
   /** Receives an event every time the current account changes */
   private final RxEvent currentAccountChanging = new RxEvent();
+
+  private final CompositeDisposable disposeWhenPaused = new CompositeDisposable();
+  private final CompositeDisposable disposeWhenDestroyed = new CompositeDisposable();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +103,8 @@ public class MainActivity extends ActivityWithNavigationView {
         AccountsProvider.KEY_OLD_PREFERENCES_COPIED, false);
 
     setContentView(R.layout.activity_main);
-    accountsProvider.connectAccountSwitcher(this);
+
+    disposeWhenDestroyed.add(accountsProvider.installAccountSwitcher(this));
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -135,53 +144,70 @@ public class MainActivity extends ActivityWithNavigationView {
     appSingleton.setResumedActivity(this);
     pause.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
 
-    if (showRequiredScreensIfNeeded()) {
-      return;
-    }
+    disposeWhenPaused.add(
+        Observable.combineLatest(
+                accountsProvider.supportSignedInAccount().toObservable(),
+                accountsProvider.requireSignedInAccount().toObservable(),
+                Pair::create)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                pair -> {
+                  boolean supportSignedInAccount = pair.first;
+                  boolean requireSignedInAccount = pair.second;
+                  if (showRequiredScreensIfNeeded(supportSignedInAccount, requireSignedInAccount)) {
+                    return;
+                  }
 
-    // Navigate to the desired fragment, based on saved state or intent extras, or (by default)
-    // the experiments list.
-    Intent intent = getIntent();
-    Bundle extras = null;
-    if (intent != null) {
-      extras = intent.getExtras();
-    }
-    int selectedNavItemId;
-    if (savedItemId != NO_SELECTED_ITEM) {
-      selectedNavItemId = savedItemId;
-    } else if (extras != null) {
-      selectedNavItemId = extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
-    } else {
-      selectedNavItemId = R.id.navigation_item_experiments;
-    }
-    MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
-    if (item == null) {
-      selectedNavItemId = R.id.navigation_item_experiments;
-      item = navigationView.getMenu().findItem(selectedNavItemId);
-    }
-    navigationView.setCheckedItem(selectedNavItemId);
-    onNavigationItemSelected(item);
+                  // Navigate to the desired fragment, based on saved state or intent extras, or (by
+                  // default) the experiments list.
+                  Intent intent = getIntent();
+                  Bundle extras = null;
+                  if (intent != null) {
+                    extras = intent.getExtras();
+                  }
+                  int selectedNavItemId;
+                  if (savedItemId != NO_SELECTED_ITEM) {
+                    selectedNavItemId = savedItemId;
+                  } else if (extras != null) {
+                    selectedNavItemId =
+                        extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
+                  } else {
+                    selectedNavItemId = R.id.navigation_item_experiments;
+                  }
+                  MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
+                  if (item == null) {
+                    selectedNavItemId = R.id.navigation_item_experiments;
+                    item = navigationView.getMenu().findItem(selectedNavItemId);
+                  }
+                  navigationView.setCheckedItem(selectedNavItemId);
+                  onNavigationItemSelected(item);
 
-    // Subscribe to account switches.
-    accountsProvider
-        .getObservableCurrentAccount()
-        .takeUntil(pause.happens())
-        .subscribe(this::onAccountSwitched);
+                  // Subscribe to account switches.
+                  accountsProvider
+                      .getObservableCurrentAccount()
+                      .takeUntil(pause.happens())
+                      .subscribe(this::onAccountSwitched);
 
-    if (!isMultiWindowEnabled()) {
-      // Subscribe to the recording status.
-      watchRecordingStatus();
-    }
-    // If we get to here, it's safe to log the mode we are in: user has signed in and/or
-    // completed age verification.
-    String labelMode =
-        accountsProvider.isSignedIn()
-            ? TrackerConstants.LABEL_MODE_SIGNED_IN
-            : (AgeVerifier.isUserOver13(this)
-                ? TrackerConstants.LABEL_MODE_SIGNED_OUT_NONCHILD
-                : TrackerConstants.LABEL_MODE_SIGNED_OUT_CHILD);
-    WhistlePunkApplication.getUsageTracker(this)
-        .trackEvent(TrackerConstants.CATEGORY_APP, TrackerConstants.ACTION_SET_MODE, labelMode, 0);
+                  if (!isMultiWindowEnabled()) {
+                    // Subscribe to the recording status.
+                    watchRecordingStatus();
+                  }
+                  // If we get to here, it's safe to log the mode we are in: user has signed in
+                  // and/or
+                  // completed age verification.
+                  String labelMode =
+                      accountsProvider.isSignedIn()
+                          ? TrackerConstants.LABEL_MODE_SIGNED_IN
+                          : (AgeVerifier.isUserOver13(this)
+                              ? TrackerConstants.LABEL_MODE_SIGNED_OUT_NONCHILD
+                              : TrackerConstants.LABEL_MODE_SIGNED_OUT_CHILD);
+                  WhistlePunkApplication.getUsageTracker(this)
+                      .trackEvent(
+                          TrackerConstants.CATEGORY_APP,
+                          TrackerConstants.ACTION_SET_MODE,
+                          labelMode,
+                          0);
+                }));
   }
 
   public boolean isAttemptingImport() {
@@ -214,6 +240,7 @@ public class MainActivity extends ActivityWithNavigationView {
       // Dispose of the recording status subscription.
       pause.onHappened();
     }
+    disposeWhenPaused.dispose();
     super.onPause();
   }
 
@@ -234,6 +261,12 @@ public class MainActivity extends ActivityWithNavigationView {
       pause.onHappened();
     }
     super.onStop();
+  }
+
+  @Override
+  protected void onDestroy() {
+    disposeWhenDestroyed.dispose();
+    super.onDestroy();
   }
 
   private boolean isMultiWindowEnabled() {
@@ -298,14 +331,17 @@ public class MainActivity extends ActivityWithNavigationView {
    *
    * @return true iff the activity has been finished
    */
-  private boolean showRequiredScreensIfNeeded() {
-    if (NotSignedInYetActivity.maybeLaunch(this)) {
-      finish();
-      return true;
-    }
-    if (OldUserOptionPromptActivity.maybeLaunch(this)) {
-      finish();
-      return true;
+  private boolean showRequiredScreensIfNeeded(
+      boolean supportSignedInAccount, boolean requireSignedInAccount) {
+    if (supportSignedInAccount) {
+      if (NotSignedInYetActivity.maybeLaunch(this, requireSignedInAccount)) {
+        finish();
+        return true;
+      }
+      if (OldUserOptionPromptActivity.maybeLaunch(this, requireSignedInAccount)) {
+        finish();
+        return true;
+      }
     }
     if (AgeVerifier.shouldShowUserAge(this)) {
       rememberAttemptingImport();

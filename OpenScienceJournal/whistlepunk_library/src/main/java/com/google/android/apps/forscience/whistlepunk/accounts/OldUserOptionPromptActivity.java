@@ -39,10 +39,8 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
 
   private int unclaimedExperimentCount;
 
-  public static boolean maybeLaunch(Context context) {
-    if (WhistlePunkApplication.getAppServices(context)
-        .getAccountsProvider()
-        .requireSignedInAccount()) {
+  public static boolean maybeLaunch(Context context, boolean requireSignedInAccount) {
+    if (requireSignedInAccount) {
       // If there are any unclaimed experiments and the user hasn't previously chosen an option in
       // OldUserOptionPromptActivity, show OldUserOptionPromptActivity now.
       if (AccountsUtils.getUnclaimedExperimentCount(context) >= 1) {
