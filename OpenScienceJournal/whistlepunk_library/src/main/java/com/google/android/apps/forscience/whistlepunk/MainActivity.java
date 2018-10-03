@@ -144,6 +144,10 @@ public class MainActivity extends ActivityWithNavigationView {
     appSingleton.setResumedActivity(this);
     pause.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
 
+    if (isAttemptingImport()) {
+      attemptImport();
+    }
+
     disposeWhenPaused.add(
         Observable.combineLatest(
                 accountsProvider.supportSignedInAccount().toObservable(),
@@ -208,6 +212,25 @@ public class MainActivity extends ActivityWithNavigationView {
                           labelMode,
                           0);
                 }));
+  }
+
+  private void attemptImport() {
+    WhistlePunkApplication.getUsageTracker(this)
+        .trackEvent(
+            TrackerConstants.CATEGORY_EXPERIMENTS,
+            TrackerConstants.ACTION_IMPORTED,
+            TrackerConstants.LABEL_EXPERIMENT_LIST,
+            0);
+
+    if (!isRecording) {
+      ExportService.handleExperimentImport(this, currentAccount, getIntent().getData());
+    } else {
+      AccessibilityUtils.makeSnackbar(
+              findViewById(R.id.drawer_layout),
+              getResources().getString(R.string.import_failed_recording),
+              Snackbar.LENGTH_SHORT)
+          .show();
+    }
   }
 
   public boolean isAttemptingImport() {
@@ -542,22 +565,7 @@ public class MainActivity extends ActivityWithNavigationView {
     watchRecordingStatus();
 
     if (isAttemptingImport()) {
-      WhistlePunkApplication.getUsageTracker(this)
-          .trackEvent(
-              TrackerConstants.CATEGORY_EXPERIMENTS,
-              TrackerConstants.ACTION_IMPORTED,
-              TrackerConstants.LABEL_EXPERIMENT_LIST,
-              0);
-
-      if (!isRecording) {
-        ExportService.handleExperimentImport(this, currentAccount, getIntent().getData());
-      } else {
-        AccessibilityUtils.makeSnackbar(
-                findViewById(R.id.drawer_layout),
-                getResources().getString(R.string.import_failed_recording),
-                Snackbar.LENGTH_SHORT)
-            .show();
-      }
+      attemptImport();
 
       // Clear the intent so we don't try to import again.
       setIntent(null);
