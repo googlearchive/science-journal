@@ -560,8 +560,15 @@ public class ExperimentListFragment extends Fragment
     if (optionsMenu == null) {
       return;
     }
+
     MenuItem menuItemActionNetworkDisconnected =
         optionsMenu.findItem(R.id.action_network_disconnected);
+
+    if (!appAccount.isSignedIn()) {
+      menuItemActionNetworkDisconnected.setVisible(false);
+      return;
+    }
+
     if (menuItemActionNetworkDisconnected != null) {
       ConnectivityManager cm =
           (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
