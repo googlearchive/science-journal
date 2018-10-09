@@ -231,6 +231,9 @@ public class MainActivity extends ActivityWithNavigationView {
               Snackbar.LENGTH_SHORT)
           .show();
     }
+    
+    // Clear the intent so we don't try to import again.
+    setIntent(null);
   }
 
   public boolean isAttemptingImport() {
@@ -566,9 +569,6 @@ public class MainActivity extends ActivityWithNavigationView {
 
     if (isAttemptingImport()) {
       attemptImport();
-
-      // Clear the intent so we don't try to import again.
-      setIntent(null);
     }
   }
 }
