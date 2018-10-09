@@ -36,7 +36,7 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_enable_scan"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/accessibility_touch_target_min_size"
+            android:layout_height="wrap_content"
             android:minWidth="@dimen/accessibility_touch_target_min_size"
             android:layout_weight="0"
             android:text="@string/btn_enable_bluetooth"
