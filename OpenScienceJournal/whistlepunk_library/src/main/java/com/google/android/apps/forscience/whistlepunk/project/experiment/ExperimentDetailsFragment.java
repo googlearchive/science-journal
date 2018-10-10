@@ -360,11 +360,18 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public void scrollToBottom() {
-    if (details != null && adapter != null && adapter.getItemCount() > 0) {
-      if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
-        details.smoothScrollToPosition(adapter.getItemCount() - 1);
-      } else {
-        details.scrollToPosition(adapter.getItemCount() - 1);
+    try {
+      if (details != null && adapter != null && adapter.getItemCount() > 0) {
+        if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
+          details.smoothScrollToPosition(adapter.getItemCount() - 1);
+        } else {
+          details.scrollToPosition(adapter.getItemCount() - 1);
+        }
+      }
+    } catch (NullPointerException e) {
+      // TODO(b/78091514): Figure out what is actually going on here.
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "ExperimentDetailsFragment failed to scroll " + e);
       }
     }
   }
