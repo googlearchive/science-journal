@@ -219,8 +219,8 @@
             android:exported="false"
             android:label="@string/navigation_item_settings"/>
         <activity
-            android:name=".accounts.NotSignedInYetActivity"
-            android:theme="@style/AppTheme.NotSignedInYet"
+            android:name=".accounts.GetStartedActivity"
+            android:theme="@style/AppTheme.GetStarted"
             android:exported="false"
             />
         <activity

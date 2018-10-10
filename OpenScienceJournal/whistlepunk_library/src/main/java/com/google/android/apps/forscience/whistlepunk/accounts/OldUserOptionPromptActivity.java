@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.appcompat.app.AlertDialog;
@@ -35,26 +34,32 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 /** Activity that lets the user choose what to do with their old experiments. */
 public class OldUserOptionPromptActivity extends AppCompatActivity {
   private static final String TAG = "OldUserOptionPrompt";
-  private static final String KEY_OLD_USER_OPTION_CHOSEN = "key_old_user_option_chosen";
+  private static final String KEY_SHOULD_LAUNCH =
+      "key_should_launch_old_user_option_prompt_activity";
 
   private int unclaimedExperimentCount;
 
-  public static boolean maybeLaunch(Context context, boolean requireSignedInAccount) {
-    if (requireSignedInAccount) {
-      // If there are any unclaimed experiments and the user hasn't previously chosen an option in
-      // OldUserOptionPromptActivity, show OldUserOptionPromptActivity now.
-      if (AccountsUtils.getUnclaimedExperimentCount(context) >= 1) {
-        SharedPreferences sharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(context);
-        if (!sharedPreferences.getBoolean(KEY_OLD_USER_OPTION_CHOSEN, false)) {
-          Intent intent = new Intent(context, OldUserOptionPromptActivity.class);
-          context.startActivity(intent);
-          return true;
-        }
-      }
+  public static boolean maybeLaunch(Context context) {
+    if (getShouldLaunch(context)) {
+      Intent intent = new Intent(context, OldUserOptionPromptActivity.class);
+      context.startActivity(intent);
+      return true;
     }
+
     // Return false to indicate to the caller that we did not launch OldUserOptionPromptActivity.
     return false;
+  }
+
+  public static boolean getShouldLaunch(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(KEY_SHOULD_LAUNCH, true);
+  }
+
+  public static void setShouldLaunch(Context context, boolean shouldLaunch) {
+    PreferenceManager.getDefaultSharedPreferences(context)
+        .edit()
+        .putBoolean(KEY_SHOULD_LAUNCH, shouldLaunch)
+        .commit();
   }
 
   @Override
@@ -159,8 +164,7 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
   }
 
   private void launchMainActivity() {
-    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-    sharedPreferences.edit().putBoolean(KEY_OLD_USER_OPTION_CHOSEN, true).apply();
+    setShouldLaunch(this, false);
 
     Intent intent = new Intent(this, MainActivity.class);
     finish();

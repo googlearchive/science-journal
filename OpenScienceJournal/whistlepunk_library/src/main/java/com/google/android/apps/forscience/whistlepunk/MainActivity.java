@@ -35,9 +35,11 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AccountsUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.accounts.NotSignedInYetActivity;
+import com.google.android.apps.forscience.whistlepunk.accounts.GetStartedActivity;
 import com.google.android.apps.forscience.whistlepunk.accounts.OldUserOptionPromptActivity;
+import com.google.android.apps.forscience.whistlepunk.accounts.SignInActivity;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -68,6 +70,7 @@ public class MainActivity extends ActivityWithNavigationView {
 
   private AccountsProvider accountsProvider;
   @Nullable private AppAccount currentAccount;
+  private boolean requireSignedInAccount;
 
   private FeedbackProvider feedbackProvider;
   private NavigationView navigationView;
@@ -148,70 +151,46 @@ public class MainActivity extends ActivityWithNavigationView {
       attemptImport();
     }
 
-    disposeWhenPaused.add(
-        Observable.combineLatest(
-                accountsProvider.supportSignedInAccount().toObservable(),
-                accountsProvider.requireSignedInAccount().toObservable(),
-                Pair::create)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                pair -> {
-                  boolean supportSignedInAccount = pair.first;
-                  boolean requireSignedInAccount = pair.second;
-                  if (showRequiredScreensIfNeeded(supportSignedInAccount, requireSignedInAccount)) {
-                    return;
-                  }
+    showRequiredScreensIfNeeded(
+        () -> {
+          // Navigate to the desired fragment, based on saved state or intent extras, or (by
+          // default) the experiments list.
+          Intent intent = getIntent();
+          Bundle extras = null;
+          if (intent != null) {
+            extras = intent.getExtras();
+          }
+          int selectedNavItemId;
+          if (savedItemId != NO_SELECTED_ITEM) {
+            selectedNavItemId = savedItemId;
+          } else if (extras != null) {
+            selectedNavItemId =
+                extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
+          } else {
+            selectedNavItemId = R.id.navigation_item_experiments;
+          }
+          MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
+          if (item == null) {
+            selectedNavItemId = R.id.navigation_item_experiments;
+            item = navigationView.getMenu().findItem(selectedNavItemId);
+          }
+          navigationView.setCheckedItem(selectedNavItemId);
+          onNavigationItemSelected(item);
 
-                  // Navigate to the desired fragment, based on saved state or intent extras, or (by
-                  // default) the experiments list.
-                  Intent intent = getIntent();
-                  Bundle extras = null;
-                  if (intent != null) {
-                    extras = intent.getExtras();
-                  }
-                  int selectedNavItemId;
-                  if (savedItemId != NO_SELECTED_ITEM) {
-                    selectedNavItemId = savedItemId;
-                  } else if (extras != null) {
-                    selectedNavItemId =
-                        extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
-                  } else {
-                    selectedNavItemId = R.id.navigation_item_experiments;
-                  }
-                  MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
-                  if (item == null) {
-                    selectedNavItemId = R.id.navigation_item_experiments;
-                    item = navigationView.getMenu().findItem(selectedNavItemId);
-                  }
-                  navigationView.setCheckedItem(selectedNavItemId);
-                  onNavigationItemSelected(item);
+          // Subscribe to account switches.
+          accountsProvider
+              .getObservableCurrentAccount()
+              .takeUntil(pause.happens())
+              .subscribe(this::onAccountSwitched);
 
-                  // Subscribe to account switches.
-                  accountsProvider
-                      .getObservableCurrentAccount()
-                      .takeUntil(pause.happens())
-                      .subscribe(this::onAccountSwitched);
-
-                  if (!isMultiWindowEnabled()) {
-                    // Subscribe to the recording status.
-                    watchRecordingStatus();
-                  }
-                  // If we get to here, it's safe to log the mode we are in: user has signed in
-                  // and/or
-                  // completed age verification.
-                  String labelMode =
-                      accountsProvider.isSignedIn()
-                          ? TrackerConstants.LABEL_MODE_SIGNED_IN
-                          : (AgeVerifier.isUserOver13(this)
-                              ? TrackerConstants.LABEL_MODE_SIGNED_OUT_NONCHILD
-                              : TrackerConstants.LABEL_MODE_SIGNED_OUT_CHILD);
-                  WhistlePunkApplication.getUsageTracker(this)
-                      .trackEvent(
-                          TrackerConstants.CATEGORY_APP,
-                          TrackerConstants.ACTION_SET_MODE,
-                          labelMode,
-                          0);
-                }));
+          if (!isMultiWindowEnabled()) {
+            // Subscribe to the recording status.
+            watchRecordingStatus();
+          }
+          // If we get to here, it's safe to log the mode we are in: user has signed in
+          // and/or completed age verification.
+          trackMode();
+        });
   }
 
   private void attemptImport() {
@@ -240,6 +219,17 @@ public class MainActivity extends ActivityWithNavigationView {
     return getIntent() != null
         && getIntent().getAction() != null
         && getIntent().getAction().equals(Intent.ACTION_VIEW);
+  }
+
+  private void trackMode() {
+    String labelMode =
+        accountsProvider.isSignedIn()
+            ? TrackerConstants.LABEL_MODE_SIGNED_IN
+            : (AgeVerifier.isUserOver13(this)
+                ? TrackerConstants.LABEL_MODE_SIGNED_OUT_NONCHILD
+                : TrackerConstants.LABEL_MODE_SIGNED_OUT_CHILD);
+    WhistlePunkApplication.getUsageTracker(this)
+        .trackEvent(TrackerConstants.CATEGORY_APP, TrackerConstants.ACTION_SET_MODE, labelMode, 0);
   }
 
   @Override
@@ -351,6 +341,26 @@ public class MainActivity extends ActivityWithNavigationView {
     AppSingleton.getInstance(this).setMostRecentOpenWasImport(isAttemptingImport());
   }
 
+  private void showRequiredScreensIfNeeded(Runnable runIfNoRequiredScreens) {
+    disposeWhenPaused.add(
+        Observable.combineLatest(
+                accountsProvider.supportSignedInAccount().toObservable(),
+                accountsProvider.requireSignedInAccount().toObservable(),
+                Pair::create)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                pair -> {
+                  boolean supportSignedInAccount = pair.first;
+                  boolean requireSignedInAccount = pair.second;
+                  this.requireSignedInAccount = requireSignedInAccount;
+                  if (showRequiredScreensIfNeeded(supportSignedInAccount, requireSignedInAccount)) {
+                    return;
+                  }
+
+                  runIfNoRequiredScreens.run();
+                }));
+  }
+
   /**
    * If we haven't seen all the required screens, opens the next required activity, and finishes
    * this activity
@@ -360,15 +370,29 @@ public class MainActivity extends ActivityWithNavigationView {
   private boolean showRequiredScreensIfNeeded(
       boolean supportSignedInAccount, boolean requireSignedInAccount) {
     if (supportSignedInAccount) {
-      if (NotSignedInYetActivity.maybeLaunch(this, requireSignedInAccount)) {
+      if (GetStartedActivity.maybeLaunch(this)) {
         finish();
         return true;
       }
-      if (OldUserOptionPromptActivity.maybeLaunch(this, requireSignedInAccount)) {
-        finish();
-        return true;
+      if (accountsProvider.getShowSignInActivityIfNotSignedIn() || requireSignedInAccount) {
+        accountsProvider.setShowSignInActivityIfNotSignedIn(false);
+        if (!accountsProvider.isSignedIn()) {
+          SignInActivity.launch(this);
+          finish();
+          return true;
+        }
       }
+      if (accountsProvider.isSignedIn() && AccountsUtils.getUnclaimedExperimentCount(this) >= 1) {
+        if (OldUserOptionPromptActivity.maybeLaunch(this)) {
+          finish();
+          return true;
+        }
+      }
+      // Once we get here (whether the user signed in or chose to continue without signing in), we
+      // will never show the OldUserOptionPromptActivity on this device.
+      OldUserOptionPromptActivity.setShouldLaunch(this, false);
     }
+
     if (AgeVerifier.shouldShowUserAge(this)) {
       rememberAttemptingImport();
       Intent intent = new Intent(this, AgeVerifier.class);
@@ -558,17 +582,23 @@ public class MainActivity extends ActivityWithNavigationView {
     // Clean up old files from previous exports.
     ExportService.cleanOldFiles(this, currentAccount);
 
-    // Navigate to experiments list.
-    int selectedNavItemId = R.id.navigation_item_experiments;
-    MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
-    navigationView.setCheckedItem(selectedNavItemId);
-    onNavigationItemSelected(item);
-
     // Subscribe to the recording status for the new current account.
     watchRecordingStatus();
 
     if (isAttemptingImport()) {
       attemptImport();
     }
+
+    showRequiredScreensIfNeeded(
+        () -> {
+          // Navigate to experiments list.
+          int selectedNavItemId = R.id.navigation_item_experiments;
+          MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
+          navigationView.setCheckedItem(selectedNavItemId);
+          onNavigationItemSelected(item);
+
+          // Log the mode we are in: user has signed in or signed out.
+          trackMode();
+        });
   }
 }

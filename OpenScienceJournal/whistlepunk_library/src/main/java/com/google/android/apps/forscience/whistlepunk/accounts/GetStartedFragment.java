@@ -25,16 +25,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 
 /** Fragment that tells the user to explore their world. */
-public class NotSignedInYetFragment extends Fragment {
+public class GetStartedFragment extends Fragment {
 
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     super.onCreateView(inflater, container, savedInstanceState);
 
-    View view = inflater.inflate(R.layout.fragment_not_signed_in_yet, container, false);
+    View view = inflater.inflate(R.layout.fragment_get_started, container, false);
 
     Button getStartedButton = view.findViewById(R.id.btn_get_started);
     getStartedButton.setOnClickListener(v -> getStartedClicked());
@@ -44,7 +45,14 @@ public class NotSignedInYetFragment extends Fragment {
 
   private void getStartedClicked() {
     FragmentActivity activity = getActivity();
+
+    GetStartedActivity.setShouldLaunch(activity, false);
+
     SignInActivity.launch(activity);
     activity.finish();
+
+    WhistlePunkApplication.getAppServices(activity)
+        .getAccountsProvider()
+        .setShowSignInActivityIfNotSignedIn(false);
   }
 }

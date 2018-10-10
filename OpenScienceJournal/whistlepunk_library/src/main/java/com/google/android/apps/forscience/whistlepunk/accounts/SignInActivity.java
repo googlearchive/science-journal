@@ -28,7 +28,7 @@ public class SignInActivity extends AppCompatActivity {
   private static final String TAG = "SignInActivity";
   private static final String FRAGMENT_TAG = "SignIn";
 
-  static void launch(Context context) {
+  public static void launch(Context context) {
     Intent intent = new Intent(context, SignInActivity.class);
     context.startActivity(intent);
   }

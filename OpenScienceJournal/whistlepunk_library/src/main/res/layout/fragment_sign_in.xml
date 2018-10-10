@@ -13,55 +13,77 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/splashscreen_bg"
-    >
+<RelativeLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="@drawable/splashscreen_bg"
+      >
 
-  <TextView
-      android:layout_width="wrap_content"
+  <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginTop="42dp"
-      android:layout_marginStart="33dp"
-      android:layout_marginEnd="32dp"
-      android:layout_gravity="center_horizontal"
-      android:text="@string/sign_in_text"
-      android:fontFamily="sans-serif-regular"
-      android:textSize="17sp"
-      android:textColor="@color/text_color_white"
-      />
+      >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="33dp"
+        android:layout_marginStart="33dp"
+        android:layout_marginEnd="32dp"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/sign_in_text"
+        android:fontFamily="sans-serif-regular"
+        android:textSize="17sp"
+        android:textColor="@color/text_color_white"
+        />
+
+    <Button
+        android:id="@+id/btn_sign_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/accessibility_touch_target_min_size"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingStart="27dp"
+        android:paddingEnd="27dp"
+        android:text="@string/sign_in_button"
+        android:fontFamily="sans-serif-medium"
+        android:textAllCaps="true"
+        android:textSize="16sp"
+        android:background="#4a90e2"
+        android:textColor="@android:color/white"
+        />
+
+    <Button
+        android:id="@+id/btn_learn_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/accessibility_touch_target_min_size"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="17dp"
+        android:text="@string/sign_in_learn_more_button"
+        android:fontFamily="sans-serif-medium"
+        android:textAllCaps="true"
+        android:textSize="16sp"
+        android:textColor="@color/text_color_white"
+        android:background="@android:color/transparent"
+        />
+  </LinearLayout>
 
   <Button
-      android:id="@+id/btn_sign_in"
+      android:id="@+id/btn_continue_without_signing_in"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:minHeight="@dimen/accessibility_touch_target_min_size"
-      android:layout_gravity="center_horizontal"
-      android:layout_marginTop="36dp"
-      android:paddingTop="10dp"
-      android:paddingBottom="10dp"
-      android:paddingStart="27dp"
-      android:paddingEnd="27dp"
-      android:text="@string/sign_in_button"
-      android:fontFamily="sans-serif-medium"
-      android:textAllCaps="true"
-      android:textSize="16sp"
-      android:background="@android:color/white"
-      android:textColor="#4a90e2"
-      />
-
-  <Button
-      android:id="@+id/btn_learn_more"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:minHeight="@dimen/accessibility_touch_target_min_size"
-      android:layout_gravity="center_horizontal"
-      android:layout_marginTop="20dp"
-      android:text="@string/sign_in_learn_more_button"
+      android:layout_centerHorizontal="true"
+      android:layout_alignParentBottom="true"
+      android:layout_marginBottom="24dp"
+      android:text="@string/sign_in_continue_without_signing_in_button"
       android:fontFamily="sans-serif-medium"
       android:textAllCaps="true"
       android:textSize="16sp"
@@ -69,4 +91,4 @@
       android:background="@android:color/transparent"
       />
 
-</LinearLayout>
+</RelativeLayout>

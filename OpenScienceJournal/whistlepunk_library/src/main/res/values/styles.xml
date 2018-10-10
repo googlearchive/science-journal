@@ -63,12 +63,14 @@
         <item name="android:windowActionBar">false</item>
     </style>
 
-    <style name="AppTheme.NotSignedInYet">
+    <style name="AppTheme.GetStarted">
+        <item name="android:statusBarColor">@color/status_bar_background_gray</item>
         <item name="android:windowNoTitle">true</item>
         <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppTheme.SignIn">
+        <item name="android:statusBarColor">@color/status_bar_background_gray</item>
         <item name="android:windowNoTitle">true</item>
         <item name="windowNoTitle">true</item>
     </style>

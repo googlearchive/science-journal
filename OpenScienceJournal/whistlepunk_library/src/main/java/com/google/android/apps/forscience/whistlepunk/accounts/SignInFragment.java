@@ -51,6 +51,9 @@ public class SignInFragment extends Fragment {
     Button signInButton = view.findViewById(R.id.btn_sign_in);
     signInButton.setOnClickListener(v -> signInClicked());
 
+    Button continueWithoutSigningInButton = view.findViewById(R.id.btn_continue_without_signing_in);
+    continueWithoutSigningInButton.setOnClickListener(v -> continueWithoutSigningInClicked());
+
     Button learnMoreButton = view.findViewById(R.id.btn_learn_more);
     learnMoreButton.setOnClickListener(v -> learnMoreClicked());
 
@@ -91,5 +94,12 @@ public class SignInFragment extends Fragment {
   private void learnMoreClicked() {
     startActivity(
         new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.sign_in_learn_more_url))));
+  }
+
+  private void continueWithoutSigningInClicked() {
+    // Go to MainActivity.
+    FragmentActivity activity = getActivity();
+    activity.startActivity(new Intent(activity, MainActivity.class));
+    activity.finish();
   }
 }

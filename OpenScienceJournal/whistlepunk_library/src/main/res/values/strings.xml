@@ -1585,6 +1585,9 @@ Permissions notice:
     <!-- URL to go to when learn more button on sign in fragment is clicked. DO NOT TRANSLATE -->
     <string name="sign_in_learn_more_url" translatable="false">https://g.co/ScienceJournal/Backup</string>
 
+    <!-- Button text for continue without signing in button on sign in fragment [CHAR_LIMIT=25] -->
+    <string name="sign_in_continue_without_signing_in_button">Continue without signing in</string>
+
     <!-- Headline for old user option prompt activity [CHAR_LIMIT=50] -->
     <string name="old_user_option_prompt_headline">Back up to Google Drive</string>
 
@@ -1675,6 +1678,9 @@ Permissions notice:
 
     <!-- Menu item label to delete all remaining unclaimed experiments [CHAR_LIMIT=50]-->
     <string name="action_delete_unclaimed_experiments">Delete all</string>
+
+    <!-- Menu item label to use Science Journal without an account [CHAR_LIMIT=50]-->
+    <string name="action_use_without_an_account">Use without an account</string>
 
     <!-- Menu item label to sync now [CHAR_LIMIT=50]-->
     <string name="action_sync">Sync</string>

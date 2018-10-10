@@ -19,38 +19,49 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
-import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
 /** Activity that tells the user to explore their world. */
-public class NotSignedInYetActivity extends AppCompatActivity {
-  private static final String TAG = "NotSignedInYetActivity";
-  private static final String FRAGMENT_TAG = "NotSignedInYet";
+public class GetStartedActivity extends AppCompatActivity {
+  private static final String TAG = "GetStartedActivity";
+  private static final String FRAGMENT_TAG = "GetStarted";
 
-  public static boolean maybeLaunch(Context context, boolean requireSignedInAccount) {
-    AccountsProvider accountsProvider =
-        WhistlePunkApplication.getAppServices(context).getAccountsProvider();
-    if (requireSignedInAccount && !accountsProvider.isSignedIn()) {
-      Intent intent = new Intent(context, NotSignedInYetActivity.class);
+  private static final String KEY_SHOULD_LAUNCH = "key_should_launch_get_started_activity";
+
+  public static boolean maybeLaunch(Context context) {
+    if (getShouldLaunch(context)) {
+      Intent intent = new Intent(context, GetStartedActivity.class);
       context.startActivity(intent);
       return true;
     }
 
-    // Return false to indicate to the caller that we did not launch NotSignedInYetActivity.
+    // Return false to indicate to the caller that we did not launch GetStartedActivity.
     return false;
+  }
+
+  public static boolean getShouldLaunch(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(KEY_SHOULD_LAUNCH, true);
+  }
+
+  public static void setShouldLaunch(Context context, boolean shouldLaunch) {
+    PreferenceManager.getDefaultSharedPreferences(context)
+        .edit()
+        .putBoolean(KEY_SHOULD_LAUNCH, shouldLaunch)
+        .commit();
   }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    setContentView(R.layout.activity_not_signed_in_yet);
+    setContentView(R.layout.activity_get_started);
 
     // Before letting the user sign in, get the DataController for the NonSignedInAccount and
     // call DataController.getLastUsedUnarchivedExperiment, which will upgrade the database, if
@@ -63,23 +74,13 @@ public class NotSignedInYetActivity extends AppCompatActivity {
                 TAG, "getting last used experiment to force database upgrade") {
               @Override
               public void success(Experiment experiment) {
-                AppCompatActivity activity = NotSignedInYetActivity.this;
-                if (WhistlePunkApplication.getAppServices(activity)
-                    .getAccountsProvider()
-                    .isSignedIn()) {
-                  // While we were upgrading the database, the asynchronous code that fetches
-                  // the current account finished and the current account is now signed in.
-                  startActivity(new Intent(activity, MainActivity.class));
-                  finish();
-                } else {
-                  // Let the user sign in.
-                  if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
-                    Fragment fragment = new NotSignedInYetFragment();
-                    getSupportFragmentManager()
-                        .beginTransaction()
-                        .add(R.id.container, fragment, FRAGMENT_TAG)
-                        .commit();
-                  }
+                // Let the user sign in.
+                if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
+                  Fragment fragment = new GetStartedFragment();
+                  getSupportFragmentManager()
+                      .beginTransaction()
+                      .add(R.id.container, fragment, FRAGMENT_TAG)
+                      .commit();
                 }
               }
             });

@@ -38,6 +38,12 @@ public interface AccountsProvider {
   /** Indicates whether a signed-in account is required to use Science Journal. */
   Single<Boolean> requireSignedInAccount();
 
+  /** @return whether the sign in activity should be shown if the user is not signed in. */
+  boolean getShowSignInActivityIfNotSignedIn();
+
+  /** Sets whether the sign in activity should be shown if the user is not signed in. */
+  void setShowSignInActivityIfNotSignedIn(boolean showSignInActivityIfNotSignedIn);
+
   /** @return the number of accounts on the device. */
   int getAccountCount();
 

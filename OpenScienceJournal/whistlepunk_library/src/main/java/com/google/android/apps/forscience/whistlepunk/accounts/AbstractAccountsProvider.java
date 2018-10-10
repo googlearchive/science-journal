@@ -29,10 +29,12 @@ import io.reactivex.subjects.BehaviorSubject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** An abstract base class for accounts providers. */
 abstract class AbstractAccountsProvider implements AccountsProvider {
   final Context applicationContext;
+  final AtomicBoolean showSignInActivityIfNotSignedIn = new AtomicBoolean(true);
   final Single<Boolean> singleSupportSignedInAccount;
   final Single<Boolean> singleRequireSignedInAccount;
   final BehaviorSubject<AppAccount> observableCurrentAccount = BehaviorSubject.create();
@@ -67,7 +69,17 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   }
 
   @Override
-  public final boolean isSignedIn() {
+  public final boolean getShowSignInActivityIfNotSignedIn() {
+    return showSignInActivityIfNotSignedIn.get();
+  }
+
+  @Override
+  public final void setShowSignInActivityIfNotSignedIn(boolean newValue) {
+    showSignInActivityIfNotSignedIn.set(newValue);
+  }
+
+  @Override
+  public boolean isSignedIn() {
     synchronized (lockCurrentAccount) {
       return currentAccount != null && currentAccount.isSignedIn();
     }
