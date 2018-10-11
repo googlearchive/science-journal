@@ -37,6 +37,7 @@ public interface FeatureDiscoveryProvider {
       };
 
   public static final String FEATURE_NEW_EXTERNAL_SENSOR = "fd_new_external_sensor";
+  public static final String FEATURE_NEW_EXPERIMENT = "fd_new_experiment";
 
   /** Amount of time in ms to delay showing the feature discovery dialog. */
   public static final long FEATURE_DISCOVERY_SHOW_DELAY_MS = 500;

@@ -72,6 +72,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
+import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
@@ -122,6 +123,7 @@ public class ExperimentListFragment extends Fragment
   private static final String ARG_CLAIMING_ACCOUNT_KEY = "claimingAccountKey";
   private static final String ARG_USE_PANES = "usePanes";
   public static final String KEY_DEFAULT_EXPERIMENT_CREATED = "key_default_experiment_created";
+  private static final String TAG_NEW_EXPERIMENT_BUTTON = "new_experiment_button";
 
   /** Duration of snackbar length long. 3.5 seconds */
   private static final int LONG_DELAY_MILLIS = 3500;
@@ -138,6 +140,7 @@ public class ExperimentListFragment extends Fragment
   private SwipeRefreshLayout swipeLayout;
   private ConnectivityBroadcastReceiver connectivityBroadcastReceiver;
   private Menu optionsMenu = null;
+  private FeatureDiscoveryProvider featureDiscoveryProvider;
 
   private final CompositeDisposable disposeWhenDestroyed = new CompositeDisposable();
 
@@ -214,6 +217,8 @@ public class ExperimentListFragment extends Fragment
         getActivity().invalidateOptionsMenu();
       }
     }
+    featureDiscoveryProvider =
+        WhistlePunkApplication.getAppServices(getActivity()).getFeatureDiscoveryProvider();
     setHasOptionsMenu(true);
   }
 
@@ -406,6 +411,14 @@ public class ExperimentListFragment extends Fragment
                                 // Note that we don't create the default experiment if the user is
                                 // prompted to claim unclaimed experiments.
                                 createDefaultExperiment();
+                                boolean discoveryEnabled =
+                                    featureDiscoveryProvider.isEnabled(
+                                        getActivity(),
+                                        appAccount,
+                                        FeatureDiscoveryProvider.FEATURE_NEW_EXPERIMENT);
+                                if (discoveryEnabled) {
+                                  scheduleFeatureDiscovery();
+                                }
                                 perfTracker.stopTimer(
                                     loadExperimentTimer,
                                     TrackerConstants.PRIMES_DEFAULT_EXPERIMENT_CREATED);
@@ -419,6 +432,28 @@ public class ExperimentListFragment extends Fragment
                             }
                           });
                 }));
+  }
+
+  private void scheduleFeatureDiscovery() {
+    Handler handler = new Handler(getContext().getMainLooper());
+    handler.postDelayed(
+        this::showFeatureDiscovery, FeatureDiscoveryProvider.FEATURE_DISCOVERY_SHOW_DELAY_MS);
+  }
+
+  private void showFeatureDiscovery() {
+    if (getActivity() == null) {
+      return;
+    }
+
+    // Confirm that a view with the tag exists, so featureDiscoveryProvider can find it.
+    final View view = this.getView().findViewWithTag(TAG_NEW_EXPERIMENT_BUTTON);
+    if (view != null) {
+      featureDiscoveryProvider.show(
+          getActivity(),
+          appAccount,
+          FeatureDiscoveryProvider.FEATURE_NEW_EXPERIMENT,
+          TAG_NEW_EXPERIMENT_BUTTON);
+    }
   }
 
   private SharedPreferences getSharedPreferences() {

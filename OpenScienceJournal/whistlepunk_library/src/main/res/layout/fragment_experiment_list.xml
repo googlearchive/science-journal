@@ -47,6 +47,7 @@
         android:layout_marginBottom="@dimen/fab_margin_bottom"
         android:layout_marginEnd="@dimen/fab_margin_right"
         android:src="@drawable/ic_plus_white_36dp"
+        android:tag="new_experiment_button"
         android:contentDescription="@string/btn_new_experiment_content_description"
         app:backgroundTint="@color/color_primary_dark"
         app:elevation="@dimen/fab_elevation"
