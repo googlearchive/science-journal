@@ -62,6 +62,7 @@ import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
@@ -317,25 +318,31 @@ public class ExperimentListFragment extends Fragment
       newExperimentButton.setVisibility(View.GONE);
     } else {
       newExperimentButton.setOnClickListener(
-          v ->
-              getDataController()
-                  .createExperiment(
-                      new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
-                        @Override
-                        public void success(final Experiment experiment) {
-                          WhistlePunkApplication.getUsageTracker(getActivity())
-                              .trackEvent(
-                                  TrackerConstants.CATEGORY_EXPERIMENTS,
-                                  TrackerConstants.ACTION_CREATE,
-                                  TrackerConstants.LABEL_EXPERIMENT_LIST,
-                                  0);
-                          launchPanesActivity(
-                              v.getContext(),
-                              appAccount,
-                              experiment.getExperimentId(),
-                              false /* claimExperimentsMode */);
-                        }
-                      }));
+          v -> {
+            if (getRecorderController().watchRecordingStatus().blockingFirst().isRecording()) {
+              // This should never happen, but apparently it does on some Xperia devices?
+              // b/117484248
+              return;
+            }
+            getDataController()
+                .createExperiment(
+                    new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
+                      @Override
+                      public void success(final Experiment experiment) {
+                        WhistlePunkApplication.getUsageTracker(getActivity())
+                            .trackEvent(
+                                TrackerConstants.CATEGORY_EXPERIMENTS,
+                                TrackerConstants.ACTION_CREATE,
+                                TrackerConstants.LABEL_EXPERIMENT_LIST,
+                                0);
+                        launchPanesActivity(
+                            v.getContext(),
+                            appAccount,
+                            experiment.getExperimentId(),
+                            false /* claimExperimentsMode */);
+                      }
+                    });
+          });
     }
 
     return view;
@@ -545,6 +552,10 @@ public class ExperimentListFragment extends Fragment
 
   private DataController getDataController() {
     return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
+  }
+
+  private RecorderController getRecorderController() {
+    return AppSingleton.getInstance(getActivity()).getRecorderController(appAccount);
   }
 
   private ExperimentLibraryManager getExperimentLibraryManager() {
