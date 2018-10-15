@@ -33,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,7 +138,11 @@ public class Experiment extends LabelListHolder {
     title = this.proto.title;
     description = this.proto.description;
     lastUsedTimeMs = this.experimentOverview.lastUsedTimeMs;
-    imagePath = this.proto.imagePath;
+    if (!Strings.isNullOrEmpty(this.proto.imagePath)) {
+      imagePath = this.proto.imagePath;
+    } else {
+      imagePath = this.experimentOverview.imagePath;
+    }
     isArchived = this.experimentOverview.isArchived;
     totalTrials = this.proto.totalTrials;
     trialCount = this.experimentOverview.trialCount;
