@@ -152,7 +152,8 @@ public class MainActivity extends ActivityWithNavigationView {
     appSingleton.setResumedActivity(this);
     pause.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
 
-    if (isAttemptingImport()) {
+    rememberAttemptingImport();
+    if (isAttemptingImport() && currentAccount != null) {
       attemptImport();
     }
 
@@ -399,7 +400,6 @@ public class MainActivity extends ActivityWithNavigationView {
     }
 
     if (AgeVerifier.shouldShowUserAge(this)) {
-      rememberAttemptingImport();
       Intent intent = new Intent(this, AgeVerifier.class);
       startActivity(intent);
       finish();
