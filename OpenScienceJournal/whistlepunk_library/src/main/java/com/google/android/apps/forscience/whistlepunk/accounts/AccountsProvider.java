@@ -19,9 +19,9 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 import android.app.Activity;
 import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.disposables.Disposable;
 import java.util.Set;
 
 /** An interface which provides account management. */
@@ -51,9 +51,9 @@ public interface AccountsProvider {
    * Installs the account switcher, if necessary. Must be called during onCreate of the main
    * activity, after {@link Activity#setContentView}.
    *
-   * @return a {@link Disposable} that should be disposed when the given activity is destroyed.
+   * @return a {@link Completable}.
    */
-  Disposable installAccountSwitcher(ActivityWithNavigationView activity);
+  Completable installAccountSwitcher(ActivityWithNavigationView activity);
 
   /**
    * Disconnects the account switcher, if necessary. Must be called during onStop of the main

@@ -107,7 +107,19 @@ public class MainActivity extends ActivityWithNavigationView {
 
     setContentView(R.layout.activity_main);
 
-    disposeWhenDestroyed.add(accountsProvider.installAccountSwitcher(this));
+    disposeWhenDestroyed.add(
+        accountsProvider
+            .installAccountSwitcher(this)
+            .subscribe(
+                () -> {
+                  navigationView = (NavigationView) findViewById(R.id.navigation);
+                  navigationView.setNavigationItemSelectedListener(this);
+
+                  // Only show dev testing options when requested.
+                  if (!DevOptionsFragment.shouldShowTestingOptions()) {
+                    navigationView.getMenu().removeItem(R.id.dev_testing_options);
+                  }
+                }));
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -121,13 +133,6 @@ public class MainActivity extends ActivityWithNavigationView {
 
     drawerLayout = (MultiTouchDrawerLayout) findViewById(R.id.drawer_layout);
     drawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.color_primary_dark));
-    navigationView = (NavigationView) findViewById(R.id.navigation);
-    navigationView.setNavigationItemSelectedListener(this);
-
-    // Only show dev testing options when requested.
-    if (!DevOptionsFragment.shouldShowTestingOptions()) {
-      navigationView.getMenu().removeItem(R.id.dev_testing_options);
-    }
 
     feedbackProvider = WhistlePunkApplication.getAppServices(this).getFeedbackProvider();
 
@@ -210,7 +215,7 @@ public class MainActivity extends ActivityWithNavigationView {
               Snackbar.LENGTH_SHORT)
           .show();
     }
-    
+
     // Clear the intent so we don't try to import again.
     setIntent(null);
   }

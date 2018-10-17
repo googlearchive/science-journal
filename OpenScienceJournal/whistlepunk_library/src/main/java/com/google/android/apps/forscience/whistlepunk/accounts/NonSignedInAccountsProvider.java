@@ -22,7 +22,6 @@ import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
 import io.reactivex.Completable;
 import io.reactivex.SingleEmitter;
-import io.reactivex.disposables.Disposable;
 
 /** An accounts provider which supports a user with no signed-in account. */
 public final class NonSignedInAccountsProvider extends AbstractAccountsProvider {
@@ -47,8 +46,8 @@ public final class NonSignedInAccountsProvider extends AbstractAccountsProvider 
   }
 
   @Override
-  public Disposable installAccountSwitcher(ActivityWithNavigationView activity) {
-    return Completable.complete().subscribe();
+  public Completable installAccountSwitcher(ActivityWithNavigationView activity) {
+    return Completable.complete();
   }
 
   @Override
