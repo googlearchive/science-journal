@@ -214,7 +214,13 @@ class ExperimentCache {
       activeExperiment = null;
       cancelWriteTimer();
       activeExperimentNeedsWrite = false;
-      experimentLibraryManager.setDeleted(localExperimentId, true);
+      if (experimentLibraryManager.getExperiment(localExperimentId) != null) {
+        experimentLibraryManager.setDeleted(localExperimentId, true);
+      } else {
+        if (Log.isLoggable(TAG, Log.WARN)) {
+          Log.w(TAG, "Experiment Library didn't contain experiment: " + localExperimentId);
+        }
+      }
     }
   }
 
