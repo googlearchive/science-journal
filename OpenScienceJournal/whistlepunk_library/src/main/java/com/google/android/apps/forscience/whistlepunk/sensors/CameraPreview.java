@@ -17,9 +17,9 @@
 /* Custom SurfaceView that receives Camera preview frames and displays them. */
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
-import static android.support.media.ExifInterface.ORIENTATION_NORMAL;
-import static android.support.media.ExifInterface.ORIENTATION_ROTATE_90;
-import static android.support.media.ExifInterface.ORIENTATION_UNDEFINED;
+import static androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL;
+import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90;
+import static androidx.exifinterface.media.ExifInterface.ORIENTATION_UNDEFINED;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -29,13 +29,13 @@ import android.hardware.Camera.CameraInfo;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
-import android.support.media.ExifInterface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import androidx.exifinterface.media.ExifInterface;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.PanesBottomSheetBehavior;
