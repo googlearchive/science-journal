@@ -1411,9 +1411,6 @@ Permissions notice:
     <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
     <string name="tab_description_camera">Take photo</string>
 
-    <!-- Content description for tab icon to draw with Ink [CHAR_LIMIT=none] -->
-    <string name="tab_description_ink">Draw</string>
-
     <!-- Button to view more notes in a trial [CHAR_LIMIT=50] -->
     <string name="load_more_notes_btn">View more notes</string>
 
