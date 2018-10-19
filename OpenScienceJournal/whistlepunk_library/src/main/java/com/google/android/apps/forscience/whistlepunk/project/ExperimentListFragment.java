@@ -610,19 +610,23 @@ public class ExperimentListFragment extends Fragment
     MenuItem menuItemActionNetworkDisconnected =
         optionsMenu.findItem(R.id.action_network_disconnected);
 
+    // In claim experiments mode, the menus are different. If menuItemActionNetworkDisconnected is
+    // null, the menu item doesn't exist.
+    if (menuItemActionNetworkDisconnected == null) {
+      return;
+    }
+
     if (!appAccount.isSignedIn()) {
       menuItemActionNetworkDisconnected.setVisible(false);
       return;
     }
 
-    if (menuItemActionNetworkDisconnected != null) {
-      ConnectivityManager cm =
-          (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-      boolean shouldShowIcon =
-          cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
-      menuItemActionNetworkDisconnected.setVisible(shouldShowIcon);
-      menuItemActionNetworkDisconnected.setEnabled(shouldShowIcon);
-    }
+    ConnectivityManager cm =
+        (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+    boolean shouldShowIcon =
+        cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
+    menuItemActionNetworkDisconnected.setVisible(shouldShowIcon);
+    menuItemActionNetworkDisconnected.setEnabled(shouldShowIcon);
   }
 
   @Override
