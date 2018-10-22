@@ -209,6 +209,7 @@ public class MainActivity extends ActivityWithNavigationView {
 
     if (!isRecording) {
       ExportService.handleExperimentImport(this, currentAccount, getIntent().getData());
+      AppSingleton.getInstance(this).getAndClearMostRecentOpenWasImport();
     } else {
       AccessibilityUtils.makeSnackbar(
               findViewById(R.id.drawer_layout),
