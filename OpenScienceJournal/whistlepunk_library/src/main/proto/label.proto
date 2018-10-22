@@ -67,6 +67,8 @@ message Label {
     SNAPSHOT = 4;  // A label with value snapshot(s) for one or more sensors.
                    // This ValueType is associated with protoData of
                    // snapshot_label_value.proto.
+    SKETCH = 5;    // A label with a sketch. This ValueType is associated with
+                   // protoData of sketch_label_value.proto.
   };
 
   // The type this label represents. This can be used to reference the type of

@@ -879,6 +879,7 @@ public class ExperimentDetailsFragment extends Fragment
     static final int VIEW_TYPE_SNAPSHOT_LABEL = 5;
     static final int VIEW_TYPE_UNKNOWN_LABEL = 6;
     static final int VIEW_TYPE_RECORDING = 7;
+    static final int VIEW_TYPE_SKETCH = 8;
 
     private final WeakReference<ExperimentDetailsFragment> parentReference;
     private Experiment experiment;
@@ -904,7 +905,8 @@ public class ExperimentDetailsFragment extends Fragment
       if (viewType == VIEW_TYPE_EXPERIMENT_TEXT_LABEL
           || viewType == VIEW_TYPE_EXPERIMENT_PICTURE_LABEL
           || viewType == VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL
-          || viewType == VIEW_TYPE_SNAPSHOT_LABEL) {
+          || viewType == VIEW_TYPE_SNAPSHOT_LABEL
+          || viewType == VIEW_TYPE_SKETCH) {
         view = inflater.inflate(R.layout.exp_card_pinned_note, parent, false);
         return new NoteViewHolder(view);
       } else if (viewType == VIEW_TYPE_RECORDING) {
@@ -913,6 +915,7 @@ public class ExperimentDetailsFragment extends Fragment
       } else if (viewType == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
         view = inflater.inflate(R.layout.metadata_archived, parent, false);
       } else {
+        // TODO(b/117987511): only show exp_card_run for VIEW_TYPE_RUN_CARD, not as default
         view = inflater.inflate(R.layout.exp_card_run, parent, false);
       }
       return new DetailsViewHolder(view, viewType);

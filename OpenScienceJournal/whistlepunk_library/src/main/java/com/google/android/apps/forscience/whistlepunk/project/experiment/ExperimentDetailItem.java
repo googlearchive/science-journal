@@ -64,6 +64,8 @@ public class ExperimentDetailItem {
       viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_EXPERIMENT_TRIGGER_LABEL;
     } else if (label.getType() == GoosciLabel.Label.ValueType.SNAPSHOT) {
       viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_SNAPSHOT_LABEL;
+    } else if (label.getType() == GoosciLabel.Label.ValueType.SKETCH) {
+      viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_SKETCH;
     } else {
       viewType = ExperimentDetailsFragment.DetailsAdapter.VIEW_TYPE_UNKNOWN_LABEL;
     }
