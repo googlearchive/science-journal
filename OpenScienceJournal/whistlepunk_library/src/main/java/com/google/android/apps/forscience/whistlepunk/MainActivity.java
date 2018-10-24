@@ -261,9 +261,9 @@ public class MainActivity extends ActivityWithNavigationView {
   protected void onPause() {
     if (!isMultiWindowEnabled()) {
       // Dispose of the recording status subscription.
+      disposeWhenPaused.dispose();
       pause.onHappened();
     }
-    disposeWhenPaused.dispose();
     super.onPause();
   }
 
@@ -278,6 +278,7 @@ public class MainActivity extends ActivityWithNavigationView {
 
   @Override
   protected void onStop() {
+    disposeWhenPaused.dispose();
     accountsProvider.disconnectAccountSwitcher(this);
     if (isMultiWindowEnabled()) {
       // Dispose of the recording status subscription.
@@ -363,7 +364,6 @@ public class MainActivity extends ActivityWithNavigationView {
                   if (showRequiredScreensIfNeeded(supportSignedInAccount, requireSignedInAccount)) {
                     return;
                   }
-
                   runIfNoRequiredScreens.run();
                 }));
   }
