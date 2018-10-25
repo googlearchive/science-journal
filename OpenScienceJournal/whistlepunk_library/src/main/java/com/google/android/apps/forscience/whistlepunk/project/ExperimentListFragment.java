@@ -627,6 +627,11 @@ public class ExperimentListFragment extends Fragment
         cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
     menuItemActionNetworkDisconnected.setVisible(shouldShowIcon);
     menuItemActionNetworkDisconnected.setEnabled(shouldShowIcon);
+    if (shouldShowIcon) {
+      getView()
+          .announceForAccessibility(
+              getResources().getString(R.string.drive_sync_cannot_reach_google_drive));
+    }
   }
 
   @Override
