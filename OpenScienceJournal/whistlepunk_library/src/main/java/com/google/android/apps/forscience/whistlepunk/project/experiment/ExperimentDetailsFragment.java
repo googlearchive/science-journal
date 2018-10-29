@@ -914,9 +914,11 @@ public class ExperimentDetailsFragment extends Fragment
         return new RecordingViewHolder(view);
       } else if (viewType == VIEW_TYPE_EXPERIMENT_ARCHIVED) {
         view = inflater.inflate(R.layout.metadata_archived, parent, false);
-      } else {
-        // TODO(b/117987511): only show exp_card_run for VIEW_TYPE_RUN_CARD, not as default
+      } else if (viewType == VIEW_TYPE_RUN_CARD) {
         view = inflater.inflate(R.layout.exp_card_run, parent, false);
+      } else {
+        // TODO(b/117987511): display a card that explains why we can't show this data
+        view = inflater.inflate(R.layout.exp_card_empty, parent, false);
       }
       return new DetailsViewHolder(view, viewType);
     }
