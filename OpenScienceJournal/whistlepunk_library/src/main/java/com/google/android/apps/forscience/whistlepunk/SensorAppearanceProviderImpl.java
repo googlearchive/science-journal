@@ -239,7 +239,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
         PitchSensor.ID,
         BuiltInSensorAppearance.create(
             R.string.pitch,
-            R.drawable.ic_sensor_sound_frequency_white_24dp,
+            R.drawable.ic_music_note_white_24dp,
             R.string.hertz_units,
             R.string.sensor_desc_short_pitch,
             R.string.sensor_desc_first_paragraph_pitch,
