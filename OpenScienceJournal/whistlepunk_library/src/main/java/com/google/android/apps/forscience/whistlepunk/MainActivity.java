@@ -453,17 +453,23 @@ public class MainActivity extends ActivityWithNavigationView {
       if (itemId == R.id.navigation_item_activities) {
         intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.activities_url)));
       } else if (itemId == R.id.navigation_item_settings) {
+        // We need currentAccount for the TYPE_SETTINGS version of the SettingsActivity.
+        if (currentAccount == null) {
+          return false;
+        }
         intent =
             SettingsActivity.getLaunchIntent(
                 this, currentAccount, menuItem.getTitle(), SettingsActivity.TYPE_SETTINGS);
       } else if (itemId == R.id.navigation_item_about) {
+        // Don't use currentAccount for the TYPE_ABOUT version of the SettingsActivity.
         intent =
             SettingsActivity.getLaunchIntent(
-                this, currentAccount, menuItem.getTitle(), SettingsActivity.TYPE_ABOUT);
+                this, menuItem.getTitle(), SettingsActivity.TYPE_ABOUT);
       } else if (itemId == R.id.dev_testing_options) {
+        // Don't use currentAccount for the TYPE_DEV_OPTIONS version of the SettingsActivity.
         intent =
             SettingsActivity.getLaunchIntent(
-                this, currentAccount, menuItem.getTitle(), SettingsActivity.TYPE_DEV_OPTIONS);
+                this, menuItem.getTitle(), SettingsActivity.TYPE_DEV_OPTIONS);
       } else if (itemId == R.id.navigation_item_feedback) {
         feedbackProvider.sendFeedback(
             new LoggingConsumer<Boolean>(TAG, "Send feedback") {
