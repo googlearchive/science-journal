@@ -27,19 +27,19 @@ option optimize_for = LITE_RUNTIME;
 // Common messages which can go Phone -> Device or Device -> Phone.
 
 message Empty {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
 }  // TODO(dek): replace with an import of empty.proto
 
 message Version {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   // See
   // https://docs.google.com/document/d/10SgMM-_myVyfZQZ_afLipPv_x4aq4gQG2FTrY3oktXM/edit#
   // for version policy and implementation details. Encode new versions using
   // https://goosci.googlesource.com/android/+/master/proto/version_codec.py
   enum VersionEnum {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     option allow_alias = true;
     V_1_0_0 = 0x800;
@@ -66,7 +66,7 @@ message DigitalPin {
 
 // Data type of a scalar
 enum DataType {
-  option (proto2.nano.enum_as_lite) = false;
+  option (proto2.nano.enum_as_lite) = true;
 
   ANALOG = 1;
   DIGITAL = 2;

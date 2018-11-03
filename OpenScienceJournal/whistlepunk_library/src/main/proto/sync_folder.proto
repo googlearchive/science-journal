@@ -26,8 +26,6 @@ option optimize_for = LITE_RUNTIME;
 
 // The Drive folder that is used to store synced data
 message SyncFolder {
-  option (proto2.nano.message_as_lite) = false;
-
   // The folder id.
   optional string folder_id = 1;
 };

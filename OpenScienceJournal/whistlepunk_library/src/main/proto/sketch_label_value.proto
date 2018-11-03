@@ -17,7 +17,6 @@
 syntax = "proto2";
 
 package goosci;
-import "third_party/android/nanoproto/nano_descriptor.proto";
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciSketchLabelValue";
@@ -29,8 +28,6 @@ option optimize_for = LITE_RUNTIME;
  * set of sketched values.
  */
 message SketchLabelValue {
-  option (proto2.nano.message_as_lite) = false;
-
   // The snapshot of a sketch.
   optional bytes sketch = 1;
 };
