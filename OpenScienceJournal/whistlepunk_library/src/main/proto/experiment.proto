@@ -120,7 +120,7 @@ message Experiment {
  * sensors.
  */
 message ExperimentSensor {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   // The sensor ID
   optional string sensorId = 1;

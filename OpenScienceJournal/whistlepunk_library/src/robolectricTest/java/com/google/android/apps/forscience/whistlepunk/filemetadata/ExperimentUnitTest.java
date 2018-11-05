@@ -20,6 +20,7 @@ import static junit.framework.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -92,9 +93,11 @@ public class ExperimentUnitTest {
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
     assertEquals(experiment.getExperimentSensors(), Collections.emptyList());
 
-    GoosciExperiment.ExperimentSensor sensor = new GoosciExperiment.ExperimentSensor();
-    sensor.sensorId = "sensorId";
-    experiment.setExperimentSensors(Arrays.asList(sensor));
+    com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor
+            .Builder
+        sensor = ExperimentSensor.newBuilder();
+    sensor.setSensorId("sensorId");
+    experiment.setExperimentSensors(Arrays.asList(sensor.build()));
 
     assertEquals(experiment.getExperimentSensors().size(), 1);
     assertEquals(experiment.getExperimentProto().experimentSensors.length, 1);
@@ -109,9 +112,11 @@ public class ExperimentUnitTest {
     GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
     triggerProto.sensorId = "sensorId";
     proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[] {triggerProto};
-    GoosciExperiment.ExperimentSensor expSensorProto = new GoosciExperiment.ExperimentSensor();
-    expSensorProto.sensorId = "sensorId";
-    proto.experimentSensors = new GoosciExperiment.ExperimentSensor[] {expSensorProto};
+    com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor
+            .Builder
+        expSensorProto = ExperimentSensor.newBuilder();
+    expSensorProto.setSensorId("sensorId");
+    proto.experimentSensors = new ExperimentSensor[] {expSensorProto.build()};
 
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     overview.experimentId = "cheese";

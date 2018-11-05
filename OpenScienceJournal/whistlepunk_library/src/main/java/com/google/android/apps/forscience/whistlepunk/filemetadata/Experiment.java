@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -56,7 +57,7 @@ public class Experiment extends LabelListHolder {
   private GoosciUserMetadata.ExperimentOverview experimentOverview;
   private GoosciExperiment.Experiment proto;
   private List<GoosciSensorLayout.SensorLayout> sensorLayouts;
-  private List<GoosciExperiment.ExperimentSensor> experimentSensors;
+  private List<ExperimentSensor> experimentSensors;
   private List<SensorTrigger> sensorTriggers;
   private List<Trial> trials;
   private final List<Change> changes;
@@ -485,14 +486,14 @@ public class Experiment extends LabelListHolder {
     }
   }
 
-  public List<GoosciExperiment.ExperimentSensor> getExperimentSensors() {
+  public List<ExperimentSensor> getExperimentSensors() {
     if (experimentSensors == null) {
       experimentSensors = new ArrayList<>(Arrays.asList(proto.experimentSensors));
     }
     return experimentSensors;
   }
 
-  public void setExperimentSensors(List<GoosciExperiment.ExperimentSensor> experimentSensors) {
+  public void setExperimentSensors(List<ExperimentSensor> experimentSensors) {
     this.experimentSensors = Preconditions.checkNotNull(experimentSensors);
   }
 
@@ -594,8 +595,7 @@ public class Experiment extends LabelListHolder {
 
     if (experimentSensors != null) {
       proto.experimentSensors =
-          experimentSensors.toArray(
-              new GoosciExperiment.ExperimentSensor[experimentSensors.size()]);
+          experimentSensors.toArray(new ExperimentSensor[experimentSensors.size()]);
     }
 
     if (sensorTriggers != null) {
