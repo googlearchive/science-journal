@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,10 +56,10 @@ public class TrialStats {
   }
 
   public boolean statsAreValid() {
-    return trialStats.statStatus == GoosciTrial.SensorTrialStats.StatStatus.VALID;
+    return trialStats.statStatus == StatStatus.VALID;
   }
 
-  public void setStatStatus(int status) {
+  public void setStatStatus(StatStatus status) {
     trialStats.statStatus = status;
   }
 

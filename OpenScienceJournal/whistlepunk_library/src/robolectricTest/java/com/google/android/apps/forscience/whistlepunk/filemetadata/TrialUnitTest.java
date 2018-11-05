@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySenso
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import java.util.Map;
 import org.junit.Test;
@@ -104,7 +105,7 @@ public class TrialUnitTest {
   public void testStats() {
     Trial trial = makeSimpleTrial(1000, "sensorId");
     TrialStats stats = new TrialStats("sensorId");
-    stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+    stats.setStatStatus(StatStatus.VALID);
     stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
     trial.setStats(stats);
 
@@ -112,7 +113,7 @@ public class TrialUnitTest {
 
     // Test replace works
     TrialStats newStats = new TrialStats("sensorId");
-    newStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
+    newStats.setStatStatus(StatStatus.NEEDS_UPDATE);
     newStats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
     trial.setStats(newStats);
 

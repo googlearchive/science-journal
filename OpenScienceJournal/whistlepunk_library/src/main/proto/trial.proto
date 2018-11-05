@@ -127,7 +127,7 @@ message SensorTrialStats {
   optional string sensorId = 1;
 
   enum StatStatus {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     VALID = 1;         // The stats are updated and valid.
     NEEDS_UPDATE = 2;  // The stats need an update and are not currently valid.

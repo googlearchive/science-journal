@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import androidx.annotation.IntDef;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
@@ -188,7 +189,7 @@ public class StatsAccumulator {
   }
 
   public void populateTrialStats(TrialStats stats) {
-    stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+    stats.setStatStatus(SensorTrialStats.StatStatus.VALID);
     stats.putStat(GoosciTrial.SensorStat.StatType.MINIMUM, min);
     stats.putStat(GoosciTrial.SensorStat.StatType.MAXIMUM, max);
     stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, getAverage());

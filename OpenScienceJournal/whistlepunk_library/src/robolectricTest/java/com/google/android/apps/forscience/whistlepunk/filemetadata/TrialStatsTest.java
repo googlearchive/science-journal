@@ -20,6 +20,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,7 @@ public class TrialStatsTest {
   @Test
   public void testGetAndSet() {
     TrialStats stats = new TrialStats("sensorId");
-    stats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+    stats.setStatStatus(StatStatus.VALID);
     stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
     stats.putStat(GoosciTrial.SensorStat.StatType.MINIMUM, 10);
 
@@ -57,11 +58,11 @@ public class TrialStatsTest {
   public void testCopy() {
     GoosciTrial.SensorTrialStats sensorTrialStats = new GoosciTrial.SensorTrialStats();
     sensorTrialStats.sensorId = "sensorId";
-    sensorTrialStats.statStatus = GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE;
+    sensorTrialStats.statStatus = StatStatus.NEEDS_UPDATE;
     TrialStats initial = new TrialStats(sensorTrialStats);
 
     TrialStats other = new TrialStats("sensorId");
-    other.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+    other.setStatStatus(StatStatus.VALID);
 
     assertFalse(initial.statsAreValid());
     initial.copyFrom(other);

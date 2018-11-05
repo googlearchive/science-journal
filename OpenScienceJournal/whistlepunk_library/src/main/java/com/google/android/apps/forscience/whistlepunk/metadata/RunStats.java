@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
 import java.util.HashMap;
@@ -96,9 +97,9 @@ public class RunStats {
 
   public void setStatus(int newStatus) {
     if (newStatus == StatsAccumulator.STATUS_NEEDS_UPDATE) {
-      trialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.NEEDS_UPDATE);
+      trialStats.setStatStatus(StatStatus.NEEDS_UPDATE);
     } else if (newStatus == StatsAccumulator.STATUS_VALID) {
-      trialStats.setStatStatus(GoosciTrial.SensorTrialStats.StatStatus.VALID);
+      trialStats.setStatStatus(StatStatus.VALID);
     }
   }
 
