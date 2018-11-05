@@ -976,7 +976,7 @@ public class RecordFragment extends PanesToolFragment
     refreshLabels(status);
     ensureUnarchived(getActivity(), selectedExperiment, getDataController());
     // Trigger labels are logged in RecorderControllerImpl.
-    if (!(label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER)) {
+    if (label.getType() != GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
       String trackerLabel =
           status.isRecording() ? TrackerConstants.LABEL_RECORD : TrackerConstants.LABEL_OBSERVE;
       WhistlePunkApplication.getUsageTracker(getActivity())

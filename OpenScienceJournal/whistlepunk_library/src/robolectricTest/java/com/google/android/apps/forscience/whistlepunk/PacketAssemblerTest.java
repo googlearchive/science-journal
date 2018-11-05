@@ -17,8 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPin;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import java.io.ByteArrayOutputStream;
@@ -93,7 +93,7 @@ public class PacketAssemblerTest {
     }
 
     GoosciSensorBuilder setAnalogPin() {
-      GoosciSensor.AnalogPin pin = new GoosciSensor.AnalogPin();
+      AnalogPin pin = AnalogPin.newBuilder().setPin(0).build();
       data.pin.setAnalogPin(pin);
       return this;
     }
@@ -163,7 +163,7 @@ public class PacketAssemblerTest {
   private static void fakeFramedSensorData(
       PacketAssembler pa, byte[] value, int chunksize, int expectedNumPackets) {
     int length = (int) Math.ceil(value.length / (double) chunksize);
-    assertTrue(length == expectedNumPackets);
+    assertEquals(expectedNumPackets, length);
 
     int start = 0;
     for (int i = 0; i < length; ++i) {

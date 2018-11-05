@@ -51,7 +51,7 @@ message Version {
 // Analog pin number refers to the numeric value in A0, A1, A2... use
 // this to request values from an analog pin on the Device.
 message AnalogPin {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required int32 pin = 1;
 };

@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.ble.BleFlowListener;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.PacketAssembler;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPin;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
@@ -204,8 +205,7 @@ public class BluetoothSensor extends ScalarSensor {
       Log.e(TAG, "Failed to parse pin: " + pinName);
       return null;
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.ANALOG) {
-      GoosciSensor.AnalogPin ap = new GoosciSensor.AnalogPin();
-      ap.pin = pinType.getPinNumber();
+      AnalogPin ap = AnalogPin.newBuilder().setPin(pinType.getPinNumber()).build();
       sdr.pin[0].setAnalogPin(ap);
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.DIGITAL) {
       GoosciSensor.DigitalPin dp = new GoosciSensor.DigitalPin();
