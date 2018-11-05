@@ -154,7 +154,7 @@ message IntValue {
 // StringValue contains a stream of single-dimensional string values
 // synthesized by the Firmware from data collected on the Device.
 message StringValue {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required string value = 1;
 };
