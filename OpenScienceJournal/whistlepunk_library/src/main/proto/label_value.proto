@@ -45,7 +45,7 @@ message LabelValue {
 
   // TODO: document how data and proto_data are written and read for each type
   enum ValueType {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     TEXT = 1;  // A text label.
     PICTURE =

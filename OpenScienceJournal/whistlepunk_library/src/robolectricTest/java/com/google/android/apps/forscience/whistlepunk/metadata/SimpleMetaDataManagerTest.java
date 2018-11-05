@@ -55,7 +55,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelV
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -662,7 +661,7 @@ public class SimpleMetaDataManagerTest {
       labelValue.filePath = "fake/path";
       Label label =
           Label.newLabelWithValue(
-              i * 1000, GoosciLabelValue.LabelValue.ValueType.PICTURE, labelValue, null);
+              i * 1000, GoosciLabelValue.LabelValue.ValueType.PICTURE_VALUE, labelValue, null);
       LabelValue deprecatedValue = PictureLabelValue.fromPicture(labelValue.filePath, "");
       // In the database, labels are stored separately. Add them directly here so that we
       // don't need to re-create methods to update them from the SimpleMetadataManager.

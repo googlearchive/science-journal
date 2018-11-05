@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue.LabelValue.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 
 /**
@@ -35,7 +36,7 @@ public class SensorTriggerLabelValue extends LabelValue {
 
   public SensorTriggerLabelValue(GoosciLabelValue.LabelValue value) {
     super(value);
-    this.value.type = GoosciLabelValue.LabelValue.ValueType.SENSOR_TRIGGER;
+    this.value.type = ValueType.SENSOR_TRIGGER;
   }
 
   @Override
@@ -117,7 +118,7 @@ public class SensorTriggerLabelValue extends LabelValue {
   }
 
   private static void createDataFields(GoosciLabelValue.LabelValue value) {
-    value.type = GoosciLabelValue.LabelValue.ValueType.SENSOR_TRIGGER;
+    value.type = ValueType.SENSOR_TRIGGER;
     value.data = new GoosciLabelValue.LabelValue.DataEntry[NUM_FIELDS];
     value.data[INDEX_CUSTOM_STRING] = new GoosciLabelValue.LabelValue.DataEntry();
     value.data[INDEX_AUTOGEN_STRING] = new GoosciLabelValue.LabelValue.DataEntry();
