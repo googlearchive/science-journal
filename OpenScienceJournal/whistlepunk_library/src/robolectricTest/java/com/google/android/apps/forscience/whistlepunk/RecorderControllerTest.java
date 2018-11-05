@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
@@ -131,13 +132,13 @@ public class RecorderControllerTest {
 
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = "aa:bb:cc:dd";
-    layout.cardView = GoosciSensorLayout.SensorLayout.CardView.GRAPH;
+    layout.cardView = CardView.GRAPH;
     layout.audioEnabled = false;
     String loggingId = BleSensorSpec.TYPE;
 
     assertEquals("bluetooth_le|graph|audioOff", rc.getLayoutLoggingString(loggingId, layout));
 
-    layout.cardView = GoosciSensorLayout.SensorLayout.CardView.METER;
+    layout.cardView = CardView.METER;
     assertEquals("bluetooth_le|meter|audioOff", rc.getLayoutLoggingString(loggingId, layout));
 
     layout.audioEnabled = true;

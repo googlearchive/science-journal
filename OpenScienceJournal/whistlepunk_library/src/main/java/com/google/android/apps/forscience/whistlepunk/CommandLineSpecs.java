@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.res.Resources;
 import androidx.annotation.NonNull;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,11 +53,11 @@ public class CommandLineSpecs {
     return layouts;
   }
 
-  private static int findCardView(String side) {
+  private static CardView findCardView(String side) {
     if (Objects.equals(PARAM_METER, side)) {
-      return GoosciSensorLayout.SensorLayout.CardView.METER;
+      return CardView.METER;
     } else {
-      return GoosciSensorLayout.SensorLayout.CardView.GRAPH;
+      return CardView.GRAPH;
     }
   }
 

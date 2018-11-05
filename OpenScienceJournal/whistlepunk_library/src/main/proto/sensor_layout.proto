@@ -33,7 +33,7 @@ message SensorLayout {
   optional string sensorId = 1;
 
   enum CardView {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     METER = 1;  // For scalar sensors: show an icon and current reading as a
                 // large number For all cards: show a description of what's

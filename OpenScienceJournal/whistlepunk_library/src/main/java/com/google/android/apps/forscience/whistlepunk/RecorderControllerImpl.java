@@ -31,6 +31,7 @@ import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -845,8 +846,7 @@ public class RecorderControllerImpl implements RecorderController {
     StringBuilder builder = new StringBuilder();
     builder.append(loggingId);
     builder.append("|");
-    builder.append(
-        layout.cardView == GoosciSensorLayout.SensorLayout.CardView.METER ? "meter" : "graph");
+    builder.append(layout.cardView == CardView.METER ? "meter" : "graph");
     builder.append("|");
     builder.append(layout.audioEnabled ? "audioOn" : "audioOff");
     return builder.toString();

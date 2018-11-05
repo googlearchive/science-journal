@@ -39,6 +39,7 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
@@ -83,7 +84,8 @@ public class RecordFragment extends PanesToolFragment
   private static final String KEY_ACCOUNT_KEY = "accountKey";
   private static final String KEY_EXPERIMENT_ID = "experimentId";
 
-  private static final int DEFAULT_CARD_VIEW = GoosciSensorLayout.SensorLayout.CardView.METER;
+  private static final CardView DEFAULT_CARD_VIEW = CardView.METER;
+
   private static final boolean DEFAULT_AUDIO_ENABLED = false;
   private static final boolean DEFAULT_SHOW_STATS_OVERLAY = false;
 
