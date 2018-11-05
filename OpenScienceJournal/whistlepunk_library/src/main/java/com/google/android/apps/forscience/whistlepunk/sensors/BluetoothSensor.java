@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.PacketAssembler;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPin;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Interval;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
@@ -210,9 +211,10 @@ public class BluetoothSensor extends ScalarSensor {
       AnalogPin ap = AnalogPin.newBuilder().setPin(pinType.getPinNumber()).build();
       sdr.pin[0].setAnalogPin(ap);
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.DIGITAL) {
-      GoosciSensor.DigitalPin dp = new GoosciSensor.DigitalPin();
-      dp.pin = pinType.getPinNumber();
-      sdr.pin[0].setDigitalPin(dp);
+      com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalPin.Builder dp =
+          DigitalPin.newBuilder().setPin(0);
+      dp.setPin(pinType.getPinNumber());
+      sdr.pin[0].setDigitalPin(dp.build());
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.VIRTUAL) {
       GoosciSensor.VirtualPin vp = new GoosciSensor.VirtualPin();
       vp.pin = pinType.getPinNumber();

@@ -59,7 +59,7 @@ message AnalogPin {
 // Digital pin number refers to the numeric value in D2, D3... use
 // this to request values from a digital pin on the Device.
 message DigitalPin {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required int32 pin = 1;
 };

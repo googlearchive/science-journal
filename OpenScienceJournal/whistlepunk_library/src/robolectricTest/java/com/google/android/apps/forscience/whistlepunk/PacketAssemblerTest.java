@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogValue;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.IntValue;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.StringValue;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
@@ -102,7 +103,7 @@ public class PacketAssemblerTest {
     }
 
     GoosciSensorBuilder setDigitalPin() {
-      GoosciSensor.DigitalPin pin = new GoosciSensor.DigitalPin();
+      DigitalPin pin = DigitalPin.newBuilder().setPin(0).build();
       data.pin.setDigitalPin(pin);
       return this;
     }
