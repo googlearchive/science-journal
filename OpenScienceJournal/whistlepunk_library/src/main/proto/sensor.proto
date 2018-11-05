@@ -133,7 +133,7 @@ message AnalogValue {
 // represent DigitalValues, although packed bytes would be a more
 // efficient encoding.
 message DigitalValue {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required bool value = 1;
 };

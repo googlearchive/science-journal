@@ -90,7 +90,7 @@ public class PacketAssembler {
       data = (double) sensorValue.getAnalogValue().getValue();
     } else if (sensorPin.hasDigitalPin() && sensorValue.hasDigitalValue()) {
       // TODO: Better support boolean values
-      data = booleanToDigital(sensorValue.getDigitalValue().value);
+      data = booleanToDigital(sensorValue.getDigitalValue().getValue());
     } else if (sensorPin.hasVirtualPin() && sensorValue.hasFloatValue()) {
       data = (double) sensorValue.getFloatValue().value;
     } else if (sensorPin.hasVirtualPin() && sensorValue.hasIntValue()) {
