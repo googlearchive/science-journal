@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPi
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogValue;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalValue;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.FloatValue;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.IntValue;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.StringValue;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
@@ -140,8 +141,7 @@ public class PacketAssemblerTest {
 
     GoosciSensorBuilder setFloatValue(float value, int timestampMs) {
       sensorData.timestampKey = timestampMs;
-      GoosciSensor.FloatValue fv = new GoosciSensor.FloatValue();
-      fv.value = value;
+      FloatValue fv = FloatValue.newBuilder().setValue(value).build();
       data.setFloatValue(fv);
       return this;
     }

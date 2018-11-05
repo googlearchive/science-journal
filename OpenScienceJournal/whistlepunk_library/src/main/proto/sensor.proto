@@ -140,7 +140,7 @@ message DigitalValue {
 // FloatValue contains a stream of single-dimensional floating point values
 // synthesized by the Firmware from data collected on the Device.
 message FloatValue {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required float value = 1;
 };
