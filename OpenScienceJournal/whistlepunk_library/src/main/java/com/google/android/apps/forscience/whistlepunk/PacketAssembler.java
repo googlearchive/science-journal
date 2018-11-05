@@ -94,7 +94,7 @@ public class PacketAssembler {
     } else if (sensorPin.hasVirtualPin() && sensorValue.hasFloatValue()) {
       data = (double) sensorValue.getFloatValue().value;
     } else if (sensorPin.hasVirtualPin() && sensorValue.hasIntValue()) {
-      data = (double) sensorValue.getIntValue().value;
+      data = (double) sensorValue.getIntValue().getValue();
     } else if (sensorPin.hasVirtualPin()) {
       // TODO: We support string messages in the proto but
       // there is no good way to convert to any value.

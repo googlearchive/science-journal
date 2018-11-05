@@ -147,7 +147,7 @@ message FloatValue {
 // IntValue contains a stream of single-dimensional integer values
 // synthesized by the Firmware from data collected on the Device.
 message IntValue {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required int32 value = 1;
 };

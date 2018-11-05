@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPin;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.IntValue;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.StringValue;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
@@ -129,8 +130,7 @@ public class PacketAssemblerTest {
 
     GoosciSensorBuilder setIntValue(int value, int timestampMs) {
       sensorData.timestampKey = timestampMs;
-      GoosciSensor.IntValue iv = new GoosciSensor.IntValue();
-      iv.value = value;
+      IntValue iv = IntValue.newBuilder().setValue(value).build();
       data.setIntValue(iv);
       return this;
     }
