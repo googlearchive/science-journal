@@ -26,6 +26,7 @@ import androidx.core.util.Pair;
 import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -401,17 +402,18 @@ public class SensorDatabaseImpl implements SensorDatabase {
 
     sensor.tag = sensorTag;
     sensor.trialId = trialId;
-    ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> rowsList = new ArrayList<>();
+    ArrayList<ScalarSensorDataRow> rowsList = new ArrayList<>();
 
     while (cursor.moveToNext()) {
-      GoosciScalarSensorData.ScalarSensorDataRow row =
-          new GoosciScalarSensorData.ScalarSensorDataRow();
-      row.timestampMillis = cursor.getLong(0);
-      row.value = cursor.getDouble(1);
-      rowsList.add(row);
+      com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData
+              .ScalarSensorDataRow.Builder
+          row = ScalarSensorDataRow.newBuilder();
+      row.setTimestampMillis(cursor.getLong(0));
+      row.setValue(cursor.getDouble(1));
+      rowsList.add(row.build());
     }
 
-    sensor.rows = rowsList.toArray(GoosciScalarSensorData.ScalarSensorDataRow.emptyArray());
+    sensor.rows = rowsList.toArray(new ScalarSensorDataRow[0]);
 
     return sensor;
   }

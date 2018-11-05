@@ -44,7 +44,7 @@ message ScalarSensorDataDump {
 }
 
 message ScalarSensorDataRow {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   optional int64 timestampMillis = 1;
   optional double value = 2;

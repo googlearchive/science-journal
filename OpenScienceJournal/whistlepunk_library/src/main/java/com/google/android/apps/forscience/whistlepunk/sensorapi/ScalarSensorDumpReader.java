@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.BatchDataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import java.io.IOException;
 import java.util.List;
@@ -95,8 +96,14 @@ public class ScalarSensorDumpReader {
       ZoomRecorder zoomRecorder,
       String trialId,
       RecordingDataController batchController) {
-    for (GoosciScalarSensorData.ScalarSensorDataRow row : sensor.rows) {
-      addData(batchController, zoomRecorder, trialId, sensor.tag, row.timestampMillis, row.value);
+    for (ScalarSensorDataRow row : sensor.rows) {
+      addData(
+          batchController,
+          zoomRecorder,
+          trialId,
+          sensor.tag,
+          row.getTimestampMillis(),
+          row.getValue());
     }
     zoomRecorder.flushAllTiers(batchController);
   }

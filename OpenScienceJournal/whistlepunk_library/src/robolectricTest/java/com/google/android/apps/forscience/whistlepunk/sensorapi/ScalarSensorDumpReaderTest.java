@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
@@ -46,18 +47,19 @@ public class ScalarSensorDumpReaderTest {
         new GoosciScalarSensorData.ScalarSensorDataDump();
     sensor.tag = "foo";
     sensor.trialId = "id";
-    ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> rowList = new ArrayList<>();
+    ArrayList<ScalarSensorDataRow> rowList = new ArrayList<>();
     ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorList = new ArrayList<>();
     HashMap<String, String> idMap = new HashMap<>();
     idMap.put("id", "id");
     for (int x = 1; x <= 10000; x++) {
-      GoosciScalarSensorData.ScalarSensorDataRow row =
-          new GoosciScalarSensorData.ScalarSensorDataRow();
-      row.timestampMillis = x;
-      row.value = x * 100;
-      rowList.add(row);
+      com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData
+              .ScalarSensorDataRow.Builder
+          row = ScalarSensorDataRow.newBuilder();
+      row.setTimestampMillis(x);
+      row.setValue(x * 100);
+      rowList.add(row.build());
     }
-    sensor.rows = rowList.toArray(GoosciScalarSensorData.ScalarSensorDataRow.emptyArray());
+    sensor.rows = rowList.toArray(new ScalarSensorDataRow[0]);
     sensorList.add(sensor);
     scalarSensorData.sensors =
         sensorList.toArray(GoosciScalarSensorData.ScalarSensorDataDump.emptyArray());
@@ -88,11 +90,11 @@ public class ScalarSensorDumpReaderTest {
         new GoosciScalarSensorData.ScalarSensorDataDump();
     sensor.tag = "foo";
     sensor.trialId = "id";
-    ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> rowList = populateRowList();
+    ArrayList<ScalarSensorDataRow> rowList = populateRowList();
     ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorList = new ArrayList<>();
     HashMap<String, String> idMap = new HashMap<>();
     idMap.put("id", "id");
-    sensor.rows = rowList.toArray(GoosciScalarSensorData.ScalarSensorDataRow.emptyArray());
+    sensor.rows = rowList.toArray(new ScalarSensorDataRow[0]);
     sensorList.add(sensor);
 
     ScalarSensorDumpReader reader = new ScalarSensorDumpReader(recordingController);
@@ -121,8 +123,8 @@ public class ScalarSensorDumpReaderTest {
         new GoosciScalarSensorData.ScalarSensorDataDump();
     sensor.tag = "foo";
     sensor.trialId = "id";
-    ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> rowList = populateRowList();
-    sensor.rows = rowList.toArray(GoosciScalarSensorData.ScalarSensorDataRow.emptyArray());
+    ArrayList<ScalarSensorDataRow> rowList = populateRowList();
+    sensor.rows = rowList.toArray(new ScalarSensorDataRow[0]);
 
     ScalarSensorDumpReader reader = new ScalarSensorDumpReader(recordingController);
     reader.readData(sensor);
@@ -144,14 +146,15 @@ public class ScalarSensorDumpReaderTest {
     assertEquals(0, readings.size());
   }
 
-  private ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> populateRowList() {
-    ArrayList<GoosciScalarSensorData.ScalarSensorDataRow> rowList = new ArrayList<>();
+  private ArrayList<ScalarSensorDataRow> populateRowList() {
+    ArrayList<ScalarSensorDataRow> rowList = new ArrayList<>();
     for (int x = 1; x <= 10000; x++) {
-      GoosciScalarSensorData.ScalarSensorDataRow row =
-          new GoosciScalarSensorData.ScalarSensorDataRow();
-      row.timestampMillis = x;
-      row.value = x * 100;
-      rowList.add(row);
+      com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData
+              .ScalarSensorDataRow.Builder
+          row = ScalarSensorDataRow.newBuilder();
+      row.setTimestampMillis(x);
+      row.setValue(x * 100);
+      rowList.add(row.build());
     }
     return rowList;
   }
