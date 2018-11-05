@@ -87,7 +87,7 @@ public class PacketAssembler {
     double data;
 
     if (sensorPin.hasAnalogPin() && sensorValue.hasAnalogValue()) {
-      data = (double) sensorValue.getAnalogValue().value;
+      data = (double) sensorValue.getAnalogValue().getValue();
     } else if (sensorPin.hasDigitalPin() && sensorValue.hasDigitalValue()) {
       // TODO: Better support boolean values
       data = booleanToDigital(sensorValue.getDigitalValue().value);

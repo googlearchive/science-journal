@@ -124,7 +124,7 @@ message SensorDataRequest {
 // AnalogValue contains a stream of single-dimensional integer values
 // collected from an analog pin on the Device.
 message AnalogValue {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required uint32 value = 1;
 };
