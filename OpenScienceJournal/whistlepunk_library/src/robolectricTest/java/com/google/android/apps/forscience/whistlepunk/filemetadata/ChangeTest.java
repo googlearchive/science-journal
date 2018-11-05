@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,29 +30,26 @@ public class ChangeTest {
 
   @Test
   public void testAddChange() {
-    Change change = Change.newAddTypeChange(GoosciExperiment.ChangedElement.ElementType.NOTE, "id");
+    Change change = Change.newAddTypeChange(ElementType.NOTE, "id");
     assertEquals(GoosciExperiment.Change.ChangeType.ADD, change.getChangeType());
   }
 
   @Test
   public void testDeleteChange() {
-    Change change =
-        Change.newDeleteTypeChange(GoosciExperiment.ChangedElement.ElementType.NOTE, "id");
+    Change change = Change.newDeleteTypeChange(ElementType.NOTE, "id");
     assertEquals(GoosciExperiment.Change.ChangeType.DELETE, change.getChangeType());
   }
 
   @Test
   public void testModifyChange() {
-    Change change =
-        Change.newModifyTypeChange(GoosciExperiment.ChangedElement.ElementType.NOTE, "id");
+    Change change = Change.newModifyTypeChange(ElementType.NOTE, "id");
     assertEquals(GoosciExperiment.Change.ChangeType.MODIFY, change.getChangeType());
   }
 
   @Test
   public void testChangedElementCorrect() {
-    Change change =
-        Change.newModifyTypeChange(GoosciExperiment.ChangedElement.ElementType.NOTE, "id");
+    Change change = Change.newModifyTypeChange(ElementType.NOTE, "id");
     assertEquals("id", change.getChangedElementId());
-    assertEquals(GoosciExperiment.ChangedElement.ElementType.NOTE, change.getChangedElementType());
+    assertEquals(ElementType.NOTE, change.getChangedElementType());
   }
 }

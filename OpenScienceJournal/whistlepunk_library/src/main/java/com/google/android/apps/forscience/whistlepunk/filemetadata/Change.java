@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import java.util.UUID;
 
@@ -26,17 +27,17 @@ public class Change {
   private GoosciExperiment.Change changeProto;
 
   // Short cut to create a Add type Change.
-  public static Change newAddTypeChange(int elementType, String elementId) {
+  public static Change newAddTypeChange(ElementType elementType, String elementId) {
     return new Change(GoosciExperiment.Change.ChangeType.ADD, elementType, elementId);
   }
 
   // Short cut to create a Delete type Change.
-  public static Change newDeleteTypeChange(int elementType, String elementId) {
+  public static Change newDeleteTypeChange(ElementType elementType, String elementId) {
     return new Change(GoosciExperiment.Change.ChangeType.DELETE, elementType, elementId);
   }
 
   // Short cut to create a Modify type Change.
-  public static Change newModifyTypeChange(int elementType, String elementId) {
+  public static Change newModifyTypeChange(ElementType elementType, String elementId) {
     return new Change(GoosciExperiment.Change.ChangeType.MODIFY, elementType, elementId);
   }
 
@@ -44,7 +45,7 @@ public class Change {
     return new Change(proto);
   }
 
-  public Change(int changeType, int elementType, String elementId) {
+  public Change(int changeType, ElementType elementType, String elementId) {
     this(changeType, new GoosciExperiment.ChangedElement(), UUID.randomUUID().toString());
     changeProto.changedData.type = elementType;
     changeProto.changedData.id = elementId;
@@ -77,7 +78,7 @@ public class Change {
     return changeProto.changedData.id;
   }
 
-  public int getChangedElementType() {
+  public ElementType getChangedElementType() {
     return changeProto.changedData.type;
   }
 

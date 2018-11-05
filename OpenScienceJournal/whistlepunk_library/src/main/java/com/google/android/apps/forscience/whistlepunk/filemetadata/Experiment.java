@@ -25,9 +25,9 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -198,10 +198,7 @@ public class Experiment extends LabelListHolder {
   }
 
   public void setTitle(String title) {
-    setTitle(
-        title,
-        Change.newModifyTypeChange(
-            GoosciExperiment.ChangedElement.ElementType.EXPERIMENT, getExperimentId()));
+    setTitle(title, Change.newModifyTypeChange(ElementType.EXPERIMENT, getExperimentId()));
   }
 
   public void setTitle(String title, Change change) {
@@ -748,7 +745,7 @@ public class Experiment extends LabelListHolder {
   }
 
   public static String getChangeMapKey(Change change) {
-    return change.getChangedElementId() + change.getChangedElementType();
+    return change.getChangedElementId() + change.getChangedElementType().getNumber();
   }
 
   /**
@@ -826,18 +823,18 @@ public class Experiment extends LabelListHolder {
       FileSyncCollection filesToSync) {
     // If there is no conflict, we can just copy the change
     switch (local.getChangedElementType()) {
-      case ElementType.NOTE:
+      case NOTE:
         Label label = getLabel(local.getChangedElementId());
         if (label != null && label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
           filesToSync.addImageUpload(label.getPictureLabelValue().filePath);
         }
         break;
-      case ElementType.TRIAL:
+      case TRIAL:
         if (getTrial(local.getChangedElementId()) != null) {
           filesToSync.addTrialUpload(local.getChangedElementId());
         }
         break;
-      case ElementType.EXPERIMENT:
+      case EXPERIMENT:
         if (getImagePath() != null) {
           java.io.File overviewImage =
               new java.io.File(
@@ -860,13 +857,13 @@ public class Experiment extends LabelListHolder {
       FileSyncCollection filesToSync) {
     // If there is no conflict, we can just copy the change
     switch (external.getChangedElementType()) {
-      case ElementType.NOTE:
+      case NOTE:
         copyNoteChange(externalExperiment, context, external, appAccount, filesToSync);
         break;
-      case ElementType.EXPERIMENT:
+      case EXPERIMENT:
         copyExperimentChange(fileMetadataUtil, appAccount, externalExperiment, filesToSync);
         break;
-      case ElementType.TRIAL:
+      case TRIAL:
         copyTrialChange(externalExperiment, context, external, appAccount, filesToSync);
         break;
       default:

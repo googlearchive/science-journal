@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import io.reactivex.functions.Consumer;
 import java.util.Collections;
