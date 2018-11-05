@@ -240,11 +240,11 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       return new ProtoSensorAppearance(appearance);
     }
     switch (iconPath.type) {
-      case GoosciIcon.IconPath.PathType.BUILTIN:
+      case BUILTIN:
         return appearanceProvider.getAppearance(iconPath.pathString);
-      case GoosciIcon.IconPath.PathType.LEGACY_ANDROID_BLE:
+      case LEGACY_ANDROID_BLE:
         return SensorTypeProvider.getSensorAppearance(Integer.valueOf(iconPath.pathString), "");
-      case GoosciIcon.IconPath.PathType.PROTO:
+      case PROTO:
         return new ProtoSensorAppearance(appearance);
     }
     return null;

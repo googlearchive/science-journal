@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import org.junit.Test;
 import org.junit.runner.RunWith;

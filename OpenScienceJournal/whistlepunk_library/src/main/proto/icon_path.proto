@@ -29,7 +29,7 @@ message IconPath {
   option (proto2.nano.message_as_lite) = false;
 
   enum PathType {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     // The path string is the sensor id used by the Android implementation for
     // the built-in sensor.  Internal code should look up the appropriate icon
