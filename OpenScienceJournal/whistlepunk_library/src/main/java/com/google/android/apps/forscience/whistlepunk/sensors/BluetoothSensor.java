@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.PacketAssembler;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Interval;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.VirtualPin;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
@@ -216,9 +217,10 @@ public class BluetoothSensor extends ScalarSensor {
       dp.setPin(pinType.getPinNumber());
       sdr.pin[0].setDigitalPin(dp.build());
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.VIRTUAL) {
-      GoosciSensor.VirtualPin vp = new GoosciSensor.VirtualPin();
-      vp.pin = pinType.getPinNumber();
-      sdr.pin[0].setVirtualPin(vp);
+      com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.VirtualPin.Builder vp =
+          VirtualPin.newBuilder().setPin(0);
+      vp.setPin(pinType.getPinNumber());
+      sdr.pin[0].setVirtualPin(vp.build());
     }
 
     byte[] value = GoosciSensor.SensorDataRequest.toByteArray(sdr);

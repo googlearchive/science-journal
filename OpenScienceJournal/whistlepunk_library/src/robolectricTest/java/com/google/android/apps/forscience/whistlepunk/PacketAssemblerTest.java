@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalV
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.FloatValue;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.IntValue;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.StringValue;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.VirtualPin;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import java.io.ByteArrayOutputStream;
@@ -111,7 +112,7 @@ public class PacketAssemblerTest {
     }
 
     GoosciSensorBuilder setVirtualPin() {
-      GoosciSensor.VirtualPin pin = new GoosciSensor.VirtualPin();
+      VirtualPin pin = VirtualPin.newBuilder().setPin(0).build();
       data.pin.setVirtualPin(pin);
       return this;
     }

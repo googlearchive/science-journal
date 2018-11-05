@@ -79,7 +79,7 @@ enum DataType {
 // such as a Gooball orientation sensor that returns vectors of
 // floats.
 message VirtualPin {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required int32 pin = 1;
 };
