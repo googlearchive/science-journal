@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.PacketAssembler;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPin;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Interval;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
@@ -190,9 +191,10 @@ public class BluetoothSensor extends ScalarSensor {
   private byte[] buildConfigProtoForDevice(BleSensorSpec sensor) {
     GoosciSensor.SensorDataRequest sdr = new GoosciSensor.SensorDataRequest();
     sdr.timestampKey = 42; // arbitrary constant.  TMOLTUAE.
-    sdr.interval = new GoosciSensor.Interval();
-    sdr.interval.count = 1;
-    sdr.interval.frequency = 20;
+    Interval.Builder interval = Interval.newBuilder().setCount(0);
+    interval.setCount(1);
+    interval.setFrequency(20);
+    sdr.interval = interval.build();
 
     sdr.pin =
         new GoosciSensor.Pin[] {

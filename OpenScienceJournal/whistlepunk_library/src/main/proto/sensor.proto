@@ -101,7 +101,7 @@ message Pin {
 // request.  If count is greater than 1, then the Device should return values
 // every frequency milliseconds until the count is exceeded.
 message Interval {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required int32 count = 1;
   optional int32 frequency = 2;
