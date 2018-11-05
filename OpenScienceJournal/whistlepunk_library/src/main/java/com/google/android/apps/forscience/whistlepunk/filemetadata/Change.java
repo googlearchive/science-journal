@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.Change.ChangeType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import java.util.UUID;
@@ -28,30 +29,30 @@ public class Change {
 
   // Short cut to create a Add type Change.
   public static Change newAddTypeChange(ElementType elementType, String elementId) {
-    return new Change(GoosciExperiment.Change.ChangeType.ADD, elementType, elementId);
+    return new Change(ChangeType.ADD, elementType, elementId);
   }
 
   // Short cut to create a Delete type Change.
   public static Change newDeleteTypeChange(ElementType elementType, String elementId) {
-    return new Change(GoosciExperiment.Change.ChangeType.DELETE, elementType, elementId);
+    return new Change(ChangeType.DELETE, elementType, elementId);
   }
 
   // Short cut to create a Modify type Change.
   public static Change newModifyTypeChange(ElementType elementType, String elementId) {
-    return new Change(GoosciExperiment.Change.ChangeType.MODIFY, elementType, elementId);
+    return new Change(ChangeType.MODIFY, elementType, elementId);
   }
 
   public static Change fromProto(GoosciExperiment.Change proto) {
     return new Change(proto);
   }
 
-  public Change(int changeType, ElementType elementType, String elementId) {
+  public Change(ChangeType changeType, ElementType elementType, String elementId) {
     this(changeType, new GoosciExperiment.ChangedElement(), UUID.randomUUID().toString());
     changeProto.changedData.type = elementType;
     changeProto.changedData.id = elementId;
   }
 
-  public Change(int changeType, GoosciExperiment.ChangedElement element) {
+  public Change(ChangeType changeType, GoosciExperiment.ChangedElement element) {
     this(changeType, element, UUID.randomUUID().toString());
   }
 
@@ -59,7 +60,7 @@ public class Change {
     changeProto = proto;
   }
 
-  private Change(int changeType, GoosciExperiment.ChangedElement element, String changeId) {
+  private Change(ChangeType changeType, GoosciExperiment.ChangedElement element, String changeId) {
     changeProto = new GoosciExperiment.Change();
     changeProto.changedData = element;
     changeProto.type = changeType;
@@ -86,7 +87,7 @@ public class Change {
     return changeProto.changeId;
   }
 
-  public int getChangeType() {
+  public ChangeType getChangeType() {
     return changeProto.type;
   }
 

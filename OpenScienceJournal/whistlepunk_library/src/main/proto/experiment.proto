@@ -138,7 +138,7 @@ message Change {
   option (proto2.nano.message_as_lite) = false;
 
   enum ChangeType {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     // Default. Do not use.
     UNKNOWN = 0;
