@@ -337,7 +337,7 @@ public class FileMetadataManager {
         + "."
         + fileVersion.minorVersion
         + "."
-        + fileVersion.platform
+        + fileVersion.platform.getNumber()
         + "."
         + fileVersion.platformVersion;
   }

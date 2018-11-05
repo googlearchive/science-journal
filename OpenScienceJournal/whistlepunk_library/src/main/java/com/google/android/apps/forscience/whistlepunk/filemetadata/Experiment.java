@@ -23,7 +23,7 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;

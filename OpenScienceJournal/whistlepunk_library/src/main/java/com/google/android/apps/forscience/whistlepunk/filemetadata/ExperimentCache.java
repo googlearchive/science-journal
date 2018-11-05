@@ -27,7 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;

@@ -31,7 +31,7 @@ message GadgetInfo {
   option (proto2.nano.message_as_lite) = false;
 
   enum Platform {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     ANDROID = 0;
     IOS = 1;
