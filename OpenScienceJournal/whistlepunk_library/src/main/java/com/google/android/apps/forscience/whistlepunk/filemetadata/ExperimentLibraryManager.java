@@ -300,6 +300,9 @@ public class ExperimentLibraryManager {
       boolean serverArchived = false;
       if (syncManager.hasExperiment(experiment.experimentId)) {
         serverArchived = syncManager.getServerArchived(experiment.experimentId);
+      } else {
+        syncManager.addExperiment(experiment.experimentId);
+        syncManager.setDirty(experiment.experimentId, true);
       }
       updateExperiment(experiment, serverArchived);
     }

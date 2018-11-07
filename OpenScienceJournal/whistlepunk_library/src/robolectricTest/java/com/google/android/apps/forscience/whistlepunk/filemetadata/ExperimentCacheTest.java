@@ -144,6 +144,7 @@ public class ExperimentCacheTest {
 
     // Clean up.
     cache.deleteExperiment("exp_localId");
+    assertTrue(lsm.getDirty(experiment.getExperimentId()));
     assertNull(cache.getActiveExperimentForTests());
   }
 

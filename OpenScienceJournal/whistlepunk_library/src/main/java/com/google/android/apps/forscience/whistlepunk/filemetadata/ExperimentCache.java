@@ -216,6 +216,7 @@ class ExperimentCache {
       activeExperimentNeedsWrite = false;
       if (experimentLibraryManager.getExperiment(localExperimentId) != null) {
         experimentLibraryManager.setDeleted(localExperimentId, true);
+        localSyncManager.setDirty(localExperimentId, true);
       } else {
         if (Log.isLoggable(TAG, Log.WARN)) {
           Log.w(TAG, "Experiment Library didn't contain experiment: " + localExperimentId);
