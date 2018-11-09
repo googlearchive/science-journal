@@ -56,6 +56,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import java.text.DecimalFormat;
@@ -231,11 +232,11 @@ public class EditTriggerFragment extends Fragment {
 
     if (!isNewTrigger()) {
       // Populate the view with the trigger's data.
-      int actionType = triggerToEdit.getActionType();
+      TriggerActionType actionType = triggerToEdit.getActionType();
       value.setText(format.format(triggerToEdit.getValueToTrigger()));
-      typeSpinner.setSelection(actionType);
+      typeSpinner.setSelection(actionType.getNumber());
       whenSpinner.setSelection(triggerToEdit.getTriggerWhen());
-      if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
+      if (actionType == TriggerActionType.TRIGGER_ACTION_ALERT) {
         int[] alertTypes = triggerToEdit.getAlertTypes();
         for (int i = 0; i < alertTypes.length; i++) {
           int alertType = alertTypes[i];
@@ -247,7 +248,7 @@ public class EditTriggerFragment extends Fragment {
             hapticAlert.setChecked(true);
           }
         }
-      } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
+      } else if (actionType == TriggerActionType.TRIGGER_ACTION_NOTE) {
         noteValue.setText(triggerToEdit.getNoteText());
       }
       onlyWhenRecording.setChecked(triggerToEdit.shouldTriggerOnlyWhenRecording());
@@ -290,7 +291,7 @@ public class EditTriggerFragment extends Fragment {
       visualAlert.setOnCheckedChangeListener(checkedChangeListener);
     } else {
       // Default to an alert spinner that triggers "at" a value, and does a visual alert.
-      typeSpinner.setSelection(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
+      typeSpinner.setSelection(TriggerActionType.TRIGGER_ACTION_ALERT_VALUE);
       whenSpinner.setSelection(TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT);
       visualAlert.setChecked(true);
       onlyWhenRecording.setChecked(false);
@@ -303,9 +304,9 @@ public class EditTriggerFragment extends Fragment {
             // Hide all but alert types if this is a ABOVE or BELOW.
             if (position == TriggerInformation.TriggerWhen.TRIGGER_WHEN_ABOVE
                 || position == TriggerInformation.TriggerWhen.TRIGGER_WHEN_BELOW) {
-              typeSpinner.setSelection(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
+              typeSpinner.setSelection(TriggerActionType.TRIGGER_ACTION_ALERT_VALUE);
               typeSpinner.setEnabled(false);
-              updateViewVisibilities(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
+              updateViewVisibilities(TriggerActionType.TRIGGER_ACTION_ALERT);
               selectAlertTypeIfNeeded();
             } else {
               typeSpinner.setEnabled(true);
@@ -323,12 +324,12 @@ public class EditTriggerFragment extends Fragment {
         new AdapterView.OnItemSelectedListener() {
           @Override
           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            updateViewVisibilities(position);
-            if (position == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
+            updateViewVisibilities(TriggerActionType.forNumber(position));
+            if (position == TriggerActionType.TRIGGER_ACTION_ALERT_VALUE) {
               selectAlertTypeIfNeeded();
             }
-            if (position == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING
-                || position == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
+            if (position == TriggerActionType.TRIGGER_ACTION_START_RECORDING_VALUE
+                || position == TriggerActionType.TRIGGER_ACTION_STOP_RECORDING_VALUE) {
               onlyWhenRecording.setChecked(false);
             }
             if (!isNewTrigger()) {
@@ -370,17 +371,17 @@ public class EditTriggerFragment extends Fragment {
     return numberFormat;
   }
 
-  private void updateViewVisibilities(int actionType) {
-    if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING
-        || actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
+  private void updateViewVisibilities(TriggerActionType actionType) {
+    if (actionType == TriggerActionType.TRIGGER_ACTION_START_RECORDING
+        || actionType == TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
       noteGroup.setVisibility(View.GONE);
       alertGroup.setVisibility(View.GONE);
       onlyWhenRecordingGroup.setVisibility(View.GONE);
-    } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
+    } else if (actionType == TriggerActionType.TRIGGER_ACTION_ALERT) {
       noteGroup.setVisibility(View.GONE);
       alertGroup.setVisibility(View.VISIBLE);
       onlyWhenRecordingGroup.setVisibility(View.VISIBLE);
-    } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
+    } else if (actionType == TriggerActionType.TRIGGER_ACTION_NOTE) {
       noteGroup.setVisibility(View.VISIBLE);
       alertGroup.setVisibility(View.GONE);
       onlyWhenRecordingGroup.setVisibility(View.VISIBLE);
@@ -462,7 +463,8 @@ public class EditTriggerFragment extends Fragment {
       return;
     }
     final DataController dc = getDataController();
-    int triggerType = typeSpinner.getSelectedItemPosition();
+    TriggerActionType triggerType =
+        TriggerActionType.forNumber(typeSpinner.getSelectedItemPosition());
     int triggerWhen = whenSpinner.getSelectedItemPosition();
     boolean triggerOnlyWhenRecording = onlyWhenRecording.isChecked();
     double triggerValue = 0;
@@ -486,7 +488,7 @@ public class EditTriggerFragment extends Fragment {
   // fragment.
   private void updateTrigger(
       DataController dc,
-      int triggerType,
+      TriggerActionType triggerType,
       int triggerWhen,
       double triggerValue,
       boolean triggerOnlyWhenRecording,
@@ -513,7 +515,10 @@ public class EditTriggerFragment extends Fragment {
   }
 
   private boolean updateLocalTriggerIfChanged(
-      int triggerType, int triggerWhen, double triggerValue, boolean triggerOnlyWhenRecording) {
+      TriggerActionType triggerType,
+      int triggerWhen,
+      double triggerValue,
+      boolean triggerOnlyWhenRecording) {
     boolean isUpdated = false;
     if (triggerToEdit.getTriggerWhen() != triggerWhen) {
       triggerToEdit.setTriggerWhen(triggerWhen);
@@ -531,13 +536,13 @@ public class EditTriggerFragment extends Fragment {
       triggerToEdit.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
       isUpdated = true;
     }
-    if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
+    if (triggerType == TriggerActionType.TRIGGER_ACTION_NOTE) {
       String noteText = String.valueOf(noteValue.getText());
       if (!TextUtils.equals(noteText, triggerToEdit.getNoteText())) {
         triggerToEdit.setNoteText(String.valueOf(noteValue.getText()));
         isUpdated = true;
       }
-    } else if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
+    } else if (triggerType == TriggerActionType.TRIGGER_ACTION_ALERT) {
       int[] alertTypes = getCurrentAlertTypes();
       if (!SensorTrigger.hasSameAlertTypes(alertTypes, triggerToEdit.getAlertTypes())) {
         triggerToEdit.setAlertTypes(alertTypes);
@@ -551,7 +556,7 @@ public class EditTriggerFragment extends Fragment {
   // before returning to the parent fragment.
   private void createNewTrigger(
       DataController dc,
-      int triggerType,
+      TriggerActionType triggerType,
       int triggerWhen,
       double triggerValue,
       boolean triggerOnlyWhenRecording) {
@@ -559,15 +564,15 @@ public class EditTriggerFragment extends Fragment {
     isSavingNewTrigger = true;
     getActivity().invalidateOptionsMenu();
     SensorTrigger triggerToAdd = null;
-    if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING
-        || triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
+    if (triggerType == TriggerActionType.TRIGGER_ACTION_START_RECORDING
+        || triggerType == TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
       triggerToAdd = SensorTrigger.newTrigger(sensorId, triggerWhen, triggerType, triggerValue);
-    } else if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
+    } else if (triggerType == TriggerActionType.TRIGGER_ACTION_NOTE) {
       triggerToAdd =
           SensorTrigger.newNoteTypeTrigger(
               sensorId, triggerWhen, String.valueOf(noteValue.getText()), triggerValue);
       triggerToAdd.setTriggerOnlyWhenRecording(triggerOnlyWhenRecording);
-    } else if (triggerType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
+    } else if (triggerType == TriggerActionType.TRIGGER_ACTION_ALERT) {
       triggerToAdd =
           SensorTrigger.newAlertTypeTrigger(
               sensorId, triggerWhen, getCurrentAlertTypes(), triggerValue);
@@ -592,7 +597,7 @@ public class EditTriggerFragment extends Fragment {
           }
         });
     String triggerTypeString =
-        getResources().getStringArray(R.array.trigger_type_list)[triggerType];
+        getResources().getStringArray(R.array.trigger_type_list)[triggerType.getNumber()];
     String triggerWhenString =
         getResources().getStringArray(R.array.trigger_when_list)[triggerWhen];
     WhistlePunkApplication.getUsageTracker(getActivity())
@@ -614,8 +619,7 @@ public class EditTriggerFragment extends Fragment {
       value.setError(getActivity().getResources().getString(R.string.cannot_save_invalid_value));
       return false;
     }
-    if (typeSpinner.getSelectedItemPosition()
-            == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT
+    if (typeSpinner.getSelectedItemPosition() == TriggerActionType.TRIGGER_ACTION_ALERT_VALUE
         && getCurrentAlertTypes().length == 0) {
       AccessibilityUtils.makeSnackbar(
               getView(),

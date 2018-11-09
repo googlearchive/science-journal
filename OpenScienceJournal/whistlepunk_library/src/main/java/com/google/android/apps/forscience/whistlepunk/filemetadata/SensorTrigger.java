@@ -21,6 +21,7 @@ import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.common.primitives.Ints;
@@ -48,10 +49,7 @@ public class SensorTrigger {
       String sensorId, int triggerWhen, int[] alertTypes, double triggerValue) {
     SensorTrigger result =
         new SensorTrigger(
-            sensorId,
-            triggerWhen,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT,
-            triggerValue);
+            sensorId, triggerWhen, TriggerActionType.TRIGGER_ACTION_ALERT, triggerValue);
     result.setAlertTypes(alertTypes);
     return result;
   }
@@ -61,10 +59,7 @@ public class SensorTrigger {
       String sensorId, int triggerWhen, String noteText, double triggerValue) {
     SensorTrigger result =
         new SensorTrigger(
-            sensorId,
-            triggerWhen,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE,
-            triggerValue);
+            sensorId, triggerWhen, TriggerActionType.TRIGGER_ACTION_NOTE, triggerValue);
     result.setNoteText(noteText);
     return result;
   }
@@ -72,7 +67,7 @@ public class SensorTrigger {
   // Creates a SensorTrigger from scratch, assuming the time it was last used is just now,
   // when it is created.
   public static SensorTrigger newTrigger(
-      String sensorId, int triggerWhen, int actionType, double triggerValue) {
+      String sensorId, int triggerWhen, TriggerActionType actionType, double triggerValue) {
     return new SensorTrigger(sensorId, triggerWhen, actionType, triggerValue);
   }
 
@@ -86,7 +81,8 @@ public class SensorTrigger {
   }
 
   @VisibleForTesting
-  protected SensorTrigger(String sensorId, int triggerWhen, int actionType, double triggerValue) {
+  protected SensorTrigger(
+      String sensorId, int triggerWhen, TriggerActionType actionType, double triggerValue) {
     triggerProto = new GoosciSensorTrigger.SensorTrigger();
     triggerProto.triggerInformation = new TriggerInformation();
     triggerProto.triggerInformation.triggerWhen = triggerWhen;
@@ -138,20 +134,20 @@ public class SensorTrigger {
     triggerProto.triggerInformation.triggerWhen = triggerWhen;
   }
 
-  public int getActionType() {
+  public TriggerActionType getActionType() {
     return triggerProto.triggerInformation.triggerActionType;
   }
 
-  public void setTriggerActionType(int actionType) {
+  public void setTriggerActionType(TriggerActionType actionType) {
     if (triggerProto.triggerInformation.triggerActionType == actionType) {
       return;
     }
     // Clear old metadata to defaults when the new trigger is set.
     if (triggerProto.triggerInformation.triggerActionType
-        == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
+        == TriggerActionType.TRIGGER_ACTION_NOTE) {
       triggerProto.triggerInformation.noteText = "";
     } else if (triggerProto.triggerInformation.triggerActionType
-        == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
+        == TriggerActionType.TRIGGER_ACTION_ALERT) {
       triggerProto.triggerInformation.triggerAlertTypes = new int[] {};
     }
     triggerProto.triggerInformation.triggerActionType = actionType;

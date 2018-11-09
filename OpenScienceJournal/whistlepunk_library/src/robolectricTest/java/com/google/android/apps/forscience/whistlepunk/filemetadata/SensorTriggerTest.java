@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,16 +35,19 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     SensorTrigger same =
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     trigger.setTriggerActionType(
-        TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING);
+        GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+            .TRIGGER_ACTION_START_RECORDING);
     assertTrue(trigger.userSettingsEquals(same));
 
     trigger =
@@ -64,7 +68,8 @@ public class SensorTriggerTest {
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO
             },
             10.);
-    trigger.setTriggerActionType(TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
+    trigger.setTriggerActionType(
+        GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT);
     assertTrue(trigger.userSettingsEquals(same));
   }
 
@@ -82,7 +87,8 @@ public class SensorTriggerTest {
     assertTrue(trigger.getNoteText().isEmpty());
     assertEquals(trigger.getAlertTypes().length, 2);
 
-    trigger.setTriggerActionType(TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE);
+    trigger.setTriggerActionType(
+        GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE);
     assertTrue(trigger.getNoteText().isEmpty());
     assertEquals(trigger.getAlertTypes().length, 0);
 
@@ -93,7 +99,8 @@ public class SensorTriggerTest {
     assertEquals(trigger.getAlertTypes().length, 0);
 
     trigger.setTriggerActionType(
-        TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING);
+        GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+            .TRIGGER_ACTION_START_RECORDING);
     assertTrue(trigger.getNoteText().isEmpty());
     assertEquals(trigger.getAlertTypes().length, 0);
   }
@@ -104,7 +111,8 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     assertFalse(trigger.isTriggered(9.));
     assertTrue(trigger.isTriggered(10.));
@@ -116,7 +124,8 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     // Never trigger on the first point.
     assertFalse(trigger.isTriggered(10.));
@@ -143,7 +152,8 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     // The first point should aways be false because we have no comparison.
     assertFalse(trigger.isTriggered(10.));
@@ -160,7 +170,8 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     // The first point should aways be false because we have no comparison.
     assertFalse(trigger.isTriggered(10.));
@@ -177,13 +188,15 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     SensorTrigger second =
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     assertTrue(first.userSettingsEquals(second));
     first.setLastUsed(2L);
@@ -193,7 +206,8 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "otherSensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     assertFalse(first.userSettingsEquals(second));
 
@@ -201,7 +215,8 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             10.);
     assertFalse(first.userSettingsEquals(second));
 
@@ -209,7 +224,8 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_STOP_RECORDING,
             10.);
     assertFalse(first.userSettingsEquals(second));
 
@@ -217,7 +233,8 @@ public class SensorTriggerTest {
         SensorTrigger.newTrigger(
             "sensorId",
             TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
-            TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING,
             11.);
     assertFalse(first.userSettingsEquals(second));
 

@@ -38,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -283,7 +284,8 @@ public class RecorderControllerImpl implements RecorderController {
     // depending on timing of callbacks and order of triggers. b/
     boolean triggerWasFired = false;
     if (trigger.getActionType()
-            == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING
+            == GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_START_RECORDING
         && !isRecording()
         && getSelectedExperiment() != null) {
       if (!recordingStateChangeInProgress) {
@@ -302,7 +304,8 @@ public class RecorderControllerImpl implements RecorderController {
                 0);
       }
     } else if (trigger.getActionType()
-            == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING
+            == GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+                .TRIGGER_ACTION_STOP_RECORDING
         && isRecording()) {
       if (!recordingStateChangeInProgress) {
         triggerWasFired = true;
@@ -319,11 +322,13 @@ public class RecorderControllerImpl implements RecorderController {
                 0);
       }
     } else if (trigger.getActionType()
-        == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
+        == GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+            .TRIGGER_ACTION_NOTE) {
       triggerWasFired = true;
       addTriggerLabel(timestamp, trigger, sensorRegistry);
     } else if (trigger.getActionType()
-        == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
+        == GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
+            .TRIGGER_ACTION_ALERT) {
       if (trigger.getAlertTypes().length > 0) {
         triggerWasFired = true;
       }

@@ -46,7 +46,7 @@ message TriggerInformation {
 
   // What type of action should be taken when the trigger fires?
   enum TriggerActionType {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     TRIGGER_ACTION_START_RECORDING = 0;
     TRIGGER_ACTION_STOP_RECORDING = 1;

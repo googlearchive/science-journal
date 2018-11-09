@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,15 +134,15 @@ public class TriggerHelper {
   public static String buildDescription(
       SensorTrigger trigger, Activity activity, AppAccount appAccount) {
     Resources res = activity.getResources();
-    int actionType = trigger.getActionType();
+    TriggerActionType actionType = trigger.getActionType();
     String action = "";
-    if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_START_RECORDING) {
+    if (actionType == TriggerActionType.TRIGGER_ACTION_START_RECORDING) {
       action = res.getString(R.string.trigger_type_start_recording);
-    } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
+    } else if (actionType == TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
       action = res.getString(R.string.trigger_type_stop_recording);
-    } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE) {
+    } else if (actionType == TriggerActionType.TRIGGER_ACTION_NOTE) {
       action = res.getString(R.string.trigger_type_note);
-    } else if (actionType == TriggerInformation.TriggerActionType.TRIGGER_ACTION_ALERT) {
+    } else if (actionType == TriggerActionType.TRIGGER_ACTION_ALERT) {
       action = res.getString(R.string.trigger_type_alert);
     }
     SensorAppearance appearance =
