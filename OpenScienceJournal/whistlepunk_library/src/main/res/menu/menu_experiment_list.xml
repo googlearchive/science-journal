@@ -20,6 +20,7 @@
     <item
         android:id="@+id/action_network_disconnected"
         android:icon="@drawable/ic_signal_wifi_statusbar_connected_no_internet_white_24dp"
+        android:title="@string/drive_sync_cannot_reach_google_drive"
         android:visible="false"
         android:enabled="false"
         app:showAsAction="always"
