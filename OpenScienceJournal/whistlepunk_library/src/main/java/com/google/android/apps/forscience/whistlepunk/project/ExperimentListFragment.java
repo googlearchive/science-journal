@@ -995,6 +995,16 @@ public class ExperimentListFragment extends Fragment
           holder.shareButton.setVisibility(View.GONE);
         }
         holder.deleteButton.setOnClickListener(v -> deleteExperiment(overview.experimentId));
+      } else if (parentReference
+          .get()
+          .getRecorderController()
+          .watchRecordingStatus()
+          .blockingFirst()
+          .isRecording()) {
+        // This should never occur. But apparently it does on some Lenovo K5 devices: b/119263772
+        // BlockingFirst above is ok because there will always be a RecordingStatus. This won't
+        // ever actually block.
+        holder.menuButton.setVisibility(View.GONE);
       } else {
         holder.menuButton.setOnClickListener(
             v -> {
