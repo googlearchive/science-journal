@@ -143,6 +143,11 @@ public class FileMetadataManager {
    */
   public void deleteAll(List<String> experimentIds) {
     for (String experimentId : experimentIds) {
+      // This if block prevents null pointer exceptions in the upgrade flow.
+      if (experimentLibraryManager.getExperiment(experimentId) == null) {
+        experimentLibraryManager.addExperiment(experimentId);
+        localSyncManager.addExperiment(experimentId);
+      }
       deleteExperiment(experimentId);
     }
   }
