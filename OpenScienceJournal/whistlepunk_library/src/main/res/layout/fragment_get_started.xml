@@ -51,7 +51,7 @@
       android:layout_height="wrap_content"
       android:minHeight="@dimen/accessibility_touch_target_min_size"
       android:layout_gravity="center_horizontal"
-      android:layout_marginTop="66dp"
+      android:layout_marginTop="50dp"
       android:paddingTop="10dp"
       android:paddingBottom="10dp"
       android:paddingLeft="15dp"
