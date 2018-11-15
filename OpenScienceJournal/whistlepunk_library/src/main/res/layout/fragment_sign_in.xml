@@ -40,24 +40,29 @@
         android:textColor="@color/text_color_white"
         />
 
-    <Button
-        android:id="@+id/btn_sign_in"
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/accessibility_touch_target_min_size"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="17dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingStart="27dp"
-        android:paddingEnd="27dp"
-        android:text="@string/sign_in_button"
-        android:fontFamily="sans-serif-medium"
-        android:textAllCaps="true"
-        android:textSize="14sp"
-        android:background="#4a90e2"
-        android:textColor="@android:color/white"
-        />
+        android:background="#4a90e2">
+      <Button
+          android:id="@+id/btn_sign_in"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:minHeight="@dimen/accessibility_touch_target_min_size"
+          android:paddingTop="10dp"
+          android:paddingBottom="10dp"
+          android:paddingStart="27dp"
+          android:paddingEnd="27dp"
+          android:text="@string/sign_in_button"
+          android:fontFamily="sans-serif-medium"
+          android:textAllCaps="true"
+          android:textSize="14sp"
+          android:background="?attr/selectableItemBackgroundBorderless"
+          android:textColor="@android:color/white"
+          />
+    </FrameLayout>
 
     <Button
         android:id="@+id/btn_learn_more"
@@ -71,7 +76,7 @@
         android:textAllCaps="true"
         android:textSize="14sp"
         android:textColor="@color/text_color_white"
-        android:background="@android:color/transparent"
+        android:background="?attr/selectableItemBackgroundBorderless"
         />
   </LinearLayout>
 
@@ -88,7 +93,7 @@
       android:textAllCaps="true"
       android:textSize="14sp"
       android:textColor="@color/text_color_white"
-      android:background="@android:color/transparent"
+      android:background="?attr/selectableItemBackgroundBorderless"
       />
 
 </RelativeLayout>
