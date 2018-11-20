@@ -247,6 +247,9 @@ public class ExperimentListFragment extends Fragment
                 Handler uiHandler = new Handler(getContext().getMainLooper());
                 uiHandler.post(() -> {
                   loadExperiments();
+                  getView()
+                    .announceForAccessibility(
+                        getResources().getString(R.string.action_sync_end));
                   swipeLayout.setRefreshing(false);
                 });
               }
@@ -673,6 +676,9 @@ public class ExperimentListFragment extends Fragment
       CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
       CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
       try {
+        getView()
+            .announceForAccessibility(
+                getResources().getString(R.string.action_sync_start));
         syncService.syncExperimentLibrary(getContext(), logMessage);
       } catch (IOException ioe) {
         if (Log.isLoggable(TAG, Log.ERROR)) {

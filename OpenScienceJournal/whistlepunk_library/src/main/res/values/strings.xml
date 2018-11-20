@@ -1682,6 +1682,12 @@ Permissions notice:
     <!-- Menu item label to sync now [CHAR_LIMIT=50]-->
     <string name="action_sync">Sync</string>
 
+    <!-- Accessibility announcement at beginning of sync [CHAR_LIMIT=NONE]-->
+    <string name="action_sync_start">Syncing library to Google Drive.</string>
+
+    <!-- Accessibility announcement at end of sync [CHAR_LIMIT=NONE]-->
+    <string name="action_sync_end">Syncing library to Google Drive complete.</string>
+
     <!-- Menu option for removing the cover image of an experiment [CHAR_LIMIT=50] -->
     <string name="action_remove_cover_image">Remove cover image</string>
 
