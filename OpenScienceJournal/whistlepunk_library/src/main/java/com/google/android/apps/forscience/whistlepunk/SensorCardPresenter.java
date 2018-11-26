@@ -583,7 +583,7 @@ public class SensorCardPresenter {
 
   public void onViewRecycled() {
     if (cardViewHolder != null) {
-      cardViewHolder.sensorTabLayout.setOnTabSelectedListener(null);
+      cardViewHolder.sensorTabLayout.clearOnTabSelectedListeners();
       cardViewHolder.menuButton.setOnClickListener(null);
       cardViewHolder.infoButton.setOnClickListener(null);
       cardViewHolder.graphStatsList.setOnClickListener(null);
