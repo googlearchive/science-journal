@@ -1210,7 +1210,8 @@ public class RecordFragment extends PanesToolFragment
       String triggerWhenText =
           getActivity()
               .getResources()
-              .getStringArray(R.array.trigger_when_list_note_text)[trigger.getTriggerWhen()];
+              .getStringArray(R.array.trigger_when_list_note_text)[
+              trigger.getTriggerWhen().getNumber()];
       String message =
           getActivity()
               .getResources()

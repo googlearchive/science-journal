@@ -186,7 +186,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     String triggerWhenText =
         context.getResources()
             .getStringArray(R.array.trigger_when_list_note_text)[
-            labelValue.triggerInformation.triggerWhen];
+            labelValue.triggerInformation.triggerWhen.getNumber()];
     GoosciSensorAppearance.BasicSensorAppearance appearance =
         labelValue.sensor.rememberedAppearance;
 

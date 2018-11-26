@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.common.primitives.Ints;
@@ -46,7 +47,7 @@ public class SensorTrigger {
 
   // Short cut to create an alert type SensorTrigger.
   public static SensorTrigger newAlertTypeTrigger(
-      String sensorId, int triggerWhen, int[] alertTypes, double triggerValue) {
+      String sensorId, TriggerWhen triggerWhen, int[] alertTypes, double triggerValue) {
     SensorTrigger result =
         new SensorTrigger(
             sensorId, triggerWhen, TriggerActionType.TRIGGER_ACTION_ALERT, triggerValue);
@@ -56,7 +57,7 @@ public class SensorTrigger {
 
   // Short cut to create a Note type SensorTrigger.
   public static SensorTrigger newNoteTypeTrigger(
-      String sensorId, int triggerWhen, String noteText, double triggerValue) {
+      String sensorId, TriggerWhen triggerWhen, String noteText, double triggerValue) {
     SensorTrigger result =
         new SensorTrigger(
             sensorId, triggerWhen, TriggerActionType.TRIGGER_ACTION_NOTE, triggerValue);
@@ -67,7 +68,7 @@ public class SensorTrigger {
   // Creates a SensorTrigger from scratch, assuming the time it was last used is just now,
   // when it is created.
   public static SensorTrigger newTrigger(
-      String sensorId, int triggerWhen, TriggerActionType actionType, double triggerValue) {
+      String sensorId, TriggerWhen triggerWhen, TriggerActionType actionType, double triggerValue) {
     return new SensorTrigger(sensorId, triggerWhen, actionType, triggerValue);
   }
 
@@ -82,7 +83,7 @@ public class SensorTrigger {
 
   @VisibleForTesting
   protected SensorTrigger(
-      String sensorId, int triggerWhen, TriggerActionType actionType, double triggerValue) {
+      String sensorId, TriggerWhen triggerWhen, TriggerActionType actionType, double triggerValue) {
     triggerProto = new GoosciSensorTrigger.SensorTrigger();
     triggerProto.triggerInformation = new TriggerInformation();
     triggerProto.triggerInformation.triggerWhen = triggerWhen;
@@ -126,11 +127,11 @@ public class SensorTrigger {
     triggerProto.triggerInformation.valueToTrigger = valueToTrigger;
   }
 
-  public int getTriggerWhen() {
+  public TriggerWhen getTriggerWhen() {
     return triggerProto.triggerInformation.triggerWhen;
   }
 
-  public void setTriggerWhen(int triggerWhen) {
+  public void setTriggerWhen(TriggerWhen triggerWhen) {
     triggerProto.triggerInformation.triggerWhen = triggerWhen;
   }
 
@@ -176,24 +177,21 @@ public class SensorTrigger {
       isInitialized = true;
       result = false;
     } else {
-      if (triggerProto.triggerInformation.triggerWhen
-          == TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT) {
+      if (triggerProto.triggerInformation.triggerWhen == TriggerWhen.TRIGGER_WHEN_AT) {
         // Not just an equality check: also test to see if the threshold was crossed in
         // either direction.
         result =
             doubleEquals(newValue, triggerProto.triggerInformation.valueToTrigger)
                 || crossedThreshold(newValue, oldValue);
       } else if (triggerProto.triggerInformation.triggerWhen
-          == TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW) {
+          == TriggerWhen.TRIGGER_WHEN_DROPS_BELOW) {
         result = droppedBelow(newValue, oldValue);
       } else if (triggerProto.triggerInformation.triggerWhen
-          == TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE) {
+          == TriggerWhen.TRIGGER_WHEN_RISES_ABOVE) {
         result = roseAbove(newValue, oldValue);
-      } else if (triggerProto.triggerInformation.triggerWhen
-          == TriggerInformation.TriggerWhen.TRIGGER_WHEN_BELOW) {
+      } else if (triggerProto.triggerInformation.triggerWhen == TriggerWhen.TRIGGER_WHEN_BELOW) {
         return newValue < triggerProto.triggerInformation.valueToTrigger;
-      } else if (triggerProto.triggerInformation.triggerWhen
-          == TriggerInformation.TriggerWhen.TRIGGER_WHEN_ABOVE) {
+      } else if (triggerProto.triggerInformation.triggerWhen == TriggerWhen.TRIGGER_WHEN_ABOVE) {
         return newValue > triggerProto.triggerInformation.valueToTrigger;
       }
     }

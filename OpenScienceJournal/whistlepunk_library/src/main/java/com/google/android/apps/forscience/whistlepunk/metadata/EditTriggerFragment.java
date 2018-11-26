@@ -57,6 +57,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import java.text.DecimalFormat;
@@ -235,7 +236,7 @@ public class EditTriggerFragment extends Fragment {
       TriggerActionType actionType = triggerToEdit.getActionType();
       value.setText(format.format(triggerToEdit.getValueToTrigger()));
       typeSpinner.setSelection(actionType.getNumber());
-      whenSpinner.setSelection(triggerToEdit.getTriggerWhen());
+      whenSpinner.setSelection(triggerToEdit.getTriggerWhen().getNumber());
       if (actionType == TriggerActionType.TRIGGER_ACTION_ALERT) {
         int[] alertTypes = triggerToEdit.getAlertTypes();
         for (int i = 0; i < alertTypes.length; i++) {
@@ -292,7 +293,7 @@ public class EditTriggerFragment extends Fragment {
     } else {
       // Default to an alert spinner that triggers "at" a value, and does a visual alert.
       typeSpinner.setSelection(TriggerActionType.TRIGGER_ACTION_ALERT_VALUE);
-      whenSpinner.setSelection(TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT);
+      whenSpinner.setSelection(TriggerWhen.TRIGGER_WHEN_AT_VALUE);
       visualAlert.setChecked(true);
       onlyWhenRecording.setChecked(false);
     }
@@ -302,8 +303,8 @@ public class EditTriggerFragment extends Fragment {
           @Override
           public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             // Hide all but alert types if this is a ABOVE or BELOW.
-            if (position == TriggerInformation.TriggerWhen.TRIGGER_WHEN_ABOVE
-                || position == TriggerInformation.TriggerWhen.TRIGGER_WHEN_BELOW) {
+            if (position == TriggerWhen.TRIGGER_WHEN_ABOVE_VALUE
+                || position == TriggerWhen.TRIGGER_WHEN_BELOW_VALUE) {
               typeSpinner.setSelection(TriggerActionType.TRIGGER_ACTION_ALERT_VALUE);
               typeSpinner.setEnabled(false);
               updateViewVisibilities(TriggerActionType.TRIGGER_ACTION_ALERT);
@@ -465,7 +466,7 @@ public class EditTriggerFragment extends Fragment {
     final DataController dc = getDataController();
     TriggerActionType triggerType =
         TriggerActionType.forNumber(typeSpinner.getSelectedItemPosition());
-    int triggerWhen = whenSpinner.getSelectedItemPosition();
+    TriggerWhen triggerWhen = TriggerWhen.forNumber(whenSpinner.getSelectedItemPosition());
     boolean triggerOnlyWhenRecording = onlyWhenRecording.isChecked();
     double triggerValue = 0;
     try {
@@ -489,7 +490,7 @@ public class EditTriggerFragment extends Fragment {
   private void updateTrigger(
       DataController dc,
       TriggerActionType triggerType,
-      int triggerWhen,
+      TriggerWhen triggerWhen,
       double triggerValue,
       boolean triggerOnlyWhenRecording,
       final boolean returnToParent) {
@@ -516,7 +517,7 @@ public class EditTriggerFragment extends Fragment {
 
   private boolean updateLocalTriggerIfChanged(
       TriggerActionType triggerType,
-      int triggerWhen,
+      TriggerWhen triggerWhen,
       double triggerValue,
       boolean triggerOnlyWhenRecording) {
     boolean isUpdated = false;
@@ -557,7 +558,7 @@ public class EditTriggerFragment extends Fragment {
   private void createNewTrigger(
       DataController dc,
       TriggerActionType triggerType,
-      int triggerWhen,
+      TriggerWhen triggerWhen,
       double triggerValue,
       boolean triggerOnlyWhenRecording) {
     // Now that the trigger is verified, make sure the save button can't be pushed again.
@@ -599,7 +600,7 @@ public class EditTriggerFragment extends Fragment {
     String triggerTypeString =
         getResources().getStringArray(R.array.trigger_type_list)[triggerType.getNumber()];
     String triggerWhenString =
-        getResources().getStringArray(R.array.trigger_when_list)[triggerWhen];
+        getResources().getStringArray(R.array.trigger_when_list)[triggerWhen.getNumber()];
     WhistlePunkApplication.getUsageTracker(getActivity())
         .trackEvent(
             TrackerConstants.CATEGORY_TRIGGERS,

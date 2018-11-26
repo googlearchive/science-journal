@@ -34,14 +34,14 @@ public class SensorTriggerTest {
     SensorTrigger trigger =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
     SensorTrigger same =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
@@ -53,7 +53,7 @@ public class SensorTriggerTest {
     trigger =
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             new int[] {
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO
@@ -62,7 +62,7 @@ public class SensorTriggerTest {
     same =
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             new int[] {
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO
@@ -78,7 +78,7 @@ public class SensorTriggerTest {
     SensorTrigger trigger =
         SensorTrigger.newAlertTypeTrigger(
             "1",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             new int[] {
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO
@@ -94,7 +94,10 @@ public class SensorTriggerTest {
 
     trigger =
         SensorTrigger.newNoteTypeTrigger(
-            "sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT, "text", 10.);
+            "sensorId",
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            "text",
+            10.);
     assertTrue(trigger.getNoteText().equals("text"));
     assertEquals(trigger.getAlertTypes().length, 0);
 
@@ -110,7 +113,7 @@ public class SensorTriggerTest {
     SensorTrigger trigger =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
@@ -123,7 +126,7 @@ public class SensorTriggerTest {
     SensorTrigger trigger =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
@@ -151,7 +154,7 @@ public class SensorTriggerTest {
     SensorTrigger trigger =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
@@ -169,7 +172,7 @@ public class SensorTriggerTest {
     SensorTrigger trigger =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
@@ -187,14 +190,14 @@ public class SensorTriggerTest {
     SensorTrigger first =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
     SensorTrigger second =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
@@ -205,7 +208,7 @@ public class SensorTriggerTest {
     second =
         SensorTrigger.newTrigger(
             "otherSensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
@@ -214,7 +217,7 @@ public class SensorTriggerTest {
     second =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             10.);
@@ -223,7 +226,7 @@ public class SensorTriggerTest {
     second =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_STOP_RECORDING,
             10.);
@@ -232,7 +235,7 @@ public class SensorTriggerTest {
     second =
         SensorTrigger.newTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE,
             GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
                 .TRIGGER_ACTION_START_RECORDING,
             11.);
@@ -242,7 +245,7 @@ public class SensorTriggerTest {
     first =
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             new int[] {
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO
@@ -251,7 +254,7 @@ public class SensorTriggerTest {
     second =
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             new int[] {
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO,
               TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL
@@ -262,18 +265,24 @@ public class SensorTriggerTest {
     second =
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
-            TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             new int[] {TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO},
             10.);
     assertFalse(first.userSettingsEquals(second));
 
     first =
         SensorTrigger.newNoteTypeTrigger(
-            "sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT, "text", 10.);
+            "sensorId",
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            "text",
+            10.);
     assertFalse(first.userSettingsEquals(second));
     second =
         SensorTrigger.newNoteTypeTrigger(
-            "sensorId", TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT, "text", 10.);
+            "sensorId",
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
+            "text",
+            10.);
     assertTrue(first.userSettingsEquals(second));
 
     second.setNoteText("new");

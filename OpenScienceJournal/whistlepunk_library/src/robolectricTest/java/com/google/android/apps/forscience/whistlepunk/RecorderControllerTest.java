@@ -38,6 +38,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
@@ -551,7 +552,11 @@ public class RecorderControllerTest {
     int testCount = 0;
 
     public TestTrigger(String sensorId) {
-      super(sensorId, 0, TriggerActionType.TRIGGER_ACTION_START_RECORDING, 0);
+      super(
+          sensorId,
+          TriggerWhen.TRIGGER_WHEN_AT,
+          TriggerActionType.TRIGGER_ACTION_START_RECORDING,
+          0);
     }
 
     public void clearTestCount() {

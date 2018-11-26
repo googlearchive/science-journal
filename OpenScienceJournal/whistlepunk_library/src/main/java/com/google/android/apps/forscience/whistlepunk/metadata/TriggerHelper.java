@@ -31,7 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -152,16 +152,16 @@ public class TriggerHelper {
     String units = appearance.getUnits(activity);
     String value = appearance.getNumberFormat().format(trigger.getValueToTrigger());
     String result = "";
-    int when = trigger.getTriggerWhen();
-    if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT) {
+    TriggerWhen when = trigger.getTriggerWhen();
+    if (when == TriggerWhen.TRIGGER_WHEN_AT) {
       result = res.getString(R.string.trigger_when_at_description, action, value, units);
-    } else if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_RISES_ABOVE) {
+    } else if (when == TriggerWhen.TRIGGER_WHEN_RISES_ABOVE) {
       result = res.getString(R.string.trigger_when_rises_above_description, action, value, units);
-    } else if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW) {
+    } else if (when == TriggerWhen.TRIGGER_WHEN_DROPS_BELOW) {
       result = res.getString(R.string.trigger_when_drops_below_description, action, value, units);
-    } else if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_ABOVE) {
+    } else if (when == TriggerWhen.TRIGGER_WHEN_ABOVE) {
       result = res.getString(R.string.trigger_when_above_description, action, value, units);
-    } else if (when == TriggerInformation.TriggerWhen.TRIGGER_WHEN_BELOW) {
+    } else if (when == TriggerWhen.TRIGGER_WHEN_BELOW) {
       result = res.getString(R.string.trigger_when_below_description, action, value, units);
     }
     return result;
