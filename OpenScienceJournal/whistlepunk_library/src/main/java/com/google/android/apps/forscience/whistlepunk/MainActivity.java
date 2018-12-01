@@ -31,23 +31,17 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
-import com.google.android.apps.forscience.whistlepunk.accounts.AccountsUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.GetStartedActivity;
-import com.google.android.apps.forscience.whistlepunk.accounts.OldUserOptionPromptActivity;
 import com.google.android.apps.forscience.whistlepunk.accounts.SignInActivity;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 
 /** The main activity. */
 public class MainActivity extends ActivityWithNavigationView {
@@ -58,6 +52,10 @@ public class MainActivity extends ActivityWithNavigationView {
   // ExperimentListFragment, and ClaimExperimentsActivity.
   public static final String ARG_USE_PANES = "use_panes";
   protected static final int NO_SELECTED_ITEM = -1;
+
+  private static final int REQUEST_AGE_VERIFIER = 1;
+  private static final int REQUEST_GET_STARTED_ACTIVITY = 2;
+  private static final int REQUEST_SIGN_IN_ACTIVITY = 3;
 
   /**
    * The ARG_SELECTED_NAV_ITEM_ID value from onCreate's savedInstanceState if there is one, or
@@ -70,7 +68,6 @@ public class MainActivity extends ActivityWithNavigationView {
 
   private AccountsProvider accountsProvider;
   @Nullable private AppAccount currentAccount;
-  private boolean requireSignedInAccount;
 
   private FeedbackProvider feedbackProvider;
   private NavigationView navigationView;
@@ -82,9 +79,6 @@ public class MainActivity extends ActivityWithNavigationView {
   private final RxEvent pause = new RxEvent();
   /** Receives an event every time the current account changes */
   private final RxEvent currentAccountChanging = new RxEvent();
-
-  private final CompositeDisposable disposeWhenPaused = new CompositeDisposable();
-  private final CompositeDisposable disposeWhenDestroyed = new CompositeDisposable();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -106,20 +100,7 @@ public class MainActivity extends ActivityWithNavigationView {
         AccountsProvider.KEY_OLD_PREFERENCES_COPIED, false);
 
     setContentView(R.layout.activity_main);
-
-    disposeWhenDestroyed.add(
-        accountsProvider
-            .installAccountSwitcher(this)
-            .subscribe(
-                () -> {
-                  navigationView = (NavigationView) findViewById(R.id.navigation);
-                  navigationView.setNavigationItemSelectedListener(this);
-
-                  // Only show dev testing options when requested.
-                  if (!DevOptionsFragment.shouldShowTestingOptions()) {
-                    navigationView.getMenu().removeItem(R.id.dev_testing_options);
-                  }
-                }));
+    accountsProvider.installAccountSwitcher(this);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
@@ -133,6 +114,13 @@ public class MainActivity extends ActivityWithNavigationView {
 
     drawerLayout = (MultiTouchDrawerLayout) findViewById(R.id.drawer_layout);
     drawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.color_primary_dark));
+    navigationView = (NavigationView) findViewById(R.id.navigation);
+    navigationView.setNavigationItemSelectedListener(this);
+
+    // Only show dev testing options when requested.
+    if (!DevOptionsFragment.shouldShowTestingOptions()) {
+      navigationView.getMenu().removeItem(R.id.dev_testing_options);
+    }
 
     feedbackProvider = WhistlePunkApplication.getAppServices(this).getFeedbackProvider();
 
@@ -157,46 +145,46 @@ public class MainActivity extends ActivityWithNavigationView {
       attemptImport();
     }
 
-    showRequiredScreensIfNeeded(
-        () -> {
-          // Navigate to the desired fragment, based on saved state or intent extras, or (by
-          // default) the experiments list.
-          Intent intent = getIntent();
-          Bundle extras = null;
-          if (intent != null) {
-            extras = intent.getExtras();
-          }
-          int selectedNavItemId;
-          if (savedItemId != NO_SELECTED_ITEM) {
-            selectedNavItemId = savedItemId;
-          } else if (extras != null) {
-            selectedNavItemId =
-                extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
-          } else {
-            selectedNavItemId = R.id.navigation_item_experiments;
-          }
-          MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
-          if (item == null) {
-            selectedNavItemId = R.id.navigation_item_experiments;
-            item = navigationView.getMenu().findItem(selectedNavItemId);
-          }
-          navigationView.setCheckedItem(selectedNavItemId);
-          onNavigationItemSelected(item);
+    if (showRequiredScreensIfNeeded()) {
+      return;
+    }
 
-          // Subscribe to account switches.
-          accountsProvider
-              .getObservableCurrentAccount()
-              .takeUntil(pause.happens())
-              .subscribe(this::onAccountSwitched);
+    // Navigate to the desired fragment, based on saved state or intent extras, or (by default)
+    // the experiments list.
+    Intent intent = getIntent();
+    Bundle extras = null;
+    if (intent != null) {
+      extras = intent.getExtras();
+    }
+    int selectedNavItemId;
+    if (savedItemId != NO_SELECTED_ITEM) {
+      selectedNavItemId = savedItemId;
+    } else if (extras != null) {
+      selectedNavItemId = extras.getInt(ARG_SELECTED_NAV_ITEM_ID, R.id.navigation_item_experiments);
+    } else {
+      selectedNavItemId = R.id.navigation_item_experiments;
+    }
+    MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
+    if (item == null) {
+      selectedNavItemId = R.id.navigation_item_experiments;
+      item = navigationView.getMenu().findItem(selectedNavItemId);
+    }
+    navigationView.setCheckedItem(selectedNavItemId);
+    onNavigationItemSelected(item);
 
-          if (!isMultiWindowEnabled()) {
-            // Subscribe to the recording status.
-            watchRecordingStatus();
-          }
-          // If we get to here, it's safe to log the mode we are in: user has signed in
-          // and/or completed age verification.
-          trackMode();
-        });
+    // Subscribe to account switches.
+    accountsProvider
+        .getObservableCurrentAccount()
+        .takeUntil(pause.happens())
+        .subscribe(this::onAccountSwitched);
+
+    if (!isMultiWindowEnabled()) {
+      // Subscribe to the recording status.
+      watchRecordingStatus();
+    }
+    // If we get to here, it's safe to log the mode we are in: user has signed in and/or
+    // completed age verification.
+    trackMode();
   }
 
   private void attemptImport() {
@@ -261,7 +249,6 @@ public class MainActivity extends ActivityWithNavigationView {
   protected void onPause() {
     if (!isMultiWindowEnabled()) {
       // Dispose of the recording status subscription.
-      disposeWhenPaused.dispose();
       pause.onHappened();
     }
     super.onPause();
@@ -278,7 +265,6 @@ public class MainActivity extends ActivityWithNavigationView {
 
   @Override
   protected void onStop() {
-    disposeWhenPaused.dispose();
     accountsProvider.disconnectAccountSwitcher(this);
     if (isMultiWindowEnabled()) {
       // Dispose of the recording status subscription.
@@ -289,7 +275,6 @@ public class MainActivity extends ActivityWithNavigationView {
 
   @Override
   protected void onDestroy() {
-    disposeWhenDestroyed.dispose();
     super.onDestroy();
   }
 
@@ -349,61 +334,30 @@ public class MainActivity extends ActivityWithNavigationView {
     AppSingleton.getInstance(this).setMostRecentOpenWasImport(isAttemptingImport());
   }
 
-  private void showRequiredScreensIfNeeded(Runnable runIfNoRequiredScreens) {
-    disposeWhenPaused.add(
-        Observable.combineLatest(
-                accountsProvider.supportSignedInAccount().toObservable(),
-                accountsProvider.requireSignedInAccount().toObservable(),
-                Pair::create)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                pair -> {
-                  boolean supportSignedInAccount = pair.first;
-                  boolean requireSignedInAccount = pair.second;
-                  this.requireSignedInAccount = requireSignedInAccount;
-                  if (showRequiredScreensIfNeeded(supportSignedInAccount, requireSignedInAccount)) {
-                    return;
-                  }
-                  runIfNoRequiredScreens.run();
-                }));
-  }
-
   /**
-   * If we haven't seen all the required screens, opens the next required activity, and finishes
-   * this activity
+   * If we haven't shown all the required screens, opens the next required activity.
    *
-   * @return true iff the activity has been finished
+   * @return true iff there are no required screens that need to be shown
    */
-  private boolean showRequiredScreensIfNeeded(
-      boolean supportSignedInAccount, boolean requireSignedInAccount) {
-    if (supportSignedInAccount) {
-      if (GetStartedActivity.maybeLaunch(this)) {
-        finish();
+  private boolean showRequiredScreensIfNeeded() {
+    if (!accountsProvider.supportSignedInAccount()) {
+      if (AgeVerifier.shouldShowUserAge(this)) {
+        Intent intent = new Intent(this, AgeVerifier.class);
+        startActivityForResult(intent, REQUEST_AGE_VERIFIER);
         return true;
       }
-      if (accountsProvider.getShowSignInActivityIfNotSignedIn() || requireSignedInAccount) {
-        accountsProvider.setShowSignInActivityIfNotSignedIn(false);
-        if (!accountsProvider.isSignedIn()) {
-          SignInActivity.launch(this);
-          finish();
-          return true;
-        }
-      }
-      if (accountsProvider.isSignedIn() && AccountsUtils.getUnclaimedExperimentCount(this) >= 1) {
-        if (OldUserOptionPromptActivity.maybeLaunch(this)) {
-          finish();
-          return true;
-        }
-      }
-      // Once we get here (whether the user signed in or chose to continue without signing in), we
-      // will never show the OldUserOptionPromptActivity on this device.
-      OldUserOptionPromptActivity.setShouldLaunch(this, false);
+      return false;
     }
 
-    if (AgeVerifier.shouldShowUserAge(this)) {
-      Intent intent = new Intent(this, AgeVerifier.class);
-      startActivity(intent);
-      finish();
+    if (GetStartedActivity.shouldLaunch(this)) {
+      Intent intent = new Intent(this, GetStartedActivity.class);
+      startActivityForResult(intent, REQUEST_GET_STARTED_ACTIVITY);
+      return true;
+    }
+
+    if (SignInActivity.shouldLaunch(this)) {
+      Intent intent = new Intent(this, SignInActivity.class);
+      startActivityForResult(intent, REQUEST_SIGN_IN_ACTIVITY);
       return true;
     }
     return false;
@@ -583,6 +537,18 @@ public class MainActivity extends ActivityWithNavigationView {
             .findFragmentByTag(String.valueOf(R.id.navigation_item_experiments));
     if (fragment != null) {
       fragment.onActivityResult(requestCode, resultCode, data);
+    } else {
+      switch (requestCode) {
+        case REQUEST_AGE_VERIFIER:
+        case REQUEST_GET_STARTED_ACTIVITY:
+        case REQUEST_SIGN_IN_ACTIVITY:
+          if (resultCode == RESULT_CANCELED) {
+            finish();
+          }
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -590,6 +556,12 @@ public class MainActivity extends ActivityWithNavigationView {
     // Dispose of the recording status subscription for the old current account.
     currentAccountChanging.onHappened();
     currentAccount = appAccount;
+
+    // The only reason the given appAccount could be null is if the user pressed the back button
+    // from the OldUserOptionPromptActivity to go back to the SignInActivity.
+    if (currentAccount == null) {
+      return;
+    }
 
     // Clean up old files from previous exports.
     ExportService.cleanOldFiles(this, currentAccount);
@@ -601,16 +573,17 @@ public class MainActivity extends ActivityWithNavigationView {
       attemptImport();
     }
 
-    showRequiredScreensIfNeeded(
-        () -> {
-          // Navigate to experiments list.
-          int selectedNavItemId = R.id.navigation_item_experiments;
-          MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
-          navigationView.setCheckedItem(selectedNavItemId);
-          onNavigationItemSelected(item);
+    if (showRequiredScreensIfNeeded()) {
+      return;
+    }
 
-          // Log the mode we are in: user has signed in or signed out.
-          trackMode();
-        });
+    // Navigate to experiments list.
+    int selectedNavItemId = R.id.navigation_item_experiments;
+    MenuItem item = navigationView.getMenu().findItem(selectedNavItemId);
+    navigationView.setCheckedItem(selectedNavItemId);
+    onNavigationItemSelected(item);
+
+    // Log the mode we are in: user has signed in or signed out.
+    trackMode();
   }
 }

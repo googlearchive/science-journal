@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.intro;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -29,7 +28,6 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import java.util.Calendar;
@@ -81,9 +79,8 @@ public class AgeVerifier extends AppCompatActivity {
                 .edit()
                 .putBoolean(KEY_USER_OVER_13, isOver13(calendar.getTimeInMillis()))
                 .apply();
+            setResult(RESULT_OK);
             finish();
-            Intent intent = new Intent(AgeVerifier.this, MainActivity.class);
-            AgeVerifier.this.startActivity(intent);
           }
         });
     WhistlePunkApplication.getPerfTrackerProvider(this).onAppInteractive();

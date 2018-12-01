@@ -16,15 +16,17 @@
 
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import androidx.annotation.Nullable;
+import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 import io.reactivex.subjects.BehaviorSubject;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,38 +36,40 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** An abstract base class for accounts providers. */
 abstract class AbstractAccountsProvider implements AccountsProvider {
   final Context applicationContext;
-  final AtomicBoolean showSignInActivityIfNotSignedIn = new AtomicBoolean(true);
-  final Single<Boolean> singleSupportSignedInAccount;
-  final Single<Boolean> singleRequireSignedInAccount;
   final BehaviorSubject<AppAccount> observableCurrentAccount = BehaviorSubject.create();
   private final Object lockCurrentAccount = new Object();
   private AppAccount currentAccount;
   private final Map<String, AppAccount> accountsByKey = new HashMap<>();
   private final Map<String, Object> accountBasedPreferenceKeys = new HashMap<>();
+  private final AtomicBoolean showSignInActivityIfNotSignedIn = new AtomicBoolean(true);
+  private final AtomicBoolean showScienceJournalIsDisabledAlert = new AtomicBoolean(false);
+
+  protected enum PermissionStatus {
+    PERMITTED,
+    NOT_PERMITTED,
+    USER_AUTH_ACTION_REQUIRED
+  }
 
   AbstractAccountsProvider(Context context) {
     applicationContext = context.getApplicationContext();
 
-    singleSupportSignedInAccount =
-        Single.<Boolean>create(emitter -> determineSupportSignedInAccount(emitter)).cache();
-    singleRequireSignedInAccount =
-        Single.<Boolean>create(emitter -> determineRequireSignedInAccount(emitter)).cache();
-
     addAccount(NonSignedInAccount.getInstance(applicationContext));
   }
 
-  protected abstract void determineSupportSignedInAccount(SingleEmitter<Boolean> emitter);
-
-  protected abstract void determineRequireSignedInAccount(SingleEmitter<Boolean> emitter);
-
-  @Override
-  public final Single<Boolean> supportSignedInAccount() {
-    return singleSupportSignedInAccount;
+  protected Single<PermissionStatus> isAccountPermitted(Activity activity, AppAccount appAccount) {
+    if (!appAccount.isSignedIn()) {
+      return Single.just(PermissionStatus.PERMITTED);
+    }
+    throw new IllegalArgumentException("This should have been handled by subclass.");
   }
 
-  @Override
-  public final Single<Boolean> requireSignedInAccount() {
-    return singleRequireSignedInAccount;
+  protected final void onAccountNotPermitted(Activity activity) {
+    undoSignIn();
+    setShowSignInActivityIfNotSignedIn(true);
+    getAndSetShowScienceJournalIsDisabledAlert(true);
+    Intent intent = new Intent(applicationContext, MainActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    activity.startActivity(intent);
   }
 
   @Override
@@ -79,9 +83,22 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   }
 
   @Override
+  public final boolean getAndSetShowScienceJournalIsDisabledAlert(boolean newValue) {
+    return showScienceJournalIsDisabledAlert.getAndSet(newValue);
+  }
+
+  @Override
   public boolean isSignedIn() {
     synchronized (lockCurrentAccount) {
       return currentAccount != null && currentAccount.isSignedIn();
+    }
+  }
+
+  @Override
+  public void undoSignIn() {
+    synchronized (lockCurrentAccount) {
+      currentAccount = null;
+      afterSetCurrentAccount(currentAccount);
     }
   }
 
@@ -129,15 +146,25 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
    * Sets the current account and publishes it to observers if the current account override has not
    * been set.
    */
-  protected void setCurrentAccount(AppAccount currentAccount) {
+  protected final void setCurrentAccount(AppAccount currentAccount) {
     synchronized (lockCurrentAccount) {
-      addAccount(currentAccount);
+      if (currentAccount != null) {
+        addAccount(currentAccount);
+      }
 
       this.currentAccount = currentAccount;
+      afterSetCurrentAccount(currentAccount);
+    }
+  }
 
+  protected void afterSetCurrentAccount(AppAccount currentAccount) {
+    if (currentAccount != null && currentAccount.isSignedIn()) {
       // Copy the account-based preferences from the non-signed-in account to the current account.
       copyAccountBasedPreferencesToAccount(currentAccount);
+    }
 
+    // Notify observers.
+    if (currentAccount != null) {
       observableCurrentAccount.onNext(currentAccount);
     }
   }

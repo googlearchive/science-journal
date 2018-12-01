@@ -16,19 +16,22 @@
 
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 
 /**
  * Fragment that tells the user about saving experiments in Google Drive and prompts the user to *
@@ -36,6 +39,8 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
  */
 public class SignInFragment extends Fragment {
   private static final int REQUEST_CODE_ACCOUNT_SWITCHER = 217;
+  private static final int REQUEST_OLD_USER_OPTION_PROMPT_ACTIVITY = 218;
+  private static final int REQUEST_AGE_VERIFIER = 219;
 
   private AccountsProvider accountsProvider;
 
@@ -61,11 +66,62 @@ public class SignInFragment extends Fragment {
   }
 
   @Override
+  public void onResume() {
+    super.onResume();
+
+    if (accountsProvider.getAndSetShowScienceJournalIsDisabledAlert(false)) {
+      showScienceJournalIsDisabledAlert();
+    }
+  }
+
+  private void showScienceJournalIsDisabledAlert() {
+    AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+    Resources resources = getResources();
+    alertDialog.setTitle(resources.getString(R.string.science_journal_disabled_title));
+    alertDialog.setMessage(resources.getString(R.string.science_journal_disabled_message));
+    alertDialog.setNegativeButton(
+        android.R.string.cancel,
+        (dialog, which) -> {
+          dialog.cancel();
+        });
+    alertDialog.setPositiveButton(
+        R.string.science_journal_disabled_yes,
+        (dialog, which) -> {
+          dialog.dismiss();
+          // Show the account picker dialog.
+          signInClicked();
+        });
+    alertDialog.create().show();
+  }
+
+  @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == REQUEST_CODE_ACCOUNT_SWITCHER) {
-      if (accountsProvider.isSignedIn()) {
-        afterSignIn();
-      }
+    switch (requestCode) {
+      case REQUEST_CODE_ACCOUNT_SWITCHER:
+        if (resultCode == Activity.RESULT_OK) {
+          if (accountsProvider.isSignedIn()) {
+            afterSignIn();
+          }
+        } else if (resultCode == AccountsProvider.RESULT_ACCOUNT_NOT_PERMITTED) {
+          showScienceJournalIsDisabledAlert();
+        }
+        break;
+      case REQUEST_OLD_USER_OPTION_PROMPT_ACTIVITY:
+        if (resultCode == Activity.RESULT_OK) {
+          OldUserOptionPromptActivity.setShouldLaunch(getContext(), false);
+          finish();
+        } else {
+          // User hit the back button in OldUserOptionPromptActivity.
+          accountsProvider.undoSignIn();
+        }
+        break;
+      case REQUEST_AGE_VERIFIER:
+        if (resultCode == Activity.RESULT_OK) {
+          finish();
+        }
+        break;
+      default:
+        break;
     }
   }
 
@@ -86,9 +142,13 @@ public class SignInFragment extends Fragment {
   }
 
   private void afterSignIn() {
-    FragmentActivity activity = getActivity();
-    activity.startActivity(new Intent(activity, MainActivity.class));
-    activity.finish();
+    Context context = getContext();
+    if (OldUserOptionPromptActivity.shouldLaunch(context)) {
+      Intent intent = new Intent(context, OldUserOptionPromptActivity.class);
+      startActivityForResult(intent, REQUEST_OLD_USER_OPTION_PROMPT_ACTIVITY);
+    } else {
+      finish();
+    }
   }
 
   private void learnMoreClicked() {
@@ -97,9 +157,22 @@ public class SignInFragment extends Fragment {
   }
 
   private void continueWithoutSigningInClicked() {
-    // Go to MainActivity.
-    FragmentActivity activity = getActivity();
-    activity.startActivity(new Intent(activity, MainActivity.class));
+    Context context = getContext();
+    if (AgeVerifier.shouldShowUserAge(context)) {
+      Intent intent = new Intent(context, AgeVerifier.class);
+      startActivityForResult(intent, REQUEST_AGE_VERIFIER);
+    } else {
+      finish();
+    }
+  }
+
+  private void finish() {
+    // Once we get here (whether the user signed in or chose to continue without signing in), we
+    // will never show the OldUserOptionPromptActivity on this device.
+    Activity activity = getActivity();
+    OldUserOptionPromptActivity.setShouldLaunch(activity, false);
+    accountsProvider.setShowSignInActivityIfNotSignedIn(false);
+    activity.setResult(Activity.RESULT_OK);
     activity.finish();
   }
 }

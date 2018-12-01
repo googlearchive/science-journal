@@ -19,24 +19,25 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 import android.app.Activity;
 import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
-import io.reactivex.Completable;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import java.util.Set;
 
 /** An interface which provides account management. */
 public interface AccountsProvider {
+  /**
+   * Result code sent back from the AccountSwitcherDialog if the chosen account is not permitted to
+   * use Science Journal.
+   */
+  public static final int RESULT_ACCOUNT_NOT_PERMITTED = 10001;
+
   /**
    * Shared preference key used to store whether old preferences have been copied to a particular
    * account.
    */
   public static final String KEY_OLD_PREFERENCES_COPIED = "old_preferences_copied";
 
-  /** Indicates whether a signed-in account is supported. */
-  Single<Boolean> supportSignedInAccount();
-
-  /** Indicates whether a signed-in account is required to use Science Journal. */
-  Single<Boolean> requireSignedInAccount();
+  /** Returns true if a signed-in account is supported; false otherwise. */
+  boolean supportSignedInAccount();
 
   /** @return whether the sign in activity should be shown if the user is not signed in. */
   boolean getShowSignInActivityIfNotSignedIn();
@@ -44,16 +45,20 @@ public interface AccountsProvider {
   /** Sets whether the sign in activity should be shown if the user is not signed in. */
   void setShowSignInActivityIfNotSignedIn(boolean showSignInActivityIfNotSignedIn);
 
+  /**
+   * Sets whether the Science-Jornual-is-disabled alert will be shown on the sign in activity and
+   * returns the previous value.
+   */
+  boolean getAndSetShowScienceJournalIsDisabledAlert(boolean newValue);
+
   /** @return the number of accounts on the device. */
   int getAccountCount();
 
   /**
    * Installs the account switcher, if necessary. Must be called during onCreate of the main
    * activity, after {@link Activity#setContentView}.
-   *
-   * @return a {@link Completable}.
    */
-  Completable installAccountSwitcher(ActivityWithNavigationView activity);
+  void installAccountSwitcher(ActivityWithNavigationView activity);
 
   /**
    * Disconnects the account switcher, if necessary. Must be called during onStop of the main
@@ -72,6 +77,16 @@ public interface AccountsProvider {
 
   /** Returns true if the current account is a signed-in account. */
   boolean isSignedIn();
+
+  /**
+   * Sets the current account to null. This should only be used in two situations:
+   *
+   * <ol>
+   *   <li>when the user presses the back button in OldUserOptionPromptActivity.
+   *   <li>when the user chooses an account that is not permitted to use Science Journal
+   * </ol>
+   */
+  void undoSignIn();
 
   /**
    * Returns an {@link Observable} that publishes the current account.

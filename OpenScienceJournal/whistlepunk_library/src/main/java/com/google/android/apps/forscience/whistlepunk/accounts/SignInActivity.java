@@ -17,20 +17,21 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 
 /** Activity that tells the user to explore their world. */
 public class SignInActivity extends AppCompatActivity {
   private static final String TAG = "SignInActivity";
   private static final String FRAGMENT_TAG = "SignIn";
 
-  public static void launch(Context context) {
-    Intent intent = new Intent(context, SignInActivity.class);
-    context.startActivity(intent);
+  public static boolean shouldLaunch(Context context) {
+    AccountsProvider accountsProvider =
+        WhistlePunkApplication.getAppServices(context).getAccountsProvider();
+    return accountsProvider.getShowSignInActivityIfNotSignedIn() && !accountsProvider.isSignedIn();
   }
 
   @Override

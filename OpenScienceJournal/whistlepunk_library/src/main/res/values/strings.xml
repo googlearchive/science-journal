@@ -1585,6 +1585,15 @@ Permissions notice:
     <!-- Button text for continue without signing in button on sign in fragment [CHAR_LIMIT=25] -->
     <string name="sign_in_continue_without_signing_in_button">Continue without signing in</string>
 
+    <!-- Title for Science Journal is disabled alert. [CHAR_LIMIT=40] -->
+    <string name="science_journal_disabled_title">Science Journal is disabled</string>
+
+    <!-- Message for Science Journal is disabled alert. [CHAR_LIMIT=NONE] -->
+    <string name="science_journal_disabled_message">Science Journal needs to be turned on in the Google Admin console by your domain administrator.</string>
+
+    <!-- Yes button for alert saying that Science Journal is not enabled for GSuite domain. [CHAR_LIMIT=40] -->
+    <string name="science_journal_disabled_yes">Switch Accounts</string>
+
     <!-- Headline for old user option prompt activity [CHAR_LIMIT=50] -->
     <string name="old_user_option_prompt_headline">Back up to Google Drive</string>
 

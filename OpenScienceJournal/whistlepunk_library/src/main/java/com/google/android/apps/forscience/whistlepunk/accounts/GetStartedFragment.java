@@ -16,16 +16,15 @@
 
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
+import android.app.Activity;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 
 /** Fragment that tells the user to explore their world. */
 public class GetStartedFragment extends Fragment {
@@ -44,15 +43,9 @@ public class GetStartedFragment extends Fragment {
   }
 
   private void getStartedClicked() {
-    FragmentActivity activity = getActivity();
-
+    Activity activity = getActivity();
     GetStartedActivity.setShouldLaunch(activity, false);
-
-    SignInActivity.launch(activity);
+    activity.setResult(Activity.RESULT_OK);
     activity.finish();
-
-    WhistlePunkApplication.getAppServices(activity)
-        .getAccountsProvider()
-        .setShowSignInActivityIfNotSignedIn(false);
   }
 }

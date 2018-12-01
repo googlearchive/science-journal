@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.appcompat.app.AlertDialog;
@@ -27,7 +26,6 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
-import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 
@@ -39,23 +37,17 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
 
   private int unclaimedExperimentCount;
 
-  public static boolean maybeLaunch(Context context) {
-    if (getShouldLaunch(context)) {
-      Intent intent = new Intent(context, OldUserOptionPromptActivity.class);
-      context.startActivity(intent);
-      return true;
+  static boolean shouldLaunch(Context context) {
+    AccountsProvider accountsProvider =
+        WhistlePunkApplication.getAppServices(context).getAccountsProvider();
+    if (accountsProvider.isSignedIn() && AccountsUtils.getUnclaimedExperimentCount(context) >= 1) {
+      return PreferenceManager.getDefaultSharedPreferences(context)
+          .getBoolean(KEY_SHOULD_LAUNCH, true);
     }
-
-    // Return false to indicate to the caller that we did not launch OldUserOptionPromptActivity.
     return false;
   }
 
-  public static boolean getShouldLaunch(Context context) {
-    return PreferenceManager.getDefaultSharedPreferences(context)
-        .getBoolean(KEY_SHOULD_LAUNCH, true);
-  }
-
-  public static void setShouldLaunch(Context context, boolean shouldLaunch) {
+  static void setShouldLaunch(Context context, boolean shouldLaunch) {
     PreferenceManager.getDefaultSharedPreferences(context)
         .edit()
         .putBoolean(KEY_SHOULD_LAUNCH, shouldLaunch)
@@ -80,11 +72,6 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
                 R.plurals.old_user_option_prompt_text,
                 unclaimedExperimentCount,
                 unclaimedExperimentCount));
-  }
-
-  @Override
-  public void onBackPressed() {
-    // User cannot exit out of this screen until one of the options is selected.
   }
 
   private void showMoveAllExperimentsPrompt() {
@@ -127,7 +114,8 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
         new LoggingConsumer<Success>(TAG, "moveAllExperiments") {
           @Override
           public void success(Success value) {
-            launchMainActivity();
+            setResult(RESULT_OK);
+            finish();
           }
         });
   }
@@ -154,20 +142,14 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
         new LoggingConsumer<Success>(TAG, "deleteAllExperiments") {
           @Override
           public void success(Success value) {
-            launchMainActivity();
+            setResult(RESULT_OK);
+            finish();
           }
         });
   }
 
   private void pickAndChooseExperiments() {
-    launchMainActivity();
-  }
-
-  private void launchMainActivity() {
-    setShouldLaunch(this, false);
-
-    Intent intent = new Intent(this, MainActivity.class);
+    setResult(RESULT_OK);
     finish();
-    startActivity(intent);
   }
 }

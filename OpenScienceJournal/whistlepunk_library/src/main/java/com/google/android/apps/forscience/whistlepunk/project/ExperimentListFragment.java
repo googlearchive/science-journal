@@ -85,8 +85,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLa
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -142,8 +140,6 @@ public class ExperimentListFragment extends Fragment
   private ConnectivityBroadcastReceiver connectivityBroadcastReceiver;
   private Menu optionsMenu = null;
   private FeatureDiscoveryProvider featureDiscoveryProvider;
-
-  private final CompositeDisposable disposeWhenDestroyed = new CompositeDisposable();
 
   public static ExperimentListFragment newInstance(AppAccount appAccount, boolean usePanes) {
     return newInstance(createArguments(appAccount, usePanes));
@@ -245,16 +241,22 @@ public class ExperimentListFragment extends Fragment
             busy -> {
               if (!busy) {
                 Handler uiHandler = new Handler(getContext().getMainLooper());
-                uiHandler.post(() -> {
-                  loadExperiments();
-                  getView()
-                    .announceForAccessibility(
-                        getResources().getString(R.string.action_sync_end));
-                  swipeLayout.setRefreshing(false);
-                });
+                uiHandler.post(
+                    () -> {
+                      // This fragment may be gone by the time this code executes. Check getContext
+                      // and give up if it is null, otherwise getResources() below will throw
+                      // IllegalStateException.
+                      if (getContext() == null) {
+                        return;
+                      }
+                      loadExperiments();
+                      getView()
+                          .announceForAccessibility(
+                              getResources().getString(R.string.action_sync_end));
+                      swipeLayout.setRefreshing(false);
+                    });
               }
             });
-
 
     swipeLayout.setRefreshing(true);
     syncNow("Sync On Resume");
@@ -268,7 +270,6 @@ public class ExperimentListFragment extends Fragment
 
   @Override
   public void onDestroy() {
-    disposeWhenDestroyed.dispose();
     // TODO: Use RxEvent here
     experimentListAdapter.onDestroy();
     destroyed.onHappened();
@@ -380,68 +381,47 @@ public class ExperimentListFragment extends Fragment
     if (getActivity() == null) {
       return;
     }
-    disposeWhenDestroyed.add(
-        WhistlePunkApplication.getAppServices(getContext())
-            .getAccountsProvider()
-            .requireSignedInAccount()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                requireSignedInAccount -> {
-                  if (getActivity() == null) {
-                    return;
-                  }
-                  // If a signed-in account is required, don't show any experiments until the user
-                  // has signed in.
-                  if (!claimExperimentsMode && requireSignedInAccount && !appAccount.isSignedIn()) {
-                    attachToExperiments(new ArrayList<>());
-                    return;
-                  }
 
-                  PerfTrackerProvider perfTracker =
-                      WhistlePunkApplication.getPerfTrackerProvider(getActivity());
-                  PerfTrackerProvider.TimerToken loadExperimentTimer = perfTracker.startTimer();
-                  getDataController()
-                      .getExperimentOverviews(
-                          includeArchived,
-                          new LoggingConsumer<List<GoosciUserMetadata.ExperimentOverview>>(
-                              TAG, "Retrieve experiments") {
-                            @Override
-                            public void success(
-                                List<GoosciUserMetadata.ExperimentOverview> experiments) {
-                              // In case the account changes multiple times quickly, ignore the
-                              // results if the activity is now null.
-                              if (getActivity() == null) {
-                                return;
-                              }
-                              if (experiments.isEmpty()
-                                  && !wasDefaultExperimentCreated()
-                                  && !shouldShowClaimExperimentsCard()) {
-                                // If there are no experiments and we've never made a default one,
-                                // create the default experiment and set the boolean to true.
-                                // Note that we don't create the default experiment if the user is
-                                // prompted to claim unclaimed experiments.
-                                createDefaultExperiment();
-                                boolean discoveryEnabled =
-                                    featureDiscoveryProvider.isEnabled(
-                                        getActivity(),
-                                        appAccount,
-                                        FeatureDiscoveryProvider.FEATURE_NEW_EXPERIMENT);
-                                if (discoveryEnabled) {
-                                  scheduleFeatureDiscovery();
-                                }
-                                perfTracker.stopTimer(
-                                    loadExperimentTimer,
-                                    TrackerConstants.PRIMES_DEFAULT_EXPERIMENT_CREATED);
-                              } else {
-                                attachToExperiments(experiments);
-                                perfTracker.stopTimer(
-                                    loadExperimentTimer,
-                                    TrackerConstants.PRIMES_EXPERIMENT_LIST_LOADED);
-                              }
-                              perfTracker.onAppInteractive();
-                            }
-                          });
-                }));
+    PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
+    PerfTrackerProvider.TimerToken loadExperimentTimer = perfTracker.startTimer();
+    getDataController()
+        .getExperimentOverviews(
+            includeArchived,
+            new LoggingConsumer<List<GoosciUserMetadata.ExperimentOverview>>(
+                TAG, "Retrieve experiments") {
+              @Override
+              public void success(List<GoosciUserMetadata.ExperimentOverview> experiments) {
+                // In case the account changes multiple times quickly, ignore the results if
+                // the activity is now null.
+                if (getActivity() == null) {
+                  return;
+                }
+                if (experiments.isEmpty()
+                    && !wasDefaultExperimentCreated()
+                    && !shouldShowClaimExperimentsCard()) {
+                  // If there are no experiments and we've never made a default one,
+                  // create the default experiment and set the boolean to true.
+                  // Note that we don't create the default experiment if the user is
+                  // prompted to claim unclaimed experiments.
+                  createDefaultExperiment();
+                  boolean discoveryEnabled =
+                      featureDiscoveryProvider.isEnabled(
+                          getActivity(),
+                          appAccount,
+                          FeatureDiscoveryProvider.FEATURE_NEW_EXPERIMENT);
+                  if (discoveryEnabled) {
+                    scheduleFeatureDiscovery();
+                  }
+                  perfTracker.stopTimer(
+                      loadExperimentTimer, TrackerConstants.PRIMES_DEFAULT_EXPERIMENT_CREATED);
+                } else {
+                  attachToExperiments(experiments);
+                  perfTracker.stopTimer(
+                      loadExperimentTimer, TrackerConstants.PRIMES_EXPERIMENT_LIST_LOADED);
+                }
+                perfTracker.onAppInteractive();
+              }
+            });
   }
 
   private void scheduleFeatureDiscovery() {

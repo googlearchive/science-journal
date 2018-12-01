@@ -20,8 +20,6 @@ import android.app.Activity;
 import android.content.Context;
 import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
-import io.reactivex.Completable;
-import io.reactivex.SingleEmitter;
 
 /** An accounts provider which supports a user with no signed-in account. */
 public final class NonSignedInAccountsProvider extends AbstractAccountsProvider {
@@ -31,13 +29,8 @@ public final class NonSignedInAccountsProvider extends AbstractAccountsProvider 
   }
 
   @Override
-  protected void determineSupportSignedInAccount(SingleEmitter<Boolean> emitter) {
-    emitter.onSuccess(false);
-  }
-
-  @Override
-  protected void determineRequireSignedInAccount(SingleEmitter<Boolean> emitter) {
-    emitter.onSuccess(false);
+  public boolean supportSignedInAccount() {
+    return false;
   }
 
   @Override
@@ -46,9 +39,7 @@ public final class NonSignedInAccountsProvider extends AbstractAccountsProvider 
   }
 
   @Override
-  public Completable installAccountSwitcher(ActivityWithNavigationView activity) {
-    return Completable.complete();
-  }
+  public void installAccountSwitcher(ActivityWithNavigationView activity) {}
 
   @Override
   public void disconnectAccountSwitcher(ActivityWithNavigationView activity) {}

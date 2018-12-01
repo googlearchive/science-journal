@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.fragment.app.Fragment;
@@ -34,23 +33,12 @@ public class GetStartedActivity extends AppCompatActivity {
 
   private static final String KEY_SHOULD_LAUNCH = "key_should_launch_get_started_activity";
 
-  public static boolean maybeLaunch(Context context) {
-    if (getShouldLaunch(context)) {
-      Intent intent = new Intent(context, GetStartedActivity.class);
-      context.startActivity(intent);
-      return true;
-    }
-
-    // Return false to indicate to the caller that we did not launch GetStartedActivity.
-    return false;
-  }
-
-  public static boolean getShouldLaunch(Context context) {
+  public static boolean shouldLaunch(Context context) {
     return PreferenceManager.getDefaultSharedPreferences(context)
         .getBoolean(KEY_SHOULD_LAUNCH, true);
   }
 
-  public static void setShouldLaunch(Context context, boolean shouldLaunch) {
+  static void setShouldLaunch(Context context, boolean shouldLaunch) {
     PreferenceManager.getDefaultSharedPreferences(context)
         .edit()
         .putBoolean(KEY_SHOULD_LAUNCH, shouldLaunch)
