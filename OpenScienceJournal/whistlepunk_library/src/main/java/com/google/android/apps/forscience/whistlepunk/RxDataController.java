@@ -46,8 +46,8 @@ public class RxDataController {
   }
 
   public static Single<FileSyncCollection> mergeExperiment(
-      DataController dc, String id, Experiment toMerge) {
-    return MaybeConsumers.buildSingle(mc -> dc.mergeExperiment(id, toMerge, mc));
+      DataController dc, String id, Experiment toMerge, boolean overwrite) {
+    return MaybeConsumers.buildSingle(mc -> dc.mergeExperiment(id, toMerge, overwrite, mc));
   }
 
   public static Completable addExperiment(DataController dc, Experiment e) {

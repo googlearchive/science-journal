@@ -760,60 +760,77 @@ public class Experiment extends LabelListHolder {
    * @param context The current Context.
    */
   public FileSyncCollection mergeFrom(
-      Experiment externalExperiment, Context context, AppAccount appAccount) {
-    // First, we have to calculate the changes made in the local and external experiment.
-    List<Change> localChanges = changes;
-    List<Change> externalChanges = externalExperiment.getChanges();
+      Experiment externalExperiment, Context context, AppAccount appAccount, boolean overwrite) {
+    if (overwrite) {
+      proto = externalExperiment.proto;
+      changes.clear();
+      changes.addAll(externalExperiment.changes);
+      trials.clear();
+      trials.addAll(externalExperiment.trials);
+      labels.clear();
+      labels.addAll(externalExperiment.labels);
+      title = externalExperiment.title;
+      description = externalExperiment.description;
+      imagePath = externalExperiment.imagePath;
+      trialCount = externalExperiment.trialCount;
+      totalTrials = externalExperiment.totalTrials;
+      return new FileSyncCollection();
+    } else {
+      // First, we have to calculate the changes made in the local and external experiment.
+      List<Change> localChanges = changes;
+      List<Change> externalChanges = externalExperiment.getChanges();
 
-    Set<Change> localOnly = new LinkedHashSet<>();
-    Set<Change> externalOnly = new LinkedHashSet<>();
+      Set<Change> localOnly = new LinkedHashSet<>();
+      Set<Change> externalOnly = new LinkedHashSet<>();
 
-    FileSyncCollection filesToSync = new FileSyncCollection();
+      FileSyncCollection filesToSync = new FileSyncCollection();
 
-    localOnly.addAll(localChanges);
-    localOnly.removeAll(externalChanges);
+      localOnly.addAll(localChanges);
+      localOnly.removeAll(externalChanges);
 
-    externalOnly.addAll(externalChanges);
-    externalOnly.removeAll(localChanges);
+      externalOnly.addAll(externalChanges);
+      externalOnly.removeAll(localChanges);
 
-    // Next, we have to add all of the external-only change records to the local change log.
-    for (Change c : externalOnly) {
-      addChange(c);
-    }
-
-    // Now, build a set of every element that changed externally and locally. This way,
-    // we can intersect those sets to find conflicts.
-    HashMap<String, Change> changedExternalElements = new HashMap<>();
-    for (Change external : externalOnly) {
-      changedExternalElements.put(getChangeMapKey(external), external);
-    }
-
-    HashMap<String, Change> changedLocalElements = new HashMap<>();
-    for (Change local : localOnly) {
-      changedLocalElements.put(getChangeMapKey(local), local);
-    }
-
-    // For each external changed element, see if that element was also changed locally. If it was,
-    // Solve the conflict. If it wasn't, copy the element to the local experiment.
-    // N.B., this deals with changed ELEMENTS, not changes. So if there are 2 edits made to a note,
-    // we only have to deal with it once, as the final state is already recorded. We have copied
-    // the change record above, so future merges will be aware of the full history.
-    FileMetadataUtil fileMetadataUtil = FileMetadataUtil.getInstance();
-    for (Change external : changedExternalElements.values()) {
-      if (changedLocalElements.containsKey(getChangeMapKey(external))) {
-        handleConflictMerge(
-            externalExperiment, context, appAccount, fileMetadataUtil, external, filesToSync);
-        changedLocalElements.remove(getChangeMapKey(external));
-      } else {
-        handleNoConflictMerge(
-            externalExperiment, context, appAccount, fileMetadataUtil, external, filesToSync);
+      // Next, we have to add all of the external-only change records to the local change log.
+      for (Change c : externalOnly) {
+        addChange(c);
       }
-    }
-    for (Change local : changedLocalElements.values()) {
-      handleLocalOnlyMerge(appAccount, fileMetadataUtil, local, filesToSync);
-    }
 
-    return filesToSync;
+      // Now, build a set of every element that changed externally and locally. This way,
+      // we can intersect those sets to find conflicts.
+      HashMap<String, Change> changedExternalElements = new HashMap<>();
+      for (Change external : externalOnly) {
+        changedExternalElements.put(getChangeMapKey(external), external);
+      }
+
+      HashMap<String, Change> changedLocalElements = new HashMap<>();
+      for (Change local : localOnly) {
+        changedLocalElements.put(getChangeMapKey(local), local);
+      }
+
+      // For each external changed element, see if that element was also changed locally. If it was,
+      // Solve the conflict. If it wasn't, copy the element to the local experiment.
+      // N.B., this deals with changed ELEMENTS, not changes. So if there are 2 edits made to a
+      // note,
+      // we only have to deal with it once, as the final state is already recorded. We have copied
+      // the change record above, so future merges will be aware of the full history.
+      FileMetadataUtil fileMetadataUtil = FileMetadataUtil.getInstance();
+      for (Change external : changedExternalElements.values()) {
+        if (changedLocalElements.containsKey(getChangeMapKey(external))) {
+          handleConflictMerge(
+              externalExperiment, context, appAccount, fileMetadataUtil, external, filesToSync);
+          changedLocalElements.remove(getChangeMapKey(external));
+        } else {
+          handleNoConflictMerge(
+              externalExperiment, context, appAccount, fileMetadataUtil, external, filesToSync);
+        }
+      }
+      for (Change local : changedLocalElements.values()) {
+        handleLocalOnlyMerge(appAccount, fileMetadataUtil, local, filesToSync);
+      }
+
+      return filesToSync;
+    }
   }
 
   private void handleLocalOnlyMerge(

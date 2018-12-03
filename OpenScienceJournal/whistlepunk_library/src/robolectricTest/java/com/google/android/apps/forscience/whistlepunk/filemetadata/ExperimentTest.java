@@ -371,7 +371,7 @@ public class ExperimentTest {
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
     FileSyncCollection sync =
-        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(0, sync.getImageDownloads().size());
     assertEquals(0, sync.getImageUploads().size());
@@ -394,7 +394,7 @@ public class ExperimentTest {
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
     FileSyncCollection sync =
-        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(0, sync.getImageDownloads().size());
     assertEquals(0, sync.getImageUploads().size());
@@ -417,7 +417,7 @@ public class ExperimentTest {
 
     experimentClient.setTitle("Title2");
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals("Title2", experimentServer.getTitle());
     assertEquals(2, experimentServer.getChanges().size());
@@ -434,7 +434,7 @@ public class ExperimentTest {
 
     experimentClient.setTitle("Title2");
     experimentClient.setTitle("Title3");
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals("Title3", experimentServer.getTitle());
     assertEquals(3, experimentServer.getChanges().size());
@@ -453,7 +453,7 @@ public class ExperimentTest {
 
     experimentClient.setTitle("Title3");
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals("Title2 / Title3", experimentServer.getTitle());
     assertEquals(3, experimentServer.getChanges().size());
@@ -482,7 +482,7 @@ public class ExperimentTest {
     assertEquals(0, experimentServer.getLabelCount());
 
     FileSyncCollection sync =
-        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(1, sync.getImageDownloads().size());
 
@@ -514,7 +514,7 @@ public class ExperimentTest {
     assertEquals(1, experimentClient.getLabelCount());
     assertEquals(0, experimentServer.getLabelCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(1, experimentClient.getChanges().size());
     assertEquals(1, experimentServer.getChanges().size());
@@ -550,7 +550,7 @@ public class ExperimentTest {
     assertEquals(1, experimentServer.getChanges().size());
 
     FileSyncCollection sync =
-        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(1, sync.getImageDownloads().size());
 
@@ -590,7 +590,7 @@ public class ExperimentTest {
     assertEquals(1, experimentServer.getLabelCount());
 
     FileSyncCollection sync =
-        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(0, sync.getImageDownloads().size());
     assertEquals(0, sync.getImageUploads().size());
@@ -637,7 +637,7 @@ public class ExperimentTest {
     assertEquals(1, experimentServer.getLabelCount());
 
     FileSyncCollection sync =
-        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(0, sync.getImageDownloads().size());
     assertEquals(0, sync.getImageUploads().size());
@@ -667,7 +667,7 @@ public class ExperimentTest {
     assertEquals(1, experimentClient.getTrialCount());
     assertEquals(0, experimentServer.getTrialCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(1, experimentClient.getChanges().size());
     assertEquals(1, experimentServer.getChanges().size());
@@ -710,7 +710,7 @@ public class ExperimentTest {
     assertEquals(1, experimentClient.getTrialCount());
     assertEquals(0, experimentServer.getTrialCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(2, experimentClient.getChanges().size());
     assertEquals(3, experimentServer.getChanges().size());
@@ -748,7 +748,7 @@ public class ExperimentTest {
     assertEquals(0, trial.getLabelCount());
 
     FileSyncCollection sync =
-        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(1, sync.getImageDownloads().size());
     assertEquals(0, sync.getImageUploads().size());
@@ -789,7 +789,7 @@ public class ExperimentTest {
     assertEquals(1, trial.getLabelCount());
 
     FileSyncCollection sync =
-        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(0, sync.getImageDownloads().size());
     assertEquals(1, sync.getImageUploads().size());
@@ -840,7 +840,7 @@ public class ExperimentTest {
 
     assertEquals("caption2", experimentClient.getLabel(label.getLabelId()).getCaptionText());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(2, experimentClient.getChanges().size());
     assertEquals(2, experimentServer.getChanges().size());
@@ -882,7 +882,7 @@ public class ExperimentTest {
     assertEquals(0, clientTrial.getLabelCount());
     assertEquals(1, trial.getLabelCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(2, experimentClient.getChanges().size());
     assertEquals(2, experimentServer.getChanges().size());
@@ -921,7 +921,7 @@ public class ExperimentTest {
 
     assertEquals(0, trial.getLabelCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(3, experimentClient.getChanges().size());
     assertEquals(3, experimentServer.getChanges().size());
@@ -975,7 +975,7 @@ public class ExperimentTest {
     assertEquals(1, experimentClient.getLabelCount());
     assertEquals(1, experimentServer.getLabelCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(4, experimentServer.getChanges().size());
     assertEquals(2, experimentServer.getLabelCount());
@@ -1018,7 +1018,7 @@ public class ExperimentTest {
     assertEquals(0, experimentClient.getLabelCount());
     assertEquals(1, experimentServer.getLabelCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(3, experimentServer.getChanges().size());
     assertEquals(0, experimentServer.getLabelCount());
@@ -1061,7 +1061,7 @@ public class ExperimentTest {
     assertEquals(1, experimentClient.getLabelCount());
     assertEquals(0, experimentServer.getLabelCount());
 
-    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(3, experimentServer.getChanges().size());
     assertEquals(0, experimentServer.getLabelCount());
@@ -1093,9 +1093,55 @@ public class ExperimentTest {
     assertEquals(1, experimentServer.getTrialCount());
 
     FileSyncCollection sync =
-        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount());
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertEquals(1, sync.getTrialUploads().size());
     assertTrue(sync.getTrialUploads().contains(trial2.getTrialId()));
+  }
+
+  @Test
+  public void testMergeExperimentsOverwrite() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    Trial trial = Trial.newTrial(1, new SensorLayout[0], null, getContext());
+
+    experimentServer.addTrial(trial);
+
+    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    pictureLabelValue.filePath = "foo";
+    Label label = Label.newLabel(1, ValueType.PICTURE);
+    label.setLabelProtoData(pictureLabelValue);
+
+    experimentClient.addLabel(experimentClient, label);
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(0, experimentClient.getTrialCount());
+
+    assertEquals(0, experimentServer.getLabelCount());
+    assertEquals(1, experimentServer.getTrialCount());
+
+    FileSyncCollection sync =
+        experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), true);
+
+    assertEquals(1, experimentClient.getChanges().size());
+    assertEquals(1, experimentServer.getChanges().size());
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(0, experimentClient.getTrialCount());
+
+    assertEquals(1, experimentServer.getLabelCount());
+    assertEquals(0, experimentServer.getTrialCount());
+
+    assertEquals(0, sync.getTrialUploads().size());
+    assertEquals(0, sync.getTrialDownloads().size());
+    assertEquals(0, sync.getImageUploads().size());
+    assertEquals(0, sync.getImageDownloads().size());
   }
 }

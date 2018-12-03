@@ -443,7 +443,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
   @Override
   public void mergeExperiment(
-      String experimentId, Experiment toMerge, MaybeConsumer<FileSyncCollection> onSuccess) {
+      String experimentId,
+      Experiment toMerge,
+      boolean overwrite,
+      MaybeConsumer<FileSyncCollection> onSuccess) {
     background(
         metaDataThread,
         onSuccess,
@@ -455,7 +458,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
               throw new IllegalArgumentException(
                   "Could not find experiment with id " + experimentId);
             }
-            FileSyncCollection sync = result.mergeFrom(toMerge, context, appAccount);
+            FileSyncCollection sync = result.mergeFrom(toMerge, context, appAccount, overwrite);
             if (Strings.isNullOrEmpty(result.getTitle())) {
               result.setTitle(toMerge.getTitle());
             }

@@ -117,7 +117,10 @@ public class StubDataController implements DataController {
 
   @Override
   public void mergeExperiment(
-      String experimentId, Experiment toMerge, MaybeConsumer<FileSyncCollection> onSuccess) {
+      String experimentId,
+      Experiment toMerge,
+      boolean overwrite,
+      MaybeConsumer<FileSyncCollection> onSuccess) {
     onSuccess.success(new FileSyncCollection());
   }
 

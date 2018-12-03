@@ -84,7 +84,10 @@ public interface DataController {
       Experiment experiment, long lastUsedTime, boolean setDirty, MaybeConsumer<Success> onSuccess);
 
   void mergeExperiment(
-      String experimentId, Experiment toMerge, MaybeConsumer<FileSyncCollection> onSuccess);
+      String experimentId,
+      Experiment toMerge,
+      boolean overwrite,
+      MaybeConsumer<FileSyncCollection> onSuccess);
 
   void saveImmediately(MaybeConsumer<Success> onSuccess);
 
