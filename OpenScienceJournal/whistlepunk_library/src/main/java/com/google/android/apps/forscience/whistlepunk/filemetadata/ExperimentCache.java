@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
@@ -117,6 +118,9 @@ class ExperimentCache {
     this.appAccount = appAccount;
     this.failureListener = failureListener;
     experimentProtoFileHelper = new ProtoFileHelper<>();
+    if (Looper.myLooper() == null) {
+      Looper.prepare();
+    }
     handler = new Handler();
     backgroundWriteThread = Executors.newSingleThreadExecutor();
     writeRunnable =

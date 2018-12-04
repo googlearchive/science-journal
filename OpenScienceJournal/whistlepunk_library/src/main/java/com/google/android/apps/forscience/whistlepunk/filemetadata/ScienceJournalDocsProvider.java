@@ -28,15 +28,15 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-// TODO(b/79543793): Rewrite this class so that it properly represents the storage with separate
-// accounts.
 
 /** Provides pictures for access outside the SJ app. TODO: Add thumbnails. */
 public class ScienceJournalDocsProvider extends DocumentsProvider {
@@ -63,6 +63,7 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       };
 
   private static final String ROOT_DIRECTORY_ID = "ScienceJournalRoot";
+  private static final String APP_ACCOUNT_PREFIX = "com.google";
 
   @Override
   public Cursor queryRoots(String[] projection) throws FileNotFoundException {
@@ -95,25 +96,45 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
   @Override
   public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder)
       throws FileNotFoundException {
-    // TODO(lizlooney): Use the AppAccount associated with the parent document.
-    AppAccount appAccount = NonSignedInAccount.getInstance(getContext());
+    Set<AppAccount> accounts =
+        WhistlePunkApplication.getAppServices(getContext()).getAccountsProvider().getAccounts();
+    Set<String> accountKeys = new HashSet<>();
+    for (AppAccount appAccount : accounts) {
+      accountKeys.add(appAccount.getAccountKey());
+    }
     final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
     if (TextUtils.equals(parentDocumentId, ROOT_DIRECTORY_ID)) {
-      // The sub-directories are all experiments. Use their experiment ID as document ID.
-      // TODO: Use notifyChange to load data off-thread and update only when it is available.
-      List<GoosciUserMetadata.ExperimentOverview> overviews =
-          AppSingleton.getInstance(getContext())
-              .getDataController(appAccount)
-              .blockingGetExperimentOverviews(true);
-      for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
+      // The sub-directories are accounts. Use their account key as document ID.
+      for (AppAccount appAccount : accounts) {
         MatrixCursor.RowBuilder row = result.newRow();
-        row.add(Document.COLUMN_DOCUMENT_ID, overview.experimentId);
-        addExperimentToRow(row, overview);
+        row.add(Document.COLUMN_DOCUMENT_ID, appAccount.getAccountKey());
+        String accountName = appAccount.getAccountName();
+        if (accountName.isEmpty()) {
+          accountName = getContext().getResources().getString(R.string.unclaimed_experiments);
+        }
+        addAccountToRow(row, accountName);
+      }
+    } else if (accountKeys.contains(parentDocumentId)) {
+      // The sub-directories are experiments. Use their experiment id as document ID.
+      // TODO: Use notifyChange to load data off-thread and update only when it is available.
+      for (AppAccount appAccount : accounts) {
+        if (appAccount.getAccountKey().equals(parentDocumentId)) {
+          List<GoosciUserMetadata.ExperimentOverview> overviews =
+              AppSingleton.getInstance(getContext())
+                  .getDataController(appAccount)
+                  .blockingGetExperimentOverviews(true);
+          for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
+            MatrixCursor.RowBuilder row = result.newRow();
+            row.add(Document.COLUMN_DOCUMENT_ID, overview.experimentId);
+            addExperimentToRow(row, overview);
+          }
+        }
       }
     } else {
       // The sub-files are all within the assets folder of this experiment
       File assetsDir =
-          FileMetadataUtil.getInstance().getAssetsDirectory(appAccount, parentDocumentId);
+          FileMetadataUtil.getInstance().getAssetsDirectory(
+              getAppAccountFromDocumentId(parentDocumentId), parentDocumentId);
       for (File file : assetsDir.listFiles()) {
         MatrixCursor.RowBuilder row = result.newRow();
         row.add(
@@ -127,8 +148,7 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
 
   @Override
   public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
-    // TODO(lizlooney): Use the AppAccount associated with the parent document.
-    AppAccount appAccount = NonSignedInAccount.getInstance(getContext());
+    AppAccount appAccount = getAppAccountFromDocumentId(documentId);
 
     // Create a cursor with the requested projection, or the default projection.
     final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
@@ -141,6 +161,13 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
       row.add(Document.COLUMN_LAST_MODIFIED, null); // Not sure
       row.add(Document.COLUMN_SIZE, null);
+
+    } else if (documentId.startsWith(APP_ACCOUNT_PREFIX)) {
+      // It is an app account
+      // TODO(lizlooney,ashleymarie): make an AccountsProvider method to determine whether a
+      // documentId corresponds to an account.
+      addAccountToRow(row, appAccount.getAccountName());
+
     } else if (!documentId.contains("/")) {
       // It is an experiment directory
       // TODO: Use notifyChange to load data off-thread and update only when it is available.
@@ -175,8 +202,7 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       throws FileNotFoundException {
     Log.v(TAG, "openDocument, mode: " + mode);
 
-    // TODO(lizlooney): Use the AppAccount associated with the document.
-    AppAccount appAccount = NonSignedInAccount.getInstance(getContext());
+    AppAccount appAccount = getAppAccountFromDocumentId(documentId);
 
     final File file =
         new File(
@@ -195,6 +221,34 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
   public boolean onCreate() {
     // return true if the provider was successfully loaded
     return true;
+  }
+
+  private AppAccount getAppAccountFromDocumentId(String documentId) {
+    // Figure out which account this documentId belongs to.
+    Set<AppAccount> accounts =
+        WhistlePunkApplication.getAppServices(getContext()).getAccountsProvider().getAccounts();
+    for (AppAccount appAccount : accounts) {
+      // If the documentId is an account key, return the app account with that key.
+      if (appAccount.getAccountKey().equals(documentId)) {
+        return appAccount;
+      }
+      // Else, let's see if it belongs to an experiment or the associated images.
+      List<GoosciUserMetadata.ExperimentOverview> overviews =
+          AppSingleton.getInstance(getContext())
+              .getDataController(appAccount)
+              .blockingGetExperimentOverviews(true);
+      for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
+        // If the documentId is an experiment overview or starts with the experiment overview id,
+        // return the associated app account. The documentId would start with the experiment
+        // overview id if the documentId was an image in the experiment's folder.
+        if (overview.experimentId.equals(documentId)
+            || documentId.startsWith(overview.experimentId)) {
+          return appAccount;
+        }
+      }
+    }
+    // Couldn't find any app accounts with that documentId.
+    return null;
   }
 
   private String[] resolveRootProjection(String[] projection) {
@@ -220,6 +274,13 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       }
     }
     return "application/octet-stream";
+  }
+
+  private void addAccountToRow(MatrixCursor.RowBuilder row, String accountName) {
+    row.add(Document.COLUMN_DISPLAY_NAME, accountName);
+    row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
+    row.add(Document.COLUMN_LAST_MODIFIED, null);
+    row.add(Document.COLUMN_SIZE, null);
   }
 
   private void addExperimentToRow(

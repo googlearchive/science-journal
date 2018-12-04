@@ -1646,6 +1646,9 @@ Permissions notice:
     <!-- Claim experiments activity title [CHAR_LIMIT=30] -->
     <string name="title_activity_claim_experiments">Claim experiments</string>
 
+    <!-- Description for unclaimed experiments-->
+    <string name="unclaimed_experiments">Unclaimed Experiments</string>
+
     <!-- Headline for Add experiments to Drive card [CHAR_LIMIT=50] -->
     <string name="add_experiments_to_drive_card_headline">Add experiments to Google Drive</string>
 
