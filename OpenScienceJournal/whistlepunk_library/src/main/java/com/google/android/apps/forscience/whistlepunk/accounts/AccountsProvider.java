@@ -103,6 +103,9 @@ public interface AccountsProvider {
   /** @return the set of known accounts, including the NonSignedInAccount. */
   Set<AppAccount> getAccounts();
 
+  /** @return True if the given account is a known app account, including the NonSignedInAccount. */
+  boolean isAppAccount(String accountKey);
+
   /**
    * Registers the given preference key as an account-based preference. All preferences that should
    * be copied from the non-signed-in account to a signed-in account must be registered.

@@ -121,6 +121,11 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   }
 
   @Override
+  public boolean isAppAccount(String accountKey) {
+    return accountsByKey.containsKey(accountKey);
+  }
+
+  @Override
   public void registerAccountBasedPreferenceKey(String prefKey, Object defaultValue) {
     Preconditions.checkArgument(prefKey != null, "The prefKey must not be null.");
     Preconditions.checkArgument(

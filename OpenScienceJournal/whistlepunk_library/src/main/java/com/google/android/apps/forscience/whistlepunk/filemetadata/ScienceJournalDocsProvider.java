@@ -29,6 +29,7 @@ import android.webkit.MimeTypeMap;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import java.io.File;
@@ -63,7 +64,6 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       };
 
   private static final String ROOT_DIRECTORY_ID = "ScienceJournalRoot";
-  private static final String APP_ACCOUNT_PREFIX = "com.google";
 
   @Override
   public Cursor queryRoots(String[] projection) throws FileNotFoundException {
@@ -162,10 +162,9 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       row.add(Document.COLUMN_LAST_MODIFIED, null); // Not sure
       row.add(Document.COLUMN_SIZE, null);
 
-    } else if (documentId.startsWith(APP_ACCOUNT_PREFIX)) {
+    } else if (WhistlePunkApplication.getAppServices(getContext())
+        .getAccountsProvider().isAppAccount(documentId)) {
       // It is an app account
-      // TODO(lizlooney,ashleymarie): make an AccountsProvider method to determine whether a
-      // documentId corresponds to an account.
       addAccountToRow(row, appAccount.getAccountName());
 
     } else if (!documentId.contains("/")) {
@@ -225,14 +224,14 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
 
   private AppAccount getAppAccountFromDocumentId(String documentId) {
     // Figure out which account this documentId belongs to.
-    Set<AppAccount> accounts =
-        WhistlePunkApplication.getAppServices(getContext()).getAccountsProvider().getAccounts();
+    AccountsProvider accountsProvider = WhistlePunkApplication.getAppServices(getContext())
+        .getAccountsProvider();
+    if (accountsProvider.isAppAccount(documentId)) {
+      return accountsProvider.getAccountByKey(documentId);
+    }
+    // Else, let's see if it belongs to an experiment or the associated images.
+    Set<AppAccount> accounts = accountsProvider.getAccounts();
     for (AppAccount appAccount : accounts) {
-      // If the documentId is an account key, return the app account with that key.
-      if (appAccount.getAccountKey().equals(documentId)) {
-        return appAccount;
-      }
-      // Else, let's see if it belongs to an experiment or the associated images.
       List<GoosciUserMetadata.ExperimentOverview> overviews =
           AppSingleton.getInstance(getContext())
               .getDataController(appAccount)
