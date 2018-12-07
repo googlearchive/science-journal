@@ -29,7 +29,7 @@ option optimize_for = LITE_RUNTIME;
 message Empty {
   option (proto2.nano.message_as_lite) = true;
 
-}  // TODO(dek): replace with an import of empty.proto
+}  // TODO: replace with an import of empty.proto
 
 message Version {
   option (proto2.nano.message_as_lite) = true;
@@ -109,7 +109,7 @@ message Interval {
 
 // Phone to Device request to initiate sensor data collection and
 // reporting from multiple pins over an interval.  The timestamp is
-// used to synchronize the (inaccurate) clock on the device to the the
+// used to synchronize the (inaccurate) clock on the device to the
 // (accurate) clock on the phone.
 message SensorDataRequest {
   option (proto2.nano.message_as_lite) = false;
