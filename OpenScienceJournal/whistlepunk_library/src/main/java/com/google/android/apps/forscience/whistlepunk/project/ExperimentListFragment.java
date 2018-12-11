@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk.project;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -974,7 +975,7 @@ public class ExperimentListFragment extends Fragment
       if (parentReference.get().claimExperimentsMode) {
         holder.menuButton.setVisibility(View.GONE);
         holder.driveButton.setOnClickListener(
-            v -> promptBeforeClaimExperiment(overview.experimentId));
+            v -> promptBeforeClaimExperiment(overview.experimentId, context));
         if (isShareIntentValid) {
           holder.shareButton.setOnClickListener(v -> exportExperiment(overview.experimentId));
         } else {
@@ -1197,7 +1198,7 @@ public class ExperimentListFragment extends Fragment
       }
     }
 
-    private void promptBeforeClaimExperiment(String experimentId) {
+    private void promptBeforeClaimExperiment(String experimentId, Context context) {
       AlertDialog.Builder builder = new AlertDialog.Builder(parentReference.get().getContext());
       builder.setTitle(R.string.drive_confirmation_text);
       builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
@@ -1207,7 +1208,11 @@ public class ExperimentListFragment extends Fragment
             claimExperiment(experimentId);
             dialog.dismiss();
           });
-      builder.create().show();
+      AlertDialog dialog = builder.create();
+      dialog.show();
+      // Need to reset the content description so the button will be read correctly b/116869645
+      dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+          .setContentDescription(context.getResources().getString(R.string.drive_confirmation_yes));
     }
 
     private void claimExperiment(String experimentId) {
