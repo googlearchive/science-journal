@@ -42,10 +42,10 @@
     <string name="action_unarchive_experiment">Unarchive experiment</string>
 
     <!-- Menu option for archiving a trial [CHAR_LIMIT=30] -->
-    <string name="action_archive_run">Archive trial</string>
+    <string name="action_archive_run">Archive</string>
 
     <!-- Menu option for unarchiving a trial [CHAR_LIMIT=30] -->
-    <string name="action_unarchive_run">Unarchive trial</string>
+    <string name="action_unarchive_run">Unarchive</string>
 
     <!-- Menu option for deleting an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_delete">Delete</string>
