@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -26,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -1051,9 +1053,9 @@ public class ExperimentTest {
     caption2.text = "caption2";
     label2.setCaption(caption2);
 
-    experimentClient.updateLabel(experimentServer, label2);
+    experimentClient.updateLabel(experimentClient, label2);
 
-    experimentServer.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
+    experimentServer.deleteLabelAndReturnAssetDeleter(experimentServer, label, getAppAccount());
 
     assertEquals(2, experimentClient.getChanges().size());
     assertEquals(2, experimentServer.getChanges().size());
@@ -1144,4 +1146,48 @@ public class ExperimentTest {
     assertEquals(0, sync.getImageUploads().size());
     assertEquals(0, sync.getImageDownloads().size());
   }
+
+  @Test
+  public void testMergeExperimentsNoteEditedWithCaptionChange() {
+    Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
+
+    Label label = Label.newLabel(1, ValueType.TEXT);
+    Caption caption = new Caption();
+    caption.text = "caption";
+    label.setCaption(caption);
+
+    experimentServer.addLabel(experimentServer, label);
+
+    Experiment experimentClient =
+        Experiment.fromExperiment(
+            experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
+
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    Label label2 =
+        Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    Caption caption2 = new Caption();
+    caption2.text = "caption2";
+    label2.setCaption(caption2);
+    experimentClient.addChange(Change.newModifyTypeChange(ElementType.CAPTION, label.getLabelId()));
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    experimentClient.updateLabel(experimentClient, label2);
+    assertThat(experimentClient.getChanges()).hasSize(3);
+
+    experimentServer.addChange(Change.newModifyTypeChange(ElementType.CAPTION, label.getLabelId()));
+    assertThat(experimentServer.getChanges()).hasSize(2);
+
+    assertEquals(1, experimentClient.getLabelCount());
+    assertEquals(1, experimentServer.getLabelCount());
+
+    experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
+
+    assertThat(experimentServer.getChanges()).hasSize(5);
+    assertEquals(1, experimentServer.getLabelCount());
+  }
+
 }

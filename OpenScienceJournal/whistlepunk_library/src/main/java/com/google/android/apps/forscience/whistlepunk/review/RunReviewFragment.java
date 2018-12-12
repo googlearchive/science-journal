@@ -81,11 +81,13 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
@@ -827,6 +829,8 @@ public class RunReviewFragment extends Fragment
               caption.text = updatedCaption;
               caption.lastEditedTimestamp = System.currentTimeMillis();
               getTrial().setCaption(caption);
+              experiment.addChange(
+                  Change.newModifyTypeChange(ElementType.CAPTION, getTrial().getTrialId()));
               getDataController()
                   .updateExperiment(
                       experimentId, LoggingConsumer.expectSuccess(TAG, "update caption"));

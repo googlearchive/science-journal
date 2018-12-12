@@ -30,8 +30,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
@@ -111,7 +113,8 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
     GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
     labelValue.text = newText;
     originalLabel.setLabelProtoData(labelValue);
-    saveUpdatedOriginalLabel(experiment);
+    saveUpdatedOriginalLabel(
+        experiment, Change.newModifyTypeChange(ElementType.NOTE, originalLabel.getLabelId()));
   }
 
   private boolean verifyInput(String text) {

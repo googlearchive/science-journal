@@ -40,9 +40,11 @@ import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import io.reactivex.Maybe;
 import io.reactivex.functions.Consumer;
@@ -130,14 +132,15 @@ abstract class LabelDetailsFragment extends Fragment {
     return super.onOptionsItemSelected(item);
   }
 
-  protected void saveUpdatedOriginalLabel(Experiment experiment) {
+  protected void saveUpdatedOriginalLabel(Experiment experiment, Change change) {
     // TODO: Log analytics here? That would send an event per keystroke.
     if (TextUtils.isEmpty(trialId)) {
-      RxDataController.updateLabel(getDataController(), experiment, originalLabel, experiment)
+      RxDataController.updateLabel(
+              getDataController(), experiment, originalLabel, experiment, change)
           .subscribe(LoggingConsumer.observe(TAG, "update"));
     } else {
       Trial trial = experiment.getTrial(trialId);
-      trial.updateLabel(experiment, originalLabel);
+      trial.updateLabel(experiment, originalLabel, change);
       experiment.updateTrial(trial);
       RxDataController.updateExperiment(getDataController(), experiment, true)
           .subscribe(LoggingConsumer.observe(TAG, "update"));
@@ -230,7 +233,8 @@ abstract class LabelDetailsFragment extends Fragment {
     caption.text = newText;
     caption.lastEditedTimestamp = clock.getNow();
     originalLabel.setCaption(caption);
-    saveUpdatedOriginalLabel(experiment);
+    saveUpdatedOriginalLabel(
+        experiment, Change.newModifyTypeChange(ElementType.CAPTION, originalLabel.getLabelId()));
   }
 
   // This should only be called by subclasses that have date and time views in their XML.

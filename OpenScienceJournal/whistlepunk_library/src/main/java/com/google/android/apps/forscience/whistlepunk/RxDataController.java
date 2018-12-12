@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncCollection;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -55,8 +56,8 @@ public class RxDataController {
   }
 
   public static Completable updateLabel(
-      DataController dc, LabelListHolder h, Label l, Experiment e) {
-    h.updateLabel(e, l);
+      DataController dc, LabelListHolder h, Label l, Experiment e, Change c) {
+    h.updateLabel(e, l, c);
     return updateExperiment(dc, e, true);
   }
 

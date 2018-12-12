@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
@@ -860,6 +861,7 @@ public class Experiment extends LabelListHolder {
               fileMetadataUtil.getRelativePathInExperiment(getExperimentId(), overviewImage));
         }
         break;
+      case CAPTION: //Nothing to do with a local-only caption merge.
       default:
         break;
     }
@@ -883,8 +885,37 @@ public class Experiment extends LabelListHolder {
       case TRIAL:
         copyTrialChange(externalExperiment, context, external, appAccount, filesToSync);
         break;
+      case CAPTION:
+        copyCaptionChange(externalExperiment, external);
+        break;
       default:
         break;
+    }
+  }
+
+  private void copyCaptionChange(
+      Experiment externalExperiment, Change external) {
+
+    String trialId = external.getChangedElementId();
+    Trial externalTrial = externalExperiment.getTrial(trialId);
+    Trial localTrial = getTrial(trialId);
+
+    if (localTrial != null) {
+      // Since the local trial exists, set the caption.
+      Caption caption = new Caption();
+      caption.text = externalTrial.getCaptionText();
+      localTrial.setCaption(caption);
+    } else {
+      String labelId = external.getChangedElementId();
+      Label externalLabel = externalExperiment.getLabel(labelId);
+      Label localLabel = getLabel(labelId);
+
+      if (localLabel != null) {
+        // Since the local trial exists, set the caption.
+        Caption caption = new Caption();
+        caption.text = externalLabel.getCaptionText();
+        localLabel.setCaption(caption);
+      }
     }
   }
 
@@ -1034,13 +1065,22 @@ public class Experiment extends LabelListHolder {
       FileMetadataUtil fileMetadataUtil,
       Change external,
       FileSyncCollection filesToSync) {
-    if (external.getChangedElementType() == ElementType.NOTE) {
-      handleNoteConflict(externalExperiment, context, appAccount, external, filesToSync);
-    } else if (external.getChangedElementType() == ElementType.EXPERIMENT) {
-      handleExperimentConflict(
-          fileMetadataUtil, appAccount, context, externalExperiment, filesToSync);
-    } else if (external.getChangedElementType() == ElementType.TRIAL) {
-      handleTrialConflict(externalExperiment, context, appAccount, external);
+    switch (external.getChangedElementType()) {
+      case NOTE:
+        handleNoteConflict(externalExperiment, context, appAccount, external, filesToSync);
+        break;
+      case EXPERIMENT:
+        handleExperimentConflict(
+            fileMetadataUtil, appAccount, context, externalExperiment, filesToSync);
+        break;
+      case TRIAL:
+        handleTrialConflict(externalExperiment, context, appAccount, external);
+        break;
+      case CAPTION:
+        handleCaptionConflict(externalExperiment, external);
+        break;
+      default:
+        break;
     }
   }
 
@@ -1186,6 +1226,29 @@ public class Experiment extends LabelListHolder {
           }
         }
       }
+    }
+  }
+
+  private void handleCaptionConflict(
+      Experiment externalExperiment, Change external) {
+    Label externalLabel = externalExperiment.getLabel(external.getChangedElementId());
+    Label localLabel = getLabel(external.getChangedElementId());
+
+    if (localLabel != null) {
+      Caption newCaption = new Caption();
+      newCaption.text = localLabel.getCaptionText() + " " + externalLabel.getCaptionText();
+      localLabel.setCaption(newCaption);
+      addChange(Change.newModifyTypeChange(ElementType.CAPTION, localLabel.getLabelId()));
+      return;
+    }
+
+    Trial externalTrial = externalExperiment.getTrial(external.getChangedElementId());
+    Trial localTrial = getTrial(external.getChangedElementId());
+    if (localTrial != null) {
+      Caption newCaption = new Caption();
+      newCaption.text = localTrial.getCaptionText() + " " + externalTrial.getCaptionText();
+      localTrial.setCaption(newCaption);
+      addChange(Change.newModifyTypeChange(ElementType.CAPTION, localTrial.getTrialId()));
     }
   }
 }
