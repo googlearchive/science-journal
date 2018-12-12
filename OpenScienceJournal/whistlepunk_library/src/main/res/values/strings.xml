@@ -1580,7 +1580,7 @@ Permissions notice:
     <string name="sign_in_learn_more_button">Learn more</string>
 
     <!-- URL to go to when learn more button on sign in fragment is clicked. DO NOT TRANSLATE -->
-    <string name="sign_in_learn_more_url" translatable="false">https://g.co/ScienceJournal/Backup</string>
+    <string name="sign_in_learn_more_url" translatable="false">https://support.google.com/sciencejournal/answer/9176370?ref_topic=9160300</string>
 
     <!-- Button text for continue without signing in button on sign in fragment [CHAR_LIMIT=25] -->
     <string name="sign_in_continue_without_signing_in_button">Continue without signing in</string>
