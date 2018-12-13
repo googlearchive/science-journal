@@ -22,7 +22,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import androidx.annotation.Nullable;
+import android.widget.Toast;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
+import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
@@ -226,5 +228,8 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
     }
 
     editor.putBoolean(KEY_OLD_PREFERENCES_COPIED, true).apply();
+
+    String message = applicationContext.getResources().getString(R.string.device_settings_applied);
+    Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show();
   }
 }

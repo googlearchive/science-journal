@@ -1573,6 +1573,9 @@ Permissions notice:
     <!-- Text for sign in fragment [CHAR_LIMIT=450] -->
     <string name="sign_in_text">Experiment data for Science Journal is saved and made available across devices using Google Drive and requires signing in with a Google account.\n\nIf you have existing data on this device, once signed in, you can save your existing experiments to Google Drive. Your experiments are stored in a \u201CScience Journal\u201D folder in your Google Drive account.</string>
 
+    <!-- Text for toast that device settings have been applied [CHAR_LIMIT=NONE] -->
+    <string name="device_settings_applied">Existing device settings have been applied to this account</string>
+
     <!-- Button text for sign in button on sign in fragment [CHAR_LIMIT=25] -->
     <string name="sign_in_button">Sign in</string>
 
