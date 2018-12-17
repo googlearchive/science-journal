@@ -30,15 +30,13 @@ public class TransitionUtils {
       Activity activity, View v, String transitionName) {
     ArrayList<Pair<View, String>> list = new ArrayList<>();
     list.add(Pair.create(v, transitionName));
-    if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-      View statusBar = activity.findViewById(android.R.id.statusBarBackground);
-      if (statusBar != null) {
-        list.add(Pair.create(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME));
-      }
-      View navigationBar = activity.findViewById(android.R.id.navigationBarBackground);
-      if (navigationBar != null) {
-        list.add(Pair.create(navigationBar, Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME));
-      }
+    View statusBar = activity.findViewById(android.R.id.statusBarBackground);
+    if (statusBar != null) {
+      list.add(Pair.create(statusBar, Window.STATUS_BAR_BACKGROUND_TRANSITION_NAME));
+    }
+    View navigationBar = activity.findViewById(android.R.id.navigationBarBackground);
+    if (navigationBar != null) {
+      list.add(Pair.create(navigationBar, Window.NAVIGATION_BAR_BACKGROUND_TRANSITION_NAME));
     }
     return list.toArray(new Pair[list.size()]);
   }

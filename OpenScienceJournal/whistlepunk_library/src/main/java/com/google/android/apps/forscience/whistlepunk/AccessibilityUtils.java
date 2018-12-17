@@ -133,12 +133,4 @@ public final class AccessibilityUtils {
     bar.setActionTextColor(context.getResources().getColor(R.color.snackbar_action_color));
     return bar;
   }
-
-  // TODO: ViewCompat.setAccessibilityDelegate isn't working on Kitkat. Look into this so that
-  // we can always use AccessibilityDelegates instead of work-arounds.
-  public static boolean canSetAccessibilityDelegateAction() {
-    // AccessibilityNodeInfo.addAction(AccessibilityNodeInfo.AccessibilityAction) was added
-    // in Lollipop.
-    return AndroidVersionUtils.isApiLevelAtLeastLollipop();
-  }
 }

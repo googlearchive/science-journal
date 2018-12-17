@@ -29,7 +29,6 @@
     android:layout_marginBottom="@dimen/cardview_margin"
     card_view:cardPreventCornerOverlap="false"
     >
-    <!-- TODO: In KitKat, the CornerRadius is lost with cardPreventCornerOverlap=false. -->
 
     <RelativeLayout
         android:layout_width="match_parent"

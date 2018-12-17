@@ -21,7 +21,6 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.SystemClock;
 import androidx.collection.ArrayMap;
-import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
 
 /** Discovers BLE devices and tracks when they come and go. */
@@ -58,13 +57,7 @@ public abstract class DeviceDiscoverer {
   private Callback callback;
 
   public static DeviceDiscoverer getNewInstance(Context context) {
-    DeviceDiscoverer discoverer;
-    if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-      discoverer = new DeviceDiscovererV21(context);
-    } else {
-      discoverer = new DeviceDiscovererLegacy(context);
-    }
-    return discoverer;
+    return new DeviceDiscovererV21(context);
   }
 
   protected DeviceDiscoverer(Context context) {

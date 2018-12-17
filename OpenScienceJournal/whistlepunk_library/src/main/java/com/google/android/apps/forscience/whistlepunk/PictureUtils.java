@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -93,10 +92,6 @@ public class PictureUtils {
       if (photoFile != null) {
         Uri contentUri = FileProvider.getUriForFile(context, context.getPackageName(), photoFile);
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
-        if (!AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-          // Needed to avoid security exception on KitKat.
-          takePictureIntent.setClipData(ClipData.newRawUri(null, contentUri));
-        }
         takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         startable.startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
         return FileMetadataUtil.getInstance().getRelativePathInExperiment(experimentId, photoFile);
@@ -121,10 +116,6 @@ public class PictureUtils {
       Uri photoUri = FileProvider.getUriForFile(activity, activity.getPackageName(), file);
       intent.setDataAndType(photoUri, type);
       intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-      if (!AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-        // Needed to avoid security exception on KitKat.
-        intent.setClipData(ClipData.newRawUri(null, photoUri));
-      }
       intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
       intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
       try {

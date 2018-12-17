@@ -27,7 +27,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.ToggleArrow;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -70,14 +69,9 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
     Drawable icon = item.getDeviceIcon(context, sensorMap);
     deviceIcon.setImageDrawable(icon);
 
-    if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
-      collapsedIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-      collapsedIcon.setIsFocusable(false);
-      updateActionStrings(item.isInitiallyExpanded());
-    } else {
-      collapsedIcon.setActionStrings(
-          R.string.btn_expand_device_for, R.string.btn_contract_device_for, name);
-    }
+    collapsedIcon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+    collapsedIcon.setIsFocusable(false);
+    updateActionStrings(item.isInitiallyExpanded());
     collapsedIcon.setActive(item.isInitiallyExpanded(), false);
     collapsedIcon.setOnClickListener(
         new View.OnClickListener() {
@@ -144,11 +138,7 @@ public class DeviceParentViewHolder extends OffsetParentViewHolder {
     boolean isNowExpanded = !wasExpandedBefore;
     collapsedIcon.setActive(isNowExpanded, true);
     item.setIsCurrentlyExpanded(isNowExpanded);
-    if (AccessibilityUtils.canSetAccessibilityDelegateAction()) {
-      // For newer phones, we can update the content description on the row, and the arrow
-      // does not need to be focusable for a11y.
-      updateActionStrings(isNowExpanded);
-    }
+    updateActionStrings(isNowExpanded);
   }
 
   // Updates the action strings on the itemView row based on whether it is currently expanded.

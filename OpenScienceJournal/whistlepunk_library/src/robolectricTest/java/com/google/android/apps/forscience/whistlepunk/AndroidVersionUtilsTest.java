@@ -33,8 +33,6 @@ public class AndroidVersionUtilsTest {
   public void testIsApiLevel() {
     assertFalse(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.CUR_DEVELOPMENT));
     assertFalse(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.M));
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.LOLLIPOP));
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeast(Build.VERSION_CODES.KITKAT));
   }
 
   @Config(sdk = Build.VERSION_CODES.O)
@@ -43,8 +41,6 @@ public class AndroidVersionUtilsTest {
     assertTrue(AndroidVersionUtils.isApiLevelAtLeastOreo());
     assertTrue(AndroidVersionUtils.isApiLevelAtLeastNougat());
     assertTrue(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
   }
 
   @Config(sdk = Build.VERSION_CODES.N)
@@ -53,8 +49,6 @@ public class AndroidVersionUtilsTest {
     assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
     assertTrue(AndroidVersionUtils.isApiLevelAtLeastNougat());
     assertTrue(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
   }
 
   @Config(sdk = Build.VERSION_CODES.M)
@@ -63,8 +57,6 @@ public class AndroidVersionUtilsTest {
     assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
     assertFalse(AndroidVersionUtils.isApiLevelAtLeastNougat());
     assertTrue(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
   }
 
   @Config(sdk = Build.VERSION_CODES.LOLLIPOP)
@@ -73,17 +65,5 @@ public class AndroidVersionUtilsTest {
     assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
     assertFalse(AndroidVersionUtils.isApiLevelAtLeastNougat());
     assertFalse(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
-  }
-
-  @Config(sdk = Build.VERSION_CODES.KITKAT)
-  @Test
-  public void testAgainstKitKat() {
-    assertFalse(AndroidVersionUtils.isApiLevelAtLeastOreo());
-    assertFalse(AndroidVersionUtils.isApiLevelAtLeastNougat());
-    assertFalse(AndroidVersionUtils.isApiLevelAtLeastMarshmallow());
-    assertFalse(AndroidVersionUtils.isApiLevelAtLeastLollipop());
-    assertTrue(AndroidVersionUtils.isApiLevelAtLeastKitKat());
   }
 }

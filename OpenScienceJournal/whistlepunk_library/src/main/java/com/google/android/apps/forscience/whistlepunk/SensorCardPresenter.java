@@ -475,9 +475,7 @@ public class SensorCardPresenter {
     cardViewHolder.sensorSettingsGear.setBackground(
         ColorUtils.colorDrawableWithActual(
             cardViewHolder.sensorSettingsGear.getBackground(), color));
-    if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-      cardViewHolder.statusProgressBar.setIndeterminateTintList(ColorStateList.valueOf(color));
-    }
+    cardViewHolder.statusProgressBar.setIndeterminateTintList(ColorStateList.valueOf(color));
 
     if (sensorPresenter != null) {
       sensorPresenter.startShowing(cardViewHolder.chartView, interactionListener);

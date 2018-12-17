@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -50,7 +49,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
-import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
@@ -1582,19 +1580,6 @@ public class RunReviewFragment extends Fragment
       // Show a grey overlay over the notes. Make it so users can cancel the dialog
       // by clicking in the grey overlay to simulate a normal dialog.
       View notesOverlay = rootView.findViewById(R.id.pinned_note_overlay);
-
-      if (!AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-        // On Kitkat devices, the pinned note list is shown over the AppBarLayout
-        // instead of under it. We can manually adjust the layout params to show it
-        // in the right location and at the right size to cover just the pinned note
-        // list.
-        ViewGroup.MarginLayoutParams params =
-            (CoordinatorLayout.LayoutParams)
-                rootView.findViewById(R.id.pinned_note_list).getLayoutParams();
-        params.setMargins(0, 0, 0, 0);
-        notesOverlay.setLayoutParams(params);
-        notesOverlay.setPadding(0, 0, 0, 0);
-      }
       notesOverlay.setOnTouchListener(
           new View.OnTouchListener() {
             @Override

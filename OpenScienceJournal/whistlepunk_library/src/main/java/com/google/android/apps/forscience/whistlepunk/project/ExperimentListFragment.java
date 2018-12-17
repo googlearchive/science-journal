@@ -54,7 +54,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
-import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
@@ -943,7 +942,6 @@ public class ExperimentListFragment extends Fragment
             .itemView
             .findViewById(R.id.content)
             .setAlpha(res.getFraction(R.fraction.metadata_card_archived_alpha, 1, 1));
-        setCardColor(holder, res.getColor(R.color.archived_background_color));
       } else {
         // Use default.
         holder.experimentTitle.setContentDescription("");
@@ -951,7 +949,6 @@ public class ExperimentListFragment extends Fragment
             .itemView
             .findViewById(R.id.content)
             .setAlpha(res.getFraction(R.fraction.metadata_card_alpha, 1, 1));
-        setCardColor(holder, res.getColor(R.color.text_color_white));
       }
 
       holder.itemView.setTag(R.id.experiment_title, overview.experimentId);
@@ -1148,18 +1145,6 @@ public class ExperimentListFragment extends Fragment
         bar.setAction(R.string.action_undo, undoOnClickListener);
       }
       snackbarManager.showSnackbar(bar);
-    }
-
-    private void setCardColor(ViewHolder holder, int color) {
-      if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-        // holder.cardView.setBackgroundColor(color);
-      } else {
-        // Setting the color of the CardView in KitKat has a side-effect of making the
-        // drop shadow disappear around the card. Instead, we set the background color
-        // of the content of the card, which looks almost as good. And has UX approval.
-        // See b/70328251
-        holder.cardView.findViewById(R.id.content).setBackgroundColor(color);
-      }
     }
 
     public void onExperimentDeleted(String experimentId) {

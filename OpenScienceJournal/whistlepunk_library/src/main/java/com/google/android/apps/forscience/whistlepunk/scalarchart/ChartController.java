@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -496,9 +495,7 @@ public class ChartController {
       chartView.setVisibility(showProgress ? View.GONE : View.VISIBLE);
     }
     if (progressView != null) {
-      if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-        progressView.setIndeterminateTintList(ColorStateList.valueOf(chartOptions.getLineColor()));
-      }
+      progressView.setIndeterminateTintList(ColorStateList.valueOf(chartOptions.getLineColor()));
       progressView.setVisibility(showProgress ? View.VISIBLE : View.GONE);
     }
   }

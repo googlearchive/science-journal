@@ -18,12 +18,10 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.text.TextUtils;
-import com.google.android.apps.forscience.whistlepunk.AndroidVersionUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
@@ -66,11 +64,7 @@ public class TriggerHelper {
 
   private SoundPool getSoundPool(Context context) {
     if (TriggerHelper.soundPool == null) {
-      if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-        TriggerHelper.soundPool = new SoundPool.Builder().build();
-      } else {
-        TriggerHelper.soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
-      }
+      TriggerHelper.soundPool = new SoundPool.Builder().build();
       TriggerHelper.soundPool.load(context, R.raw.trigger_sound1, 0);
       TriggerHelper.soundPool.setOnLoadCompleteListener(
           new SoundPool.OnLoadCompleteListener() {

@@ -34,16 +34,4 @@ public class AndroidVersionUtils {
   public static boolean isApiLevelAtLeastMarshmallow() {
     return isApiLevelAtLeast(Build.VERSION_CODES.M);
   }
-
-  public static boolean isApiLevelAtLeastLollipop() {
-    return isApiLevelAtLeast(Build.VERSION_CODES.LOLLIPOP);
-  }
-
-  public static boolean isApiLevelAtLeastKitKatWatch() {
-    return isApiLevelAtLeast(Build.VERSION_CODES.KITKAT_WATCH);
-  }
-
-  public static boolean isApiLevelAtLeastKitKat() {
-    return isApiLevelAtLeast(Build.VERSION_CODES.KITKAT);
-  }
 }

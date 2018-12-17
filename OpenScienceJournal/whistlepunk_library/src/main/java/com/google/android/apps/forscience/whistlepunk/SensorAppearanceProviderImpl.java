@@ -71,12 +71,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
   }
 
   private static String getLanguageTag(Context context) {
-    if (AndroidVersionUtils.isApiLevelAtLeastLollipop()) {
-      return getCurrentLocale(context).toLanguageTag();
-    } else {
-      // TODO: implement getLanguageTag pre-lollipop!  (b/63933068)
-      return "";
-    }
+    return getCurrentLocale(context).toLanguageTag();
   }
 
   private static Locale getCurrentLocale(Context context) {

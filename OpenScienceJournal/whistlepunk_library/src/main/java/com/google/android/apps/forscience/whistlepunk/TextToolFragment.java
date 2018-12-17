@@ -203,14 +203,9 @@ public class TextToolFragment extends PanesToolFragment {
   }
 
   public void listenToAvailableHeight(Observable<Integer> height) {
-    Observable.combineLatest(height, textSize, (h, s) -> h < collapseThreshold(s) && canTint())
+    Observable.combineLatest(height, textSize, (h, s) -> h < collapseThreshold(s))
         .takeUntil(focusLost.happens())
         .subscribe(collapsed -> showingCollapsed.onNext(collapsed));
-  }
-
-  private boolean canTint() {
-    // if we can't tint, we can't currently show an inline send button (b/67312778)
-    return AndroidVersionUtils.isApiLevelAtLeastLollipop();
   }
 
   public int collapseThreshold(int textSize) {
