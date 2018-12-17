@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.support.design.widget.TabLayout;
-import android.support.v7.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +29,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
+import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 
 /*

@@ -18,12 +18,12 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.graphics.Rect;
 import androidx.annotation.NonNull;
-import android.support.v7.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import java.util.ArrayList;
 import java.util.List;
