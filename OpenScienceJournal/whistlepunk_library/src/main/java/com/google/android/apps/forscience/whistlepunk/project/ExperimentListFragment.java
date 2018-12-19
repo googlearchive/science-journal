@@ -41,6 +41,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -234,6 +235,7 @@ public class ExperimentListFragment extends Fragment
     connectivityBroadcastReceiver = new ConnectivityBroadcastReceiver();
     getContext().registerReceiver(connectivityBroadcastReceiver, networkIntentFilter);
 
+    TimingLogger timing = new TimingLogger(TAG, "Sync on Resume");
     AppSingleton.getInstance(getContext())
         .whenSyncBusyChanges()
         .takeUntil(paused.happens())
@@ -254,6 +256,8 @@ public class ExperimentListFragment extends Fragment
                           .announceForAccessibility(
                               getResources().getString(R.string.action_sync_end));
                       swipeLayout.setRefreshing(false);
+                      timing.addSplit("Syncing complete");
+                      timing.dumpToLog();
                     });
               }
             });
