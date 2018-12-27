@@ -26,9 +26,9 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
+import com.google.common.base.Preconditions;
 import com.google.protobuf.nano.CodedOutputByteBufferNano;
 import com.google.protobuf.nano.MessageNano;
-import dagger.internal.Preconditions;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
