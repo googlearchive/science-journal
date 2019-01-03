@@ -68,7 +68,7 @@ public class AppSingleton {
   private ConnectableSensor.Connector sensorConnector;
   private PublishSubject<Label> labelsAdded = PublishSubject.create();
   private BehaviorSubject<Boolean> exportServiceBusy = BehaviorSubject.create();
-  private final BehaviorSubject<Boolean> syncServiceBusy = BehaviorSubject.create();
+  private final BehaviorSubject<Integer> experimentSynced = BehaviorSubject.create();
   private BehaviorSubject<Optional<Activity>> resumedActivity = BehaviorSubject.create();
 
   private SensorEnvironment sensorEnvironment =
@@ -283,12 +283,16 @@ public class AppSingleton {
     return exportServiceBusy;
   }
 
-  public void setSyncServiceBusy(boolean b) {
-    syncServiceBusy.onNext(b);
+  public void notifyNewExperimentSynced() {
+    int currentValue = 0;
+    if (experimentSynced.getValue() != null) {
+      currentValue = experimentSynced.getValue();
+    }
+    experimentSynced.onNext(currentValue + 1);
   }
 
-  public Observable<Boolean> whenSyncBusyChanges() {
-    return syncServiceBusy;
+  public Observable<Integer> whenNewExperimentSynced() {
+    return experimentSynced;
   }
 
   public Maybe<Activity> onNextActivity() {

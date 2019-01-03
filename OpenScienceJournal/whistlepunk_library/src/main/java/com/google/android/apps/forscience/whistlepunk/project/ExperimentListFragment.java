@@ -237,11 +237,10 @@ public class ExperimentListFragment extends Fragment
 
     TimingLogger timing = new TimingLogger(TAG, "Sync on Resume");
     AppSingleton.getInstance(getContext())
-        .whenSyncBusyChanges()
+        .whenNewExperimentSynced()
         .takeUntil(paused.happens())
         .subscribe(
-            busy -> {
-              if (!busy) {
+            count -> {
                 Handler uiHandler = new Handler(getContext().getMainLooper());
                 uiHandler.post(
                     () -> {
@@ -259,7 +258,6 @@ public class ExperimentListFragment extends Fragment
                       timing.addSplit("Syncing complete");
                       timing.dumpToLog();
                     });
-              }
             });
 
     swipeLayout.setRefreshing(true);
