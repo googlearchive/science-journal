@@ -42,7 +42,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   private final Object lockCurrentAccount = new Object();
   private AppAccount currentAccount;
   private final Map<String, AppAccount> accountsByKey = new HashMap<>();
-  private final Map<String, Object> accountBasedPreferenceKeys = new HashMap<>();
+  private final Map<String, Object> preferencesToBeCopied = new HashMap<>();
   private final AtomicBoolean showSignInActivityIfNotSignedIn = new AtomicBoolean(true);
   private final AtomicBoolean showScienceJournalIsDisabledAlert = new AtomicBoolean(false);
 
@@ -128,7 +128,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   }
 
   @Override
-  public void registerAccountBasedPreferenceKey(String prefKey, Object defaultValue) {
+  public void registerPreferenceToBeCopied(String prefKey, Object defaultValue) {
     Preconditions.checkArgument(prefKey != null, "The prefKey must not be null.");
     Preconditions.checkArgument(
         defaultValue instanceof Boolean
@@ -139,7 +139,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
             || defaultValue instanceof Set,
         "The defaultValue must be Boolean, Float, Integer, Long, String, or Set<String>.");
 
-    accountBasedPreferenceKeys.put(prefKey, defaultValue);
+    preferencesToBeCopied.put(prefKey, defaultValue);
   }
 
   @Nullable
@@ -166,8 +166,8 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
 
   protected void afterSetCurrentAccount(AppAccount currentAccount) {
     if (currentAccount != null && currentAccount.isSignedIn()) {
-      // Copy the account-based preferences from the non-signed-in account to the current account.
-      copyAccountBasedPreferencesToAccount(currentAccount);
+      // Copy the registered preferences from the non-signed-in account to the current account.
+      copyRegisteredPreferencesToAccount(currentAccount);
     }
 
     // Notify observers.
@@ -181,7 +181,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
     accountsByKey.put(appAccount.getAccountKey(), appAccount);
   }
 
-  private void copyAccountBasedPreferencesToAccount(AppAccount appAccount) {
+  private void copyRegisteredPreferencesToAccount(AppAccount appAccount) {
     if (!appAccount.isSignedIn()) {
       return;
     }
@@ -200,7 +200,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
     SharedPreferences defaultSharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(applicationContext);
 
-    for (Map.Entry<String, Object> entry : accountBasedPreferenceKeys.entrySet()) {
+    for (Map.Entry<String, Object> entry : preferencesToBeCopied.entrySet()) {
       String key = entry.getKey();
       if (defaultSharedPreferences.contains(key)) {
         Object defaultValue = entry.getValue();

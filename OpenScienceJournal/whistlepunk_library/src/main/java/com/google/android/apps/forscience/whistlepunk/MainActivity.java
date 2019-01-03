@@ -94,10 +94,6 @@ public class MainActivity extends ActivityWithNavigationView {
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
 
     accountsProvider = WhistlePunkApplication.getAppServices(this).getAccountsProvider();
-    accountsProvider.registerAccountBasedPreferenceKey(
-        ExperimentListFragment.KEY_DEFAULT_EXPERIMENT_CREATED, false);
-    accountsProvider.registerAccountBasedPreferenceKey(
-        AccountsProvider.KEY_OLD_PREFERENCES_COPIED, false);
 
     setContentView(R.layout.activity_main);
     accountsProvider.installAccountSwitcher(this);

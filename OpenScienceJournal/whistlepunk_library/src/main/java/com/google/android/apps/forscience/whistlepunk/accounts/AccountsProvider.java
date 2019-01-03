@@ -107,8 +107,8 @@ public interface AccountsProvider {
   boolean isAppAccount(String accountKey);
 
   /**
-   * Registers the given preference key as an account-based preference. All preferences that should
-   * be copied from the non-signed-in account to a signed-in account must be registered.
+   * Registers that the given preference should be copied from the non-signed-in account to the
+   * signed-in account when the signed-in account is first used.
    */
-  void registerAccountBasedPreferenceKey(String prefKey, Object defaultValue);
+  void registerPreferenceToBeCopied(String prefKey, Object defaultValue);
 }
