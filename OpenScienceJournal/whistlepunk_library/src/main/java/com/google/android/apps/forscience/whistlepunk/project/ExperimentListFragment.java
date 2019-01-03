@@ -137,7 +137,6 @@ public class ExperimentListFragment extends Fragment
   private AppAccount appAccount;
   private boolean claimExperimentsMode;
   private AppAccount claimingAccount;
-  private SwipeRefreshLayout swipeLayout;
   private ConnectivityBroadcastReceiver connectivityBroadcastReceiver;
   private Menu optionsMenu = null;
   private FeatureDiscoveryProvider featureDiscoveryProvider;
@@ -251,16 +250,11 @@ public class ExperimentListFragment extends Fragment
                         return;
                       }
                       loadExperiments();
-                      getView()
-                          .announceForAccessibility(
-                              getResources().getString(R.string.action_sync_end));
-                      swipeLayout.setRefreshing(false);
                       timing.addSplit("Syncing complete");
                       timing.dumpToLog();
                     });
             });
 
-    swipeLayout.setRefreshing(true);
     syncNow("Sync On Resume");
   }
 
@@ -299,7 +293,7 @@ public class ExperimentListFragment extends Fragment
 
     experimentListAdapter = new ExperimentListAdapter(this);
 
-    swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+    SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
     swipeLayout.setOnRefreshListener(this);
 
     // TODO: Adjust the column count based on breakpoint specs when available.
@@ -642,7 +636,6 @@ public class ExperimentListFragment extends Fragment
       confirmDeleteUnclaimedExperiments();
       return true;
     } else if (id == R.id.action_sync) {
-      swipeLayout.setRefreshing(true);
       syncNow("Sync from menu");
       return true;
     } else if (id == R.id.action_network_disconnected) {
@@ -669,7 +662,6 @@ public class ExperimentListFragment extends Fragment
       }
     } else {
       loadExperiments();
-      swipeLayout.setRefreshing(false);
     }
   }
 
