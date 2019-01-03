@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
@@ -53,7 +54,9 @@ import java.util.Set;
  */
 // TODO: Get the ExperimentOverview photo path from labels and trials at load and change.
 public class Experiment extends LabelListHolder {
+
   private static final String TAG = "Experiment";
+  public static final String EXPERIMENTS = "experiments/";
 
   private GoosciUserMetadata.ExperimentOverview experimentOverview;
   private GoosciExperiment.Experiment proto;
@@ -64,6 +67,7 @@ public class Experiment extends LabelListHolder {
   private final List<Change> changes;
   private String title;
   private String description;
+  // Relative to the experiment, not the account root.
   private String imagePath;
   private int trialCount;
   private int totalTrials;
@@ -141,9 +145,11 @@ public class Experiment extends LabelListHolder {
     description = this.proto.description;
     lastUsedTimeMs = this.experimentOverview.lastUsedTimeMs;
     if (!Strings.isNullOrEmpty(this.proto.imagePath)) {
-      imagePath = this.proto.imagePath;
+      // Relative to the experiment, not the account root.
+      imagePath = getPathRelativeToExperiment(this.proto.imagePath);
     } else {
-      imagePath = this.experimentOverview.imagePath;
+      // Overview is relative to the account root. Be sure to trim 2 levels
+      imagePath = getPathRelativeToExperiment(this.experimentOverview.imagePath);
     }
     isArchived = this.experimentOverview.isArchived;
     totalTrials = this.proto.totalTrials;
@@ -165,7 +171,8 @@ public class Experiment extends LabelListHolder {
     experimentOverview.trialCount = trials.size();
     experimentOverview.title = title;
     experimentOverview.isArchived = isArchived;
-    experimentOverview.imagePath = imagePath;
+    // Relative to the account root. Be sure to add 2 levels.
+    experimentOverview.imagePath = getPathRelativeToAccountRoot(imagePath);
     experimentOverview.lastUsedTimeMs = lastUsedTimeMs;
     experimentOverview.trialCount = trialCount;
     return experimentOverview;
@@ -236,6 +243,7 @@ public class Experiment extends LabelListHolder {
     lastUsedTimeMs = lastUsedTime;
   }
 
+  // Relative to the experiment. Check for account root.
   public void setImagePath(String imagePath) {
     setImagePathWithoutRecordingChange(imagePath);
     addChange(Change.newModifyTypeChange(ElementType.EXPERIMENT, getExperimentId()));
@@ -246,11 +254,13 @@ public class Experiment extends LabelListHolder {
    * used for merging experiments.
    */
   public void setImagePathWithoutRecordingChange(String imagePath) {
-    this.imagePath = imagePath;
+    // Relative to the experiment.
+    this.imagePath = getPathRelativeToExperiment(imagePath);
   }
 
+  // Relative to the experiment.
   public String getImagePath() {
-    return imagePath;
+    return getPathRelativeToExperiment(imagePath);
   }
 
   /**
@@ -626,7 +636,8 @@ public class Experiment extends LabelListHolder {
         proto.changes[index++] = change.getChangeProto();
       }
     }
-    proto.imagePath = imagePath;
+    // Relative to the experiment.
+    proto.imagePath = getPathRelativeToExperiment(imagePath);
     proto.title = title;
     proto.description = description;
     proto.totalTrials = totalTrials;
@@ -642,28 +653,25 @@ public class Experiment extends LabelListHolder {
 
   @Override
   protected void onPictureLabelAdded(Label label) {
+    // Relative to Experiment.
     if (TextUtils.isEmpty(imagePath)) {
-      imagePath =
-          PictureUtils.getExperimentOverviewRelativeImagePath(
-              getExperimentId(), label.getPictureLabelValue().filePath);
+      imagePath = getPathRelativeToExperiment(label.getPictureLabelValue().filePath);
     }
   }
 
   @Override
   protected void beforeDeletingPictureLabel(Label label) {
+    // Both relative to Experiment
     if (TextUtils.equals(
-        imagePath,
-        PictureUtils.getExperimentOverviewRelativeImagePath(
-            getExperimentId(), label.getPictureLabelValue().filePath))) {
+        imagePath, getPathRelativeToExperiment(label.getPictureLabelValue().filePath))) {
       // This is the picture label which is used as the cover photo for this experiment.
       // Try to find another, oldest first.
       for (int i = labels.size() - 1; i >= 0; i--) {
         Label other = labels.get(i);
         if (!TextUtils.equals(other.getLabelId(), label.getLabelId())
             && other.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-          imagePath =
-              PictureUtils.getExperimentOverviewRelativeImagePath(
-                  getExperimentId(), other.getPictureLabelValue().filePath);
+          // Should be relative to Experiment.
+          imagePath = getPathRelativeToExperiment(other.getPictureLabelValue().filePath);
           return;
         }
       }
@@ -772,7 +780,8 @@ public class Experiment extends LabelListHolder {
       labels.addAll(externalExperiment.labels);
       title = externalExperiment.title;
       description = externalExperiment.description;
-      imagePath = externalExperiment.imagePath;
+      // Relative to Experiment.
+      imagePath = getPathRelativeToExperiment(externalExperiment.imagePath);
       trialCount = externalExperiment.trialCount;
       totalTrials = externalExperiment.totalTrials;
       return new FileSyncCollection();
@@ -853,10 +862,12 @@ public class Experiment extends LabelListHolder {
         }
         break;
       case EXPERIMENT:
-        if (getImagePath() != null) {
+        if (!Strings.isNullOrEmpty(getImagePath())) {
+          // Will be relative to Experiment.
           java.io.File overviewImage =
               new java.io.File(
-                  PictureUtils.getExperimentOverviewFullImagePath(appAccount, getImagePath()));
+                  PictureUtils.getExperimentOverviewFullImagePath(
+                      appAccount, getPathRelativeToExperiment(getImagePath())));
           filesToSync.addImageUpload(
               fileMetadataUtil.getRelativePathInExperiment(getExperimentId(), overviewImage));
         }
@@ -958,11 +969,12 @@ public class Experiment extends LabelListHolder {
     // Don't record the change to the changelog.
     setTitleWithoutRecordingChange(externalExperiment.getTitle());
     setImagePathWithoutRecordingChange(externalExperiment.getImagePath());
-    if (externalExperiment.getImagePath() != null) {
+    if (!Strings.isNullOrEmpty(externalExperiment.getImagePath())) {
       java.io.File overviewImage =
+          // will be relative to Experiment.
           new java.io.File(
               PictureUtils.getExperimentOverviewFullImagePath(
-                  appAccount, externalExperiment.getImagePath()));
+                  appAccount, getPathRelativeToAccountRoot(externalExperiment.getImagePath())));
       filesToSync.addImageDownload(
           fileMetadataUtil.getRelativePathInExperiment(
               externalExperiment.getExperimentId(), overviewImage));
@@ -1136,11 +1148,12 @@ public class Experiment extends LabelListHolder {
       setTitleWithoutRecordingChange(externalExperiment.getTitle());
     }
     setImagePathWithoutRecordingChange(externalExperiment.getImagePath());
-    if (externalExperiment.getImagePath() != null) {
+    if (!Strings.isNullOrEmpty(externalExperiment.getImagePath())) {
+      // will be relative to Experiment.
       java.io.File overviewImage =
           new java.io.File(
               PictureUtils.getExperimentOverviewFullImagePath(
-                  appAccount, externalExperiment.getImagePath()));
+                  appAccount, getPathRelativeToAccountRoot(externalExperiment.getImagePath())));
       filesToSync.addImageDownload(
           fileMetadataUtil.getRelativePathInExperiment(
               externalExperiment.getExperimentId(), overviewImage));
@@ -1250,5 +1263,31 @@ public class Experiment extends LabelListHolder {
       localTrial.setCaption(newCaption);
       addChange(Change.newModifyTypeChange(ElementType.CAPTION, localTrial.getTrialId()));
     }
+  }
+
+  /** Returns a path that starts after the experiment id. Probably starts with "assets". */
+  private String getPathRelativeToExperiment(String path) {
+    if (Strings.isNullOrEmpty(path)) {
+      return path;
+    }
+    if (path.startsWith(EXPERIMENTS)) {
+      List<String> splitList = Splitter.on('/').splitToList(path);
+      StringBuilder experimentPath = new StringBuilder();
+      for (int i = 2; i < splitList.size(); i++) {
+        experimentPath.append(splitList.get(i));
+      }
+      return experimentPath.toString();
+    }
+    return path;
+  }
+
+  /** Returns a path that starts after the account id. Starts with "experiments/". */
+  private String getPathRelativeToAccountRoot(String path) {
+    if (Strings.isNullOrEmpty(path)) {
+      return path;
+    } else if (path.startsWith(EXPERIMENTS)) {
+      return path;
+    }
+    return PictureUtils.getExperimentOverviewRelativeImagePath(getExperimentId(), path);
   }
 }
