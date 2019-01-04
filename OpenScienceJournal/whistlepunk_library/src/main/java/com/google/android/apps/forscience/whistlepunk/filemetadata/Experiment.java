@@ -867,7 +867,7 @@ public class Experiment extends LabelListHolder {
           java.io.File overviewImage =
               new java.io.File(
                   PictureUtils.getExperimentOverviewFullImagePath(
-                      appAccount, getPathRelativeToExperiment(getImagePath())));
+                      appAccount, getPathRelativeToAccountRoot(getImagePath())));
           filesToSync.addImageUpload(
               fileMetadataUtil.getRelativePathInExperiment(getExperimentId(), overviewImage));
         }
