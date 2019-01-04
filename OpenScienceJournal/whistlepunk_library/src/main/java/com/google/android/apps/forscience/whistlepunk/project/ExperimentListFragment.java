@@ -140,6 +140,7 @@ public class ExperimentListFragment extends Fragment
   private ConnectivityBroadcastReceiver connectivityBroadcastReceiver;
   private Menu optionsMenu = null;
   private FeatureDiscoveryProvider featureDiscoveryProvider;
+  private SwipeRefreshLayout swipeLayout;
 
   public static ExperimentListFragment newInstance(AppAccount appAccount, boolean usePanes) {
     return newInstance(createArguments(appAccount, usePanes));
@@ -281,6 +282,7 @@ public class ExperimentListFragment extends Fragment
 
 
   @Override public void onRefresh() {
+    swipeLayout.setRefreshing(false);
     syncNow("Sync on Pulldown");
   }
 
@@ -293,7 +295,7 @@ public class ExperimentListFragment extends Fragment
 
     experimentListAdapter = new ExperimentListAdapter(this);
 
-    SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+    swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
     swipeLayout.setOnRefreshListener(this);
 
     // TODO: Adjust the column count based on breakpoint specs when available.
