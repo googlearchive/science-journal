@@ -1273,8 +1273,10 @@ public class Experiment extends LabelListHolder {
     if (path.startsWith(EXPERIMENTS)) {
       List<String> splitList = Splitter.on('/').splitToList(path);
       StringBuilder experimentPath = new StringBuilder();
+      String delimiter = "";
       for (int i = 2; i < splitList.size(); i++) {
-        experimentPath.append(splitList.get(i));
+        experimentPath.append(delimiter).append(splitList.get(i));
+        delimiter = "/";
       }
       return experimentPath.toString();
     }
