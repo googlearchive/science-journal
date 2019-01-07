@@ -1298,6 +1298,13 @@ public class RunReviewFragment extends Fragment
   private void populateSensorViews(View rootView, GoosciSensorLayout.SensorLayout sensorLayout) {
     final Context context = rootView.getContext();
     final TextView sensorNameText = (TextView) rootView.findViewById(R.id.run_review_sensor_name);
+    //TODO(b/122087120): Remove this logging
+    if (Log.isLoggable(TAG, Log.WARN)) {
+      Log.w(TAG, "map: " + getTrial().getAppearances());
+      Log.w(TAG, "sensorLayout: " + sensorLayout);
+      Log.w(TAG, "sensorLayout.sensorId: " + sensorLayout.sensorId);
+      Log.w(TAG, "should be null: " + getTrial().getAppearances().get(sensorLayout.sensorId));
+    }
     sensorNameText.setText(getTrial().getAppearances().get(sensorLayout.sensorId).name);
     final ImageView sensorIconImage = (ImageView) rootView.findViewById(R.id.sensor_icon);
     final SensorAppearance appearance =
