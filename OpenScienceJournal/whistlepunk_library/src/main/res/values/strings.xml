@@ -368,6 +368,19 @@
     <!-- Dialog title for the chooser that pops up after exporting a photo [CHAR_LIMIT=50]-->
     <string name="export_photo_chooser_title">Share photo to\u2026</string>
 
+    <!-- The alert confirm button title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=20] -->
+    <string name="experiment_not_finished_downloading_confirm_button">Share anyway</string>
+
+    <!-- The alert cancel button title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=20] -->
+    <string name="experiment_not_finished_downloading_cancel_button">Cancel</string>
+
+    <!-- The alert message when sharing an experiment that has not finished downloading. [CHAR_LIMIT=120] -->
+    <string name="experiment_not_finished_downloading_message">This experiment has not finished downloading all data. If you share a copy now, it will also be missing this data</string>
+
+    <!-- The alert title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=30] -->
+    <string name="experiment_not_finished_downloading_title">Missing Data</string>
+
+
     <!-- Settings strings -->
     <skip/>
 

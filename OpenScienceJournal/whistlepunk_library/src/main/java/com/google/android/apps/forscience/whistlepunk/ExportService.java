@@ -15,9 +15,11 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
@@ -38,10 +40,13 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
+import com.google.common.base.Strings;
 import com.google.common.collect.Range;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -56,6 +61,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipException;
 
@@ -530,6 +537,67 @@ public class ExportService extends Service {
   }
 
   public static void handleExperimentExportClick(
+      Context context, AppAccount appAccount, String experimentId) {
+    AppSingleton.getInstance(context).getDataController(appAccount).getExperimentById(experimentId,
+        new LoggingConsumer<Experiment>(TAG, "load experiment with ID = " + experimentId) {
+          @Override
+          public void success(Experiment experiment) {
+            if (isExperimentFullyDownloaded(appAccount, experimentId, experiment)) {
+              startExperimentExport(context, appAccount, experimentId);
+            } else {
+              AlertDialog.Builder builder = new AlertDialog.Builder(context);
+              builder.setTitle(R.string.experiment_not_finished_downloading_title);
+              builder.setMessage(R.string.experiment_not_finished_downloading_message);
+              builder.setPositiveButton(R.string.experiment_not_finished_downloading_confirm_button,
+                  (DialogInterface dialog, int which) -> {
+                startExperimentExport(context, appAccount, experimentId);
+                dialog.dismiss();
+              });
+              builder.setNegativeButton(R.string.experiment_not_finished_downloading_cancel_button,
+                  (DialogInterface dialog, int which) -> {
+                AppSingleton.getInstance(context).setExportServiceBusy(false);
+                dialog.dismiss();
+              });
+              builder.setOnDismissListener((DialogInterface dialog)-> {
+                AppSingleton.getInstance(context).setExportServiceBusy(false);
+              });
+              builder.create().show();
+            }
+          }
+        });
+  }
+
+  private static boolean isExperimentFullyDownloaded(
+      AppAccount appAccount, String experimentId, Experiment experiment) {
+    java.io.File experimentDirectory =
+        FileMetadataUtil.getInstance().getExperimentDirectory(appAccount, experimentId);
+    List<String> filesToVerify = new ArrayList<>();
+    for (Trial t : experiment.getTrials()) {
+      for (Label l : t.getLabels()) {
+        if (l.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+          filesToVerify.add(l.getPictureLabelValue().filePath);
+        }
+      }
+    }
+    for (Label l : experiment.getLabels()) {
+      if (l.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+        filesToVerify.add(l.getPictureLabelValue().filePath);
+      }
+    }
+    filesToVerify.add(experiment.getImagePath());
+
+    for (String imagePath : filesToVerify) {
+      if (!Strings.isNullOrEmpty(imagePath)) {
+        File file = new File(experimentDirectory, imagePath);
+        if (!file.exists()) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private static void startExperimentExport(
       Context context, AppAccount appAccount, String experimentId) {
     AppSingleton appSingleton = AppSingleton.getInstance(context);
     appSingleton.setExportServiceBusy(true);

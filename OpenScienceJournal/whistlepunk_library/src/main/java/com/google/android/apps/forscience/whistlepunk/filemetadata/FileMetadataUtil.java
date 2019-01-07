@@ -39,6 +39,7 @@ import io.reactivex.Single;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -249,25 +250,29 @@ public class FileMetadataUtil {
   }
 
   public void zipExperimentImage(File image, ZipOutputStream zipOutputStream) throws IOException {
-    FileInputStream fis = new FileInputStream(image.getAbsolutePath());
-    ZipEntry zipEntry = new ZipEntry(COVER_IMAGE_FILE);
-
     try {
-      zipOutputStream.putNextEntry(zipEntry);
+      FileInputStream fis = new FileInputStream(image.getAbsolutePath());
+      ZipEntry zipEntry = new ZipEntry(COVER_IMAGE_FILE);
 
-      byte[] bytes = new byte[1024];
-      int length;
-      while ((length = fis.read(bytes)) >= 0) {
-        zipOutputStream.write(bytes, 0, length);
+      try {
+        zipOutputStream.putNextEntry(zipEntry);
+
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0) {
+          zipOutputStream.write(bytes, 0, length);
+        }
+      } catch (ZipException zipException) {
+        // Already zipped the cover image, because the image name was COVER_IMAGE_FILE.
+        // This is ok.
+        Log.d(TAG, "Trying to zip the cover again.", zipException);
       }
-    } catch (ZipException zipException) {
-      // Already zipped the cover image, because the image name was COVER_IMAGE_FILE.
-      // This is ok.
-      Log.d(TAG, "Trying to zip the cover again.", zipException);
-    }
 
-    zipOutputStream.closeEntry();
-    fis.close();
+      zipOutputStream.closeEntry();
+      fis.close();
+    } catch (FileNotFoundException fileException) {
+      Log.d(TAG, "Image not found when exporting.", fileException);
+    }
   }
 
   public boolean validateShareIntent(Context context, AppAccount appAccount, String experimentId) {
