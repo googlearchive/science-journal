@@ -78,6 +78,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -1298,25 +1299,23 @@ public class RunReviewFragment extends Fragment
   private void populateSensorViews(View rootView, GoosciSensorLayout.SensorLayout sensorLayout) {
     final Context context = rootView.getContext();
     final TextView sensorNameText = (TextView) rootView.findViewById(R.id.run_review_sensor_name);
-    //TODO(b/122087120): Remove this logging
-    if (Log.isLoggable(TAG, Log.WARN)) {
-      Log.w(TAG, "map: " + getTrial().getAppearances());
-      Log.w(TAG, "sensorLayout: " + sensorLayout);
-      Log.w(TAG, "sensorLayout.sensorId: " + sensorLayout.sensorId);
-      Log.w(TAG, "should be null: " + getTrial().getAppearances().get(sensorLayout.sensorId));
+    // Experiments created with C don't appear to contain sensorLayout information.
+    GoosciSensorAppearance.BasicSensorAppearance basicAppearance =
+        getTrial().getAppearances().get(sensorLayout.sensorId);
+    if (basicAppearance != null) {
+      sensorNameText.setText(basicAppearance.name);
+      final ImageView sensorIconImage = (ImageView) rootView.findViewById(R.id.sensor_icon);
+      final SensorAppearance appearance =
+          ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
+              getTrial().getAppearances().get(sensorLayout.sensorId),
+              sensorLayout.sensorId,
+              AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount));
+      Appearances.applyDrawableToImageView(
+          appearance.getIconDrawable(context),
+          sensorIconImage,
+          context.getResources().getIntArray(R.array.graph_colors_array)[sensorLayout.colorIndex]);
+      runReviewOverlay.setUnits(appearance.getUnits(context));
     }
-    sensorNameText.setText(getTrial().getAppearances().get(sensorLayout.sensorId).name);
-    final ImageView sensorIconImage = (ImageView) rootView.findViewById(R.id.sensor_icon);
-    final SensorAppearance appearance =
-        ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
-            getTrial().getAppearances().get(sensorLayout.sensorId),
-            sensorLayout.sensorId,
-            AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount));
-    Appearances.applyDrawableToImageView(
-        appearance.getIconDrawable(context),
-        sensorIconImage,
-        context.getResources().getIntArray(R.array.graph_colors_array)[sensorLayout.colorIndex]);
-    runReviewOverlay.setUnits(appearance.getUnits(context));
   }
 
   private void launchLabelAdd(Label editedLabel, long timestamp) {

@@ -111,6 +111,11 @@ public class Trial extends LabelListHolder {
     trial.sensorLayouts = sensorLayouts;
     trial.trialId = trialId;
 
+    //TODO(b/122087120): Remove this logging
+    if (Log.isLoggable(TAG, Log.WARN)) {
+      Log.w(TAG, "SensorLayouts: " + Arrays.toString(sensorLayouts));
+    }
+
     trial.sensorAppearances = new GoosciTrial.Trial.AppearanceEntry[sensorLayouts.length];
     for (int i = 0; i < sensorLayouts.length; i++) {
       GoosciTrial.Trial.AppearanceEntry entry = new GoosciTrial.Trial.AppearanceEntry();
