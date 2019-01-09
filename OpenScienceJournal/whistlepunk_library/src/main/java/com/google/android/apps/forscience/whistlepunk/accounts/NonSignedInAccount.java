@@ -15,6 +15,7 @@ public final class NonSignedInAccount implements AppAccount {
   private static NonSignedInAccount instance;
 
   private final Context applicationContext;
+  private final Object lockForExperimentLibraryFile = new Object();
 
   public static NonSignedInAccount getInstance(Context context) {
     if (instance == null) {
@@ -62,6 +63,11 @@ public final class NonSignedInAccount implements AppAccount {
   public String getSharedPreferencesName() {
     // Return the name of the default SharedPreferences.
     return applicationContext.getPackageName() + "_preferences";
+  }
+
+  @Override
+  public Object getLockForExperimentLibraryFile() {
+    return lockForExperimentLibraryFile;
   }
 
   @Override

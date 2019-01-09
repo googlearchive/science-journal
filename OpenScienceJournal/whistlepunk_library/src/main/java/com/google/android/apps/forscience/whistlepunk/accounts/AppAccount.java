@@ -51,4 +51,10 @@ public interface AppAccount {
 
   /** Returns the name of the SharedPreferences for this account. */
   String getSharedPreferencesName();
+
+  /**
+   * Returns a lock object that must be used to synchronize reading and writing of the local
+   * experiment library file for this account.
+   */
+  Object getLockForExperimentLibraryFile();
 }

@@ -15,6 +15,8 @@ public final class StubAppAccount implements AppAccount {
     return instance;
   }
 
+  private final Object lockForExperimentLibraryFile = new Object();
+
   private StubAppAccount() {}
 
   @Nullable
@@ -51,6 +53,11 @@ public final class StubAppAccount implements AppAccount {
   @Override
   public String getSharedPreferencesName() {
     return "default";
+  }
+
+  @Override
+  public Object getLockForExperimentLibraryFile() {
+    return lockForExperimentLibraryFile;
   }
 
   @Override
