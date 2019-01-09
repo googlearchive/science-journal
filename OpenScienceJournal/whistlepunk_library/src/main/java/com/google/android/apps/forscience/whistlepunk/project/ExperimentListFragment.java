@@ -255,7 +255,7 @@ public class ExperimentListFragment extends Fragment
                       timing.dumpToLog();
                     });
             });
-
+    loadExperiments();
     syncNow("Sync On Resume");
   }
 
