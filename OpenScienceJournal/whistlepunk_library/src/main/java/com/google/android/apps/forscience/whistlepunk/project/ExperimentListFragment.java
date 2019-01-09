@@ -575,10 +575,6 @@ public class ExperimentListFragment extends Fragment
   public void onPrepareOptionsMenu(Menu menu) {
     menu.findItem(R.id.action_include_archived).setVisible(!includeArchived);
     menu.findItem(R.id.action_exclude_archived).setVisible(includeArchived);
-    MenuItem menuItemSync = menu.findItem(R.id.action_sync);
-    if (menuItemSync != null) {
-      menuItemSync.setVisible(appAccount.isSignedIn());
-    }
     optionsMenu = menu;
     updateNetworkStatusIcon();
   }
@@ -636,9 +632,6 @@ public class ExperimentListFragment extends Fragment
       return true;
     } else if (id == R.id.action_delete_unclaimed_experiments) {
       confirmDeleteUnclaimedExperiments();
-      return true;
-    } else if (id == R.id.action_sync) {
-      syncNow("Sync from menu");
       return true;
     } else if (id == R.id.action_network_disconnected) {
       Resources res = getActivity().getResources();
