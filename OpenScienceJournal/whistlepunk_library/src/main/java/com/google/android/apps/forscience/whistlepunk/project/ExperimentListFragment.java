@@ -141,6 +141,7 @@ public class ExperimentListFragment extends Fragment
   private Menu optionsMenu = null;
   private FeatureDiscoveryProvider featureDiscoveryProvider;
   private SwipeRefreshLayout swipeLayout;
+  private int defaultExperimentCreationAttempts = 0;
 
   public static ExperimentListFragment newInstance(AppAccount appAccount, boolean usePanes) {
     return newInstance(createArguments(appAccount, usePanes));
@@ -457,70 +458,80 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void createDefaultExperiment() {
-    DataController dataController = getDataController();
-    RxDataController.createExperiment(dataController)
-        .subscribe(
-            e -> {
-              Resources res = getActivity().getResources();
-              e.setTitle(res.getString(R.string.first_experiment_title));
-              Clock clock =
-                  AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock();
+    defaultExperimentCreationAttempts++;
+    if (defaultExperimentCreationAttempts > 1
+        && AppSingleton.getInstance(getContext())
+            .getExperimentLibraryManager(appAccount)
+            .getKnownExperiments()
+            .isEmpty()) {
+      DataController dataController = getDataController();
+      RxDataController.createExperiment(dataController)
+          .subscribe(
+              e -> {
+                Resources res = getActivity().getResources();
+                e.setTitle(res.getString(R.string.first_experiment_title));
+                Clock clock =
+                    AppSingleton.getInstance(getActivity())
+                        .getSensorEnvironment()
+                        .getDefaultClock();
 
-              // Create a text label 1 second ago with default text.
-              GoosciTextLabelValue.TextLabelValue goosciTextLabel1 =
-                  new GoosciTextLabelValue.TextLabelValue();
-              goosciTextLabel1.text = res.getString(R.string.first_experiment_second_text_note);
-              Label textLabel1 =
-                  Label.newLabelWithValue(
-                      clock.getNow() - 1000,
-                      GoosciLabel.Label.ValueType.TEXT,
-                      goosciTextLabel1,
-                      null);
-              e.addLabel(e, textLabel1);
+                // Create a text label 1 second ago with default text.
+                GoosciTextLabelValue.TextLabelValue goosciTextLabel1 =
+                    new GoosciTextLabelValue.TextLabelValue();
+                goosciTextLabel1.text = res.getString(R.string.first_experiment_second_text_note);
+                Label textLabel1 =
+                    Label.newLabelWithValue(
+                        clock.getNow() - 1000,
+                        GoosciLabel.Label.ValueType.TEXT,
+                        goosciTextLabel1,
+                        null);
+                e.addLabel(e, textLabel1);
 
-              // Create a text label 2 seconds ago with default text.
-              GoosciTextLabelValue.TextLabelValue goosciTextLabel2 =
-                  new GoosciTextLabelValue.TextLabelValue();
-              goosciTextLabel2.text = res.getString(R.string.first_experiment_text_note);
-              Label textLabel2 =
-                  Label.newLabelWithValue(
-                      clock.getNow() - 2000,
-                      GoosciLabel.Label.ValueType.TEXT,
-                      goosciTextLabel2,
-                      null);
-              e.addLabel(e, textLabel2);
+                // Create a text label 2 seconds ago with default text.
+                GoosciTextLabelValue.TextLabelValue goosciTextLabel2 =
+                    new GoosciTextLabelValue.TextLabelValue();
+                goosciTextLabel2.text = res.getString(R.string.first_experiment_text_note);
+                Label textLabel2 =
+                    Label.newLabelWithValue(
+                        clock.getNow() - 2000,
+                        GoosciLabel.Label.ValueType.TEXT,
+                        goosciTextLabel2,
+                        null);
+                e.addLabel(e, textLabel2);
 
-              // Create a picture label 4 second ago with a default drawable and caption.
-              GoosciCaption.Caption caption = new GoosciCaption.Caption();
-              caption.text = res.getString(R.string.first_experiment_picture_note_caption);
-              caption.lastEditedTimestamp = clock.getNow() - 4000;
-              Label pictureLabel =
-                  Label.newLabel(caption.lastEditedTimestamp, GoosciLabel.Label.ValueType.PICTURE);
-              File pictureFile =
-                  PictureUtils.createImageFile(
-                      getActivity(),
-                      dataController.getAppAccount(),
-                      e.getExperimentId(),
-                      pictureLabel.getLabelId());
-              PictureUtils.writeDrawableToFile(getActivity(), pictureFile, R.drawable.first_note);
-              GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
-                  new GoosciPictureLabelValue.PictureLabelValue();
-              goosciPictureLabel.filePath =
-                  FileMetadataUtil.getInstance()
-                      .getRelativePathInExperiment(e.getExperimentId(), pictureFile);
-              pictureLabel.setLabelProtoData(goosciPictureLabel);
-              pictureLabel.setCaption(caption);
-              e.addLabel(e, pictureLabel);
+                // Create a picture label 4 second ago with a default drawable and caption.
+                GoosciCaption.Caption caption = new GoosciCaption.Caption();
+                caption.text = res.getString(R.string.first_experiment_picture_note_caption);
+                caption.lastEditedTimestamp = clock.getNow() - 4000;
+                Label pictureLabel =
+                    Label.newLabel(
+                        caption.lastEditedTimestamp, GoosciLabel.Label.ValueType.PICTURE);
+                File pictureFile =
+                    PictureUtils.createImageFile(
+                        getActivity(),
+                        dataController.getAppAccount(),
+                        e.getExperimentId(),
+                        pictureLabel.getLabelId());
+                PictureUtils.writeDrawableToFile(getActivity(), pictureFile, R.drawable.first_note);
+                GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
+                    new GoosciPictureLabelValue.PictureLabelValue();
+                goosciPictureLabel.filePath =
+                    FileMetadataUtil.getInstance()
+                        .getRelativePathInExperiment(e.getExperimentId(), pictureFile);
+                pictureLabel.setLabelProtoData(goosciPictureLabel);
+                pictureLabel.setCaption(caption);
+                e.addLabel(e, pictureLabel);
 
-              // TODO: Add a recording item if required by b/64844798.
+                // TODO: Add a recording item if required by b/64844798.
 
-              RxDataController.updateExperiment(dataController, e, true)
-                  .subscribe(
-                      () -> {
-                        setDefaultExperimentCreated();
-                        loadExperiments();
-                      });
-            });
+                RxDataController.updateExperiment(dataController, e, true)
+                    .subscribe(
+                        () -> {
+                          setDefaultExperimentCreated();
+                          loadExperiments();
+                        });
+              });
+    }
   }
 
   private void attachToExperiments(List<GoosciUserMetadata.ExperimentOverview> experiments) {
