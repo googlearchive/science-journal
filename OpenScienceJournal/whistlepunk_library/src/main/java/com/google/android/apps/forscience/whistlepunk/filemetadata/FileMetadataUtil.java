@@ -58,6 +58,7 @@ public class FileMetadataUtil {
   private static final String TAG = "FileMetadataManager";
   private static final String USER_METADATA_FILE = "user_metadata.proto";
   public static final String DOT_PROTO = ".proto";
+  private static final String RECORDING = "recording_";
 
   public static final FileMetadataUtil instance = new FileMetadataUtil();
 
@@ -410,7 +411,7 @@ public class FileMetadataUtil {
     return status;
   }
 
-  public String getProtoFileName(String protoId) {
-    return protoId + DOT_PROTO;
+  public String getTrialProtoFileName(String protoId) {
+    return RECORDING + protoId + DOT_PROTO;
   }
 }

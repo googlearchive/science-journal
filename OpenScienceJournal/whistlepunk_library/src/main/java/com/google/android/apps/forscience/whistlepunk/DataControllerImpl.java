@@ -879,7 +879,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                                 FileMetadataUtil.getInstance()
                                     .getExperimentDirectory(
                                         appAccount, experiment.getExperimentId()),
-                                FileMetadataUtil.getInstance().getProtoFileName(trialId));
+                                FileMetadataUtil.getInstance().getTrialProtoFileName(trialId));
                         try (FileOutputStream sensorStream =
                             new FileOutputStream(sensorProtoFile)) {
                           byte[] sensorBytes = ProtoUtils.makeBlob(proto);
