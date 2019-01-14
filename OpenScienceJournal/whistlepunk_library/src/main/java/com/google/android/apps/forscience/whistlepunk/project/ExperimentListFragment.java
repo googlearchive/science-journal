@@ -643,6 +643,11 @@ public class ExperimentListFragment extends Fragment
 
   private void syncNow(String logMessage) {
     if (appAccount.isSignedIn()) {
+      // Check if the account hasn't been loaded yet.
+      if (appAccount.getAccount() == null) {
+        new Handler(getContext().getMainLooper()).post(() -> syncNow(logMessage));
+        return;
+      }
       CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
       CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
       try {
