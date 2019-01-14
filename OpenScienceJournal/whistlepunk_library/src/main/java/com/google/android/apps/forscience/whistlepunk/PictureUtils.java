@@ -149,6 +149,7 @@ public class PictureUtils {
     // Use last modified time as part of the signature to force a glide cache refresh.
     GlideApp.with(context)
         .load(file.getAbsolutePath())
+        .placeholder(R.drawable.placeholder)
         .signature(new ObjectKey(file.getPath() + file.lastModified()))
         .fitCenter()
         // caches only the final image, after reducing the resolution
@@ -202,6 +203,7 @@ public class PictureUtils {
     Context context = imageView.getContext();
     GlideApp.with(context)
         .load(fullPath)
+        .placeholder(R.drawable.placeholder)
         // Create a signature based on the last modified time so that cached images will
         // not be used if the underlying file changes. This may happen if the user has
         // picked an experiment photo from the "edit experiment" page because there is only
