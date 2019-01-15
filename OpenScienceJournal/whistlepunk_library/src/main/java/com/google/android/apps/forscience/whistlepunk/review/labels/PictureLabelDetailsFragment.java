@@ -32,8 +32,10 @@ import android.widget.ImageView;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 
 /** Details view controller for PictureLabel */
 public class PictureLabelDetailsFragment extends LabelDetailsFragment {
@@ -114,6 +116,11 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     if (item.getItemId() == R.id.action_edit) {
+      // Add a change here so we re-upload the image. We never get confirmation that the image
+      // has changed from our intent, and it's not a big deal if we do this unnecessarily.
+      experiment
+          .getValue()
+          .addChange(Change.newModifyTypeChange(ElementType.NOTE, originalLabel.getLabelId()));
       PictureUtils.launchExternalEditor(
           getActivity(), appAccount, experimentId, originalLabel.getPictureLabelValue().filePath);
       return true;
