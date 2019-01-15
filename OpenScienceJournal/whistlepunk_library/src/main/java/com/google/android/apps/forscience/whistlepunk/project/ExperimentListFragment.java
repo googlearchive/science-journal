@@ -191,11 +191,20 @@ public class ExperimentListFragment extends Fragment
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     AppSingleton.getInstance(getContext())
-        .whenExportBusyChanges()
+        .whenExportOrSyncBusyChanges()
         .takeUntil(destroyed.happens())
         .subscribe(
             busy -> {
-              setProgressBarVisible(busy);
+              Handler uiHandler = new Handler(getContext().getMainLooper());
+              uiHandler.post(
+                  () -> {
+                    // This fragment may be gone by the time this code executes. Check getContext
+                    // and give up if it is null.
+                    if (getContext() == null) {
+                      return;
+                    }
+                    setProgressBarVisible(busy);
+                  });
             });
 
     appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
@@ -665,7 +674,9 @@ public class ExperimentListFragment extends Fragment
         getView()
             .announceForAccessibility(
                 getResources().getString(R.string.action_sync_start));
+
         syncService.syncExperimentLibrary(getContext(), logMessage);
+        AppSingleton.getInstance(getContext()).setExportOrSyncServiceBusy(true);
       } catch (IOException ioe) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, "IOE", ioe);

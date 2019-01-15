@@ -67,7 +67,7 @@ public class AppSingleton {
   private Map<String, SensorProvider> externalSensorProviders;
   private ConnectableSensor.Connector sensorConnector;
   private PublishSubject<Label> labelsAdded = PublishSubject.create();
-  private BehaviorSubject<Boolean> exportServiceBusy = BehaviorSubject.create();
+  private BehaviorSubject<Boolean> exportOrSyncServiceBusy = BehaviorSubject.create();
   private final BehaviorSubject<Integer> experimentSynced = BehaviorSubject.create();
   private BehaviorSubject<Optional<Activity>> resumedActivity = BehaviorSubject.create();
 
@@ -275,12 +275,12 @@ public class AppSingleton {
     return returnThis;
   }
 
-  public void setExportServiceBusy(boolean b) {
-    exportServiceBusy.onNext(b);
+  public void setExportOrSyncServiceBusy(boolean b) {
+    exportOrSyncServiceBusy.onNext(b);
   }
 
-  public Observable<Boolean> whenExportBusyChanges() {
-    return exportServiceBusy;
+  public Observable<Boolean> whenExportOrSyncBusyChanges() {
+    return exportOrSyncServiceBusy;
   }
 
   public void notifyNewExperimentSynced() {

@@ -412,7 +412,7 @@ public class ExportService extends Service {
 
               @Override
               public void fail(Exception e) {
-                AppSingleton.getInstance(getApplicationContext()).setExportServiceBusy(false);
+                AppSingleton.getInstance(getApplicationContext()).setExportOrSyncServiceBusy(false);
                 if (e instanceof ZipException) {
                   showSnackbar(R.string.import_failed_file);
                   Log.e(TAG, "SJ file format exception", e);
@@ -538,33 +538,39 @@ public class ExportService extends Service {
 
   public static void handleExperimentExportClick(
       Context context, AppAccount appAccount, String experimentId) {
-    AppSingleton.getInstance(context).getDataController(appAccount).getExperimentById(experimentId,
-        new LoggingConsumer<Experiment>(TAG, "load experiment with ID = " + experimentId) {
-          @Override
-          public void success(Experiment experiment) {
-            if (isExperimentFullyDownloaded(appAccount, experimentId, experiment)) {
-              startExperimentExport(context, appAccount, experimentId);
-            } else {
-              AlertDialog.Builder builder = new AlertDialog.Builder(context);
-              builder.setTitle(R.string.experiment_not_finished_downloading_title);
-              builder.setMessage(R.string.experiment_not_finished_downloading_message);
-              builder.setPositiveButton(R.string.experiment_not_finished_downloading_confirm_button,
-                  (DialogInterface dialog, int which) -> {
-                startExperimentExport(context, appAccount, experimentId);
-                dialog.dismiss();
-              });
-              builder.setNegativeButton(R.string.experiment_not_finished_downloading_cancel_button,
-                  (DialogInterface dialog, int which) -> {
-                AppSingleton.getInstance(context).setExportServiceBusy(false);
-                dialog.dismiss();
-              });
-              builder.setOnDismissListener((DialogInterface dialog)-> {
-                AppSingleton.getInstance(context).setExportServiceBusy(false);
-              });
-              builder.create().show();
-            }
-          }
-        });
+    AppSingleton.getInstance(context)
+        .getDataController(appAccount)
+        .getExperimentById(
+            experimentId,
+            new LoggingConsumer<Experiment>(TAG, "load experiment with ID = " + experimentId) {
+              @Override
+              public void success(Experiment experiment) {
+                if (isExperimentFullyDownloaded(appAccount, experimentId, experiment)) {
+                  startExperimentExport(context, appAccount, experimentId);
+                } else {
+                  AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                  builder.setTitle(R.string.experiment_not_finished_downloading_title);
+                  builder.setMessage(R.string.experiment_not_finished_downloading_message);
+                  builder.setPositiveButton(
+                      R.string.experiment_not_finished_downloading_confirm_button,
+                      (DialogInterface dialog, int which) -> {
+                        startExperimentExport(context, appAccount, experimentId);
+                        dialog.dismiss();
+                      });
+                  builder.setNegativeButton(
+                      R.string.experiment_not_finished_downloading_cancel_button,
+                      (DialogInterface dialog, int which) -> {
+                        AppSingleton.getInstance(context).setExportOrSyncServiceBusy(false);
+                        dialog.dismiss();
+                      });
+                  builder.setOnDismissListener(
+                      (DialogInterface dialog) -> {
+                        AppSingleton.getInstance(context).setExportOrSyncServiceBusy(false);
+                      });
+                  builder.create().show();
+                }
+              }
+            });
   }
 
   private static boolean isExperimentFullyDownloaded(
@@ -600,7 +606,7 @@ public class ExportService extends Service {
   private static void startExperimentExport(
       Context context, AppAccount appAccount, String experimentId) {
     AppSingleton appSingleton = AppSingleton.getInstance(context);
-    appSingleton.setExportServiceBusy(true);
+    appSingleton.setExportOrSyncServiceBusy(true);
     ExportService.bind(context)
         // Only look at events for this trial or the default value
         .filter(
@@ -629,7 +635,7 @@ public class ExportService extends Service {
   public static void launchExportChooser(Context context, AppAccount appAccount, Uri fileUri) {
     Intent shareIntent =
         FileMetadataUtil.getInstance().getShareIntent(context, appAccount, fileUri);
-    AppSingleton.getInstance(context).setExportServiceBusy(false);
+    AppSingleton.getInstance(context).setExportOrSyncServiceBusy(false);
     context.startActivity(
         Intent.createChooser(
             shareIntent,
@@ -638,7 +644,7 @@ public class ExportService extends Service {
 
   public static void handleExperimentImport(
       Context context, AppAccount appAccount, Uri experimentFile) {
-    AppSingleton.getInstance(context).setExportServiceBusy(true);
+    AppSingleton.getInstance(context).setExportOrSyncServiceBusy(true);
     ExportService.bind(context)
         // Only look at events for this uri or the default value
         .filter(
@@ -656,7 +662,7 @@ public class ExportService extends Service {
             })
         .subscribe(
             progress -> {
-              AppSingleton.getInstance(context).setExportServiceBusy(false);
+              AppSingleton.getInstance(context).setExportOrSyncServiceBusy(false);
               AppSingleton.getInstance(context)
                   .onNextActivity()
                   .subscribe(

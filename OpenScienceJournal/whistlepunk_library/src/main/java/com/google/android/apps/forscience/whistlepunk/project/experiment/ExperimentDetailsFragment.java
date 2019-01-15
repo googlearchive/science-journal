@@ -176,7 +176,7 @@ public class ExperimentDetailsFragment extends Fragment
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     AppSingleton.getInstance(getContext())
-        .whenExportBusyChanges()
+        .whenExportOrSyncBusyChanges()
         .takeUntil(destroyed.happens())
         .subscribe(
             busy -> {
