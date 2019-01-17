@@ -351,8 +351,9 @@ public class ExperimentDetailsFragment extends Fragment
 
   public void onStartRecording(String trialId) {
     activeTrialId = trialId;
+    // getTrialMaybe as workaround to avoid b/122074761
     if (adapter != null) {
-      RxDataController.getTrial(getDataController(), experimentId, trialId)
+      RxDataController.getTrialMaybe(getDataController(), experimentId, trialId)
           .subscribe(t -> adapter.addActiveRecording(t));
     }
     if (getActivity() != null) {
