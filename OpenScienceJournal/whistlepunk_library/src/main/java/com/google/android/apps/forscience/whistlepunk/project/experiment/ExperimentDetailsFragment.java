@@ -98,6 +98,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.jakewharton.rxbinding2.view.RxView;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
 import java.lang.ref.WeakReference;
@@ -178,8 +179,14 @@ public class ExperimentDetailsFragment extends Fragment
     AppSingleton.getInstance(getContext())
         .whenExportOrSyncBusyChanges()
         .takeUntil(destroyed.happens())
+        .observeOn(AndroidSchedulers.mainThread())
         .subscribe(
             busy -> {
+              // This fragment may be gone by the time this code executes. Check getContext
+              // and give up if it is null.
+              if (getContext() == null) {
+                return;
+              }
               setProgressBarVisible(busy);
             });
 
