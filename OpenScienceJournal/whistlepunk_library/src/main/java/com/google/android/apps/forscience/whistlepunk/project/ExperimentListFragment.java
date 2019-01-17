@@ -477,6 +477,9 @@ public class ExperimentListFragment extends Fragment
       RxDataController.createExperiment(dataController)
           .subscribe(
               e -> {
+                if (getActivity() == null) {
+                  return;
+                }
                 Resources res = getActivity().getResources();
                 e.setTitle(res.getString(R.string.first_experiment_title));
                 Clock clock =
