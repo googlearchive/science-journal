@@ -553,12 +553,6 @@ public class MainActivity extends ActivityWithNavigationView {
     currentAccountChanging.onHappened();
     currentAccount = appAccount;
 
-    // The only reason the given appAccount could be null is if the user pressed the back button
-    // from the OldUserOptionPromptActivity to go back to the SignInActivity.
-    if (currentAccount == null) {
-      return;
-    }
-
     // Clean up old files from previous exports.
     ExportService.cleanOldFiles(this, currentAccount);
 

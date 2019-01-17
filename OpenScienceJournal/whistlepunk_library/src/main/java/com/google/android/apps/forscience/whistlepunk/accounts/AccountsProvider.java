@@ -79,7 +79,7 @@ public interface AccountsProvider {
   boolean isSignedIn();
 
   /**
-   * Sets the current account to null. This should only be used in two situations:
+   * Sets the current account to the NonSignedInAccount. This should only be used in two situations:
    *
    * <ol>
    *   <li>when the user presses the back button in OldUserOptionPromptActivity.

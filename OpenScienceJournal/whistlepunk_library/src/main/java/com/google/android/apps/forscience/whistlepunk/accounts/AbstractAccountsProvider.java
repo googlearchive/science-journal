@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** An abstract base class for accounts providers. */
 abstract class AbstractAccountsProvider implements AccountsProvider {
   final Context applicationContext;
-  final BehaviorSubject<AppAccount> observableCurrentAccount = BehaviorSubject.create();
+  final BehaviorSubject<AppAccount> observableCurrentAccount;
   private final Object lockCurrentAccount = new Object();
   private AppAccount currentAccount;
   private final Map<String, AppAccount> accountsByKey = new HashMap<>();
@@ -54,8 +54,10 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
 
   AbstractAccountsProvider(Context context) {
     applicationContext = context.getApplicationContext();
-
-    addAccount(NonSignedInAccount.getInstance(applicationContext));
+    NonSignedInAccount nonSignedInAccount = NonSignedInAccount.getInstance(applicationContext);
+    addAccount(nonSignedInAccount);
+    currentAccount = nonSignedInAccount;
+    observableCurrentAccount = BehaviorSubject.createDefault(nonSignedInAccount);
   }
 
   protected Single<PermissionStatus> isAccountPermitted(Activity activity, AppAccount appAccount) {
@@ -92,16 +94,13 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   @Override
   public boolean isSignedIn() {
     synchronized (lockCurrentAccount) {
-      return currentAccount != null && currentAccount.isSignedIn();
+      return currentAccount.isSignedIn();
     }
   }
 
   @Override
   public void undoSignIn() {
-    synchronized (lockCurrentAccount) {
-      currentAccount = null;
-      afterSetCurrentAccount(currentAccount);
-    }
+    setCurrentAccount(NonSignedInAccount.getInstance(applicationContext));
   }
 
   @Override
@@ -155,25 +154,20 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
    */
   protected final void setCurrentAccount(AppAccount currentAccount) {
     synchronized (lockCurrentAccount) {
-      if (currentAccount != null) {
-        addAccount(currentAccount);
-      }
-
+      addAccount(currentAccount);
       this.currentAccount = currentAccount;
       afterSetCurrentAccount(currentAccount);
     }
   }
 
   protected void afterSetCurrentAccount(AppAccount currentAccount) {
-    if (currentAccount != null && currentAccount.isSignedIn()) {
+    if (currentAccount.isSignedIn()) {
       // Copy the registered preferences from the non-signed-in account to the current account.
       copyRegisteredPreferencesToAccount(currentAccount);
     }
 
     // Notify observers.
-    if (currentAccount != null) {
-      observableCurrentAccount.onNext(currentAccount);
-    }
+    observableCurrentAccount.onNext(currentAccount);
   }
 
   protected void addAccount(AppAccount appAccount) {
