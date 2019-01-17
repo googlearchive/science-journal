@@ -283,7 +283,7 @@ public class FileMetadataUtil {
         FileProvider.getUriForFile(
             context,
             context.getPackageName(),
-            getExperimentFile(appAccount, experimentId, "experiment.proto"));
+            getExperimentFile(appAccount, experimentId, EXPERIMENT_FILE));
     return getShareIntent(context, appAccount, experimentProto) != null;
   }
 

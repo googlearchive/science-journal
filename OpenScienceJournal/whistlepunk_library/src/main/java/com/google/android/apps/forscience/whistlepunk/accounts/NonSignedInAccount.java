@@ -16,6 +16,7 @@ public final class NonSignedInAccount implements AppAccount {
 
   private final Context applicationContext;
   private final Object lockForExperimentLibraryFile = new Object();
+  private final Object lockForExperimentProtoFile = new Object();
 
   public static NonSignedInAccount getInstance(Context context) {
     if (instance == null) {
@@ -68,6 +69,11 @@ public final class NonSignedInAccount implements AppAccount {
   @Override
   public Object getLockForExperimentLibraryFile() {
     return lockForExperimentLibraryFile;
+  }
+
+  @Override
+  public Object getLockForExperimentProtoFile() {
+    return lockForExperimentProtoFile;
   }
 
   @Override

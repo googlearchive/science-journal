@@ -57,4 +57,10 @@ public interface AppAccount {
    * experiment library file for this account.
    */
   Object getLockForExperimentLibraryFile();
+
+  /**
+   * Returns a lock object that must be used to synchronize reading and writing of local experiment
+   * files in this account.
+   */
+  Object getLockForExperimentProtoFile();
 }

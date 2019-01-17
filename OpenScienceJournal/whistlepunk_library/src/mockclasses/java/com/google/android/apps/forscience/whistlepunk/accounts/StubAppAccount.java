@@ -16,6 +16,7 @@ public final class StubAppAccount implements AppAccount {
   }
 
   private final Object lockForExperimentLibraryFile = new Object();
+  private final Object lockForExperimentProtoFile = new Object();
 
   private StubAppAccount() {}
 
@@ -58,6 +59,11 @@ public final class StubAppAccount implements AppAccount {
   @Override
   public Object getLockForExperimentLibraryFile() {
     return lockForExperimentLibraryFile;
+  }
+
+  @Override
+  public Object getLockForExperimentProtoFile() {
+    return lockForExperimentProtoFile;
   }
 
   @Override

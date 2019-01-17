@@ -353,9 +353,12 @@ class ExperimentCache {
     }
 
     File experimentFile = getExperimentFile(activeExperiment.getExperimentOverview());
-    boolean success =
-        experimentProtoFileHelper.writeToFile(
-            experimentFile, activeExperiment.getExperimentProto(), getUsageTracker());
+    boolean success;
+    synchronized (appAccount.getLockForExperimentProtoFile()) {
+      success =
+          experimentProtoFileHelper.writeToFile(
+              experimentFile, activeExperiment.getExperimentProto(), getUsageTracker());
+    }
     if (success) {
       activeExperimentNeedsWrite = false;
       CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(context);
@@ -381,9 +384,12 @@ class ExperimentCache {
   @VisibleForTesting
   void loadActiveExperimentFromFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {
     File experimentFile = getExperimentFile(experimentOverview);
-    GoosciExperiment.Experiment proto =
-        experimentProtoFileHelper.readFromFile(
-            experimentFile, GoosciExperiment.Experiment::parseFrom, getUsageTracker());
+    GoosciExperiment.Experiment proto;
+    synchronized (appAccount.getLockForExperimentProtoFile()) {
+      proto =
+          experimentProtoFileHelper.readFromFile(
+              experimentFile, GoosciExperiment.Experiment::parseFrom, getUsageTracker());
+    }
     if (proto != null) {
       upgradeExperimentVersionIfNeeded(proto, experimentOverview);
       activeExperiment = Experiment.fromExperiment(proto, experimentOverview);
