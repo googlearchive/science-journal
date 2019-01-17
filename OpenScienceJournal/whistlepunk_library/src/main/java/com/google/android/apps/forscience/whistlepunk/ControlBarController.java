@@ -22,11 +22,14 @@ import android.net.Uri;
 import android.support.design.widget.Snackbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.widget.TooltipCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.common.base.Throwables;
 import com.jakewharton.rxbinding2.view.RxView;
 import io.reactivex.Observable;
 
@@ -35,6 +38,7 @@ import io.reactivex.Observable;
  * starting recording, etc
  */
 public class ControlBarController {
+  private static final String TAG = "ControlBarController";
   private final AppAccount appAccount;
   private final String experimentId;
   private SnackbarManager snackbarManager;
@@ -61,7 +65,13 @@ public class ControlBarController {
               .watchRecordingStatus()
               .firstElement()
               .flatMapSingle(status -> snapshotter.addSnapshotLabel(experimentId, status))
-              .subscribe(label -> singleton.onLabelsAdded().onNext(label));
+              .subscribe(
+                  (Label label) -> singleton.onLabelsAdded().onNext(label),
+                  (Throwable e) -> {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                      Log.d(TAG, Throwables.getStackTraceAsString(e));
+                    }
+                  });
         });
     TooltipCompat.setTooltipText(
         snapshotButton, context.getResources().getString(R.string.snapshot_button_description));

@@ -644,8 +644,9 @@ public class Experiment extends LabelListHolder {
   }
 
   public List<String> getSensorIds() {
+    List<GoosciSensorLayout.SensorLayout> sensorLayoutList = getSensorLayouts();
     List<String> sensorIds = new ArrayList<>();
-    for (GoosciSensorLayout.SensorLayout layout : sensorLayouts) {
+    for (GoosciSensorLayout.SensorLayout layout : sensorLayoutList) {
       sensorIds.add(layout.sensorId);
     }
     return sensorIds;
