@@ -61,6 +61,6 @@
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="visible"
-        android:layout_gravity="bottom"/>
+        android:layout_gravity="top"/>
 
 </android.support.design.widget.CoordinatorLayout>
