@@ -37,11 +37,14 @@ public class LocalSyncManagerTest {
         new LocalSyncManager(new LocalSyncStatus(),
             NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
     manager.addExperiment("id");
+    manager.setLastSyncedLibraryVersion(10L);
 
     manager.setDirty("id", false);
     assertFalse(manager.getDirty("id"));
+    assertEquals(10, manager.getLastSyncedLibraryVersion());
     manager.setDirty("id", true);
     assertTrue(manager.getDirty("id"));
+    assertEquals(0, manager.getLastSyncedLibraryVersion());
   }
 
   @Test

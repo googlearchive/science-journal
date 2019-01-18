@@ -1,3 +1,4 @@
+// LINT: LEGACY_NAMES
 /*
  *  Copyright 2019 Google Inc. All Rights Reserved.
  *
@@ -29,6 +30,8 @@ message LocalSyncStatus {
   option (proto2.nano.message_as_lite) = false;
 
   repeated ExperimentStatus experimentStatus = 1;
+  // The last version of the ExperimentLibrary that we have synced.
+  optional int64 lastSyncedLibraryVersion = 2;
 }
 
 // The sync status of a single experiment.

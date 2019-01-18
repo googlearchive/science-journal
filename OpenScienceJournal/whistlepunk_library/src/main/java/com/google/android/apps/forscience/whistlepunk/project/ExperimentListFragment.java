@@ -678,8 +678,8 @@ public class ExperimentListFragment extends Fragment
             .announceForAccessibility(
                 getResources().getString(R.string.action_sync_start));
 
-        syncService.syncExperimentLibrary(getContext(), logMessage);
         AppSingleton.getInstance(getContext()).setExportOrSyncServiceBusy(true);
+        syncService.syncExperimentLibrary(getContext(), logMessage);
       } catch (IOException ioe) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, "IOE", ioe);

@@ -113,6 +113,10 @@ public class LocalSyncManager {
   public void setDirty(String experimentId, boolean dirty) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     status.dirty = dirty;
+    // Reset the remote version to force a sync.
+    if (dirty) {
+      proto.lastSyncedLibraryVersion = 0;
+    }
     writeLocalSyncStatus();
   }
 
@@ -195,6 +199,17 @@ public class LocalSyncManager {
   public boolean getDownloaded(String experimentId) {
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     return status.downloaded;
+  }
+
+  public long getLastSyncedLibraryVersion() {
+    populateLocalSyncManager();
+    return proto.lastSyncedLibraryVersion;
+  }
+
+  public void setLastSyncedLibraryVersion(long version) {
+    populateLocalSyncManager();
+    proto.lastSyncedLibraryVersion = version;
+    writeLocalSyncStatus();
   }
 
   private void writeLocalSyncStatus() {
