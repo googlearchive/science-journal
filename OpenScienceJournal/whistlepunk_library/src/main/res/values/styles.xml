@@ -64,12 +64,14 @@
     </style>
 
     <style name="AppTheme.GetStarted">
+        <item name="colorButtonNormal">@android:color/white</item>
         <item name="android:statusBarColor">@color/status_bar_background_gray</item>
         <item name="android:windowNoTitle">true</item>
         <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppTheme.SignIn">
+        <item name="colorButtonNormal">@color/color_accent</item>
         <item name="android:statusBarColor">@color/status_bar_background_gray</item>
         <item name="android:windowNoTitle">true</item>
         <item name="windowNoTitle">true</item>
