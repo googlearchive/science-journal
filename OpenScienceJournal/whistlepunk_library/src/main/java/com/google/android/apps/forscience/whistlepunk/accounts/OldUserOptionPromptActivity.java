@@ -37,7 +37,7 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
 
   private int unclaimedExperimentCount;
 
-  static boolean shouldLaunch(Context context) {
+  public static boolean shouldLaunch(Context context) {
     AccountsProvider accountsProvider =
         WhistlePunkApplication.getAppServices(context).getAccountsProvider();
     if (accountsProvider.isSignedIn() && AccountsUtils.getUnclaimedExperimentCount(context) >= 1) {

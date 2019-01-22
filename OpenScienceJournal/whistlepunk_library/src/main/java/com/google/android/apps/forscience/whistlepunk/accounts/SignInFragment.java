@@ -69,6 +69,14 @@ public class SignInFragment extends Fragment {
   public void onResume() {
     super.onResume();
 
+    // Handle the situation where the user got to the OldUserOptionPromptActivity and then pressed
+    // the home button. In that case, when they re-launch Science Journal, they will get here but
+    // they are already signed in.
+    if (accountsProvider.isSignedIn()) {
+      afterSignIn();
+      return;
+    }
+
     if (accountsProvider.getAndSetShowScienceJournalIsDisabledAlert(false)) {
       showScienceJournalIsDisabledAlert();
     }

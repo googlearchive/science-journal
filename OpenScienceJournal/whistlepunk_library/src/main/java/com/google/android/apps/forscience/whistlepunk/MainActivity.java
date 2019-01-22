@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.GetStartedActivity;
+import com.google.android.apps.forscience.whistlepunk.accounts.OldUserOptionPromptActivity;
 import com.google.android.apps.forscience.whistlepunk.accounts.SignInActivity;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
@@ -351,11 +352,12 @@ public class MainActivity extends ActivityWithNavigationView {
       return true;
     }
 
-    if (SignInActivity.shouldLaunch(this)) {
+    if (SignInActivity.shouldLaunch(this) || OldUserOptionPromptActivity.shouldLaunch(this)) {
       Intent intent = new Intent(this, SignInActivity.class);
       startActivityForResult(intent, REQUEST_SIGN_IN_ACTIVITY);
       return true;
     }
+
     return false;
   }
 
