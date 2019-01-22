@@ -675,6 +675,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
       throw new IllegalStateException("moveAllExperimentsToAnotherAccount now allowed now");
     }
 
+    getFileMetadataManager().beforeMovingAllExperimentsToAnotherAccount();
+
     // Move experiment root directory.
     File sourceExperimentsRoot =
         FileMetadataUtil.getInstance().getExperimentsRootDirectory(appAccount);

@@ -204,6 +204,13 @@ public class FileMetadataManager {
     experimentLibraryManager.setDeleted(experimentId, true);
   }
 
+  public void beforeMovingAllExperimentsToAnotherAccount() {
+    // This FileMetadataManager is losing all experiments.
+    activeExperimentCache.beforeMovingAllExperimentsToAnotherAccount();
+    userMetadataManager.deleteAllExperimentOverviews();
+    experimentLibraryManager.setAllDeleted(true);
+  }
+
   public void beforeMovingExperimentToAnotherAccount(Experiment experiment) {
     // This FileMetadataManager is losing the experiment.
     activeExperimentCache.beforeMovingExperimentToAnotherAccount(experiment.getExperimentId());

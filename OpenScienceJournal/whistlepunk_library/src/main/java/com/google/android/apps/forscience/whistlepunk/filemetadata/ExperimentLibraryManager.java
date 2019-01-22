@@ -179,6 +179,14 @@ public class ExperimentLibraryManager {
     return getExperiment(experimentId).archived;
   }
 
+  public void setAllDeleted(boolean deleted) {
+    populateExperimentLibraryManager();
+    for (GoosciExperimentLibrary.SyncExperiment experiment : proto.syncExperiment) {
+      experiment.deleted = deleted;
+    }
+    writeExperimentLibrary();
+  }
+
   /**
    * Sets the specified experiment's deleted state on the local device.
    *

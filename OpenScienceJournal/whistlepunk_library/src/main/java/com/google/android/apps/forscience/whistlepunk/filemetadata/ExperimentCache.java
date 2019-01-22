@@ -237,6 +237,11 @@ class ExperimentCache {
     experiment.deleteContents(context, appAccount);
   }
 
+  void beforeMovingAllExperimentsToAnotherAccount() {
+    // This ExperimentCache is losing all experiments.
+    activeExperiment = null;
+  }
+
   void beforeMovingExperimentToAnotherAccount(String localExperimentId) {
     // This ExperimentCache is losing the experiment.
     if (activeExperiment != null

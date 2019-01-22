@@ -186,6 +186,15 @@ public class UserMetadataManager {
     }
   }
 
+  void deleteAllExperimentOverviews() {
+    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
+    if (userMetadata == null || userMetadata.experiments.length == 0) {
+      return;
+    }
+    userMetadata.experiments = new GoosciUserMetadata.ExperimentOverview[0];
+    startWriteTimer();
+  }
+
   /**
    * Gets all the experiment overviews
    *
