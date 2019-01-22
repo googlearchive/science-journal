@@ -1841,7 +1841,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   private boolean canDelete() {
-    return experiment != null && !isRecording() && !claimExperimentsMode;
+    return experiment != null && !isRecording();
   }
 
   private boolean canEdit() {

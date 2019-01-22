@@ -404,6 +404,10 @@ public class ExperimentListFragment extends Fragment
                 if (getActivity() == null) {
                   return;
                 }
+                if (experiments.isEmpty() && claimExperimentsMode) {
+                  getActivity().finish();
+                  return;
+                }
                 if (experiments.isEmpty()
                     && !wasDefaultExperimentCreated()
                     && !shouldShowClaimExperimentsCard()) {
