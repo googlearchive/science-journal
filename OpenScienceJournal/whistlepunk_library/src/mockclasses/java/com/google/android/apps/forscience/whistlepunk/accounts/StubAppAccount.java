@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 import java.io.File;
 
 /** An stub implementation of {@link AppAccount}. */
-public final class StubAppAccount implements AppAccount {
+public final class StubAppAccount extends AbstractAccount {
   private static StubAppAccount instance;
 
   public static StubAppAccount getInstance() {
@@ -15,10 +15,9 @@ public final class StubAppAccount implements AppAccount {
     return instance;
   }
 
-  private final Object lockForExperimentLibraryFile = new Object();
-  private final Object lockForExperimentProtoFile = new Object();
-
-  private StubAppAccount() {}
+  private StubAppAccount() {
+    super();
+  }
 
   @Nullable
   @Override
@@ -54,16 +53,6 @@ public final class StubAppAccount implements AppAccount {
   @Override
   public String getSharedPreferencesName() {
     return "default";
-  }
-
-  @Override
-  public Object getLockForExperimentLibraryFile() {
-    return lockForExperimentLibraryFile;
-  }
-
-  @Override
-  public Object getLockForExperimentProtoFile() {
-    return lockForExperimentProtoFile;
   }
 
   @Override

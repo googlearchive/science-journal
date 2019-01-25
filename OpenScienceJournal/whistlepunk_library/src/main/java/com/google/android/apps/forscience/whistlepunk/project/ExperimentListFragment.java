@@ -94,6 +94,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Experiment List Fragment lists all experiments that belong to an account. This fragment is used
@@ -141,7 +142,7 @@ public class ExperimentListFragment extends Fragment
   private Menu optionsMenu = null;
   private FeatureDiscoveryProvider featureDiscoveryProvider;
   private SwipeRefreshLayout swipeLayout;
-  private int defaultExperimentCreationAttempts = 0;
+  private final AtomicBoolean syncing = new AtomicBoolean(false);
 
   public static ExperimentListFragment newInstance(AppAccount appAccount, boolean usePanes) {
     return newInstance(createArguments(appAccount, usePanes));
@@ -195,6 +196,11 @@ public class ExperimentListFragment extends Fragment
         .takeUntil(destroyed.happens())
         .subscribe(
             busy -> {
+              if (!busy) {
+                if (syncing.compareAndSet(true, false)) {
+                  appAccount.incrementSyncCompleteCount();
+                }
+              }
               Handler uiHandler = new Handler(getContext().getMainLooper());
               uiHandler.post(
                   () -> {
@@ -408,9 +414,7 @@ public class ExperimentListFragment extends Fragment
                   getActivity().finish();
                   return;
                 }
-                if (experiments.isEmpty()
-                    && !wasDefaultExperimentCreated()
-                    && !shouldShowClaimExperimentsCard()) {
+                if (shouldCreateDefaultExperiment(experiments)) {
                   // If there are no experiments and we've never made a default one,
                   // create the default experiment and set the boolean to true.
                   // Note that we don't create the default experiment if the user is
@@ -462,6 +466,18 @@ public class ExperimentListFragment extends Fragment
     return AccountsUtils.getSharedPreferences(getContext(), appAccount);
   }
 
+  private boolean shouldCreateDefaultExperiment(
+      List<GoosciUserMetadata.ExperimentOverview> experiments) {
+    return experiments.isEmpty()
+        && !wasDefaultExperimentCreated()
+        && !shouldShowClaimExperimentsCard()
+        && (!appAccount.isSignedIn() || appAccount.getSyncCompleteCount() > 0)
+        && AppSingleton.getInstance(getContext())
+            .getExperimentLibraryManager(appAccount)
+            .getKnownExperiments()
+            .isEmpty();
+  }
+
   private boolean wasDefaultExperimentCreated() {
     return getSharedPreferences().getBoolean(KEY_DEFAULT_EXPERIMENT_CREATED, false);
   }
@@ -471,83 +487,76 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void createDefaultExperiment() {
-    defaultExperimentCreationAttempts++;
-    if (defaultExperimentCreationAttempts > 1
-        && AppSingleton.getInstance(getContext())
-            .getExperimentLibraryManager(appAccount)
-            .getKnownExperiments()
-            .isEmpty()) {
-      DataController dataController = getDataController();
-      RxDataController.createExperiment(dataController)
-          .subscribe(
-              e -> {
-                if (getActivity() == null) {
-                  return;
-                }
-                Resources res = getActivity().getResources();
-                e.setTitle(res.getString(R.string.first_experiment_title));
-                Clock clock =
-                    AppSingleton.getInstance(getActivity())
-                        .getSensorEnvironment()
-                        .getDefaultClock();
+    setDefaultExperimentCreated();
+    DataController dataController = getDataController();
+    RxDataController.createExperiment(dataController)
+        .subscribe(
+            e -> {
+              if (getActivity() == null) {
+                return;
+              }
+              Resources res = getActivity().getResources();
+              e.setTitle(res.getString(R.string.first_experiment_title));
+              Clock clock =
+                  AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock();
 
-                // Create a text label 1 second ago with default text.
-                GoosciTextLabelValue.TextLabelValue goosciTextLabel1 =
-                    new GoosciTextLabelValue.TextLabelValue();
-                goosciTextLabel1.text = res.getString(R.string.first_experiment_second_text_note);
-                Label textLabel1 =
-                    Label.newLabelWithValue(
-                        clock.getNow() - 1000,
-                        GoosciLabel.Label.ValueType.TEXT,
-                        goosciTextLabel1,
-                        null);
-                e.addLabel(e, textLabel1);
+              // Create a text label 1 second ago with default text.
+              GoosciTextLabelValue.TextLabelValue goosciTextLabel1 =
+                  new GoosciTextLabelValue.TextLabelValue();
+              goosciTextLabel1.text = res.getString(R.string.first_experiment_second_text_note);
+              Label textLabel1 =
+                  Label.newLabelWithValue(
+                      clock.getNow() - 1000,
+                      GoosciLabel.Label.ValueType.TEXT,
+                      goosciTextLabel1,
+                      null);
+              e.addLabel(e, textLabel1);
 
-                // Create a text label 2 seconds ago with default text.
-                GoosciTextLabelValue.TextLabelValue goosciTextLabel2 =
-                    new GoosciTextLabelValue.TextLabelValue();
-                goosciTextLabel2.text = res.getString(R.string.first_experiment_text_note);
-                Label textLabel2 =
-                    Label.newLabelWithValue(
-                        clock.getNow() - 2000,
-                        GoosciLabel.Label.ValueType.TEXT,
-                        goosciTextLabel2,
-                        null);
-                e.addLabel(e, textLabel2);
+              // Create a text label 2 seconds ago with default text.
+              GoosciTextLabelValue.TextLabelValue goosciTextLabel2 =
+                  new GoosciTextLabelValue.TextLabelValue();
+              goosciTextLabel2.text = res.getString(R.string.first_experiment_text_note);
+              Label textLabel2 =
+                  Label.newLabelWithValue(
+                      clock.getNow() - 2000,
+                      GoosciLabel.Label.ValueType.TEXT,
+                      goosciTextLabel2,
+                      null);
+              e.addLabel(e, textLabel2);
 
-                // Create a picture label 4 second ago with a default drawable and caption.
-                GoosciCaption.Caption caption = new GoosciCaption.Caption();
-                caption.text = res.getString(R.string.first_experiment_picture_note_caption);
-                caption.lastEditedTimestamp = clock.getNow() - 4000;
-                Label pictureLabel =
-                    Label.newLabel(
-                        caption.lastEditedTimestamp, GoosciLabel.Label.ValueType.PICTURE);
-                File pictureFile =
-                    PictureUtils.createImageFile(
-                        getActivity(),
-                        dataController.getAppAccount(),
-                        e.getExperimentId(),
-                        pictureLabel.getLabelId());
-                PictureUtils.writeDrawableToFile(getActivity(), pictureFile, R.drawable.first_note);
-                GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
-                    new GoosciPictureLabelValue.PictureLabelValue();
-                goosciPictureLabel.filePath =
-                    FileMetadataUtil.getInstance()
-                        .getRelativePathInExperiment(e.getExperimentId(), pictureFile);
-                pictureLabel.setLabelProtoData(goosciPictureLabel);
-                pictureLabel.setCaption(caption);
-                e.addLabel(e, pictureLabel);
+              // Create a picture label 4 second ago with a default drawable and caption.
+              GoosciCaption.Caption caption = new GoosciCaption.Caption();
+              caption.text = res.getString(R.string.first_experiment_picture_note_caption);
+              caption.lastEditedTimestamp = clock.getNow() - 4000;
+              Label pictureLabel =
+                  Label.newLabel(caption.lastEditedTimestamp, GoosciLabel.Label.ValueType.PICTURE);
+              File pictureFile =
+                  PictureUtils.createImageFile(
+                      getActivity(),
+                      dataController.getAppAccount(),
+                      e.getExperimentId(),
+                      pictureLabel.getLabelId());
+              PictureUtils.writeDrawableToFile(getActivity(), pictureFile, R.drawable.first_note);
+              GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
+                  new GoosciPictureLabelValue.PictureLabelValue();
+              goosciPictureLabel.filePath =
+                  FileMetadataUtil.getInstance()
+                      .getRelativePathInExperiment(e.getExperimentId(), pictureFile);
+              pictureLabel.setLabelProtoData(goosciPictureLabel);
+              pictureLabel.setCaption(caption);
+              e.addLabel(e, pictureLabel);
 
-                // TODO: Add a recording item if required by b/64844798.
+              // TODO: Add a recording item if required by b/64844798.
 
-                RxDataController.updateExperiment(dataController, e, true)
-                    .subscribe(
-                        () -> {
-                          setDefaultExperimentCreated();
-                          loadExperiments();
-                        });
-              });
-    }
+              RxDataController.updateExperiment(dataController, e, true)
+                  .subscribe(
+                      () -> {
+                        if (getActivity() == null) {
+                          return;
+                        }
+                        loadExperiments();
+                      });
+            });
   }
 
   private void attachToExperiments(List<GoosciUserMetadata.ExperimentOverview> experiments) {
@@ -678,6 +687,7 @@ public class ExperimentListFragment extends Fragment
       CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
       CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
       try {
+        syncing.set(true);
         getView()
             .announceForAccessibility(
                 getResources().getString(R.string.action_sync_start));

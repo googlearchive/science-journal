@@ -63,4 +63,10 @@ public interface AppAccount {
    * files in this account.
    */
   Object getLockForExperimentProtoFile();
+
+  /** Increments the count of how many cloud syncs have completed. */
+  void incrementSyncCompleteCount();
+
+  /** Returns the count of how many cloud syncs have completed. */
+  int getSyncCompleteCount();
 }

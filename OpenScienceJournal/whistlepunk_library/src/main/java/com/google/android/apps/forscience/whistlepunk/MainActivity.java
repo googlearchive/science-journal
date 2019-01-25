@@ -358,6 +358,7 @@ public class MainActivity extends ActivityWithNavigationView {
       return true;
     }
 
+    accountsProvider.setShowSignInActivityIfNotSignedIn(false);
     return false;
   }
 
@@ -376,6 +377,11 @@ public class MainActivity extends ActivityWithNavigationView {
     }
     if (menuItem.getItemId() == R.id.navigation_item_experiments) {
       if (currentAccount == null) {
+        return false;
+      }
+      if (accountsProvider.isSignedIn() && !currentAccount.isSignedIn()) {
+        // This can happen when the app is starting and the current account hasn't been completely
+        // restored yet.
         return false;
       }
       FragmentManager fragmentManager = getSupportFragmentManager();

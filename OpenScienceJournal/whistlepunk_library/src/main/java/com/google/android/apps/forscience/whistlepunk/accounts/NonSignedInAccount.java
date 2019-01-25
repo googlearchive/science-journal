@@ -11,12 +11,8 @@ import java.io.File;
  * <p>File data, database data, and user preferences for are stored in the same places as they were
  * before accounts were supported.
  */
-public final class NonSignedInAccount implements AppAccount {
+public final class NonSignedInAccount extends AbstractAccount {
   private static NonSignedInAccount instance;
-
-  private final Context applicationContext;
-  private final Object lockForExperimentLibraryFile = new Object();
-  private final Object lockForExperimentProtoFile = new Object();
 
   public static NonSignedInAccount getInstance(Context context) {
     if (instance == null) {
@@ -26,7 +22,7 @@ public final class NonSignedInAccount implements AppAccount {
   }
 
   private NonSignedInAccount(Context context) {
-    applicationContext = context.getApplicationContext();
+    super(context);
   }
 
   @Nullable
@@ -64,16 +60,6 @@ public final class NonSignedInAccount implements AppAccount {
   public String getSharedPreferencesName() {
     // Return the name of the default SharedPreferences.
     return applicationContext.getPackageName() + "_preferences";
-  }
-
-  @Override
-  public Object getLockForExperimentLibraryFile() {
-    return lockForExperimentLibraryFile;
-  }
-
-  @Override
-  public Object getLockForExperimentProtoFile() {
-    return lockForExperimentProtoFile;
   }
 
   @Override
