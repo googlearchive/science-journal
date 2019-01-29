@@ -89,6 +89,11 @@ public interface DataController {
       boolean overwrite,
       MaybeConsumer<FileSyncCollection> onSuccess);
 
+  /* Updates an experiment even if it is not the currently cached/active experiment. Only used for
+   * syncing experiments. */
+  void updateExperimentEvenIfNotActive(
+      Experiment experiment, long lastUsedTime, boolean setDirty, MaybeConsumer<Success> onSuccess);
+
   void saveImmediately(MaybeConsumer<Success> onSuccess);
 
   void addExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);

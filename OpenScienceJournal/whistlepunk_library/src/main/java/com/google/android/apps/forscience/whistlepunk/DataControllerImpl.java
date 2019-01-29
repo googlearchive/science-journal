@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
@@ -400,6 +401,27 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       throw new IllegalArgumentException(
           "Updating different instance of experiment than is managed by DataController: "
               + experiment);
+    }
+
+    // Every time we update the experiment, we can update its last used time.
+    experiment.setLastUsedTime(lastUsedTime);
+    background(
+        metaDataThread,
+        onSuccess,
+        () -> {
+          metaDataManager.updateExperiment(experiment, setDirty);
+          return Success.SUCCESS;
+        });
+  }
+
+  @Override
+  public void updateExperimentEvenIfNotActive(
+      Experiment experiment,
+      long lastUsedTime,
+      boolean setDirty,
+      MaybeConsumer<Success> onSuccess) {
+    if (!cachedExperiments.containsKey(experiment.getExperimentId())) {
+      Log.e(TAG, "Updating Non Active: " + experiment);
     }
 
     // Every time we update the experiment, we can update its last used time.

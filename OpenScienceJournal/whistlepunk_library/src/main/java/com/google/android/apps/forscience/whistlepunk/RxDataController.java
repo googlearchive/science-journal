@@ -36,6 +36,12 @@ public class RxDataController {
         mc -> dc.updateExperiment(e.getExperimentId(), lastUsedTime, shouldMarkDirty, mc));
   }
 
+  public static Completable updateExperimentEvenIfNotActive(
+      DataController dc, Experiment e, long lastUsedTime, boolean shouldMarkDirty) {
+    return MaybeConsumers.buildCompleteable(
+        mc -> dc.updateExperimentEvenIfNotActive(e, lastUsedTime, shouldMarkDirty, mc));
+  }
+
   public static Completable updateExperiment(
       DataController dc, Experiment e, boolean shouldMarkDirty) {
     return MaybeConsumers.buildCompleteable(

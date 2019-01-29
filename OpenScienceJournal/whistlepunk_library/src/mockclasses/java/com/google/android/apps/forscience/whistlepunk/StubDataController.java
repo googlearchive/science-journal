@@ -125,6 +125,12 @@ public class StubDataController implements DataController {
   }
 
   @Override
+  public void updateExperimentEvenIfNotActive(Experiment experiment, long lastUsedTime,
+      boolean setDirty, MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
+
+  @Override
   public void importExperimentFromZip(
       Uri zipUri, ContentResolver resolver, MaybeConsumer<String> onSuccess) {}
 

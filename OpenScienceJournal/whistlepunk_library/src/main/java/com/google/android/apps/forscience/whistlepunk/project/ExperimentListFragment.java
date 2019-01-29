@@ -996,13 +996,11 @@ public class ExperimentListFragment extends Fragment
 
       holder.cardView.setOnClickListener(
           v -> {
-            if (!parentReference.get().progressBarVisible) {
               launchPanesActivity(
                   v.getContext(),
                   parentReference.get().appAccount,
                   overview.experimentId,
                   parentReference.get().claimExperimentsMode);
-            }
           });
 
       Context context = holder.menuButton.getContext();
