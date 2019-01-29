@@ -678,10 +678,18 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void syncNow(String logMessage) {
+    Context context = getContext();
+     // In the case where the current account hasn't been loaded yet, this method is called from a
+    // handler post, which means it is executed after a short delay. Because of this, it could be
+    // executed after the activity has been paused/stopped/destroyed and getContext() and
+    // getActivity() could return null. Check for that!
+    if (context == null) {
+      return;
+    }
     if (appAccount.isSignedIn()) {
       // Check if the account hasn't been loaded yet.
       if (appAccount.getAccount() == null) {
-        new Handler(getContext().getMainLooper()).post(() -> syncNow(logMessage));
+        new Handler(context.getMainLooper()).post(() -> syncNow(logMessage));
         return;
       }
       CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
