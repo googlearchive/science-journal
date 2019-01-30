@@ -16,7 +16,6 @@
 
 package com.google.android.apps.forscience.whistlepunk.project;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -86,6 +85,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLa
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
+import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -129,6 +129,7 @@ public class ExperimentListFragment extends Fragment
   /** Duration of snackbar length long. 3.5 seconds */
   private static final int LONG_DELAY_MILLIS = 3500;
 
+  private Context applicationContext;
   private ExperimentListAdapter experimentListAdapter;
   private boolean includeArchived;
   private boolean progressBarVisible = false;
@@ -188,10 +189,22 @@ public class ExperimentListFragment extends Fragment
     networkIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
   }
 
+  private boolean isFragmentGone() {
+    try {
+      return getActivity() == null
+          || getContext() == null
+          || getResources() == null
+          || getView() == null;
+    } catch (Exception e) {
+      return true;
+    }
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    AppSingleton.getInstance(getContext())
+    applicationContext = getContext().getApplicationContext();
+    AppSingleton.getInstance(applicationContext)
         .whenExportOrSyncBusyChanges()
         .takeUntil(destroyed.happens())
         .subscribe(
@@ -201,24 +214,25 @@ public class ExperimentListFragment extends Fragment
                   appAccount.incrementSyncCompleteCount();
                 }
               }
-              Handler uiHandler = new Handler(getContext().getMainLooper());
+              Handler uiHandler = new Handler(applicationContext.getMainLooper());
               uiHandler.post(
                   () -> {
-                    // This fragment may be gone by the time this code executes. Check getContext
-                    // and give up if it is null.
-                    if (getContext() == null) {
+                    // This fragment may be gone by the time this code executes.
+                    if (isFragmentGone()) {
                       return;
                     }
                     setProgressBarVisible(busy);
                   });
             });
 
-    appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
+    appAccount =
+        WhistlePunkApplication.getAccount(applicationContext, getArguments(), ARG_ACCOUNT_KEY);
 
     claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
     if (claimExperimentsMode) {
       claimingAccount =
-          WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_CLAIMING_ACCOUNT_KEY);
+          WhistlePunkApplication.getAccount(
+              applicationContext, getArguments(), ARG_CLAIMING_ACCOUNT_KEY);
 
       // In claim experiments mode, we always start with showing archived experiments, even if the
       // user hid them previously.
@@ -232,14 +246,14 @@ public class ExperimentListFragment extends Fragment
       }
     }
     featureDiscoveryProvider =
-        WhistlePunkApplication.getAppServices(getActivity()).getFeatureDiscoveryProvider();
+        WhistlePunkApplication.getAppServices(applicationContext).getFeatureDiscoveryProvider();
     setHasOptionsMenu(true);
   }
 
   @Override
   public void onStart() {
     super.onStart();
-    WhistlePunkApplication.getUsageTracker(getActivity())
+    WhistlePunkApplication.getUsageTracker(applicationContext)
         .trackScreenView(TrackerConstants.SCREEN_EXPERIMENT_LIST);
   }
 
@@ -252,24 +266,22 @@ public class ExperimentListFragment extends Fragment
     getContext().registerReceiver(connectivityBroadcastReceiver, networkIntentFilter);
 
     TimingLogger timing = new TimingLogger(TAG, "Sync on Resume");
-    AppSingleton.getInstance(getContext())
+    AppSingleton.getInstance(applicationContext)
         .whenNewExperimentSynced()
         .takeUntil(paused.happens())
         .subscribe(
             count -> {
-                Handler uiHandler = new Handler(getContext().getMainLooper());
-                uiHandler.post(
-                    () -> {
-                      // This fragment may be gone by the time this code executes. Check getContext
-                      // and give up if it is null, otherwise getResources() below will throw
-                      // IllegalStateException.
-                      if (getContext() == null) {
-                        return;
-                      }
-                      loadExperiments();
-                      timing.addSplit("Syncing complete");
-                      timing.dumpToLog();
-                    });
+              Handler uiHandler = new Handler(applicationContext.getMainLooper());
+              uiHandler.post(
+                  () -> {
+                    // This fragment may be gone by the time this code executes.
+                    if (isFragmentGone()) {
+                      return;
+                    }
+                    loadExperiments();
+                    timing.addSplit("Syncing complete");
+                    timing.dumpToLog();
+                  });
             });
     loadExperiments();
     syncNow("Sync On Resume");
@@ -347,14 +359,14 @@ public class ExperimentListFragment extends Fragment
                     new LoggingConsumer<Experiment>(TAG, "Create a new experiment") {
                       @Override
                       public void success(final Experiment experiment) {
-                        WhistlePunkApplication.getUsageTracker(getActivity())
+                        WhistlePunkApplication.getUsageTracker(applicationContext)
                             .trackEvent(
                                 TrackerConstants.CATEGORY_EXPERIMENTS,
                                 TrackerConstants.ACTION_CREATE,
                                 TrackerConstants.LABEL_EXPERIMENT_LIST,
                                 0);
                         launchPanesActivity(
-                            v.getContext(),
+                            applicationContext,
                             appAccount,
                             experiment.getExperimentId(),
                             false /* claimExperimentsMode */);
@@ -379,7 +391,7 @@ public class ExperimentListFragment extends Fragment
     // and there is one or more experiments in unclaimed storage.
     return !claimExperimentsMode
         && appAccount.isSignedIn()
-        && AccountsUtils.getUnclaimedExperimentCount(getContext()) >= 1;
+        && AccountsUtils.getUnclaimedExperimentCount(applicationContext) >= 1;
   }
 
   private boolean shouldShowAddExperimentsToDriveCard() {
@@ -387,16 +399,13 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void loadExperiments() {
-    // Old fragments can still be alive, but not part of the activity, when resuming.
-    // See https://stackoverflow.com/questions/9727173/ ...
-    // support-fragmentpageradapter-holds-reference-to-old-fragments/9745935#9745935
-    // This prevents a crash, but I suspect there's a deeper solution we can investigate, later.
-    // TODO(b/116717025}
-    if (getActivity() == null) {
+    // This fragment may be gone by the time this code executes.
+    if (isFragmentGone()) {
       return;
     }
 
-    PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(getActivity());
+    PerfTrackerProvider perfTracker =
+        WhistlePunkApplication.getPerfTrackerProvider(applicationContext);
     PerfTrackerProvider.TimerToken loadExperimentTimer = perfTracker.startTimer();
     getDataController()
         .getExperimentOverviews(
@@ -405,9 +414,8 @@ public class ExperimentListFragment extends Fragment
                 TAG, "Retrieve experiments") {
               @Override
               public void success(List<GoosciUserMetadata.ExperimentOverview> experiments) {
-                // In case the account changes multiple times quickly, ignore the results if
-                // the activity is now null.
-                if (getActivity() == null) {
+                // This fragment may be gone by the time this code executes.
+                if (isFragmentGone()) {
                   return;
                 }
                 if (experiments.isEmpty() && claimExperimentsMode) {
@@ -422,7 +430,7 @@ public class ExperimentListFragment extends Fragment
                   createDefaultExperiment();
                   boolean discoveryEnabled =
                       featureDiscoveryProvider.isEnabled(
-                          getActivity(),
+                          applicationContext,
                           appAccount,
                           FeatureDiscoveryProvider.FEATURE_NEW_EXPERIMENT);
                   if (discoveryEnabled) {
@@ -441,13 +449,14 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void scheduleFeatureDiscovery() {
-    Handler handler = new Handler(getContext().getMainLooper());
+    Handler handler = new Handler(applicationContext.getMainLooper());
     handler.postDelayed(
         this::showFeatureDiscovery, FeatureDiscoveryProvider.FEATURE_DISCOVERY_SHOW_DELAY_MS);
   }
 
   private void showFeatureDiscovery() {
-    if (getActivity() == null) {
+    // This fragment may be gone by the time this code executes.
+    if (isFragmentGone()) {
       return;
     }
 
@@ -463,7 +472,7 @@ public class ExperimentListFragment extends Fragment
   }
 
   private SharedPreferences getSharedPreferences() {
-    return AccountsUtils.getSharedPreferences(getContext(), appAccount);
+    return AccountsUtils.getSharedPreferences(applicationContext, appAccount);
   }
 
   private boolean shouldCreateDefaultExperiment(
@@ -472,7 +481,7 @@ public class ExperimentListFragment extends Fragment
         && !wasDefaultExperimentCreated()
         && !shouldShowClaimExperimentsCard()
         && (!appAccount.isSignedIn() || appAccount.getSyncCompleteCount() > 0)
-        && AppSingleton.getInstance(getContext())
+        && AppSingleton.getInstance(applicationContext)
             .getExperimentLibraryManager(appAccount)
             .getKnownExperiments()
             .isEmpty();
@@ -492,71 +501,68 @@ public class ExperimentListFragment extends Fragment
     RxDataController.createExperiment(dataController)
         .subscribe(
             e -> {
-              if (getActivity() == null) {
-                return;
-              }
-              Resources res = getActivity().getResources();
-              e.setTitle(res.getString(R.string.first_experiment_title));
-              Clock clock =
-                  AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock();
-
-              // Create a text label 1 second ago with default text.
-              GoosciTextLabelValue.TextLabelValue goosciTextLabel1 =
-                  new GoosciTextLabelValue.TextLabelValue();
-              goosciTextLabel1.text = res.getString(R.string.first_experiment_second_text_note);
-              Label textLabel1 =
-                  Label.newLabelWithValue(
-                      clock.getNow() - 1000,
-                      GoosciLabel.Label.ValueType.TEXT,
-                      goosciTextLabel1,
-                      null);
-              e.addLabel(e, textLabel1);
-
-              // Create a text label 2 seconds ago with default text.
-              GoosciTextLabelValue.TextLabelValue goosciTextLabel2 =
-                  new GoosciTextLabelValue.TextLabelValue();
-              goosciTextLabel2.text = res.getString(R.string.first_experiment_text_note);
-              Label textLabel2 =
-                  Label.newLabelWithValue(
-                      clock.getNow() - 2000,
-                      GoosciLabel.Label.ValueType.TEXT,
-                      goosciTextLabel2,
-                      null);
-              e.addLabel(e, textLabel2);
-
-              // Create a picture label 4 second ago with a default drawable and caption.
-              GoosciCaption.Caption caption = new GoosciCaption.Caption();
-              caption.text = res.getString(R.string.first_experiment_picture_note_caption);
-              caption.lastEditedTimestamp = clock.getNow() - 4000;
-              Label pictureLabel =
-                  Label.newLabel(caption.lastEditedTimestamp, GoosciLabel.Label.ValueType.PICTURE);
-              File pictureFile =
-                  PictureUtils.createImageFile(
-                      getActivity(),
-                      dataController.getAppAccount(),
-                      e.getExperimentId(),
-                      pictureLabel.getLabelId());
-              PictureUtils.writeDrawableToFile(getActivity(), pictureFile, R.drawable.first_note);
-              GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
-                  new GoosciPictureLabelValue.PictureLabelValue();
-              goosciPictureLabel.filePath =
-                  FileMetadataUtil.getInstance()
-                      .getRelativePathInExperiment(e.getExperimentId(), pictureFile);
-              pictureLabel.setLabelProtoData(goosciPictureLabel);
-              pictureLabel.setCaption(caption);
-              e.addLabel(e, pictureLabel);
-
-              // TODO: Add a recording item if required by b/64844798.
+              // This fragment may be gone by the time this code executes.
+              // However, we can still use applicationContext, appAccount, and dataController to
+              // add labels to the default experiment.
+              initializeDefaultExperiment(applicationContext, appAccount, e);
 
               RxDataController.updateExperiment(dataController, e, true)
                   .subscribe(
                       () -> {
-                        if (getActivity() == null) {
+                        // This fragment may be gone by the time this code executes.
+                        if (isFragmentGone()) {
                           return;
                         }
                         loadExperiments();
                       });
             });
+  }
+
+  private static void initializeDefaultExperiment(
+      Context applicationContext, AppAccount appAccount, Experiment e) {
+    Resources res = applicationContext.getResources();
+    e.setTitle(res.getString(R.string.first_experiment_title));
+    Clock clock =
+        AppSingleton.getInstance(applicationContext).getSensorEnvironment().getDefaultClock();
+
+    // Create a text label 1 second ago with default text.
+    GoosciTextLabelValue.TextLabelValue goosciTextLabel1 =
+        new GoosciTextLabelValue.TextLabelValue();
+    goosciTextLabel1.text = res.getString(R.string.first_experiment_second_text_note);
+    Label textLabel1 =
+        Label.newLabelWithValue(
+            clock.getNow() - 1000, GoosciLabel.Label.ValueType.TEXT, goosciTextLabel1, null);
+    e.addLabel(e, textLabel1);
+
+    // Create a text label 2 seconds ago with default text.
+    GoosciTextLabelValue.TextLabelValue goosciTextLabel2 =
+        new GoosciTextLabelValue.TextLabelValue();
+    goosciTextLabel2.text = res.getString(R.string.first_experiment_text_note);
+    Label textLabel2 =
+        Label.newLabelWithValue(
+            clock.getNow() - 2000, GoosciLabel.Label.ValueType.TEXT, goosciTextLabel2, null);
+    e.addLabel(e, textLabel2);
+
+    // Create a picture label 4 second ago with a default drawable and caption.
+    GoosciCaption.Caption caption = new GoosciCaption.Caption();
+    caption.text = res.getString(R.string.first_experiment_picture_note_caption);
+    caption.lastEditedTimestamp = clock.getNow() - 4000;
+    Label pictureLabel =
+        Label.newLabel(caption.lastEditedTimestamp, GoosciLabel.Label.ValueType.PICTURE);
+    File pictureFile =
+        PictureUtils.createImageFile(
+            applicationContext, appAccount, e.getExperimentId(), pictureLabel.getLabelId());
+    PictureUtils.writeDrawableToFile(applicationContext, pictureFile, R.drawable.first_note);
+    GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
+        new GoosciPictureLabelValue.PictureLabelValue();
+    goosciPictureLabel.filePath =
+        FileMetadataUtil.getInstance()
+            .getRelativePathInExperiment(e.getExperimentId(), pictureFile);
+    pictureLabel.setLabelProtoData(goosciPictureLabel);
+    pictureLabel.setCaption(caption);
+    e.addLabel(e, pictureLabel);
+
+    // TODO: Add a recording item if required by b/64844798.
   }
 
   private void attachToExperiments(List<GoosciUserMetadata.ExperimentOverview> experiments) {
@@ -568,26 +574,24 @@ public class ExperimentListFragment extends Fragment
   }
 
   private DataController getDataController() {
-    return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
+    return AppSingleton.getInstance(applicationContext).getDataController(appAccount);
   }
 
   private RecorderController getRecorderController() {
-    return AppSingleton.getInstance(getActivity()).getRecorderController(appAccount);
+    return AppSingleton.getInstance(applicationContext).getRecorderController(appAccount);
   }
 
   private ExperimentLibraryManager getExperimentLibraryManager() {
-    return AppSingleton.getInstance(getActivity()).getExperimentLibraryManager(appAccount);
+    return AppSingleton.getInstance(applicationContext).getExperimentLibraryManager(appAccount);
   }
 
   public void setProgressBarVisible(boolean visible) {
     progressBarVisible = visible;
-    if (getView() != null) {
-      if (visible) {
-        getView().findViewById(R.id.indeterminateBar).setVisibility(View.VISIBLE);
-      } else {
-        getView().findViewById(R.id.indeterminateBar).setVisibility(View.GONE);
-      }
+    // This fragment may be gone by the time this code executes.
+    if (isFragmentGone()) {
+      return;
     }
+    getView().findViewById(R.id.indeterminateBar).setVisibility(visible ? View.VISIBLE : View.GONE);
   }
 
   @Override
@@ -596,7 +600,7 @@ public class ExperimentListFragment extends Fragment
     if (claimExperimentsMode) {
       inflater.inflate(R.menu.menu_claim_experiments, menu);
       ColorUtils.colorDrawable(
-          getContext(),
+          applicationContext,
           menu.findItem(R.id.run_review_overflow_menu).getIcon(),
           R.color.claim_experiments_action_bar_text);
 
@@ -616,6 +620,10 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void updateNetworkStatusIcon() {
+    if (isFragmentGone()) {
+      return;
+    }
+
     if (optionsMenu == null) {
       return;
     }
@@ -635,7 +643,7 @@ public class ExperimentListFragment extends Fragment
     }
 
     ConnectivityManager cm =
-        (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        (ConnectivityManager) applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
     boolean shouldShowIcon =
         cm.getActiveNetworkInfo() == null || !cm.getActiveNetworkInfo().isConnectedOrConnecting();
     menuItemActionNetworkDisconnected.setVisible(shouldShowIcon);
@@ -670,7 +678,7 @@ public class ExperimentListFragment extends Fragment
       confirmDeleteUnclaimedExperiments();
       return true;
     } else if (id == R.id.action_network_disconnected) {
-      Resources res = getActivity().getResources();
+      Resources res = applicationContext.getResources();
       experimentListAdapter.showSnackbar(
           res.getString(R.string.drive_sync_cannot_reach_google_drive), null);
     }
@@ -678,21 +686,18 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void syncNow(String logMessage) {
-    Context context = getContext();
-     // In the case where the current account hasn't been loaded yet, this method is called from a
-    // handler post, which means it is executed after a short delay. Because of this, it could be
-    // executed after the activity has been paused/stopped/destroyed and getContext() and
-    // getActivity() could return null. Check for that!
-    if (context == null) {
+    // This fragment may be gone by the time this code executes.
+    if (isFragmentGone()) {
       return;
     }
     if (appAccount.isSignedIn()) {
       // Check if the account hasn't been loaded yet.
       if (appAccount.getAccount() == null) {
-        new Handler(context.getMainLooper()).post(() -> syncNow(logMessage));
+        syncLater(logMessage);
         return;
       }
-      CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getActivity());
+      CloudSyncProvider syncProvider =
+          WhistlePunkApplication.getCloudSyncProvider(applicationContext);
       CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
       try {
         syncing.set(true);
@@ -700,8 +705,8 @@ public class ExperimentListFragment extends Fragment
             .announceForAccessibility(
                 getResources().getString(R.string.action_sync_start));
 
-        AppSingleton.getInstance(getContext()).setExportOrSyncServiceBusy(true);
-        syncService.syncExperimentLibrary(getContext(), logMessage);
+        AppSingleton.getInstance(applicationContext).setExportOrSyncServiceBusy(true);
+        syncService.syncExperimentLibrary(applicationContext, logMessage);
       } catch (IOException ioe) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, "IOE", ioe);
@@ -712,9 +717,21 @@ public class ExperimentListFragment extends Fragment
     }
   }
 
+  private void syncLater(String logMessage) {
+    new Handler(applicationContext.getMainLooper())
+        .post(
+            () -> {
+              // This fragment may be gone by the time this code executes.
+              if (isFragmentGone()) {
+                return;
+              }
+              syncNow(logMessage);
+            });
+  }
+
   private void confirmClaimUnclaimedExperiments() {
     Context context = getContext();
-    int unclaimedExperimentCount = AccountsUtils.getUnclaimedExperimentCount(context);
+    int unclaimedExperimentCount = AccountsUtils.getUnclaimedExperimentCount(applicationContext);
     AlertDialog.Builder builder = new AlertDialog.Builder(context);
     builder.setTitle(
         context
@@ -740,6 +757,10 @@ public class ExperimentListFragment extends Fragment
             new LoggingConsumer<Success>(TAG, "claimUnclaimedExperiments") {
               @Override
               public void success(Success value) {
+                // This fragment may be gone by the time this code executes.
+                if (isFragmentGone()) {
+                  return;
+                }
                 getActivity().finish();
               }
             });
@@ -765,6 +786,10 @@ public class ExperimentListFragment extends Fragment
             new LoggingConsumer<Success>(TAG, "deleteUnclaimedExperiments") {
               @Override
               public void success(Success value) {
+                // This fragment may be gone by the time this code executes.
+                if (isFragmentGone()) {
+                  return;
+                }
                 getActivity().finish();
               }
             });
@@ -792,7 +817,7 @@ public class ExperimentListFragment extends Fragment
                     @Override
                     public void success(Success value) {
                       experimentListAdapter.onExperimentDeleted(experimentId);
-                      WhistlePunkApplication.getUsageTracker(getActivity())
+                      WhistlePunkApplication.getUsageTracker(applicationContext)
                           .trackEvent(
                               TrackerConstants.CATEGORY_EXPERIMENTS,
                               TrackerConstants.ACTION_DELETED,
@@ -805,13 +830,14 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void maybeFinishClaimExperimentsMode() {
+    // This fragment may be gone by the time this code executes.
+    if (isFragmentGone()) {
+      return;
+    }
     // If the item count is now 1, then the only item is the
     // add_experiments_to_drive_card. There are no unclaimed experiments left.
     if (claimExperimentsMode && experimentListAdapter.getItemCount() == 1) {
-      Activity activity = getActivity();
-      if (activity != null) {
-        activity.finish();
-      }
+      getActivity().finish();
     }
   }
 
@@ -847,6 +873,7 @@ public class ExperimentListFragment extends Fragment
     static final int VIEW_TYPE_ADD_EXPERIMENTS_TO_DRIVE = 4;
     private final Drawable placeHolderImage;
 
+    private final Context applicationContext;
     private final List<ExperimentListItem> items;
     private boolean includeArchived;
     private final Calendar calendar;
@@ -859,17 +886,24 @@ public class ExperimentListFragment extends Fragment
 
     public ExperimentListAdapter(ExperimentListFragment parent) {
       items = new ArrayList<>();
+      applicationContext = parent.applicationContext;
       placeHolderImage =
-          parent.getActivity().getResources().getDrawable(R.drawable.experiment_card_placeholder);
-      calendar =
-          Calendar.getInstance(parent.getActivity().getResources().getConfiguration().locale);
+          applicationContext.getResources().getDrawable(R.drawable.experiment_card_placeholder);
+      calendar = Calendar.getInstance(applicationContext.getResources().getConfiguration().locale);
       currentYear = calendar.get(Calendar.YEAR);
-      monthYearFormat = parent.getActivity().getResources().getString(R.string.month_year_format);
+      monthYearFormat = applicationContext.getResources().getString(R.string.month_year_format);
       parentReference = new WeakReference<>(parent);
+    }
+
+    private boolean isParentGone() {
+      return parentReference.get() == null;
     }
 
     void setData(
         List<GoosciUserMetadata.ExperimentOverview> experimentOverviews, boolean includeArchived) {
+      if (isParentGone()) {
+        return;
+      }
       this.includeArchived = includeArchived;
       items.clear();
       if (parentReference.get().shouldShowClaimExperimentsCard()) {
@@ -906,6 +940,7 @@ public class ExperimentListFragment extends Fragment
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+      Preconditions.checkState(!isParentGone());
       LayoutInflater inflater = LayoutInflater.from(parent.getContext());
       View view;
       if (viewType == VIEW_TYPE_EMPTY) {
@@ -935,22 +970,26 @@ public class ExperimentListFragment extends Fragment
       } else if (items.get(position).viewType == VIEW_TYPE_DATE) {
         ((TextView) holder.itemView).setText(items.get(position).dateString);
       } else if (items.get(position).viewType == VIEW_TYPE_CLAIM_EXPERIMENTS) {
-        Context context = holder.itemView.getContext();
-        int unclaimedExperimentCount = AccountsUtils.getUnclaimedExperimentCount(context);
+        int unclaimedExperimentCount =
+            AccountsUtils.getUnclaimedExperimentCount(applicationContext);
         TextView textView = holder.itemView.findViewById(R.id.text_claim_experiments);
         textView.setText(
-            context
+            applicationContext
                 .getResources()
                 .getQuantityString(
                     R.plurals.claim_experiments_card_text,
                     unclaimedExperimentCount,
                     unclaimedExperimentCount));
         holder.claimButton.setOnClickListener(
-            v ->
-                ClaimExperimentsActivity.launch(
-                    v.getContext(),
-                    parentReference.get().appAccount,
-                    parentReference.get().getArguments().getBoolean(ARG_USE_PANES)));
+            v -> {
+              if (isParentGone()) {
+                return;
+              }
+              ClaimExperimentsActivity.launch(
+                  applicationContext,
+                  parentReference.get().appAccount,
+                  parentReference.get().getArguments().getBoolean(ARG_USE_PANES));
+            });
       }
     }
 
@@ -965,14 +1004,16 @@ public class ExperimentListFragment extends Fragment
     }
 
     private void bindExperiment(final ViewHolder holder, final ExperimentListItem item) {
-      Resources res = holder.itemView.getResources();
+      if (isParentGone()) {
+        return;
+      }
+      Resources res = applicationContext.getResources();
       // First on the UI thread, set what experiment we're trying to load.
       GoosciUserMetadata.ExperimentOverview overview = item.experimentOverview;
       holder.experimentId = overview.experimentId;
 
       // Set the data we know about.
-      String experimentText =
-          Experiment.getDisplayTitle(holder.itemView.getContext(), overview.title);
+      String experimentText = Experiment.getDisplayTitle(applicationContext, overview.title);
       holder.experimentTitle.setText(experimentText);
       holder.archivedIndicator.setVisibility(overview.isArchived ? View.VISIBLE : View.GONE);
 
@@ -996,22 +1037,25 @@ public class ExperimentListFragment extends Fragment
 
       holder.cardView.setOnClickListener(
           v -> {
-              launchPanesActivity(
-                  v.getContext(),
-                  parentReference.get().appAccount,
-                  overview.experimentId,
-                  parentReference.get().claimExperimentsMode);
+            if (isParentGone()) {
+              return;
+            }
+            launchPanesActivity(
+                applicationContext,
+                parentReference.get().appAccount,
+                overview.experimentId,
+                parentReference.get().claimExperimentsMode);
           });
 
       Context context = holder.menuButton.getContext();
       boolean isShareIntentValid =
           FileMetadataUtil.getInstance()
               .validateShareIntent(
-                  context, parentReference.get().appAccount, overview.experimentId);
+                  applicationContext, parentReference.get().appAccount, overview.experimentId);
       if (parentReference.get().claimExperimentsMode) {
         holder.menuButton.setVisibility(View.GONE);
         holder.driveButton.setOnClickListener(
-            v -> promptBeforeClaimExperiment(overview.experimentId, context));
+            v -> promptBeforeClaimExperiment(overview.experimentId));
         if (isShareIntentValid) {
           holder.shareButton.setOnClickListener(v -> exportExperiment(overview.experimentId));
         } else {
@@ -1055,6 +1099,9 @@ public class ExperimentListFragment extends Fragment
 
               popupMenu.setOnMenuItemClickListener(
                   menuItem -> {
+                    if (isParentGone()) {
+                      return true;
+                    }
                     if (parentReference.get().progressBarVisible) {
                       return true;
                     }
@@ -1086,28 +1133,24 @@ public class ExperimentListFragment extends Fragment
         holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
         holder.experimentImage.setImageDrawable(placeHolderImage);
         int[] intArray =
-            holder
-                .experimentImage
-                .getContext()
-                .getResources()
-                .getIntArray(R.array.experiment_colors_array);
+            applicationContext.getResources().getIntArray(R.array.experiment_colors_array);
         holder.experimentImage.setBackgroundColor(intArray[overview.colorIndex]);
       }
     }
 
     private void setExperimentArchived(
         GoosciUserMetadata.ExperimentOverview overview, final int position, boolean archived) {
-      if (parentReference.get() == null) {
+      if (isParentGone()) {
         return;
       }
-      Context context = parentReference.get().getContext();
       overview.isArchived = archived;
       DataController dataController = parentReference.get().getDataController();
       ExperimentLibraryManager elm = parentReference.get().getExperimentLibraryManager();
       RxDataController.getExperimentById(dataController, overview.experimentId)
           .subscribe(
               fullExperiment -> {
-                fullExperiment.setArchived(context, dataController.getAppAccount(), archived);
+                fullExperiment.setArchived(
+                    applicationContext, dataController.getAppAccount(), archived);
                 elm.setArchived(fullExperiment.getExperimentId(), archived);
                 dataController.updateExperiment(
                     overview.experimentId,
@@ -1115,7 +1158,7 @@ public class ExperimentListFragment extends Fragment
                       @Override
                       public void success(Success value) {
                         updateArchivedState(position, archived);
-                        WhistlePunkApplication.getUsageTracker(parentReference.get().getActivity())
+                        WhistlePunkApplication.getUsageTracker(applicationContext)
                             .trackEvent(
                                 TrackerConstants.CATEGORY_EXPERIMENTS,
                                 archived
@@ -1138,33 +1181,30 @@ public class ExperimentListFragment extends Fragment
         removeExperiment(i);
       } else {
         // It could be added back anywhere.
-        if (parentReference.get() != null) {
-          parentReference.get().loadExperiments();
+        if (isParentGone()) {
+          return;
         }
+        parentReference.get().loadExperiments();
       }
     }
 
     private void showClaimedSnackbar() {
-      if (parentReference.get() == null) {
+      if (isParentGone()) {
         return;
       }
       String accountName = parentReference.get().claimingAccount.getAccountName();
       String message =
-          parentReference
-              .get()
-              .getResources()
-              .getString(R.string.experiment_added_text, accountName);
+          applicationContext.getResources().getString(R.string.experiment_added_text, accountName);
       showSnackbar(message, null /* undoOnClickListener */);
     }
 
     private void showArchivedSnackbar(
         GoosciUserMetadata.ExperimentOverview overview, int position, boolean archived) {
-      if (parentReference.get() == null) {
+      if (isParentGone()) {
         return;
       }
       String message =
-          parentReference
-              .get()
+          applicationContext
               .getResources()
               .getString(
                   archived
@@ -1177,6 +1217,9 @@ public class ExperimentListFragment extends Fragment
     }
 
     public void showSnackbar(String message, @Nullable View.OnClickListener undoOnClickListener) {
+      if (isParentGone()) {
+        return;
+      }
       Snackbar bar =
           AccessibilityUtils.makeSnackbar(
               parentReference.get().getView(), message, Snackbar.LENGTH_LONG);
@@ -1222,7 +1265,10 @@ public class ExperimentListFragment extends Fragment
       }
     }
 
-    private void promptBeforeClaimExperiment(String experimentId, Context context) {
+    private void promptBeforeClaimExperiment(String experimentId) {
+      if (isParentGone()) {
+        return;
+      }
       AlertDialog.Builder builder = new AlertDialog.Builder(parentReference.get().getContext());
       builder.setTitle(R.string.drive_confirmation_text);
       builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
@@ -1235,11 +1281,16 @@ public class ExperimentListFragment extends Fragment
       AlertDialog dialog = builder.create();
       dialog.show();
       // Need to reset the content description so the button will be read correctly b/116869645
-      dialog.getButton(DialogInterface.BUTTON_POSITIVE)
-          .setContentDescription(context.getResources().getString(R.string.drive_confirmation_yes));
+      dialog
+          .getButton(DialogInterface.BUTTON_POSITIVE)
+          .setContentDescription(
+              applicationContext.getResources().getString(R.string.drive_confirmation_yes));
     }
 
     private void claimExperiment(String experimentId) {
+      if (isParentGone()) {
+        return;
+      }
       parentReference
           .get()
           .getDataController()
@@ -1256,9 +1307,10 @@ public class ExperimentListFragment extends Fragment
                   new Handler()
                       .postDelayed(
                           () -> {
-                            if (parentReference.get() != null) {
-                              parentReference.get().maybeFinishClaimExperimentsMode();
+                            if (isParentGone()) {
+                              return;
                             }
+                            parentReference.get().maybeFinishClaimExperimentsMode();
                           },
                           LONG_DELAY_MILLIS);
                 }
@@ -1266,13 +1318,18 @@ public class ExperimentListFragment extends Fragment
     }
 
     private void deleteExperiment(String experimentId) {
+      if (isParentGone()) {
+        return;
+      }
       snackbarManager.hideVisibleSnackbar();
       parentReference.get().confirmDelete(experimentId);
     }
 
     private void exportExperiment(String experimentId) {
-      Context context = parentReference.get().getContext();
-      WhistlePunkApplication.getUsageTracker(context)
+      if (isParentGone()) {
+        return;
+      }
+      WhistlePunkApplication.getUsageTracker(applicationContext)
           .trackEvent(
               TrackerConstants.CATEGORY_EXPERIMENTS,
               TrackerConstants.ACTION_SHARED,
@@ -1280,7 +1337,7 @@ public class ExperimentListFragment extends Fragment
               0);
       parentReference.get().setProgressBarVisible(true);
       ExportService.handleExperimentExportClick(
-          context, parentReference.get().appAccount, experimentId);
+          applicationContext, parentReference.get().appAccount, experimentId);
     }
 
     public void onDestroy() {
