@@ -789,10 +789,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       List<GoosciUserMetadata.ExperimentOverview> experiments =
           blockingGetExperimentOverviews(true /* includeArchived */);
       for (GoosciUserMetadata.ExperimentOverview overview : experiments) {
-        Experiment experiment =
-            cachedExperiments.containsKey(overview.experimentId)
-                ? cachedExperiments.get(overview.experimentId).get()
-                : metaDataManager.getExperimentById(overview.experimentId);
+        Experiment experiment = getExperimentFromId(overview.experimentId);
         moveExperimentToAnotherAccountOnDataThread(experiment, targetAccount);
       }
     }
@@ -817,12 +814,22 @@ public class DataControllerImpl implements DataController, RecordingDataControll
     List<GoosciUserMetadata.ExperimentOverview> experiments =
         blockingGetExperimentOverviews(true /* includeArchived */);
     for (GoosciUserMetadata.ExperimentOverview overview : experiments) {
-      Experiment experiment =
-          cachedExperiments.containsKey(overview.experimentId)
-              ? cachedExperiments.get(overview.experimentId).get()
-              : metaDataManager.getExperimentById(overview.experimentId);
+      Experiment experiment = getExperimentFromId(overview.experimentId);
       deleteExperimentOnDataThread(experiment);
     }
+  }
+
+  private Experiment getExperimentFromId(String experimentId) {
+    Experiment experiment = null;
+    if (cachedExperiments.containsKey(experimentId)) {
+      experiment = cachedExperiments.get(experimentId).get();
+    }
+    if (experiment == null) {
+      // Even if the experiment id is in the cache, the experiment might still be null
+      // if it has been garbage collected.
+      experiment = metaDataManager.getExperimentById(experimentId);
+    }
+    return experiment;
   }
 
   @Override
