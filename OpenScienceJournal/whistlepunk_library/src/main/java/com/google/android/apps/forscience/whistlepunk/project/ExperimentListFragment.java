@@ -823,6 +823,7 @@ public class ExperimentListFragment extends Fragment
                               TrackerConstants.ACTION_DELETED,
                               TrackerConstants.LABEL_EXPERIMENT_LIST,
                               0);
+                      syncLater("Sync on Delete");
                       maybeFinishClaimExperimentsMode();
                     }
                   });
