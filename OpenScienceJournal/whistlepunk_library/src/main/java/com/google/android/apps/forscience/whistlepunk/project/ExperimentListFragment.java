@@ -366,7 +366,7 @@ public class ExperimentListFragment extends Fragment
                                 TrackerConstants.LABEL_EXPERIMENT_LIST,
                                 0);
                         launchPanesActivity(
-                            applicationContext,
+                            v.getContext(),
                             appAccount,
                             experiment.getExperimentId(),
                             false /* claimExperimentsMode */);
@@ -1042,7 +1042,7 @@ public class ExperimentListFragment extends Fragment
               return;
             }
             launchPanesActivity(
-                applicationContext,
+                v.getContext(),
                 parentReference.get().appAccount,
                 overview.experimentId,
                 parentReference.get().claimExperimentsMode);
