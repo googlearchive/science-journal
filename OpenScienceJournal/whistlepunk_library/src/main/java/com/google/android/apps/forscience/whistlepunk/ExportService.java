@@ -412,7 +412,7 @@ public class ExportService extends Service {
 
               @Override
               public void fail(Exception e) {
-                AppSingleton.getInstance(getApplicationContext()).setExportOrSyncServiceBusy(false);
+                AppSingleton.getInstance(getApplicationContext()).setExportServiceBusy(false);
                 if (e instanceof ZipException) {
                   showSnackbar(R.string.import_failed_file);
                   Log.e(TAG, "SJ file format exception", e);
@@ -560,12 +560,12 @@ public class ExportService extends Service {
                   builder.setNegativeButton(
                       R.string.experiment_not_finished_downloading_cancel_button,
                       (DialogInterface dialog, int which) -> {
-                        AppSingleton.getInstance(context).setExportOrSyncServiceBusy(false);
+                        AppSingleton.getInstance(context).setExportServiceBusy(false);
                         dialog.dismiss();
                       });
                   builder.setOnDismissListener(
                       (DialogInterface dialog) -> {
-                        AppSingleton.getInstance(context).setExportOrSyncServiceBusy(false);
+                        AppSingleton.getInstance(context).setExportServiceBusy(false);
                       });
                   builder.create().show();
                 }
@@ -606,7 +606,7 @@ public class ExportService extends Service {
   private static void startExperimentExport(
       Context context, AppAccount appAccount, String experimentId) {
     AppSingleton appSingleton = AppSingleton.getInstance(context);
-    appSingleton.setExportOrSyncServiceBusy(true);
+    appSingleton.setExportServiceBusy(true);
     ExportService.bind(context)
         // Only look at events for this trial or the default value
         .filter(
@@ -635,7 +635,7 @@ public class ExportService extends Service {
   public static void launchExportChooser(Context context, AppAccount appAccount, Uri fileUri) {
     Intent shareIntent =
         FileMetadataUtil.getInstance().getShareIntent(context, appAccount, fileUri);
-    AppSingleton.getInstance(context).setExportOrSyncServiceBusy(false);
+    AppSingleton.getInstance(context).setExportServiceBusy(false);
     context.startActivity(
         Intent.createChooser(
             shareIntent,
@@ -644,7 +644,7 @@ public class ExportService extends Service {
 
   public static void handleExperimentImport(
       Context context, AppAccount appAccount, Uri experimentFile) {
-    AppSingleton.getInstance(context).setExportOrSyncServiceBusy(true);
+    AppSingleton.getInstance(context).setExportServiceBusy(true);
     ExportService.bind(context)
         // Only look at events for this uri or the default value
         .filter(
@@ -662,7 +662,7 @@ public class ExportService extends Service {
             })
         .subscribe(
             progress -> {
-              AppSingleton.getInstance(context).setExportOrSyncServiceBusy(false);
+              AppSingleton.getInstance(context).setExportServiceBusy(false);
               AppSingleton.getInstance(context)
                   .onNextActivity()
                   .subscribe(

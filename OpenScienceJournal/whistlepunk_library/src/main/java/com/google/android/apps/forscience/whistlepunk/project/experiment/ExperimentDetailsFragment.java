@@ -177,7 +177,7 @@ public class ExperimentDetailsFragment extends Fragment
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     AppSingleton.getInstance(getContext())
-        .whenExportOrSyncBusyChanges()
+        .whenExportBusyChanges()
         .takeUntil(destroyed.happens())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(
@@ -189,7 +189,6 @@ public class ExperimentDetailsFragment extends Fragment
               }
               setProgressBarVisible(busy);
             });
-
     appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);

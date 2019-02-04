@@ -132,7 +132,8 @@ public class ExperimentListFragment extends Fragment
   private Context applicationContext;
   private ExperimentListAdapter experimentListAdapter;
   private boolean includeArchived;
-  private boolean progressBarVisible = false;
+  private boolean syncProgressBarVisible = false;
+  private boolean exportProgressBarVisible = false;
   private final RxEvent destroyed = new RxEvent();
   private final RxEvent paused = new RxEvent();
   private final IntentFilter networkIntentFilter = new IntentFilter();
@@ -205,7 +206,22 @@ public class ExperimentListFragment extends Fragment
     super.onCreate(savedInstanceState);
     applicationContext = getContext().getApplicationContext();
     AppSingleton.getInstance(applicationContext)
-        .whenExportOrSyncBusyChanges()
+        .whenExportBusyChanges()
+        .takeUntil(destroyed.happens())
+        .subscribe(
+            busy -> {
+              Handler uiHandler = new Handler(applicationContext.getMainLooper());
+              uiHandler.post(
+                  () -> {
+                    // This fragment may be gone by the time this code executes.
+                    if (isFragmentGone()) {
+                      return;
+                    }
+                    setExportProgressBarVisible(busy);
+                  });
+            });
+    AppSingleton.getInstance(applicationContext)
+        .whenSyncBusyChanges()
         .takeUntil(destroyed.happens())
         .subscribe(
             busy -> {
@@ -221,7 +237,7 @@ public class ExperimentListFragment extends Fragment
                     if (isFragmentGone()) {
                       return;
                     }
-                    setProgressBarVisible(busy);
+                    setSyncProgressBarVisible(busy);
                   });
             });
 
@@ -260,7 +276,8 @@ public class ExperimentListFragment extends Fragment
   @Override
   public void onResume() {
     super.onResume();
-    setProgressBarVisible(progressBarVisible);
+    setExportProgressBarVisible(exportProgressBarVisible);
+    setSyncProgressBarVisible(syncProgressBarVisible);
 
     connectivityBroadcastReceiver = new ConnectivityBroadcastReceiver();
     getContext().registerReceiver(connectivityBroadcastReceiver, networkIntentFilter);
@@ -585,14 +602,26 @@ public class ExperimentListFragment extends Fragment
     return AppSingleton.getInstance(applicationContext).getExperimentLibraryManager(appAccount);
   }
 
-  public void setProgressBarVisible(boolean visible) {
-    progressBarVisible = visible;
+  public void setSyncProgressBarVisible(boolean visible) {
+    syncProgressBarVisible = visible;
     // This fragment may be gone by the time this code executes.
     if (isFragmentGone()) {
       return;
     }
-    getView().findViewById(R.id.indeterminateBar).setVisibility(visible ? View.VISIBLE : View.GONE);
+    getView().findViewById(R.id.syncIndeterminateBar)
+        .setVisibility(visible ? View.VISIBLE : View.GONE);
   }
+
+  public void setExportProgressBarVisible(boolean visible) {
+    exportProgressBarVisible = visible;
+    // This fragment may be gone by the time this code executes.
+    if (isFragmentGone()) {
+      return;
+    }
+    getView().findViewById(R.id.exportIndeterminateBar)
+        .setVisibility(visible ? View.VISIBLE : View.GONE);
+  }
+
 
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -658,7 +687,7 @@ public class ExperimentListFragment extends Fragment
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
-    if (progressBarVisible) {
+    if (exportProgressBarVisible) {
       return true;
     }
     if (id == R.id.action_include_archived) {
@@ -705,7 +734,7 @@ public class ExperimentListFragment extends Fragment
             .announceForAccessibility(
                 getResources().getString(R.string.action_sync_start));
 
-        AppSingleton.getInstance(applicationContext).setExportOrSyncServiceBusy(true);
+        AppSingleton.getInstance(applicationContext).setSyncServiceBusy(true);
         syncService.syncExperimentLibrary(applicationContext, logMessage);
       } catch (IOException ioe) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -1103,7 +1132,7 @@ public class ExperimentListFragment extends Fragment
                     if (isParentGone()) {
                       return true;
                     }
-                    if (parentReference.get().progressBarVisible) {
+                    if (parentReference.get().exportProgressBarVisible) {
                       return true;
                     }
                     if (menuItem.getItemId() == R.id.menu_item_archive) {
@@ -1330,15 +1359,16 @@ public class ExperimentListFragment extends Fragment
       if (isParentGone()) {
         return;
       }
+      Context context = parentReference.get().getContext();
       WhistlePunkApplication.getUsageTracker(applicationContext)
           .trackEvent(
               TrackerConstants.CATEGORY_EXPERIMENTS,
               TrackerConstants.ACTION_SHARED,
               TrackerConstants.LABEL_EXPERIMENT_LIST,
               0);
-      parentReference.get().setProgressBarVisible(true);
+      parentReference.get().setExportProgressBarVisible(true);
       ExportService.handleExperimentExportClick(
-          applicationContext, parentReference.get().appAccount, experimentId);
+          context, parentReference.get().appAccount, experimentId);
     }
 
     public void onDestroy() {
