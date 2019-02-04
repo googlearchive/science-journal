@@ -58,10 +58,9 @@
         android:id="@+id/indeterminateBar"
         style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:minHeight="0dp"
+        android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="visible"
+        android:layout_marginTop="-6dp"
         android:layout_gravity="top"/>
-
 </android.support.design.widget.CoordinatorLayout>
