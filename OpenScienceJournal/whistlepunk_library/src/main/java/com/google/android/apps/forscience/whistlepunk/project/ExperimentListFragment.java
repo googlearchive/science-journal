@@ -987,7 +987,7 @@ public class ExperimentListFragment extends Fragment
                 return;
               }
               ClaimExperimentsActivity.launch(
-                  applicationContext,
+                  v.getContext(),
                   parentReference.get().appAccount,
                   parentReference.get().getArguments().getBoolean(ARG_USE_PANES));
             });
