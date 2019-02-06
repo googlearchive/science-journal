@@ -885,8 +885,16 @@ public class PanesActivity extends AppCompatActivity
             e.getTrial(trialId).addLabel(e, label);
           }
           RxDataController.updateExperiment(getDataController(), e, true)
-              .subscribe(() -> onLabelAdded(trialId));
+              .subscribe(() -> onLabelAdded(trialId), error -> onAddNewLabelFailed());
         });
+  }
+
+  private void onAddNewLabelFailed() {
+    AccessibilityUtils.makeSnackbar(
+            findViewById(R.id.bottom_control_bar),
+            getResources().getString(R.string.label_failed_save),
+            Snackbar.LENGTH_LONG)
+        .show();
   }
 
   private void dropToHalfScreenIfNeeded() {

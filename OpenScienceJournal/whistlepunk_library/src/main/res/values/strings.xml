@@ -209,6 +209,9 @@
     <!-- The text on a snackbar displayed when a recording end time could not be saved to the database. -->
     <string name="recording_stop_failed_save">Could not stop recording or save trial. Please try again.</string>
 
+    <!-- The text on a snackbar displayed when a label could not be saved to the database. -->
+    <string name="label_failed_save">Could not save.</string>
+
     <!-- The string formatting string used to display elapsed time less than 60 seconds [CHAR_LIMIT=3] -->
     <string name="elapsed_time_short_format"><xliff:g id="seconds">%1d</xliff:g>s</string>
 
