@@ -398,7 +398,13 @@ public class ExperimentDetailsFragment extends Fragment
   public void onStopRecording() {
     if (activeTrialId != null) {
       RxDataController.getTrial(getDataController(), experimentId, activeTrialId)
-          .subscribe(t -> adapter.onRecordingEnded(t));
+          .subscribe(
+                  t -> adapter.onRecordingEnded(t),
+                  error -> {
+                    if (Log.isLoggable(TAG, Log.ERROR)) {
+                      Log.e(TAG, "Experiment may have been deleted", error);
+                    }
+                  });
       activeTrialId = null;
     }
     getActivity().invalidateOptionsMenu();
