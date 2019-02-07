@@ -175,10 +175,7 @@ public class SignInFragment extends Fragment {
   }
 
   private void finish() {
-    // Once we get here (whether the user signed in or chose to continue without signing in), we
-    // will never show the OldUserOptionPromptActivity on this device.
     Activity activity = getActivity();
-    OldUserOptionPromptActivity.setShouldLaunch(activity, false);
     accountsProvider.setShowSignInActivityIfNotSignedIn(false);
     activity.setResult(Activity.RESULT_OK);
     activity.finish();
