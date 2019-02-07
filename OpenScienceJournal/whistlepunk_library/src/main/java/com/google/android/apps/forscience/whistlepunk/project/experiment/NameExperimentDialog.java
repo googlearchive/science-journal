@@ -146,6 +146,9 @@ public class NameExperimentDialog extends DialogFragment {
                       () -> {
                         super.onCancel(dialog);
                       });
+            },
+            error -> {
+              super.onCancel(dialog);
             });
   }
 
@@ -164,6 +167,9 @@ public class NameExperimentDialog extends DialogFragment {
                       () ->
                           ((OnExperimentTitleChangeListener) getParentFragment())
                               .onTitleChangedFromDialog());
+            },
+            error -> {
+              ((OnExperimentTitleChangeListener) getParentFragment()).onTitleChangedFromDialog();
             });
   }
 }
