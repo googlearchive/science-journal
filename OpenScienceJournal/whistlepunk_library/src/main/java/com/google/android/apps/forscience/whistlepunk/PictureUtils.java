@@ -203,7 +203,7 @@ public class PictureUtils {
     Context context = imageView.getContext();
     GlideApp.with(context)
         .load(fullPath)
-        .placeholder(R.drawable.placeholder)
+        .placeholder(R.drawable.experiment_card_placeholder)
         // Create a signature based on the last modified time so that cached images will
         // not be used if the underlying file changes. This may happen if the user has
         // picked an experiment photo from the "edit experiment" page because there is only
