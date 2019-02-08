@@ -134,6 +134,7 @@ public class ExperimentListFragment extends Fragment
   private boolean includeArchived;
   private boolean syncProgressBarVisible = false;
   private boolean exportProgressBarVisible = false;
+  private boolean claimProgressBarVisible = false;
   private final RxEvent destroyed = new RxEvent();
   private final RxEvent paused = new RxEvent();
   private final IntentFilter networkIntentFilter = new IntentFilter();
@@ -278,6 +279,7 @@ public class ExperimentListFragment extends Fragment
     super.onResume();
     setExportProgressBarVisible(exportProgressBarVisible);
     setSyncProgressBarVisible(syncProgressBarVisible);
+    setClaimProgressBarVisible(claimProgressBarVisible);
 
     connectivityBroadcastReceiver = new ConnectivityBroadcastReceiver();
     getContext().registerReceiver(connectivityBroadcastReceiver, networkIntentFilter);
@@ -622,6 +624,26 @@ public class ExperimentListFragment extends Fragment
         .setVisibility(visible ? View.VISIBLE : View.GONE);
   }
 
+  private void setClaimProgressBarVisible(boolean visible) {
+    claimProgressBarVisible = visible;
+    // This fragment may be gone by the time this code executes.
+    if (isFragmentGone()) {
+      return;
+    }
+    getView()
+        .findViewById(R.id.claimIndeterminateBar)
+        .setVisibility(visible ? View.VISIBLE : View.GONE);
+  }
+
+  boolean handleOnBackPressed() {
+    // If we are currently claiming an experiment, don't go back.
+    if (claimProgressBarVisible) {
+      return true;
+    }
+
+    // The activity can handle it normally.
+    return false;
+  }
 
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -687,7 +709,7 @@ public class ExperimentListFragment extends Fragment
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
-    if (exportProgressBarVisible) {
+    if (exportProgressBarVisible || claimProgressBarVisible) {
       return true;
     }
     if (id == R.id.action_include_archived) {
@@ -779,6 +801,7 @@ public class ExperimentListFragment extends Fragment
   }
 
   private void claimUnclaimedExperiments() {
+    setClaimProgressBarVisible(true);
     getDataController()
         .moveAllExperimentsToAnotherAccount(
             claimingAccount,
@@ -789,6 +812,7 @@ public class ExperimentListFragment extends Fragment
                 if (isFragmentGone()) {
                   return;
                 }
+                setClaimProgressBarVisible(false);
                 getActivity().finish();
               }
             });
@@ -844,6 +868,10 @@ public class ExperimentListFragment extends Fragment
                   new LoggingConsumer<Success>(TAG, "delete experiment") {
                     @Override
                     public void success(Success value) {
+                      // This fragment may be gone by the time this code executes.
+                      if (isFragmentGone()) {
+                        return;
+                      }
                       experimentListAdapter.onExperimentDeleted(experimentId);
                       WhistlePunkApplication.getUsageTracker(applicationContext)
                           .trackEvent(
@@ -1069,6 +1097,10 @@ public class ExperimentListFragment extends Fragment
             if (isParentGone()) {
               return;
             }
+            // If we are currently claiming an experiment, don't launch PanesActivity.
+            if (parentReference.get().claimProgressBarVisible) {
+              return;
+            }
             launchPanesActivity(
                 v.getContext(),
                 parentReference.get().appAccount,
@@ -1131,7 +1163,8 @@ public class ExperimentListFragment extends Fragment
                     if (isParentGone()) {
                       return true;
                     }
-                    if (parentReference.get().exportProgressBarVisible) {
+                    if (parentReference.get().exportProgressBarVisible
+                        || parentReference.get().claimProgressBarVisible) {
                       return true;
                     }
                     if (menuItem.getItemId() == R.id.menu_item_archive) {
@@ -1298,6 +1331,10 @@ public class ExperimentListFragment extends Fragment
       if (isParentGone()) {
         return;
       }
+      // If we are currently claiming an experiment, don't claim another one.
+      if (parentReference.get().claimProgressBarVisible) {
+        return;
+      }
       AlertDialog.Builder builder = new AlertDialog.Builder(parentReference.get().getContext());
       builder.setTitle(R.string.drive_confirmation_text);
       builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel());
@@ -1320,6 +1357,7 @@ public class ExperimentListFragment extends Fragment
       if (isParentGone()) {
         return;
       }
+      parentReference.get().setClaimProgressBarVisible(true);
       parentReference
           .get()
           .getDataController()
@@ -1329,6 +1367,10 @@ public class ExperimentListFragment extends Fragment
               new LoggingConsumer<Success>(TAG, "claimExperiments") {
                 @Override
                 public void success(Success value) {
+                  if (isParentGone()) {
+                    return;
+                  }
+                  parentReference.get().setClaimProgressBarVisible(false);
                   onExperimentDeleted(experimentId);
                   showClaimedSnackbar();
                   // When the snackbar disappears, finish claim experiments mode if there are no
@@ -1350,12 +1392,20 @@ public class ExperimentListFragment extends Fragment
       if (isParentGone()) {
         return;
       }
+      // If we are currently claiming an experiment, don't delete an experiment.
+      if (parentReference.get().claimProgressBarVisible) {
+        return;
+      }
       snackbarManager.hideVisibleSnackbar();
       parentReference.get().confirmDelete(experimentId);
     }
 
     private void exportExperiment(String experimentId) {
       if (isParentGone()) {
+        return;
+      }
+      // If we are currently claiming an experiment, don't export an experiment.
+      if (parentReference.get().claimProgressBarVisible) {
         return;
       }
       Context context = parentReference.get().getContext();

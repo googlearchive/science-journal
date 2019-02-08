@@ -94,6 +94,16 @@ public class ClaimExperimentsActivity extends AppCompatActivity {
     }
   }
 
+  @Override
+  public void onBackPressed() {
+    Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+    if (fragment instanceof ExperimentListFragment
+        && ((ExperimentListFragment) fragment).handleOnBackPressed()) {
+      return;
+    }
+    super.onBackPressed();
+  }
+
   static void launch(Context context, AppAccount appAccount, boolean usePanes) {
     Intent intent = new Intent(context, ClaimExperimentsActivity.class);
     intent.putExtra(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
