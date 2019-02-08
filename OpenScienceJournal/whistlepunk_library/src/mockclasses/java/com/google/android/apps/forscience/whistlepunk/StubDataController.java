@@ -138,7 +138,9 @@ public class StubDataController implements DataController {
   public void saveImmediately(MaybeConsumer<Success> onSuccess) {}
 
   @Override
-  public void addExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {}
+  public void addExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
 
   @Override
   public String generateNewLabelId() {
