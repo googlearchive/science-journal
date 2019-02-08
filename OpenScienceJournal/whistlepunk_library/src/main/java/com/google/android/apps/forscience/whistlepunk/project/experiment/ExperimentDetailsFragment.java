@@ -73,11 +73,14 @@ import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
@@ -101,6 +104,7 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -147,6 +151,7 @@ public class ExperimentDetailsFragment extends Fragment
   private ProgressBar progressBar;
   private boolean progressVisible = false;
   private RxEvent destroyed = new RxEvent();
+  private LocalSyncManager localSyncManager;
 
   /**
    * Creates a new instance of this fragment.
@@ -190,6 +195,8 @@ public class ExperimentDetailsFragment extends Fragment
               setProgressBarVisible(busy);
             });
     appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
+    localSyncManager =
+        AppSingleton.getInstance(getContext()).getLocalSyncManager(appAccount);
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
     setHasOptionsMenu(true);
@@ -276,6 +283,18 @@ public class ExperimentDetailsFragment extends Fragment
 
   @Override
   public void onPause() {
+    CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getContext());
+    CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
+    try {
+      if (localSyncManager.getDirty(experimentId)) {
+        syncService.syncExperimentLibrary(getContext(), "Sync on Experiment destroy");
+      }
+    } catch (IOException ioe) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "IOE", ioe);
+      }
+    }
+
     if (broadcastReceiver != null) {
       CropHelper.unregisterBroadcastReceiver(
           getActivity().getApplicationContext(), broadcastReceiver);

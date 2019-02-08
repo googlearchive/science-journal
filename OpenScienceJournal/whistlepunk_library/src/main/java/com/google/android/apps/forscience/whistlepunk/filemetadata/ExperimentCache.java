@@ -26,8 +26,6 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
-import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -366,17 +364,6 @@ class ExperimentCache {
     }
     if (success) {
       activeExperimentNeedsWrite = false;
-      CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(context);
-      CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
-      try {
-        if (localSyncManager.getDirty(activeExperiment.getExperimentId())) {
-          syncService.syncExperimentLibrary(context, "Sync on Experiment write");
-        }
-      } catch (IOException ioe) {
-        if (Log.isLoggable(TAG, Log.ERROR)) {
-          Log.e(TAG, "IOE", ioe);
-        }
-      }
     } else {
       failureListener.onWriteFailed(activeExperiment);
     }
