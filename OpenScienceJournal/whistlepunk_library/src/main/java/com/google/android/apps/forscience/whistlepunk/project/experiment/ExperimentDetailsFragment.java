@@ -152,6 +152,7 @@ public class ExperimentDetailsFragment extends Fragment
   private boolean progressVisible = false;
   private RxEvent destroyed = new RxEvent();
   private LocalSyncManager localSyncManager;
+  private ExperimentLibraryManager experimentLibraryManager;
 
   /**
    * Creates a new instance of this fragment.
@@ -197,6 +198,8 @@ public class ExperimentDetailsFragment extends Fragment
     appAccount = WhistlePunkApplication.getAccount(getContext(), getArguments(), ARG_ACCOUNT_KEY);
     localSyncManager =
         AppSingleton.getInstance(getContext()).getLocalSyncManager(appAccount);
+    experimentLibraryManager =
+        AppSingleton.getInstance(getContext()).getExperimentLibraryManager(appAccount);
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
     setHasOptionsMenu(true);
@@ -596,6 +599,7 @@ public class ExperimentDetailsFragment extends Fragment
     if (!claimExperimentsMode) {
       if (experiment.isEmpty()) {
         // Experiment is empty. No reason to keep it.
+        experimentLibraryManager.setDeleted(experimentId, true);
         deleteCurrentExperiment();
         return;
       }
