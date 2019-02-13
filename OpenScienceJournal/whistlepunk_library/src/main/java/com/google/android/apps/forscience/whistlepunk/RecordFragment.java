@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -346,6 +347,16 @@ public class RecordFragment extends PanesToolFragment
                           onSelectedExperimentChanged(selectedExperiment, rc, status);
                         }
                       });
+            },
+            // If this fails to load due to the experiment having been deleted on another
+            // device, go ahead and silently catch the error so the entire app doesn't crash.
+            // The app will display an empty box where the sensors would be and the user can
+            // back out of the view to get back to an expected state. It is extremely unlikely
+            // that a user will hit this case b/124102081
+            error -> {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Failed to display sensors.", error);
+                }
             });
   }
 
