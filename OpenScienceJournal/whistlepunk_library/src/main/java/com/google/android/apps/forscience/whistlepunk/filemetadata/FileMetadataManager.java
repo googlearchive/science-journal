@@ -198,7 +198,7 @@ public class FileMetadataManager {
     deleteExperiment(experiment.getExperimentId());
   }
 
-  private void deleteExperiment(String experimentId) {
+  public void deleteExperiment(String experimentId) {
     activeExperimentCache.deleteExperiment(experimentId);
     userMetadataManager.deleteExperimentOverview(experimentId);
     experimentLibraryManager.setDeleted(experimentId, true);

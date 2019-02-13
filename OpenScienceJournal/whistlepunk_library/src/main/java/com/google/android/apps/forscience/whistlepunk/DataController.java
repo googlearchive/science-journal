@@ -67,6 +67,8 @@ public interface DataController {
 
   void createExperiment(MaybeConsumer<Experiment> onSuccess);
 
+  void deleteExperiment(String experimentId, MaybeConsumer<Success> onSuccess);
+
   void deleteExperiment(Experiment experiment, MaybeConsumer<Success> onSuccess);
 
   void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess);

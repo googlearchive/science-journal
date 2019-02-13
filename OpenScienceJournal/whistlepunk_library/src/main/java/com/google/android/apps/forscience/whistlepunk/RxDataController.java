@@ -54,6 +54,10 @@ public class RxDataController {
     return MaybeConsumers.buildCompleteable(mc -> dc.deleteExperiment(e, mc));
   }
 
+  public static Completable deleteExperiment(DataController dc, String experimentId) {
+    return MaybeConsumers.buildCompleteable(mc -> dc.deleteExperiment(experimentId, mc));
+  }
+
   public static Single<FileSyncCollection> mergeExperiment(
       DataController dc, String id, Experiment toMerge, boolean overwrite) {
     return MaybeConsumers.buildSingle(mc -> dc.mergeExperiment(id, toMerge, overwrite, mc));

@@ -85,6 +85,17 @@ public class MemoryMetadataManager implements MetaDataManager {
   }
 
   @Override
+  public void deleteExperiment(String experimentId) {
+    // TODO: test directly
+    for (Experiment e : experiments) {
+      if (e.getExperimentId().equals(experimentId)) {
+        experiments.remove(e);
+        return;
+      }
+    }
+  }
+
+  @Override
   public void updateExperiment(Experiment experiment, boolean setDirty) {
     layouts.put(experiment.getExperimentId(), experiment.getSensorLayouts());
   }

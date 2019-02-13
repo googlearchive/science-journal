@@ -75,6 +75,11 @@ public class StubDataController implements DataController {
   }
 
   @Override
+  public void deleteExperiment(String experimentId, MaybeConsumer<Success> onSuccess) {
+    onSuccess.success(Success.SUCCESS);
+  }
+
+  @Override
   public void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess) {
     Experiment e = Experiment.newExperiment(0, experimentId, 0);
     e.setTitle("Experiment Title");

@@ -291,6 +291,24 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   @Override
+  public void deleteExperiment(final String experimentId, final MaybeConsumer<Success> onSuccess) {
+    if (cachedExperiments.containsKey(experimentId)) {
+      cachedExperiments.remove(experimentId);
+    }
+    background(
+        metaDataThread,
+        onSuccess,
+        new Callable<Success>() {
+
+          @Override
+          public Success call() throws Exception {
+            deleteExperimentOnDataThread(experimentId);
+            return Success.SUCCESS;
+          }
+        });
+  }
+
+  @Override
   public void deleteExperiment(
       final Experiment experiment, final MaybeConsumer<Success> onSuccess) {
     if (cachedExperiments.containsKey(experiment.getExperimentId())) {
@@ -312,6 +330,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   private void deleteExperimentOnDataThread(Experiment experiment) {
     // TODO: delete invalid run data, as well (b/35794788)
     metaDataManager.deleteExperiment(experiment);
+  }
+
+  private void deleteExperimentOnDataThread(String experimentId) {
+    // TODO: delete invalid run data, as well (b/35794788)
+    metaDataManager.deleteExperiment(experimentId);
   }
 
   @Override

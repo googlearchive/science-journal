@@ -42,6 +42,8 @@ public interface MetaDataManager {
   /** Deletes the experiment and any associated trials and labels and their assets. */
   void deleteExperiment(Experiment experiment);
 
+  void deleteExperiment(String experimentId);
+
   /** Updates experiment details, including the experiment's labels. */
   void updateExperiment(Experiment experiment, boolean setDirty);
 

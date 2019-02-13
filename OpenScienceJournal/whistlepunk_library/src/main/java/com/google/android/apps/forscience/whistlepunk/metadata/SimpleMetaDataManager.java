@@ -614,6 +614,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
     getFileMetadataManager().deleteExperiment(experiment);
   }
 
+  @Override
+  public void deleteExperiment(String experimentId) {
+    getFileMetadataManager().deleteExperiment(experimentId);
+  }
+
   @VisibleForTesting
   void deleteDatabaseExperiment(Experiment experiment) {
     synchronized (lock) {
