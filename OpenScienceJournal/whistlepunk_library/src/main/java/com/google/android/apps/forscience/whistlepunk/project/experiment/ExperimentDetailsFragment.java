@@ -698,7 +698,8 @@ public class ExperimentDetailsFragment extends Fragment
       return;
     }
 
-    Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
+    Intent upIntent =
+        getActivity() == null ? null : NavUtils.getParentActivityIntent(getActivity());
     if (upIntent == null) {
       // This is cheating a bit.  Currently, upIntent has only been observed to be null
       // when we're using panes mode, so here we just assume usePanes==true.
