@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.util.Log;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -29,6 +30,7 @@ import java.io.File;
 
 /** Utility methods for bridging DataController calls with code that uses Rx */
 public class RxDataController {
+  private static final String TAG = "RxDataController";
 
   public static Completable updateExperiment(
       DataController dc, Experiment e, long lastUsedTime, boolean shouldMarkDirty) {
@@ -68,7 +70,14 @@ public class RxDataController {
   }
 
   public static Single<Experiment> getExperimentById(DataController dc, String experimentId) {
-    return MaybeConsumers.buildSingle(mc -> dc.getExperimentById(experimentId, mc));
+    Exception justInCase = new Exception("getExperimentById failed");
+    return MaybeConsumers.<Experiment>buildSingle(mc -> dc.getExperimentById(experimentId, mc))
+        .doOnError(
+            throwable -> {
+              if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "getExperimentById failed", justInCase);
+              }
+            });
   }
 
   public static Single<Experiment> createExperiment(DataController dc) {
