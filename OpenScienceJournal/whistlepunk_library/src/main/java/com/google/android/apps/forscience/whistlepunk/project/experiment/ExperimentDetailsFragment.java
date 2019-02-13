@@ -249,9 +249,24 @@ public class ExperimentDetailsFragment extends Fragment
 
   @Override
   public void onDestroy() {
+    startLibrarySync();
     adapter.onDestroy();
     destroyed.onHappened();
     super.onDestroy();
+  }
+
+  private void startLibrarySync() {
+    CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getContext());
+    CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
+    try {
+      if (localSyncManager.getDirty(experimentId)) {
+        syncService.syncExperimentLibrary(getContext(), "Sync on Experiment destroy");
+      }
+    } catch (IOException ioe) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "IOE", ioe);
+      }
+    }
   }
 
   public void reloadWithoutScroll() {
@@ -286,18 +301,6 @@ public class ExperimentDetailsFragment extends Fragment
 
   @Override
   public void onPause() {
-    CloudSyncProvider syncProvider = WhistlePunkApplication.getCloudSyncProvider(getContext());
-    CloudSyncManager syncService = syncProvider.getServiceForAccount(appAccount);
-    try {
-      if (localSyncManager.getDirty(experimentId)) {
-        syncService.syncExperimentLibrary(getContext(), "Sync on Experiment destroy");
-      }
-    } catch (IOException ioe) {
-      if (Log.isLoggable(TAG, Log.ERROR)) {
-        Log.e(TAG, "IOE", ioe);
-      }
-    }
-
     if (broadcastReceiver != null) {
       CropHelper.unregisterBroadcastReceiver(
           getActivity().getApplicationContext(), broadcastReceiver);

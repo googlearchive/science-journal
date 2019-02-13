@@ -95,7 +95,7 @@ public class RxDataController {
   public static Completable addTrialLabel(
       Label label, DataController dc, Experiment experiment, String trialId) {
     experiment.getTrial(trialId).addLabel(experiment, label);
-    return updateExperiment(dc, experiment, false);
+    return updateExperiment(dc, experiment, true);
   }
 
   public static Single<File> writeTrialProtoToFile(
