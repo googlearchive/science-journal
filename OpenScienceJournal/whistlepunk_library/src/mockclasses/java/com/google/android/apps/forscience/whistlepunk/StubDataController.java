@@ -87,6 +87,11 @@ public class StubDataController implements DataController {
   }
 
   @Override
+  public void experimentExists(String experimentId, MaybeConsumer<Boolean> onSuccess) {
+    onSuccess.success(true);
+  }
+
+  @Override
   public void updateExperiment(
       String experimentId,
       long lastUpdateTime,

@@ -375,6 +375,32 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   @Override
+  public void experimentExists(
+      final String experimentId, final MaybeConsumer<Boolean> onSuccess) {
+    if (cachedExperiments.containsKey(experimentId)) {
+      Experiment experiment = cachedExperiments.get(experimentId).get();
+      if (experiment != null) {
+        // We are already caching this one
+        onSuccess.success(true);
+        return;
+      }
+    }
+    background(
+        metaDataThread,
+        onSuccess,
+        new Callable<Boolean>() {
+          @Override
+          public Boolean call() {
+            Experiment result = metaDataManager.getExperimentById(experimentId);
+            if (result == null) {
+              return false;
+            }
+            return true;
+          }
+        });
+  }
+
+  @Override
   public void updateExperiment(
       final String experimentId,
       long lastUpdateTime,

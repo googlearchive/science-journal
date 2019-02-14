@@ -73,6 +73,9 @@ public interface DataController {
 
   void getExperimentById(String experimentId, MaybeConsumer<Experiment> onSuccess);
 
+  void experimentExists(
+      String experimentId, MaybeConsumer<Boolean> onSuccess);
+
   void updateExperiment(
       String experimentId, long lastUpdateTime, boolean setDirty, MaybeConsumer<Success> onSuccess);
 

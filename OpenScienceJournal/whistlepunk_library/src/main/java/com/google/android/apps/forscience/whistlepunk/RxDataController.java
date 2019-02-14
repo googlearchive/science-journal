@@ -84,6 +84,17 @@ public class RxDataController {
             });
   }
 
+  public static Single<Boolean> experimentExists(DataController dc, String experimentId) {
+    Exception justInCase = new Exception("getExperimentById failed");
+    return MaybeConsumers.<Boolean>buildSingle(mc -> dc.experimentExists(experimentId, mc))
+        .doOnError(
+            throwable -> {
+              if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "getExperimentById failed", justInCase);
+              }
+            });
+  }
+
   public static Single<Experiment> createExperiment(DataController dc) {
     return MaybeConsumers.buildSingle(mc -> dc.createExperiment(mc));
   }
