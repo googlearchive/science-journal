@@ -354,7 +354,8 @@ public class PanesActivity extends AppCompatActivity
         });
 
     Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
-    exp.takeUntil(destroyed.happensNext()).subscribe(activeExperiment);
+    exp.takeUntil(destroyed.happensNext())
+        .subscribe(activeExperiment::onSuccess, error -> finish());
 
     AppSingleton.getInstance(this)
         .whenLabelsAdded(appAccount)
