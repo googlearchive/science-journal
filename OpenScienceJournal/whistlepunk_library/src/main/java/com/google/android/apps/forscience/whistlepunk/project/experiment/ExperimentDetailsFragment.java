@@ -693,6 +693,13 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   private void goToExperimentList() {
+    if (getActivity() == null) {
+      if (Log.isLoggable(TAG, Log.DEBUG)) {
+        Log.d(TAG, "goToExperimentList called on null activity");
+      }
+      return;
+    }
+
     if (claimExperimentsMode) {
       getActivity().finish();
       return;
