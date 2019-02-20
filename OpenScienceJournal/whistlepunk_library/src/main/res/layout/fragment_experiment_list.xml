@@ -61,7 +61,7 @@
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="visible"
-        android:layout_marginTop="-6dp"
+        android:layout_marginTop="-7dp"
         android:layout_gravity="top"/>
     <ProgressBar
         android:id="@+id/exportIndeterminateBar"
