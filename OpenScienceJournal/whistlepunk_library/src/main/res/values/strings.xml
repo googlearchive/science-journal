@@ -245,6 +245,9 @@
     <!-- The content description for a picture note picture [CHAR_LIMIT=NONE] -->
     <string name="picture_note_preview_content_description">Picture note preview</string>
 
+    <!-- The content description for the navigation drawer menu button. [CHAR_LIMIT=NONE] -->
+    <string name="navigation_drawer_content_description">Show navigation drawer</string>
+
     <!-- Title of the navigation item to go to making science activities [CHAR_LIMIT=25] -->
     <string name="navigation_item_activities">Activities</string>
 

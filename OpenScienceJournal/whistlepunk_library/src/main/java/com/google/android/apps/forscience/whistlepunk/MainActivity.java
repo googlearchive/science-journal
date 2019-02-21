@@ -106,6 +106,7 @@ public class MainActivity extends ActivityWithNavigationView {
     if (actionBar != null) {
       actionBar.setDisplayHomeAsUpEnabled(true);
       actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+      actionBar.setHomeActionContentDescription(R.string.navigation_drawer_content_description);
       actionBar.setDisplayShowTitleEnabled(true);
     }
 
