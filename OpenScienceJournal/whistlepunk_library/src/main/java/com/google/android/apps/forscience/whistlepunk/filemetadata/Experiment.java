@@ -1285,7 +1285,7 @@ public class Experiment extends LabelListHolder {
   }
 
   /** Returns a path that starts after the account id. Starts with "experiments/". */
-  private String getPathRelativeToAccountRoot(String path) {
+  public String getPathRelativeToAccountRoot(String path) {
     if (Strings.isNullOrEmpty(path)) {
       return path;
     } else if (path.startsWith(EXPERIMENTS)) {
