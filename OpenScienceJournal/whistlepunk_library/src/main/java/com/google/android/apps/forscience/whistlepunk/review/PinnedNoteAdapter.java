@@ -137,6 +137,9 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         v =
             LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.add_label_button_item, parent, false);
+        v.findViewById(R.id.add_note_to_timeline_button)
+            .setContentDescription(
+                parent.getContext().getResources().getString(R.string.add_note_button_text));
         return new BlankViewHolder(v);
       case TYPE_CAPTION:
         v = LayoutInflater.from(parent.getContext()).inflate(R.layout.caption_item, parent, false);

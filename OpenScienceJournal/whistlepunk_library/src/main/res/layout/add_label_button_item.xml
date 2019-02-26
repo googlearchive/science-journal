@@ -22,6 +22,7 @@
     android:textColor="@color/color_accent"
     android:textSize="16sp"
     android:text="@string/add_note_button_text"
+    android:id="@+id/add_note_to_timeline_button"
     android:textAllCaps="true"
     android:layout_marginStart="16dp"
     >
