@@ -558,6 +558,7 @@ public class MainActivity extends ActivityWithNavigationView {
   }
 
   private void onAccountSwitched(AppAccount appAccount) {
+    AppSingleton.getInstance(this).setSyncServiceBusy(false);
     // Dispose of the recording status subscription for the old current account.
     currentAccountChanging.onHappened();
     currentAccount = appAccount;
