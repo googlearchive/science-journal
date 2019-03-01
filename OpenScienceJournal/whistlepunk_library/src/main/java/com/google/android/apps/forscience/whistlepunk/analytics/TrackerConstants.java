@@ -58,6 +58,7 @@ public final class TrackerConstants {
   public static final String CATEGORY_SENSOR_MANAGEMENT = "ManageSensors";
   public static final String CATEGORY_STORAGE = "Storage";
   public static final String CATEGORY_PANES = "Panes";
+  public static final String CATEGORY_ACCOUNTS = "Accounts";
 
   // Event actions
   public static final String ACTION_CREATE = "Create";
@@ -83,6 +84,7 @@ public final class TrackerConstants {
   public static final String ACTION_LABEL_ADDED = "LabelAdded";
   public static final String ACTION_SHARED = "Shared";
   public static final String ACTION_IMPORTED = "Imported";
+  public static final String ACTION_IS_ACCOUNT_PERMITTED = "IsAccountPermitted";
 
   // Labels
   public static final String LABEL_RECORD = "record";
@@ -91,16 +93,22 @@ public final class TrackerConstants {
   public static final String LABEL_EXPERIMENT_DETAIL = "experiment_detail";
   public static final String LABEL_EXPERIMENT_LIST = "experiment_list";
   public static final String LABEL_UPDATE_EXPERIMENT = "update_experiment";
-
   public static final String LABEL_MODE_SIGNED_IN = "signedin";
   public static final String LABEL_MODE_SIGNED_OUT_CHILD = "child";
   public static final String LABEL_MODE_SIGNED_OUT_NONCHILD = "nonchild";
+  public static final String LABEL_DEFINITELY_NOT_DASHER = "DefinitelyNotDasher";
+  public static final String LABEL_USER_RECOVERABLE_AUTH_EXCEPTION = "UserRecoverableAuthException";
+  public static final String LABEL_PERMISSION_RESPONSE_RECEIVED = "PermissionResponseReceived";
+  public static final String LABEL_PERMISSION_REQUEST_FAILED = "PermissionRequestFailed";
 
   // Values
   private static final long VALUE_TYPE_TEXT = 0;
   private static final long VALUE_TYPE_PICTURE = 1;
   private static final long VALUE_TYPE_SENSOR_TRIGGER = 2;
   private static final long VALUE_TYPE_SNAPSHOT = 3;
+  public static final long VALUE_USER_AUTH_ACTION_REQUIRED = 4;
+  public static final long VALUE_PERMITTED = 5;
+  public static final long VALUE_NOT_PERMITTED = 6;
 
   // Primes Event Names
   public static final String PRIMES_OBSERVE = "OBSERVE";
