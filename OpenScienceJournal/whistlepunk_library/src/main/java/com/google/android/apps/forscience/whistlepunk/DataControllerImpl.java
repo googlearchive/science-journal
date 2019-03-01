@@ -830,17 +830,12 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   private void moveAllExperimentsToAnotherAccountOnDataThread(AppAccount targetAccount)
       throws IOException {
     metaDataManager.saveImmediately();
-
-    if (metaDataManager.canMoveAllExperimentsToAnotherAccount(targetAccount)) {
-      metaDataManager.moveAllExperimentsToAnotherAccount(targetAccount);
-    } else {
-      // Move each experiment, one at a time.
-      List<GoosciUserMetadata.ExperimentOverview> experiments =
-          blockingGetExperimentOverviews(true /* includeArchived */);
-      for (GoosciUserMetadata.ExperimentOverview overview : experiments) {
-        Experiment experiment = getExperimentFromId(overview.experimentId);
-        moveExperimentToAnotherAccountOnDataThread(experiment, targetAccount);
-      }
+    // Move each experiment, one at a time.
+    List<GoosciUserMetadata.ExperimentOverview> experiments =
+        blockingGetExperimentOverviews(true /* includeArchived */);
+    for (GoosciUserMetadata.ExperimentOverview overview : experiments) {
+      Experiment experiment = getExperimentFromId(overview.experimentId);
+      moveExperimentToAnotherAccountOnDataThread(experiment, targetAccount);
     }
   }
 
