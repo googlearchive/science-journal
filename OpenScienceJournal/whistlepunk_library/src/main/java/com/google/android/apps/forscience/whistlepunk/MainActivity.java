@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.GetStartedActivity;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.OldUserOptionPromptActivity;
 import com.google.android.apps.forscience.whistlepunk.accounts.SignInActivity;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -338,7 +339,8 @@ public class MainActivity extends ActivityWithNavigationView {
    * @return true iff there are no required screens that need to be shown
    */
   private boolean showRequiredScreensIfNeeded() {
-    if (!accountsProvider.supportSignedInAccount()) {
+    if (!accountsProvider.supportSignedInAccount()
+        || currentAccount instanceof NonSignedInAccount) {
       if (AgeVerifier.shouldShowUserAge(this)) {
         Intent intent = new Intent(this, AgeVerifier.class);
         startActivityForResult(intent, REQUEST_AGE_VERIFIER);
