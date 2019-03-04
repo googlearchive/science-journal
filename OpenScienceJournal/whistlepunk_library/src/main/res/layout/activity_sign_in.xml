@@ -24,6 +24,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-    android:id="@+id/container">
+    android:id="@+id/container"
+    android:background="@color/get_started_background_color">
 
 </LinearLayout>

@@ -218,4 +218,24 @@
     <bool name="allow_half_height_drawer_in_landscape">false</bool>
 
     <integer name="gallery_column_count">3</integer>
+
+    <!-- Margins for placement on getting started screen -->
+    <dimen name="get_started_explore_your_world_margin_top">68dp</dimen>
+    <dimen name="get_started_use_science_journal_margin_top">15dp</dimen>
+    <dimen name="get_started_btn_get_started_margin_top">32dp</dimen>
+    <dimen name="get_started_image_margin_bottom">25dp</dimen>
+    <dimen name="get_started_image_margin_sides">25dp</dimen>
+
+    <!-- Font sizing for getting started screen -->
+    <dimen name="get_started_explore_your_world_font_size">24sp</dimen>
+    <dimen name="get_started_use_science_journal_font_size">16sp</dimen>
+    <dimen name="get_started_btn_get_started_font_size">14sp</dimen>
+
+    <!-- Margins for placement on sign in screen -->
+    <dimen name="sign_in_image_margin_bottom">20dp</dimen>
+    <dimen name="sign_in_image_margin_sides">25dp</dimen>
+    <dimen name="sign_in_text_top_margin">29dp</dimen>
+
+    <!-- Font sizing for sign in screen -->
+    <dimen name="sign_in_text_font_size">14sp</dimen>
 </resources>

@@ -19,17 +19,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/splashscreen_bg"
     >
 
   <TextView
+      android:id="@+id/explore_your_world"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="center_horizontal"
-      android:layout_marginTop="78dp"
+      android:layout_marginTop="@dimen/get_started_explore_your_world_margin_top"
       android:text="@string/explore_your_world"
       android:fontFamily="sans-serif-medium"
-      android:textSize="26sp"
+      android:textSize="@dimen/get_started_explore_your_world_font_size"
       android:textColor="@color/text_color_white"
       />
 
@@ -37,22 +37,17 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="center_horizontal"
-      android:layout_marginTop="17sp"
+      android:layout_marginBottom="@dimen/get_started_use_science_journal_margin_top"
       android:gravity="center"
       android:text="@string/use_science_journal"
       android:fontFamily="sans-serif-regular"
-      android:textSize="18sp"
+      android:textSize="@dimen/get_started_use_science_journal_font_size"
       android:textColor="@color/text_color_white"
       />
 
-  <FrameLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="center_horizontal"
-      android:layout_marginTop="50dp"
-      android:background="@android:color/transparent">
     <Button
         android:id="@+id/btn_get_started"
+        android:layout_gravity="center_horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/accessibility_touch_target_min_size"
@@ -63,9 +58,7 @@
         android:text="@string/get_started"
         android:fontFamily="sans-serif-medium"
         android:textAllCaps="true"
-        android:textSize="16sp"
+        android:textSize="@dimen/get_started_btn_get_started_font_size"
         android:textColor="#4a90e2"
         />
-  </FrameLayout>
-
 </LinearLayout>

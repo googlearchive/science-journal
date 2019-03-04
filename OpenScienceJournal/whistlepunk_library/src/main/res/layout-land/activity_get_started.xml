@@ -16,32 +16,31 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.google.android.apps.forscience.whistlepunk.accounts.GetStartedActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/get_started_background_color"
-    tools:context="com.google.android.apps.forscience.whistlepunk.accounts.GetStartedActivity"
     >
 
   <ImageView
+      android:src="@drawable/splashscreen_bg"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_alignParentBottom="true"
       android:layout_centerHorizontal="true"
+      android:layout_marginTop="@dimen/get_started_image_margin_top"
       android:paddingLeft="@dimen/get_started_image_margin_sides"
       android:paddingRight="@dimen/get_started_image_margin_sides"
-      android:src="@drawable/splashscreen_bg_w_goog"
+      android:scaleType="matrix"
       />
-
   <LinearLayout
-      android:id="@+id/container"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_marginStart="0dp"
-      android:layout_alignParentStart="true"
-      android:paddingTop="@dimen/activity_vertical_margin"
-      android:paddingBottom="@dimen/activity_vertical_margin"
-      android:paddingLeft="@dimen/activity_horizontal_margin"
-      android:paddingRight="@dimen/activity_horizontal_margin"
-      android:orientation="vertical"/>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    android:id="@+id/container"
+    />
 
 </RelativeLayout>
