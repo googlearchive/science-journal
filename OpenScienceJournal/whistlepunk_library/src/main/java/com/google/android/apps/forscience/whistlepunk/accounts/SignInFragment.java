@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 
 /**
@@ -96,8 +97,7 @@ public class SignInFragment extends Fragment {
         R.string.science_journal_disabled_yes,
         (dialog, which) -> {
           dialog.dismiss();
-          // Show the account picker dialog.
-          signInClicked();
+          showAccountSwitcherDialog();
         });
     alertDialog.create().show();
   }
@@ -134,6 +134,16 @@ public class SignInFragment extends Fragment {
   }
 
   private void signInClicked() {
+    WhistlePunkApplication.getUsageTracker(getActivity())
+        .trackEvent(
+            TrackerConstants.CATEGORY_SIGN_IN,
+            TrackerConstants.ACTION_SIGN_IN_FROM_WELCOME,
+            null,
+            0);
+    showAccountSwitcherDialog();
+  }
+
+  private void showAccountSwitcherDialog() {
     if (accountsProvider.isSignedIn()) {
       // This shouldn't happen, but if it does, just make this screen go away.
       afterSignIn();
@@ -160,11 +170,19 @@ public class SignInFragment extends Fragment {
   }
 
   private void learnMoreClicked() {
+    WhistlePunkApplication.getUsageTracker(getActivity())
+        .trackEvent(TrackerConstants.CATEGORY_SIGN_IN, TrackerConstants.ACTION_LEARN_MORE, null, 0);
     startActivity(
         new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.sign_in_learn_more_url))));
   }
 
   private void continueWithoutSigningInClicked() {
+    WhistlePunkApplication.getUsageTracker(getActivity())
+        .trackEvent(
+            TrackerConstants.CATEGORY_SIGN_IN,
+            TrackerConstants.ACTION_CONTINUE_WITHOUT_ACCOUNT_FROM_WELCOME,
+            null,
+            0);
     Context context = getContext();
     if (AgeVerifier.shouldShowUserAge(context)) {
       Intent intent = new Intent(context, AgeVerifier.class);

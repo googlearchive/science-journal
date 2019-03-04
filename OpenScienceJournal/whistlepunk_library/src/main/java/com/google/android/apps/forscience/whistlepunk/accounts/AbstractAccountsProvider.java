@@ -25,6 +25,9 @@ import androidx.annotation.Nullable;
 import android.widget.Toast;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import io.reactivex.Observable;
@@ -38,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** An abstract base class for accounts providers. */
 abstract class AbstractAccountsProvider implements AccountsProvider {
   final Context applicationContext;
+  final UsageTracker usageTracker;
   final BehaviorSubject<AppAccount> observableCurrentAccount;
   private final Object lockCurrentAccount = new Object();
   private AppAccount currentAccount;
@@ -54,6 +58,7 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
 
   AbstractAccountsProvider(Context context) {
     applicationContext = context.getApplicationContext();
+    usageTracker = WhistlePunkApplication.getUsageTracker(applicationContext);
     NonSignedInAccount nonSignedInAccount = NonSignedInAccount.getInstance(applicationContext);
     addAccount(nonSignedInAccount);
     currentAccount = nonSignedInAccount;
@@ -68,6 +73,8 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
   }
 
   protected final void onAccountNotPermitted(Activity activity) {
+    usageTracker.trackEvent(
+        TrackerConstants.CATEGORY_SIGN_IN, TrackerConstants.ACTION_PERMISSION_DENIED, null, 0);
     undoSignIn();
     setShowSignInActivityIfNotSignedIn(true);
     getAndSetShowScienceJournalIsDisabledAlert(true);

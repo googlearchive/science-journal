@@ -23,10 +23,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import androidx.annotation.VisibleForTesting;
 import android.util.Log;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -67,10 +71,13 @@ public class AccountsUtils {
    * <p>Should be called from a background IO thread.
    */
   static void removeOtherAccounts(Context context, Set<String> accountKeys) {
+    Set<String> missingAccountKeys = new HashSet<>();
+
     // Remove files for accounts which are no longer present.
     for (File filesDir : getFilesDirsForAllAccounts(context)) {
       String accountKey = getAccountKeyFromFile(context, filesDir);
       if (!accountKeys.contains(accountKey)) {
+        missingAccountKeys.add(accountKey);
         try {
           deleteRecursively(filesDir);
         } catch (IOException e) {
@@ -87,6 +94,7 @@ public class AccountsUtils {
       String accountKey = getAccountKeyFromDatabaseFileName(databaseFileName);
       if (accountKey != null) {
         if (!accountKeys.contains(accountKey)) {
+          missingAccountKeys.add(accountKey);
           context.deleteDatabase(databaseFileName);
         }
       }
@@ -97,12 +105,21 @@ public class AccountsUtils {
       String accountKey =
           getAccountKeyFromSharedPreferencesFileName(sharedPreferencesFile.getName());
       if (!accountKeys.contains(accountKey)) {
+        missingAccountKeys.add(accountKey);
         // Clear the SharedPreferences.
         SharedPreferences sharedPreferences =
             getSharedPreferences(context, getSharedPreferencesName(sharedPreferencesFile));
         sharedPreferences.edit().clear().commit();
         // Delete the SharedPreferences file.
         sharedPreferencesFile.delete();
+      }
+    }
+
+    if (!missingAccountKeys.isEmpty()) {
+      UsageTracker usageTracker = WhistlePunkApplication.getUsageTracker(context);
+      for (int i = 0; i < missingAccountKeys.size(); i++) {
+        usageTracker.trackEvent(
+            TrackerConstants.CATEGORY_SIGN_IN, TrackerConstants.ACTION_REMOVED_ACCOUNT, null, 0);
       }
     }
   }

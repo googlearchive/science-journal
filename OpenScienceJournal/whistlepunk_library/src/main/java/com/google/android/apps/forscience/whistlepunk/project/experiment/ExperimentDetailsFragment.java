@@ -203,6 +203,14 @@ public class ExperimentDetailsFragment extends Fragment
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
     setHasOptionsMenu(true);
+    if (claimExperimentsMode) {
+      WhistlePunkApplication.getUsageTracker(getActivity())
+          .trackEvent(
+              TrackerConstants.CATEGORY_CLAIMING_DATA,
+              TrackerConstants.ACTION_VIEW_EXPERIMENT,
+              null,
+              0);
+    }
   }
 
   public void setExperimentId(String experimentId) {
@@ -631,6 +639,14 @@ public class ExperimentDetailsFragment extends Fragment
                                   TrackerConstants.ACTION_DELETED,
                                   TrackerConstants.LABEL_EXPERIMENT_DETAIL,
                                   0);
+                          if (claimExperimentsMode) {
+                            WhistlePunkApplication.getUsageTracker(getActivity())
+                                .trackEvent(
+                                    TrackerConstants.CATEGORY_CLAIMING_DATA,
+                                    TrackerConstants.ACTION_DELETE_SINGLE,
+                                    null,
+                                    0);
+                          }
                           goToExperimentList();
                         }
                       });
@@ -825,6 +841,14 @@ public class ExperimentDetailsFragment extends Fragment
             TrackerConstants.ACTION_DELETED,
             TrackerConstants.LABEL_EXPERIMENT_DETAIL,
             TrackerConstants.getLabelValueType(deletedLabel.getLabel()));
+    if (claimExperimentsMode) {
+      WhistlePunkApplication.getUsageTracker(getActivity())
+          .trackEvent(
+              TrackerConstants.CATEGORY_CLAIMING_DATA,
+              TrackerConstants.ACTION_DELETE_NOTE,
+              null,
+              0);
+    }
   }
 
   private void setTrialArchived(Trial trial, boolean toArchive) {
@@ -887,6 +911,14 @@ public class ExperimentDetailsFragment extends Fragment
               new LoggingConsumer<Success>(TAG, "Remove cover image") {
                 @Override
                 public void success(Success value) {
+                  if (claimExperimentsMode) {
+                    WhistlePunkApplication.getUsageTracker(getActivity())
+                        .trackEvent(
+                            TrackerConstants.CATEGORY_CLAIMING_DATA,
+                            TrackerConstants.ACTION_REMOVE_COVER_IMAGE_FOR_EXPERIMENT,
+                            null,
+                            0);
+                  }
                   // Reload the data to refresh experiment item.
                   loadExperimentData(experiment);
                   getActivity().invalidateOptionsMenu();
@@ -905,6 +937,14 @@ public class ExperimentDetailsFragment extends Fragment
                           TrackerConstants.ACTION_DELETED,
                           TrackerConstants.LABEL_EXPERIMENT_DETAIL,
                           0);
+                  if (claimExperimentsMode) {
+                    WhistlePunkApplication.getUsageTracker(getActivity())
+                        .trackEvent(
+                            TrackerConstants.CATEGORY_CLAIMING_DATA,
+                            TrackerConstants.ACTION_DELETE_SINGLE,
+                            null,
+                            0);
+                  }
                   getActivity().finish();
                 }
               });
@@ -1216,6 +1256,14 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void onTrialDeleted(String trialId) {
+      if (parentReference.get().claimExperimentsMode) {
+        WhistlePunkApplication.getUsageTracker(parentReference.get().getActivity())
+            .trackEvent(
+                TrackerConstants.CATEGORY_CLAIMING_DATA,
+                TrackerConstants.ACTION_DELETE_TRIAL,
+                null,
+                0);
+      }
       int position = findTrialIndex(trialId);
       if (position != -1) {
         items.remove(position);

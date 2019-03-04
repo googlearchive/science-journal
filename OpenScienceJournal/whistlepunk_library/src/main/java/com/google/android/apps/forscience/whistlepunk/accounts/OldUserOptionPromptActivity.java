@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 
 /** Activity that lets the user choose what to do with their old experiments. */
 public class OldUserOptionPromptActivity extends AppCompatActivity {
@@ -87,6 +88,12 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
         R.string.claim_all_confirmation_yes,
         (dialog, which) -> {
           moveAllExperimentsToCurrentAccount();
+          WhistlePunkApplication.getUsageTracker(this)
+              .trackEvent(
+                  TrackerConstants.CATEGORY_CLAIMING_DATA,
+                  TrackerConstants.ACTION_CLAIM_ALL,
+                  null,
+                  0);
           dialog.dismiss();
         });
     builder.create().show();
@@ -129,6 +136,12 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
         R.string.delete_all_prompt_yes,
         (dialog, which) -> {
           deleteAllExperiments();
+          WhistlePunkApplication.getUsageTracker(this)
+              .trackEvent(
+                  TrackerConstants.CATEGORY_CLAIMING_DATA,
+                  TrackerConstants.ACTION_DELETE_ALL,
+                  null,
+                  0);
           dialog.dismiss();
         });
     builder.create().show();
@@ -149,6 +162,9 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
   }
 
   private void pickAndChooseExperiments() {
+    WhistlePunkApplication.getUsageTracker(this)
+        .trackEvent(
+            TrackerConstants.CATEGORY_CLAIMING_DATA, TrackerConstants.ACTION_SELECT_LATER, null, 0);
     setResult(RESULT_OK);
     finish();
   }

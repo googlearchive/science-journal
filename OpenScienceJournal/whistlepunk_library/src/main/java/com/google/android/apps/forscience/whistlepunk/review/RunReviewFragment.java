@@ -303,6 +303,11 @@ public class RunReviewFragment extends Fragment
               }
             });
     setHasOptionsMenu(true);
+    if (claimExperimentsMode) {
+      WhistlePunkApplication.getUsageTracker(getActivity())
+          .trackEvent(
+              TrackerConstants.CATEGORY_CLAIMING_DATA, TrackerConstants.ACTION_VIEW_TRIAL, null, 0);
+    }
   }
 
   @Override
@@ -952,6 +957,14 @@ public class RunReviewFragment extends Fragment
             TrackerConstants.ACTION_DELETED,
             TrackerConstants.LABEL_RUN_REVIEW,
             TrackerConstants.getLabelValueType(item.getLabel()));
+    if (claimExperimentsMode) {
+      WhistlePunkApplication.getUsageTracker(getActivity())
+          .trackEvent(
+              TrackerConstants.CATEGORY_CLAIMING_DATA,
+              TrackerConstants.ACTION_DELETE_TRIAL_NOTE,
+              null,
+              0);
+    }
   }
 
   private void setUpAxis(Bundle savedInstanceStateForLoad, View rootView) {
@@ -1176,6 +1189,14 @@ public class RunReviewFragment extends Fragment
             new LoggingConsumer<Success>(TAG, "Deleting new trial") {
               @Override
               public void success(Success value) {
+                if (claimExperimentsMode) {
+                  WhistlePunkApplication.getUsageTracker(getActivity())
+                      .trackEvent(
+                          TrackerConstants.CATEGORY_CLAIMING_DATA,
+                          TrackerConstants.ACTION_DELETE_TRIAL,
+                          null,
+                          0);
+                }
                 // Go back to the observe & record.
                 Intent intent = new Intent(getActivity(), RecordFragment.class);
                 NavUtils.navigateUpTo(getActivity(), intent);

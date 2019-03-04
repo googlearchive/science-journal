@@ -58,7 +58,9 @@ public final class TrackerConstants {
   public static final String CATEGORY_SENSOR_MANAGEMENT = "ManageSensors";
   public static final String CATEGORY_STORAGE = "Storage";
   public static final String CATEGORY_PANES = "Panes";
-  public static final String CATEGORY_ACCOUNTS = "Accounts";
+  public static final String CATEGORY_SIGN_IN = "SignIn";
+  public static final String CATEGORY_CLAIMING_DATA = "ClaimingData";
+  public static final String CATEGORY_SYNC = "Sync";
 
   // Event actions
   public static final String ACTION_CREATE = "Create";
@@ -84,7 +86,44 @@ public final class TrackerConstants {
   public static final String ACTION_LABEL_ADDED = "LabelAdded";
   public static final String ACTION_SHARED = "Shared";
   public static final String ACTION_IMPORTED = "Imported";
-  public static final String ACTION_IS_ACCOUNT_PERMITTED = "IsAccountPermitted";
+
+  public static final String ACTION_START_SIGN_IN = "StartSignIn";
+  public static final String ACTION_START_SWITCH_ACCOUNT = "StartSwitchAccount";
+  public static final String ACTION_SIGN_IN_FROM_WELCOME = "SignInFromWelcome";
+  public static final String ACTION_SIGN_IN_FROM_SIDEBAR = "SignInFromSidebar";
+  public static final String ACTION_LEARN_MORE = "LearnMore";
+  public static final String ACTION_CONTINUE_WITHOUT_ACCOUNT_FROM_WELCOME =
+      "ContinueWithoutAccount";
+  public static final String ACTION_CONTINUE_WITHOUT_ACCOUNT_FROM_SIDEBAR =
+      "ContinueWithoutAccountSidebar";
+  public static final String ACTION_ACCOUNT_CHANGED = "AccountChanged";
+  public static final String ACTION_ACCOUNT_SIGNED_IN = "AccountSignedIn";
+  public static final String ACTION_FAILED = "Failed"; // Not used on iOS or Android.
+  public static final String ACTION_SWITCH_FAILED = "SwitchFailed"; // iOS only.
+  public static final String ACTION_NO_CHANGE = "NoChange"; // iOS only.
+  public static final String ACTION_REMOVED_ACCOUNT = "RemovedAccount";
+  public static final String ACTION_ERROR = "Error"; // iOS only.
+  public static final String ACTION_ACCOUNT_TYPE = "AccountType";
+  public static final String ACTION_PERMISSION_DENIED = "PermissionDenied";
+  public static final String ACTION_SYNC_EXISTING_ACCOUNT = "SyncExistingAccount";
+  public static final String ACTION_IS_ACCOUNT_PERMITTED = "IsAccountPermitted"; // Android only.
+  public static final String ACTION_CLAIM_ALL = "ClaimAll";
+  public static final String ACTION_DELETE_ALL = "DeleteAll";
+  public static final String ACTION_SELECT_LATER = "SelectLater";
+  public static final String ACTION_CLAIM_SINGLE = "ClaimSingle";
+  public static final String ACTION_DELETE_SINGLE = "DeleteSingle";
+  public static final String ACTION_SHARE = "Share";
+  public static final String ACTION_VIEW_EXPERIMENT = "ViewExperiment";
+  public static final String ACTION_VIEW_TRIAL = "ViewTrial";
+  public static final String ACTION_VIEW_TRIAL_NOTE = "ViewTrialNote";
+  public static final String ACTION_VIEW_NOTE = "ViewNote";
+  public static final String ACTION_REMOVE_COVER_IMAGE_FOR_EXPERIMENT =
+      "RemoveCoverImageForExperiment";
+  public static final String ACTION_DELETE_TRIAL = "DeleteTrial";
+  public static final String ACTION_DELETE_TRIAL_NOTE = "DeleteTrialNote";
+  public static final String ACTION_DELETE_NOTE = "DeleteNote";
+  public static final String ACTION_SYNC_EXPERIMENT_FROM_DRIVE = "SyncExperimentFromDrive";
+  public static final String ACTION_MANUAL_SYNC_STARTED = "ManualSyncStarted";
 
   // Labels
   public static final String LABEL_RECORD = "record";
@@ -96,8 +135,12 @@ public final class TrackerConstants {
   public static final String LABEL_MODE_SIGNED_IN = "signedin";
   public static final String LABEL_MODE_SIGNED_OUT_CHILD = "child";
   public static final String LABEL_MODE_SIGNED_OUT_NONCHILD = "nonchild";
-  public static final String LABEL_DEFINITELY_NOT_DASHER = "DefinitelyNotDasher";
   public static final String LABEL_USER_RECOVERABLE_AUTH_EXCEPTION = "UserRecoverableAuthException";
+  public static final String LABEL_ACCOUNT_TYPE_OTHER = "Other";
+  public static final String LABEL_ACCOUNT_TYPE_GMAIL = "Gmail";
+  public static final String LABEL_ACCOUNT_TYPE_GSUITE = "GSuite";
+  public static final String LABEL_ACCOUNT_TYPE_GOOGLE_CORP = "GoogleCorp";
+  public static final String LABEL_ACCOUNT_TYPE_UNKNOWN = "Unknown";
   public static final String LABEL_PERMISSION_RESPONSE_RECEIVED = "PermissionResponseReceived";
   public static final String LABEL_PERMISSION_REQUEST_FAILED = "PermissionRequestFailed";
 
@@ -109,6 +152,12 @@ public final class TrackerConstants {
   public static final long VALUE_USER_AUTH_ACTION_REQUIRED = 4;
   public static final long VALUE_PERMITTED = 5;
   public static final long VALUE_NOT_PERMITTED = 6;
+
+  public static final long VALUE_ACCOUNT_TYPE_OTHER = 0;
+  public static final long VALUE_ACCOUNT_TYPE_GMAIL = 1;
+  public static final long VALUE_ACCOUNT_TYPE_GSUITE = 2;
+  public static final long VALUE_ACCOUNT_TYPE_GOOGLE_CORP = 3;
+  public static final long VALUE_ACCOUNT_TYPE_UNKNOWN = 4;
 
   // Primes Event Names
   public static final String PRIMES_OBSERVE = "OBSERVE";

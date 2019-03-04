@@ -330,6 +330,9 @@ public class ExperimentListFragment extends Fragment
 
   @Override public void onRefresh() {
     swipeLayout.setRefreshing(false);
+    WhistlePunkApplication.getUsageTracker(applicationContext)
+        .trackEvent(
+            TrackerConstants.CATEGORY_SYNC, TrackerConstants.ACTION_MANUAL_SYNC_STARTED, null, 0);
     syncNow("Sync on Pulldown");
   }
 
@@ -879,6 +882,14 @@ public class ExperimentListFragment extends Fragment
                               TrackerConstants.ACTION_DELETED,
                               TrackerConstants.LABEL_EXPERIMENT_LIST,
                               0);
+                      if (claimExperimentsMode) {
+                        WhistlePunkApplication.getUsageTracker(applicationContext)
+                            .trackEvent(
+                                TrackerConstants.CATEGORY_CLAIMING_DATA,
+                                TrackerConstants.ACTION_DELETE_SINGLE,
+                                null,
+                                0);
+                      }
                       syncLater("Sync on Delete");
                       maybeFinishClaimExperimentsMode();
                     }
@@ -1372,6 +1383,12 @@ public class ExperimentListFragment extends Fragment
                   }
                   parentReference.get().setClaimProgressBarVisible(false);
                   onExperimentDeleted(experimentId);
+                  WhistlePunkApplication.getUsageTracker(applicationContext)
+                      .trackEvent(
+                          TrackerConstants.CATEGORY_CLAIMING_DATA,
+                          TrackerConstants.ACTION_CLAIM_SINGLE,
+                          null,
+                          0);
                   showClaimedSnackbar();
                   // When the snackbar disappears, finish claim experiments mode if there are no
                   // experiments left.
@@ -1415,6 +1432,11 @@ public class ExperimentListFragment extends Fragment
               TrackerConstants.ACTION_SHARED,
               TrackerConstants.LABEL_EXPERIMENT_LIST,
               0);
+      if (parentReference.get().claimExperimentsMode) {
+        WhistlePunkApplication.getUsageTracker(applicationContext)
+            .trackEvent(
+                TrackerConstants.CATEGORY_CLAIMING_DATA, TrackerConstants.ACTION_SHARE, null, 0);
+      }
       parentReference.get().setExportProgressBarVisible(true);
       ExportService.handleExperimentExportClick(
           context, parentReference.get().appAccount, experimentId);
