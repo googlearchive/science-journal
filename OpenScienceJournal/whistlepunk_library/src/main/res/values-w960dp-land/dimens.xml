@@ -25,4 +25,5 @@
     <dimen name="sign_in_image_margin_top">280dp</dimen>
     <dimen name="sign_in_text_font_size">16sp</dimen>
     <dimen name="sign_in_text_top_margin">70dp</dimen>
+    <dimen name="sign_in_text_side_margin">395dp</dimen>
 </resources>
