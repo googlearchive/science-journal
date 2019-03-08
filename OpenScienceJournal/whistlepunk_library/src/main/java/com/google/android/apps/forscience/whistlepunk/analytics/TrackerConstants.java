@@ -141,17 +141,20 @@ public final class TrackerConstants {
   public static final String LABEL_ACCOUNT_TYPE_GSUITE = "GSuite";
   public static final String LABEL_ACCOUNT_TYPE_GOOGLE_CORP = "GoogleCorp";
   public static final String LABEL_ACCOUNT_TYPE_UNKNOWN = "Unknown";
-  public static final String LABEL_PERMISSION_RESPONSE_RECEIVED = "PermissionResponseReceived";
+  public static final String LABEL_PERMISSION_RESPONSE_RECEIVED_PERMITTED =
+      "PermissionResponseReceived_Permitted";
+  public static final String LABEL_PERMISSION_RESPONSE_RECEIVED_NOT_PERMITTED =
+      "PermissionResponseReceived_NotPermitted";
   public static final String LABEL_PERMISSION_REQUEST_FAILED = "PermissionRequestFailed";
+  public static final String LABEL_CACHED_PERMISSION_PERMITTED = "CachedPermission_Permitted";
+  public static final String LABEL_CACHED_PERMISSION_NOT_PERMITTED =
+      "CachedPermission_NotPermitted";
 
   // Values
   private static final long VALUE_TYPE_TEXT = 0;
   private static final long VALUE_TYPE_PICTURE = 1;
   private static final long VALUE_TYPE_SENSOR_TRIGGER = 2;
   private static final long VALUE_TYPE_SNAPSHOT = 3;
-  public static final long VALUE_USER_AUTH_ACTION_REQUIRED = 4;
-  public static final long VALUE_PERMITTED = 5;
-  public static final long VALUE_NOT_PERMITTED = 6;
 
   public static final long VALUE_ACCOUNT_TYPE_OTHER = 0;
   public static final long VALUE_ACCOUNT_TYPE_GMAIL = 1;
