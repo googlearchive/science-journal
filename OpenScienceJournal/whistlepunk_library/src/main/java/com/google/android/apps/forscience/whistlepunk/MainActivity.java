@@ -55,10 +55,6 @@ public class MainActivity extends ActivityWithNavigationView {
   public static final String ARG_USE_PANES = "use_panes";
   protected static final int NO_SELECTED_ITEM = -1;
 
-  private static final int REQUEST_AGE_VERIFIER = 1;
-  private static final int REQUEST_GET_STARTED_ACTIVITY = 2;
-  private static final int REQUEST_SIGN_IN_ACTIVITY = 3;
-
   /**
    * The ARG_SELECTED_NAV_ITEM_ID value from onCreate's savedInstanceState if there is one, or
    * NO_SELECTED_ITEM.
@@ -339,29 +335,42 @@ public class MainActivity extends ActivityWithNavigationView {
    * @return true iff there are no required screens that need to be shown
    */
   private boolean showRequiredScreensIfNeeded() {
-    if (!accountsProvider.supportSignedInAccount()
-        || currentAccount instanceof NonSignedInAccount) {
-      if (AgeVerifier.shouldShowUserAge(this)) {
-        Intent intent = new Intent(this, AgeVerifier.class);
-        startActivityForResult(intent, REQUEST_AGE_VERIFIER);
-        return true;
-      }
-      return false;
+    if (!accountsProvider.supportSignedInAccount()) {
+      return showOldRequiredScreensIfNeeded();
     }
 
     if (GetStartedActivity.shouldLaunch(this)) {
       Intent intent = new Intent(this, GetStartedActivity.class);
-      startActivityForResult(intent, REQUEST_GET_STARTED_ACTIVITY);
+      startActivityForResult(intent, ActivityRequestCodes.REQUEST_GET_STARTED_ACTIVITY);
       return true;
     }
 
     if (SignInActivity.shouldLaunch(this) || OldUserOptionPromptActivity.shouldLaunch(this)) {
       Intent intent = new Intent(this, SignInActivity.class);
-      startActivityForResult(intent, REQUEST_SIGN_IN_ACTIVITY);
+      startActivityForResult(intent, ActivityRequestCodes.REQUEST_SIGN_IN_ACTIVITY);
       return true;
     }
 
+    // If the user has chosen to use Science Journal without an account, check if we need to ask
+    // their age.
+    if (currentAccount instanceof NonSignedInAccount) {
+      if (AgeVerifier.shouldShowUserAge(this)) {
+        Intent intent = new Intent(this, AgeVerifier.class);
+        startActivityForResult(intent, ActivityRequestCodes.REQUEST_AGE_VERIFIER);
+        return true;
+      }
+    }
+
     accountsProvider.setShowSignInActivityIfNotSignedIn(false);
+    return false;
+  }
+
+  private boolean showOldRequiredScreensIfNeeded() {
+    if (AgeVerifier.shouldShowUserAge(this)) {
+      Intent intent = new Intent(this, AgeVerifier.class);
+      startActivityForResult(intent, ActivityRequestCodes.REQUEST_AGE_VERIFIER);
+      return true;
+    }
     return false;
   }
 
@@ -538,24 +547,32 @@ public class MainActivity extends ActivityWithNavigationView {
 
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    switch (requestCode) {
+      case ActivityRequestCodes.REQUEST_AGE_VERIFIER:
+        if (resultCode == RESULT_CANCELED) {
+          if (accountsProvider.supportSignedInAccount()) {
+            accountsProvider.setShowSignInActivityIfNotSignedIn(true);
+          } else {
+            finish();
+          }
+        }
+        return;
+      case ActivityRequestCodes.REQUEST_GET_STARTED_ACTIVITY:
+      case ActivityRequestCodes.REQUEST_SIGN_IN_ACTIVITY:
+        if (resultCode == RESULT_CANCELED) {
+          finish();
+        }
+        return;
+      default:
+        break;
+    }
+
     // TODO: Do this for all possible IDs in case others have activity results.
     Fragment fragment =
         getSupportFragmentManager()
             .findFragmentByTag(String.valueOf(R.id.navigation_item_experiments));
     if (fragment != null) {
       fragment.onActivityResult(requestCode, resultCode, data);
-    } else {
-      switch (requestCode) {
-        case REQUEST_AGE_VERIFIER:
-        case REQUEST_GET_STARTED_ACTIVITY:
-        case REQUEST_SIGN_IN_ACTIVITY:
-          if (resultCode == RESULT_CANCELED) {
-            finish();
-          }
-          break;
-        default:
-          break;
-      }
     }
   }
 

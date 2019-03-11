@@ -33,8 +33,6 @@ import com.google.android.apps.forscience.whistlepunk.R;
  */
 public class ScanDisabledDialogFragment extends DialogFragment {
 
-  private static final int REQUEST_FROM_BUTTON = 1;
-
   static ScanDisabledDialogFragment newInstance() {
     return new ScanDisabledDialogFragment();
   }

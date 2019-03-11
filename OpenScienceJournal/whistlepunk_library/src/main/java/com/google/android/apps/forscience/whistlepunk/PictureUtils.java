@@ -43,8 +43,8 @@ public class PictureUtils {
   public static final String TAG = "PictureUtils";
 
   // Links a photo-taking request intent with the onActivityResult by requestType.
-  public static final int REQUEST_TAKE_PHOTO = 1;
-  public static final int REQUEST_SELECT_PHOTO = 2;
+  public static final int REQUEST_TAKE_PHOTO = ActivityRequestCodes.REQUEST_TAKE_PHOTO;
+  public static final int REQUEST_SELECT_PHOTO = ActivityRequestCodes.REQUEST_SELECT_PHOTO;
 
   private static final String PICTURE_NAME_TEMPLATE = "%s.jpg";
 

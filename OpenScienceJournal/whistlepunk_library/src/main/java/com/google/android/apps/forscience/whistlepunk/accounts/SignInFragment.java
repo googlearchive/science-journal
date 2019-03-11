@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import com.google.android.apps.forscience.whistlepunk.ActivityRequestCodes;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -39,10 +40,6 @@ import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
  * Sign In.
  */
 public class SignInFragment extends Fragment {
-  private static final int REQUEST_CODE_ACCOUNT_SWITCHER = 217;
-  private static final int REQUEST_OLD_USER_OPTION_PROMPT_ACTIVITY = 218;
-  private static final int REQUEST_AGE_VERIFIER = 219;
-
   private AccountsProvider accountsProvider;
 
   @Override
@@ -105,7 +102,7 @@ public class SignInFragment extends Fragment {
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     switch (requestCode) {
-      case REQUEST_CODE_ACCOUNT_SWITCHER:
+      case ActivityRequestCodes.REQUEST_ACCOUNT_SWITCHER:
         if (resultCode == Activity.RESULT_OK) {
           if (accountsProvider.isSignedIn()) {
             afterSignIn();
@@ -114,7 +111,7 @@ public class SignInFragment extends Fragment {
           showScienceJournalIsDisabledAlert();
         }
         break;
-      case REQUEST_OLD_USER_OPTION_PROMPT_ACTIVITY:
+      case ActivityRequestCodes.REQUEST_OLD_USER_OPTION_PROMPT_ACTIVITY:
         if (resultCode == Activity.RESULT_OK) {
           OldUserOptionPromptActivity.setShouldLaunch(getContext(), false);
           finish();
@@ -123,7 +120,7 @@ public class SignInFragment extends Fragment {
           accountsProvider.undoSignIn();
         }
         break;
-      case REQUEST_AGE_VERIFIER:
+      case ActivityRequestCodes.REQUEST_AGE_VERIFIER:
         if (resultCode == Activity.RESULT_OK) {
           finish();
         }
@@ -152,7 +149,8 @@ public class SignInFragment extends Fragment {
 
     if (accountsProvider.getAccountCount() > 0) {
       // If there is one or more accounts on the device, show the account switcher dialog.
-      accountsProvider.showAccountSwitcherDialog(this, REQUEST_CODE_ACCOUNT_SWITCHER);
+      accountsProvider.showAccountSwitcherDialog(
+          this, ActivityRequestCodes.REQUEST_ACCOUNT_SWITCHER);
     } else {
       // If there are no accounts on the device, show the add account dialog.
       accountsProvider.showAddAccountDialog(getActivity());
@@ -163,7 +161,7 @@ public class SignInFragment extends Fragment {
     Context context = getContext();
     if (OldUserOptionPromptActivity.shouldLaunch(context)) {
       Intent intent = new Intent(context, OldUserOptionPromptActivity.class);
-      startActivityForResult(intent, REQUEST_OLD_USER_OPTION_PROMPT_ACTIVITY);
+      startActivityForResult(intent, ActivityRequestCodes.REQUEST_OLD_USER_OPTION_PROMPT_ACTIVITY);
     } else {
       finish();
     }
@@ -186,7 +184,7 @@ public class SignInFragment extends Fragment {
     Context context = getContext();
     if (AgeVerifier.shouldShowUserAge(context)) {
       Intent intent = new Intent(context, AgeVerifier.class);
-      startActivityForResult(intent, REQUEST_AGE_VERIFIER);
+      startActivityForResult(intent, ActivityRequestCodes.REQUEST_AGE_VERIFIER);
     } else {
       finish();
     }
