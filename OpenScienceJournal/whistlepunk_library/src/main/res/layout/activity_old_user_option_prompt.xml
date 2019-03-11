@@ -30,13 +30,14 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
+        android:gravity="center_vertical"
         android:orientation="vertical"
         android:background="@android:color/white"
         >
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="87dp"
+            android:layout_marginTop="8dp"
             android:layout_marginStart="37dp"
             android:layout_marginEnd="16dp"
             android:text="@string/old_user_option_prompt_headline"
@@ -175,6 +176,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="21dp"
             android:layout_marginStart="40dp"
+            android:layout_marginBottom="8dp"
             android:orientation="horizontal"
             android:clickable="true"
             android:focusable="true"
