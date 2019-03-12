@@ -922,9 +922,7 @@
 
     <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
     <string name="listing_changelog">
-New features and improvements:
-\n\u2022 Easier deletion of experiments and notes.
-\n\u2022 Bug fixes
+    New features and improvements:\n• Sign in to your Google account to save and access your experiments across your devices using your Google Drive account. This feature will be available to all users in the coming weeks. Science Journal can still be used without signing in.
     </string>
 
     <!-- Note: following here are partial strings for stitching together changelogs: our changelog
