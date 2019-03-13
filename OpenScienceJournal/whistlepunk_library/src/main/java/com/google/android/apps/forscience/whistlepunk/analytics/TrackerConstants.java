@@ -115,8 +115,8 @@ public final class TrackerConstants {
   public static final String ACTION_SHARE = "Share";
   public static final String ACTION_VIEW_EXPERIMENT = "ViewExperiment";
   public static final String ACTION_VIEW_TRIAL = "ViewTrial";
-  public static final String ACTION_VIEW_TRIAL_NOTE = "ViewTrialNote";
-  public static final String ACTION_VIEW_NOTE = "ViewNote";
+  public static final String ACTION_VIEW_TRIAL_NOTE = "ViewTrialNote"; // iOS only.
+  public static final String ACTION_VIEW_NOTE = "ViewNote"; // iOS only.
   public static final String ACTION_REMOVE_COVER_IMAGE_FOR_EXPERIMENT =
       "RemoveCoverImageForExperiment";
   public static final String ACTION_DELETE_TRIAL = "DeleteTrial";
