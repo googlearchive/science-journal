@@ -80,6 +80,7 @@ public class LocalSyncManager {
     status.experimentId = experimentId;
     list.add(status);
     proto.experimentStatus = list.toArray(new GoosciLocalSyncStatus.ExperimentStatus[0]);
+    proto.lastSyncedLibraryVersion = -1L; // Added to force a sync on claim all.
     writeLocalSyncStatus();
   }
 
