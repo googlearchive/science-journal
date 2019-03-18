@@ -739,6 +739,11 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
   private <T> void background(
       Executor dataThread, final MaybeConsumer<T> onSuccess, final Callable<T> job) {
+    RuntimeException runtimeExceptionWithOriginalStackTrace =
+        new RuntimeException(
+            "This is the stack trace for thread "
+                + Thread.currentThread()
+                + ", which called DataControllerImpl.background().");
     dataThread.execute(
         new Runnable() {
           @Override
@@ -753,6 +758,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                     }
                   });
             } catch (final Exception e) {
+              Log.e(
+                  TAG,
+                  "Caught exception (" + e + ") while executing background job.",
+                  runtimeExceptionWithOriginalStackTrace);
               uiThread.execute(
                   new Runnable() {
                     @Override
