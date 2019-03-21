@@ -136,9 +136,6 @@ public class MainActivity extends ActivityWithNavigationView {
     pause.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
 
     rememberAttemptingImport();
-    if (isAttemptingImport() && currentAccount != null) {
-      attemptImport();
-    }
 
     if (showRequiredScreensIfNeeded()) {
       return;
@@ -180,6 +177,10 @@ public class MainActivity extends ActivityWithNavigationView {
     // If we get to here, it's safe to log the mode we are in: user has signed in and/or
     // completed age verification.
     trackMode();
+
+    if (isAttemptingImport() && currentAccount != null) {
+      attemptImport();
+    }
   }
 
   private void attemptImport() {
