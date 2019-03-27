@@ -62,6 +62,10 @@ public class GetStartedActivity extends AppCompatActivity {
                 TAG, "getting last used experiment to force database upgrade") {
               @Override
               public void success(Experiment experiment) {
+                // If the activity has already been dismissed, don't bother with the fragment.
+                if (isDestroyed()) {
+                  return;
+                }
                 // Let the user sign in.
                 if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
                   Fragment fragment = new GetStartedFragment();
