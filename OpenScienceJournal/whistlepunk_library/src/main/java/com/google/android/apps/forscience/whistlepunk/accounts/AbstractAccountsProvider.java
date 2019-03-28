@@ -18,15 +18,12 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import androidx.annotation.Nullable;
 import android.widget.Toast;
-import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
-import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -70,17 +67,6 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
       return Single.just(PermissionStatus.PERMITTED);
     }
     throw new IllegalArgumentException("This should have been handled by subclass.");
-  }
-
-  protected final void onAccountNotPermitted(Activity activity) {
-    usageTracker.trackEvent(
-        TrackerConstants.CATEGORY_SIGN_IN, TrackerConstants.ACTION_PERMISSION_DENIED, null, 0);
-    undoSignIn();
-    setShowSignInActivityIfNotSignedIn(true);
-    getAndSetShowScienceJournalIsDisabledAlert(true);
-    Intent intent = new Intent(applicationContext, MainActivity.class);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    activity.startActivity(intent);
   }
 
   @Override

@@ -81,6 +81,9 @@ public class SignInFragment extends Fragment {
   }
 
   private void showScienceJournalIsDisabledAlert() {
+    WhistlePunkApplication.getUsageTracker(getActivity())
+        .trackEvent(
+            TrackerConstants.CATEGORY_SIGN_IN, TrackerConstants.ACTION_PERMISSION_DENIED, null, 0);
     AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
     Resources resources = getResources();
     alertDialog.setTitle(resources.getString(R.string.science_journal_disabled_title));
