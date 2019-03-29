@@ -86,6 +86,7 @@ public final class TrackerConstants {
   public static final String ACTION_LABEL_ADDED = "LabelAdded";
   public static final String ACTION_SHARED = "Shared";
   public static final String ACTION_IMPORTED = "Imported";
+  public static final String ACTION_CLAIM_FAILED = "Failed";
 
   public static final String ACTION_START_SIGN_IN = "StartSignIn";
   public static final String ACTION_START_SWITCH_ACCOUNT = "StartSwitchAccount";

@@ -818,6 +818,17 @@ public class ExperimentListFragment extends Fragment
                 setClaimProgressBarVisible(false);
                 getActivity().finish();
               }
+
+              @Override
+              public void fail(Exception e) {
+                WhistlePunkApplication.getUsageTracker(getActivity())
+                    .trackEvent(
+                        TrackerConstants.CATEGORY_CLAIMING_DATA,
+                        TrackerConstants.ACTION_CLAIM_FAILED,
+                        e.getMessage(),
+                        0);
+                super.fail(e);
+              }
             });
   }
 
