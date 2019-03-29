@@ -921,20 +921,27 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     metaDataManager.beforeMovingExperimentToAnotherAccount(experiment);
 
-    // Move files.
-    metaDataManager.moveExperimentToAnotherAccount(experiment, targetAccount);
+    //TODO(b/129534983): Write test that covers an IOException when claiming experiments
+    try {
+      // Move files.
+      metaDataManager.moveExperimentToAnotherAccount(experiment, targetAccount);
 
-    // Move scalar sensor data.
-    List<GoosciScalarSensorData.ScalarSensorDataDump> scalarSensorData =
-        sensorDatabase.getScalarReadingProtosAsList(experiment.getExperimentProto());
-    ScalarSensorDumpReader scalarSensorDumpReader =
-        new ScalarSensorDumpReader(targetDataController);
-    scalarSensorDumpReader.readData(scalarSensorData);
-    for (Trial trial : experiment.getTrials()) {
-      removeTrialSensorData(trial);
+      // Move scalar sensor data.
+      List<GoosciScalarSensorData.ScalarSensorDataDump> scalarSensorData =
+          sensorDatabase.getScalarReadingProtosAsList(experiment.getExperimentProto());
+      ScalarSensorDumpReader scalarSensorDumpReader =
+          new ScalarSensorDumpReader(targetDataController);
+      scalarSensorDumpReader.readData(scalarSensorData);
+      for (Trial trial : experiment.getTrials()) {
+        removeTrialSensorData(trial);
+      }
+
+      targetDataController.metaDataManager.afterMovingExperimentFromAnotherAccount(experiment);
+    } catch (IOException e) {
+      // Re-add it to the original MetaDataManager
+      metaDataManager.afterMovingExperimentFromAnotherAccount(experiment);
+      throw e;
     }
-
-    targetDataController.metaDataManager.afterMovingExperimentFromAnotherAccount(experiment);
   }
 
   @Override
