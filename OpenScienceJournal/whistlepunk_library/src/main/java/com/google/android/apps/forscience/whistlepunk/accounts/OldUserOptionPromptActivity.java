@@ -134,7 +134,10 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
                     TrackerConstants.ACTION_CLAIM_FAILED,
                     e.getMessage(),
                     0);
-            Toast.makeText(getBaseContext(), R.string.claim_failed, Toast.LENGTH_LONG).show();
+            Context baseContext = getBaseContext();
+            if (baseContext != null) {
+              Toast.makeText(baseContext, R.string.claim_failed, Toast.LENGTH_LONG).show();
+            }
             super.fail(e);
           }
         });

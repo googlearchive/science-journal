@@ -828,7 +828,10 @@ public class ExperimentListFragment extends Fragment
                         TrackerConstants.ACTION_CLAIM_FAILED,
                         e.getMessage(),
                         0);
-                Toast.makeText(getContext(), R.string.claim_failed, Toast.LENGTH_LONG).show();
+                Context context = getContext();
+                if (context != null) {
+                  Toast.makeText(context, R.string.claim_failed, Toast.LENGTH_LONG).show();
+                }
                 super.fail(e);
               }
             });
