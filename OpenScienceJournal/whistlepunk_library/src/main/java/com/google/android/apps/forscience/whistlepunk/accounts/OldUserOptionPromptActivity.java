@@ -22,6 +22,7 @@ import android.preference.PreferenceManager;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -133,6 +134,7 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
                     TrackerConstants.ACTION_CLAIM_FAILED,
                     e.getMessage(),
                     0);
+            Toast.makeText(getBaseContext(), R.string.claim_failed, Toast.LENGTH_LONG).show();
             super.fail(e);
           }
         });

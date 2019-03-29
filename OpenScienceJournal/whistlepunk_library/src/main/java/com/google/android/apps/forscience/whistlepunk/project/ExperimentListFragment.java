@@ -50,6 +50,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import com.google.android.apps.forscience.javalib.Success;
@@ -827,6 +828,7 @@ public class ExperimentListFragment extends Fragment
                         TrackerConstants.ACTION_CLAIM_FAILED,
                         e.getMessage(),
                         0);
+                Toast.makeText(getContext(), R.string.claim_failed, Toast.LENGTH_LONG).show();
                 super.fail(e);
               }
             });
