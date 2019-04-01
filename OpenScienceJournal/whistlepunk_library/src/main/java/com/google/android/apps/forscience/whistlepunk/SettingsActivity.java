@@ -23,9 +23,12 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.common.base.Preconditions;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -36,6 +39,7 @@ public class SettingsActivity extends AppCompatActivity {
   private static final String KEY_ACCOUNT_KEY = "accountKey";
   private static final String KEY_TYPE = "type";
   private static final String KEY_TITLE = "title";
+  private static final String TAG = "SettingsActivity";
 
   // The different types of display.
   @IntDef({TYPE_SETTINGS, TYPE_DEV_OPTIONS, TYPE_ABOUT})
@@ -52,6 +56,7 @@ public class SettingsActivity extends AppCompatActivity {
     setContentView(R.layout.activity_settings);
 
     AppAccount appAccount = WhistlePunkApplication.getAccount(this, getIntent(), KEY_ACCOUNT_KEY);
+    logExperimentInfo(appAccount);
 
     ActionBar actionBar = getSupportActionBar();
     if (actionBar != null) {
@@ -100,5 +105,30 @@ public class SettingsActivity extends AppCompatActivity {
     intent.putExtra(KEY_TYPE, type);
     intent.putExtra(KEY_TITLE, title);
     return intent;
+  }
+
+  // Added for b/129700680
+  private void logExperimentInfo(AppAccount account) {
+    if (Log.isLoggable(TAG, Log.INFO)) {
+      LocalSyncManager lsm = AppSingleton.getInstance(this).getLocalSyncManager(account);
+      ExperimentLibraryManager elm =
+          AppSingleton.getInstance(this).getExperimentLibraryManager(account);
+
+      int expCount = 0;
+      int delCount = 0;
+      int syncCount = 0;
+      for (String id : elm.getKnownExperiments()) {
+        expCount++;
+        if (elm.isDeleted(id)) {
+          delCount++;
+        }
+        if (lsm.hasExperiment(id)) {
+          syncCount++;
+        }
+      }
+      Log.i(TAG, "Experiments: " + expCount);
+      Log.i(TAG, "Deleted: " + delCount);
+      Log.i(TAG, "SyncManager: " + syncCount);
+    }
   }
 }
