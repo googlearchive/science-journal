@@ -8,4 +8,7 @@ public interface CloudSyncManager {
 
   /** Syncs the Experiment Library file to cloud storage */
   void syncExperimentLibrary(Context context, String logMessage) throws IOException;
+
+  /** Logs diagnostic info to the console * */
+  void logCloudInfo(String tag);
 }

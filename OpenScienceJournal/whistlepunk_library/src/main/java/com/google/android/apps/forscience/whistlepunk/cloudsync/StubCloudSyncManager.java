@@ -16,4 +16,11 @@ public class StubCloudSyncManager implements CloudSyncManager {
       Log.i(TAG, "Stubbed Experiment Library Sync! " + logMessage);
     }
   }
+
+  @Override
+  public void logCloudInfo(String tag) {
+    if (Log.isLoggable(tag, Log.WARN)) {
+      Log.w(tag, "Stubbed Cloud Sync Manager");
+    }
+  }
 }

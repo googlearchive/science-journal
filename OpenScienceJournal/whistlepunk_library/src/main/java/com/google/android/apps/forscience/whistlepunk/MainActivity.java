@@ -31,6 +31,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.core.view.GravityCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
@@ -40,10 +41,16 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.accounts.OldUserOptionPromptActivity;
 import com.google.android.apps.forscience.whistlepunk.accounts.SignInActivity;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
+import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /** The main activity. */
 public class MainActivity extends ActivityWithNavigationView {
@@ -442,6 +449,12 @@ public class MainActivity extends ActivityWithNavigationView {
             SettingsActivity.getLaunchIntent(
                 this, menuItem.getTitle(), SettingsActivity.TYPE_DEV_OPTIONS);
       } else if (itemId == R.id.navigation_item_feedback) {
+        // The two log statements below aren't guaranteed to succeed before the user has submitted
+        // their feedback, but this is a significantly less complicated way to implement this, and
+        // they are very, very likely to succeed before human input completes. The worst case is we
+        // don't get the logging we want, but in testing, it's basically instant.
+        logExperimentInfo(currentAccount);
+        logDriveInfo(currentAccount);
         feedbackProvider.sendFeedback(
             new LoggingConsumer<Boolean>(TAG, "Send feedback") {
               @Override
@@ -605,5 +618,61 @@ public class MainActivity extends ActivityWithNavigationView {
 
     // Log the mode we are in: user has signed in or signed out.
     trackMode();
+  }
+
+  // Added for b/129700680
+  // Will run in background thread.
+  private void logExperimentInfo(AppAccount account) {
+    Executor thread = Executors.newSingleThreadExecutor();
+    thread.execute(
+        new Runnable() {
+          @Override
+          public void run() {
+            if (Log.isLoggable(TAG, Log.WARN)) {
+              LocalSyncManager lsm =
+                  AppSingleton.getInstance(getApplicationContext()).getLocalSyncManager(account);
+              ExperimentLibraryManager elm =
+                  AppSingleton.getInstance(getApplicationContext())
+                      .getExperimentLibraryManager(account);
+
+              int expCount = 0;
+              int delCount = 0;
+              int syncCount = 0;
+              for (String id : elm.getKnownExperiments()) {
+                expCount++;
+                if (elm.isDeleted(id)) {
+                  delCount++;
+                }
+                if (lsm.hasExperiment(id)) {
+                  syncCount++;
+                }
+              }
+              Log.w(TAG, "Experiments: " + expCount);
+              Log.w(TAG, "Deleted: " + delCount);
+              Log.w(TAG, "SyncManager: " + syncCount);
+            }
+          }
+        });
+  }
+
+  // Will run in background thread.
+  private void logDriveInfo(AppAccount account) {
+    Executor thread = Executors.newSingleThreadExecutor();
+    thread.execute(
+        new Runnable() {
+          @Override
+          public void run() {
+            if (Log.isLoggable(TAG, Log.WARN)) {
+              if (account.isSignedIn()) {
+                CloudSyncProvider syncProvider =
+                    WhistlePunkApplication.getCloudSyncProvider(getApplicationContext());
+                CloudSyncManager syncService = syncProvider.getServiceForAccount(account);
+                syncService.logCloudInfo(TAG);
+              } else {
+                Log.w(TAG, "No Drive logs for signed out user");
+              }
+            }
+          }
+        });
   }
 }
