@@ -921,7 +921,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
     metaDataManager.beforeMovingExperimentToAnotherAccount(experiment);
 
-    //TODO(b/129534983): Write test that covers an IOException when claiming experiments
+    //TODO(b/129534983): Write test that covers an Exception when claiming experiments
     try {
       // Move files.
       metaDataManager.moveExperimentToAnotherAccount(experiment, targetAccount);
@@ -937,7 +937,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       }
 
       targetDataController.metaDataManager.afterMovingExperimentFromAnotherAccount(experiment);
-    } catch (IOException e) {
+    } catch (Exception e) {
       // Re-add it to the original MetaDataManager
       metaDataManager.afterMovingExperimentFromAnotherAccount(experiment);
       throw e;
