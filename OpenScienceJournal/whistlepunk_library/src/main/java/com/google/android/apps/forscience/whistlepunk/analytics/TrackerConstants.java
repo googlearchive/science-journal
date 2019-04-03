@@ -16,8 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.analytics;
 
+import androidx.annotation.VisibleForTesting;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.common.base.Throwables;
 
 /** Constants for usage tracking. */
 public final class TrackerConstants {
@@ -87,6 +89,10 @@ public final class TrackerConstants {
   public static final String ACTION_SHARED = "Shared";
   public static final String ACTION_IMPORTED = "Imported";
   public static final String ACTION_CLAIM_FAILED = "Failed";
+  public static final String ACTION_RECOVERY_FAILED = "RecoveryFailed";
+  public static final String ACTION_RECOVER_EXPERIMENT_ATTEMPTED = "RecoverExperimentAttempted";
+  public static final String ACTION_RECOVER_EXPERIMENT_SUCCEEDED = "RecoverExperimentSucceeded";
+  public static final String ACTION_RECOVER_EXPERIMENT_FAILED = "RecoverExperimentFailed";
 
   public static final String ACTION_START_SIGN_IN = "StartSignIn";
   public static final String ACTION_START_SWITCH_ACCOUNT = "StartSwitchAccount";
@@ -170,6 +176,12 @@ public final class TrackerConstants {
   public static final String PRIMES_RUN_LOADED = "RUN_LOADED";
   public static final String PRIMES_DEFAULT_EXPERIMENT_CREATED = "DEFAULT_EXPERIMENT_CREATED";
 
+  // For Google analytics, the maximum length for a field value is 8192. However, the maximum
+  // length for the whole payload is also 8192 and hits with larger payloads are discarded!
+  // Here we limit a label created from an exception stack trace to 512, with the hope that the
+  // whole payload will not exceed the payload limit.
+  @VisibleForTesting public static final int MAX_LABEL_LENGTH = 512;
+
   private TrackerConstants() {}
 
   /** Gets the logging type for a label. */
@@ -186,5 +198,14 @@ public final class TrackerConstants {
     } else {
       throw new IllegalArgumentException("Label type is not supported for logging.");
     }
+  }
+
+  public static String createLabelFromStackTrace(Throwable t) {
+    String s = Throwables.getStackTraceAsString(t);
+    s = s.replace("\n\t", " ");
+    if (s.length() > MAX_LABEL_LENGTH) {
+      s = s.substring(0, MAX_LABEL_LENGTH);
+    }
+    return s;
   }
 }

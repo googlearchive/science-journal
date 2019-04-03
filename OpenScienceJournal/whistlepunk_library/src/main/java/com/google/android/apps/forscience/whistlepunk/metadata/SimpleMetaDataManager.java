@@ -40,7 +40,9 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
@@ -106,6 +108,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
   private FileMetadataManager fileMetadataManager;
   private final ExperimentLibraryManager experimentLibraryManager;
   private final LocalSyncManager localSyncManager;
+  private boolean recoverAlreadyAttempted;
 
   public void close() {
     dbHelper.close();
@@ -172,6 +175,23 @@ public class SimpleMetaDataManager implements MetaDataManager {
     synchronized (lock) {
       // Force upgrade if needed
       final SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+      // The first time we are going to use the fileMetadataManager, and while we are holding the
+      // lock, try to recover experiments lost due to b/129409993.
+      if (!recoverAlreadyAttempted) {
+        recoverAlreadyAttempted = true;
+        try {
+          fileMetadataManager.recoverLostExperimentsIfNeeded(context.getApplicationContext());
+        } catch (Exception e) {
+          WhistlePunkApplication.getUsageTracker(context)
+              .trackEvent(
+                  TrackerConstants.CATEGORY_STORAGE,
+                  TrackerConstants.ACTION_RECOVERY_FAILED,
+                  TrackerConstants.createLabelFromStackTrace(e),
+                  0);
+        }
+      }
+
       return fileMetadataManager;
     }
   }

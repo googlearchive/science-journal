@@ -24,21 +24,31 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ColorAllocator;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
+import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -135,6 +145,162 @@ public class FileMetadataManager {
     colorAllocator =
         new ColorAllocator(
             applicationContext.getResources().getIntArray(R.array.experiment_colors_array).length);
+  }
+
+  /**
+   * Recovers experiments that are found in the file system of this account, but are not known by
+   * the UserMetadataManater.
+   */
+  public void recoverLostExperimentsIfNeeded(Context context) {
+    UsageTracker usageTracker = WhistlePunkApplication.getUsageTracker(context);
+    File[] files =
+        FileMetadataUtil.getInstance().getExperimentsRootDirectory(appAccount).listFiles();
+    if (files != null) {
+      for (File file : files) {
+        if (file.isDirectory() && new File(file, EXPERIMENT_FILE).isFile()) {
+          File experimentDirectory = file;
+          String experimentId = experimentDirectory.getName();
+          if (userMetadataManager.getExperimentOverview(experimentId) == null) {
+            usageTracker.trackEvent(
+                TrackerConstants.CATEGORY_STORAGE,
+                TrackerConstants.ACTION_RECOVER_EXPERIMENT_ATTEMPTED,
+                null,
+                0);
+            try {
+              GoosciExperiment.Experiment proto =
+                  populateExperimentProto(context, experimentDirectory);
+              if (proto == null) {
+                throw new IOException("Lost experiment has corrupt or missing experiment proto.");
+              }
+
+              GoosciUserMetadata.ExperimentOverview overview =
+                  populateOverview(proto, experimentId);
+
+              if (Strings.isNullOrEmpty(proto.imagePath)) {
+                // proto.imagePath may be empty, even if the lost experiment had a cover image.
+                // The imagePath field was added to the Experiment proto in order to let it sync.
+                // Before 3.0, imagePath was stored only in the ExperimentOverview.
+                try {
+                  String likelyCoverImage =
+                      findLikelyCoverImage(experimentDirectory, experimentId, proto);
+                  if (likelyCoverImage != null) {
+                    // likelyCoverImage is relative to the experiment directory.
+                    // proto.imagePath is relative to the experiment directory.
+                    proto.imagePath = likelyCoverImage;
+                    // overview.imagePath is relative to the account files directory.
+                    overview.imagePath =
+                        PictureUtils.getExperimentOverviewRelativeImagePath(
+                            experimentId, proto.imagePath);
+                  }
+                } catch (Exception e) {
+                  if (Log.isLoggable(TAG, Log.WARN)) {
+                    Log.w(TAG, "Failed to determine cover image of lost experiment", e);
+                  }
+                }
+              } else {
+                // proto.imagePath is relative to the experiment directory.
+                // overview.imagePath is relative to the account files directory.
+                overview.imagePath =
+                    PictureUtils.getExperimentOverviewRelativeImagePath(
+                        experimentId, proto.imagePath);
+              }
+
+              Experiment experiment = Experiment.fromExperiment(proto, overview);
+              afterMovingExperimentFromAnotherAccount(experiment);
+              usageTracker.trackEvent(
+                  TrackerConstants.CATEGORY_STORAGE,
+                  TrackerConstants.ACTION_RECOVER_EXPERIMENT_SUCCEEDED,
+                  null,
+                  0);
+
+            } catch (Exception e) {
+              // Unable to recover this lost experiment.
+              if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Recovery of lost experiment failed", e);
+              }
+              usageTracker.trackEvent(
+                  TrackerConstants.CATEGORY_STORAGE,
+                  TrackerConstants.ACTION_RECOVER_EXPERIMENT_FAILED,
+                  TrackerConstants.createLabelFromStackTrace(e),
+                  0);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Finds an image that might be the cover image. Returns the path of the image file, relative to
+   * the experiment directory, or null if no likely cover image is found.
+   */
+  private String findLikelyCoverImage(
+      File experimentDirectory, String experimentId, GoosciExperiment.Experiment experiment) {
+    // Gather all the images that are used in the experiment.
+    // Image paths are relative to the experiment directory.
+    Set<String> usedImagePaths = Sets.newHashSet();
+    for (GoosciTrial.Trial trial : experiment.trials) {
+      for (GoosciLabel.Label label : trial.labels) {
+        if (label.type == GoosciLabel.Label.ValueType.PICTURE) {
+          try {
+            GoosciPictureLabelValue.PictureLabelValue labelValue =
+                GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.protoData);
+            usedImagePaths.add(labelValue.filePath);
+          } catch (InvalidProtocolBufferNanoException e) {
+            if (Log.isLoggable(TAG, Log.WARN)) {
+              Log.w(TAG, "Failed to parse trial PictureLabelValue in lost experiment", e);
+            }
+          }
+        }
+      }
+    }
+    for (GoosciLabel.Label label : experiment.labels) {
+      if (label.type == GoosciLabel.Label.ValueType.PICTURE) {
+        try {
+          GoosciPictureLabelValue.PictureLabelValue labelValue =
+              GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.protoData);
+          usedImagePaths.add(labelValue.filePath);
+        } catch (InvalidProtocolBufferNanoException e) {
+          if (Log.isLoggable(TAG, Log.WARN)) {
+            Log.w(TAG, "Failed to parse experiment PictureLabelValue in lost experiment", e);
+          }
+        }
+      }
+    }
+
+    // Look at the images in the experiment folder to see if one of them is not used in the
+    // experiment.
+    return findFirstUnusedImageFile(experimentDirectory, experimentId, usedImagePaths);
+  }
+
+  /**
+   * Finds the first image file within the given directory that is not present in the given set.
+   * Returns the path of the image file, relative to the experiment directory, or null if not found.
+   */
+  private String findFirstUnusedImageFile(
+      File directory, String experimentId, Set<String> usedImagePaths) {
+    File[] files = directory.listFiles();
+    if (files != null) {
+      for (File file : files) {
+        if (file.isFile()) {
+          String relativePath =
+              FileMetadataUtil.getInstance().getRelativePathInExperiment(experimentId, file);
+          if (relativePath.endsWith(".jpg") && !usedImagePaths.contains(relativePath)) {
+            return relativePath;
+          }
+        }
+      }
+      // Look in subdirectories.
+      for (File file : files) {
+        if (file.isDirectory()) {
+          String found = findFirstUnusedImageFile(file, experimentId, usedImagePaths);
+          if (found != null) {
+            return found;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   /**

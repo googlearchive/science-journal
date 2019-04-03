@@ -826,7 +826,7 @@ public class ExperimentListFragment extends Fragment
                     .trackEvent(
                         TrackerConstants.CATEGORY_CLAIMING_DATA,
                         TrackerConstants.ACTION_CLAIM_FAILED,
-                        e.getMessage(),
+                        TrackerConstants.createLabelFromStackTrace(e),
                         0);
                 Context context = getContext();
                 if (context != null) {

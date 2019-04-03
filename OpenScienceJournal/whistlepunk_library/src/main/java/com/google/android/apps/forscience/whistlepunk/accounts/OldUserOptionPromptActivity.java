@@ -132,7 +132,7 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
                 .trackEvent(
                     TrackerConstants.CATEGORY_CLAIMING_DATA,
                     TrackerConstants.ACTION_CLAIM_FAILED,
-                    e.getMessage(),
+                    TrackerConstants.createLabelFromStackTrace(e),
                     0);
             Context baseContext = getBaseContext();
             if (baseContext != null) {
