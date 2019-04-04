@@ -113,6 +113,7 @@ public final class TrackerConstants {
   public static final String ACTION_ACCOUNT_TYPE = "AccountType";
   public static final String ACTION_PERMISSION_DENIED = "PermissionDenied";
   public static final String ACTION_SYNC_EXISTING_ACCOUNT = "SyncExistingAccount";
+  public static final String ACTION_SYNC_FAILED = "SyncFailed";
   public static final String ACTION_IS_ACCOUNT_PERMITTED = "IsAccountPermitted"; // Android only.
   public static final String ACTION_CLAIM_ALL = "ClaimAll";
   public static final String ACTION_DELETE_ALL = "DeleteAll";
