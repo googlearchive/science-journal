@@ -207,6 +207,10 @@ public class FileMetadataManager {
 
               Experiment experiment = Experiment.fromExperiment(proto, overview);
               afterMovingExperimentFromAnotherAccount(experiment);
+
+              localSyncManager.setLastSyncedLibraryVersion(-1);
+              localSyncManager.setDirty(experiment.getExperimentId(), true);
+
               usageTracker.trackEvent(
                   TrackerConstants.CATEGORY_STORAGE,
                   TrackerConstants.ACTION_RECOVER_EXPERIMENT_SUCCEEDED,
