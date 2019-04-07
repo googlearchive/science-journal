@@ -63,6 +63,8 @@
     <color name="age_verifier_header_background">#bbdefb</color>
     <color name="thumb_color_transparent">#57000000</color>
     <color name="snackbar_action_color">#f8f081</color>
+    <color name="snackbar_background_color">#202124</color>
+    <color name="snackbar_text_color">#dadce0</color>
     <color name="picture_background_color">#262626</color>
     <color name="status_bar_background_gray">#4a4a4a</color>
     <color name="get_started_background_color">#311B92</color>

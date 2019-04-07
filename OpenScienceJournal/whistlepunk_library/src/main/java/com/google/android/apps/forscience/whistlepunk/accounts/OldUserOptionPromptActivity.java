@@ -19,11 +19,13 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
@@ -134,9 +136,11 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
                     TrackerConstants.ACTION_CLAIM_FAILED,
                     TrackerConstants.createLabelFromStackTrace(e),
                     0);
-            Context baseContext = getBaseContext();
-            if (baseContext != null) {
-              Toast.makeText(baseContext, R.string.claim_failed, Toast.LENGTH_LONG).show();
+            View view = findViewById(android.R.id.content);
+            if (view != null) {
+              AccessibilityUtils.makeSnackbar(
+                      view, getResources().getString(R.string.claim_failed), Snackbar.LENGTH_LONG)
+                  .show();
             }
             super.fail(e);
           }

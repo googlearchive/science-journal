@@ -50,7 +50,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import com.google.android.apps.forscience.javalib.Success;
@@ -822,16 +821,14 @@ public class ExperimentListFragment extends Fragment
 
               @Override
               public void fail(Exception e) {
-                WhistlePunkApplication.getUsageTracker(getActivity())
+                WhistlePunkApplication.getUsageTracker(applicationContext)
                     .trackEvent(
                         TrackerConstants.CATEGORY_CLAIMING_DATA,
                         TrackerConstants.ACTION_CLAIM_FAILED,
                         TrackerConstants.createLabelFromStackTrace(e),
                         0);
-                Context context = getContext();
-                if (context != null) {
-                  Toast.makeText(context, R.string.claim_failed, Toast.LENGTH_LONG).show();
-                }
+                experimentListAdapter.showSnackbar(
+                    applicationContext.getResources().getString(R.string.claim_failed), null);
                 super.fail(e);
               }
             });
