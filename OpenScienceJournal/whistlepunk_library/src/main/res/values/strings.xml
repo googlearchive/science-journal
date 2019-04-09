@@ -1747,6 +1747,24 @@ Permissions notice:
     <!-- Body text for New Experiment feature discovery -->
     <string name="create_experiment_feature_discovery_body">Organize your thoughts and observations by taking notes, recording data, or taking pictures</string>
 
+    <!-- Name of the menu item to download an experiment file [CHAR_LIMIT=25] -->
+    <string name="download_copy_action">Download</string>
+
+    <!-- Name of the menu item to download a csv file [CHAR_LIMIT=25] -->
+    <string name="download_copy_csv_action">Download (.csv)</string>
+
+    <!-- Name of the menu item to share a csv file [CHAR_LIMIT=25] -->
+    <string name="share_copy_csv_action">Send a copy (.csv)</string>
+
+    <!-- The body content for the saved to device notification, indicating that the file is in Downloads [CHAR_LIMIT=25] -->
+    <string name="saved_to_device_text">Saved to Downloads</string>
+
+    <!-- Dialog title shown when saving the data to the download folder [CHAR_LIMIT=100]-->
+    <string name="download_options_title">Download…</string>
+
+    <!-- Error message for save to device failures [CHAR_LIMIT=100] -->
+    <string name="saved_to_device_error">Download failed</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 </resources>
