@@ -1670,10 +1670,10 @@ Permissions notice:
     <string name="unclaimed_experiments">Unclaimed Experiments</string>
 
     <!-- Text for claim failure toast [CHAR_LIMIT=50] -->
-    <string name="claim_failed">Claim failed, please submit feedback in the menu.</string>
+    <string name="claim_failed">Claim failed, submit feedback in the menu.</string>
 
     <!-- Text for sync failure toast [CHAR_LIMIT=50] -->
-    <string name="sync_failed">Sync failed, please try again or submit feedback.</string>
+    <string name="sync_failed">Sync failed, try again or submit feedback.</string>
 
     <!-- Headline for Add experiments to Drive card [CHAR_LIMIT=50] -->
     <string name="add_experiments_to_drive_card_headline">Add experiments to Google Drive</string>
