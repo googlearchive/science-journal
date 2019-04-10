@@ -277,14 +277,19 @@ public class FileMetadataUtil {
   }
 
   public boolean validateShareIntent(Context context, AppAccount appAccount, String experimentId) {
-    // Get a low-cost known-good file to test if anything can handle our intent.
-    // This won't be used for the actual intent.
-    Uri experimentProto =
-        FileProvider.getUriForFile(
-            context,
-            context.getPackageName(),
-            getExperimentFile(appAccount, experimentId, EXPERIMENT_FILE));
-    return getShareIntent(context, appAccount, experimentProto) != null;
+    try {
+      // Get a low-cost known-good file to test if anything can handle our intent.
+      // This won't be used for the actual intent.
+      Uri experimentProto =
+          FileProvider.getUriForFile(
+              context,
+              context.getPackageName(),
+              getExperimentFile(appAccount, experimentId, EXPERIMENT_FILE));
+      return getShareIntent(context, appAccount, experimentProto) != null;
+    } catch (Exception e) {
+      Log.e(TAG, "Error validating share intent", e);
+      return false;
+    }
   }
 
   public Intent getShareIntent(Context context, AppAccount appAccount, Uri exportFile) {
