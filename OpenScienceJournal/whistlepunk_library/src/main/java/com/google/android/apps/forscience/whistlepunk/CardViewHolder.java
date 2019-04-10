@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.design.widget.TabLayout;
+import android.support.design.tabs.TabLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;

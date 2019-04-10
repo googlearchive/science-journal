@@ -29,7 +29,7 @@
         android:gravity="center_vertical"
         >
 
-        <android.support.design.widget.TextInputLayout
+        <android.support.design.textfield.TextInputLayout
             android:imeOptions="flagNoExtractUi"
             android:id="@+id/edit_note_text_input_layout"
             android:layout_width="0dp"
@@ -43,13 +43,13 @@
             android:maxLines="@integer/label_edit_max_lines"
             >
 
-            <android.support.design.widget.TextInputEditText
+            <android.support.design.textfield.TextInputEditText
                 android:id="@+id/edit_note_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
 
-        </android.support.design.widget.TextInputLayout>
+        </android.support.design.textfield.TextInputLayout>
 
         <ImageButton
             android:layout_width="@dimen/accessibility_touch_target_min_size"
@@ -101,3 +101,4 @@
         />
 
 </LinearLayout>
+

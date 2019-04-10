@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import android.support.design.widget.Snackbar;
+import android.support.design.snackbar.Snackbar;
 import android.util.Log;
 import android.view.View;
 import com.google.android.apps.forscience.javalib.FailureListener;

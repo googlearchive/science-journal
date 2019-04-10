@@ -32,7 +32,7 @@
         android:clipToPadding="false"
         />
 
-    <android.support.design.widget.FloatingActionButton
+    <android.support.design.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_trigger_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -46,3 +46,4 @@
         />
 
 </android.support.design.widget.CoordinatorLayout>
+

@@ -16,7 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.design.widget.Snackbar;
+import android.support.design.snackbar.Snackbar;
 import android.view.View;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;

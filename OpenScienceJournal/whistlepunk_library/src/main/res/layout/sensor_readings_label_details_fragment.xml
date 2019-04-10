@@ -44,7 +44,7 @@
 
         </LinearLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <android.support.design.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/description_hint"
@@ -67,7 +67,7 @@
                 >
             </EditText>
 
-        </android.support.design.widget.TextInputLayout>
+        </android.support.design.textfield.TextInputLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -133,3 +133,4 @@
     </RelativeLayout>
 
 </ScrollView>
+

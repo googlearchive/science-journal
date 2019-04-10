@@ -23,7 +23,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import android.support.design.widget.TabLayout;
+import android.support.design.tabs.TabLayout;
 import androidx.appcompat.widget.PopupMenu;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;

@@ -31,7 +31,7 @@
         android:layout_height="match_parent"
         tools:context="com.google.android.apps.forscience.whistlepunk.project.ProjectFragment">
 
-        <android.support.design.widget.AppBarLayout
+        <android.support.design.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
@@ -51,7 +51,7 @@
             </androidx.appcompat.widget.Toolbar>
 
 
-        </android.support.design.widget.AppBarLayout>
+        </android.support.design.appbar.AppBarLayout>
 
         <FrameLayout
             android:id="@+id/content_container"
@@ -71,7 +71,7 @@
 
     </android.support.design.widget.CoordinatorLayout>
 
-    <android.support.design.widget.NavigationView
+    <android.support.design.navigation.NavigationView
         android:id="@+id/navigation"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

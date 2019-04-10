@@ -19,7 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.support.design.widget.Snackbar;
+import android.support.design.snackbar.Snackbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.widget.TooltipCompat;
 import android.util.Log;

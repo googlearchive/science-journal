@@ -32,7 +32,7 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import android.support.design.widget.Snackbar;
+import android.support.design.snackbar.Snackbar;
 import androidx.core.content.FileProvider;
 import androidx.collection.ArrayMap;
 import android.util.Log;

@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.design.widget.NavigationView;
+import android.support.design.navigation.NavigationView;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**

@@ -15,7 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.design.widget.Snackbar;
+import android.support.design.snackbar.Snackbar;
 
 /** Allows us to only show one snackbar at a time. */
 public class SnackbarManager {

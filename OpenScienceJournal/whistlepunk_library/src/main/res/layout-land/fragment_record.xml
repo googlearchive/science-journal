@@ -42,7 +42,7 @@
         android:visibility="invisible"
         >
 
-        <android.support.design.widget.FloatingActionButton
+        <android.support.design.floatingactionbutton.FloatingActionButton
             android:contentDescription="@string/btn_reset_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -82,3 +82,4 @@
     </RelativeLayout>
 
 </RelativeLayout>
+

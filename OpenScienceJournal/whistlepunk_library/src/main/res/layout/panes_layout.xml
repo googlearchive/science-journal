@@ -69,7 +69,7 @@
 
             </FrameLayout>
 
-            <android.support.design.widget.TabLayout
+            <android.support.design.tabs.TabLayout
                 android:id="@+id/tool_picker"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/accessibility_touch_target_min_size"
@@ -115,3 +115,4 @@
         android:elevation="4dp"/>
 
 </android.support.design.widget.CoordinatorLayout>
+

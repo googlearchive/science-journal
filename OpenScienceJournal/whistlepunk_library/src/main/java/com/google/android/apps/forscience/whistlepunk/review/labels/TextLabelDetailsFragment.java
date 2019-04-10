@@ -17,8 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.os.Bundle;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
+import android.support.design.textfield.TextInputEditText;
+import android.support.design.textfield.TextInputLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;

@@ -54,6 +54,7 @@ import java.lang.ref.WeakReference;
  *
  * <p>Based on
  * https://android.googlesource.com/platform/frameworks/support/+/master/design/src/android/support/design/widget/BottomSheetBehavior.java
+ *
  */
 public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.Behavior<V> {
   private static final String TAG = "PanesBottomSheetBehavior";

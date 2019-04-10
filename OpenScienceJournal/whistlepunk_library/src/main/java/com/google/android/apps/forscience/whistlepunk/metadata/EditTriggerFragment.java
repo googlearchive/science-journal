@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import android.support.design.widget.Snackbar;
+import android.support.design.snackbar.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.ActionBar;

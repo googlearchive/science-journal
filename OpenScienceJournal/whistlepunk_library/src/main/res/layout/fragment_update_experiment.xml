@@ -23,7 +23,7 @@
     android:paddingTop="@dimen/update_metadata_vertical_padding"
     tools:context="com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentFragment">
 
-    <android.support.design.widget.TextInputLayout
+    <android.support.design.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/experiment_title_hint"
@@ -39,7 +39,7 @@
             android:contentDescription="@string/experiment_title_hint"
             >
         </EditText>
-    </android.support.design.widget.TextInputLayout>
+    </android.support.design.textfield.TextInputLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
