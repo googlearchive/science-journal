@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConf
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.protobuf.nano.MessageNano;
 
 /** Represents a specification of a BLE sensor which is exposing the Making Science service. */
 public class BleSensorSpec extends ExternalSensorSpec {
@@ -67,7 +68,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
 
   @Override
   public byte[] getConfig() {
-    return getBytes(config);
+    return MessageNano.toByteArray(config);
   }
 
   @VisibleForTesting

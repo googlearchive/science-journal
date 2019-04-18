@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciScalarInpu
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.protobuf.nano.MessageNano;
 
 public class ScalarInputSpec extends ExternalSensorSpec {
   public static final String TYPE = "ScalarInput";
@@ -211,7 +212,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
 
   @Override
   public byte[] getConfig() {
-    return getBytes(config);
+    return MessageNano.toByteArray(config);
   }
 
   @Override
@@ -256,8 +257,8 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     if (numPairedBeforeAdded == config.orderInExperimentApiSensors) {
       return this;
     }
-    GoosciScalarInput.ScalarInputConfig copyConfig = parse(getBytes(config));
+    GoosciScalarInput.ScalarInputConfig copyConfig = parse(MessageNano.toByteArray(config));
     copyConfig.orderInExperimentApiSensors = numPairedBeforeAdded;
-    return new ScalarInputSpec(name, getBytes(copyConfig));
+    return new ScalarInputSpec(name, MessageNano.toByteArray(copyConfig));
   }
 }

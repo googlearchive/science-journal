@@ -33,6 +33,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.html.HtmlEscapers;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.protobuf.nano.MessageNano;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -164,7 +165,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
 
   @Override
   public byte[] getConfig() {
-    return getBytes(config);
+    return MessageNano.toByteArray(config);
   }
 
   @Override

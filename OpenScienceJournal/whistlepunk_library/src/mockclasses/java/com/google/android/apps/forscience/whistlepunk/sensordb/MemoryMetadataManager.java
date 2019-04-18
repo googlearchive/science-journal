@@ -36,6 +36,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.protobuf.nano.MessageNano;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -223,7 +224,7 @@ public class MemoryMetadataManager implements MetaDataManager {
     for (int i = 0; i < original.size(); i++) {
       GoosciSensorLayout.SensorLayout layout = original.get(i);
       try {
-        byte[] bytes = ExternalSensorSpec.getBytes(layout);
+        byte[] bytes = MessageNano.toByteArray(layout);
         copy[i] = (GoosciSensorLayout.SensorLayout.parseFrom(bytes));
       } catch (InvalidProtocolBufferNanoException e) {
         throw new RuntimeException(e);

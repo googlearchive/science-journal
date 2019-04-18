@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
@@ -27,9 +26,6 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppe
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.nano.CodedOutputByteBufferNano;
-import com.google.protobuf.nano.MessageNano;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -43,20 +39,6 @@ public abstract class ExternalSensorSpec {
 
   protected ExternalSensorSpec() {
     // do nothing
-  }
-
-  public static byte[] getBytes(MessageNano config) {
-    byte[] output = new byte[config.getSerializedSize()];
-
-    CodedOutputByteBufferNano buffer = CodedOutputByteBufferNano.newInstance(output);
-    try {
-      config.writeTo(buffer);
-    } catch (IOException e) {
-      if (Log.isLoggable(TAG, Log.ERROR)) {
-        Log.e(TAG, "Could not serialize config", e);
-      }
-    }
-    return output;
   }
 
   /**

@@ -27,7 +27,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
-import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
@@ -180,7 +179,7 @@ public class FileMetadataUtil {
                         public void success(GoosciScalarSensorData.ScalarSensorData sensorData) {
                           try (FileOutputStream sensorStream =
                               new FileOutputStream(sensorProtoFileName)) {
-                            byte[] sensorBytes = ProtoUtils.makeBlob(sensorData);
+                            byte[] sensorBytes = MessageNano.toByteArray(sensorData);
                             sensorStream.write(sensorBytes);
 
                           } catch (IOException ioException) {
@@ -189,7 +188,7 @@ public class FileMetadataUtil {
                           }
 
                           try (FileOutputStream fos = new FileOutputStream(zipFile);
-                              ZipOutputStream zos = new ZipOutputStream(fos);) {
+                              ZipOutputStream zos = new ZipOutputStream(fos); ) {
                             File experimentDirectory =
                                 getExperimentDirectory(appAccount, experiment.getExperimentId());
                             zipDirectory(experimentDirectory, zos, "");
@@ -372,7 +371,7 @@ public class FileMetadataUtil {
 
   public void writeExperimentLibraryFile(
       GoosciExperimentLibrary.ExperimentLibrary library, AppAccount appAccount) throws IOException {
-    writeProtoToFile(ProtoUtils.makeBlob(library), getExperimentLibraryFile(appAccount));
+    writeProtoToFile(MessageNano.toByteArray(library), getExperimentLibraryFile(appAccount));
   }
 
   public GoosciExperimentLibrary.ExperimentLibrary readExperimentLibraryFile(
@@ -395,7 +394,7 @@ public class FileMetadataUtil {
 
   public void writeLocalSyncStatusFile(
       GoosciLocalSyncStatus.LocalSyncStatus status, AppAccount appAccount) throws IOException {
-    writeProtoToFile(ProtoUtils.makeBlob(status), getLocalSyncStatusFile(appAccount));
+    writeProtoToFile(MessageNano.toByteArray(status), getLocalSyncStatusFile(appAccount));
   }
 
   public GoosciLocalSyncStatus.LocalSyncStatus readLocalSyncStatusFile(AppAccount appAccount) {

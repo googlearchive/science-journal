@@ -35,7 +35,6 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
-import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
@@ -957,7 +956,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   private void fillLayoutValues(ContentValues values, GoosciSensorLayout.SensorLayout layout) {
     values.put(RunSensorsColumns.SENSOR_ID, layout.sensorId);
-    values.put(RunSensorsColumns.LAYOUT, ProtoUtils.makeBlob(layout));
+    values.put(RunSensorsColumns.LAYOUT, MessageNano.toByteArray(layout));
   }
 
   private void updateTrialSensors(
@@ -967,7 +966,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
       final ContentValues values = new ContentValues();
       for (int i = 0; i < sensorLayouts.size(); i++) {
         GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(i);
-        values.put(RunSensorsColumns.LAYOUT, ProtoUtils.makeBlob(layout));
+        values.put(RunSensorsColumns.LAYOUT, MessageNano.toByteArray(layout));
         db.update(
             Tables.RUN_SENSORS,
             values,
@@ -1127,7 +1126,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
         ContentValues values = new ContentValues();
         values.put(ExperimentSensorLayoutColumns.EXPERIMENT_ID, experimentId);
         values.put(ExperimentSensorLayoutColumns.POSITION, i);
-        values.put(ExperimentSensorLayoutColumns.LAYOUT, ProtoUtils.makeBlob(sensorLayouts.get(i)));
+        values.put(
+            ExperimentSensorLayoutColumns.LAYOUT, MessageNano.toByteArray(sensorLayouts.get(i)));
         db.insertWithOnConflict(
             Tables.EXPERIMENT_SENSOR_LAYOUT, null, values, SQLiteDatabase.CONFLICT_REPLACE);
       }
@@ -1277,7 +1277,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     values.put(LabelColumns.LABEL_ID, label.getLabelId());
     values.put(LabelColumns.START_LABEL_ID, trialId);
     // The database will only ever have one label value per label, so this is OK here.
-    values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(labelValue.getValue()));
+    values.put(LabelColumns.VALUE, MessageNano.toByteArray(labelValue.getValue()));
     db.insert(Tables.LABELS, null, values);
   }
 
@@ -1300,7 +1300,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     values.put(LabelColumns.TIMESTAMP, label.getTimeStamp());
     values.put(LabelColumns.LABEL_ID, label.getLabelId());
     values.put(LabelColumns.START_LABEL_ID, label.getTrialId());
-    values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(label.getValue()));
+    values.put(LabelColumns.VALUE, MessageNano.toByteArray(label.getValue()));
     synchronized (lock) {
       final SQLiteDatabase db = dbHelper.getWritableDatabase();
       db.insert(Tables.LABELS, null, values);
@@ -1630,7 +1630,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     synchronized (lock) {
       final SQLiteDatabase db = dbHelper.getWritableDatabase();
       final ContentValues values = new ContentValues();
-      values.put(LabelColumns.VALUE, ProtoUtils.makeBlob(updatedLabel.getValue()));
+      values.put(LabelColumns.VALUE, MessageNano.toByteArray(updatedLabel.getValue()));
       values.put(LabelColumns.TIMESTAMP, updatedLabel.getTimeStamp());
       db.update(
           Tables.LABELS,

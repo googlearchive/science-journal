@@ -21,7 +21,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
-import com.google.android.apps.forscience.whistlepunk.ProtoUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -122,7 +121,7 @@ public class Label implements Parcelable {
   @Override
   public void writeToParcel(Parcel parcel, int i) {
     parcel.writeInt(label.getSerializedSize());
-    parcel.writeByteArray(ProtoUtils.makeBlob(label));
+    parcel.writeByteArray(MessageNano.toByteArray(label));
   }
 
   public static final Parcelable.Creator<Label> CREATOR =
