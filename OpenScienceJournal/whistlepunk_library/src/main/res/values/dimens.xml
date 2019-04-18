@@ -55,8 +55,6 @@
     <dimen name="cardview_radius">2dp</dimen>
     <dimen name="cardview_default_elevation">6dp</dimen>
 
-    <dimen name="age_verifier_padding">16dp</dimen>
-
     <dimen name="list_bottom_padding">48dp</dimen>
 
     <dimen name="update_metadata_horizontal_padding">24dp</dimen>

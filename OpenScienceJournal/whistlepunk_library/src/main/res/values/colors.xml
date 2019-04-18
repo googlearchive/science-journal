@@ -60,7 +60,6 @@
     <color name="recording_toolbar_color">#d9453d</color>
     <color name="recording_status_bar_color">#b73328</color>
     <color name="add_note_image_button_tint">#727272</color>
-    <color name="age_verifier_header_background">#bbdefb</color>
     <color name="thumb_color_transparent">#57000000</color>
     <color name="snackbar_action_color">#f8f081</color>
     <color name="snackbar_background_color">#202124</color>

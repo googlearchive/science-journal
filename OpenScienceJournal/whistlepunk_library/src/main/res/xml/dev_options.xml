@@ -92,8 +92,4 @@
         android:title="@string/perf_tracker_debug_pref_title"
         />
 
-    <Preference
-        android:key="age_status"
-        />
-
 </PreferenceScreen>

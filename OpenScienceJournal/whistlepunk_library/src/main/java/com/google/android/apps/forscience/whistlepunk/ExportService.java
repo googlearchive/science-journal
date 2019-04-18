@@ -42,7 +42,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
@@ -533,7 +532,7 @@ public class ExportService extends Service {
   }
 
   public static boolean canShare(Context context, AppAccount appAccount) {
-    return appAccount.isSignedIn() || AgeVerifier.isUserOver13(context);
+    return appAccount.isSignedIn();
   }
 
   public static void handleExperimentExportClick(

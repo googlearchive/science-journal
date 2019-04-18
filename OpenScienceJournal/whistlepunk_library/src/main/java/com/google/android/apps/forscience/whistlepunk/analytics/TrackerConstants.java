@@ -141,8 +141,7 @@ public final class TrackerConstants {
   public static final String LABEL_EXPERIMENT_LIST = "experiment_list";
   public static final String LABEL_UPDATE_EXPERIMENT = "update_experiment";
   public static final String LABEL_MODE_SIGNED_IN = "signedin";
-  public static final String LABEL_MODE_SIGNED_OUT_CHILD = "child";
-  public static final String LABEL_MODE_SIGNED_OUT_NONCHILD = "nonchild";
+  public static final String LABEL_MODE_SIGNED_OUT = "signedout";
   public static final String LABEL_USER_RECOVERABLE_AUTH_EXCEPTION = "UserRecoverableAuthException";
   public static final String LABEL_ACCOUNT_TYPE_OTHER = "Other";
   public static final String LABEL_ACCOUNT_TYPE_GMAIL = "Gmail";

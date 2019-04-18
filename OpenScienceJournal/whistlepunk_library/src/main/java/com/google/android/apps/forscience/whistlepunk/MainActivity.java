@@ -37,7 +37,6 @@ import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.GetStartedActivity;
-import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.OldUserOptionPromptActivity;
 import com.google.android.apps.forscience.whistlepunk.accounts.SignInActivity;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -47,7 +46,6 @@ import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
-import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -88,8 +86,6 @@ public class MainActivity extends ActivityWithNavigationView {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    AgeVerifier.forgetAge(this);
 
     savedItemId =
         (savedInstanceState == null)
@@ -181,8 +177,7 @@ public class MainActivity extends ActivityWithNavigationView {
       // Subscribe to the recording status.
       watchRecordingStatus();
     }
-    // If we get to here, it's safe to log the mode we are in: user has signed in and/or
-    // completed age verification.
+    // If we get to here, it's safe to log the mode we are in: user has signed in or signed out.
     trackMode();
 
     if (isAttemptingImport() && currentAccount != null) {
@@ -223,9 +218,7 @@ public class MainActivity extends ActivityWithNavigationView {
     String labelMode =
         accountsProvider.isSignedIn()
             ? TrackerConstants.LABEL_MODE_SIGNED_IN
-            : (AgeVerifier.isUserOver13(this)
-                ? TrackerConstants.LABEL_MODE_SIGNED_OUT_NONCHILD
-                : TrackerConstants.LABEL_MODE_SIGNED_OUT_CHILD);
+            : TrackerConstants.LABEL_MODE_SIGNED_OUT;
     WhistlePunkApplication.getUsageTracker(this)
         .trackEvent(TrackerConstants.CATEGORY_APP, TrackerConstants.ACTION_SET_MODE, labelMode, 0);
   }
@@ -340,11 +333,12 @@ public class MainActivity extends ActivityWithNavigationView {
   /**
    * If we haven't shown all the required screens, opens the next required activity.
    *
-   * @return true iff there are no required screens that need to be shown
+   * @return true if a required screen is now open, false if there are no required screens that need
+   *     to be shown.
    */
   private boolean showRequiredScreensIfNeeded() {
     if (!accountsProvider.supportSignedInAccount()) {
-      return showOldRequiredScreensIfNeeded();
+      return false;
     }
 
     if (GetStartedActivity.shouldLaunch(this)) {
@@ -359,26 +353,7 @@ public class MainActivity extends ActivityWithNavigationView {
       return true;
     }
 
-    // If the user has chosen to use Science Journal without an account, check if we need to ask
-    // their age.
-    if (currentAccount instanceof NonSignedInAccount) {
-      if (AgeVerifier.shouldShowUserAge(this)) {
-        Intent intent = new Intent(this, AgeVerifier.class);
-        startActivityForResult(intent, ActivityRequestCodes.REQUEST_AGE_VERIFIER);
-        return true;
-      }
-    }
-
     accountsProvider.setShowSignInActivityIfNotSignedIn(false);
-    return false;
-  }
-
-  private boolean showOldRequiredScreensIfNeeded() {
-    if (AgeVerifier.shouldShowUserAge(this)) {
-      Intent intent = new Intent(this, AgeVerifier.class);
-      startActivityForResult(intent, ActivityRequestCodes.REQUEST_AGE_VERIFIER);
-      return true;
-    }
     return false;
   }
 
@@ -562,15 +537,6 @@ public class MainActivity extends ActivityWithNavigationView {
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     switch (requestCode) {
-      case ActivityRequestCodes.REQUEST_AGE_VERIFIER:
-        if (resultCode == RESULT_CANCELED) {
-          if (accountsProvider.supportSignedInAccount()) {
-            accountsProvider.setShowSignInActivityIfNotSignedIn(true);
-          } else {
-            finish();
-          }
-        }
-        return;
       case ActivityRequestCodes.REQUEST_GET_STARTED_ACTIVITY:
       case ActivityRequestCodes.REQUEST_SIGN_IN_ACTIVITY:
         if (resultCode == RESULT_CANCELED) {

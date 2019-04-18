@@ -99,13 +99,6 @@
         <item name="tabMinWidth">@dimen/sensor_tab_width</item>
     </style>
 
-    <!-- Age verifier -->
-    <style name="AppTheme.AgeVerifier" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimaryDark">@color/color_accent_dark</item>
-        <item name="colorPrimary">@color/color_accent</item>
-        <item name="colorButtonNormal">@color/color_accent</item>
-    </style>
-
     <style name="NavigationView" parent="NoBarTheme">
         <item name="colorControlHighlight">@color/nav_item_background_color</item>
         <item name="colorPrimary">@color/color_primary</item>

@@ -33,7 +33,6 @@ import com.google.android.apps.forscience.whistlepunk.ActivityRequestCodes;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 
 /**
  * Fragment that tells the user about saving experiments in Google Drive and prompts the user to *
@@ -123,11 +122,6 @@ public class SignInFragment extends Fragment {
           accountsProvider.undoSignIn();
         }
         break;
-      case ActivityRequestCodes.REQUEST_AGE_VERIFIER:
-        if (resultCode == Activity.RESULT_OK) {
-          finish();
-        }
-        break;
       default:
         break;
     }
@@ -184,13 +178,7 @@ public class SignInFragment extends Fragment {
             TrackerConstants.ACTION_CONTINUE_WITHOUT_ACCOUNT_FROM_WELCOME,
             null,
             0);
-    Context context = getContext();
-    if (AgeVerifier.shouldShowUserAge(context)) {
-      Intent intent = new Intent(context, AgeVerifier.class);
-      startActivityForResult(intent, ActivityRequestCodes.REQUEST_AGE_VERIFIER);
-    } else {
-      finish();
-    }
+    finish();
   }
 
   private void finish() {

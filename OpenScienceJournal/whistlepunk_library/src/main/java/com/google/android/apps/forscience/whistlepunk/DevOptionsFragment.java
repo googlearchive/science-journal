@@ -25,7 +25,6 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import androidx.annotation.VisibleForTesting;
-import com.google.android.apps.forscience.whistlepunk.intro.AgeVerifier;
 
 /** Holder for Developer Testing Options */
 public class DevOptionsFragment extends PreferenceFragment {
@@ -40,7 +39,6 @@ public class DevOptionsFragment extends PreferenceFragment {
   public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
   private static final String KEY_PERF_DEBUG_SCREEN = "show_perf_tracker_debug";
   public static final String KEY_SMOOTH_SCROLL = "enable_smooth_scrolling_to_bottom";
-  private static final String KEY_AGE_STATUS = "age_status";
 
   private static boolean showTestingOptions = false;
 
@@ -84,12 +82,6 @@ public class DevOptionsFragment extends PreferenceFragment {
               .startPerfTrackerEventDebugActivity(context);
           return true;
         });
-
-    Preference ageStatusPreference = findPreference(KEY_AGE_STATUS);
-    ageStatusPreference.setTitle(
-        AgeVerifier.isUserOver13(context)
-            ? context.getResources().getString(R.string.age_status_over_13)
-            : context.getResources().getString(R.string.age_status_under_13));
   }
 
   @Override

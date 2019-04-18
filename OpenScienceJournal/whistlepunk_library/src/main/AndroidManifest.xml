@@ -209,12 +209,6 @@
                 android:value="com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity"/>
         </activity>
         <activity
-            android:name=".intro.AgeVerifier"
-            android:exported="false"
-            android:label="@string/title_activity_age_verifier"
-            android:theme="@style/AppTheme.AgeVerifier">
-        </activity>
-        <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:label="@string/navigation_item_settings"/>
