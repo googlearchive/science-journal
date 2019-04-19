@@ -14,11 +14,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <files-path name="exported_runs" path="exported_run_files"/>
-    <external-path name="pictures" path="Pictures/ScienceJournal" />
-    <files-path name="experiments" path="experiments"/>
-    <files-path name="exported_experiments" path="exported_experiments"/>
-    <files-path name="accounts" path="accounts"/>
-    <external-path name="Download" path="Download/"/>
-</paths>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false">
+        <bitmap android:src="@drawable/ic_file_download_black_24dp"
+            android:tint="@color/text_color_light_grey"/>
+    </item>
+    <item android:drawable="@drawable/ic_file_download_black_24dp" />
+</selector>

@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.project;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -60,6 +61,7 @@ import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
@@ -83,6 +85,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.ExperimentOverview;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.common.base.Preconditions;
@@ -1142,7 +1145,8 @@ public class ExperimentListFragment extends Fragment
         holder.driveButton.setOnClickListener(
             v -> promptBeforeClaimExperiment(overview.experimentId));
         if (isShareIntentValid) {
-          holder.shareButton.setOnClickListener(v -> exportExperiment(overview.experimentId));
+          holder.shareButton.setOnClickListener(
+              v -> exportOrSaveExperiment(overview.experimentId, false));
         } else {
           holder.shareButton.setVisibility(View.GONE);
         }
@@ -1181,6 +1185,10 @@ public class ExperimentListFragment extends Fragment
                   .getMenu()
                   .findItem(R.id.menu_item_export_experiment)
                   .setVisible(isShareIntentValid);
+              popupMenu
+                  .getMenu()
+                  .findItem(R.id.menu_item_download_experiment)
+                  .setVisible(ExportService.isDownloadEnabled());
 
               popupMenu.setOnMenuItemClickListener(
                   menuItem -> {
@@ -1201,7 +1209,10 @@ public class ExperimentListFragment extends Fragment
                       deleteExperiment(overview.experimentId);
                       return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_export_experiment) {
-                      exportExperiment(overview.experimentId);
+                      exportOrSaveExperiment(overview.experimentId, false);
+                      return true;
+                    } else if (menuItem.getItemId() == R.id.menu_item_download_experiment) {
+                      handleDownloadClick(overview);
                       return true;
                     }
                     return false;
@@ -1222,6 +1233,47 @@ public class ExperimentListFragment extends Fragment
             applicationContext.getResources().getIntArray(R.array.experiment_colors_array);
         holder.experimentImage.setBackgroundColor(intArray[overview.colorIndex]);
       }
+    }
+
+    // TODO(b/130907609): Address review comments in CL 244044046 Save to Device code
+    private void handleDownloadClick(ExperimentOverview overview) {
+      PermissionUtils.tryRequestingPermission(
+          parentReference.get().getActivity(),
+          PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
+          new PermissionUtils.PermissionListener() {
+            @Override
+            public void onPermissionGranted() {
+              exportOrSaveExperiment(overview.experimentId, true);
+            }
+
+            @Override
+            public void onPermissionDenied() {
+              ExperimentListFragment frag = parentReference.get();
+              Activity activity = frag == null ? null : frag.getActivity();
+              if (activity != null) {
+                Snackbar bar =
+                    AccessibilityUtils.makeSnackbar(
+                        activity.findViewById(android.R.id.content),
+                        activity.getString(R.string.storage_permission_needed),
+                        Snackbar.LENGTH_LONG);
+                bar.show();
+              }
+            }
+
+            @Override
+            public void onPermissionPermanentlyDenied() {
+              ExperimentListFragment frag = parentReference.get();
+              Activity activity = frag == null ? null : frag.getActivity();
+              if (activity != null) {
+                Snackbar bar =
+                    AccessibilityUtils.makeSnackbar(
+                        activity.findViewById(android.R.id.content),
+                        activity.getString(R.string.storage_permission_needed),
+                        Snackbar.LENGTH_LONG);
+                bar.show();
+              }
+            }
+          });
     }
 
     private void setExperimentArchived(
@@ -1430,7 +1482,7 @@ public class ExperimentListFragment extends Fragment
       parentReference.get().confirmDelete(experimentId);
     }
 
-    private void exportExperiment(String experimentId) {
+    private void exportOrSaveExperiment(String experimentId, boolean saveLocally) {
       if (isParentGone()) {
         return;
       }
@@ -1439,20 +1491,23 @@ public class ExperimentListFragment extends Fragment
         return;
       }
       Context context = parentReference.get().getContext();
+      String trackerAction = TrackerConstants.ACTION_SHARED;
+      if (saveLocally) {
+        trackerAction = TrackerConstants.ACTION_DOWNLOADED;
+      }
       WhistlePunkApplication.getUsageTracker(applicationContext)
           .trackEvent(
               TrackerConstants.CATEGORY_EXPERIMENTS,
-              TrackerConstants.ACTION_SHARED,
+              trackerAction,
               TrackerConstants.LABEL_EXPERIMENT_LIST,
               0);
       if (parentReference.get().claimExperimentsMode) {
         WhistlePunkApplication.getUsageTracker(applicationContext)
-            .trackEvent(
-                TrackerConstants.CATEGORY_CLAIMING_DATA, TrackerConstants.ACTION_SHARE, null, 0);
+            .trackEvent(TrackerConstants.CATEGORY_CLAIMING_DATA, trackerAction, null, 0);
       }
       parentReference.get().setExportProgressBarVisible(true);
       ExportService.handleExperimentExportClick(
-          context, parentReference.get().appAccount, experimentId);
+          context, parentReference.get().appAccount, experimentId, saveLocally);
     }
 
     public void onDestroy() {

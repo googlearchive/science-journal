@@ -15,7 +15,11 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,6 +28,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build.VERSION_CODES;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -33,6 +39,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import android.support.design.snackbar.Snackbar;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
 import androidx.collection.ArrayMap;
 import android.util.Log;
@@ -60,6 +67,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -99,6 +108,8 @@ public class ExportService extends Service {
       "com.google.android.apps.forscience.whistlepunk.extra.SENSOR_IDS";
   private static final String EXTRA_IMPORT_URI =
       "com.google.android.apps.forscience.whistlepunk.extra.IMPORT_URI";
+  private static final String EXTRA_SAVE_LOCALLY =
+      "com.google.android.apps.forscience.whistlepunk.extra.SAVE_LOCALLY";
 
   private final IBinder binder = new ExportServiceBinder();
 
@@ -110,6 +121,8 @@ public class ExportService extends Service {
   // until subscriptions finish.
   private volatile Looper serviceLooper;
   private volatile ServiceHandler serviceHandler;
+
+  private static boolean downloadEnabled = false;
 
   private final class ServiceHandler extends Handler {
     public ServiceHandler(Looper looper) {
@@ -157,6 +170,7 @@ public class ExportService extends Service {
       String experimentId,
       String trialId,
       boolean relativeTime,
+      boolean saveLocally,
       String[] sensorIds) {
     Intent intent = new Intent(context, ExportService.class);
     intent.setAction(ACTION_EXPORT_TRIAL);
@@ -165,6 +179,7 @@ public class ExportService extends Service {
     intent.putExtra(EXTRA_TRIAL_ID, trialId);
     intent.putExtra(EXTRA_RELATIVE_TIME, relativeTime);
     intent.putExtra(EXTRA_SENSOR_IDS, sensorIds);
+    intent.putExtra(EXTRA_SAVE_LOCALLY, saveLocally);
     context.startService(intent);
   }
 
@@ -536,7 +551,7 @@ public class ExportService extends Service {
   }
 
   public static void handleExperimentExportClick(
-      Context context, AppAccount appAccount, String experimentId) {
+      Context context, AppAccount appAccount, String experimentId, boolean saveLocally) {
     AppSingleton.getInstance(context)
         .getDataController(appAccount)
         .getExperimentById(
@@ -545,7 +560,7 @@ public class ExportService extends Service {
               @Override
               public void success(Experiment experiment) {
                 if (isExperimentFullyDownloaded(appAccount, experimentId, experiment)) {
-                  startExperimentExport(context, appAccount, experimentId);
+                  startExperimentExport(context, appAccount, experimentId, saveLocally);
                 } else {
                   AlertDialog.Builder builder = new AlertDialog.Builder(context);
                   builder.setTitle(R.string.experiment_not_finished_downloading_title);
@@ -553,7 +568,7 @@ public class ExportService extends Service {
                   builder.setPositiveButton(
                       R.string.experiment_not_finished_downloading_confirm_button,
                       (DialogInterface dialog, int which) -> {
-                        startExperimentExport(context, appAccount, experimentId);
+                        startExperimentExport(context, appAccount, experimentId, saveLocally);
                         dialog.dismiss();
                       });
                   builder.setNegativeButton(
@@ -603,7 +618,7 @@ public class ExportService extends Service {
   }
 
   private static void startExperimentExport(
-      Context context, AppAccount appAccount, String experimentId) {
+      Context context, AppAccount appAccount, String experimentId, boolean saveLocally) {
     AppSingleton appSingleton = AppSingleton.getInstance(context);
     appSingleton.setExportServiceBusy(true);
     ExportService.bind(context)
@@ -623,9 +638,15 @@ public class ExportService extends Service {
         .subscribe(
             progress -> {
               Uri fileUri = progress.getFileUri();
-              appSingleton
-                  .onNextActivity()
-                  .subscribe(activity -> launchExportChooser(activity, appAccount, fileUri));
+              if (saveLocally) {
+                appSingleton
+                    .onNextActivity()
+                    .subscribe(activity -> saveToDownloads(activity, fileUri));
+              } else {
+                appSingleton
+                    .onNextActivity()
+                    .subscribe(activity -> launchExportChooser(activity, appAccount, fileUri));
+              }
             });
 
     ExportService.exportExperiment(context, appAccount, experimentId);
@@ -676,6 +697,99 @@ public class ExportService extends Service {
             });
 
     ExportService.importExperiment(context, appAccount, experimentFile);
+  }
+
+  /**
+   * Check this flag before displaying the option to download to the user.
+   *
+   * @return if downloading flag is enabled
+   */
+  public static boolean isDownloadEnabled() {
+    return downloadEnabled;
+  }
+
+  /** Enable or disable downloading flag */
+  public static void setDownloadEnabled(boolean enable) {
+    downloadEnabled = enable;
+  }
+
+  /**
+   * Downloads the file to the Downloads folder on the device
+   *
+   * @param context
+   * @param fileUri The Uri of the file to download
+   */
+  public static void saveToDownloads(Context context, Uri fileUri) {
+    if (Strings.isNullOrEmpty(fileUri.getPath())) {
+      AppSingleton.getInstance(context).setExportServiceBusy(false);
+      return;
+    }
+
+    if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+      File fileToDownload = new File(fileUri.getPath());
+      File file = generateFileDestination(fileToDownload);
+      copyToDownload(context, fileUri, fileToDownload.getName(), file);
+    }
+  }
+
+  private static File generateFileDestination(File fileToDownload) {
+    String fileName = fileToDownload.getName();
+    File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    int i = 1;
+    int indexOfExtension = fileName.lastIndexOf('.');
+    String name = fileName.substring(0, indexOfExtension);
+    String ext = fileName.substring(indexOfExtension);
+    File destination = new File(directory, fileName);
+    while (destination.exists()) {
+      fileName = name + " (" + i + ")" + ext;
+      destination = new File(directory, fileName);
+      i++;
+    }
+    return destination;
+  }
+
+  @TargetApi(VERSION_CODES.O)
+  // TODO(b/130899775): Find copying solution for API 21-25
+  private static void copyToDownload(
+      Context context, Uri sourceUri, String fileName, File destination) {
+    try {
+      if (AndroidVersionUtils.isApiLevelAtLeastOreo()) {
+        Files.copy(
+            context.getContentResolver().openInputStream(sourceUri),
+            destination.toPath(),
+            StandardCopyOption.REPLACE_EXISTING);
+      }
+      Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
+      PendingIntent pendingIntent =
+          PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_ONE_SHOT);
+      ((NotificationManager)
+              context.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE))
+          .notify(
+              NotificationIds.SAVED_TO_DEVICE,
+              new NotificationCompat.Builder(
+                      context.getApplicationContext(), NotificationChannels.SAVE_TO_DEVICE_CHANNEL)
+                  .setContentTitle(context.getString(R.string.service_notification_content_title))
+                  .setContentText(context.getString(R.string.save_to_device_channel_description))
+                  .setSubText(fileName)
+                  .setSmallIcon(R.drawable.ic_notification_24dp)
+                  .setContentIntent(pendingIntent)
+                  .setAutoCancel(true)
+                  .build());
+    } catch (IOException ioe) {
+      AppSingleton.getInstance(context)
+          .onNextActivity()
+          .subscribe(
+              activity -> {
+                AccessibilityUtils.makeSnackbar(
+                        activity.findViewById(android.R.id.content),
+                        context.getResources().getString(R.string.saved_to_device_error),
+                        Snackbar.LENGTH_SHORT)
+                    .show();
+              });
+      ioe.printStackTrace();
+    } finally {
+      AppSingleton.getInstance(context).setExportServiceBusy(false);
+    }
   }
 
   private class TrialDataWriter implements Observer<ScalarReading> {

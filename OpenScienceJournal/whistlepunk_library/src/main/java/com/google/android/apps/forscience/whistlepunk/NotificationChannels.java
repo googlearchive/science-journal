@@ -22,4 +22,5 @@ package com.google.android.apps.forscience.whistlepunk;
  */
 public class NotificationChannels {
   public static final String NOTIFICATION_CHANNEL = "science_journal_notification_channel";
+  public static final String SAVE_TO_DEVICE_CHANNEL = "science_journal_save_to_device_channel";
 }

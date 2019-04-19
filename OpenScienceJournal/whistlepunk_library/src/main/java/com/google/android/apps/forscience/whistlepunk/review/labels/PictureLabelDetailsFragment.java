@@ -16,10 +16,13 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.snackbar.Snackbar;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -29,13 +32,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
+import com.google.android.apps.forscience.whistlepunk.ExportService;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
+import java.io.File;
 
 /** Details view controller for PictureLabel */
 public class PictureLabelDetailsFragment extends LabelDetailsFragment {
@@ -107,6 +116,8 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
       menu.findItem(R.id.btn_share_photo).setVisible(true);
     }
 
+    menu.findItem(R.id.btn_download_photo).setVisible(ExportService.isDownloadEnabled());
+
     ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
     actionBar.setTitle("");
 
@@ -132,6 +143,59 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
                     shareIntent,
                     getContext().getResources().getString(R.string.export_photo_chooser_title)));
       }
+      return true;
+    } else if (item.getItemId() == R.id.btn_download_photo) {
+      PermissionUtils.tryRequestingPermission(
+          getActivity(),
+          PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
+          new PermissionUtils.PermissionListener() {
+            @Override
+            public void onPermissionGranted() {
+              String sourcePath = originalLabel.getPictureLabelValue().filePath;
+              File sourceFile =
+                  new File(
+                      PictureUtils.getExperimentImagePath(
+                          getContext(), appAccount, experimentId, sourcePath));
+              Uri sourceUri = Uri.fromFile(sourceFile);
+              ExportService.saveToDownloads(getContext(), sourceUri);
+            }
+
+            @Override
+            public void onPermissionDenied() {
+              // TODO(b/130895178): Figure out why onPermissionDenied isn't being called here.
+              Activity activity = getActivity();
+              if (activity != null) {
+                Snackbar bar =
+                    AccessibilityUtils.makeSnackbar(
+                        activity.findViewById(R.id.root_layout),
+                        activity.getString(R.string.storage_permission_needed),
+                        Snackbar.LENGTH_LONG);
+                bar.show();
+              }
+            }
+
+            @Override
+            public void onPermissionPermanentlyDenied() {
+              // TODO(b/130895178): Figure out why onPermissionPermanentlyDenied isn't being called
+              // here.
+              Activity activity = getActivity();
+              if (activity != null) {
+                Snackbar bar =
+                    AccessibilityUtils.makeSnackbar(
+                        activity.findViewById(R.id.root_layout),
+                        activity.getString(R.string.storage_permission_needed),
+                        Snackbar.LENGTH_LONG);
+                bar.show();
+              }
+            }
+          });
+
+      WhistlePunkApplication.getUsageTracker(getActivity())
+          .trackEvent(
+              TrackerConstants.CATEGORY_NOTES,
+              TrackerConstants.ACTION_DOWNLOADED,
+              TrackerConstants.LABEL_PICTURE_DETAIL,
+              0);
       return true;
     }
 

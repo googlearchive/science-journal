@@ -88,6 +88,7 @@ public final class TrackerConstants {
   public static final String ACTION_LABEL_ADDED = "LabelAdded";
   public static final String ACTION_SHARED = "Shared";
   public static final String ACTION_IMPORTED = "Imported";
+  public static final String ACTION_DOWNLOADED = "Downloaded";
   public static final String ACTION_CLAIM_FAILED = "Failed";
   public static final String ACTION_RECOVERY_FAILED = "RecoveryFailed";
   public static final String ACTION_RECOVER_EXPERIMENT_ATTEMPTED = "RecoverExperimentAttempted";
@@ -142,6 +143,7 @@ public final class TrackerConstants {
   public static final String LABEL_UPDATE_EXPERIMENT = "update_experiment";
   public static final String LABEL_MODE_SIGNED_IN = "signedin";
   public static final String LABEL_MODE_SIGNED_OUT = "signedout";
+  public static final String LABEL_PICTURE_DETAIL = "picture_detail";
   public static final String LABEL_USER_RECOVERABLE_AUTH_EXCEPTION = "UserRecoverableAuthException";
   public static final String LABEL_ACCOUNT_TYPE_OTHER = "Other";
   public static final String LABEL_ACCOUNT_TYPE_GMAIL = "Gmail";

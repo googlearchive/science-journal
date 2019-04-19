@@ -500,8 +500,11 @@ public class RunReviewFragment extends Fragment
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
     if (claimExperimentsMode) {
-      // In claim experiments mode, hide all menu items except export and delete.
-      menu.findItem(R.id.action_export).setVisible(shouldShowExport());
+      // In claim experiments mode, hide all menu items except export/download and delete.
+      // If downloading isn't enabled yet, show export.
+      menu.findItem(R.id.action_export)
+          .setVisible(shouldShowExport() && !ExportService.isDownloadEnabled());
+      menu.findItem(R.id.action_download).setVisible(ExportService.isDownloadEnabled());
       menu.findItem(R.id.action_run_review_delete).setVisible(true);
       menu.findItem(R.id.action_run_review_archive).setVisible(false);
       menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
@@ -527,6 +530,7 @@ public class RunReviewFragment extends Fragment
             .setEnabled(CropHelper.experimentIsLongEnoughForCrop(getTrial()));
 
         menu.findItem(R.id.action_export).setVisible(shouldShowExport());
+        menu.findItem(R.id.action_download).setVisible(ExportService.isDownloadEnabled());
       } else {
         menu.findItem(R.id.action_run_review_archive).setVisible(false);
         menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
@@ -535,6 +539,7 @@ public class RunReviewFragment extends Fragment
         menu.findItem(R.id.action_run_review_delete).setVisible(false);
         menu.findItem(R.id.action_run_review_crop).setVisible(false);
         menu.findItem(R.id.action_export).setVisible(false);
+        menu.findItem(R.id.action_download).setVisible(false);
       }
 
       if (((RunReviewActivity) getActivity()).isFromRecord()) {
@@ -589,7 +594,10 @@ public class RunReviewFragment extends Fragment
           scalarDisplayOptions, new NewOptionsStorage.SnackbarFailureListener(getView()));
     } else if (id == R.id.action_export) {
       RxDataController.getExperimentById(getDataController(), experimentId)
-          .subscribe(experiment -> exportRun(experiment.getTrial(trialId)));
+          .subscribe(experiment -> exportRun(experiment.getTrial(trialId), false));
+    } else if (id == R.id.action_download) {
+      RxDataController.getExperimentById(getDataController(), experimentId)
+          .subscribe(experiment -> exportRun(experiment.getTrial(trialId), true));
     } else if (id == R.id.action_run_review_crop) {
       if (experiment != null) {
         launchCrop(getView());
@@ -806,6 +814,7 @@ public class RunReviewFragment extends Fragment
 
     pinnedNoteAdapter =
         new PinnedNoteAdapter(
+            this,
             appAccount,
             trial,
             trial.getFirstTimestamp(),
@@ -1842,10 +1851,10 @@ public class RunReviewFragment extends Fragment
     return AppSingleton.getInstance(getActivity()).getDataController(appAccount);
   }
 
-  private void exportRun(final Trial trial) {
+  private void exportRun(final Trial trial, boolean saveLocally) {
     ExportOptionsDialogFragment fragment =
         ExportOptionsDialogFragment.createOptionsDialog(
-            appAccount, experiment.getExperimentId(), trial.getTrialId());
+            appAccount, experiment.getExperimentId(), trial.getTrialId(), saveLocally);
     fragment.show(((AppCompatActivity) getActivity()).getSupportFragmentManager(), "export");
   }
 

@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.annotation.TargetApi;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -24,6 +25,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
@@ -170,6 +172,7 @@ public abstract class WhistlePunkApplication extends Application {
 
   protected void enableStrictMode() {}
 
+  @TargetApi(VERSION_CODES.O)
   private void setupNotificationChannel() {
     if (AndroidVersionUtils.isApiLevelAtLeastOreo()) {
       NotificationManager notificationManager =
@@ -187,6 +190,17 @@ public abstract class WhistlePunkApplication extends Application {
       // Configure the notification channel.
       mChannel.setDescription(description);
       notificationManager.createNotificationChannel(mChannel);
+
+      String saveToDeviceId = NotificationChannels.SAVE_TO_DEVICE_CHANNEL;
+      CharSequence saveToDeviceName =
+          getApplicationContext().getString(R.string.save_to_device_channel_title);
+      String saveToDeviceDescription =
+          getApplicationContext().getString(R.string.save_to_device_channel_description);
+      NotificationChannel saveToDeviceChannel =
+          new NotificationChannel(
+              saveToDeviceId, saveToDeviceName, NotificationManager.IMPORTANCE_DEFAULT);
+      saveToDeviceChannel.setDescription(saveToDeviceDescription);
+      notificationManager.createNotificationChannel(saveToDeviceChannel);
     }
   }
 

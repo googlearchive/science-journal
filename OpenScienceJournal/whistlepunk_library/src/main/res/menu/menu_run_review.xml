@@ -41,6 +41,12 @@
                 app:showAsAction="never"
                 />
             <item
+                android:id="@+id/action_download"
+                android:icon="@drawable/ic_file_download_black_24dp"
+                android:title="@string/download_copy_action"
+                app:showAsAction="never"
+                />
+            <item
                 android:id="@+id/action_run_review_audio_settings"
                 android:icon="@drawable/ic_settings_audio_24dp"
                 android:title="@string/menu_item_audio_settings"

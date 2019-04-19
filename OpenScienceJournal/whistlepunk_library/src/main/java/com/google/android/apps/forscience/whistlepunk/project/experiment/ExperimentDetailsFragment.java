@@ -16,11 +16,13 @@
 
 package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
+import android.app.Activity;
 import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.support.design.snackbar.Snackbar;
@@ -61,6 +63,7 @@ import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -104,6 +107,7 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
@@ -542,6 +546,9 @@ public class ExperimentDetailsFragment extends Fragment
     menu.findItem(R.id.action_export_experiment)
         .setVisible(experiment != null && isShareIntentValid);
     menu.findItem(R.id.action_export_experiment).setEnabled(!isRecording());
+    menu.findItem(R.id.action_download_experiment)
+        .setVisible(experiment != null && ExportService.isDownloadEnabled());
+    menu.findItem(R.id.action_download_experiment).setEnabled(!isRecording());
     setHomeButtonState(isRecording());
   }
 
@@ -588,7 +595,53 @@ public class ExperimentDetailsFragment extends Fragment
               TrackerConstants.LABEL_EXPERIMENT_DETAIL,
               0);
       setProgressBarVisible(true);
-      ExportService.handleExperimentExportClick(getContext(), appAccount, experimentId);
+      ExportService.handleExperimentExportClick(getContext(), appAccount, experimentId, false);
+      return true;
+    } else if (itemId == R.id.action_download_experiment) {
+      PermissionUtils.tryRequestingPermission(
+          getActivity(),
+          PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
+          new PermissionUtils.PermissionListener() {
+            @Override
+            public void onPermissionGranted() {
+              setProgressBarVisible(true);
+              ExportService.handleExperimentExportClick(
+                  getContext(), appAccount, experimentId, true);
+            }
+
+            @Override
+            public void onPermissionDenied() {
+              Activity activity = getActivity();
+              if (activity != null) {
+                Snackbar bar =
+                    AccessibilityUtils.makeSnackbar(
+                        activity.findViewById(android.R.id.content),
+                        activity.getString(R.string.storage_permission_needed),
+                        Snackbar.LENGTH_LONG);
+                bar.show();
+              }
+            }
+
+            @Override
+            public void onPermissionPermanentlyDenied() {
+              Activity activity = getActivity();
+              if (activity != null) {
+                Snackbar bar =
+                    AccessibilityUtils.makeSnackbar(
+                        activity.findViewById(android.R.id.content),
+                        activity.getString(R.string.storage_permission_needed),
+                        Snackbar.LENGTH_LONG);
+                bar.show();
+              }
+            }
+          });
+      WhistlePunkApplication.getUsageTracker(getActivity())
+          .trackEvent(
+              TrackerConstants.CATEGORY_EXPERIMENTS,
+              TrackerConstants.ACTION_DOWNLOADED,
+              TrackerConstants.LABEL_EXPERIMENT_DETAIL,
+              0);
+
       return true;
     }
     return super.onOptionsItemSelected(item);
@@ -1175,6 +1228,10 @@ public class ExperimentDetailsFragment extends Fragment
                       experiment.getExperimentId(),
                       item.getLabel().getPictureLabelValue().filePath,
                       item.getLabel().getCaptionText());
+          popupMenu
+              .getMenu()
+              .findItem(R.id.btn_download_photo)
+              .setVisible(ExportService.isDownloadEnabled());
           if (shareIntent != null) {
             popupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(true);
           }
@@ -1200,6 +1257,67 @@ public class ExperimentDetailsFragment extends Fragment
                     Intent.createChooser(
                         shareIntent,
                         context.getResources().getString(R.string.export_photo_chooser_title)));
+              }
+              return true;
+            }
+            if (menuItem.getItemId() == R.id.btn_download_photo) {
+              if (context != null) {
+                PermissionUtils.tryRequestingPermission(
+                    parentReference.get().getActivity(),
+                    PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
+                    new PermissionUtils.PermissionListener() {
+                      @Override
+                      public void onPermissionGranted() {
+                        String sourcePath = item.getLabel().getPictureLabelValue().filePath;
+                        File sourceFile =
+                            new File(
+                                PictureUtils.getExperimentImagePath(
+                                    context,
+                                    parentReference.get().appAccount,
+                                    experiment.getExperimentId(),
+                                    sourcePath));
+                        Uri sourceUri = Uri.fromFile(sourceFile);
+                        ExportService.saveToDownloads(
+                            parentReference.get().getActivity(), sourceUri);
+                      }
+
+                      @Override
+                      public void onPermissionDenied() {
+                        ExperimentDetailsFragment frag = parentReference.get();
+                        Activity activity = frag == null ? null : frag.getActivity();
+                        if (activity != null) {
+                          Snackbar bar =
+                              AccessibilityUtils.makeSnackbar(
+                                  activity.findViewById(android.R.id.content),
+                                  activity.getString(R.string.storage_permission_needed),
+                                  Snackbar.LENGTH_LONG);
+                          bar.show();
+                        }
+                      }
+
+                      @Override
+                      public void onPermissionPermanentlyDenied() {
+                        ExperimentDetailsFragment frag = parentReference.get();
+                        Activity activity = frag == null ? null : frag.getActivity();
+                        if (activity != null) {
+                          Snackbar bar =
+                              AccessibilityUtils.makeSnackbar(
+                                  activity.findViewById(android.R.id.content),
+                                  activity.getString(R.string.storage_permission_needed),
+                                  Snackbar.LENGTH_LONG);
+                          bar.show();
+                        }
+                      }
+                    });
+                ExperimentDetailsFragment frag = parentReference.get();
+                Activity activity = frag == null ? null : frag.getActivity();
+                WhistlePunkApplication.getUsageTracker(activity)
+                    .trackEvent(
+                        TrackerConstants.CATEGORY_EXPERIMENTS,
+                        TrackerConstants.ACTION_DOWNLOADED,
+                        TrackerConstants.LABEL_PICTURE_DETAIL,
+                        0);
+
               }
               return true;
             }

@@ -16,8 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.support.design.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.InputType;
@@ -29,16 +33,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
+import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.jakewharton.rxbinding2.widget.RxTextView;
+import java.io.File;
 
 /** Adapter for a recycler view of pinned notes. */
 public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -92,14 +103,17 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   private final boolean claimExperimentsMode;
   private ListItemEditListener editListener;
   private ListItemClickListener clickListener;
+  private Fragment parent;
 
   public PinnedNoteAdapter(
+      Fragment parent,
       AppAccount appAccount,
       Trial trial,
       long startTimestamp,
       long endTimestamp,
       String experimentId,
       boolean claimExperimentsMode) {
+    this.parent = parent;
     this.appAccount = appAccount;
     this.trial = trial;
     this.startTimestamp = startTimestamp;
@@ -200,6 +214,10 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             popupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
           }
           popupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(shareIntent != null);
+          popupMenu
+              .getMenu()
+              .findItem(R.id.btn_download_photo)
+              .setVisible(ExportService.isDownloadEnabled());
           popupMenu.setOnDismissListener(menu -> popupMenu = null);
           popupMenu.setOnMenuItemClickListener(
               item -> {
@@ -216,6 +234,55 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                           shareIntent,
                           context.getResources().getString(R.string.export_photo_chooser_title)));
 
+                  return true;
+                } else if (itemId == R.id.btn_download_photo) {
+                  PermissionUtils.tryRequestingPermission(
+                      parent.getActivity(),
+                      PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
+                      new PermissionUtils.PermissionListener() {
+                        @Override
+                        public void onPermissionGranted() {
+                          String sourcePath = label.getPictureLabelValue().filePath;
+                          File sourceFile =
+                              new File(
+                                  PictureUtils.getExperimentImagePath(
+                                      context, appAccount, experimentId, sourcePath));
+                          Uri sourceUri = Uri.fromFile(sourceFile);
+                          ExportService.saveToDownloads(context, sourceUri);
+                        }
+
+                        @Override
+                        public void onPermissionDenied() {
+                          Activity activity = parent.getActivity();
+                          if (activity != null) {
+                            Snackbar bar =
+                                AccessibilityUtils.makeSnackbar(
+                                    activity.findViewById(android.R.id.content),
+                                    activity.getString(R.string.storage_permission_needed),
+                                    Snackbar.LENGTH_LONG);
+                            bar.show();
+                          }
+                        }
+
+                        @Override
+                        public void onPermissionPermanentlyDenied() {
+                          Activity activity = parent.getActivity();
+                          if (activity != null) {
+                            Snackbar bar =
+                                AccessibilityUtils.makeSnackbar(
+                                    activity.findViewById(android.R.id.content),
+                                    activity.getString(R.string.storage_permission_needed),
+                                    Snackbar.LENGTH_LONG);
+                            bar.show();
+                          }
+                        }
+                      });
+                  WhistlePunkApplication.getUsageTracker(context)
+                      .trackEvent(
+                          TrackerConstants.CATEGORY_NOTES,
+                          TrackerConstants.ACTION_DOWNLOADED,
+                          TrackerConstants.LABEL_RUN_REVIEW,
+                          0);
                   return true;
                 }
                 return false;
@@ -331,7 +398,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     long elapsedTimeSeconds =
         Math.round((labelTimestamp - startTimestamp) / RunReviewFragment.MILLIS_IN_A_SECOND);
     if (elapsedTimeSeconds < 0) {
-      // TOOD: String resource: Localization for negative values?
+      //String resource: Localization for negative values?
       return "-" + DateUtils.formatElapsedTime(-1 * elapsedTimeSeconds);
     }
     return DateUtils.formatElapsedTime(elapsedTimeSeconds);

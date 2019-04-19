@@ -77,6 +77,13 @@
                 android:icon="@drawable/menu_share"
                 app:showAsAction="never"
                 />
+            <item
+                android:id="@+id/action_download_experiment"
+                android:orderInCategory="105"
+                android:title="@string/download_copy_action"
+                android:icon="@drawable/menu_download"
+                app:showAsAction="never"
+                />
         </menu>
     </item>
 </menu>
