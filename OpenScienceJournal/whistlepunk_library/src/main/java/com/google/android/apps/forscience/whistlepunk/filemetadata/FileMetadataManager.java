@@ -487,6 +487,7 @@ public class FileMetadataManager {
     newExperiment.setLastUsedTime(clock.getNow());
     if (containsExperimentImage) {
       overview.imagePath = EXPERIMENTS_DIRECTORY + "/" + experimentId + "/" + COVER_IMAGE_FILE;
+      newExperiment.setImagePath(overview.imagePath);
     }
     updateExperiment(Experiment.fromExperiment(proto, overview), true);
     File dataFile = new File(externalPath, "sensorData.proto");
@@ -527,7 +528,6 @@ public class FileMetadataManager {
   private Single<Boolean> unzipExperimentFile(
       Context context, Uri data, ContentResolver resolver, File externalPath, File internalPath)
       throws IOException {
-    boolean containsExperimentImage = false;
     if (!externalPath.exists() && !externalPath.mkdir()) {
       throw new IOException("Couldn't create external experiment directory");
     }
