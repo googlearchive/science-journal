@@ -20,7 +20,7 @@ import android.content.Intent;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import org.robolectric.RuntimeEnvironment;
 
-/** Stubb of RecorderService for tests. */
+/** Stub of RecorderService for tests. */
 public class MockRecorderService extends RecorderService {
   MockRecorderService() {}
 

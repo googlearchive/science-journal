@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.ble;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.os.ParcelUuid;
 import android.os.SystemClock;
 import androidx.collection.ArrayMap;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
@@ -71,7 +72,7 @@ public abstract class DeviceDiscoverer {
     return bluetoothAdapter;
   }
 
-  public void startScanning(Callback callback) {
+  public void startScanning(ParcelUuid[] serviceUuids, Callback callback) {
     if (callback == null) {
       throw new IllegalArgumentException("Callback must not be null");
     }
@@ -79,10 +80,10 @@ public abstract class DeviceDiscoverer {
     this.callback = callback;
     // Clear out the older devices so we don't think they're still there.
     devices.clear();
-    onStartScanning();
+    onStartScanning(serviceUuids);
   }
 
-  public abstract void onStartScanning();
+  public abstract void onStartScanning(ParcelUuid[] serviceUuids);
 
   public void stopScanning() {
     onStopScanning();

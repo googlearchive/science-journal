@@ -17,6 +17,7 @@
 syntax = "proto2";
 
 package goosci;
+
 import "third_party/android/nanoproto/nano_descriptor.proto";
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
@@ -45,10 +46,13 @@ message IconPath {
     // proto. path_string will be empty for these sensors.
     // TODO: populate path_string and load image from there.
     PROTO = 2;
+
+    // Arduino MkrSci path type. The path string is sensor_id:handler_id.
+    MKRSCI_ANDROID_BLE = 3;
   }
 
   optional PathType type = 1;
 
   // The format and interpretation of this string depends on PathType
   optional string path_string = 2;
-};
+}

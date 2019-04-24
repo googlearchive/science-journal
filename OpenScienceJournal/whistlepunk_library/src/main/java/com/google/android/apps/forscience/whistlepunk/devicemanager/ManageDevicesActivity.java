@@ -39,8 +39,8 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 
-public class ManageDevicesActivity extends AppCompatActivity
-    implements DeviceOptionsDialog.DeviceOptionsListener {
+/** Activity for managing devices. */
+public class ManageDevicesActivity extends AppCompatActivity implements DeviceOptionsListener {
 
   private static final String TAG = "ManageDevices";
 
@@ -54,9 +54,9 @@ public class ManageDevicesActivity extends AppCompatActivity
   private ManageDevicesRecyclerFragment manageFragment;
   private Experiment currentExperiment;
 
-  public static DeviceOptionsDialog.DeviceOptionsListener getOptionsListener(Activity activity) {
-    if (activity instanceof DeviceOptionsDialog.DeviceOptionsListener) {
-      return (DeviceOptionsDialog.DeviceOptionsListener) activity;
+  public static DeviceOptionsListener getOptionsListener(Activity activity) {
+    if (activity instanceof DeviceOptionsListener) {
+      return (DeviceOptionsListener) activity;
     } else {
       return DeviceOptionsDialog.NULL_LISTENER;
     }

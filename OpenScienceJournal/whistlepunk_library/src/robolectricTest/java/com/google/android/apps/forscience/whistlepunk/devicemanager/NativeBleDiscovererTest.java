@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.ParcelUuid;
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.AccumulatingConsumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
@@ -45,7 +46,7 @@ public class NativeBleDiscovererTest {
           protected DeviceDiscoverer createDiscoverer(Context context) {
             return new DeviceDiscoverer(context) {
               @Override
-              public void onStartScanning() {
+              public void onStartScanning(ParcelUuid[] serviceUuids) {
                 int rssi = Arbitrary.integer();
                 addOrUpdateDevice(
                     new WhistlepunkBleDevice() {
@@ -103,7 +104,7 @@ public class NativeBleDiscovererTest {
           }
         };
     discoverer.startScanning(listener, TestConsumers.expectingSuccess());
-    assertEquals(1, sensorsSeen.seen.size());
+    assertEquals(15, sensorsSeen.seen.size());
     GoosciSensorSpec.SensorSpec sensor = sensorsSeen.seen.get(0).getSensorSpec();
     assertEquals(name, sensor.rememberedAppearance.name);
     assertEquals(address, sensor.info.address);

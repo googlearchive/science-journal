@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="arduino_boards" translatable="false">Arduino Boards</string>
+
+    <string name="input_1" translatable="false">Input 1</string>
+    <string name="input_2" translatable="false">Input 2</string>
+    <string name="input_3" translatable="false">Input 3</string>
+    <string name="voltage" translatable="false">Voltage</string>
+    <string name="current" translatable="false">Current</string>
+    <string name="resistance" translatable="false">Resistance</string>
+    <string name="gyr_x" translatable="false">Gyroscope X</string>
+    <string name="gyr_y" translatable="false">Gyroscope Y</string>
+    <string name="gyr_z" translatable="false">Gyroscope Z</string>
+
+    <string name="temperature_c_units" translatable="false">\u00B0C</string>
+    <string name="temperature_f_units" translatable="false">\u00B0F</string>
+    <string name="current_units" translatable="false">A</string>
+    <string name="resistance_units" translatable="false">k\u03A9</string>
+    <string name="gyr_units" translatable="false">\u00B0/s</string>
+
+    <string name="mkrsci_input_sensor_raw" translatable="false">Raw</string>
+    <string name="mkrsci_input_sensor_temperature_c" translatable="false">Temperature (Celsius)</string>
+    <string name="mkrsci_input_sensor_temperature_f" translatable="false">Temperature (Fahrenheit)</string>
+    <string name="mkrsci_input_sensor_light" translatable="false">Light</string>
+
+    <string name="sensor_desc_short_mkrsci_acc" translatable="false">A device that measures acceleration</string>
+    <string name="sensor_desc_short_mkrsci_current" translatable="false">The amount of flow of charged particles between two places</string>
+    <string name="sensor_desc_short_mkrsci_gyr" translatable="false">A device that measures orientation and angular velocity (rotation).</string>
+    <string name="sensor_desc_short_mkrsci_magnetometer" translatable="false">An instrument used to measure the intensity and direction of a magnetic field</string>
+    <string name="sensor_desc_short_mkrsci_resistance" translatable="false">The measure of the difficulty of current flow through an object or material</string>
+    <string name="sensor_desc_short_mkrsci_voltage" translatable="false">The difference in electric potential between two places that allows a current to flow</string>
+
+</resources>

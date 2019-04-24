@@ -98,8 +98,7 @@ public class DeviceOptionsViewControllerTest {
     assertNull(newListener.mostRecentNewSensorId);
   }
 
-  private static class RecordingDeviceOptionsListener
-      implements DeviceOptionsDialog.DeviceOptionsListener {
+  private static class RecordingDeviceOptionsListener implements DeviceOptionsListener {
     public String mostRecentOldSensorId;
     public String mostRecentNewSensorId;
 

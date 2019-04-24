@@ -1256,8 +1256,8 @@ public class RecordFragment extends PanesToolFragment
               new LoggingConsumer<ExperimentSensors>(TAG, "add external sensors") {
                 @Override
                 public void success(ExperimentSensors sensors) {
-                  sensorRegistry.setExcludedIds(sensors.getExcludedSensorIds());
-                  updateExternalSensors(sensors.getIncludedSensors());
+                  sensorRegistry.setExcludedIds(sensors.getExcludedInternalSensorIds());
+                  updateExternalSensors(sensors.getExternalSensors());
                   setSensorPresenters(layouts, rc, status);
                 }
               });

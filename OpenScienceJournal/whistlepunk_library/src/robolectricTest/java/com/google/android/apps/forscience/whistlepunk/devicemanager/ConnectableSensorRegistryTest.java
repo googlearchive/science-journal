@@ -60,8 +60,7 @@ import org.robolectric.RobolectricTestRunner;
 public class ConnectableSensorRegistryTest {
   private final Scheduler scheduler = new MockScheduler();
   private final MemoryMetadataManager metadataManager = new MemoryMetadataManager();
-  private final DeviceOptionsDialog.DeviceOptionsListener optionsListener =
-      DeviceOptionsDialog.NULL_LISTENER;
+  private final DeviceOptionsListener optionsListener = DeviceOptionsDialog.NULL_LISTENER;
   private final Map<String, SensorProvider> providerMap = new HashMap<>();
   private DeviceRegistry deviceRegistry = new DeviceRegistry(null);
   private MemorySensorGroup availableDevices = new MemorySensorGroup(deviceRegistry);
@@ -532,7 +531,7 @@ public class ConnectableSensorRegistryTest {
         ConnectableSensor.makeMap(
             metadataManager
                 .getExperimentSensors(experiment.getExperimentId(), providerMap, s.makeConnector())
-                .getIncludedSensors());
+                .getExternalSensors());
     ScalarInputSpec retrievedSpec = (ScalarInputSpec) sensors.values().iterator().next();
     SensorAppearance appearance = retrievedSpec.getSensorAppearance();
     assertEquals("newUnits", appearance.getUnits(null));

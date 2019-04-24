@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec
 import com.google.android.apps.forscience.whistlepunk.data.nano.InputDevice;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.MkrSciBleDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -37,6 +38,7 @@ import com.google.protobuf.nano.MessageNano;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * An "ExternalSensorSpec" that identifies a device, which is, for our purposes, an abstract
@@ -133,6 +135,9 @@ public class InputDeviceSpec extends ExternalSensorSpec {
       public Drawable getIconDrawable(Context context) {
         if (getDeviceAddress().equals(BUILT_IN_DEVICE_ADDRESS)) {
           return context.getResources().getDrawable(R.drawable.ic_phone_android_black_48dp);
+        }
+        if (Objects.equals(getProviderType(), MkrSciBleDeviceSpec.TYPE)) {
+          return context.getResources().getDrawable(R.drawable.ic_arduino_device_white_24dp);
         }
         return null;
       }

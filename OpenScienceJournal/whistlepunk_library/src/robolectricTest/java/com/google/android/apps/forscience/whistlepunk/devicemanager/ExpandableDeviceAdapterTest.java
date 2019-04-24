@@ -320,7 +320,7 @@ public class ExpandableDeviceAdapterTest {
     ExperimentSensors sensors =
         metadataManager.getExperimentSensors(
             experiment.getExperimentId(), Maps.<String, SensorProvider>newHashMap(), connector);
-    List<ConnectableSensor> included = sensors.getIncludedSensors();
+    List<ConnectableSensor> included = sensors.getExternalSensors();
     assertEquals(1, included.size());
     assertEquals("builtInId", included.get(0).getConnectedSensorId());
 

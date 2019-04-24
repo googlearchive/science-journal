@@ -116,7 +116,7 @@ public class DeviceOptionsViewController {
     frequencyCheckbox = (CheckBox) this.view.findViewById(R.id.spinner_custom_frequency_checkbox);
   }
 
-  public void commit(final DeviceOptionsDialog.DeviceOptionsListener optionsListener) {
+  public void commit(final DeviceOptionsListener optionsListener) {
     final ExternalSensorSpec sensor = getOptions();
 
     maybeReplaceSensor(

@@ -28,7 +28,6 @@ import android.provider.BaseColumns;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.collection.ArraySet;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
@@ -1774,6 +1773,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
   }
 
+  @Override
+  public void eraseSensorFromExperiment(String databaseTag, String experimentId) {
+    synchronized (lock) {
+      final SQLiteDatabase db = dbHelper.getWritableDatabase();
+      removeSensorExperimentInclusion(databaseTag, experimentId);
+    }
+  }
+
   private void removeSensorExperimentInclusion(String databaseTag, String experimentId) {
     String selection =
         ExperimentSensorColumns.SENSOR_TAG
@@ -1799,52 +1806,59 @@ public class SimpleMetaDataManager implements MetaDataManager {
       String experimentId,
       Map<String, SensorProvider> providerMap,
       ConnectableSensor.Connector connector) {
-    List<ConnectableSensor> includedSensors = new ArrayList<>();
-    Set<String> excludedTags = new ArraySet<>();
-
+    final List<ConnectableSensor> externalSensors = new ArrayList<>();
+    final Set<String> excludedInternalSensorTags = new HashSet<>();
     synchronized (lock) {
+      final String sql =
+          "SELECT t1."
+              + ExperimentSensorColumns.SENSOR_TAG
+              + ", t1."
+              + ExperimentSensorColumns.INCLUDED
+              + ", t2. "
+              + SensorColumns.TYPE
+              + ", t2. "
+              + SensorColumns.NAME
+              + ", t2. "
+              + SensorColumns.CONFIG
+              + " FROM "
+              + Tables.EXPERIMENT_SENSORS
+              + " t1 LEFT OUTER JOIN "
+              + Tables.EXTERNAL_SENSORS
+              + " t2"
+              + " ON t1."
+              + ExperimentSensorColumns.SENSOR_TAG
+              + " = t2."
+              + SensorColumns.SENSOR_ID
+              + " WHERE t1."
+              + ExperimentSensorColumns.EXPERIMENT_ID
+              + " = ?"
+              + " ORDER BY t1."
+              + ExperimentSensorColumns.SENSOR_TAG
+              + " ASC";
       final SQLiteDatabase db = dbHelper.getReadableDatabase();
-      Cursor c = null;
-      List<String> tags = new ArrayList<>();
-      try {
-        // Explicitly order by ascending rowid, to preserve insertion order
-        c =
-            db.query(
-                Tables.EXPERIMENT_SENSORS,
-                new String[] {ExperimentSensorColumns.SENSOR_TAG, ExperimentSensorColumns.INCLUDED},
-                ExperimentSensorColumns.EXPERIMENT_ID + "=?",
-                new String[] {experimentId},
-                null,
-                null,
-                BaseColumns._ID + " ASC");
+      try (Cursor c = db.rawQuery(sql, new String[] {experimentId})) {
         while (c.moveToNext()) {
           String tag = c.getString(0);
           boolean included = c.getInt(1) > 0;
-
-          if (included) {
-            // We don't expect to get duplicates, but we can deal with them gracefully.
-            if (!tags.contains(tag)) {
-              tags.add(tag);
+          String type = c.getString(2);
+          if (type == null) {
+            if (!included) {
+              excludedInternalSensorTags.add(tag);
             }
           } else {
-            excludedTags.add(tag);
+            SensorProvider sensorProvider = providerMap.get(type);
+            if (sensorProvider != null) {
+              ExternalSensorSpec spec =
+                  sensorProvider.buildSensorSpec(c.getString(3), c.getBlob(4));
+              ConnectableSensor sensor =
+                  connector.connected(ExternalSensorSpec.toGoosciSpec(spec), tag, included);
+              externalSensors.add(sensor);
+            }
           }
         }
-      } finally {
-        if (c != null) {
-          c.close();
-        }
-      }
-
-      // This is somewhat inefficient to do nested queries, but in most cases there will
-      // only be one or two, so we are trading off code complexity of doing a db join.
-      for (String tag : tags) {
-        ExternalSensorSpec sensor = getExternalSensorById(tag, providerMap);
-        includedSensors.add(connector.connected(ExternalSensorSpec.toGoosciSpec(sensor), tag));
       }
     }
-
-    return new ExperimentSensors(includedSensors, excludedTags);
+    return new ExperimentSensors(externalSensors, excludedInternalSensorTags);
   }
 
   @Override

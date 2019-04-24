@@ -118,7 +118,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                     new Callable<Success>() {
                       @Override
                       public Success call() throws Exception {
-                        metaDataManager.removeSensorFromExperiment(oldSensorId, experimentId);
+                        metaDataManager.eraseSensorFromExperiment(oldSensorId, experimentId);
                         metaDataManager.addSensorToExperiment(newSensorId, experimentId);
                         // No need to mark the experiment as dirty, as sensors do not sync.
                         // True would also be ok, but would just add an extra sync.
@@ -706,6 +706,32 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                       @Override
                       public Success call() throws Exception {
                         metaDataManager.removeSensorFromExperiment(sensorId, experimentId);
+                        metaDataManager.updateExperiment(experiment, false);
+                        return Success.SUCCESS;
+                      }
+                    });
+              }
+            }));
+  }
+
+  @Override
+  public void eraseSensorFromExperiment(
+      final String experimentId, final String sensorId, final MaybeConsumer<Success> onSuccess) {
+    getExperimentById(
+        experimentId,
+        MaybeConsumers.chainFailure(
+            onSuccess,
+            new Consumer<Experiment>() {
+              @Override
+              public void take(final Experiment experiment) {
+                replaceIdInLayouts(experiment, sensorId, "");
+                background(
+                    metaDataThread,
+                    onSuccess,
+                    new Callable<Success>() {
+                      @Override
+                      public Success call() throws Exception {
+                        metaDataManager.eraseSensorFromExperiment(sensorId, experimentId);
                         metaDataManager.updateExperiment(experiment, false);
                         return Success.SUCCESS;
                       }

@@ -76,7 +76,7 @@ public class ConnectableSensorRegistry {
   private int keyNum = 0;
   private String experimentId = null;
   private Clock clock;
-  private DeviceOptionsDialog.DeviceOptionsListener optionsListener;
+  private DeviceOptionsListener optionsListener;
   private DeviceRegistry deviceRegistry;
   private final SensorAppearanceProvider appearanceProvider;
   private UsageTracker usageTracker;
@@ -90,7 +90,7 @@ public class ConnectableSensorRegistry {
       DevicesPresenter presenter,
       Scheduler scheduler,
       Clock clock,
-      DeviceOptionsDialog.DeviceOptionsListener optionsListener,
+      DeviceOptionsListener optionsListener,
       DeviceRegistry deviceRegistry,
       SensorAppearanceProvider appearanceProvider,
       UsageTracker usageTracker,
@@ -181,13 +181,14 @@ public class ConnectableSensorRegistry {
               ExperimentSensors sensors, List<ConnectableSensor> allSensors) {
             for (String sensorId : sr.getBuiltInSources()) {
               allSensors.add(
-                  connector.builtIn(sensorId, !sensors.getExcludedSensorIds().contains(sensorId)));
+                  connector.builtIn(
+                      sensorId, !sensors.getExcludedInternalSensorIds().contains(sensorId)));
             }
           }
 
           private void addExternalSensors(
               ExperimentSensors sensors, List<ConnectableSensor> allSensors) {
-            for (ConnectableSensor sensor : sensors.getIncludedSensors()) {
+            for (ConnectableSensor sensor : sensors.getExternalSensors()) {
               boolean isExternal = sensor.getSpec() != null;
               if (isExternal) {
                 allSensors.add(sensor);
@@ -599,7 +600,7 @@ public class ConnectableSensorRegistry {
       return;
     }
     String nextId = idsToUnpair.remove(0);
-    dataController.removeSensorFromExperiment(
+    dataController.eraseSensorFromExperiment(
         experimentId,
         nextId,
         MaybeConsumers.chainFailure(
@@ -628,6 +629,32 @@ public class ConnectableSensorRegistry {
           public void success(Success success) {
             if (sensorKeys.size() == 1) {
               pair(sensorKeys.get(0));
+            } else {
+              final int length = sensorKeys.size();
+              final int[] counter = {0};
+              for (String key : sensorKeys) {
+                addSensorIfNecessary(
+                    key,
+                    getPairedGroup().getSensorCount(),
+                    new LoggingConsumer<ConnectableSensor>(TAG, "add sensor to experiment") {
+                      @Override
+                      public void success(ConnectableSensor sensor) {
+                        dataController.removeSensorFromExperiment(
+                            experimentId,
+                            sensor.getConnectedSensorId(),
+                            new LoggingConsumer<Success>(TAG, "remove sensor from experiment") {
+                              @Override
+                              public void success(Success value) {
+                                sensor.setPaired(false);
+                                counter[0]++;
+                                if (counter[0] == length) {
+                                  refresh(false, sr);
+                                }
+                              }
+                            });
+                      }
+                    });
+              }
             }
             refresh(false, sr);
           }

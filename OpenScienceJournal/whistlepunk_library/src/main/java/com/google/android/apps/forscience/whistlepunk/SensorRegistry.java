@@ -250,7 +250,7 @@ public class SensorRegistry {
 
     // Add previously unknown sensors
     for (ConnectableSensor newSensor : sensors) {
-      if (newSensor.getSpec() != null) {
+      if (newSensor.getSpec() != null && newSensor.isPaired()) {
         String externalSensorId = newSensor.getConnectedSensorId();
         if (!previousExternalSources.remove(externalSensorId)) {
           // sensor is new

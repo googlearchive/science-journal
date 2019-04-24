@@ -67,6 +67,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -376,7 +377,7 @@ public class SimpleMetaDataManagerTest {
     assertEquals(1, sensors.size());
     assertEquals(databaseTag, sensors.keySet().iterator().next());
 
-    metaDataManager.removeSensorFromExperiment(databaseTag, experiment.getExperimentId());
+    metaDataManager.eraseSensorFromExperiment(databaseTag, experiment.getExperimentId());
 
     sensors =
         ConnectableSensor.makeMap(
@@ -516,7 +517,7 @@ public class SimpleMetaDataManagerTest {
     List<ConnectableSensor> sensors =
         metaDataManager
             .getExperimentSensors("experimentId", providerMap, connector)
-            .getIncludedSensors();
+            .getExternalSensors();
     assertEquals(id1, sensors.get(0).getConnectedSensorId());
     assertEquals(id2, sensors.get(1).getConnectedSensorId());
     assertEquals(id3, sensors.get(2).getConnectedSensorId());
@@ -533,7 +534,7 @@ public class SimpleMetaDataManagerTest {
     List<ConnectableSensor> sensors =
         metaDataManager
             .getExperimentSensors("experimentId", providerMap, connector)
-            .getIncludedSensors();
+            .getExternalSensors();
     assertEquals(1, sensors.size());
   }
 
@@ -641,15 +642,13 @@ public class SimpleMetaDataManagerTest {
 
   @Test
   public void testGetInternalSensors() {
-    metaDataManager.addSensorToExperiment("internalTag", "experimentId");
+    metaDataManager.removeSensorFromExperiment("internalTag", "experimentId");
     HashMap<String, SensorProvider> providerMap = new HashMap<>();
     ExperimentSensors sensors =
         metaDataManager.getExperimentSensors(
             "experimentId", providerMap, new ConnectableSensor.Connector(providerMap));
-    List<ConnectableSensor> included = sensors.getIncludedSensors();
-    Observable.fromIterable(included)
-        .test()
-        .assertValue(cs -> cs.isBuiltIn() && cs.getConnectedSensorId().equals("internalTag"));
+    Set<String> excluded = sensors.getExcludedInternalSensorIds();
+    Observable.fromIterable(excluded).test().assertValue(id -> id.equals("internalTag"));
   }
 
   @Test

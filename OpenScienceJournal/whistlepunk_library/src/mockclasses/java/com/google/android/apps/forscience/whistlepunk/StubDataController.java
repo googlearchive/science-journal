@@ -190,6 +190,10 @@ public class StubDataController implements DataController {
       String experimentId, String sensorId, MaybeConsumer<Success> onSuccess) {}
 
   @Override
+  public void eraseSensorFromExperiment(
+      String experimentId, String sensorId, MaybeConsumer<Success> onSuccess) {}
+
+  @Override
   public void addOrGetExternalSensor(ExternalSensorSpec sensor, MaybeConsumer<String> onSensorId) {}
 
   @Override

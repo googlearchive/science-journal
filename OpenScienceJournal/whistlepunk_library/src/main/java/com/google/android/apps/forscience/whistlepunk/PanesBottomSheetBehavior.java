@@ -306,7 +306,9 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
     if (state == STATE_DRAGGING && action == MotionEvent.ACTION_DOWN) {
       return true;
     }
-    viewDragHelper.processTouchEvent(event);
+    if (viewDragHelper != null) {
+      viewDragHelper.processTouchEvent(event);
+    }
     // Record the velocity
     if (action == MotionEvent.ACTION_DOWN) {
       reset();

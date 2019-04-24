@@ -264,7 +264,6 @@ public class ManageDevicesRecyclerFragment extends Fragment
 
   @Override
   public void unpair(String experimentId, String sensorId) {
-    ((DeviceOptionsDialog.DeviceOptionsListener) getActivity())
-        .onRemoveSensorFromExperiment(experimentId, sensorId);
+    ((DeviceOptionsListener) getActivity()).onRemoveSensorFromExperiment(experimentId, sensorId);
   }
 }

@@ -55,21 +55,6 @@ public class DeviceOptionsDialog extends DialogFragment {
         }
       };
 
-  /** Object listening for options changing. */
-  public interface DeviceOptionsListener {
-    /**
-     * Called when one sensor in the experiment is being replaced by another (which should be
-     * displayed in the same place)
-     *
-     * @param oldSensorId
-     * @param newSensorId
-     */
-    public void onExperimentSensorReplaced(String oldSensorId, String newSensorId);
-
-    /** Called when the user requests to remove the device from the experiment. */
-    public void onRemoveSensorFromExperiment(String experimentId, String sensorId);
-  }
-
   private DataController dataController;
   private DeviceOptionsViewController viewController;
 

@@ -246,6 +246,8 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         return SensorTypeProvider.getSensorAppearance(Integer.valueOf(iconPath.pathString), "");
       case PROTO:
         return new ProtoSensorAppearance(appearance);
+      case MKRSCI_ANDROID_BLE:
+        return MkrSciBleSensorAppearance.get(iconPath.pathString);
     }
     return null;
   }
