@@ -1741,7 +1741,7 @@ Permissions notice:
     <!-- Error message for save to device failures [CHAR_LIMIT=100] -->
     <string name="saved_to_device_error">Download failed</string>
 
-    <!-- The snackbar when a user denies storage permissions when attempting a download [CHAR_LIMIT=50] -->
+    <!-- The snackbar when a user denies storage permissions when attempting a download [CHAR_LIMIT=70] -->
     <string name="storage_permission_needed">Storage permissions are needed to download</string>
 
     <!-- The notification channel title for downloads [CHAR_LIMIT=25] -->
