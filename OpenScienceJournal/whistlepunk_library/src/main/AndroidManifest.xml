@@ -25,6 +25,9 @@
     <!-- Necessary to connect to BLE devices. -->
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+  <!-- Necessary to download files pre-O and show our own notification -->
+    <uses-permission
+        android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
     <!-- Necessary to do decibel sensor. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- Necessary to do camera source. -->

@@ -52,6 +52,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataU
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentFragment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.base.Strings;
@@ -796,8 +797,19 @@ public class ExportService extends Service {
     return destination;
   }
 
+  private static String getMimeTypeFromFileName(String fileName) {
+    String ext = fileName.substring(fileName.lastIndexOf('.'));
+    if (ext.equals(".jpg")) {
+      return "image/jpeg";
+    } else if (ext.equals(".csv")) {
+      return "text/csv";
+    } else if (ext.equals(".sj")) {
+      return "application/octet-stream";
+    }
+    return "";
+  }
+
   @TargetApi(VERSION_CODES.O)
-  // TODO(b/130899775): Find copying solution for API 21-25
   private static void copyToDownload(
       Context context, Uri sourceUri, String fileName, File destination) {
     try {
@@ -806,6 +818,19 @@ public class ExportService extends Service {
             context.getContentResolver().openInputStream(sourceUri),
             destination.toPath(),
             StandardCopyOption.REPLACE_EXISTING);
+      } else {
+        UpdateExperimentFragment.copyUriToFile(context, sourceUri, destination);
+        // Inform DownloadManager of completed download so the file shows in Downloads app
+        DownloadManager downloadManager =
+            (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+        downloadManager.addCompletedDownload(
+            destination.getName(),
+            destination.getName(),
+            true,
+            getMimeTypeFromFileName(fileName),
+            destination.getAbsolutePath(),
+            destination.length(),
+            false);
       }
       Intent intent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
       PendingIntent pendingIntent =
