@@ -34,7 +34,6 @@ import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.DataService;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExportService.ExportProgress;
-import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -105,66 +104,9 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
       // Finish dialog and send the filename.
       if (getActivity() != null) {
         if (saveLocally) {
-          PermissionUtils.tryRequestingPermission(
-              getActivity(),
-              PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
-              new PermissionUtils.PermissionListener() {
-                @Override
-                public void onPermissionGranted() {
-                  Uri sourceUri = progress.getFileUri();
-                  ExportService.saveToDownloads(getActivity(), sourceUri);
-                  dismiss();
-                }
-
-                @Override
-                public void onPermissionDenied() {
-                  Activity activity = getActivity();
-                  if (activity != null) {
-                    Snackbar bar =
-                        AccessibilityUtils.makeSnackbar(
-                            activity.findViewById(android.R.id.content),
-                            activity.getString(R.string.storage_permission_needed),
-                            Snackbar.LENGTH_LONG);
-                    bar.show();
-                  }
-                  dismiss();
-                }
-
-                @Override
-                public void onPermissionPermanentlyDenied() {
-                  Activity activity = getActivity();
-                  if (activity != null) {
-                    Snackbar bar =
-                        AccessibilityUtils.makeSnackbar(
-                            activity.findViewById(android.R.id.content),
-                            activity.getString(R.string.storage_permission_needed),
-                            Snackbar.LENGTH_LONG);
-                    bar.show();
-                  }
-                  dismiss();
-                }
-              });
-          WhistlePunkApplication.getUsageTracker(getActivity())
-              .trackEvent(
-                  TrackerConstants.CATEGORY_RUNS,
-                  TrackerConstants.ACTION_DOWNLOADED,
-                  TrackerConstants.LABEL_RUN_REVIEW,
-                  0);
+          requestDownload(progress);
         } else {
-          Intent intent = new Intent(Intent.ACTION_SEND);
-          intent.setType("application/octet-stream");
-          intent.putExtra(Intent.EXTRA_STREAM, progress.getFileUri());
-          if (getActivity().getPackageManager().queryIntentActivities(intent, 0).size() > 0) {
-            getActivity()
-                .startActivity(
-                    Intent.createChooser(intent, getString(R.string.export_run_chooser_title)));
-            dismiss();
-          } else {
-            Snackbar bar =
-                AccessibilityUtils.makeSnackbar(
-                    getView(), getString(R.string.no_app_found_for_csv), Snackbar.LENGTH_LONG);
-            bar.show();
-          }
+          requestExport(progress);
         }
       }
     } else if (progress.getState() == ExportProgress.ERROR) {
@@ -175,6 +117,37 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
         bar.show();
       }
     }
+  }
+
+  private void requestExport(ExportProgress progress) {
+    Intent intent = new Intent(Intent.ACTION_SEND);
+    intent.setType("application/octet-stream");
+    intent.putExtra(Intent.EXTRA_STREAM, progress.getFileUri());
+    if (!getActivity().getPackageManager().queryIntentActivities(intent, 0).isEmpty()) {
+      getActivity()
+          .startActivity(
+              Intent.createChooser(intent, getString(R.string.export_run_chooser_title)));
+      dismiss();
+    } else {
+      Snackbar bar =
+          AccessibilityUtils.makeSnackbar(
+              getView(), getString(R.string.no_app_found_for_csv), Snackbar.LENGTH_LONG);
+      bar.show();
+    }
+  }
+
+  private void requestDownload(ExportProgress progress) {
+    Activity activity = getActivity();
+    ExportService.requestDownloadPermissions(
+        () -> {
+          Uri sourceUri = progress.getFileUri();
+          ExportService.saveToDownloads(activity, sourceUri);
+          dismiss();
+        },
+        activity,
+        android.R.id.content,
+        TrackerConstants.CATEGORY_RUNS,
+        TrackerConstants.LABEL_RUN_REVIEW);
   }
 
   @Override
@@ -203,8 +176,6 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
     AppAccount appAccount =
         WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
     final String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
-    final String trialId = getArguments().getString(KEY_TRIAL_ID);
-    saveLocally = getArguments().getBoolean(KEY_SAVE_LOCALLY);
     DataService.bind(getActivity())
         .map(
             appSingleton -> {

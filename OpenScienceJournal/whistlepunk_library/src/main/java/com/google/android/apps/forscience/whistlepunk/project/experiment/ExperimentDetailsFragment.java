@@ -63,7 +63,6 @@ import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
-import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -598,53 +597,22 @@ public class ExperimentDetailsFragment extends Fragment
       ExportService.handleExperimentExportClick(getContext(), appAccount, experimentId, false);
       return true;
     } else if (itemId == R.id.action_download_experiment) {
-      PermissionUtils.tryRequestingPermission(
-          getActivity(),
-          PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
-          new PermissionUtils.PermissionListener() {
-            @Override
-            public void onPermissionGranted() {
-              setProgressBarVisible(true);
-              ExportService.handleExperimentExportClick(
-                  getContext(), appAccount, experimentId, true);
-            }
-
-            @Override
-            public void onPermissionDenied() {
-              Activity activity = getActivity();
-              if (activity != null) {
-                Snackbar bar =
-                    AccessibilityUtils.makeSnackbar(
-                        activity.findViewById(android.R.id.content),
-                        activity.getString(R.string.storage_permission_needed),
-                        Snackbar.LENGTH_LONG);
-                bar.show();
-              }
-            }
-
-            @Override
-            public void onPermissionPermanentlyDenied() {
-              Activity activity = getActivity();
-              if (activity != null) {
-                Snackbar bar =
-                    AccessibilityUtils.makeSnackbar(
-                        activity.findViewById(android.R.id.content),
-                        activity.getString(R.string.storage_permission_needed),
-                        Snackbar.LENGTH_LONG);
-                bar.show();
-              }
-            }
-          });
-      WhistlePunkApplication.getUsageTracker(getActivity())
-          .trackEvent(
-              TrackerConstants.CATEGORY_EXPERIMENTS,
-              TrackerConstants.ACTION_DOWNLOADED,
-              TrackerConstants.LABEL_EXPERIMENT_DETAIL,
-              0);
-
+      requestDownload();
       return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  private void requestDownload() {
+    ExportService.requestDownloadPermissions(
+        () -> {
+          setProgressBarVisible(true);
+          ExportService.handleExperimentExportClick(getContext(), appAccount, experimentId, true);
+        },
+        getActivity(),
+        android.R.id.content,
+        TrackerConstants.CATEGORY_EXPERIMENTS,
+        TrackerConstants.LABEL_EXPERIMENT_DETAIL);
   }
 
   public void setProgressBarVisible(boolean visible) {
@@ -1261,69 +1229,33 @@ public class ExperimentDetailsFragment extends Fragment
               return true;
             }
             if (menuItem.getItemId() == R.id.btn_download_photo) {
-              if (context != null) {
-                PermissionUtils.tryRequestingPermission(
-                    parentReference.get().getActivity(),
-                    PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
-                    new PermissionUtils.PermissionListener() {
-                      @Override
-                      public void onPermissionGranted() {
-                        String sourcePath = item.getLabel().getPictureLabelValue().filePath;
-                        File sourceFile =
-                            new File(
-                                PictureUtils.getExperimentImagePath(
-                                    context,
-                                    parentReference.get().appAccount,
-                                    experiment.getExperimentId(),
-                                    sourcePath));
-                        Uri sourceUri = Uri.fromFile(sourceFile);
-                        ExportService.saveToDownloads(
-                            parentReference.get().getActivity(), sourceUri);
-                      }
-
-                      @Override
-                      public void onPermissionDenied() {
-                        ExperimentDetailsFragment frag = parentReference.get();
-                        Activity activity = frag == null ? null : frag.getActivity();
-                        if (activity != null) {
-                          Snackbar bar =
-                              AccessibilityUtils.makeSnackbar(
-                                  activity.findViewById(android.R.id.content),
-                                  activity.getString(R.string.storage_permission_needed),
-                                  Snackbar.LENGTH_LONG);
-                          bar.show();
-                        }
-                      }
-
-                      @Override
-                      public void onPermissionPermanentlyDenied() {
-                        ExperimentDetailsFragment frag = parentReference.get();
-                        Activity activity = frag == null ? null : frag.getActivity();
-                        if (activity != null) {
-                          Snackbar bar =
-                              AccessibilityUtils.makeSnackbar(
-                                  activity.findViewById(android.R.id.content),
-                                  activity.getString(R.string.storage_permission_needed),
-                                  Snackbar.LENGTH_LONG);
-                          bar.show();
-                        }
-                      }
-                    });
-                ExperimentDetailsFragment frag = parentReference.get();
-                Activity activity = frag == null ? null : frag.getActivity();
-                WhistlePunkApplication.getUsageTracker(activity)
-                    .trackEvent(
-                        TrackerConstants.CATEGORY_EXPERIMENTS,
-                        TrackerConstants.ACTION_DOWNLOADED,
-                        TrackerConstants.LABEL_PICTURE_DETAIL,
-                        0);
-
-              }
+              requestPhotoDownload(context, item);
               return true;
             }
             return false;
           });
       popupMenu.setOnDismissListener(menu -> popupMenu = null);
+    }
+
+    private void requestPhotoDownload(Context context, ExperimentDetailItem item) {
+      Activity activity = parentReference.get().getActivity();
+      ExportService.requestDownloadPermissions(
+          () -> {
+            String sourcePath = item.getLabel().getPictureLabelValue().filePath;
+            File sourceFile =
+                new File(
+                    PictureUtils.getExperimentImagePath(
+                        context,
+                        parentReference.get().appAccount,
+                        experiment.getExperimentId(),
+                        sourcePath));
+            Uri sourceUri = Uri.fromFile(sourceFile);
+            ExportService.saveToDownloads(activity, sourceUri);
+          },
+          activity,
+          android.R.id.content,
+          TrackerConstants.CATEGORY_EXPERIMENTS,
+          TrackerConstants.LABEL_PICTURE_DETAIL);
     }
 
     public void deleteNote(Label label) {

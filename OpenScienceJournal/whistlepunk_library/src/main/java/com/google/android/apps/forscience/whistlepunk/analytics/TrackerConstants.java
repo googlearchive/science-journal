@@ -88,7 +88,7 @@ public final class TrackerConstants {
   public static final String ACTION_LABEL_ADDED = "LabelAdded";
   public static final String ACTION_SHARED = "Shared";
   public static final String ACTION_IMPORTED = "Imported";
-  public static final String ACTION_DOWNLOADED = "Downloaded";
+  public static final String ACTION_DOWNLOAD_REQUESTED = "DownloadRequested";
   public static final String ACTION_CLAIM_FAILED = "Failed";
   public static final String ACTION_RECOVERY_FAILED = "RecoveryFailed";
   public static final String ACTION_RECOVER_EXPERIMENT_ATTEMPTED = "RecoverExperimentAttempted";

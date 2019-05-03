@@ -16,6 +16,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.NotificationManager;
@@ -45,6 +46,7 @@ import androidx.collection.ArrayMap;
 import android.util.Log;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -729,6 +731,52 @@ public class ExportService extends Service {
       File fileToDownload = new File(fileUri.getPath());
       File file = generateFileDestination(fileToDownload);
       copyToDownload(context, fileUri, fileToDownload.getName(), file);
+    }
+  }
+
+  /** Enables caller to define what action to take when storage permissions are granted. */
+  public interface DownloadPermissionListener {
+    void onPermissionGranted();
+  }
+
+  public static void requestDownloadPermissions(
+      DownloadPermissionListener listener,
+      Activity activity,
+      int errorView,
+      String trackerCategory,
+      String trackerLabel) {
+    PermissionUtils.tryRequestingPermission(
+        activity,
+        PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
+        new PermissionUtils.PermissionListener() {
+          @Override
+          public void onPermissionGranted() {
+            listener.onPermissionGranted();
+          }
+
+          @Override
+          public void onPermissionDenied() {
+            showErrorSnackbar(activity, errorView);
+          }
+
+          @Override
+          public void onPermissionPermanentlyDenied() {
+            showErrorSnackbar(activity, errorView);
+          }
+
+          private void showErrorSnackbar(Activity activity, int errorView) {
+            if (!activity.isDestroyed()) {
+              AccessibilityUtils.makeSnackbar(
+                      activity.findViewById(errorView),
+                      activity.getString(R.string.storage_permission_needed),
+                      Snackbar.LENGTH_LONG)
+                  .show();
+            }
+          }
+        });
+    if (trackerCategory != null && trackerLabel != null) {
+      WhistlePunkApplication.getUsageTracker(activity)
+          .trackEvent(trackerCategory, TrackerConstants.ACTION_DOWNLOAD_REQUESTED, trackerLabel, 0);
     }
   }
 

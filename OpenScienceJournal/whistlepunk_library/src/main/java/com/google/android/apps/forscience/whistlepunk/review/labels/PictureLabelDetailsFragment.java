@@ -16,13 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.snackbar.Snackbar;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -32,12 +31,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
-import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
@@ -145,61 +141,30 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
       }
       return true;
     } else if (item.getItemId() == R.id.btn_download_photo) {
-      PermissionUtils.tryRequestingPermission(
-          getActivity(),
-          PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE,
-          new PermissionUtils.PermissionListener() {
-            @Override
-            public void onPermissionGranted() {
-              String sourcePath = originalLabel.getPictureLabelValue().filePath;
-              File sourceFile =
-                  new File(
-                      PictureUtils.getExperimentImagePath(
-                          getContext(), appAccount, experimentId, sourcePath));
-              Uri sourceUri = Uri.fromFile(sourceFile);
-              ExportService.saveToDownloads(getContext(), sourceUri);
-            }
-
-            @Override
-            public void onPermissionDenied() {
-              // TODO(b/130895178): Figure out why onPermissionDenied isn't being called here.
-              Activity activity = getActivity();
-              if (activity != null) {
-                Snackbar bar =
-                    AccessibilityUtils.makeSnackbar(
-                        activity.findViewById(R.id.root_layout),
-                        activity.getString(R.string.storage_permission_needed),
-                        Snackbar.LENGTH_LONG);
-                bar.show();
-              }
-            }
-
-            @Override
-            public void onPermissionPermanentlyDenied() {
-              // TODO(b/130895178): Figure out why onPermissionPermanentlyDenied isn't being called
-              // here.
-              Activity activity = getActivity();
-              if (activity != null) {
-                Snackbar bar =
-                    AccessibilityUtils.makeSnackbar(
-                        activity.findViewById(R.id.root_layout),
-                        activity.getString(R.string.storage_permission_needed),
-                        Snackbar.LENGTH_LONG);
-                bar.show();
-              }
-            }
-          });
-
-      WhistlePunkApplication.getUsageTracker(getActivity())
-          .trackEvent(
-              TrackerConstants.CATEGORY_NOTES,
-              TrackerConstants.ACTION_DOWNLOADED,
-              TrackerConstants.LABEL_PICTURE_DETAIL,
-              0);
+      requestDownload();
       return true;
     }
 
     return super.onOptionsItemSelected(item);
+  }
+
+  private void requestDownload() {
+    // TODO(b/130895178): Figure out why onPermissionPermanentlyDenied isn't being called here.
+    Context context = getContext();
+    ExportService.requestDownloadPermissions(
+        () -> {
+          String sourcePath = originalLabel.getPictureLabelValue().filePath;
+          File sourceFile =
+              new File(
+                  PictureUtils.getExperimentImagePath(
+                      context, appAccount, experimentId, sourcePath));
+          Uri sourceUri = Uri.fromFile(sourceFile);
+          ExportService.saveToDownloads(context, sourceUri);
+        },
+        getActivity(),
+        R.id.root_layout,
+        TrackerConstants.CATEGORY_NOTES,
+        TrackerConstants.LABEL_PICTURE_DETAIL);
   }
 
   @Override

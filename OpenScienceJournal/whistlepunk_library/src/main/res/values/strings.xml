@@ -1672,6 +1672,9 @@ Permissions notice:
     <!-- Context description for button which shares an experiment [CHAR_LIMIT=50]-->
     <string name="share_btn_content_description">Share experiment</string>
 
+    <!-- Context description for button which downloads an experiment [CHAR_LIMIT=50]-->
+    <string name="download_btn_content_description">Download experiment</string>
+
     <!-- Context description for button which deletes an experiment [CHAR_LIMIT=50]-->
     <string name="delete_btn_content_description">Delete experiment</string>
 
