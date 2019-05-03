@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 
-import "third_party/android/nanoproto/nano_descriptor.proto";
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciMkrSciSensorConfig";
@@ -26,8 +25,6 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 message MkrSciBleSensorConfig {
-  option (proto2.nano.message_as_lite) = true;
-
   optional string address = 1;
 
   optional string sensor = 2;
