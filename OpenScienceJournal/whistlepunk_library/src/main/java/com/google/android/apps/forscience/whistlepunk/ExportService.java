@@ -860,6 +860,9 @@ public class ExportService extends Service {
                     .show();
               });
       ioe.printStackTrace();
+      if (destination.exists()) {
+        destination.delete();
+      }
     } finally {
       AppSingleton.getInstance(context).setExportServiceBusy(false);
     }
