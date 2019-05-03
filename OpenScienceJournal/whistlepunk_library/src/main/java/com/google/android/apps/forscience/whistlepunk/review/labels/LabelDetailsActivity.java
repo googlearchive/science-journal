@@ -23,6 +23,7 @@ import androidx.core.app.NavUtils;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
@@ -181,5 +182,11 @@ public class LabelDetailsActivity extends AppCompatActivity {
 
   private String getTrialId() {
     return getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID);
+  }
+
+  @Override
+  public void onRequestPermissionsResult(
+      int requestCode, String[] permissions, int[] grantResults) {
+    PermissionUtils.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
   }
 }

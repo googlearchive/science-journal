@@ -25,6 +25,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -92,6 +93,12 @@ public class ClaimExperimentsActivity extends AppCompatActivity {
     if (fragment != null) {
       fragment.onActivityResult(requestCode, resultCode, data);
     }
+  }
+
+  @Override
+  public void onRequestPermissionsResult(
+      int requestCode, String[] permissions, int[] grantResults) {
+    PermissionUtils.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
   }
 
   @Override

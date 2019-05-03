@@ -514,10 +514,8 @@ public class MainActivity extends ActivityWithNavigationView {
 
   @Override
   public void onRequestPermissionsResult(
-      int requestCode, String permissions[], int[] grantResults) {
-    // TODO: is this ever used?
+      int requestCode, String[] permissions, int[] grantResults) {
     PermissionUtils.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
-    return;
   }
 
   /**
