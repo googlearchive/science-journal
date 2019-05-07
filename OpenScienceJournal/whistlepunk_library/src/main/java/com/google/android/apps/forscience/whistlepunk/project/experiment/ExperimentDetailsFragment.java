@@ -91,6 +91,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
+import com.google.android.apps.forscience.whistlepunk.review.ExportOptionsDialogFragment;
 import com.google.android.apps.forscience.whistlepunk.review.PinnedNoteAdapter;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
@@ -1161,6 +1162,22 @@ public class ExperimentDetailsFragment extends Fragment
         popupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!archived);
         popupMenu.getMenu().findItem(R.id.menu_item_unarchive).setVisible(archived);
       }
+
+      boolean isShareIntentValid =
+          FileMetadataUtil.getInstance()
+              .validateShareIntent(
+                  parentReference.get().getContext(),
+                  parentReference.get().appAccount,
+                  parentReference.get().experimentId);
+      popupMenu
+          .getMenu()
+          .findItem(R.id.menu_item_export)
+          .setVisible(experiment != null && isShareIntentValid);
+      popupMenu.getMenu().findItem(R.id.menu_item_export).setEnabled(!isRecording());
+      popupMenu
+          .getMenu()
+          .findItem(R.id.menu_item_download)
+          .setVisible(ExportService.isDownloadEnabled());
       popupMenu.setOnMenuItemClickListener(
           menuItem -> {
             if (parentReference.get() != null && parentReference.get().isVisible()) {
@@ -1170,6 +1187,10 @@ public class ExperimentDetailsFragment extends Fragment
               } else if (menuItem.getItemId() == R.id.menu_item_unarchive) {
                 parentReference.get().setTrialArchived(item.getTrial(), false);
                 return true;
+              } else if (menuItem.getItemId() == R.id.menu_item_download) {
+                requestTrialDownloadOrShare(item.getTrial(), true);
+              } else if (menuItem.getItemId() == R.id.menu_item_export) {
+                requestTrialDownloadOrShare(item.getTrial(), false);
               } else if (menuItem.getItemId() == R.id.menu_item_delete) {
                 parentReference.get().deleteTrial(item.getTrial());
                 return true;
@@ -1178,6 +1199,18 @@ public class ExperimentDetailsFragment extends Fragment
             return false;
           });
       popupMenu.setOnDismissListener(menu -> popupMenu = null);
+    }
+
+    private void requestTrialDownloadOrShare(Trial trial, boolean download) {
+      ExportOptionsDialogFragment fragment =
+          ExportOptionsDialogFragment.createOptionsDialog(
+              parentReference.get().appAccount,
+              experiment.getExperimentId(),
+              trial.getTrialId(),
+              download);
+      fragment.show(
+          ((AppCompatActivity) parentReference.get().getActivity()).getSupportFragmentManager(),
+          "export");
     }
 
     private void setupNoteMenu(ExperimentDetailItem item) {
