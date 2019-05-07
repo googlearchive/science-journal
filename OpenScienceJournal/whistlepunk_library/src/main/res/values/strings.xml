@@ -1736,7 +1736,7 @@ Permissions notice:
     <string name="share_copy_csv_action">Send a copy (.csv)</string>
 
     <!-- The body content for the saved to device notification, indicating that the file is in Downloads [CHAR_LIMIT=25] -->
-    <string name="saved_to_device_text">Saved to Downloads</string>
+    <string name="saved_to_device_text">Saved to Downloads folder.</string>
 
     <!-- Dialog title shown when saving the data to the download folder [CHAR_LIMIT=100]-->
     <string name="download_options_title">Download…</string>
@@ -1747,11 +1747,14 @@ Permissions notice:
     <!-- The snackbar when a user denies storage permissions when attempting a download [CHAR_LIMIT=70] -->
     <string name="storage_permission_needed">Storage permissions are needed to download</string>
 
+    <!-- The snackbar when a user begins a download [CHAR_LIMIT=100] -->
+    <string name="download_started">Your download has started. File details will be in the download completion notification</string>
+
     <!-- The notification channel title for downloads [CHAR_LIMIT=25] -->
     <string name="save_to_device_channel_title">Downloads</string>
 
     <!-- The notification channel description for completed downloads [CHAR_LIMIT=25] -->
-    <string name="save_to_device_channel_description">File saved</string>
+    <string name="save_to_device_channel_description">Saved</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

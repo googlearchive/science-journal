@@ -743,7 +743,7 @@ public class ExportService extends Service {
   public static void requestDownloadPermissions(
       DownloadPermissionListener listener,
       Activity activity,
-      int errorView,
+      int snackbarView,
       String trackerCategory,
       String trackerLabel) {
     PermissionUtils.tryRequestingPermission(
@@ -752,24 +752,35 @@ public class ExportService extends Service {
         new PermissionUtils.PermissionListener() {
           @Override
           public void onPermissionGranted() {
+            showSuccessSnackbar(activity, snackbarView);
             listener.onPermissionGranted();
           }
 
           @Override
           public void onPermissionDenied() {
-            showErrorSnackbar(activity, errorView);
+            showErrorSnackbar(activity, snackbarView);
           }
 
           @Override
           public void onPermissionPermanentlyDenied() {
-            showErrorSnackbar(activity, errorView);
+            showErrorSnackbar(activity, snackbarView);
           }
 
-          private void showErrorSnackbar(Activity activity, int errorView) {
+          private void showErrorSnackbar(Activity activity, int snackbarView) {
             if (!activity.isDestroyed()) {
               AccessibilityUtils.makeSnackbar(
-                      activity.findViewById(errorView),
+                      activity.findViewById(snackbarView),
                       activity.getString(R.string.storage_permission_needed),
+                      Snackbar.LENGTH_LONG)
+                  .show();
+            }
+          }
+
+          private void showSuccessSnackbar(Activity activity, int snackbarView) {
+            if (!activity.isDestroyed()) {
+              AccessibilityUtils.makeSnackbar(
+                      activity.findViewById(snackbarView),
+                      activity.getString(R.string.download_started),
                       Snackbar.LENGTH_LONG)
                   .show();
             }
@@ -841,9 +852,9 @@ public class ExportService extends Service {
               NotificationIds.SAVED_TO_DEVICE,
               new NotificationCompat.Builder(
                       context.getApplicationContext(), NotificationChannels.SAVE_TO_DEVICE_CHANNEL)
-                  .setContentTitle(context.getString(R.string.service_notification_content_title))
-                  .setContentText(context.getString(R.string.save_to_device_channel_description))
-                  .setSubText(fileName)
+                  .setContentTitle(fileName)
+                  .setContentText(context.getString(R.string.saved_to_device_text))
+                  .setSubText(context.getString(R.string.save_to_device_channel_description))
                   .setSmallIcon(R.drawable.ic_notification_24dp)
                   .setContentIntent(pendingIntent)
                   .setAutoCancel(true)
