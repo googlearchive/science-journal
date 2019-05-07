@@ -44,6 +44,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataU
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel.Label.ValueType;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import java.io.File;
 
@@ -209,11 +210,15 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
           if (claimExperimentsMode || !label.canEditTimestamp()) {
             popupMenu.getMenu().findItem(R.id.btn_edit_note_time).setVisible(false);
           }
-          popupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(shareIntent != null);
+          popupMenu
+              .getMenu()
+              .findItem(R.id.btn_share_photo)
+              .setVisible(label.getType() == ValueType.PICTURE && shareIntent != null);
           popupMenu
               .getMenu()
               .findItem(R.id.btn_download_photo)
-              .setVisible(ExportService.isDownloadEnabled());
+              .setVisible(
+                  label.getType() == ValueType.PICTURE && ExportService.isDownloadEnabled());
           popupMenu.setOnDismissListener(menu -> popupMenu = null);
           popupMenu.setOnMenuItemClickListener(
               item -> {
