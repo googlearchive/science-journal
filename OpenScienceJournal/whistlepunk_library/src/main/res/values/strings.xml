@@ -374,11 +374,17 @@
     <!-- The alert confirm button title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=20] -->
     <string name="experiment_not_finished_downloading_confirm_button">Share anyway</string>
 
+    <!-- The alert confirm button title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=20] -->
+    <string name="experiment_not_finished_downloading_confirm_download_button">Download anyway</string>
+
     <!-- The alert cancel button title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=20] -->
     <string name="experiment_not_finished_downloading_cancel_button">Cancel</string>
 
     <!-- The alert message when sharing an experiment that has not finished downloading. [CHAR_LIMIT=120] -->
     <string name="experiment_not_finished_downloading_message">This experiment has not finished downloading all data. If you share a copy now, it will also be missing this data</string>
+
+    <!-- The alert message when downloading an experiment that has not finished downloading from Google Drive. [CHAR_LIMIT=120] -->
+    <string name="experiment_missing_data_message">This experiment has unsynced data. If you download a copy now, it will be missing this data</string>
 
     <!-- The alert title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=30] -->
     <string name="experiment_not_finished_downloading_title">Missing Data</string>

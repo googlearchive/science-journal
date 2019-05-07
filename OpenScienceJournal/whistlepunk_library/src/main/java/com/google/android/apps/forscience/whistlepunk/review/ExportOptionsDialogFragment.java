@@ -176,6 +176,9 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
     AppAccount appAccount =
         WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
     final String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
+    // onCreateView is called before onStart so we need to grab these values for onCreateView
+    final String trialId = getArguments().getString(KEY_TRIAL_ID);
+    final boolean saveLocally = getArguments().getBoolean(KEY_SAVE_LOCALLY);
     DataService.bind(getActivity())
         .map(
             appSingleton -> {

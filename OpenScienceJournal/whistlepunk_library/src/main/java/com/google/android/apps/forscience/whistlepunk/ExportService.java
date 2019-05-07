@@ -565,11 +565,19 @@ public class ExportService extends Service {
                 if (isExperimentFullyDownloaded(appAccount, experimentId, experiment)) {
                   startExperimentExport(context, appAccount, experimentId, saveLocally);
                 } else {
+                  int messageId =
+                      saveLocally
+                          ? R.string.experiment_missing_data_message
+                          : R.string.experiment_not_finished_downloading_message;
+                  int positiveButtonId =
+                      saveLocally
+                          ? R.string.experiment_not_finished_downloading_confirm_download_button
+                          : R.string.experiment_not_finished_downloading_confirm_button;
                   AlertDialog.Builder builder = new AlertDialog.Builder(context);
                   builder.setTitle(R.string.experiment_not_finished_downloading_title);
-                  builder.setMessage(R.string.experiment_not_finished_downloading_message);
+                  builder.setMessage(messageId);
                   builder.setPositiveButton(
-                      R.string.experiment_not_finished_downloading_confirm_button,
+                      positiveButtonId,
                       (DialogInterface dialog, int which) -> {
                         startExperimentExport(context, appAccount, experimentId, saveLocally);
                         dialog.dismiss();
