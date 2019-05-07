@@ -913,7 +913,9 @@
 
     <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
     <string name="listing_changelog">
-    New features and improvements:\n• Sign in to your Google account to save and access your experiments across your devices using your Google Drive account. This feature will be available to all users in the coming weeks. Science Journal can still be used without signing in.
+New features and improvements:
+\n\u2022 Download experiments, photos, and sensor recordings to your device.
+\n\u2022 Added support for connecting to Arduino MKR WiFi 1010 boards.
     </string>
 
     <!-- Note: following here are partial strings for stitching together changelogs: our changelog
@@ -948,6 +950,7 @@ Science Journal is the free digital science notebook brought to you by Google.
 \n\u2022 Measure light, sound, acceleration, air pressure, and more using your phone\'s built-in sensors.
 \n\u2022 Take notes and photos to document your science experiments. More note types coming soon!
 \n\u2022 Connect to external sensors using select Bluetooth-enabled Arduino and Vernier devices.
+\n\u2022 Access your experiments across your devices using Google Drive.
 \n\u2022 Export recorded sensor data as CSV files.
 \n\u2022 Create automated triggers for recording data and taking notes.
 \n\u2022 Use sonification to hear the movement of your graphs.
