@@ -1744,7 +1744,7 @@ Permissions notice:
     <!-- Name of the menu item to share a csv file [CHAR_LIMIT=25] -->
     <string name="share_copy_csv_action">Send a copy (.csv)</string>
 
-    <!-- The body content for the saved to device notification, indicating that the file is in Downloads [CHAR_LIMIT=25] -->
+    <!-- The body content for the saved to device notification, indicating that the file is in Downloads [CHAR_LIMIT=50] -->
     <string name="saved_to_device_text">Saved to Downloads folder.</string>
 
     <!-- Dialog title shown when saving the data to the download folder [CHAR_LIMIT=100]-->
