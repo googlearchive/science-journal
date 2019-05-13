@@ -17,9 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
  * This is a workaround to a multi-touch bug in DrawerLayout as described in
