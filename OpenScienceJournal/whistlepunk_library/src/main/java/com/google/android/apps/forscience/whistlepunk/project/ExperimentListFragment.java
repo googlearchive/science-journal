@@ -60,6 +60,7 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
+import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -1145,7 +1146,7 @@ public class ExperimentListFragment extends Fragment
         holder.driveButton.setOnClickListener(
             v -> promptBeforeClaimExperiment(overview.experimentId));
 
-        if (ExportService.isDownloadEnabled()) {
+        if (Flags.isDownloadEnabled()) {
           holder.downloadButton.setOnClickListener(
               v -> requestDownload(parentReference.get().getActivity(), overview.experimentId));
           holder.shareButton.setVisibility(View.GONE);
@@ -1196,7 +1197,7 @@ public class ExperimentListFragment extends Fragment
               popupMenu
                   .getMenu()
                   .findItem(R.id.menu_item_download_experiment)
-                  .setVisible(ExportService.isDownloadEnabled());
+                  .setVisible(Flags.isDownloadEnabled());
 
               popupMenu.setOnMenuItemClickListener(
                   menuItem -> {

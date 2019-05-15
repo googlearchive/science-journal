@@ -59,6 +59,7 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
+import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
@@ -503,8 +504,8 @@ public class RunReviewFragment extends Fragment
       // In claim experiments mode, hide all menu items except export/download and delete.
       // If downloading isn't enabled yet, show export.
       menu.findItem(R.id.action_export)
-          .setVisible(shouldShowExport() && !ExportService.isDownloadEnabled());
-      menu.findItem(R.id.action_download).setVisible(ExportService.isDownloadEnabled());
+          .setVisible(shouldShowExport() && !Flags.isDownloadEnabled());
+      menu.findItem(R.id.action_download).setVisible(Flags.isDownloadEnabled());
       menu.findItem(R.id.action_run_review_delete).setVisible(true);
       menu.findItem(R.id.action_run_review_archive).setVisible(false);
       menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
@@ -530,7 +531,7 @@ public class RunReviewFragment extends Fragment
             .setEnabled(CropHelper.experimentIsLongEnoughForCrop(getTrial()));
 
         menu.findItem(R.id.action_export).setVisible(shouldShowExport());
-        menu.findItem(R.id.action_download).setVisible(ExportService.isDownloadEnabled());
+        menu.findItem(R.id.action_download).setVisible(Flags.isDownloadEnabled());
       } else {
         menu.findItem(R.id.action_run_review_archive).setVisible(false);
         menu.findItem(R.id.action_run_review_unarchive).setVisible(false);

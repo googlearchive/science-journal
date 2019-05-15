@@ -125,8 +125,6 @@ public class ExportService extends Service {
   private volatile Looper serviceLooper;
   private volatile ServiceHandler serviceHandler;
 
-  private static boolean downloadEnabled = false;
-
   private final class ServiceHandler extends Handler {
     public ServiceHandler(Looper looper) {
       super(looper);
@@ -708,20 +706,6 @@ public class ExportService extends Service {
             });
 
     ExportService.importExperiment(context, appAccount, experimentFile);
-  }
-
-  /**
-   * Check this flag before displaying the option to download to the user.
-   *
-   * @return if downloading flag is enabled
-   */
-  public static boolean isDownloadEnabled() {
-    return downloadEnabled;
-  }
-
-  /** Enable or disable downloading flag */
-  public static void setDownloadEnabled(boolean enable) {
-    downloadEnabled = enable;
   }
 
   /**

@@ -116,7 +116,7 @@ public class MainActivity extends ActivityWithNavigationView {
     navigationView.setNavigationItemSelectedListener(this);
 
     // Only show dev testing options when requested.
-    if (!DevOptionsFragment.shouldShowTestingOptions()) {
+    if (!Flags.showTestingOptions()) {
       navigationView.getMenu().removeItem(R.id.dev_testing_options);
     }
 

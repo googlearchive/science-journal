@@ -40,18 +40,8 @@ public class DevOptionsFragment extends PreferenceFragment {
   private static final String KEY_PERF_DEBUG_SCREEN = "show_perf_tracker_debug";
   public static final String KEY_SMOOTH_SCROLL = "enable_smooth_scrolling_to_bottom";
 
-  private static boolean showTestingOptions = false;
-
   public static DevOptionsFragment newInstance() {
     return new DevOptionsFragment();
-  }
-
-  static boolean shouldShowTestingOptions() {
-    return showTestingOptions;
-  }
-
-  public static void setShowTestingOptions(boolean show) {
-    showTestingOptions = show;
   }
 
   @Override
