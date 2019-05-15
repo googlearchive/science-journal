@@ -748,9 +748,6 @@
         \n\nThe digital barometer in your phone measures atmospheric pressure in hectopascals. (A hectopascal is 100 pascals, where a pascal is one newton of force applied over a square meter of area.) You\'ve probably heard weather forecasters give atmospheric pressure in millibars—this friendlier-sounding unit is equivalent to hectopascals.
         \n\nYou might be wondering: Why would a phone measure pressure? Atmospheric pressure changes measurably with even slight changes in elevation, say, when you climb a flight of stairs. So a digital barometer in a phone can help detect location changes, for example, telling you what floor of a building you are on, or whether you are driving on the upper or lower deck of a bridge.</string>
 
-    <!-- The label for the duration of the experiment run [CHAR_LIMIT=20] -->
-    <string name="run_review_duration">Duration</string>
-
     <!-- The title for the run review activity [CHAR_LIMIT=25] -->
     <string name="run_review_activity_label">Review</string>
 

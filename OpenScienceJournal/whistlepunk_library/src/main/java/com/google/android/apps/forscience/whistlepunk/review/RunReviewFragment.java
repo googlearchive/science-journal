@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -781,7 +782,8 @@ public class RunReviewFragment extends Fragment
   }
 
   private void attachToRun(final Trial trial) {
-    if (getActivity() == null) {
+    Activity activity = getActivity();
+    if (activity == null) {
       return;
     }
 
@@ -801,13 +803,17 @@ public class RunReviewFragment extends Fragment
           }
         };
     CropHelper.registerStatsBroadcastReceiver(
-        getActivity().getApplicationContext(), broadcastReceiver);
+        activity.getApplicationContext(), broadcastReceiver);
 
     final View rootView = getView();
     if (rootView == null) {
-      ((AppCompatActivity) getActivity()).supportStartPostponedEnterTransition();
+      ((AppCompatActivity) activity).supportStartPostponedEnterTransition();
       return;
     }
+    ((AppCompatActivity) activity)
+        .getSupportActionBar()
+        .setTitle(trial.getTitle(rootView.getContext()));
+
     final RecyclerView pinnedNoteList = (RecyclerView) rootView.findViewById(R.id.pinned_note_list);
     LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
     layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -890,7 +896,7 @@ public class RunReviewFragment extends Fragment
     pinnedNoteList.setAdapter(pinnedNoteAdapter);
 
     // Re-enable appropriate menu options.
-    getActivity().invalidateOptionsMenu();
+    activity.invalidateOptionsMenu();
 
     hookUpExperimentDetailsArea(trial, rootView);
 
@@ -928,9 +934,7 @@ public class RunReviewFragment extends Fragment
     savedInstanceStateForLoad = null;
 
     loadRunData(rootView);
-    if (getActivity() != null) {
-      ((AppCompatActivity) getActivity()).supportStartPostponedEnterTransition();
-    }
+    ((AppCompatActivity) activity).supportStartPostponedEnterTransition();
   }
 
   private void deleteLabel(Label item) {
@@ -1233,9 +1237,6 @@ public class RunReviewFragment extends Fragment
   // TODO(saff): probably extract TrialPresenter
   private void hookUpExperimentDetailsArea(Trial trial, View rootView) {
     setArchivedUi(rootView, trial.isArchived());
-
-    final TextView runTitle = (TextView) rootView.findViewById(R.id.run_title_text);
-    runTitle.setText(trial.getTitle(rootView.getContext()));
 
     final RelativeTimeTextView runDetailsText =
         (RelativeTimeTextView) rootView.findViewById(R.id.run_details_text);

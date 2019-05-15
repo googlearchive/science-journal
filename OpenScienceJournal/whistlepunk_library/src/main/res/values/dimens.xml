@@ -139,7 +139,6 @@
     <dimen name="run_review_external_axis_left_padding">4dp</dimen>
     <dimen name="run_review_external_axis_right_padding">16dp</dimen>
     <dimen name="run_review_sensor_section_margin_top_bottom">4dp</dimen>
-    <dimen name="run_review_duration_text_height">30dp</dimen>
 
     <dimen name="run_review_notes_text_size">16sp</dimen>
     <dimen name="run_review_notes_timestamp_text_size">14sp</dimen>
