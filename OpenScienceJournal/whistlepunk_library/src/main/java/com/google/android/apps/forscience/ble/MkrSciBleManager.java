@@ -70,7 +70,7 @@ public class MkrSciBleManager {
         BluetoothDevice device = adapter.getRemoteDevice(address);
         gattHandler = new GattHandler();
         gattHandlers.put(address, gattHandler);
-        device.connectGatt(context, true, gattHandler);
+        device.connectGatt(context, false /* autoConnect */, gattHandler);
       }
       gattHandler.subscribe(characteristic, listener);
     }
