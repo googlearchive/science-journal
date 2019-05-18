@@ -17,9 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
-import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 /** A coordinatorlayout that can be frozen (not allowed to scroll). */
 public class FreezeableCoordinatorLayout extends CoordinatorLayout {

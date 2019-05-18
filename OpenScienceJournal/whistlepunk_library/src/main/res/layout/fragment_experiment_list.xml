@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -81,4 +81,4 @@
         android:visibility="visible"
         android:layout_marginTop="-6dp"
         android:layout_gravity="top"/>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
