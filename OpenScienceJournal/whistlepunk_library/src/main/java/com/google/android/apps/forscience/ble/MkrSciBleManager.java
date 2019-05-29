@@ -38,6 +38,8 @@ public class MkrSciBleManager {
 
   public static final String SERVICE_UUID = "555a0001-0000-467a-9538-01f0652c74e8";
 
+  private static final String VERSION_UUID = "555a0001-0001-467a-9538-01f0652c74e8";
+
   public static final String INPUT_1_UUID = "555a0001-2001-467a-9538-01f0652c74e8";
   public static final String INPUT_2_UUID = "555a0001-2002-467a-9538-01f0652c74e8";
   public static final String INPUT_3_UUID = "555a0001-2003-467a-9538-01f0652c74e8";
@@ -100,44 +102,49 @@ public class MkrSciBleManager {
     private static final UUID NOTIFICATION_DESCRIPTOR =
         UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
-    private final Map<String, List<Listener>> mListeners = new HashMap<>();
+    private final Map<String, List<Listener>> listenersMap = new HashMap<>();
 
-    private BluetoothGatt mGatt;
+    private BluetoothGatt gatt;
 
-    private final List<BluetoothGattCharacteristic> mCharacteristics = new ArrayList<>();
+    private final List<BluetoothGattCharacteristic> characteristics = new ArrayList<>();
 
-    private final List<Runnable> mGattActions = new ArrayList<>();
+    private final List<Runnable> gattActions = new ArrayList<>();
 
-    private boolean mReadyForAction = false;
+    private boolean readyForAction = false;
 
-    private boolean mBusy = false;
+    private boolean busy = false;
+
+    private long firmwareVersion = -1;
 
     private void disconnect() {
-      if (mGatt != null) {
-        mGatt.disconnect();
+      if (gatt != null) {
+        gatt.disconnect();
       }
     }
 
     private void subscribe(String characteristicUuid, Listener listener) {
       boolean subscribe = false;
-      synchronized (mListeners) {
-        List<Listener> listeners = mListeners.get(characteristicUuid);
+      synchronized (listenersMap) {
+        List<Listener> listeners = listenersMap.get(characteristicUuid);
         if (listeners == null) {
           listeners = new ArrayList<>();
-          mListeners.put(characteristicUuid, listeners);
+          listenersMap.put(characteristicUuid, listeners);
           subscribe = true;
         }
         listeners.add(listener);
+        if (firmwareVersion > -1) {
+          listener.onFirmwareVersion(firmwareVersion);
+        }
       }
       if (subscribe) {
         enqueueGattAction(
             () -> {
               BluetoothGattCharacteristic c = getCharacteristic(characteristicUuid);
               if (c != null) {
-                mGatt.setCharacteristicNotification(c, true);
+                gatt.setCharacteristicNotification(c, true);
                 BluetoothGattDescriptor d = c.getDescriptor(NOTIFICATION_DESCRIPTOR);
                 d.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                mGatt.writeDescriptor(d);
+                gatt.writeDescriptor(d);
               }
             });
       }
@@ -145,12 +152,12 @@ public class MkrSciBleManager {
 
     private void unsubscribe(String characteristicUuid, Listener listener) {
       boolean unsubscribe = false;
-      synchronized (mListeners) {
-        List<Listener> listeners = mListeners.get(characteristicUuid);
+      synchronized (listenersMap) {
+        List<Listener> listeners = listenersMap.get(characteristicUuid);
         if (listeners != null) {
           listeners.remove(listener);
           if (listeners.size() == 0) {
-            mListeners.remove(characteristicUuid);
+            listenersMap.remove(characteristicUuid);
             unsubscribe = true;
           }
         }
@@ -160,23 +167,23 @@ public class MkrSciBleManager {
             () -> {
               BluetoothGattCharacteristic c = getCharacteristic(characteristicUuid);
               if (c != null) {
-                mGatt.setCharacteristicNotification(c, true);
+                gatt.setCharacteristicNotification(c, true);
                 BluetoothGattDescriptor d = c.getDescriptor(NOTIFICATION_DESCRIPTOR);
                 d.setValue(BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE);
-                mGatt.writeDescriptor(d);
+                gatt.writeDescriptor(d);
               }
             });
       }
     }
 
     private boolean hasSubscribers() {
-      synchronized (mListeners) {
-        return mListeners.size() > 0;
+      synchronized (listenersMap) {
+        return listenersMap.size() > 0;
       }
     }
 
     private BluetoothGattCharacteristic getCharacteristic(String uuid) {
-      for (BluetoothGattCharacteristic aux : mCharacteristics) {
+      for (BluetoothGattCharacteristic aux : characteristics) {
         if (Objects.equals(uuid, aux.getUuid().toString())) {
           return aux;
         }
@@ -185,23 +192,23 @@ public class MkrSciBleManager {
     }
 
     private void enqueueGattAction(Runnable action) {
-      synchronized (mGattActions) {
-        if (mReadyForAction && !mBusy) {
-          mBusy = true;
+      synchronized (gattActions) {
+        if (readyForAction && !busy) {
+          busy = true;
           action.run();
         } else {
-          mGattActions.add(action);
+          gattActions.add(action);
         }
       }
     }
 
     private void onGattActionCompleted() {
-      synchronized (mGattActions) {
-        if (mReadyForAction && mGattActions.size() > 0) {
-          mBusy = true;
-          mGattActions.remove(0).run();
+      synchronized (gattActions) {
+        if (readyForAction && gattActions.size() > 0) {
+          busy = true;
+          gattActions.remove(0).run();
         } else {
-          mBusy = false;
+          busy = false;
         }
       }
     }
@@ -209,11 +216,11 @@ public class MkrSciBleManager {
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
       if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
-        mGatt = gatt;
-        mCharacteristics.clear();
-        mGatt.discoverServices();
+        this.gatt = gatt;
+        characteristics.clear();
+        gatt.discoverServices();
       } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-        mReadyForAction = false;
+        readyForAction = false;
         gatt.disconnect();
       }
     }
@@ -222,10 +229,12 @@ public class MkrSciBleManager {
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
       BluetoothGattService service = gatt.getService(UUID.fromString(SERVICE_UUID));
       if (service != null) {
-        mCharacteristics.addAll(service.getCharacteristics());
+        characteristics.addAll(service.getCharacteristics());
       }
-      mReadyForAction = true;
-      onGattActionCompleted();
+      BluetoothGattCharacteristic c = getCharacteristic(VERSION_UUID);
+      if (c != null) {
+        this.gatt.readCharacteristic(c);
+      }
     }
 
     @Override
@@ -243,6 +252,34 @@ public class MkrSciBleManager {
     @Override
     public void onCharacteristicRead(
         BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+      final String uuid = characteristic.getUuid().toString();
+      if (VERSION_UUID.equals(uuid) && firmwareVersion == -1) {
+        final byte[] value = characteristic.getValue();
+        if (value.length == 4) {
+          final ByteBuffer buffer = ByteBuffer.allocate(8);
+          buffer.put((byte) 0);
+          buffer.put((byte) 0);
+          buffer.put((byte) 0);
+          buffer.put((byte) 0);
+          buffer.put(value[3]);
+          buffer.put(value[2]);
+          buffer.put(value[1]);
+          buffer.put(value[0]);
+          buffer.position(0);
+          firmwareVersion = buffer.getLong();
+          // delivering to listener(s)
+          synchronized (listenersMap) {
+            for (List<Listener> listeners : listenersMap.values()) {
+              if (listeners != null) {
+                for (Listener l : listeners) {
+                  l.onFirmwareVersion(firmwareVersion);
+                }
+              }
+            }
+          }
+        }
+        readyForAction = true;
+      }
       onGattActionCompleted();
     }
 
@@ -288,8 +325,8 @@ public class MkrSciBleManager {
             }
           }
           // delivering to listener(s)
-          synchronized (mListeners) {
-            List<Listener> listeners = mListeners.get(uuid);
+          synchronized (listenersMap) {
+            List<Listener> listeners = listenersMap.get(uuid);
             if (listeners != null) {
               for (Listener l : listeners) {
                 l.onValuesUpdated(values);
@@ -387,6 +424,8 @@ public class MkrSciBleManager {
    * through implementations of this interface.
    */
   public interface Listener {
+    void onFirmwareVersion(long firmwareVersion);
+
     void onValuesUpdated(double[] values);
   }
 }

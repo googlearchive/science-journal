@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import com.google.android.apps.forscience.ble.MkrSciBleManager;
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.metadata.MkrSciBleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
@@ -46,7 +45,7 @@ public class MkrSciBleSensor extends ScalarSensor {
   private ValueHandler valueHandler;
 
   public MkrSciBleSensor(String sensorId, MkrSciBleSensorSpec spec) {
-    super(sensorId, AppSingleton.getUiThreadExecutor());
+    super(sensorId);
     address = spec.getAddress();
     final String sensorKind = spec.getSensor();
     final String sensorHandler = spec.getHandler();
@@ -145,6 +144,11 @@ public class MkrSciBleSensor extends ScalarSensor {
           private boolean connected = false;
 
           @Override
+          public void onFirmwareVersion(long firmwareVersion) {
+            valueHandler.setFirmwareVersion(firmwareVersion);
+          }
+
+          @Override
           public void onValuesUpdated(double[] values) {
             if (!connected) {
               connected = true;
@@ -170,11 +174,17 @@ public class MkrSciBleSensor extends ScalarSensor {
     };
   }
 
-  private interface ValueHandler {
-    void handle(StreamConsumer c, long ts, double[] values);
+  private abstract static class ValueHandler {
+    long firmwareVersion = 0;
+
+    void setFirmwareVersion(long version) {
+      this.firmwareVersion = version;
+    }
+
+    abstract void handle(StreamConsumer c, long ts, double[] values);
   }
 
-  private static class SimpleValueHandler implements ValueHandler {
+  private static class SimpleValueHandler extends ValueHandler {
     private int index;
 
     private SimpleValueHandler(int index) {
@@ -189,7 +199,7 @@ public class MkrSciBleSensor extends ScalarSensor {
     }
   }
 
-  private static class TemperatureCelsiusValueHandler implements ValueHandler {
+  private static class TemperatureCelsiusValueHandler extends ValueHandler {
     private int index;
 
     private TemperatureCelsiusValueHandler(int index) {
@@ -204,7 +214,7 @@ public class MkrSciBleSensor extends ScalarSensor {
     }
   }
 
-  private static class TemperatureFahrenheitValueHandler implements ValueHandler {
+  private static class TemperatureFahrenheitValueHandler extends ValueHandler {
     private int index;
 
     private TemperatureFahrenheitValueHandler(int index) {
@@ -220,7 +230,7 @@ public class MkrSciBleSensor extends ScalarSensor {
     }
   }
 
-  private static class LightValueHandler implements ValueHandler {
+  private static class LightValueHandler extends ValueHandler {
     private int index;
 
     private LightValueHandler(int index) {
@@ -235,7 +245,7 @@ public class MkrSciBleSensor extends ScalarSensor {
     }
   }
 
-  private static class AccelerometerValueHandler implements ValueHandler {
+  private static class AccelerometerValueHandler extends ValueHandler {
     private int index;
 
     private AccelerometerValueHandler(int index) {
@@ -245,12 +255,12 @@ public class MkrSciBleSensor extends ScalarSensor {
     @Override
     public void handle(StreamConsumer c, long ts, double[] values) {
       if (values.length > index) {
-        c.addData(ts, values[index] * 10);
+        c.addData(ts, values[index] * (firmwareVersion < 2 ? 10 : 1));
       }
     }
   }
 
-  private static class LinearAccelerometerValueHandler implements ValueHandler {
+  private static class LinearAccelerometerValueHandler extends ValueHandler {
     @Override
     public void handle(StreamConsumer c, long ts, double[] values) {
       if (values.length < 3) {
@@ -259,11 +269,11 @@ public class MkrSciBleSensor extends ScalarSensor {
       c.addData(
           ts,
           Math.sqrt((values[0] * values[0]) + (values[1] * values[1]) + (values[2] * values[2]))
-              * 10);
+              * (firmwareVersion < 2 ? 10 : 1));
     }
   }
 
-  private static class ResistanceValueHandler implements ValueHandler {
+  private static class ResistanceValueHandler extends ValueHandler {
 
     private int index;
 
@@ -286,7 +296,7 @@ public class MkrSciBleSensor extends ScalarSensor {
     }
   }
 
-  private static class MagnetometerValueHandler implements ValueHandler {
+  private static class MagnetometerValueHandler extends ValueHandler {
     @Override
     public void handle(StreamConsumer c, long ts, double[] values) {
       if (values.length < 3) {
@@ -296,18 +306,6 @@ public class MkrSciBleSensor extends ScalarSensor {
           ts,
           Math.sqrt((values[0] * values[0]) + (values[1] * values[1]) + (values[2] * values[2]))
               * 100);
-    }
-  }
-
-  private static class VectorValueHandler implements ValueHandler {
-    @Override
-    public void handle(StreamConsumer c, long ts, double[] values) {
-      if (values.length < 3) {
-        return;
-      }
-      c.addData(
-          ts,
-          Math.sqrt((values[0] * values[0]) + (values[1] * values[1]) + (values[2] * values[2])));
     }
   }
 
