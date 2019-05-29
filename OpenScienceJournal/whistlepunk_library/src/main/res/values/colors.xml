@@ -78,4 +78,11 @@
     <integer name="trigger_drawable_alpha">192</integer>
     <integer name="home_disabled_drawable_alpha">127</integer>
     <integer name="home_enabled_drawable_alpha">255</integer>
+
+    <color name="action_area_red_light">#FFE7E5</color>
+    <color name="action_area_red_dark">#E84335</color>
+    <color name="action_area_blue_light">#E8F0FE</color>
+    <color name="action_area_blue_dark">#2A84FC</color>
+    <color name="action_area_purple_light">#F5E7FF</color>
+    <color name="action_area_purple_dark">#7627BB</color>
 </resources>
