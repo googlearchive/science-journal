@@ -472,9 +472,6 @@ public class SensorCardPresenter {
     int slightlyLighter = ColorUtils.getSlightlyLighterColor(color);
     cardViewHolder.header.setBackgroundColor(color);
     cardViewHolder.sensorSelectionArea.setBackgroundColor(slightlyLighter);
-    cardViewHolder.sensorSettingsGear.setBackground(
-        ColorUtils.colorDrawableWithActual(
-            cardViewHolder.sensorSettingsGear.getBackground(), color));
     cardViewHolder.statusProgressBar.setIndeterminateTintList(ColorStateList.valueOf(color));
 
     if (sensorPresenter != null) {
