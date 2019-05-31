@@ -1762,6 +1762,24 @@ Permissions notice:
     <!-- The notification channel description for completed downloads [CHAR_LIMIT=25] -->
     <string name="save_to_device_channel_description">Saved</string>
 
+    <!-- Title for action area button to add a new text note [CHAR_LIMIT=25] -->
+    <string name="text_note">Text</string>
+
+    <!-- Title for action area button to add a new sensor note [CHAR_LIMIT=25] -->
+    <string name="sensor_note">Sensor</string>
+
+    <!-- Title for action area button to add a new camera note [CHAR_LIMIT=25] -->
+    <string name="camera_note">Camera</string>
+
+    <!-- Title for action area button to add a new gallery note [CHAR_LIMIT=25] -->
+    <string name="gallery_note">Gallery</string>
+
+    <!-- Title for action area button to add take a snapshot [CHAR_LIMIT=25] -->
+    <string name="snapshot">Snapshot</string>
+
+    <!-- Title for action area button to navigate to additional note types [CHAR_LIMIT=25] -->
+    <string name="more">More</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 </resources>

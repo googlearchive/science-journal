@@ -235,4 +235,9 @@
 
     <!-- Font sizing for sign in screen -->
     <dimen name="sign_in_text_font_size">14sp</dimen>
+
+    <!-- Height of action area for portrait mode-->
+    <dimen name="action_area_height">87dp</dimen>
+    <!-- Width of action area for landscape mode-->
+    <dimen name="action_area_width">87dp</dimen>
 </resources>

@@ -85,4 +85,5 @@
     <color name="action_area_blue_dark">#2A84FC</color>
     <color name="action_area_purple_light">#F5E7FF</color>
     <color name="action_area_purple_dark">#7627BB</color>
+    <color name="action_area_view_background">#FCFCFC</color>
 </resources>
