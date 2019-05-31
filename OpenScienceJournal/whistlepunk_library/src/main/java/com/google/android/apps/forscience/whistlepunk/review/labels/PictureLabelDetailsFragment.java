@@ -32,7 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
-import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
@@ -112,8 +111,6 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
     if (shareIntent != null) {
       menu.findItem(R.id.btn_share_photo).setVisible(true);
     }
-
-    menu.findItem(R.id.btn_download_photo).setVisible(Flags.isDownloadEnabled());
 
     ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
     actionBar.setTitle("");

@@ -60,7 +60,6 @@ import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
-import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -1145,20 +1144,9 @@ public class ExperimentListFragment extends Fragment
         holder.menuButton.setVisibility(View.GONE);
         holder.driveButton.setOnClickListener(
             v -> promptBeforeClaimExperiment(overview.experimentId));
-
-        if (Flags.isDownloadEnabled()) {
-          holder.downloadButton.setOnClickListener(
-              v -> requestDownload(parentReference.get().getActivity(), overview.experimentId));
-          holder.shareButton.setVisibility(View.GONE);
-        } else {
-          holder.downloadButton.setVisibility(View.GONE);
-          if (isShareIntentValid) {
-            holder.shareButton.setOnClickListener(
-                v -> exportOrSaveExperiment(overview.experimentId, false));
-          } else {
-            holder.shareButton.setVisibility(View.GONE);
-          }
-        }
+        holder.downloadButton.setOnClickListener(
+            v -> requestDownload(parentReference.get().getActivity(), overview.experimentId));
+        holder.shareButton.setVisibility(View.GONE);
         holder.deleteButton.setOnClickListener(v -> deleteExperiment(overview.experimentId));
       } else if (parentReference
           .get()
@@ -1194,10 +1182,6 @@ public class ExperimentListFragment extends Fragment
                   .getMenu()
                   .findItem(R.id.menu_item_export_experiment)
                   .setVisible(isShareIntentValid);
-              popupMenu
-                  .getMenu()
-                  .findItem(R.id.menu_item_download_experiment)
-                  .setVisible(Flags.isDownloadEnabled());
 
               popupMenu.setOnMenuItemClickListener(
                   menuItem -> {

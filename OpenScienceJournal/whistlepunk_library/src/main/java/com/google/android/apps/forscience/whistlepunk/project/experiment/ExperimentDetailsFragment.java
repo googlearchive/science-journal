@@ -60,7 +60,6 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
-import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
@@ -547,8 +546,7 @@ public class ExperimentDetailsFragment extends Fragment
     menu.findItem(R.id.action_export_experiment)
         .setVisible(experiment != null && isShareIntentValid);
     menu.findItem(R.id.action_export_experiment).setEnabled(!isRecording());
-    menu.findItem(R.id.action_download_experiment)
-        .setVisible(experiment != null && Flags.isDownloadEnabled());
+    menu.findItem(R.id.action_download_experiment).setVisible(experiment != null);
     menu.findItem(R.id.action_download_experiment).setEnabled(!isRecording());
     setHomeButtonState(isRecording());
   }
@@ -1175,7 +1173,6 @@ public class ExperimentDetailsFragment extends Fragment
           .findItem(R.id.menu_item_export)
           .setVisible(experiment != null && isShareIntentValid);
       popupMenu.getMenu().findItem(R.id.menu_item_export).setEnabled(!isRecording());
-      popupMenu.getMenu().findItem(R.id.menu_item_download).setVisible(Flags.isDownloadEnabled());
       popupMenu.setOnMenuItemClickListener(
           menuItem -> {
             if (parentReference.get() != null && parentReference.get().isVisible()) {
@@ -1230,7 +1227,7 @@ public class ExperimentDetailsFragment extends Fragment
           popupMenu
               .getMenu()
               .findItem(R.id.btn_download_photo)
-              .setVisible(Flags.isDownloadEnabled());
+              .setVisible(true);
           if (shareIntent != null) {
             popupMenu.getMenu().findItem(R.id.btn_share_photo).setVisible(true);
           }

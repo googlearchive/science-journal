@@ -29,7 +29,6 @@ package com.google.android.apps.forscience.whistlepunk;
 public class Flags {
   private static boolean showActionBar = false;
   private static boolean showTestingOptions = false;
-  private static boolean downloadEnabled = false;
 
   private Flags() {} // uninstantiable
 
@@ -41,19 +40,11 @@ public class Flags {
     showTestingOptions = show;
   }
 
-  public static void setDownloadEnabled(boolean enable) {
-    downloadEnabled = enable;
-  }
-
   public static boolean showActionBar() {
     return showActionBar;
   }
 
   public static boolean showTestingOptions() {
     return showTestingOptions;
-  }
-
-  public static boolean isDownloadEnabled() {
-    return downloadEnabled;
   }
 }

@@ -35,7 +35,6 @@ import android.widget.EditText;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
-import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -218,7 +217,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
           popupMenu
               .getMenu()
               .findItem(R.id.btn_download_photo)
-              .setVisible(label.getType() == ValueType.PICTURE && Flags.isDownloadEnabled());
+              .setVisible(label.getType() == ValueType.PICTURE);
           popupMenu.setOnDismissListener(menu -> popupMenu = null);
           popupMenu.setOnMenuItemClickListener(
               item -> {
