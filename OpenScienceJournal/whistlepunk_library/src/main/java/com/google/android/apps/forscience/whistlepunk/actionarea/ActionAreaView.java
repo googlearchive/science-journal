@@ -45,10 +45,6 @@ import java.util.List;
  * actions should be declared in ActionAreaItem to maximize code readability and reuse throughout
  * the many views that contain an action area.
  *
- * <p>If more than 4 actions are added to an action area, the fourth action will be replaced with a
- * "More" action that opens a separate view with the remaining actions. TODO(b/132651474): Implement
- * "More" action
- *
  * <p>To include an action area at the bottom, simply add the following to your layout resource file
  * replacing {@code app:isBottomLayout="true"} with {@code app:isBottomLayout="false"} and swapping
  * the {@code layout_width} and {@code layout_height} if you want the app bar on the right side of
@@ -87,11 +83,15 @@ public class ActionAreaView extends LinearLayout {
    * with the new list and listener.
    *
    * @param context The current context
-   * @param actionAreaItems The items to add to the action area
+   * @param actionAreaItems The items to add to the action area; must have 4 or less items
    * @param listener The callback for when an item is clicked
    */
   public void addItems(
       Context context, ActionAreaItem[] actionAreaItems, ActionAreaListener listener) {
+    if (actionAreaItems.length > 4) {
+      throw new AssertionError("Action area can only hold 4 items");
+    }
+
     // Removing all previously added action area items
     actionAreaItemViews.clear();
     removeAllViews();
@@ -103,7 +103,12 @@ public class ActionAreaView extends LinearLayout {
       setOrientation(VERTICAL);
       setBackground(getResources().getDrawable(R.drawable.action_area_view_right_bg));
     }
-    for (ActionAreaItem item : actionAreaItems) {
+
+    for (int i = 0; i < 4; i++) {
+      ActionAreaItem item = null;
+      if (actionAreaItems.length > i) {
+        item = actionAreaItems[i];
+      }
       ActionAreaItemView view = new ActionAreaItemView(context, item);
       actionAreaItemViews.add(view);
       addView(view);
@@ -139,25 +144,30 @@ public class ActionAreaView extends LinearLayout {
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1));
       }
       setGravity(Gravity.CENTER);
-      TextView textView = findViewById(R.id.text_view);
-      textView.setText(actionAreaItem.getContentDescriptionId());
-      textView.setContentDescription(
-          getResources().getString(actionAreaItem.getContentDescriptionId()));
-      ContextThemeWrapper wrapper = new ContextThemeWrapper(context, R.style.DefaultActionAreaIcon);
-      Drawable drawable =
-          ResourcesCompat.getDrawable(
-              getResources(), actionAreaItem.getIconId(), wrapper.getTheme());
-      textView.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
-      setOnClickListener((View view) -> listener.onClick(actionAreaItem));
+      if (actionAreaItem != null) {
+        TextView textView = findViewById(R.id.text_view);
+        textView.setText(actionAreaItem.getContentDescriptionId());
+        textView.setContentDescription(
+            getResources().getString(actionAreaItem.getContentDescriptionId()));
+        ContextThemeWrapper wrapper =
+            new ContextThemeWrapper(context, R.style.DefaultActionAreaIcon);
+        Drawable drawable =
+            ResourcesCompat.getDrawable(
+                getResources(), actionAreaItem.getIconId(), wrapper.getTheme());
+        textView.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
+        setOnClickListener((View view) -> listener.onClick(actionAreaItem));
+      }
     }
 
     private void updateView(Context context, int style) {
-      ContextThemeWrapper wrapper = new ContextThemeWrapper(context, style);
-      Drawable drawable =
-          ResourcesCompat.getDrawable(
-              getResources(), actionAreaItem.getIconId(), wrapper.getTheme());
-      ((TextView) findViewById(R.id.text_view))
-          .setCompoundDrawablesRelativeWithIntrinsicBounds(null, drawable, null, null);
+      if (actionAreaItem != null) {
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(context, style);
+        Drawable drawable =
+            ResourcesCompat.getDrawable(
+                getResources(), actionAreaItem.getIconId(), wrapper.getTheme());
+        ((TextView) findViewById(R.id.text_view))
+            .setCompoundDrawablesRelativeWithIntrinsicBounds(null, drawable, null, null);
+      }
     }
   }
 
