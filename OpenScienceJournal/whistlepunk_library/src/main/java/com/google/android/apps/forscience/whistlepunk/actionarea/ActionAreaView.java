@@ -149,12 +149,7 @@ public class ActionAreaView extends LinearLayout {
         textView.setText(actionAreaItem.getContentDescriptionId());
         textView.setContentDescription(
             getResources().getString(actionAreaItem.getContentDescriptionId()));
-        ContextThemeWrapper wrapper =
-            new ContextThemeWrapper(context, R.style.DefaultActionAreaIcon);
-        Drawable drawable =
-            ResourcesCompat.getDrawable(
-                getResources(), actionAreaItem.getIconId(), wrapper.getTheme());
-        textView.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
+        updateView(context, R.style.DefaultActionAreaIcon);
         setOnClickListener((View view) -> listener.onClick(actionAreaItem));
       }
     }
@@ -162,11 +157,14 @@ public class ActionAreaView extends LinearLayout {
     private void updateView(Context context, int style) {
       if (actionAreaItem != null) {
         ContextThemeWrapper wrapper = new ContextThemeWrapper(context, style);
+        // Use the correctly colored icon and on touch ripple based on the passed in style
         Drawable drawable =
             ResourcesCompat.getDrawable(
                 getResources(), actionAreaItem.getIconId(), wrapper.getTheme());
         ((TextView) findViewById(R.id.text_view))
             .setCompoundDrawablesRelativeWithIntrinsicBounds(null, drawable, null, null);
+        setBackground(ResourcesCompat.getDrawable(
+            getResources(), R.drawable.action_area_ripple, wrapper.getTheme()));
       }
     }
   }
