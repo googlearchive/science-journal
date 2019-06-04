@@ -37,6 +37,6 @@ oficjalnym  produktem Google.
 
 [play-store]: https://play.google.com/store/apps/details?id=com.google.android.apps.forscience.whistlepunk
 [firmware-github]:https://github.com/google/science-journal-arduino
-[współpraca]: https://github.com/google/science-journal/blob/master/CONTRIBUTING
+[współpraca]: https://github.com/google/science-journal/blob/master/CONTRIBUTING.md
 [licencja]: https://github.com/google/science-journal/blob/master/LICENSE
 [making-science]: https://makingscience.withgoogle.com

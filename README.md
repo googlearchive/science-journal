@@ -42,7 +42,7 @@ Science Journal is brought to you by [Making & Science][making-science], an init
 
 [play-store]: https://play.google.com/store/apps/details?id=com.google.android.apps.forscience.whistlepunk
 [firmware-github]:https://github.com/google/science-journal-arduino
-[contributing]: https://github.com/google/science-journal/blob/master/CONTRIBUTING
+[contributing]: https://github.com/google/science-journal/blob/master/CONTRIBUTING.md
 [releasenames]: https://github.com/google/science-journal/blob/master/RELEASES.md
 [license]: https://github.com/google/science-journal/blob/master/LICENSE
 [making-science]: https://makingscience.withgoogle.com
