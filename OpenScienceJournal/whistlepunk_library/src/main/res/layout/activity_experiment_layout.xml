@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2016 Google Inc. All Rights Reserved.
+  Copyright 2019 Google Inc. All Rights Reserved.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,22 +17,6 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/metadata_description_holder"
-    >
-
-    <RelativeLayout
-        android:layout_width="624dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="wrap_content">
-
-        <include layout="@layout/archived_badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_alignParentStart="true"
-            />
-
-    </RelativeLayout>
-
-</FrameLayout>
+    android:layout_height="match_parent"
+    android:id="@+id/experiment_pane"
+    />

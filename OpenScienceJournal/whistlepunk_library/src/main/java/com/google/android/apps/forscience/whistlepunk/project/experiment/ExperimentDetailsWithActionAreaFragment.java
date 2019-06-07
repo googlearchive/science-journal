@@ -59,6 +59,7 @@ import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
+import com.google.android.apps.forscience.whistlepunk.ExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
@@ -74,6 +75,8 @@ import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
@@ -120,10 +123,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * A fragment to handle displaying Experiment details, runs and labels.
  *
- * @deprecated Moving to {@link ExperimentDetailsWithActionAreaFragment} to use the new action area.
+ * This fragment is displayed in ExperimentActivity and shows the Experiment details and the action
+ * area to add notes to the current experiment.
+ *
+ * TODO(b/134590927): Rename this class back to ExperimentDetailsFragment.
  **/
-@Deprecated
-public class ExperimentDetailsFragment extends Fragment
+public class ExperimentDetailsWithActionAreaFragment extends Fragment
     implements DeleteMetadataItemDialog.DeleteDialogListener,
         NameExperimentDialog.OnExperimentTitleChangeListener {
 
@@ -162,6 +167,9 @@ public class ExperimentDetailsFragment extends Fragment
   private RxEvent destroyed = new RxEvent();
   private LocalSyncManager localSyncManager;
   private ExperimentLibraryManager experimentLibraryManager;
+  private static final ActionAreaItem[] ACTION_AREA_ITEMS = {
+    ActionAreaItem.NOTE, ActionAreaItem.SENSOR, ActionAreaItem.CAMERA, ActionAreaItem.GALLERY
+  };
 
   /**
    * Creates a new instance of this fragment.
@@ -171,12 +179,13 @@ public class ExperimentDetailsFragment extends Fragment
    * @param createTaskStack If {@code true}, then navigating home requires building a task stack up
    *     to the experiment list. If {@code false}, use the default navigation.
    */
-  public static ExperimentDetailsFragment newInstance(
+  public static ExperimentDetailsWithActionAreaFragment newInstance(
       AppAccount appAccount,
       String experimentId,
       boolean createTaskStack,
       boolean claimExperimentsMode) {
-    ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
+    ExperimentDetailsWithActionAreaFragment fragment =
+        new ExperimentDetailsWithActionAreaFragment();
     Bundle args = new Bundle();
     args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(ARG_EXPERIMENT_ID, experimentId);
@@ -186,7 +195,7 @@ public class ExperimentDetailsFragment extends Fragment
     return fragment;
   }
 
-  public ExperimentDetailsFragment() {}
+  public ExperimentDetailsWithActionAreaFragment() {}
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -223,8 +232,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public void setExperimentId(String experimentId) {
-    // TODO(lizlooney): Investigate where this is called to see if we also need to set the
-    // AppAccount.
+    // Investigate where this is called to see if we also need to set the AppAccount.
     if (!Objects.equals(experimentId, this.experimentId)) {
       this.experimentId = experimentId;
       if (isResumed()) {
@@ -336,7 +344,9 @@ public class ExperimentDetailsFragment extends Fragment
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    View view = inflater.inflate(R.layout.fragment_panes_experiment_details, container, false);
+    View view =
+        inflater.inflate(
+            R.layout.fragment_panes_experiment_details_with_action_area, container, false);
 
     AppCompatActivity activity = (AppCompatActivity) getActivity();
     ActionBar actionBar = activity.getSupportActionBar();
@@ -377,6 +387,9 @@ public class ExperimentDetailsFragment extends Fragment
     scalarDisplayOptions = new ScalarDisplayOptions();
     GraphOptionsController graphOptionsController = new GraphOptionsController(getActivity());
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, view);
+
+    ActionAreaView actionArea = view.findViewById(R.id.action_area);
+    actionArea.addItems(getContext(), ACTION_AREA_ITEMS, (ExperimentActivity) getActivity());
 
     if (savedInstanceState != null) {
       includeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
@@ -421,7 +434,7 @@ public class ExperimentDetailsFragment extends Fragment
     } catch (NullPointerException e) {
       // TODO(b/78091514): Figure out what is actually going on here.
       if (Log.isLoggable(TAG, Log.ERROR)) {
-        Log.e(TAG, "ExperimentDetailsFragment failed to scroll " + e);
+        Log.e(TAG, "ExperimentDetailsWithActionAreaFragment failed to scroll " + e);
       }
     }
   }
@@ -995,7 +1008,7 @@ public class ExperimentDetailsFragment extends Fragment
     static final int VIEW_TYPE_RECORDING = 7;
     static final int VIEW_TYPE_SKETCH = 8;
 
-    private final WeakReference<ExperimentDetailsFragment> parentReference;
+    private final WeakReference<ExperimentDetailsWithActionAreaFragment> parentReference;
     private Experiment experiment;
     private List<ExperimentDetailItem> items;
     private List<Integer> sensorIndices = null;
@@ -1004,9 +1017,9 @@ public class ExperimentDetailsFragment extends Fragment
     private boolean reverseOrder = true;
     private PopupMenu popupMenu = null;
 
-    DetailsAdapter(ExperimentDetailsFragment parent, Bundle savedInstanceState) {
+    DetailsAdapter(ExperimentDetailsWithActionAreaFragment parent, Bundle savedInstanceState) {
       items = new ArrayList<>();
-      parentReference = new WeakReference<ExperimentDetailsFragment>(parent);
+      parentReference = new WeakReference<ExperimentDetailsWithActionAreaFragment>(parent);
       if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SAVED_SENSOR_INDICES)) {
         sensorIndices = savedInstanceState.getIntegerArrayList(KEY_SAVED_SENSOR_INDICES);
       }

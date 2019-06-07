@@ -83,6 +83,12 @@ public class PanesActivity extends AppCompatActivity
   private AppAccount appAccount;
   private boolean claimExperimentsMode;
 
+  /**
+   * Displays the experiment and the tool drawer.
+   *
+   * @deprecated Moving to {@link ExperimentActivity} to use the new action area.
+   */
+  @Deprecated
   public PanesActivity() {
     snackbarManager = new SnackbarManager();
   }

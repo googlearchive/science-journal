@@ -212,7 +212,13 @@ public abstract class WhistlePunkApplication extends Application {
           AppAccount appAccount,
           String experimentId,
           boolean claimExperimentsMode) {
-        return PanesActivity.launchIntent(context, appAccount, experimentId, claimExperimentsMode);
+        if (Flags.showActionBar()) {
+          return ExperimentActivity.launchIntent(
+              context, appAccount, experimentId, claimExperimentsMode);
+        } else {
+          return PanesActivity.launchIntent(
+              context, appAccount, experimentId, claimExperimentsMode);
+        }
       }
     };
   }

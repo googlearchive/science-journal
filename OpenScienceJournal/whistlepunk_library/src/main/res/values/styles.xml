@@ -63,6 +63,10 @@
         <item name="android:windowActionBar">false</item>
     </style>
 
+    <style name="AppTheme.Experiment">
+        <item name="android:windowActionBar">false</item>
+    </style>
+
     <style name="AppTheme.GetStarted">
         <item name="colorButtonNormal">@android:color/white</item>
         <item name="android:statusBarColor">@color/status_bar_background_gray</item>

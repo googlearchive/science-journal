@@ -131,6 +131,18 @@
                 android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
         </activity>
         <activity
+            android:name=".ExperimentActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Experiment"
+            android:launchMode="singleTask"
+            android:parentActivityName=".MainActivity"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
+        </activity>
+        <activity
             android:name=".SensorInfoActivity"
             android:exported="false"
             android:label="@string/title_activity_sensor_info"

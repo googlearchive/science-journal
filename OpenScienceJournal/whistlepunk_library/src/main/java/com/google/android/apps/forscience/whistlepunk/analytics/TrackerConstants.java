@@ -60,6 +60,7 @@ public final class TrackerConstants {
   public static final String CATEGORY_SENSOR_MANAGEMENT = "ManageSensors";
   public static final String CATEGORY_STORAGE = "Storage";
   public static final String CATEGORY_PANES = "Panes";
+  public static final String CATEGORY_EXPERIMENT = "Experiment";
   public static final String CATEGORY_SIGN_IN = "SignIn";
   public static final String CATEGORY_CLAIMING_DATA = "ClaimingData";
   public static final String CATEGORY_SYNC = "Sync";
