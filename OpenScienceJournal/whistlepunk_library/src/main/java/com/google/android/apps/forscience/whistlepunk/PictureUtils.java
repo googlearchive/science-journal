@@ -54,8 +54,7 @@ public class PictureUtils {
     // Create an image file name using the uuid of the item it is attached to.
     String imageFileName = String.format(PICTURE_NAME_TEMPLATE, uuid);
     File storageDir = FileMetadataUtil.getInstance().getAssetsDirectory(appAccount, experimentId);
-    File imageFile = new File(storageDir, imageFileName);
-    return imageFile;
+    return new File(storageDir, imageFileName);
   }
 
   /**

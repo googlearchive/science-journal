@@ -15,6 +15,10 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import static com.google.android.apps.forscience.whistlepunk.PictureUtils.REQUEST_TAKE_PHOTO;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,12 +40,16 @@ import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsWithActionAreaFragment;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
+import java.util.UUID;
 
 /** Displays the experiment and the action bar. */
 public class ExperimentActivity extends AppCompatActivity
@@ -56,11 +64,16 @@ public class ExperimentActivity extends AppCompatActivity
   public static final String EXTRA_EXPERIMENT_ID = "experimentId";
   public static final String EXTRA_CLAIM_EXPERIMENTS_MODE = "claimExperimentsMode";
 
+  private static final String EXTRA_PICTURE_UUID = "pictureUUID";
+  private static final String EXTRA_PICTURE_PATH = "picturePath";
+
   private ProgressBar recordingBar;
   private RxPermissions permissions;
   private RxEvent paused = new RxEvent();
   private AppAccount appAccount;
   private boolean claimExperimentsMode;
+  private String pictureUUID;
+  private String pictureRelativePath;
 
   @NonNull
   public static Intent launchIntent(
@@ -141,7 +154,7 @@ public class ExperimentActivity extends AppCompatActivity
   }
 
   public void onArchivedStateChanged() {
-    findViewById(R.id.container).requestLayout();
+    findViewById(R.id.experiment_pane).requestLayout();
   }
 
   private void setExperimentFragmentId(Experiment experiment) {
@@ -189,7 +202,7 @@ public class ExperimentActivity extends AppCompatActivity
     }
     if (appSingleton.getAndClearMostRecentOpenWasImport()) {
       AccessibilityUtils.makeSnackbar(
-              findViewById(R.id.bottom_control_bar),
+              findViewById(R.id.experiment_pane),
               getResources().getString(R.string.import_failed_recording),
               Snackbar.LENGTH_SHORT)
           .show();
@@ -339,6 +352,7 @@ public class ExperimentActivity extends AppCompatActivity
     return result -> addNewLabel(result);
   }
 
+  @SuppressLint("CheckResult")
   private void addNewLabel(Label label) {
     // Get the most recent experiment, or wait if none has been loaded yet.
     activeExperiment.subscribe(
@@ -357,7 +371,7 @@ public class ExperimentActivity extends AppCompatActivity
 
   private void onAddNewLabelFailed() {
     AccessibilityUtils.makeSnackbar(
-            findViewById(R.id.bottom_control_bar),
+            findViewById(R.id.experiment_pane),
             getResources().getString(R.string.label_failed_save),
             Snackbar.LENGTH_LONG)
         .show();
@@ -412,8 +426,68 @@ public class ExperimentActivity extends AppCompatActivity
       Log.v(TAG, "clicked sensor");
     } else if (item.equals(ActionAreaItem.CAMERA)) {
       Log.v(TAG, "clicked camera");
+      takePicture();
     } else if (item.equals(ActionAreaItem.GALLERY)) {
       Log.v(TAG, "clicked gallery");
+    }
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putString(EXTRA_PICTURE_UUID, pictureUUID);
+    outState.putString(EXTRA_PICTURE_PATH, pictureRelativePath);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+    pictureUUID = savedInstanceState.getString(EXTRA_PICTURE_UUID);
+    pictureRelativePath = savedInstanceState.getString(EXTRA_PICTURE_PATH);
+  }
+
+  @SuppressLint("CheckResult")
+  private void takePicture() {
+    if (permissions != null) {
+      permissions
+          .request(Manifest.permission.CAMERA)
+          .subscribe(
+              granted -> {
+                if (granted) {
+                  pictureUUID = UUID.randomUUID().toString();
+                  // After a user takes a picture, onActivityResult will be called.
+                  pictureRelativePath =
+                      PictureUtils.capturePictureLabel(
+                          this,
+                          appAccount,
+                          activeExperiment.getValue().getExperimentId(),
+                          pictureUUID);
+                } else {
+                  AccessibilityUtils.makeSnackbar(
+                          findViewById(R.id.experiment_pane),
+                          getResources().getString(R.string.input_camera_permission_denied),
+                          Snackbar.LENGTH_LONG)
+                      .show();
+                }
+              });
+    }
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+      if (pictureUUID != null && pictureRelativePath != null) {
+        GoosciPictureLabelValue.PictureLabelValue labelValue = new PictureLabelValue();
+        labelValue.filePath = pictureRelativePath;
+        Label label =
+            Label.fromUuidAndValue(
+                AppSingleton.getInstance(this).getSensorEnvironment().getDefaultClock().getNow(),
+                pictureUUID,
+                GoosciLabel.Label.ValueType.PICTURE,
+                labelValue);
+        addNewLabel(label);
+      }
     }
   }
 }
