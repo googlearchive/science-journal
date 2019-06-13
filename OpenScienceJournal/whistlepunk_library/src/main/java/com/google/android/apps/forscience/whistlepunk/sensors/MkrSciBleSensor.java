@@ -309,7 +309,7 @@ public class MkrSciBleSensor extends ScalarSensor {
     }
   }
 
-  public static void validateSpec(MkrSciBleSensorSpec spec) {
+  public static MkrSciBleSensorSpec validateSpec(MkrSciBleSensorSpec spec) {
     String sensorKind = spec.getSensor();
     switch (sensorKind) {
       case SENSOR_INPUT_1:
@@ -330,5 +330,6 @@ public class MkrSciBleSensor extends ScalarSensor {
       default:
         throw new RuntimeException("Unmanaged mkr sci ble sensor: " + sensorKind);
     }
+    return spec;
   }
 }

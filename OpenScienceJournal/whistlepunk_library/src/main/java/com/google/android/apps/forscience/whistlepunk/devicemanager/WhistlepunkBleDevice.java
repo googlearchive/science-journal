@@ -15,8 +15,12 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
+import java.util.List;
+
 public interface WhistlepunkBleDevice {
   String getName();
 
   String getAddress();
+
+  List<String> getServiceUuids();
 }

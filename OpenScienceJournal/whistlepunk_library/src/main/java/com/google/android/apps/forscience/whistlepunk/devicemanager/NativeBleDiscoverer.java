@@ -79,9 +79,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
         @Override
         public ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
           try {
-            MkrSciBleSensorSpec spec = new MkrSciBleSensorSpec(name, config);
-            MkrSciBleSensor.validateSpec(spec);
-            return spec;
+            return MkrSciBleSensor.validateSpec(new MkrSciBleSensorSpec(name, config));
           } catch (Exception e) {
             return new BleSensorSpec(name, config);
           }
@@ -90,8 +88,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
 
   private static final String SERVICE_ID = "com.google.android.apps.forscience.whistlepunk.ble";
 
-  private DeviceDiscoverer legacyDeviceDiscoverer;
-  private DeviceDiscoverer mkrSciDeviceDiscoverer;
+  private DeviceDiscoverer deviceDiscoverer;
   private Runnable onScanDone;
   private Context context;
 
@@ -119,9 +116,8 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
           }
         };
 
-    legacyDeviceDiscoverer = createDiscoverer(this.context);
-    mkrSciDeviceDiscoverer = createDiscoverer(this.context);
-    final boolean canScan = legacyDeviceDiscoverer.canScan() && hasScanPermission();
+    deviceDiscoverer = createDiscoverer(context);
+    final boolean canScan = deviceDiscoverer.canScan() && hasScanPermission();
 
     listener.onServiceFound(
         new DiscoveredService() {
@@ -132,7 +128,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
 
           @Override
           public String getName() {
-            return NativeBleDiscoverer.this.context.getString(R.string.arduino_boards);
+            return context.getString(R.string.arduino_boards);
           }
 
           @Override
@@ -148,7 +144,7 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
               return new ServiceConnectionError() {
                 @Override
                 public String getErrorMessage() {
-                  return NativeBleDiscoverer.this.context.getString(R.string.btn_enable_bluetooth);
+                  return context.getString(R.string.btn_enable_bluetooth);
                 }
 
                 @Override
@@ -171,28 +167,20 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
       return false;
     }
     List<ParcelUuid> uuids = new ArrayList<>();
+    uuids.add(ParcelUuid.fromString(MkrSciBleManager.SERVICE_UUID));
     for (BleServiceSpec spec : BluetoothSensor.SUPPORTED_SERVICES) {
       uuids.add(ParcelUuid.fromString(spec.getServiceId().toString()));
     }
-    legacyDeviceDiscoverer.startScanning(
+    deviceDiscoverer.startScanning(
         uuids.toArray(new ParcelUuid[0]),
         new DeviceDiscoverer.Callback() {
           @Override
           public void onDeviceFound(final DeviceDiscoverer.DeviceRecord record) {
-            onDeviceRecordFound(record, listener);
-          }
-
-          @Override
-          public void onError(int error) {
-            // TODO: handle errors
-          }
-        });
-    mkrSciDeviceDiscoverer.startScanning(
-        new ParcelUuid[] {ParcelUuid.fromString(MkrSciBleManager.SERVICE_UUID)},
-        new DeviceDiscoverer.Callback() {
-          @Override
-          public void onDeviceFound(final DeviceDiscoverer.DeviceRecord record) {
-            onMkrSciDeviceRecordFound(record, listener);
+            if (record.device.getServiceUuids().contains(MkrSciBleManager.SERVICE_UUID)) {
+              onMkrSciDeviceRecordFound(record, listener);
+            } else {
+              onDeviceRecordFound(record, listener);
+            }
           }
 
           @Override
@@ -213,13 +201,9 @@ public class NativeBleDiscoverer implements SensorDiscoverer {
 
   @Override
   public void stopScanning() {
-    if (legacyDeviceDiscoverer != null) {
-      legacyDeviceDiscoverer.stopScanning();
-      legacyDeviceDiscoverer = null;
-    }
-    if (mkrSciDeviceDiscoverer != null) {
-      mkrSciDeviceDiscoverer.stopScanning();
-      mkrSciDeviceDiscoverer = null;
+    if (deviceDiscoverer != null) {
+      deviceDiscoverer.stopScanning();
+      deviceDiscoverer = null;
     }
     if (onScanDone != null) {
       onScanDone.run();

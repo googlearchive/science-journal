@@ -28,6 +28,10 @@ import com.google.android.apps.forscience.whistlepunk.TestConsumers;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.RecordingRunnable;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.sensors.BleServiceSpec;
+import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -58,6 +62,15 @@ public class NativeBleDiscovererTest {
                       @Override
                       public String getAddress() {
                         return address;
+                      }
+
+                      @Override
+                      public List<String> getServiceUuids() {
+                        List<String> uuids = new ArrayList<>();
+                        for (BleServiceSpec spec : BluetoothSensor.SUPPORTED_SERVICES) {
+                          uuids.add(spec.getServiceId().toString());
+                        }
+                        return uuids;
                       }
                     },
                     rssi);
@@ -104,7 +117,7 @@ public class NativeBleDiscovererTest {
           }
         };
     discoverer.startScanning(listener, TestConsumers.expectingSuccess());
-    assertEquals(15, sensorsSeen.seen.size());
+    assertEquals(1, sensorsSeen.seen.size());
     GoosciSensorSpec.SensorSpec sensor = sensorsSeen.seen.get(0).getSensorSpec();
     assertEquals(name, sensor.rememberedAppearance.name);
     assertEquals(address, sensor.info.address);
