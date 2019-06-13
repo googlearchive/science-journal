@@ -121,7 +121,7 @@ public abstract class WhistlePunkApplication extends Application {
     return getAppServices(context).getUsageTracker();
   }
 
-  private static boolean hasAppServices(Context context) {
+  public static boolean hasAppServices(Context context) {
     return context != null && context.getApplicationContext() instanceof WhistlePunkApplication;
   }
 

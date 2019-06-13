@@ -42,11 +42,39 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
   private int unclaimedExperimentCount;
 
   public static boolean shouldLaunch(Context context) {
-    AccountsProvider accountsProvider =
-        WhistlePunkApplication.getAppServices(context).getAccountsProvider();
-    if (accountsProvider.isSignedIn() && AccountsUtils.getUnclaimedExperimentCount(context) >= 1) {
-      return PreferenceManager.getDefaultSharedPreferences(context)
-          .getBoolean(KEY_SHOULD_LAUNCH, true);
+    // Investigate and protect from NullPointerException, reported in b/129352553 and b/133151247.
+    try {
+      if (context == null) {
+        return false;
+      }
+      if (!WhistlePunkApplication.hasAppServices(context)) {
+        return false;
+      }
+
+      AccountsProvider accountsProvider =
+          WhistlePunkApplication.getAppServices(context).getAccountsProvider();
+      if (accountsProvider == null) {
+        WhistlePunkApplication.getUsageTracker(context)
+            .trackEvent(
+                TrackerConstants.CATEGORY_SIGN_IN,
+                TrackerConstants.ACTION_ERROR,
+                "shouldLaunch: unexpected error, accountsProvider is null",
+                0);
+        return false;
+      }
+
+      if (accountsProvider.isSignedIn()
+          && AccountsUtils.getUnclaimedExperimentCount(context) >= 1) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+            .getBoolean(KEY_SHOULD_LAUNCH, true);
+      }
+    } catch (Exception e) {
+      WhistlePunkApplication.getUsageTracker(context)
+          .trackEvent(
+              TrackerConstants.CATEGORY_SIGN_IN,
+              TrackerConstants.ACTION_ERROR,
+              TrackerConstants.createLabelFromStackTrace(e),
+              0);
     }
     return false;
   }

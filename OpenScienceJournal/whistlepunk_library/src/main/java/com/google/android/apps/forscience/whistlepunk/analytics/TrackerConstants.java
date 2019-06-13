@@ -111,7 +111,7 @@ public final class TrackerConstants {
   public static final String ACTION_SWITCH_FAILED = "SwitchFailed"; // iOS only.
   public static final String ACTION_NO_CHANGE = "NoChange"; // iOS only.
   public static final String ACTION_REMOVED_ACCOUNT = "RemovedAccount";
-  public static final String ACTION_ERROR = "Error"; // iOS only.
+  public static final String ACTION_ERROR = "Error";
   public static final String ACTION_ACCOUNT_TYPE = "AccountType";
   public static final String ACTION_PERMISSION_DENIED = "PermissionDenied";
   public static final String ACTION_SYNC_EXISTING_ACCOUNT = "SyncExistingAccount";
