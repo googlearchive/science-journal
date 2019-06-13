@@ -233,6 +233,63 @@ public class ExperimentTest {
   }
 
   @Test
+  public void testCleanInvalidTrials() {
+    GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
+    Experiment experiment =
+        ExperimentCreator.newExperimentForTesting(
+            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+
+    // Trials are valid.
+    GoosciTrial.Trial validProto = new GoosciTrial.Trial();
+    GoosciTrial.Range range = new GoosciTrial.Range();
+    range.startMs = 100;
+    range.endMs = 200;
+    validProto.recordingRange = range;
+    validProto.trialId = "valid";
+    experiment.addTrial(Trial.fromTrial(validProto));
+    experiment.addTrial(Trial.fromTrial(validProto));
+
+    assertEquals(2, experiment.getTrials().size());
+    assertEquals(2, experiment.getTrials(true, /* include invalid */ true).size());
+    assertEquals(2, experiment.getTrials(false, true).size());
+    assertEquals(2, experiment.getTrials(true, false).size());
+
+    // Trials are invalid -- no end time.
+    GoosciSensorLayout.SensorLayout[] noLayouts = new GoosciSensorLayout.SensorLayout[0];
+    experiment.addTrial(Trial.newTrial(10, noLayouts, new FakeAppearanceProvider(), getContext()));
+    experiment.addTrial(Trial.newTrial(20, noLayouts, new FakeAppearanceProvider(), getContext()));
+
+    assertEquals(4, experiment.getTrials().size());
+    assertEquals(4, experiment.getTrials(true, /* include invalid */ true).size());
+    assertEquals(4, experiment.getTrials(false, true).size());
+    assertEquals(2, experiment.getTrials(true, false).size());
+
+    GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
+    GoosciTrial.Range archivedRange = new GoosciTrial.Range();
+    archivedRange.startMs = 300;
+    archivedRange.endMs = 400;
+    archivedProto.recordingRange = archivedRange;
+    archivedProto.archived = true;
+    archivedProto.trialId = "archived";
+    Trial archived = Trial.fromTrial(archivedProto);
+    experiment.addTrial(archived);
+
+    assertEquals(5, experiment.getTrials(true, true).size());
+    assertEquals(4, experiment.getTrials(/* include archived */ false, true).size());
+    assertEquals(3, experiment.getTrials(true, false).size());
+    assertEquals(2, experiment.getTrials(false, false).size());
+
+    // Deleting the trial with the real delete function causes a crash because of the context
+    // class type. All we actually want is to remove the trial from the list.
+    experiment.cleanTrialsOnlyForTesting();
+
+    assertEquals(3, experiment.getTrials(true, true).size());
+    assertEquals(2, experiment.getTrials(/* include archived */ false, true).size());
+    assertEquals(3, experiment.getTrials(true, /* include invalid */ false).size());
+    assertEquals(2, experiment.getTrials(false, false).size());
+  }
+
+  @Test
   public void testUpdatesProtoOnlyWhenNeeded() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {99, 100, 125, 201});
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();

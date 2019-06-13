@@ -328,6 +328,30 @@ public class Experiment extends LabelListHolder {
   }
 
   /**
+   * Deletes all invalid trials.
+   *
+   * Only call this method from a background thread, for example, when syncing or exporting.
+   */
+  public void cleanTrials(Context context, AppAccount appAccount) {
+    List<Trial> allTrials = new ArrayList<>(trials);
+    for (Trial trial : allTrials) {
+      if (!trial.isValid()) {
+        deleteTrialWithoutRecordingChange(trial, context, appAccount);
+      }
+    }
+  }
+
+  @VisibleForTesting
+  public void cleanTrialsOnlyForTesting() {
+    List<Trial> allTrials = new ArrayList<>(trials);
+    for (Trial trial : allTrials) {
+      if (!trial.isValid()) {
+        deleteTrialOnlyForTesting(trial);
+      }
+    }
+  }
+
+  /**
    * This wipes the current trial list and should be used only when populating an experiment from
    * the database.
    */

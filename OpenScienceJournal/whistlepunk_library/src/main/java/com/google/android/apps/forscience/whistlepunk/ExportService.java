@@ -400,6 +400,7 @@ public class ExportService extends Service {
     // Blocking gets OK: this is already background threaded.
     DataController dc = getDataController(appAccount).blockingGet();
     Experiment experiment = RxDataController.getExperimentById(dc, experimentId).blockingGet();
+    experiment.cleanTrials(this, appAccount);
     File file =
         FileMetadataUtil.getInstance()
             .getFileForExport(getApplicationContext(), appAccount, experiment, dc)
