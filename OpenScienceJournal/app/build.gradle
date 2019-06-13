@@ -4,12 +4,12 @@ apply from: project(':whistlepunk_library').projectDir.absolutePath + '/version.
 apply from: project(':whistlepunk_library').projectDir.absolutePath + '/dependencyVersions.gradle'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
     defaultConfig {
         applicationId "com.google.android.apps.forscience.whistlepunk.opensource"
         minSdkVersion 19
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode buildVersionCode()
         versionName buildVersionName()
         multiDexEnabled true
