@@ -64,6 +64,7 @@ public final class TrackerConstants {
   public static final String CATEGORY_SIGN_IN = "SignIn";
   public static final String CATEGORY_CLAIMING_DATA = "ClaimingData";
   public static final String CATEGORY_SYNC = "Sync";
+  public static final String CATEGORY_FAILURE = "Failure";
 
   // Event actions
   public static final String ACTION_CREATE = "Create";
@@ -90,7 +91,7 @@ public final class TrackerConstants {
   public static final String ACTION_SHARED = "Shared";
   public static final String ACTION_IMPORTED = "Imported";
   public static final String ACTION_DOWNLOAD_REQUESTED = "DownloadRequested";
-  public static final String ACTION_CLAIM_FAILED = "Failed";
+  public static final String ACTION_CLAIM_FAILED = "ClaimFailed";
   public static final String ACTION_RECOVERY_FAILED = "RecoveryFailed";
   public static final String ACTION_RECOVER_EXPERIMENT_ATTEMPTED = "RecoverExperimentAttempted";
   public static final String ACTION_RECOVER_EXPERIMENT_SUCCEEDED = "RecoverExperimentSucceeded";
@@ -107,7 +108,7 @@ public final class TrackerConstants {
       "ContinueWithoutAccountSidebar";
   public static final String ACTION_ACCOUNT_CHANGED = "AccountChanged";
   public static final String ACTION_ACCOUNT_SIGNED_IN = "AccountSignedIn";
-  public static final String ACTION_FAILED = "Failed"; // Not used on iOS or Android.
+  public static final String ACTION_FAILED = "Failed"; // Android only.
   public static final String ACTION_SWITCH_FAILED = "SwitchFailed"; // iOS only.
   public static final String ACTION_NO_CHANGE = "NoChange"; // iOS only.
   public static final String ACTION_REMOVED_ACCOUNT = "RemovedAccount";
@@ -116,6 +117,8 @@ public final class TrackerConstants {
   public static final String ACTION_PERMISSION_DENIED = "PermissionDenied";
   public static final String ACTION_SYNC_EXISTING_ACCOUNT = "SyncExistingAccount";
   public static final String ACTION_SYNC_FAILED = "SyncFailed";
+  public static final String ACTION_SYNC_FAILED_USER_RATE_LIMIT_EXCEEDED =
+      "SyncFailedUserRateLimitExceeded";
   public static final String ACTION_IS_ACCOUNT_PERMITTED = "IsAccountPermitted"; // Android only.
   public static final String ACTION_CLAIM_ALL = "ClaimAll";
   public static final String ACTION_DELETE_ALL = "DeleteAll";
@@ -134,6 +137,7 @@ public final class TrackerConstants {
   public static final String ACTION_DELETE_NOTE = "DeleteNote";
   public static final String ACTION_SYNC_EXPERIMENT_FROM_DRIVE = "SyncExperimentFromDrive";
   public static final String ACTION_MANUAL_SYNC_STARTED = "ManualSyncStarted";
+  public static final String ACTION_PERMISSION_REQUEST_FAILED = "PermissionRequestFailed";
 
   // Labels
   public static final String LABEL_RECORD = "record";

@@ -222,10 +222,16 @@ public class FileMetadataManager {
               if (Log.isLoggable(TAG, Log.ERROR)) {
                 Log.e(TAG, "Recovery of lost experiment failed", e);
               }
+              String labelFromStackTrace = TrackerConstants.createLabelFromStackTrace(e);
               usageTracker.trackEvent(
                   TrackerConstants.CATEGORY_STORAGE,
                   TrackerConstants.ACTION_RECOVER_EXPERIMENT_FAILED,
-                  TrackerConstants.createLabelFromStackTrace(e),
+                  labelFromStackTrace,
+                  0);
+              usageTracker.trackEvent(
+                  TrackerConstants.CATEGORY_FAILURE,
+                  TrackerConstants.ACTION_RECOVER_EXPERIMENT_FAILED,
+                  labelFromStackTrace,
                   0);
             }
           }

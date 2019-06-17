@@ -54,11 +54,9 @@ public class ProtoFileHelper<T extends MessageNano> {
   }
 
   private void trackError(UsageTracker tracker, Throwable ex, String action) {
-    tracker.trackEvent(
-        TrackerConstants.CATEGORY_STORAGE,
-        action,
-        TrackerConstants.createLabelFromStackTrace(ex),
-        0);
+    String stackTrace = TrackerConstants.createLabelFromStackTrace(ex);
+    tracker.trackEvent(TrackerConstants.CATEGORY_STORAGE, action, stackTrace, 0);
+    tracker.trackEvent(TrackerConstants.CATEGORY_FAILURE, action, stackTrace, 0);
   }
 
   public boolean writeToFile(File file, T protoToWrite, UsageTracker tracker) {

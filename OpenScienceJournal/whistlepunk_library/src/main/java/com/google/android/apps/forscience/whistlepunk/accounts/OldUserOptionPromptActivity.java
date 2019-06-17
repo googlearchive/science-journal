@@ -32,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 
 /** Activity that lets the user choose what to do with their old experiments. */
 public class OldUserOptionPromptActivity extends AppCompatActivity {
@@ -158,12 +159,19 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
 
           @Override
           public void fail(Exception e) {
-            WhistlePunkApplication.getUsageTracker(OldUserOptionPromptActivity.this)
-                .trackEvent(
-                    TrackerConstants.CATEGORY_CLAIMING_DATA,
-                    TrackerConstants.ACTION_CLAIM_FAILED,
-                    TrackerConstants.createLabelFromStackTrace(e),
-                    0);
+            String labelFromStackTrace = TrackerConstants.createLabelFromStackTrace(e);
+            UsageTracker usageTracker =
+                WhistlePunkApplication.getUsageTracker(OldUserOptionPromptActivity.this);
+            usageTracker.trackEvent(
+                TrackerConstants.CATEGORY_CLAIMING_DATA,
+                TrackerConstants.ACTION_FAILED,
+                labelFromStackTrace,
+                0);
+            usageTracker.trackEvent(
+                TrackerConstants.CATEGORY_FAILURE,
+                TrackerConstants.ACTION_CLAIM_FAILED,
+                labelFromStackTrace,
+                0);
             View view = findViewById(android.R.id.content);
             if (view != null) {
               AccessibilityUtils.makeSnackbar(

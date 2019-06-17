@@ -41,6 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
@@ -181,12 +182,18 @@ public class SimpleMetaDataManager implements MetaDataManager {
         try {
           fileMetadataManager.recoverLostExperimentsIfNeeded(context.getApplicationContext());
         } catch (Exception e) {
-          WhistlePunkApplication.getUsageTracker(context)
-              .trackEvent(
-                  TrackerConstants.CATEGORY_STORAGE,
-                  TrackerConstants.ACTION_RECOVERY_FAILED,
-                  TrackerConstants.createLabelFromStackTrace(e),
-                  0);
+          String labelFromStackTrace = TrackerConstants.createLabelFromStackTrace(e);
+          UsageTracker usageTracker = WhistlePunkApplication.getUsageTracker(context);
+          usageTracker.trackEvent(
+              TrackerConstants.CATEGORY_STORAGE,
+              TrackerConstants.ACTION_RECOVERY_FAILED,
+              labelFromStackTrace,
+              0);
+          usageTracker.trackEvent(
+              TrackerConstants.CATEGORY_FAILURE,
+              TrackerConstants.ACTION_RECOVERY_FAILED,
+              labelFromStackTrace,
+              0);
         }
       }
 

@@ -72,6 +72,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AccountsUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
+import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
@@ -822,12 +823,19 @@ public class ExperimentListFragment extends Fragment
 
               @Override
               public void fail(Exception e) {
-                WhistlePunkApplication.getUsageTracker(applicationContext)
-                    .trackEvent(
-                        TrackerConstants.CATEGORY_CLAIMING_DATA,
-                        TrackerConstants.ACTION_CLAIM_FAILED,
-                        TrackerConstants.createLabelFromStackTrace(e),
-                        0);
+                String labelFromStackTrace = TrackerConstants.createLabelFromStackTrace(e);
+                UsageTracker usageTracker =
+                    WhistlePunkApplication.getUsageTracker(applicationContext);
+                usageTracker.trackEvent(
+                    TrackerConstants.CATEGORY_CLAIMING_DATA,
+                    TrackerConstants.ACTION_FAILED,
+                    labelFromStackTrace,
+                    0);
+                usageTracker.trackEvent(
+                    TrackerConstants.CATEGORY_FAILURE,
+                    TrackerConstants.ACTION_CLAIM_FAILED,
+                    labelFromStackTrace,
+                    0);
                 experimentListAdapter.showSnackbar(
                     applicationContext.getResources().getString(R.string.claim_failed), null);
                 super.fail(e);
