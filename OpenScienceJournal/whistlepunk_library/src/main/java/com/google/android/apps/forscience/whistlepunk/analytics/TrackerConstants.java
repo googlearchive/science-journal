@@ -138,6 +138,7 @@ public final class TrackerConstants {
   public static final String ACTION_SYNC_EXPERIMENT_FROM_DRIVE = "SyncExperimentFromDrive";
   public static final String ACTION_MANUAL_SYNC_STARTED = "ManualSyncStarted";
   public static final String ACTION_PERMISSION_REQUEST_FAILED = "PermissionRequestFailed";
+  public static final String ACTION_MISSING_REMOTE_FILE_ID = "MissingRemoteFileId";
 
   // Labels
   public static final String LABEL_RECORD = "record";
