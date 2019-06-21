@@ -16,8 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.design.navigation.NavigationView;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.navigation.NavigationView;
 
 /**
  * Abstract base class for activities which have a {@link NavigationView}, such as the main
