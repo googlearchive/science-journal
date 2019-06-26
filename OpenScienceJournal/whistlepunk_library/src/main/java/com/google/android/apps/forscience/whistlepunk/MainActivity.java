@@ -312,7 +312,7 @@ public class MainActivity extends ActivityWithNavigationView {
                         new LoggingConsumer<Experiment>(TAG, "getting last used experiment") {
                           @Override
                           public void success(Experiment experiment) {
-                            if (appAccount.equals(currentAccount)) {
+                            if (experiment != null && appAccount.equals(currentAccount)) {
                               startActivity(
                                   WhistlePunkApplication.getLaunchIntentForPanesActivity(
                                       MainActivity.this,
