@@ -29,7 +29,6 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.Nullable;
-import android.support.design.floatingactionbutton.FloatingActionButton;
 import android.support.design.snackbar.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
@@ -87,6 +86,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLa
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;

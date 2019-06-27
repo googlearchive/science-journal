@@ -40,7 +40,7 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <android.support.design.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/new_experiment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
