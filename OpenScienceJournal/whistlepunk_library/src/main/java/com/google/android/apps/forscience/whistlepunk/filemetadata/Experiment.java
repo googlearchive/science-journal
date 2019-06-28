@@ -788,7 +788,7 @@ public class Experiment extends LabelListHolder {
    * an experiment twice should not cause any problems, as the mergeFrom is deterministic and
    * records all changes to the newly merged experiment.
    *
-   * <p>Based on http://go/sj-merge
+   * <p>Based on sj-merge documentation.
    *
    * @param externalExperiment The Experiment to mergeFrom into this one.
    * @param context The current Context.
