@@ -1828,11 +1828,11 @@ public class RunReviewFragment extends Fragment
     for (int i = 0; i < size; i++) {
       // Update the sonification setting in the extras for this layout.
       LocalSensorOptionsStorage storage = new LocalSensorOptionsStorage();
-      storage.putAllExtras(layouts.get(i).extras);
+      storage.putAllExtras(layouts.get(i).getExtrasMap());
       storage
           .load(LoggingConsumer.expectSuccess(TAG, "loading sensor layout"))
           .put(ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE, newSonificationTypes[i]);
-      layouts.get(i).extras = storage.exportAsLayoutExtras();
+      layouts.get(i).putAllExtras(storage.exportAsLayoutExtras());
     }
 
     // Save the updated layouts to the DB.

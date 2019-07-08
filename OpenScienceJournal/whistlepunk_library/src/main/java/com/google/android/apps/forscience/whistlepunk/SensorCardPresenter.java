@@ -230,7 +230,7 @@ public class SensorCardPresenter {
     this.interactionListener = interactionListener;
     availableSensorIds = new ArrayList<>();
     this.layout = layout;
-    cardOptions.putAllExtras(layout.extras);
+    cardOptions.putAllExtras(layout.getExtrasMap());
     this.experimentId = experimentId;
     parentFragment = fragment; // TODO: Should this use a weak reference?
     cardTriggerPresenter =
@@ -1276,7 +1276,7 @@ public class SensorCardPresenter {
       layout.minimumYAxisValue = sensorPresenter.getMinY();
       layout.maximumYAxisValue = sensorPresenter.getMaxY();
     }
-    layout.extras = cardOptions.exportAsLayoutExtras();
+    layout.putAllExtras(cardOptions.exportAsLayoutExtras());
 
     // Copy layout so that future modifications don't do bad things.
     return copyLayout(layout);

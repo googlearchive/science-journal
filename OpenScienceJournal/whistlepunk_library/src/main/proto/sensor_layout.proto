@@ -17,6 +17,7 @@
 syntax = "proto2";
 
 package goosci;
+
 import "third_party/android/nanoproto/nano_descriptor.proto";
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
@@ -63,7 +64,7 @@ message SensorLayout {
   // written at google will begin with "com.google." This map will be made
   // available as-is to SensorChoice implementations, which will interpret them
   // as desired.
-  map<string, string> extras = 6;
+  map<string, string> extras = 6 [(proto2.nano.generate_as) = LITE];
 
   // The minimum value shown on the Y axis.
   optional double minimumYAxisValue = 7;
@@ -77,4 +78,4 @@ message SensorLayout {
   // The index into the sensor card color array.
   // See values/graph_colors.xml.
   optional int32 colorIndex = 10 [default = 0];
-};
+}

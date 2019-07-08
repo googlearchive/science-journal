@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -40,6 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -57,10 +59,9 @@ public class SensorCardPresenterTest {
     String key = Arbitrary.string();
     String value = Arbitrary.string();
     scp.getCardOptions(new DecibelSensor(), getContext()).load(explodingListener()).put(key, value);
-    GoosciSensorLayout.SensorLayout.ExtrasEntry[] extras = scp.buildLayout().extras;
-    assertEquals(1, extras.length);
-    assertEquals(key, extras[0].key);
-    assertEquals(value, extras[0].value);
+    Map<String, String> extras = scp.buildLayout().getExtrasMap();
+    assertThat(extras).hasSize(1);
+    assertThat(extras).containsEntry(key, value);
   }
 
   private FailureListener explodingListener() {
@@ -104,7 +105,7 @@ public class SensorCardPresenterTest {
     LocalSensorOptionsStorage localStorage = new LocalSensorOptionsStorage();
     localStorage.load().put(key, "fromCardSettings");
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.extras = localStorage.exportAsLayoutExtras();
+    layout.putAllExtras(localStorage.exportAsLayoutExtras());
 
     SensorCardPresenter scp = createSCP(layout);
     ReadableSensorOptions read =

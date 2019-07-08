@@ -22,9 +22,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /** Stores sensor options in a local map */
@@ -57,30 +55,24 @@ public class LocalSensorOptionsStorage implements NewOptionsStorage {
   public static WriteableSensorOptions loadFromLayoutExtras(
       GoosciSensorLayout.SensorLayout sensorLayout) {
     LocalSensorOptionsStorage options = new LocalSensorOptionsStorage();
-    options.putAllExtras(sensorLayout.extras);
+    options.putAllExtras(sensorLayout.getExtrasMap());
     return options.load(LoggingConsumer.expectSuccess(TAG, "loading sensor options"));
   }
 
   @NonNull
-  public GoosciSensorLayout.SensorLayout.ExtrasEntry[] exportAsLayoutExtras() {
+  public Map<String, String> exportAsLayoutExtras() {
     ReadableSensorOptions extras = load(null).getReadOnly();
-    Collection<String> keys = extras.getWrittenKeys();
-    GoosciSensorLayout.SensorLayout.ExtrasEntry[] entries =
-        new GoosciSensorLayout.SensorLayout.ExtrasEntry[keys.size()];
-    Iterator<String> keysIter = keys.iterator();
-    for (int i = 0; i < keys.size(); i++) {
-      entries[i] = new GoosciSensorLayout.SensorLayout.ExtrasEntry();
-      String key = keysIter.next();
-      entries[i].key = key;
-      entries[i].value = extras.getString(key, null);
+    Map<String, String> map = new HashMap<>();
+    for (String key : extras.getWrittenKeys()) {
+      map.put(key, extras.getString(key, null));
     }
-    return entries;
+    return map;
   }
 
-  public void putAllExtras(GoosciSensorLayout.SensorLayout.ExtrasEntry[] extras) {
+  public void putAllExtras(Map<String, String> extras) {
     WriteableSensorOptions options = load();
-    for (GoosciSensorLayout.SensorLayout.ExtrasEntry extra : extras) {
-      options.put(extra.key, extra.value);
+    for (Map.Entry<String, String> extra : extras.entrySet()) {
+      options.put(extra.getKey(), extra.getValue());
     }
   }
 }
