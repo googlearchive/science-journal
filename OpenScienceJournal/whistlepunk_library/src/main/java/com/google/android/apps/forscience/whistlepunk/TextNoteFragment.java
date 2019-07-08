@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Google Inc. All Rights Reserved.
+ *  Copyright 2019 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,100 +16,52 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.core.widget.NestedScrollView;
 import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 
-/**
- * Fragment controlling adding text notes in the observe pane.
- *
- * @deprecated Moving to {@link TextNoteFragment}.
- */
-@Deprecated
-public class TextToolFragment extends PanesToolFragment {
+/** Fragment controlling adding text notes in the ExperimentActivity. */
+public class TextNoteFragment extends Fragment {
   private static final String KEY_TEXT = "saved_text";
-
-  /**
-   * The height at which the control bar is replaced by an inline button, in (approximate) lines of
-   * text (this includes toolbar and control bar)
-   */
-  private static final int COLLAPSE_THRESHHOLD_LINES_OF_TEXT = 10;
 
   private TextView textView;
   private TextLabelFragmentListener listener;
   private BehaviorSubject<CharSequence> whenText = BehaviorSubject.create();
-  private RxEvent focusLost = new RxEvent();
-  private BehaviorSubject<Boolean> showingCollapsed = BehaviorSubject.create();
   private BehaviorSubject<Integer> textSize = BehaviorSubject.create();
-  private boolean userMovingScroll = false;
-
-  public View getViewToKeepVisible() {
-    return textView;
-  }
 
   public interface TextLabelFragmentListener {
     void onTextLabelTaken(Label result);
   }
 
   public interface ListenerProvider {
-    TextToolFragment.TextLabelFragmentListener getTextLabelFragmentListener();
+    TextNoteFragment.TextLabelFragmentListener getTextLabelFragmentListener();
   }
 
-  public static Fragment newInstance() {
-    TextToolFragment fragment = new TextToolFragment();
-    Bundle args = new Bundle();
-    fragment.setArguments(args);
-    return fragment;
-  }
-
-  @SuppressLint("ClickableViewAccessibility")
-  @Nullable
   @Override
-  public View onCreatePanesView(
+  public final View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-    View rootView = inflater.inflate(R.layout.text_label_fragment, null);
+    // The send button coloring depends on whether or not were recording so we have to set the theme
+    // here. The theme will be updated by the activity if we're currently recording.
+    Context contextThemeWrapper =
+        new ContextThemeWrapper(getActivity(), R.style.DefaultActionAreaIcon);
+    LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
+    View rootView = localInflater.inflate(R.layout.text_note_fragment, null);
 
-    textView = (TextView) rootView.findViewById(R.id.text);
-
-    NestedScrollView scroll = (NestedScrollView) rootView.findViewById(R.id.scroll);
-    scroll.setOnTouchListener(
-        (v, event) -> {
-          int action = event.getAction();
-          if (action == MotionEvent.ACTION_MOVE) {
-            userMovingScroll = true;
-          } else if (action == MotionEvent.ACTION_UP) {
-            userMovingScroll = false;
-          }
-          return false;
-        });
-    scroll.setOnScrollChangeListener(
-        new NestedScrollView.OnScrollChangeListener() {
-          @Override
-          public void onScrollChange(
-              NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-            if (userMovingScroll) {
-              textView.clearFocus();
-            }
-          }
-        });
+    textView = rootView.findViewById(R.id.text);
     textSize.onNext((int) textView.getTextSize());
 
     RxTextView.afterTextChangeEvents(textView)
@@ -119,31 +71,13 @@ public class TextToolFragment extends PanesToolFragment {
       textView.setText(savedInstanceState.getString(KEY_TEXT));
     }
 
-    ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add_inline);
+    FloatingActionButton addButton = rootView.findViewById(R.id.btn_add_inline);
     setupAddButton(addButton);
-
-    showingCollapsed.subscribe(
-        isCollapsed -> {
-          addButton.setVisibility(isCollapsed ? View.VISIBLE : View.GONE);
-          textView.setMaxLines(isCollapsed ? 3 : Integer.MAX_VALUE);
-        });
 
     return rootView;
   }
 
-  public void attachButtons(View controlBar) {
-    ImageButton addButton = (ImageButton) controlBar.findViewById(R.id.btn_add);
-    setupAddButton(addButton);
-
-    showingCollapsed.subscribe(
-        isCollapsed -> {
-          controlBar.setVisibility(isCollapsed ? View.GONE : View.VISIBLE);
-        });
-
-    focusLost.happens().subscribe(o -> controlBar.setVisibility(View.VISIBLE));
-  }
-
-  public void setupAddButton(ImageButton addButton) {
+  public void setupAddButton(FloatingActionButton addButton) {
     addButton.setOnClickListener(
         view -> {
           final long timestamp = getTimestamp(addButton.getContext());
@@ -159,8 +93,6 @@ public class TextToolFragment extends PanesToolFragment {
           // Clear the text
           textView.setText("");
         });
-    // TODO: Need to update the content description if we are recording or not.
-    // This will probably happen in the ControlBar rather than here.
     addButton.setEnabled(false);
 
     whenText.subscribe(text -> addButton.setEnabled(!TextUtils.isEmpty(text)));
@@ -205,27 +137,5 @@ public class TextToolFragment extends PanesToolFragment {
       }
     }
     return listener;
-  }
-
-  public void listenToAvailableHeight(Observable<Integer> height) {
-    Observable.combineLatest(height, textSize, (h, s) -> h < collapseThreshold(s))
-        .takeUntil(focusLost.happens())
-        .subscribe(collapsed -> showingCollapsed.onNext(collapsed));
-  }
-
-  public int collapseThreshold(int textSize) {
-    return textSize * COLLAPSE_THRESHHOLD_LINES_OF_TEXT;
-  }
-
-  @Override
-  public void onGainedFocus(Activity activity) {
-    super.onGainedFocus(activity);
-    // when losing focus, close keyboard
-    focusLost.happensNext().subscribe(() -> KeyboardUtil.closeKeyboard(activity).subscribe());
-  }
-
-  public void onLosingFocus() {
-    focusLost.onHappened();
-    super.onLosingFocus();
   }
 }
