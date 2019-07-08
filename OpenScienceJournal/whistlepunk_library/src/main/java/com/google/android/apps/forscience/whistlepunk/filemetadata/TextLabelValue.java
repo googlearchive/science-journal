@@ -22,8 +22,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelV
 /** A label value which represents a piece of text. */
 @Deprecated
 public class TextLabelValue extends LabelValue {
-  private static final int NUM_FIELDS = 1;
-  private static final int INDEX_LABEL_TEXT = 0;
   private static final String KEY_LABEL_TEXT = "label_text";
 
   public TextLabelValue(GoosciLabelValue.LabelValue value) {
@@ -55,18 +53,12 @@ public class TextLabelValue extends LabelValue {
   }
 
   public static String getText(GoosciLabelValue.LabelValue value) {
-    // Assume text only has one element in the label storage data map.
-    return value.data[INDEX_LABEL_TEXT].value;
+    return value.getDataOrThrow(KEY_LABEL_TEXT);
   }
 
   public static void populateLabelValue(GoosciLabelValue.LabelValue value, String text) {
     value.type = ValueType.TEXT;
-    if (value.data == null || value.data.length == 0) {
-      value.data = new GoosciLabelValue.LabelValue.DataEntry[NUM_FIELDS];
-      value.data[INDEX_LABEL_TEXT] = new GoosciLabelValue.LabelValue.DataEntry();
-    }
-    value.data[INDEX_LABEL_TEXT].key = KEY_LABEL_TEXT;
-    value.data[INDEX_LABEL_TEXT].value = text;
+    value.putData(KEY_LABEL_TEXT, text);
   }
 
   private static GoosciLabelValue.LabelValue createLabelValue(String text) {

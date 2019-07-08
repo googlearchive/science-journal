@@ -40,8 +40,6 @@ public class ApplicationLabel {
   public static final String TAG = "application";
   public static final String VALUE_PREFIX = "application_type_";
 
-  private static final int NUM_FIELDS = 1;
-  private static final int INDEX_VALUE_TYPE = 0;
   private static final String KEY_VALUE_TYPE = "value_type";
 
   /** Experiment ID this label belongs to. */
@@ -91,10 +89,7 @@ public class ApplicationLabel {
 
   private static GoosciLabelValue.LabelValue createStorageValue(@Type int type) {
     GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-    value.data = new GoosciLabelValue.LabelValue.DataEntry[NUM_FIELDS];
-    value.data[INDEX_VALUE_TYPE] = new GoosciLabelValue.LabelValue.DataEntry();
-    value.data[INDEX_VALUE_TYPE].key = KEY_VALUE_TYPE;
-    value.data[INDEX_VALUE_TYPE].value = String.valueOf(type);
+    value.putData(KEY_VALUE_TYPE, String.valueOf(type));
     return value;
   }
 
@@ -116,7 +111,7 @@ public class ApplicationLabel {
   };
 
   public @Type int getType() {
-    return Integer.parseInt(getValue().data[INDEX_VALUE_TYPE].value);
+    return Integer.parseInt(getValue().getDataOrThrow(KEY_VALUE_TYPE));
   }
 
   public String getTag() {

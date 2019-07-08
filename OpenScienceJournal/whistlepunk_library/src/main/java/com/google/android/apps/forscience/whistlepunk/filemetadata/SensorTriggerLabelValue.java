@@ -16,7 +16,6 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import androidx.annotation.VisibleForTesting;
-import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue.LabelValue.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 
@@ -26,10 +25,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelV
  */
 @Deprecated
 public class SensorTriggerLabelValue extends LabelValue {
-  private static final int NUM_FIELDS = 3;
-  private static final int INDEX_CUSTOM_STRING = 0;
-  private static final int INDEX_AUTOGEN_STRING = 1;
-  private static final int INDEX_SENSOR_ID = 2;
   private static final String KEY_CUSTOM_STRING = "custom";
   private static final String KEY_AUTOGEN_STRING = "auto";
   private static final String KEY_SENSOR_ID = "sensorId";
@@ -49,13 +44,12 @@ public class SensorTriggerLabelValue extends LabelValue {
   @Deprecated
   public void setCustomText(String text) {
     GoosciLabelValue.LabelValue value = getValue();
-    if (value == null || value.data.length == 0) {
-      setValue(new GoosciLabelValue.LabelValue());
-      createDataFields(getValue());
+    if (value == null) {
+      value = new GoosciLabelValue.LabelValue();
+      value.type = ValueType.SENSOR_TRIGGER;
+      setValue(value);
     }
-    value.data[INDEX_CUSTOM_STRING].key = KEY_CUSTOM_STRING;
-    value.data[INDEX_CUSTOM_STRING].value = text;
-    setValue(value);
+    value.putData(KEY_CUSTOM_STRING, text);
   }
 
   // The custom text within the SensorTriggerLabelValue is no longer used.
@@ -65,18 +59,11 @@ public class SensorTriggerLabelValue extends LabelValue {
   }
 
   public static void clearCustomText(GoosciLabelValue.LabelValue value) {
-    if (value.data.length > INDEX_CUSTOM_STRING
-        && TextUtils.equals(value.data[INDEX_CUSTOM_STRING].key, KEY_CUSTOM_STRING)) {
-      value.data[INDEX_CUSTOM_STRING].value = "";
-    }
+    value.putData(KEY_CUSTOM_STRING, "");
   }
 
   public static String getCustomText(GoosciLabelValue.LabelValue value) {
-    if (value.data.length > INDEX_CUSTOM_STRING
-        && TextUtils.equals(value.data[INDEX_CUSTOM_STRING].key, KEY_CUSTOM_STRING)) {
-      return value.data[INDEX_CUSTOM_STRING].value;
-    }
-    return "";
+    return value.getDataOrDefault(KEY_CUSTOM_STRING, "");
   }
 
   public String getAutogenText() {
@@ -84,11 +71,7 @@ public class SensorTriggerLabelValue extends LabelValue {
   }
 
   public static String getAutogenText(GoosciLabelValue.LabelValue value) {
-    if (value.data.length > INDEX_AUTOGEN_STRING
-        && TextUtils.equals(value.data[INDEX_AUTOGEN_STRING].key, KEY_AUTOGEN_STRING)) {
-      return value.data[INDEX_AUTOGEN_STRING].value;
-    }
-    return "";
+    return value.getDataOrDefault(KEY_AUTOGEN_STRING, "");
   }
 
   public String getSensorId() {
@@ -96,32 +79,15 @@ public class SensorTriggerLabelValue extends LabelValue {
   }
 
   public static String getSensorId(GoosciLabelValue.LabelValue value) {
-    if (value.data.length > INDEX_SENSOR_ID
-        && TextUtils.equals(value.data[INDEX_SENSOR_ID].key, KEY_SENSOR_ID)) {
-      return value.data[INDEX_SENSOR_ID].value;
-    }
-    return "";
+    return value.getDataOrDefault(KEY_SENSOR_ID, "");
   }
 
   @VisibleForTesting
   static void populateLabelValue(
       GoosciLabelValue.LabelValue value, SensorTrigger trigger, String noteText) {
-    createDataFields(value);
-    value.data[INDEX_CUSTOM_STRING].key = KEY_CUSTOM_STRING;
-    value.data[INDEX_CUSTOM_STRING].value = trigger.getNoteText();
-
-    value.data[INDEX_AUTOGEN_STRING].key = KEY_AUTOGEN_STRING;
-    value.data[INDEX_AUTOGEN_STRING].value = noteText;
-
-    value.data[INDEX_SENSOR_ID].key = KEY_SENSOR_ID;
-    value.data[INDEX_SENSOR_ID].value = trigger.getSensorId();
-  }
-
-  private static void createDataFields(GoosciLabelValue.LabelValue value) {
     value.type = ValueType.SENSOR_TRIGGER;
-    value.data = new GoosciLabelValue.LabelValue.DataEntry[NUM_FIELDS];
-    value.data[INDEX_CUSTOM_STRING] = new GoosciLabelValue.LabelValue.DataEntry();
-    value.data[INDEX_AUTOGEN_STRING] = new GoosciLabelValue.LabelValue.DataEntry();
-    value.data[INDEX_SENSOR_ID] = new GoosciLabelValue.LabelValue.DataEntry();
+    value.putData(KEY_CUSTOM_STRING, trigger.getNoteText());
+    value.putData(KEY_AUTOGEN_STRING, noteText);
+    value.putData(KEY_SENSOR_ID, trigger.getSensorId());
   }
 }
