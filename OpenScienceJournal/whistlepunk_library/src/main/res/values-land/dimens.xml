@@ -39,4 +39,7 @@
     <!-- Font sizing for sign in screen -->
     <dimen name="sign_in_text_font_size">14sp</dimen>
 
+    <!-- Columns of images in gallery -->
+    <integer name="gallery_column_count">7</integer>
+
 </resources>

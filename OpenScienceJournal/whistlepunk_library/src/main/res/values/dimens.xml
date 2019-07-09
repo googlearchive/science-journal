@@ -214,7 +214,7 @@
     <!-- On small screens, do not allow half-height drawer in landscape mode -->
     <bool name="allow_half_height_drawer_in_landscape">false</bool>
 
-    <integer name="gallery_column_count">3</integer>
+    <integer name="gallery_column_count">4</integer>
 
     <!-- Margins for placement on getting started screen -->
     <dimen name="get_started_explore_your_world_margin_top">68dp</dimen>

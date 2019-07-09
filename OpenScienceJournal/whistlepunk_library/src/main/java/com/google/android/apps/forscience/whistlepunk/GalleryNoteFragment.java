@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Google Inc. All Rights Reserved.
+ *  Copyright 2019 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,14 +28,14 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
@@ -46,6 +46,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
@@ -55,26 +56,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
- * Fragment controlling adding picture notes from the gallery in the observe pane.
+ * Fragment controlling adding picture notes from the gallery in the ExperimentActivity.
  *
- * @deprecated Moving to {@link GalleryNoteFragment}.
- */
-@Deprecated
-public class GalleryFragment extends PanesToolFragment
+ * This fragment assumes that it does not outlive its initial context.
+ **/
+public class GalleryNoteFragment extends Fragment
     implements LoaderManager.LoaderCallbacks<List<PhotoAsyncLoader.Image>> {
-  private static final String TAG = "GalleryFragment";
+  private static final String TAG = "GalleryNoteFragment";
 
   private static final String KEY_ACCOUNT_KEY = "accountKey";
 
   private static final int PHOTO_LOADER_INDEX = 1;
-  private static final String KEY_SELECTED_PHOTO = "selected_photo";
+  private static final String KEY_SELECTED_PHOTOS = "selected_photos";
 
-  // Same methods as the camera fragment, so share the listener code.
   private Listener listener;
   private GalleryItemAdapter galleryAdapter;
-  private int initiallySelectedPhoto;
+  private List<Integer> initiallySelectedPhotos;
   private SingleSubject<LoaderManager> whenLoaderManager = SingleSubject.create();
   private BehaviorSubject<Boolean> addButtonEnabled = BehaviorSubject.create();
   private BehaviorSubject<Boolean> permissionGranted = BehaviorSubject.create();
@@ -93,7 +93,7 @@ public class GalleryFragment extends PanesToolFragment
   }
 
   public static Fragment newInstance(AppAccount appAccount) {
-    GalleryFragment fragment = new GalleryFragment();
+    GalleryNoteFragment fragment = new GalleryNoteFragment();
     Bundle args = new Bundle();
     args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
     fragment.setArguments(args);
@@ -104,15 +104,15 @@ public class GalleryFragment extends PanesToolFragment
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    initiallySelectedPhoto =
-        savedInstanceState != null ? savedInstanceState.getInt(KEY_SELECTED_PHOTO) : -1;
+    initiallySelectedPhotos =
+        savedInstanceState != null
+            ? savedInstanceState.getIntegerArrayList(KEY_SELECTED_PHOTOS)
+            : new ArrayList<>();
 
     galleryAdapter =
         new GalleryItemAdapter(
             getActivity(),
-            (image, selected) -> {
-              addButtonEnabled.onNext(selected && !TextUtils.isEmpty(image));
-            });
+            () -> addButtonEnabled.onNext(!galleryAdapter.selectedIndices.isEmpty()));
 
     permissionGranted
         .distinctUntilChanged()
@@ -130,25 +130,21 @@ public class GalleryFragment extends PanesToolFragment
   }
 
   @Override
-  public void onDestroy() {
-    super.onDestroy();
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    listener = ((GalleryNoteFragment.ListenerProvider) context).getGalleryListener();
   }
 
   @Override
-  protected void panesOnAttach(Context context) {
-    if (context instanceof ListenerProvider) {
-      listener = ((ListenerProvider) context).getGalleryListener();
-    }
-    Fragment parentFragment = getParentFragment();
-    if (parentFragment instanceof ListenerProvider) {
-      listener = ((ListenerProvider) parentFragment).getGalleryListener();
-    }
-
-    super.panesOnAttach(context);
+  public void onDetach() {
+    super.onDetach();
+    listener = null;
   }
 
-  // TODO: duplicate logic with CameraFragment?
   private void requestPermission() {
+    if (listener == null) {
+      return;
+    }
     RxPermissions permissions = listener.getPermissions();
     if (permissions == null) {
       return;
@@ -163,11 +159,16 @@ public class GalleryFragment extends PanesToolFragment
 
   @Nullable
   @Override
-  public View onCreatePanesView(
+  public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-    View rootView = inflater.inflate(R.layout.gallery_fragment, null);
+    // The send button coloring depends on whether or not were recording so we have to set the theme
+    // here. The theme will be updated by the activity if we're currently recording.
+    Context contextThemeWrapper =
+        new ContextThemeWrapper(getActivity(), R.style.DefaultActionAreaIcon);
+    LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
+    View rootView = localInflater.inflate(R.layout.gallery_note_fragment, null);
 
-    RecyclerView gallery = (RecyclerView) rootView.findViewById(R.id.gallery);
+    RecyclerView gallery = rootView.findViewById(R.id.gallery);
     GridLayoutManager layoutManager =
         new GridLayoutManager(
             gallery.getContext(),
@@ -175,8 +176,10 @@ public class GalleryFragment extends PanesToolFragment
     gallery.setLayoutManager(layoutManager);
     gallery.setItemAnimator(new DefaultItemAnimator());
     gallery.setAdapter(galleryAdapter);
+    FloatingActionButton addButton = rootView.findViewById(R.id.btn_add);
 
     requestPermission();
+    attachAddButton(addButton);
     return rootView;
   }
 
@@ -195,49 +198,52 @@ public class GalleryFragment extends PanesToolFragment
     }
   }
 
-  public void attachAddButton(View rootView) {
-    ImageButton addButton = (ImageButton) rootView.findViewById(R.id.btn_add);
+  public void attachAddButton(FloatingActionButton addButton) {
     addButton.setOnClickListener(
         view -> {
           final long timestamp = getTimestamp(addButton.getContext());
           GoosciPictureLabelValue.PictureLabelValue labelValue =
               new GoosciPictureLabelValue.PictureLabelValue();
-          String selectedImage = galleryAdapter.getSelectedImage();
-          if (TextUtils.isEmpty(selectedImage)) {
-            // TODO: Is this possible?
-            return;
-          }
 
-          listener
-              .getActiveExperimentId()
-              .firstElement()
-              .subscribe(
-                  experimentId -> {
-                    Label result = Label.newLabel(timestamp, GoosciLabel.Label.ValueType.PICTURE);
-                    File imageFile =
-                        PictureUtils.createImageFile(
-                            getActivity(), getAppAccount(), experimentId, result.getLabelId());
+          if (listener != null) {
+            listener
+                .getActiveExperimentId()
+                .firstElement()
+                .subscribe(
+                    experimentId -> {
+                      List<String> selectedImages = galleryAdapter.getSelectedImages();
+                      for (String selectedImage : selectedImages) {
 
-                    try {
-                      UpdateExperimentFragment.copyUriToFile(
-                          addButton.getContext(), Uri.parse(selectedImage), imageFile);
-                      labelValue.filePath =
-                          FileMetadataUtil.getInstance()
-                              .getRelativePathInExperiment(experimentId, imageFile);
-                    } catch (IOException e) {
-                      if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, e.getMessage());
+                        Label result = Label
+                            .newLabel(timestamp, GoosciLabel.Label.ValueType.PICTURE);
+                        File imageFile =
+                            PictureUtils.createImageFile(
+                                getActivity(), getAppAccount(), experimentId, result.getLabelId());
+
+                        try {
+                          UpdateExperimentFragment.copyUriToFile(
+                              addButton.getContext(), Uri.parse(selectedImage), imageFile);
+                          labelValue.filePath =
+                              FileMetadataUtil.getInstance()
+                                  .getRelativePathInExperiment(experimentId, imageFile);
+                        } catch (IOException e) {
+                          if (Log.isLoggable(TAG, Log.DEBUG)) {
+                            Log.d(TAG, e.getMessage());
+                          }
+                          labelValue.filePath = "";
+                        }
+
+                        result.setLabelProtoData(labelValue);
+                        if (listener != null) {
+                          listener.onPictureLabelTaken(result);
+                        }
                       }
-                      labelValue.filePath = "";
-                    }
-
-                    result.setLabelProtoData(labelValue);
-                    listener.onPictureLabelTaken(result);
-                    galleryAdapter.deselectImages();
-                  });
+                      galleryAdapter.deselectImages();
+                      addButtonEnabled.onNext(false);
+                    });
+          }
         });
 
-    // TODO: Need to update the content description if we are recording or not.
     addButton.setEnabled(false);
 
     addButtonEnabled.subscribe(enabled -> addButton.setEnabled(enabled));
@@ -246,7 +252,7 @@ public class GalleryFragment extends PanesToolFragment
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
-    outState.putInt(KEY_SELECTED_PHOTO, galleryAdapter.selectedIndex);
+    outState.putIntegerArrayList(KEY_SELECTED_PHOTOS, galleryAdapter.selectedIndices);
   }
 
   private long getTimestamp(Context context) {
@@ -279,12 +285,13 @@ public class GalleryFragment extends PanesToolFragment
       Loader<List<PhotoAsyncLoader.Image>> loader, List<PhotoAsyncLoader.Image> images) {
 
     galleryAdapter.setImages(images);
-    if (initiallySelectedPhoto != -1) {
+    if (!initiallySelectedPhotos.isEmpty()) {
       // Resume from saved state if needed.
-      galleryAdapter.setSelectedIndex(initiallySelectedPhoto);
-      String image = galleryAdapter.getSelectedImage();
-      addButtonEnabled.onNext(!TextUtils.isEmpty(image));
-      initiallySelectedPhoto = -1;
+      for (int selectedPhoto : initiallySelectedPhotos) {
+        galleryAdapter.setSelectedIndex(selectedPhoto);
+      }
+      addButtonEnabled.onNext(!initiallySelectedPhotos.isEmpty());
+      initiallySelectedPhotos.clear();
     }
   }
 
@@ -297,20 +304,23 @@ public class GalleryFragment extends PanesToolFragment
       extends RecyclerView.Adapter<GalleryItemAdapter.ViewHolder> {
 
     interface ImageClickListener {
-      void onImageClicked(String image, boolean selected);
+      void onImageClicked();
     }
 
     private List<PhotoAsyncLoader.Image> images;
     private final Context context;
     private final ImageClickListener listener;
-    private int selectedIndex = -1;
-    private final String contentDescriptionPrefix;
+    private final ArrayList<Integer> selectedIndices = new ArrayList<>();
+    private final String contentDescriptionPrefixSelected;
+    private final String contentDescriptionPrefixNotSelected;
 
     public GalleryItemAdapter(Context context, ImageClickListener listener) {
       images = new ArrayList<>();
       this.context = context;
       this.listener = listener;
-      contentDescriptionPrefix =
+      contentDescriptionPrefixSelected =
+          context.getResources().getString(R.string.gallery_image_content_description_selected);
+      contentDescriptionPrefixNotSelected =
           context.getResources().getString(R.string.gallery_image_content_description);
     }
 
@@ -327,8 +337,7 @@ public class GalleryFragment extends PanesToolFragment
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-      View itemView =
-          LayoutInflater.from(context).inflate(R.layout.gallery_image_deprecated, parent, false);
+      View itemView = LayoutInflater.from(context).inflate(R.layout.gallery_image, parent, false);
       return new ViewHolder(itemView);
     }
 
@@ -362,31 +371,54 @@ public class GalleryFragment extends PanesToolFragment
               })
           .thumbnail(.5f)
           .into(holder.image);
-      holder.image.setContentDescription(
-          String.format(
-              contentDescriptionPrefix,
-              DateUtils.formatDateTime(
-                  context,
-                  images.get(position).timestampTaken,
-                  DateUtils.FORMAT_SHOW_DATE
-                      | DateUtils.FORMAT_SHOW_TIME
-                      | DateUtils.FORMAT_ABBREV_ALL)));
 
-      boolean selected = position == selectedIndex;
-      holder.selectedIndicator.setVisibility(selected ? View.VISIBLE : View.GONE);
+      boolean selected = selectedIndices.contains(position);
+      holder.selectedIndicator.setSelected(selected);
+      if (selected) {
+        int selectedNumber = selectedIndices.indexOf(position) + 1;
+        holder.selectedText.setText(
+            String.format(Locale.getDefault(), "%d", selectedNumber));
+        holder.image.setContentDescription(
+            String.format(
+                contentDescriptionPrefixSelected,
+                selectedNumber,
+                DateUtils.formatDateTime(
+                    context,
+                    images.get(position).timestampTaken,
+                    DateUtils.FORMAT_SHOW_DATE
+                        | DateUtils.FORMAT_SHOW_TIME
+                        | DateUtils.FORMAT_ABBREV_ALL)));
+        holder.image.setScaleX(.9F);
+        holder.image.setScaleY(.9F);
+      } else {
+        holder.selectedText.setText("");
+        holder.image.setContentDescription(
+            String.format(
+                contentDescriptionPrefixNotSelected,
+                DateUtils.formatDateTime(
+                    context,
+                    images.get(position).timestampTaken,
+                    DateUtils.FORMAT_SHOW_DATE
+                        | DateUtils.FORMAT_SHOW_TIME
+                        | DateUtils.FORMAT_ABBREV_ALL)));
+        holder.image.setScaleX(1F);
+        holder.image.setScaleY(1F);
+      }
 
       holder.image.setOnClickListener(
           view -> {
-            boolean newlySelected = holder.getAdapterPosition() != selectedIndex;
+            boolean newlySelected = !selectedIndices.contains(holder.getAdapterPosition());
             if (newlySelected) {
               // It was clicked for the first time.
               setSelectedIndex(holder.getAdapterPosition());
             } else {
               // A second click on the same image is a deselect.
-              selectedIndex = -1;
+              selectedIndices.remove(selectedIndices.indexOf(holder.getAdapterPosition()));
             }
-            holder.selectedIndicator.setVisibility(newlySelected ? View.VISIBLE : View.GONE);
-            listener.onImageClicked(path, newlySelected);
+            holder.selectedIndicator.setSelected(newlySelected);
+            notifyDataSetChanged();
+
+            listener.onImageClicked();
           });
     }
 
@@ -401,37 +433,38 @@ public class GalleryFragment extends PanesToolFragment
       return images.size();
     }
 
-    public String getSelectedImage() {
-      if (selectedIndex == -1) {
-        return null;
+    public List<String> getSelectedImages() {
+      List<String> imagePaths = new ArrayList<>();
+      for (int index : selectedIndices) {
+        imagePaths.add(images.get(index).path);
       }
-      return images.get(selectedIndex).path;
+      return imagePaths;
     }
 
     public void deselectImages() {
-      int previous = selectedIndex;
-      selectedIndex = -1;
-      notifyItemChanged(previous);
+      for (int index : selectedIndices) {
+        notifyItemChanged(index);
+      }
+      selectedIndices.clear();
     }
 
     public void setSelectedIndex(int indexToSelect) {
-      deselectImages();
       if (indexToSelect < images.size()) {
-        selectedIndex = indexToSelect;
+        selectedIndices.add(indexToSelect);
         notifyItemChanged(indexToSelect);
-      } else {
-        selectedIndex = -1;
       }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
       public ImageView image;
       public View selectedIndicator;
+      public TextView selectedText;
 
       public ViewHolder(View itemView) {
         super(itemView);
-        image = (ImageView) itemView.findViewById(R.id.image);
+        image = itemView.findViewById(R.id.image);
         selectedIndicator = itemView.findViewById(R.id.selected_indicator);
+        selectedText = itemView.findViewById(R.id.selected_text);
       }
     }
   }

@@ -60,7 +60,7 @@
             android:scaleType="center"
             android:elevation="2dp"
             android:contentDescription="@android:string/ok"
-            android:background="@drawable/select_button_background"
+            android:background="@drawable/blue_circle_with_checkmark"
             />
 
     </RelativeLayout>

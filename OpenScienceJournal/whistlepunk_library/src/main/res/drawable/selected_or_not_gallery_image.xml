@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2016 Google Inc. All Rights Reserved.
+  Copyright 2019 Google Inc. All Rights Reserved.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<resources>
-    <!-- For large views, the cards are always shown at the multiple card height. -->
-    <bool name="always_use_multi_card_height">true</bool>
-    <dimen name="meter_mode_layout_margin_bottom">36dp</dimen>
-    <integer name="gallery_column_count">4</integer>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:state_selected="true"
+      android:drawable="@drawable/select_button_background" /> <!-- selected -->
+  <item android:drawable="@drawable/not_select_button_background" /> <!-- default -->
+</selector>
