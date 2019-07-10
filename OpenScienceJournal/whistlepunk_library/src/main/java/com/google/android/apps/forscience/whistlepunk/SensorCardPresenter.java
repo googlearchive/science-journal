@@ -23,7 +23,6 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import android.support.design.tabs.TabLayout;
 import androidx.appcompat.widget.PopupMenu;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -60,6 +59,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.LinearAcceleromete
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.android.material.tabs.TabLayout;
 import com.google.common.collect.Lists;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;

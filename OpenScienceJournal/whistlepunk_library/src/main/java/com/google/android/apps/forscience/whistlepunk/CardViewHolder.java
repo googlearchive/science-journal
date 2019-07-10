@@ -17,7 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.design.tabs.TabLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +30,7 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
+import com.google.android.material.tabs.TabLayout;
 
 /*
  * View Holder for sensor cards.
