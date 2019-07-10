@@ -1786,6 +1786,9 @@ Permissions notice:
     <!-- Title for action area button to navigate to additional note types [CHAR_LIMIT=25] -->
     <string name="more">More</string>
 
+    <!-- Prompt for a user to fit an ARCore image to track [CHAR_LIMIT=25] -->
+    <string name="fit_image_to_scan">Fit image to scan</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 </resources>

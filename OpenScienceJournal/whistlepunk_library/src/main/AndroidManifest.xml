@@ -230,6 +230,10 @@
             android:exported="false"
             android:label="@string/navigation_item_settings"/>
         <activity
+            android:name=".arcore.ARVelocityActivity"
+            android:screenOrientation="locked"
+            android:exported="false"/>
+        <activity
             android:name=".accounts.GetStartedActivity"
             android:theme="@style/AppTheme.GetStarted"
             android:exported="false"
@@ -278,15 +282,16 @@
         <service
             android:name=".ExportService"
             android:exported="false"></service>
-
-    <!-- Broadcast receiver that will be notified of account changes. -->
-    <receiver
-       android:name="com.google.android.apps.forscience.whistlepunk.accounts.AccountsChangedReceiver"
-       android:exported="true">
-       <intent-filter>
-         <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
-      </intent-filter>
-    </receiver>
+        <!-- Indicates that app supports, but does not require ARCore ("AR Optional") -->
+        <meta-data android:name="com.google.ar.core" android:value="optional" />
+        <!-- Broadcast receiver that will be notified of account changes. -->
+        <receiver
+           android:name="com.google.android.apps.forscience.whistlepunk.accounts.AccountsChangedReceiver"
+           android:exported="true">
+           <intent-filter>
+             <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
+          </intent-filter>
+        </receiver>
 
     </application>
 
