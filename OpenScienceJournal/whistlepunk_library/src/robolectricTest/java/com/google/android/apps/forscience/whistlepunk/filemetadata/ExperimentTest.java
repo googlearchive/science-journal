@@ -174,8 +174,8 @@ public class ExperimentTest {
     GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
     trialProto2.title = "more cats";
     GoosciTrial.Range range2 = new GoosciTrial.Range();
-    range.startMs = 200;
-    range.endMs = 500;
+    range2.startMs = 200;
+    range2.endMs = 500;
     trialProto2.recordingRange = range2;
     Trial trial2 = Trial.fromTrial(trialProto2);
     experiment1.getTrials().add(trial2);
