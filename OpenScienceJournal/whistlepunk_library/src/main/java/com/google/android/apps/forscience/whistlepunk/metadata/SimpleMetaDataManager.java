@@ -67,11 +67,14 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictur
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
@@ -927,8 +930,10 @@ public class SimpleMetaDataManager implements MetaDataManager {
     trialProto.trialId = trialId;
     trialProto.archived = false;
     trialProto.autoZoomEnabled = true;
-    trialProto.recordingRange = new GoosciTrial.Range();
-    trialProto.recordingRange.startMs = startTimestamp;
+    @MigrateAs(Destination.BUILDER)
+    Range recordingRange = new GoosciTrial.Range();
+    recordingRange.startMs = startTimestamp;
+    trialProto.recordingRange = recordingRange;
     return Trial.fromTrial(trialProto);
   }
 

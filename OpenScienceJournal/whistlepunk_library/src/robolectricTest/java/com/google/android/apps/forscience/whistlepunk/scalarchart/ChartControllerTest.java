@@ -28,6 +28,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -175,6 +177,7 @@ public class ChartControllerTest {
       MemoryMetadataManager mmm, int startTimestamp, int endTimestamp, String trialId) {
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.trialId = trialId;
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range = new GoosciTrial.Range();
     range.startMs = startTimestamp;
     range.endMs = endTimestamp;

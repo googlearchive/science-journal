@@ -37,6 +37,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -271,7 +273,7 @@ public class Experiment extends LabelListHolder {
    * @param range The time range in which to search for labels
    * @return A list of labels in that range, or an empty list if none are found.
    */
-  public List<Label> getLabelsForRange(GoosciTrial.Range range) {
+  public List<Label> getLabelsForRange(@MigrateAs(Destination.EITHER) GoosciTrial.Range range) {
     List<Label> result = new ArrayList<>();
     for (Label label : getLabels()) {
       if (range.startMs <= label.getTimeStamp() && range.endMs >= label.getTimeStamp()) {

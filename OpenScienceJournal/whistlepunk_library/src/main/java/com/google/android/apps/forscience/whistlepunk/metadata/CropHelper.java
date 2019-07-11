@@ -40,6 +40,8 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -138,6 +140,7 @@ public class CropHelper {
       return;
     }
 
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range cropRange = trial.getCropRange();
     if (cropRange == null) {
       cropRange = new GoosciTrial.Range();

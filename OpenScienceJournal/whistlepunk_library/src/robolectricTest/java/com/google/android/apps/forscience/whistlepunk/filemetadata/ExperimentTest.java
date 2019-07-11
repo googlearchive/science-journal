@@ -35,6 +35,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel.
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import java.util.Collections;
 import java.util.List;
@@ -111,6 +113,7 @@ public class ExperimentTest {
         ExperimentCreator.newExperimentForTesting(
             getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
 
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range = new GoosciTrial.Range();
     range.startMs = 0;
     range.endMs = 10;
@@ -158,6 +161,7 @@ public class ExperimentTest {
     // Trials on creation that overlap with notes should get those notes added properly.
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.title = "cats";
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range = new GoosciTrial.Range();
     range.startMs = 100;
     range.endMs = 200;
@@ -173,6 +177,7 @@ public class ExperimentTest {
     // Adding a new trial should work as expected.
     GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
     trialProto2.title = "more cats";
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range2 = new GoosciTrial.Range();
     range2.startMs = 200;
     range2.endMs = 500;
@@ -204,6 +209,7 @@ public class ExperimentTest {
     assertEquals(0, experiment.getTrials(true, false).size());
 
     GoosciTrial.Trial validProto = new GoosciTrial.Trial();
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range = new GoosciTrial.Range();
     range.startMs = 100;
     range.endMs = 200;
@@ -217,6 +223,7 @@ public class ExperimentTest {
     assertEquals(1, experiment.getTrials(false, false).size());
 
     GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range archivedRange = new GoosciTrial.Range();
     archivedRange.startMs = 300;
     archivedRange.endMs = 400;
@@ -241,6 +248,7 @@ public class ExperimentTest {
 
     // Trials are valid.
     GoosciTrial.Trial validProto = new GoosciTrial.Trial();
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range = new GoosciTrial.Range();
     range.startMs = 100;
     range.endMs = 200;
@@ -265,6 +273,7 @@ public class ExperimentTest {
     assertEquals(2, experiment.getTrials(true, false).size());
 
     GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range archivedRange = new GoosciTrial.Range();
     archivedRange.startMs = 300;
     archivedRange.endMs = 400;
@@ -318,12 +327,15 @@ public class ExperimentTest {
     trialProto1.trialId = "trial1";
     trialProto2.trialId = "trial2";
     trialProto3.trialId = "trial3";
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range1 = new GoosciTrial.Range();
     range1.startMs = 0;
     trialProto1.recordingRange = range1;
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range2 = new GoosciTrial.Range();
     range2.startMs = 10;
     trialProto2.recordingRange = range2;
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range3 = new GoosciTrial.Range();
     range3.startMs = 20;
     trialProto3.recordingRange = range3;

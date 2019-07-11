@@ -29,6 +29,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalar
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
 import java.io.File;
@@ -323,6 +325,7 @@ public class SensorDatabaseTest {
     GoosciTrial.Trial trial = new GoosciTrial.Trial();
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "foo";
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range = new GoosciTrial.Range();
     range.startMs = timestamp - 1;
     range.endMs = timestamp + 3;
@@ -357,6 +360,7 @@ public class SensorDatabaseTest {
     GoosciTrial.Trial trial = new GoosciTrial.Trial();
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "foo";
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range = new GoosciTrial.Range();
     range.startMs = timestamp - 1;
     range.endMs = timestamp + 3;
@@ -426,6 +430,7 @@ public class SensorDatabaseTest {
     GoosciTrial.Trial trial = new GoosciTrial.Trial();
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "foo";
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.Range range = new GoosciTrial.Range();
     range.startMs = timestamp - 1;
     range.endMs = timestamp + 3;

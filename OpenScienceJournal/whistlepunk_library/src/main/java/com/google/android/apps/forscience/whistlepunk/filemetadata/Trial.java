@@ -34,7 +34,10 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaptio
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.Range;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -106,8 +109,10 @@ public class Trial extends LabelListHolder {
       Context context) {
     trial = new GoosciTrial.Trial();
     trial.creationTimeMs = startTimeMs;
-    trial.recordingRange = new GoosciTrial.Range();
-    trial.recordingRange.startMs = startTimeMs;
+    @MigrateAs(Destination.BUILDER)
+    Range recordingRange = new GoosciTrial.Range();
+    recordingRange.startMs = startTimeMs;
+    trial.recordingRange = recordingRange;
     trial.sensorLayouts = sensorLayouts;
     trial.trialId = trialId;
 
