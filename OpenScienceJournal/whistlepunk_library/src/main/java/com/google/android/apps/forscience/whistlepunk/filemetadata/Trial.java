@@ -30,14 +30,12 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProviderIm
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.Range;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -109,9 +107,7 @@ public class Trial extends LabelListHolder {
       Context context) {
     trial = new GoosciTrial.Trial();
     trial.creationTimeMs = startTimeMs;
-    @MigrateAs(Destination.BUILDER)
-    Range recordingRange = new GoosciTrial.Range();
-    recordingRange.startMs = startTimeMs;
+    Range recordingRange = Range.newBuilder().setStartMs(startTimeMs).build();
     trial.recordingRange = recordingRange;
     trial.sensorLayouts = sensorLayouts;
     trial.trialId = trialId;
@@ -145,34 +141,37 @@ public class Trial extends LabelListHolder {
   }
 
   public long getFirstTimestamp() {
-    return trial.cropRange == null ? trial.recordingRange.startMs : trial.cropRange.startMs;
+    return trial.cropRange == null
+        ? trial.recordingRange.getStartMs()
+        : trial.cropRange.getStartMs();
   }
 
   public long getLastTimestamp() {
-    return trial.cropRange == null ? trial.recordingRange.endMs : trial.cropRange.endMs;
+    return trial.cropRange == null ? trial.recordingRange.getEndMs() : trial.cropRange.getEndMs();
   }
 
   public long getOriginalFirstTimestamp() {
-    return trial.recordingRange.startMs;
+    return trial.recordingRange.getStartMs();
   }
 
   public long getOriginalLastTimestamp() {
-    return trial.recordingRange.endMs;
+    return trial.recordingRange.getEndMs();
   }
 
   public void setRecordingEndTime(long recordingEndTime) {
-    trial.recordingRange.endMs = recordingEndTime;
+    Range recordingRange = trial.recordingRange.toBuilder().setEndMs(recordingEndTime).build();
+    trial.recordingRange = recordingRange;
   }
 
-  public GoosciTrial.Range getOriginalRecordingRange() {
+  public Range getOriginalRecordingRange() {
     return trial.recordingRange;
   }
 
-  public GoosciTrial.Range getCropRange() {
+  public Range getCropRange() {
     return trial.cropRange;
   }
 
-  public void setCropRange(GoosciTrial.Range cropRange) {
+  public void setCropRange(Range cropRange) {
     trial.cropRange = cropRange;
   }
 

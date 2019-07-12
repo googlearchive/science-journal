@@ -28,14 +28,12 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,11 +93,7 @@ public class CropHelperTest {
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.trialId = "0";
     trialProto.sensorLayouts = sensorLayouts;
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range recRange = new GoosciTrial.Range();
-    recRange.startMs = 0;
-    recRange.endMs = 2000;
-    trialProto.recordingRange = recRange;
+    trialProto.recordingRange = Range.newBuilder().setStartMs(0).setEndMs(2000).build();
     return Trial.fromTrial(trialProto);
   }
 
@@ -108,11 +102,7 @@ public class CropHelperTest {
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.trialId = "runId";
     trialProto.creationTimeMs = 42;
-    @MigrateAs(Destination.BUILDER)
-    Range recordingRange = new GoosciTrial.Range();
-    recordingRange.startMs = 0;
-    recordingRange.endMs = 10;
-    trialProto.recordingRange = recordingRange;
+    trialProto.recordingRange = Range.newBuilder().setStartMs(0).setEndMs(10).build();
     Trial trial = Trial.fromTrial(trialProto);
 
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "experimentId", 0);
@@ -135,10 +125,7 @@ public class CropHelperTest {
     dataController.createExperiment(cExperiment);
     Experiment experiment = cExperiment.getValue();
     Trial trial = makeCommonTrial();
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range cropRange = new GoosciTrial.Range();
-    cropRange.startMs = 2;
-    cropRange.endMs = 1008;
+    Range cropRange = Range.newBuilder().setStartMs(2).setEndMs(1008).build();
     trial.setCropRange(cropRange);
     experiment.addTrial(trial);
     dataController.updateExperiment(

@@ -35,13 +35,10 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -140,14 +137,14 @@ public class CropHelper {
       return;
     }
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range cropRange = trial.getCropRange();
-    if (cropRange == null) {
-      cropRange = new GoosciTrial.Range();
+    GoosciTrial.Range.Builder cropRange;
+    if (trial.getCropRange() == null) {
+      cropRange = GoosciTrial.Range.newBuilder();
+    } else {
+      cropRange = trial.getCropRange().toBuilder();
     }
-    cropRange.startMs = startTimestamp;
-    cropRange.endMs = endTimestamp;
-    trial.setCropRange(cropRange);
+    cropRange.setStartMs(startTimestamp).setEndMs(endTimestamp);
+    trial.setCropRange(cropRange.build());
     for (String sensorId : trial.getSensorIds()) {
       // First delete the min/max/avg stats, but leave the rest available, because they are
       // used in loading data by ZoomPresenter.

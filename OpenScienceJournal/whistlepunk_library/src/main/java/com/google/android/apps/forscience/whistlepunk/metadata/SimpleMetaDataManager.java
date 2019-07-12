@@ -59,6 +59,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -67,14 +68,11 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictur
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
@@ -930,10 +928,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     trialProto.trialId = trialId;
     trialProto.archived = false;
     trialProto.autoZoomEnabled = true;
-    @MigrateAs(Destination.BUILDER)
-    Range recordingRange = new GoosciTrial.Range();
-    recordingRange.startMs = startTimestamp;
-    trialProto.recordingRange = recordingRange;
+    trialProto.recordingRange = Range.newBuilder().setStartMs(startTimestamp).build();
     return Trial.fromTrial(trialProto);
   }
 
@@ -1103,24 +1098,33 @@ public class SimpleMetaDataManager implements MetaDataManager {
   public static void populateTrialProtoFromLabels(
       GoosciTrial.Trial trialProto, List<ApplicationLabel> applicationLabels, List<Label> labels) {
     // Populate the recording and crop ranges from labels.
-    trialProto.recordingRange = new GoosciTrial.Range();
+    Range.Builder recordingRange = Range.newBuilder();
+    Range.Builder cropRange;
+    if (trialProto.cropRange == null) {
+      cropRange = Range.newBuilder();
+    } else {
+      cropRange = trialProto.cropRange.toBuilder();
+    }
+    boolean cropRangeUpdated = false;
+
     for (ApplicationLabel label : applicationLabels) {
       if (label.getType() == ApplicationLabel.TYPE_RECORDING_START) {
-        trialProto.recordingRange.startMs = label.getTimeStamp();
+        recordingRange.setStartMs(label.getTimeStamp());
       } else if (label.getType() == ApplicationLabel.TYPE_RECORDING_STOP) {
-        trialProto.recordingRange.endMs = label.getTimeStamp();
+        recordingRange.setEndMs(label.getTimeStamp());
       } else if (label.getType() == ApplicationLabel.TYPE_CROP_START) {
-        if (trialProto.cropRange == null) {
-          trialProto.cropRange = new GoosciTrial.Range();
-        }
-        trialProto.cropRange.startMs = label.getTimeStamp();
+        cropRange.setStartMs(label.getTimeStamp());
+        cropRangeUpdated = true;
       } else if (label.getType() == ApplicationLabel.TYPE_CROP_END) {
-        if (trialProto.cropRange == null) {
-          trialProto.cropRange = new GoosciTrial.Range();
-        }
-        trialProto.cropRange.endMs = label.getTimeStamp();
+        cropRange.setEndMs(label.getTimeStamp());
+        cropRangeUpdated = true;
       }
     }
+    trialProto.recordingRange = recordingRange.build();
+    if (cropRangeUpdated) {
+      trialProto.cropRange = cropRange.build();
+    }
+
     trialProto.labels = new GoosciLabel.Label[labels.size()];
     for (int i = 0; i < labels.size(); i++) {
       trialProto.labels[i] = labels.get(i).getLabelProto();

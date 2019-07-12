@@ -364,10 +364,11 @@ public class SensorDatabaseImpl implements SensorDatabase {
       GoosciExperiment.Experiment experiment) {
     ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList = new ArrayList<>();
     for (GoosciTrial.Trial trial : experiment.trials) {
-      GoosciTrial.Range range = trial.recordingRange;
+      com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range range =
+          trial.recordingRange;
       // This protects against corrupted trials with invalid range end times.
-      if (range.endMs > range.startMs) {
-        TimeRange timeRange = TimeRange.oldest(Range.closed(range.startMs, range.endMs));
+      if (range.getEndMs() > range.getStartMs()) {
+        TimeRange timeRange = TimeRange.oldest(Range.closed(range.getStartMs(), range.getEndMs()));
         for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
           String tag = sensor.sensorId;
           sensorDataList.add(getScalarReadingSensorProtos(trial.trialId, tag, timeRange));
@@ -405,12 +406,12 @@ public class SensorDatabaseImpl implements SensorDatabase {
     ArrayList<ScalarSensorDataRow> rowsList = new ArrayList<>();
 
     while (cursor.moveToNext()) {
-      com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData
-              .ScalarSensorDataRow.Builder
-          row = ScalarSensorDataRow.newBuilder();
-      row.setTimestampMillis(cursor.getLong(0));
-      row.setValue(cursor.getDouble(1));
-      rowsList.add(row.build());
+      ScalarSensorDataRow row =
+          ScalarSensorDataRow.newBuilder()
+              .setTimestampMillis(cursor.getLong(0))
+              .setValue(cursor.getDouble(1))
+              .build();
+      rowsList.add(row);
     }
 
     sensor.rows = rowsList.toArray(new ScalarSensorDataRow[0]);
@@ -469,10 +470,11 @@ public class SensorDatabaseImpl implements SensorDatabase {
       if (!trial.trialId.equals(trialId)) {
         continue;
       }
-      GoosciTrial.Range range = trial.recordingRange;
+      com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range range =
+          trial.recordingRange;
       // This protects against corrupted trials with invalid range end times.
-      if (range.endMs > range.startMs) {
-        TimeRange timeRange = TimeRange.oldest(Range.closed(range.startMs, range.endMs));
+      if (range.getEndMs() > range.getStartMs()) {
+        TimeRange timeRange = TimeRange.oldest(Range.closed(range.getStartMs(), range.getEndMs()));
         for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
           String tag = sensor.sensorId;
           sensorDataList.add(getScalarReadingSensorProtos(trial.trialId, tag, timeRange));

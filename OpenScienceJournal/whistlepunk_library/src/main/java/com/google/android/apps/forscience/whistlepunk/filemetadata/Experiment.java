@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -37,8 +38,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -273,12 +272,12 @@ public class Experiment extends LabelListHolder {
    * @param range The time range in which to search for labels
    * @return A list of labels in that range, or an empty list if none are found.
    */
-  public List<Label> getLabelsForRange(@MigrateAs(Destination.EITHER) GoosciTrial.Range range) {
+  public List<Label> getLabelsForRange(Range range) {
     List<Label> result = new ArrayList<>();
     for (Label label : getLabels()) {
-      if (range.startMs <= label.getTimeStamp() && range.endMs >= label.getTimeStamp()) {
+      if (range.getStartMs() <= label.getTimeStamp() && range.getEndMs() >= label.getTimeStamp()) {
         result.add(label);
-      } else if (range.endMs < label.getTimeStamp()) {
+      } else if (range.getEndMs() < label.getTimeStamp()) {
         // These are sorted, so we can stop looking once we've found labels that are too
         // recent.
         break;

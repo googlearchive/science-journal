@@ -106,7 +106,7 @@ message Trial {
  * A time range
  */
 message Range {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   // The start of a range.
   optional int64 startMs = 1;

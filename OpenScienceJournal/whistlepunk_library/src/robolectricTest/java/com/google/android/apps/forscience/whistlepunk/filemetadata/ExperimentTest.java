@@ -28,6 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -35,8 +36,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel.
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import java.util.Collections;
 import java.util.List;
@@ -113,20 +112,18 @@ public class ExperimentTest {
         ExperimentCreator.newExperimentForTesting(
             getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range range = new GoosciTrial.Range();
-    range.startMs = 0;
-    range.endMs = 10;
-    assertEquals(experiment.getLabelsForRange(range), Collections.<Label>emptyList());
+    com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.Builder range =
+        Range.newBuilder().setStartMs(0).setEndMs(10);
+    assertEquals(experiment.getLabelsForRange(range.build()), Collections.<Label>emptyList());
 
-    range.endMs = 200;
-    assertEquals(3, experiment.getLabelsForRange(range).size());
+    range.setEndMs(200);
+    assertEquals(3, experiment.getLabelsForRange(range.build()).size());
 
-    range.endMs = 300;
-    assertEquals(4, experiment.getLabelsForRange(range).size());
+    range.setEndMs(300);
+    assertEquals(4, experiment.getLabelsForRange(range.build()).size());
 
-    range.startMs = 100;
-    assertEquals(3, experiment.getLabelsForRange(range).size());
+    range.setStartMs(100);
+    assertEquals(3, experiment.getLabelsForRange(range.build()).size());
   }
 
   @Test
@@ -161,11 +158,7 @@ public class ExperimentTest {
     // Trials on creation that overlap with notes should get those notes added properly.
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.title = "cats";
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range range = new GoosciTrial.Range();
-    range.startMs = 100;
-    range.endMs = 200;
-    trialProto.recordingRange = range;
+    trialProto.recordingRange = Range.newBuilder().setStartMs(100).setEndMs(200).build();
     proto.trials = new GoosciTrial.Trial[1];
     proto.trials[0] = trialProto;
 
@@ -177,11 +170,7 @@ public class ExperimentTest {
     // Adding a new trial should work as expected.
     GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
     trialProto2.title = "more cats";
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range range2 = new GoosciTrial.Range();
-    range2.startMs = 200;
-    range2.endMs = 500;
-    trialProto2.recordingRange = range2;
+    trialProto2.recordingRange = Range.newBuilder().setStartMs(200).setEndMs(500).build();
     Trial trial2 = Trial.fromTrial(trialProto2);
     experiment1.getTrials().add(trial2);
 
@@ -209,11 +198,7 @@ public class ExperimentTest {
     assertEquals(0, experiment.getTrials(true, false).size());
 
     GoosciTrial.Trial validProto = new GoosciTrial.Trial();
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range range = new GoosciTrial.Range();
-    range.startMs = 100;
-    range.endMs = 200;
-    validProto.recordingRange = range;
+    validProto.recordingRange = Range.newBuilder().setStartMs(100).setEndMs(200).build();
     validProto.trialId = "valid";
     Trial valid = Trial.fromTrial(validProto);
     experiment.addTrial(valid);
@@ -223,11 +208,7 @@ public class ExperimentTest {
     assertEquals(1, experiment.getTrials(false, false).size());
 
     GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range archivedRange = new GoosciTrial.Range();
-    archivedRange.startMs = 300;
-    archivedRange.endMs = 400;
-    archivedProto.recordingRange = archivedRange;
+    archivedProto.recordingRange = Range.newBuilder().setStartMs(300).setEndMs(400).build();
     archivedProto.archived = true;
     archivedProto.trialId = "archived";
     Trial archived = Trial.fromTrial(archivedProto);
@@ -248,11 +229,7 @@ public class ExperimentTest {
 
     // Trials are valid.
     GoosciTrial.Trial validProto = new GoosciTrial.Trial();
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range range = new GoosciTrial.Range();
-    range.startMs = 100;
-    range.endMs = 200;
-    validProto.recordingRange = range;
+    validProto.recordingRange = Range.newBuilder().setStartMs(100).setEndMs(200).build();
     validProto.trialId = "valid";
     experiment.addTrial(Trial.fromTrial(validProto));
     experiment.addTrial(Trial.fromTrial(validProto));
@@ -273,11 +250,7 @@ public class ExperimentTest {
     assertEquals(2, experiment.getTrials(true, false).size());
 
     GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range archivedRange = new GoosciTrial.Range();
-    archivedRange.startMs = 300;
-    archivedRange.endMs = 400;
-    archivedProto.recordingRange = archivedRange;
+    archivedProto.recordingRange = Range.newBuilder().setStartMs(300).setEndMs(400).build();
     archivedProto.archived = true;
     archivedProto.trialId = "archived";
     Trial archived = Trial.fromTrial(archivedProto);
@@ -327,18 +300,9 @@ public class ExperimentTest {
     trialProto1.trialId = "trial1";
     trialProto2.trialId = "trial2";
     trialProto3.trialId = "trial3";
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range range1 = new GoosciTrial.Range();
-    range1.startMs = 0;
-    trialProto1.recordingRange = range1;
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range range2 = new GoosciTrial.Range();
-    range2.startMs = 10;
-    trialProto2.recordingRange = range2;
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range range3 = new GoosciTrial.Range();
-    range3.startMs = 20;
-    trialProto3.recordingRange = range3;
+    trialProto1.recordingRange = Range.newBuilder().setStartMs(0).build();
+    trialProto2.recordingRange = Range.newBuilder().setStartMs(10).build();
+    trialProto3.recordingRange = Range.newBuilder().setStartMs(20).build();
     Trial trial1 = Trial.fromTrial(trialProto1);
     Trial trial2 = Trial.fromTrial(trialProto2);
     Trial trial3 = Trial.fromTrial(trialProto3);

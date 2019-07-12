@@ -155,8 +155,9 @@ public class InMemorySensorDatabase implements SensorDatabase {
       GoosciExperiment.Experiment experiment) {
     ArrayList<GoosciScalarSensorData.ScalarSensorDataDump> sensorDataList = new ArrayList<>();
     for (GoosciTrial.Trial trial : experiment.trials) {
-      GoosciTrial.Range range = trial.recordingRange;
-      TimeRange timeRange = TimeRange.oldest(Range.closed(range.startMs, range.endMs));
+      com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range range =
+          trial.recordingRange;
+      TimeRange timeRange = TimeRange.oldest(Range.closed(range.getStartMs(), range.getEndMs()));
       for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
         String tag = sensor.sensorId;
         sensorDataList.add(getScalarReadingSensorProtos(tag, timeRange));
@@ -174,8 +175,9 @@ public class InMemorySensorDatabase implements SensorDatabase {
       if (!trial.trialId.equals(trialId)) {
         continue;
       }
-      GoosciTrial.Range range = trial.recordingRange;
-      TimeRange timeRange = TimeRange.oldest(Range.closed(range.startMs, range.endMs));
+      com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range range =
+          trial.recordingRange;
+      TimeRange timeRange = TimeRange.oldest(Range.closed(range.getStartMs(), range.getEndMs()));
       for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
         String tag = sensor.sensorId;
         sensorDataList.add(getScalarReadingSensorProtos(tag, timeRange));
@@ -194,13 +196,13 @@ public class InMemorySensorDatabase implements SensorDatabase {
     ArrayList<ScalarSensorDataRow> rows = new ArrayList<>();
     for (Reading reading : getReadings(0)) {
       if (range.getTimes().contains(reading.getTimestampMillis())) {
-        com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData
-                .ScalarSensorDataRow.Builder
-            row = ScalarSensorDataRow.newBuilder();
-        row.setTimestampMillis(reading.getTimestampMillis());
-        row.setValue(reading.getValue());
+        ScalarSensorDataRow row =
+            ScalarSensorDataRow.newBuilder()
+                .setTimestampMillis(reading.getTimestampMillis())
+                .setValue(reading.getValue())
+                .build();
         sensor.trialId = reading.getTrialId();
-        rows.add(row.build());
+        rows.add(row);
       }
     }
 

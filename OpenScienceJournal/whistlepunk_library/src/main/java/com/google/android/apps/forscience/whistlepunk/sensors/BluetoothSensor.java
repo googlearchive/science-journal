@@ -193,10 +193,7 @@ public class BluetoothSensor extends ScalarSensor {
   private byte[] buildConfigProtoForDevice(BleSensorSpec sensor) {
     GoosciSensor.SensorDataRequest sdr = new GoosciSensor.SensorDataRequest();
     sdr.timestampKey = 42; // arbitrary constant.  TMOLTUAE.
-    Interval.Builder interval = Interval.newBuilder().setCount(0);
-    interval.setCount(1);
-    interval.setFrequency(20);
-    sdr.interval = interval.build();
+    sdr.interval = Interval.newBuilder().setCount(1).setFrequency(20).build();
 
     sdr.pin =
         new GoosciSensor.Pin[] {
@@ -212,15 +209,11 @@ public class BluetoothSensor extends ScalarSensor {
       AnalogPin ap = AnalogPin.newBuilder().setPin(pinType.getPinNumber()).build();
       sdr.pin[0].setAnalogPin(ap);
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.DIGITAL) {
-      com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalPin.Builder dp =
-          DigitalPin.newBuilder().setPin(0);
-      dp.setPin(pinType.getPinNumber());
-      sdr.pin[0].setDigitalPin(dp.build());
+      DigitalPin dp = DigitalPin.newBuilder().setPin(pinType.getPinNumber()).build();
+      sdr.pin[0].setDigitalPin(dp);
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.VIRTUAL) {
-      com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.VirtualPin.Builder vp =
-          VirtualPin.newBuilder().setPin(0);
-      vp.setPin(pinType.getPinNumber());
-      sdr.pin[0].setVirtualPin(vp.build());
+      VirtualPin vp = VirtualPin.newBuilder().setPin(pinType.getPinNumber()).build();
+      sdr.pin[0].setVirtualPin(vp);
     }
 
     byte[] value = GoosciSensor.SensorDataRequest.toByteArray(sdr);

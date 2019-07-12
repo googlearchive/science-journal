@@ -28,10 +28,9 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySenso
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,10 +68,7 @@ public class TrialUnitTest {
     Trial trial = makeSimpleTrial(1000, "sensorId");
     trial.setRecordingEndTime(4000);
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.Range cropRange = new GoosciTrial.Range();
-    cropRange.startMs = 2000;
-    cropRange.endMs = 3000;
+    Range cropRange = Range.newBuilder().setStartMs(2000).setEndMs(3000).build();
     trial.setCropRange(cropRange);
 
     assertEquals(trial.getOriginalFirstTimestamp(), 1000);
