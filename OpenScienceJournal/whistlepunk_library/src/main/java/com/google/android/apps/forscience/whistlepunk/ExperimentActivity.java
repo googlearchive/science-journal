@@ -50,6 +50,8 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /** Displays the experiment and the action bar. */
@@ -504,25 +506,51 @@ public class ExperimentActivity extends AppCompatActivity
     // TODO(b/135678092): start velocity tracker activity here
   }
 
-  ObservationOption[] getMoreObservationOptions() {
-    // TODO(b/132651474): make this work depending on what is available (draw, velocity, etc)
-    ObservationOption[] moreObservationOptions = {
-      new ObservationOption(
-          R.string.more_observations_gallery_title,
-          R.string.more_observations_gallery_description,
-          R.drawable.more_observations_gallery,
-          (View view) -> openGallery()),
-      new ObservationOption(
-          R.string.more_observations_draw_title,
-          R.string.more_observations_draw_description,
-          R.drawable.more_observations_draw,
-          (View view) -> openDraw()),
-      new ObservationOption(
-          R.string.more_observations_velocity_tracker_title,
-          R.string.more_observations_velocity_tracker_description,
-          R.drawable.more_observations_velocity_tracker,
-          (View view) -> openVelocityTracker())
+  protected ObservationOption[] getMoreObservationOptions() {
+    List<ObservationOption> options = new ArrayList<>();
+    ObservationOption galleryOption =
+        new ObservationOption(
+            R.string.more_observations_gallery_title,
+            R.string.more_observations_gallery_description,
+            R.drawable.more_observations_gallery,
+            (View view) -> openGallery());
+    ObservationOption drawOption =
+        new ObservationOption(
+            R.string.more_observations_draw_title,
+            R.string.more_observations_draw_description,
+            R.drawable.more_observations_draw,
+            (View view) -> openDraw());
+    ObservationOption velocityTrackerOption =
+        new ObservationOption(
+            R.string.more_observations_velocity_tracker_title,
+            R.string.more_observations_velocity_tracker_description,
+            R.drawable.more_observations_velocity_tracker,
+            (View view) -> openVelocityTracker());
+
+    options.add(galleryOption);
+    if (Flags.showDrawOption()) {
+      options.add(drawOption);
+    }
+    if (Flags.showVelocityTrackerOption()) {
+      // TODO(b/137010611): verify the device is able to use ARCore
+      options.add(velocityTrackerOption);
+    }
+
+    return options.toArray(new ObservationOption[options.size()]);
+  }
+
+  // Show more option button iff velocity tracker and/or drawing notes are enabled
+  private boolean showMoreOptions() {
+    return Flags.showDrawOption() || Flags.showVelocityTrackerOption();
+  }
+
+  public ActionAreaItem[] getActionAreaItems() {
+    ActionAreaItem[] actionAreaItems = {
+      ActionAreaItem.NOTE, ActionAreaItem.SENSOR, ActionAreaItem.CAMERA, ActionAreaItem.GALLERY
     };
-    return moreObservationOptions;
+    if (showMoreOptions()) {
+      actionAreaItems[3] = ActionAreaItem.MORE;
+    }
+    return actionAreaItems;
   }
 }

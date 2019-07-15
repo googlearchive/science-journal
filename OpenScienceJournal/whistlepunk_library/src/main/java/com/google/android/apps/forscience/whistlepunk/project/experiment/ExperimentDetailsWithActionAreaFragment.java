@@ -75,7 +75,6 @@ import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
@@ -167,9 +166,6 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
   private RxEvent destroyed = new RxEvent();
   private LocalSyncManager localSyncManager;
   private ExperimentLibraryManager experimentLibraryManager;
-  private static final ActionAreaItem[] ACTION_AREA_ITEMS = {
-    ActionAreaItem.NOTE, ActionAreaItem.SENSOR, ActionAreaItem.CAMERA, ActionAreaItem.GALLERY
-  };
 
   /**
    * Creates a new instance of this fragment.
@@ -389,8 +385,9 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, view);
 
     ActionAreaView actionArea = view.findViewById(R.id.action_area);
-    actionArea.addItems(getContext(), ACTION_AREA_ITEMS, (ExperimentActivity) getActivity());
-
+    ExperimentActivity experimentActivity = (ExperimentActivity) activity;
+    actionArea.addItems(
+        getContext(), experimentActivity.getActionAreaItems(), experimentActivity);
     if (savedInstanceState != null) {
       includeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
       getActivity().invalidateOptionsMenu();
