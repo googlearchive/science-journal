@@ -29,11 +29,21 @@ package com.google.android.apps.forscience.whistlepunk;
 public class Flags {
   private static boolean showActionBar = false;
   private static boolean showTestingOptions = false;
+  private static boolean showDrawOption = false;
+  private static boolean showVelocityTrackerOption = false;
 
   private Flags() {} // uninstantiable
 
   public static void setShowActionBar(boolean show) {
     showActionBar = show;
+  }
+
+  public static void setShowDrawOption(boolean show) {
+    showDrawOption = show;
+  }
+
+  public static void setShowVelocityTrackerOption(boolean show) {
+    showVelocityTrackerOption = show;
   }
 
   public static void setShowTestingOptions(boolean show) {
@@ -46,5 +56,13 @@ public class Flags {
 
   public static boolean showTestingOptions() {
     return showTestingOptions;
+  }
+
+  public static boolean showDrawOption() {
+    return showDrawOption;
+  }
+
+  public static boolean showVelocityTrackerOption() {
+    return showVelocityTrackerOption;
   }
 }
