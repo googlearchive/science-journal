@@ -23,8 +23,6 @@ option java_outer_classname = "GoosciScalarInput";
 option optimize_for = LITE_RUNTIME;
 
 message ScalarInputConfig {
-  option (proto2.nano.message_as_lite) = false;
-
   // The package name of the service providing the input sensor.
   optional string service_id = 1;
 

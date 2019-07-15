@@ -21,7 +21,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
@@ -156,10 +156,10 @@ public abstract class ExternalSensorSpec {
   @NonNull
   public GoosciGadgetInfo.GadgetInfo getGadgetInfo(String address) {
     // TODO: fill in other gadget info fields
-    GoosciGadgetInfo.GadgetInfo gadgetInfo = new GoosciGadgetInfo.GadgetInfo();
-    gadgetInfo.providerId = getType();
-    gadgetInfo.address = address;
-    return gadgetInfo;
+    return GoosciGadgetInfo.GadgetInfo.newBuilder()
+        .setProviderId(getType())
+        .setAddress(address)
+        .build();
   }
 
   public static ExternalSensorSpec fromGoosciSpec(
@@ -169,10 +169,13 @@ public abstract class ExternalSensorSpec {
       return null;
     }
     GoosciGadgetInfo.GadgetInfo info = Preconditions.checkNotNull(spec.info);
-    SensorProvider sensorProvider = providerMap.get(info.providerId);
+    SensorProvider sensorProvider = providerMap.get(info.getProviderId());
     if (sensorProvider == null) {
       throw new IllegalArgumentException(
-          "No provider for sensor type: " + info.providerId + ". Options: " + providerMap.keySet());
+          "No provider for sensor type: "
+              + info.getProviderId()
+              + ". Options: "
+              + providerMap.keySet());
     }
 
     return sensorProvider.buildSensorSpec(spec.rememberedAppearance.name, spec.config);

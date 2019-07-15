@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import io.reactivex.Single;
 import java.text.NumberFormat;
@@ -86,12 +86,12 @@ public class ProtoSensorAppearance implements SensorAppearance {
   // TODO: Export images to proto
   @Override
   public GoosciIcon.IconPath getSmallIconPath() {
-    return new GoosciIcon.IconPath();
+    return GoosciIcon.IconPath.getDefaultInstance();
   }
 
   @Override
   public GoosciIcon.IconPath getLargeIconPath() {
-    return new GoosciIcon.IconPath();
+    return GoosciIcon.IconPath.getDefaultInstance();
   }
 
   @Override

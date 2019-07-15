@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -59,16 +60,16 @@ public class SensorRegistryTest {
 
     devOptions.setPrefValue(false);
     reg.refreshBuiltinSensors(context);
-    assertEquals(false, reg.getAllSources().contains(SineWavePseudoSensor.ID));
+    assertFalse(reg.getAllSources().contains(SineWavePseudoSensor.ID));
 
     devOptions.setPrefValue(true);
     reg.refreshBuiltinSensors(context);
-    assertEquals(true, reg.getAllSources().contains(SineWavePseudoSensor.ID));
+    assertTrue(reg.getAllSources().contains(SineWavePseudoSensor.ID));
 
     // double-check removal
     devOptions.setPrefValue(false);
     reg.refreshBuiltinSensors(context);
-    assertEquals(false, reg.getAllSources().contains(SineWavePseudoSensor.ID));
+    assertFalse(reg.getAllSources().contains(SineWavePseudoSensor.ID));
   }
 
   @Test
@@ -79,7 +80,7 @@ public class SensorRegistryTest {
 
     devOptions.setPrefValue(true);
     reg.refreshBuiltinSensors(context);
-    assertEquals(false, reg.getAllSources().contains(SineWavePseudoSensor.ID));
+    assertFalse(reg.getAllSources().contains(SineWavePseudoSensor.ID));
   }
 
   @Test
@@ -96,9 +97,9 @@ public class SensorRegistryTest {
         connector.connected(new BleSensorSpec("address", "name").asGoosciSpec(), bleSensorId));
 
     reg.updateExternalSensors(sensors, providers);
-    assertEquals(true, reg.getAllSources().contains(bleSensorId));
+    assertTrue(reg.getAllSources().contains(bleSensorId));
     reg.refreshBuiltinSensors(context);
-    assertEquals(true, reg.getAllSources().contains(bleSensorId));
+    assertTrue(reg.getAllSources().contains(bleSensorId));
   }
 
   @Test
@@ -114,7 +115,7 @@ public class SensorRegistryTest {
         connector.connected(new BleSensorSpec(bleSensorId, "name").asGoosciSpec(), bleSensorId));
 
     reg.updateExternalSensors(sensors, providers);
-    assertEquals(true, reg.getAllSources().contains(bleSensorId));
+    assertTrue(reg.getAllSources().contains(bleSensorId));
 
     assertEquals("bluetooth_le:raw", reg.getLoggingId(bleSensorId));
   }
@@ -182,7 +183,7 @@ public class SensorRegistryTest {
 
     GoosciSensorSpec.SensorSpec specProto =
         reg.getSpecForId(id, buildAppearanceProvider(), context);
-    assertEquals(bleSpec.getAddress(), specProto.info.address);
+    assertEquals(bleSpec.getAddress(), specProto.info.getAddress());
 
     ExternalSensorSpec afterRoundTrip = ExternalSensorSpec.fromGoosciSpec(specProto, providers);
 
@@ -202,8 +203,8 @@ public class SensorRegistryTest {
 
     GoosciSensorSpec.SensorSpec spec =
         reg.getSpecForId(DecibelSensor.ID, buildAppearanceProvider(), context);
-    assertEquals(SensorRegistry.WP_HARDWARE_PROVIDER_ID, spec.info.providerId);
-    assertEquals(DecibelSensor.ID, spec.info.address);
+    assertEquals(SensorRegistry.WP_HARDWARE_PROVIDER_ID, spec.info.getProviderId());
+    assertEquals(DecibelSensor.ID, spec.info.getAddress());
   }
 
   @NonNull

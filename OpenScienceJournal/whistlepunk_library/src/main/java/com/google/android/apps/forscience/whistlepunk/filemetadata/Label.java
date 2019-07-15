@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
@@ -51,13 +52,13 @@ public class Label implements Parcelable {
   }
 
   /** Creates a new label with no content. */
-  public static Label newLabel(long creationTimeMs, int valueType) {
+  public static Label newLabel(long creationTimeMs, ValueType valueType) {
     return new Label(creationTimeMs, java.util.UUID.randomUUID().toString(), valueType);
   }
 
   /** Creates a new label with the specified label value. */
   public static Label newLabelWithValue(
-      long creationTimeMs, int type, MessageNano data, GoosciCaption.Caption caption) {
+      long creationTimeMs, ValueType type, MessageNano data, GoosciCaption.Caption caption) {
     Label result = new Label(creationTimeMs, java.util.UUID.randomUUID().toString(), type);
     result.setLabelProtoData(data);
     result.setCaption(caption);
@@ -65,7 +66,7 @@ public class Label implements Parcelable {
   }
 
   public static Label fromUuidAndValue(
-      long creationTimeMs, String uuid, int type, MessageNano data) {
+      long creationTimeMs, String uuid, ValueType type, MessageNano data) {
     Label result = new Label(creationTimeMs, uuid, type);
     result.setLabelProtoData(data);
     return result;
@@ -89,7 +90,7 @@ public class Label implements Parcelable {
     label = goosciLabel;
   }
 
-  private Label(long creationTimeMs, String labelId, int valueType) {
+  private Label(long creationTimeMs, String labelId, ValueType valueType) {
     label = new GoosciLabel.Label();
     label.timestampMs = creationTimeMs;
     label.creationTimeMs = creationTimeMs;
@@ -158,8 +159,7 @@ public class Label implements Parcelable {
 
   // You cannot edit the timestamp of some labels, like Snapshot and Trigger labels.
   public boolean canEditTimestamp() {
-    return (label.type != GoosciLabel.Label.ValueType.SNAPSHOT
-        && label.type != GoosciLabel.Label.ValueType.SENSOR_TRIGGER);
+    return (label.type != ValueType.SNAPSHOT && label.type != ValueType.SENSOR_TRIGGER);
   }
 
   public String getCaptionText() {
@@ -173,7 +173,7 @@ public class Label implements Parcelable {
     label.caption = caption;
   }
 
-  public int getType() {
+  public ValueType getType() {
     return label.type;
   }
 
@@ -182,7 +182,7 @@ public class Label implements Parcelable {
    * be re-set on the Label for them to be saved.
    */
   public GoosciTextLabelValue.TextLabelValue getTextLabelValue() {
-    if (label.type == GoosciLabel.Label.ValueType.TEXT) {
+    if (label.type == ValueType.TEXT) {
       try {
         return GoosciTextLabelValue.TextLabelValue.parseFrom(label.protoData);
       } catch (InvalidProtocolBufferNanoException e) {
@@ -201,7 +201,7 @@ public class Label implements Parcelable {
    * Label for them to be saved.
    */
   public GoosciPictureLabelValue.PictureLabelValue getPictureLabelValue() {
-    if (label.type == GoosciLabel.Label.ValueType.PICTURE) {
+    if (label.type == ValueType.PICTURE) {
       try {
         return GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.protoData);
       } catch (InvalidProtocolBufferNanoException e) {
@@ -220,7 +220,7 @@ public class Label implements Parcelable {
    * on the Label for them to be saved.
    */
   public GoosciSensorTriggerLabelValue.SensorTriggerLabelValue getSensorTriggerLabelValue() {
-    if (label.type == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
+    if (label.type == ValueType.SENSOR_TRIGGER) {
       try {
         return GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.parseFrom(label.protoData);
       } catch (InvalidProtocolBufferNanoException e) {
@@ -239,7 +239,7 @@ public class Label implements Parcelable {
    * Label for them to be saved.
    */
   public GoosciSnapshotValue.SnapshotLabelValue getSnapshotLabelValue() {
-    if (label.type == GoosciLabel.Label.ValueType.SNAPSHOT) {
+    if (label.type == ValueType.SNAPSHOT) {
       try {
         return GoosciSnapshotValue.SnapshotLabelValue.parseFrom(label.protoData);
       } catch (InvalidProtocolBufferNanoException e) {
@@ -263,7 +263,7 @@ public class Label implements Parcelable {
 
   /** Deletes any assets associated with this label */
   public void deleteAssets(Context context, AppAccount appAccount, String experimentId) {
-    if (label.type == GoosciLabel.Label.ValueType.PICTURE) {
+    if (label.type == ValueType.PICTURE) {
       File file =
           new File(
               PictureUtils.getExperimentImagePath(
@@ -288,34 +288,37 @@ public class Label implements Parcelable {
 
   private String getDebugTypeString() {
     switch (label.type) {
-      case GoosciLabel.Label.ValueType.TEXT:
+      case TEXT:
         return "TEXT";
-      case GoosciLabel.Label.ValueType.PICTURE:
+      case PICTURE:
         return "PICTURE";
-      case GoosciLabel.Label.ValueType.SENSOR_TRIGGER:
+      case SENSOR_TRIGGER:
         return "TRIGGER";
-      case GoosciLabel.Label.ValueType.SNAPSHOT:
+      case SNAPSHOT:
         return "SNAPSHOT";
+      default:
+        return "???";
     }
-    return "???";
   }
 
   private Object getDebugLabelValue() {
     switch (label.type) {
-      case GoosciLabel.Label.ValueType.TEXT:
+      case TEXT:
         return getTextLabelValue();
-      case GoosciLabel.Label.ValueType.PICTURE:
+      case PICTURE:
         return getPictureLabelValue();
-      case GoosciLabel.Label.ValueType.SENSOR_TRIGGER:
+      case SENSOR_TRIGGER:
         return getSensorTriggerLabelValue();
-      case GoosciLabel.Label.ValueType.SNAPSHOT:
+      case SNAPSHOT:
         return getSnapshotLabelValue();
+      default:
+        return "unknown type";
     }
-    return "unknown type";
   }
 
-  private static void throwLabelValueException(String protoToCreate, int actualType) {
+  private static void throwLabelValueException(String protoToCreate, ValueType actualType) {
     throw new IllegalStateException(
-        String.format("Cannot get %s from label of type %s", protoToCreate, actualType));
+        String.format(
+            "Cannot get %s from label of type %s", protoToCreate, actualType.getNumber()));
   }
 }

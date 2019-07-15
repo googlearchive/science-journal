@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
@@ -695,7 +696,7 @@ public class Experiment extends LabelListHolder {
       for (int i = labels.size() - 1; i >= 0; i--) {
         Label other = labels.get(i);
         if (!TextUtils.equals(other.getLabelId(), label.getLabelId())
-            && other.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+            && other.getType() == ValueType.PICTURE) {
           // Should be relative to Experiment.
           imagePath = getPathRelativeToExperiment(other.getPictureLabelValue().filePath);
           return;
@@ -878,7 +879,7 @@ public class Experiment extends LabelListHolder {
     switch (local.getChangedElementType()) {
       case NOTE:
         Label label = getLabel(local.getChangedElementId());
-        if (label != null && label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+        if (label != null && label.getType() == ValueType.PICTURE) {
           filesToSync.addImageUpload(label.getPictureLabelValue().filePath);
         }
         break;
@@ -1053,7 +1054,7 @@ public class Experiment extends LabelListHolder {
         }
       }
     } else {
-      if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+      if (externalLabel.getType() == ValueType.PICTURE) {
         filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
       }
       // This is not a delete. The label still exists in the external experiment.
@@ -1213,12 +1214,12 @@ public class Experiment extends LabelListHolder {
           // here. If the trial doesn't exist, it has been deleted itself, and we can move on.
           if (externalLabel != null) {
             trial.addLabel(this, Label.copyOf(externalLabel));
-            if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+            if (externalLabel.getType() == ValueType.PICTURE) {
               filesToSync.addImageUpload(externalLabel.getPictureLabelValue().filePath);
             }
 
             if (localLabel != null) {
-              if (localLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+              if (localLabel.getType() == ValueType.PICTURE) {
                 filesToSync.addImageDownload(localLabel.getPictureLabelValue().filePath);
               }
             }
@@ -1243,12 +1244,12 @@ public class Experiment extends LabelListHolder {
         // to the change log, so we have to add this to the log.
         if (externalLabel != null) {
           addLabel(this, Label.copyOf(externalLabel));
-          if (externalLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+          if (externalLabel.getType() == ValueType.PICTURE) {
             filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
           }
 
           if (localLabel != null) {
-            if (localLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+            if (localLabel.getType() == ValueType.PICTURE) {
               filesToSync.addImageUpload(localLabel.getPictureLabelValue().filePath);
             }
           }

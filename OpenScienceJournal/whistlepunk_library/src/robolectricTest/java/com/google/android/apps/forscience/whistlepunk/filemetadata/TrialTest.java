@@ -24,6 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class TrialTest {
     trial.updateLabel(label);
     assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
 
-    Label second = Label.newLabel(20, GoosciLabel.Label.ValueType.TEXT);
+    Label second = Label.newLabel(20, ValueType.TEXT);
     trial.addLabel(second);
     assertEquals(trial.getLabelCount(), 2);
 
@@ -66,9 +67,9 @@ public class TrialTest {
     Trial trial =
         Trial.newTrial(
             10, new GoosciSensorLayout.SensorLayout[0], new FakeAppearanceProvider(), getContext());
-    trial.addLabel(Label.newLabel(20, GoosciLabel.Label.ValueType.TEXT));
-    trial.addLabel(Label.newLabel(30, GoosciLabel.Label.ValueType.TEXT));
-    trial.addLabel(Label.newLabel(10, GoosciLabel.Label.ValueType.TEXT));
+    trial.addLabel(Label.newLabel(20, ValueType.TEXT));
+    trial.addLabel(Label.newLabel(30, ValueType.TEXT));
+    trial.addLabel(Label.newLabel(10, ValueType.TEXT));
     assertEquals(trial.getLabels().size(), 3);
     assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
     assertEquals(trial.getLabels().get(1).getTimeStamp(), 20);
@@ -80,9 +81,9 @@ public class TrialTest {
     Trial trial =
         Trial.newTrial(
             10, new GoosciSensorLayout.SensorLayout[0], new FakeAppearanceProvider(), getContext());
-    trial.addLabel(Label.newLabel(10, GoosciLabel.Label.ValueType.TEXT));
-    trial.addLabel(Label.newLabel(20, GoosciLabel.Label.ValueType.TEXT));
-    trial.addLabel(Label.newLabel(30, GoosciLabel.Label.ValueType.TEXT));
+    trial.addLabel(Label.newLabel(10, ValueType.TEXT));
+    trial.addLabel(Label.newLabel(20, ValueType.TEXT));
+    trial.addLabel(Label.newLabel(30, ValueType.TEXT));
     Label second = trial.getLabels().get(1);
     second.setTimestamp(40);
     trial.updateLabel(second);

@@ -28,11 +28,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
@@ -239,15 +239,16 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     if (iconPath == null) {
       return new ProtoSensorAppearance(appearance);
     }
-    switch (iconPath.type) {
+    switch (iconPath.getType()) {
       case BUILTIN:
-        return appearanceProvider.getAppearance(iconPath.pathString);
+        return appearanceProvider.getAppearance(iconPath.getPathString());
       case LEGACY_ANDROID_BLE:
-        return SensorTypeProvider.getSensorAppearance(Integer.valueOf(iconPath.pathString), "");
+        return SensorTypeProvider.getSensorAppearance(
+            Integer.valueOf(iconPath.getPathString()), "");
       case PROTO:
         return new ProtoSensorAppearance(appearance);
       case MKRSCI_ANDROID_BLE:
-        return MkrSciBleSensorAppearance.get(iconPath.pathString);
+        return MkrSciBleSensorAppearance.get(iconPath.getPathString());
     }
     return null;
   }

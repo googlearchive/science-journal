@@ -31,6 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
@@ -251,7 +252,7 @@ public class FileMetadataManager {
     Set<String> usedImagePaths = Sets.newHashSet();
     for (GoosciTrial.Trial trial : experiment.trials) {
       for (GoosciLabel.Label label : trial.labels) {
-        if (label.type == GoosciLabel.Label.ValueType.PICTURE) {
+        if (label.type == ValueType.PICTURE) {
           try {
             GoosciPictureLabelValue.PictureLabelValue labelValue =
                 GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.protoData);
@@ -265,7 +266,7 @@ public class FileMetadataManager {
       }
     }
     for (GoosciLabel.Label label : experiment.labels) {
-      if (label.type == GoosciLabel.Label.ValueType.PICTURE) {
+      if (label.type == ValueType.PICTURE) {
         try {
           GoosciPictureLabelValue.PictureLabelValue labelValue =
               GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.protoData);

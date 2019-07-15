@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProviderIm
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -129,7 +130,7 @@ public class Trial extends LabelListHolder {
 
   public GoosciPictureLabelValue.PictureLabelValue getCoverPictureLabelValue() {
     for (Label label : labels) {
-      if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+      if (label.getType() == ValueType.PICTURE) {
         return label.getPictureLabelValue();
       }
     }

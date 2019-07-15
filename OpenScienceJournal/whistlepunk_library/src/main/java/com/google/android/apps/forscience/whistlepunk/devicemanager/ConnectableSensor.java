@@ -148,7 +148,7 @@ public class ConnectableSensor {
   }
 
   public String getAddress() {
-    return spec.info.address;
+    return spec.info.getAddress();
   }
 
   public String getConnectedSensorId() {

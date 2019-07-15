@@ -22,7 +22,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
 import android.util.Pair;
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
@@ -318,10 +318,11 @@ public class SensorRegistry {
 
     // TODO: fill in rest of proto (hostId, hostDescription)
     spec.rememberedAppearance = appearance;
-    spec.info = new GoosciGadgetInfo.GadgetInfo();
-    spec.info.providerId = item.providerId;
-
-    spec.info.address = getAddress(item);
+    spec.info =
+        GoosciGadgetInfo.GadgetInfo.newBuilder()
+            .setProviderId(item.providerId)
+            .setAddress(getAddress(item))
+            .build();
 
     if (item.externalSpec != null) {
       spec.config = item.externalSpec.getConfig();

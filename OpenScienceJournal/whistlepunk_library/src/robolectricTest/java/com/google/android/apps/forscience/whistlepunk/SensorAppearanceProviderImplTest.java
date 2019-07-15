@@ -36,10 +36,10 @@ public class SensorAppearanceProviderImplTest {
 
     GoosciSensorAppearance.BasicSensorAppearance proto =
         SensorAppearanceProviderImpl.toProto(appearance, context);
-    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.iconPath.type);
-    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.largeIconPath.type);
-    assertEquals("sensorId", proto.iconPath.pathString);
-    assertEquals("sensorId", proto.largeIconPath.pathString);
+    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.iconPath.getType());
+    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.largeIconPath.getType());
+    assertEquals("sensorId", proto.iconPath.getPathString());
+    assertEquals("sensorId", proto.largeIconPath.getPathString());
 
     // TODO: re-enable once we have this implemented for all SDKs (b/63933068)
     // This should be a BCP 47 language tag, like "en-US"

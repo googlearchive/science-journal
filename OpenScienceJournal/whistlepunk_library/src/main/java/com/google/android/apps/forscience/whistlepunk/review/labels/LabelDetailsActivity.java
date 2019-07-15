@@ -28,7 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 
@@ -81,12 +81,12 @@ public class LabelDetailsActivity extends AppCompatActivity {
       finish();
       return;
     }
-    int labelType = originalLabel.getType();
+    ValueType labelType = originalLabel.getType();
 
     // Update the theme if this is a text note before setting the view.
-    if (labelType == GoosciLabel.Label.ValueType.TEXT) {
+    if (labelType == ValueType.TEXT) {
       setTheme(R.style.text_label_details);
-    } else if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
+    } else if (labelType == ValueType.PICTURE) {
       setTheme(R.style.picture_label_details);
     }
 
@@ -99,19 +99,19 @@ public class LabelDetailsActivity extends AppCompatActivity {
 
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
       LabelDetailsFragment fragment;
-      if (labelType == GoosciLabel.Label.ValueType.TEXT) {
+      if (labelType == ValueType.TEXT) {
         fragment =
             TextLabelDetailsFragment.newInstance(
                 getAppAccount(), getExperimentId(), getTrialId(), originalLabel);
-      } else if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
+      } else if (labelType == ValueType.PICTURE) {
         fragment =
             PictureLabelDetailsFragment.newInstance(
                 getAppAccount(), getExperimentId(), getTrialId(), originalLabel);
-      } else if (labelType == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
+      } else if (labelType == ValueType.SENSOR_TRIGGER) {
         fragment =
             TriggerLabelDetailsFragment.newInstance(
                 getAppAccount(), getExperimentId(), getTrialId(), originalLabel);
-      } else if (labelType == GoosciLabel.Label.ValueType.SNAPSHOT) {
+      } else if (labelType == ValueType.SNAPSHOT) {
         fragment =
             SnapshotLabelDetailsFragment.newInstance(
                 getAppAccount(), getExperimentId(), getTrialId(), originalLabel);

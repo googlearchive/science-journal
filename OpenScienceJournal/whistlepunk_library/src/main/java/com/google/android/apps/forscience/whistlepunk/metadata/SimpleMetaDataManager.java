@@ -59,6 +59,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
@@ -237,10 +238,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         descriptionValue.text = experiment.getDescription();
         Label descriptionLabel =
             Label.newLabelWithValue(
-                experiment.getCreationTimeMs() - 500,
-                GoosciLabel.Label.ValueType.TEXT,
-                descriptionValue,
-                null);
+                experiment.getCreationTimeMs() - 500, ValueType.TEXT, descriptionValue, null);
         experiment.setDescription("");
         experiment.addLabel(experiment, descriptionLabel);
       }
@@ -304,7 +302,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
    * @return true if the label was modified
    */
   private boolean migratePictureAssetsIfNeeded(String experimentId, Label label) {
-    if (label.getType() != GoosciLabel.Label.ValueType.PICTURE) {
+    if (label.getType() != ValueType.PICTURE) {
       return false;
     }
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue = label.getPictureLabelValue();
@@ -390,8 +388,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
               db,
               experiment.getExperimentId(),
               RecorderController.NOT_RECORDING_RUN_ID,
-              Label.newLabel(
-                  experiment.getCreationTimeMs() - 2000, GoosciLabel.Label.ValueType.TEXT),
+              Label.newLabel(experiment.getCreationTimeMs() - 2000, ValueType.TEXT),
               TextLabelValue.fromText(project.getDescription()));
         }
         if (!TextUtils.isEmpty(project.getCoverPhoto())) {
@@ -401,8 +398,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
               db,
               experiment.getExperimentId(),
               RecorderController.NOT_RECORDING_RUN_ID,
-              Label.newLabel(
-                  experiment.getCreationTimeMs() - 1000, GoosciLabel.Label.ValueType.PICTURE),
+              Label.newLabel(experiment.getCreationTimeMs() - 1000, ValueType.PICTURE),
               PictureLabelValue.fromPicture(project.getCoverPhoto(), ""));
         }
         boolean needsWrite = false;
@@ -1297,11 +1293,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   private static String getLabelTag(Label label) {
-    if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
+    if (label.getType() == ValueType.TEXT) {
       return TEXT_LABEL_TAG;
-    } else if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
+    } else if (label.getType() == ValueType.PICTURE) {
       return PICTURE_LABEL_TAG;
-    } else if (label.getType() == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
+    } else if (label.getType() == ValueType.SENSOR_TRIGGER) {
       return SENSOR_TRIGGER_LABEL_TAG;
     }
     return UNKNOWN_LABEL_TAG;
@@ -1405,14 +1401,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
             GoosciCaption.Caption caption = new GoosciCaption.Caption();
             caption.lastEditedTimestamp = timestamp;
             caption.text = PictureLabelValue.getCaption(value);
-            goosciLabel.type = GoosciLabel.Label.ValueType.PICTURE;
+            goosciLabel.type = ValueType.PICTURE;
             goosciLabel.protoData = MessageNano.toByteArray(labelValue);
             goosciLabel.caption = caption;
           } else if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
             GoosciTextLabelValue.TextLabelValue labelValue =
                 new GoosciTextLabelValue.TextLabelValue();
             labelValue.text = TextLabelValue.getText(value);
-            goosciLabel.type = GoosciLabel.Label.ValueType.TEXT;
+            goosciLabel.type = ValueType.TEXT;
             goosciLabel.protoData = MessageNano.toByteArray(labelValue);
           } else if (TextUtils.equals(type, SENSOR_TRIGGER_LABEL_TAG)) {
             // Convert old sensor triggers into text notes because we don't have enough
@@ -1432,7 +1428,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                       customText,
                       autoText);
             }
-            goosciLabel.type = GoosciLabel.Label.ValueType.TEXT;
+            goosciLabel.type = ValueType.TEXT;
             goosciLabel.protoData = MessageNano.toByteArray(labelValue);
           }
         } else {
@@ -1444,14 +1440,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
             GoosciTextLabelValue.TextLabelValue labelValue =
                 new GoosciTextLabelValue.TextLabelValue();
             labelValue.text = data;
-            goosciLabel.type = GoosciLabel.Label.ValueType.TEXT;
+            goosciLabel.type = ValueType.TEXT;
             goosciLabel.protoData = MessageNano.toByteArray(labelValue);
           } else if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
             // Early picture labels had no captions.
             GoosciPictureLabelValue.PictureLabelValue labelValue =
                 new GoosciPictureLabelValue.PictureLabelValue();
             labelValue.filePath = data;
-            goosciLabel.type = GoosciLabel.Label.ValueType.PICTURE;
+            goosciLabel.type = ValueType.PICTURE;
             goosciLabel.protoData = MessageNano.toByteArray(labelValue);
           } else {
             throw new IllegalStateException("Unknown label type: " + type);

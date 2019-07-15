@@ -34,8 +34,8 @@ import static com.google.android.apps.forscience.whistlepunk.sensors.MkrSciBleSe
 import static com.google.android.apps.forscience.whistlepunk.sensors.MkrSciBleSensor.SENSOR_RESISTANCE;
 import static com.google.android.apps.forscience.whistlepunk.sensors.MkrSciBleSensor.SENSOR_VOLTAGE;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon.IconPath.PathType;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
 import com.google.common.base.Strings;
 import java.util.Objects;
 
@@ -413,17 +413,17 @@ public class MkrSciBleSensorAppearance extends BuiltInSensorAppearance {
 
   @Override
   public GoosciIcon.IconPath getSmallIconPath() {
-    GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-    path.type = PathType.MKRSCI_ANDROID_BLE;
-    path.pathString = sensorId + ":" + Strings.nullToEmpty(handlerId);
-    return path;
+    return GoosciIcon.IconPath.newBuilder()
+        .setType(PathType.MKRSCI_ANDROID_BLE)
+        .setPathString(sensorId + ":" + Strings.nullToEmpty(handlerId))
+        .build();
   }
 
   @Override
   public GoosciIcon.IconPath getLargeIconPath() {
-    GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-    path.type = PathType.MKRSCI_ANDROID_BLE;
-    path.pathString = sensorId + ":" + Strings.nullToEmpty(handlerId);
-    return path;
+    return GoosciIcon.IconPath.newBuilder()
+        .setType(PathType.MKRSCI_ANDROID_BLE)
+        .setPathString(sensorId + ":" + Strings.nullToEmpty(handlerId))
+        .build();
   }
 }

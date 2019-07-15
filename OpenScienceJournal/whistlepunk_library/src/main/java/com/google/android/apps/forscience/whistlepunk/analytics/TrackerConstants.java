@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.analytics;
 
 import androidx.annotation.VisibleForTesting;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.common.base.Throwables;
 
 /** Constants for usage tracking. */

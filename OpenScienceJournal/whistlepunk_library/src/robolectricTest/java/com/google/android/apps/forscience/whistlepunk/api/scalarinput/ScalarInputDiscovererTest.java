@@ -55,7 +55,7 @@ public class ScalarInputDiscovererTest {
             deviceRegistry.addDevice(device.getSpec());
           }
         };
-    assertEquals(true, sid.startScanning(listener, TestConsumers.expectingSuccess()));
+    assertTrue(sid.startScanning(listener, TestConsumers.expectingSuccess()));
 
     // Haven't executed main thread yet.
     assertEquals(0, listener.sensors.size());
@@ -150,8 +150,7 @@ public class ScalarInputDiscovererTest {
 
     AccumulatingConsumer<SensorDiscoverer.DiscoveredSensor> c = new AccumulatingConsumer<>();
     RecordingRunnable onScanDone = new RecordingRunnable();
-    assertEquals(
-        true,
+    assertTrue(
         sid.startScanning(
             new TestScanListener(c, onScanDone),
             TestConsumers.expectingFailure(
@@ -237,11 +236,10 @@ public class ScalarInputDiscovererTest {
 
     AccumulatingConsumer<SensorDiscoverer.DiscoveredSensor> c = new AccumulatingConsumer<>();
     RecordingRunnable onScanDone = new RecordingRunnable();
-    assertEquals(
-        true,
+    assertTrue(
         sid.startScanning(new TestScanListener(c, onScanDone), TestConsumers.expectingSuccess()));
     GoosciSensorSpec.SensorSpec sensor = c.getOnlySeen().getSensorSpec();
-    assertEquals(ScalarInputSpec.TYPE, sensor.info.providerId);
+    assertEquals(ScalarInputSpec.TYPE, sensor.info.getProviderId());
     assertEquals(s.getSensorName(), sensor.rememberedAppearance.name);
 
     assertFalse(onScanDone.hasRun);

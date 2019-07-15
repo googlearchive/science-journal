@@ -43,8 +43,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel.Label.ValueType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import java.io.File;
 
@@ -283,7 +282,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   }
 
   private Intent getPhotoShareIntent(Label label, Context context) {
-    if (label.getType() != GoosciLabel.Label.ValueType.PICTURE) {
+    if (label.getType() != ValueType.PICTURE) {
       return null;
     } else {
       return FileMetadataUtil.getInstance()
@@ -317,17 +316,17 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       // Last item always the caption
       return TYPE_CAPTION;
     }
-    int labelType = trial.getLabels().get(position - 1).getType();
-    if (labelType == GoosciLabel.Label.ValueType.TEXT) {
+    ValueType labelType = trial.getLabels().get(position - 1).getType();
+    if (labelType == ValueType.TEXT) {
       return TYPE_TEXT_NOTE;
     }
-    if (labelType == GoosciLabel.Label.ValueType.PICTURE) {
+    if (labelType == ValueType.PICTURE) {
       return TYPE_PICTURE_NOTE;
     }
-    if (labelType == GoosciLabel.Label.ValueType.SENSOR_TRIGGER) {
+    if (labelType == ValueType.SENSOR_TRIGGER) {
       return TYPE_TRIGGER_NOTE;
     }
-    if (labelType == GoosciLabel.Label.ValueType.SNAPSHOT) {
+    if (labelType == ValueType.SNAPSHOT) {
       return TYPE_SNAPSHOT_NOTE;
     }
     return TYPE_UNKNOWN;

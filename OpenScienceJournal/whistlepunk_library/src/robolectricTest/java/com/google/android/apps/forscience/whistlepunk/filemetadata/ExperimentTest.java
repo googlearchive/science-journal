@@ -28,11 +28,11 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -60,7 +60,7 @@ public class ExperimentTest {
     GoosciExperiment.Experiment result = new GoosciExperiment.Experiment();
     result.labels = new GoosciLabel.Label[labelTimes.length];
     for (int i = 0; i < labelTimes.length; i++) {
-      Label label = Label.newLabel(labelTimes[i], GoosciLabel.Label.ValueType.TEXT);
+      Label label = Label.newLabel(labelTimes[i], ValueType.TEXT);
       result.labels[i] = label.getLabelProto();
     }
     return result;
@@ -82,7 +82,7 @@ public class ExperimentTest {
         new GoosciPictureLabelValue.PictureLabelValue();
     GoosciLabel.Label labelProto = new GoosciLabel.Label();
     labelProto.protoData = MessageNano.toByteArray(labelValueProto);
-    labelProto.type = GoosciLabel.Label.ValueType.PICTURE;
+    labelProto.type = ValueType.PICTURE;
     experiment.getLabels().add(Label.fromLabel(labelProto));
     assertEquals(1, experiment.getLabelCount());
 
@@ -99,7 +99,7 @@ public class ExperimentTest {
             experiment2.getLabels().get(0).getPictureLabelValue(), labelValueProto));
     assertEquals(1, experiment2.getLabelCount());
     List<Label> labels = experiment2.getLabels();
-    labels.add(Label.newLabel(20, GoosciLabel.Label.ValueType.TEXT));
+    labels.add(Label.newLabel(20, ValueType.TEXT));
     assertEquals(2, experiment2.getLabelCount());
 
     assertEquals(2, experiment2.getExperimentProto().labels.length);
@@ -354,7 +354,7 @@ public class ExperimentTest {
     experiment.setTitle("foo");
     assertEquals(1, experiment.getChanges().size());
 
-    Label label = Label.newLabel(1000, GoosciLabel.Label.ValueType.TEXT);
+    Label label = Label.newLabel(1000, ValueType.TEXT);
     experiment.addLabel(experiment, label);
     assertEquals(2, experiment.getChanges().size());
 

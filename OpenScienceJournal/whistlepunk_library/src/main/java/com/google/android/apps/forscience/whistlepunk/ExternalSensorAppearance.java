@@ -17,8 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon.IconPath.PathType;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 
 /** Subclass of {@link BuiltInSensorAppearance} which includes the external device name. */
@@ -63,17 +63,17 @@ public class ExternalSensorAppearance extends BuiltInSensorAppearance {
 
   @Override
   public GoosciIcon.IconPath getSmallIconPath() {
-    GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-    path.type = PathType.LEGACY_ANDROID_BLE;
-    path.pathString = String.valueOf(kind);
-    return path;
+    return GoosciIcon.IconPath.newBuilder()
+        .setType(PathType.LEGACY_ANDROID_BLE)
+        .setPathString(String.valueOf(kind))
+        .build();
   }
 
   @Override
   public GoosciIcon.IconPath getLargeIconPath() {
-    GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-    path.type = PathType.LEGACY_ANDROID_BLE;
-    path.pathString = String.valueOf(kind);
-    return path;
+    return GoosciIcon.IconPath.newBuilder()
+        .setType(PathType.LEGACY_ANDROID_BLE)
+        .setPathString(String.valueOf(kind))
+        .build();
   }
 }

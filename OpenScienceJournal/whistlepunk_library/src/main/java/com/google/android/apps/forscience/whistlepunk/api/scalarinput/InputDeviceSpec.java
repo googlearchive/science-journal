@@ -24,8 +24,8 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
+import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.InputDevice;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.MkrSciBleDeviceSpec;
@@ -33,8 +33,8 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.html.HtmlEscapers;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-import com.google.protobuf.nano.MessageNano;
+import com.google.protobuf.ExtensionRegistryLite;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -92,13 +92,15 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   private InputDevice.InputDeviceConfig config;
 
   public static InputDeviceSpec fromProto(GoosciDeviceSpec.DeviceSpec proto) {
-    return new InputDeviceSpec(proto.info.providerId, proto.info.address, proto.name);
+    return new InputDeviceSpec(proto.info.getProviderId(), proto.info.getAddress(), proto.name);
   }
 
   public InputDeviceSpec(String providerType, String deviceAddress, String deviceName) {
-    config = new InputDevice.InputDeviceConfig();
-    config.providerId = providerType;
-    config.deviceAddress = Preconditions.checkNotNull(deviceAddress);
+    config =
+        InputDevice.InputDeviceConfig.newBuilder()
+            .setProviderId(providerType)
+            .setDeviceAddress(Preconditions.checkNotNull(deviceAddress))
+            .build();
     name = deviceName;
   }
 
@@ -110,8 +112,9 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   @Nullable
   private InputDevice.InputDeviceConfig parse(byte[] config) {
     try {
-      return InputDevice.InputDeviceConfig.parseFrom(config);
-    } catch (InvalidProtocolBufferNanoException e) {
+      return InputDevice.InputDeviceConfig.parseFrom(
+          config, ExtensionRegistryLite.getGeneratedRegistry());
+    } catch (InvalidProtocolBufferException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "error parsing config", e);
       }
@@ -170,7 +173,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
 
   @Override
   public byte[] getConfig() {
-    return MessageNano.toByteArray(config);
+    return config.toByteArray();
   }
 
   @Override
@@ -179,7 +182,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   }
 
   public String getDeviceAddress() {
-    return config.deviceAddress;
+    return config.getDeviceAddress();
   }
 
   public static InputDeviceSpec builtInDevice(Context context) {
@@ -188,7 +191,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   }
 
   public String getProviderType() {
-    return config.providerId;
+    return config.getProviderId();
   }
 
   @Override

@@ -22,8 +22,8 @@ import static org.junit.Assert.assertNull;
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import java.io.File;
 import org.junit.After;
@@ -209,7 +209,7 @@ public class UserMetadataManagerTest {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
     GoosciDeviceSpec.DeviceSpec device = new GoosciDeviceSpec.DeviceSpec();
-    device.info = new GoosciGadgetInfo.GadgetInfo();
+    device.info = GoosciGadgetInfo.GadgetInfo.getDefaultInstance();
     device.name = "Name";
     assertEquals(0, smm.getMyDevices().size());
     smm.addMyDevice(device);

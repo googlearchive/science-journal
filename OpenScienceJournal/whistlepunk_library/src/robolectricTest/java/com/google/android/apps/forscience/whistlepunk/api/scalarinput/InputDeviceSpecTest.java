@@ -17,8 +17,8 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciGadgetInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -42,8 +42,7 @@ public class InputDeviceSpecTest {
   @Test
   public void providerIdFromProto() {
     GoosciDeviceSpec.DeviceSpec proto = new GoosciDeviceSpec.DeviceSpec();
-    proto.info = new GoosciGadgetInfo.GadgetInfo();
-    proto.info.providerId = "providerId";
+    proto.info = GoosciGadgetInfo.GadgetInfo.newBuilder().setProviderId("providerId").build();
     InputDeviceSpec spec = InputDeviceSpec.fromProto(proto);
     assertEquals("providerId", spec.getProviderType());
   }

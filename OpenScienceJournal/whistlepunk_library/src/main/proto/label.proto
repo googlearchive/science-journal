@@ -53,7 +53,7 @@ message Label {
   optional Caption caption = 4;
 
   enum ValueType {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     TEXT = 1;     // A text label.
                   // This ValueType is associated with protoData field of
