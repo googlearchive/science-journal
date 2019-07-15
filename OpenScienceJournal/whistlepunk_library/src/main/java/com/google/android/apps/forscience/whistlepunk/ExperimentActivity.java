@@ -33,6 +33,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.CameraFragment.ListenerProvider;
+import com.google.android.apps.forscience.whistlepunk.MoreObservationsFragment.ObservationOption;
 import com.google.android.apps.forscience.whistlepunk.RecordFragment.CallbacksProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
@@ -489,5 +490,39 @@ public class ExperimentActivity extends AppCompatActivity
         addNewLabel(label);
       }
     }
+  }
+
+  private void openGallery() {
+    // TODO(b/137214973): open gallery fragment
+  }
+
+  private void openDraw() {
+    // TODO(b/112632194): start ink activity here
+  }
+
+  private void openVelocityTracker() {
+    // TODO(b/135678092): start velocity tracker activity here
+  }
+
+  ObservationOption[] getMoreObservationOptions() {
+    // TODO(b/132651474): make this work depending on what is available (draw, velocity, etc)
+    ObservationOption[] moreObservationOptions = {
+      new ObservationOption(
+          R.string.more_observations_gallery_title,
+          R.string.more_observations_gallery_description,
+          R.drawable.more_observations_gallery,
+          (View view) -> openGallery()),
+      new ObservationOption(
+          R.string.more_observations_draw_title,
+          R.string.more_observations_draw_description,
+          R.drawable.more_observations_draw,
+          (View view) -> openDraw()),
+      new ObservationOption(
+          R.string.more_observations_velocity_tracker_title,
+          R.string.more_observations_velocity_tracker_description,
+          R.drawable.more_observations_velocity_tracker,
+          (View view) -> openVelocityTracker())
+    };
+    return moreObservationOptions;
   }
 }

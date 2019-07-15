@@ -42,4 +42,7 @@
     <!-- Columns of images in gallery -->
     <integer name="gallery_column_count">7</integer>
 
+    <!-- Columns in More Observations fragment grid -->
+    <integer name="more_observations_column_count">4</integer>
+
 </resources>

@@ -240,4 +240,7 @@
     <dimen name="action_area_height">87dp</dimen>
     <!-- Width of action area for landscape mode-->
     <dimen name="action_area_width">87dp</dimen>
+
+    <!-- Columns in More Observations fragment grid -->
+    <integer name="more_observations_column_count">2</integer>
 </resources>
