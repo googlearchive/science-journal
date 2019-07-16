@@ -17,15 +17,14 @@
 syntax = "proto2";
 
 package goosci;
+
+import "third_party/android/nanoproto/nano_descriptor.proto";
+import "caption.proto";
+
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciLabel";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
-
-import "third_party/android/nanoproto/nano_descriptor.proto";
-
-import "caption.proto";
-import "label_value.proto";
 
 /*
  * Label protobuf definition
@@ -69,7 +68,7 @@ message Label {
                    // snapshot_label_value.proto.
     SKETCH = 5;    // A label with a sketch. This ValueType is associated with
                    // protoData of sketch_label_value.proto.
-  };
+  }
 
   // The type this label represents. This can be used to reference the type of
   // proto_data.
