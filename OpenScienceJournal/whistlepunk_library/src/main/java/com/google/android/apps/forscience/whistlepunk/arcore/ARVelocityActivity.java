@@ -41,6 +41,7 @@ public class ARVelocityActivity extends AppCompatActivity {
   private static final String TAG = "ARVelocity";
   private ArFragment arFragment;
   private ImageView fitToScanView;
+  private static final float INTERVAL_TIME_SECONDS = 1f;
   private float delTime;
   private Vector3 lastPos;
   private Vector3 currPos;
@@ -103,6 +104,7 @@ public class ARVelocityActivity extends AppCompatActivity {
 
             calculateVelocity(augmentedImage.getCenterPose(), frameTime.getDeltaSeconds());
           } else {
+            lastPos = null;
             if (Log.isLoggable(TAG, Log.DEBUG)) {
               Log.d(TAG, "Not actively tracking");
             }
@@ -124,15 +126,17 @@ public class ARVelocityActivity extends AppCompatActivity {
     currPos = Vector3.subtract(new Vector3(centerPose.tx(), centerPose.ty(), centerPose.tz()),
         new Vector3(anchorPose.tx(), anchorPose.ty(), anchorPose.tz()));
 
+    delTime += deltaSeconds;
+
     if (Log.isLoggable(TAG, Log.DEBUG)) {
       Log.d(TAG, String
           .format("P: %.2f Px: %.2f Py: %.2f Pz: %.2f ", currPos.length(), currPos.x, currPos.y,
               currPos.z));
     }
 
-    delTime += deltaSeconds;
-
-    if (lastPos != null && delTime > 1) {
+    if (lastPos == null) {
+      lastPos = currPos;
+    } else if (delTime >= INTERVAL_TIME_SECONDS) {
       // Calculate velocity in meters per second.
       Vector3 displacement = Vector3.subtract(currPos, lastPos);
       Vector3 avgVelocity = displacement.scaled(delTime);
@@ -140,8 +144,7 @@ public class ARVelocityActivity extends AppCompatActivity {
         Log.d(TAG, String.format("V: %.2f", avgVelocity.length()));
       }
       delTime = 0;
+      lastPos = currPos;
     }
-
-    lastPos = currPos;
   }
 }
