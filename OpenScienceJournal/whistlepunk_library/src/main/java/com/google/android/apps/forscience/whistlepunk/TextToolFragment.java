@@ -34,6 +34,8 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
@@ -147,6 +149,7 @@ public class TextToolFragment extends PanesToolFragment {
     addButton.setOnClickListener(
         view -> {
           final long timestamp = getTimestamp(addButton.getContext());
+          @MigrateAs(Destination.BUILDER)
           GoosciTextLabelValue.TextLabelValue labelValue =
               new GoosciTextLabelValue.TextLabelValue();
           labelValue.text = textView.getText().toString();

@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalP
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Interval;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.VirtualPin;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor.Pin;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -40,6 +41,8 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ValueFilter;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Single;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -195,10 +198,9 @@ public class BluetoothSensor extends ScalarSensor {
     sdr.timestampKey = 42; // arbitrary constant.  TMOLTUAE.
     sdr.interval = Interval.newBuilder().setCount(1).setFrequency(20).build();
 
-    sdr.pin =
-        new GoosciSensor.Pin[] {
-          new GoosciSensor.Pin(),
-        };
+    sdr.pin = new GoosciSensor.Pin[1];
+    @MigrateAs(Destination.BUILDER)
+    Pin pin = new GoosciSensor.Pin();
     String pinName = sensor.getPin();
     PinTypeProvider pinTypeProvider = new PinTypeProvider();
     PinTypeProvider.PinType pinType = pinTypeProvider.parsePinName(pinName);
@@ -207,14 +209,15 @@ public class BluetoothSensor extends ScalarSensor {
       return null;
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.ANALOG) {
       AnalogPin ap = AnalogPin.newBuilder().setPin(pinType.getPinNumber()).build();
-      sdr.pin[0].setAnalogPin(ap);
+      pin.setAnalogPin(ap);
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.DIGITAL) {
       DigitalPin dp = DigitalPin.newBuilder().setPin(pinType.getPinNumber()).build();
-      sdr.pin[0].setDigitalPin(dp);
+      pin.setDigitalPin(dp);
     } else if (pinType.getPinSignalType() == PinTypeProvider.PinSignalType.VIRTUAL) {
       VirtualPin vp = VirtualPin.newBuilder().setPin(pinType.getPinNumber()).build();
-      sdr.pin[0].setVirtualPin(vp);
+      pin.setVirtualPin(vp);
     }
+    sdr.pin[0] = pin;
 
     byte[] value = GoosciSensor.SensorDataRequest.toByteArray(sdr);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -32,12 +32,13 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 
 /** Provides pictures for access outside the SJ app. TODO: Add thumbnails. */
 public class ScienceJournalDocsProvider extends DocumentsProvider {
@@ -283,7 +284,8 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
   }
 
   private void addExperimentToRow(
-      MatrixCursor.RowBuilder row, GoosciUserMetadata.ExperimentOverview overview) {
+      MatrixCursor.RowBuilder row,
+      @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview overview) {
     row.add(Document.COLUMN_DISPLAY_NAME, Experiment.getDisplayTitle(getContext(), overview.title));
     row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
     row.add(Document.COLUMN_LAST_MODIFIED, overview.lastUsedTimeMs);

@@ -20,6 +20,8 @@ import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,6 +78,7 @@ public class LocalSyncManager {
     populateLocalSyncManager();
     ArrayList<GoosciLocalSyncStatus.ExperimentStatus> list =
         new ArrayList<>(Arrays.asList(proto.experimentStatus));
+    @MigrateAs(Destination.BUILDER)
     GoosciLocalSyncStatus.ExperimentStatus status = new GoosciLocalSyncStatus.ExperimentStatus();
     status.experimentId = experimentId;
     list.add(status);
@@ -112,6 +115,7 @@ public class LocalSyncManager {
    * @param experimentId The id of the experiment to set status for.
    */
   public void setDirty(String experimentId, boolean dirty) {
+    @MigrateAs(Destination.BUILDER)
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     status.dirty = dirty;
     // Reset the remote version to force a sync.
@@ -140,6 +144,7 @@ public class LocalSyncManager {
    * @param version The last version of the experiment synced to or from Drive.
    */
   public void setLastSyncedVersion(String experimentId, long version) {
+    @MigrateAs(Destination.BUILDER)
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     status.lastSyncedVersion = version;
     writeLocalSyncStatus();
@@ -163,6 +168,7 @@ public class LocalSyncManager {
    * @param archived Whether the server says the experiment is archived.
    */
   public void setServerArchived(String experimentId, boolean archived) {
+    @MigrateAs(Destination.BUILDER)
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     status.serverArchived = archived;
     writeLocalSyncStatus();
@@ -186,6 +192,7 @@ public class LocalSyncManager {
    * @param downloaded Whether the experiment is downloaded.
    */
   public void setDownloaded(String experimentId, boolean downloaded) {
+    @MigrateAs(Destination.BUILDER)
     GoosciLocalSyncStatus.ExperimentStatus status = getExperimentStatus(experimentId);
     status.downloaded = downloaded;
     writeLocalSyncStatus();

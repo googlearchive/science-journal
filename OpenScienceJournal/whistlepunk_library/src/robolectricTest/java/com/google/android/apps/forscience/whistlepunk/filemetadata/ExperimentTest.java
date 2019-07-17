@@ -36,6 +36,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import java.util.Collections;
 import java.util.List;
@@ -325,6 +327,7 @@ public class ExperimentTest {
   @Test
   public void testSetGetImagePath() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
+    @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     overview.experimentId = "experimentId";
     Experiment experiment =
@@ -499,6 +502,7 @@ public class ExperimentTest {
   public void testMergeExperimentsImageLabelAddOnly() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     pictureLabelValue.filePath = "foo";
@@ -534,6 +538,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
+    @MigrateAs(Destination.BUILDER)
     Caption caption = new Caption();
     caption.text = "caption";
     label.setCaption(caption);
@@ -563,6 +568,7 @@ public class ExperimentTest {
   public void testMergeExperimentsLabelAddAndEdit() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     pictureLabelValue.filePath = "foo";
@@ -605,6 +611,7 @@ public class ExperimentTest {
   public void testMergeExperimentsLabelAddAndDelete() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     pictureLabelValue.filePath = "foo";
@@ -642,6 +649,7 @@ public class ExperimentTest {
   public void testMergeExperimentsLabelAddAndEditDelete() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     pictureLabelValue.filePath = "foo";
@@ -767,6 +775,7 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     pictureLabelValue.filePath = "foo";
@@ -808,6 +817,7 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     pictureLabelValue.filePath = "foo";
@@ -846,6 +856,7 @@ public class ExperimentTest {
     experimentServer.addTrial(trial);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
+    @MigrateAs(Destination.BUILDER)
     Caption caption = new Caption();
     caption.text = "caption";
     label.setCaption(caption);
@@ -858,6 +869,7 @@ public class ExperimentTest {
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    @MigrateAs(Destination.BUILDER)
     Caption caption2 = new Caption();
     caption2.text = "caption2";
     label2.setCaption(caption2);
@@ -898,6 +910,7 @@ public class ExperimentTest {
     experimentServer.addTrial(trial);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
+    @MigrateAs(Destination.BUILDER)
     Caption caption = new Caption();
     caption.text = "caption";
     label.setCaption(caption);
@@ -940,6 +953,7 @@ public class ExperimentTest {
     experimentClient.addTrial(trial);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
+    @MigrateAs(Destination.BUILDER)
     Caption caption = new Caption();
     caption.text = "caption";
     label.setCaption(caption);
@@ -973,6 +987,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
+    @MigrateAs(Destination.BUILDER)
     Caption caption = new Caption();
     caption.text = "caption";
     label.setCaption(caption);
@@ -991,6 +1006,7 @@ public class ExperimentTest {
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    @MigrateAs(Destination.BUILDER)
     Caption caption2 = new Caption();
     caption2.text = "caption2";
     label2.setCaption(caption2);
@@ -999,6 +1015,7 @@ public class ExperimentTest {
 
     Label label3 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    @MigrateAs(Destination.BUILDER)
     Caption caption3 = new Caption();
     caption3.text = "caption3";
     label3.setCaption(caption3);
@@ -1022,6 +1039,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
+    @MigrateAs(Destination.BUILDER)
     Caption caption = new Caption();
     caption.text = "caption";
     label.setCaption(caption);
@@ -1042,6 +1060,7 @@ public class ExperimentTest {
 
     Label label3 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    @MigrateAs(Destination.BUILDER)
     Caption caption3 = new Caption();
     caption3.text = "caption3";
     label3.setCaption(caption3);
@@ -1065,6 +1084,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
+    @MigrateAs(Destination.BUILDER)
     Caption caption = new Caption();
     caption.text = "caption";
     label.setCaption(caption);
@@ -1083,6 +1103,7 @@ public class ExperimentTest {
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    @MigrateAs(Destination.BUILDER)
     Caption caption2 = new Caption();
     caption2.text = "caption2";
     label2.setCaption(caption2);
@@ -1146,6 +1167,7 @@ public class ExperimentTest {
 
     experimentServer.addTrial(trial);
 
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     pictureLabelValue.filePath = "foo";
@@ -1186,6 +1208,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
+    @MigrateAs(Destination.BUILDER)
     Caption caption = new Caption();
     caption.text = "caption";
     label.setCaption(caption);
@@ -1204,6 +1227,7 @@ public class ExperimentTest {
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
+    @MigrateAs(Destination.BUILDER)
     Caption caption2 = new Caption();
     caption2.text = "caption2";
     label2.setCaption(caption2);

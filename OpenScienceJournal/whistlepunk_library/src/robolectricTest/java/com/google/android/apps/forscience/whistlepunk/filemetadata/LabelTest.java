@@ -26,6 +26,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,6 +62,7 @@ public class LabelTest {
 
     assertEquals(label.getType(), ValueType.TEXT);
 
+    @MigrateAs(Destination.BUILDER)
     GoosciTextLabelValue.TextLabelValue labelValue = label.getTextLabelValue();
     labelValue.text = "The meaning of life";
     label.setLabelProtoData(labelValue);
@@ -70,9 +73,11 @@ public class LabelTest {
 
   @Test
   public void testCanCreatePictureLabel() {
+    @MigrateAs(Destination.BUILDER)
     GoosciCaption.Caption caption = new GoosciCaption.Caption();
     caption.text = "kitten";
     caption.lastEditedTimestamp = 5;
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue labelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     labelValue.filePath = "path/to/photo";
@@ -149,6 +154,7 @@ public class LabelTest {
 
   @Test
   public void testDeepCopy() {
+    @MigrateAs(Destination.BUILDER)
     GoosciTextLabelValue.TextLabelValue textLabelValue = new GoosciTextLabelValue.TextLabelValue();
     textLabelValue.text = "peanutbutter";
     Label first = Label.newLabelWithValue(10, ValueType.TEXT, textLabelValue, null);

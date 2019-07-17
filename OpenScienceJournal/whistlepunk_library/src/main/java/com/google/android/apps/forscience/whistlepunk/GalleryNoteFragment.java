@@ -47,6 +47,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
@@ -202,6 +204,7 @@ public class GalleryNoteFragment extends Fragment
     addButton.setOnClickListener(
         view -> {
           final long timestamp = getTimestamp(addButton.getContext());
+          @MigrateAs(Destination.BUILDER)
           GoosciPictureLabelValue.PictureLabelValue labelValue =
               new GoosciPictureLabelValue.PictureLabelValue();
 
@@ -214,8 +217,8 @@ public class GalleryNoteFragment extends Fragment
                       List<String> selectedImages = galleryAdapter.getSelectedImages();
                       for (String selectedImage : selectedImages) {
 
-                        Label result = Label
-                            .newLabel(timestamp, GoosciLabel.Label.ValueType.PICTURE);
+                        Label result =
+                            Label.newLabel(timestamp, GoosciLabel.Label.ValueType.PICTURE);
                         File imageFile =
                             PictureUtils.createImageFile(
                                 getActivity(), getAppAccount(), experimentId, result.getLabelId());

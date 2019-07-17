@@ -32,6 +32,8 @@ import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSe
 import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -56,8 +58,10 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
 
   private DataController dataController;
 
+  @MigrateAs(Destination.EITHER)
   public static GoosciSensorAppearance.BasicSensorAppearance toProto(
       SensorAppearance appearance, Context context) {
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorAppearance.BasicSensorAppearance proto =
         new GoosciSensorAppearance.BasicSensorAppearance();
     proto.name = appearance.getName(context);
@@ -295,8 +299,10 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     return UNKNOWN_SENSOR_APPEARANCE;
   }
 
+  @MigrateAs(Destination.EITHER)
   public static GoosciSensorAppearance.BasicSensorAppearance appearanceToProto(
       SensorAppearance appearance, Context context) {
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorAppearance.BasicSensorAppearance proto =
         new GoosciSensorAppearance.BasicSensorAppearance();
     proto.name = appearance.getName(context);

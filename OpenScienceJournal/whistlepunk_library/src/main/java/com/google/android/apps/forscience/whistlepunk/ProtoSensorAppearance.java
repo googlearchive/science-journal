@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance.BasicSensorAppearance;
 import io.reactivex.Single;
 import java.text.NumberFormat;
 
@@ -48,8 +49,10 @@ public class ProtoSensorAppearance implements SensorAppearance {
   }
 
   public ProtoSensorAppearance(GoosciSensorAppearance.BasicSensorAppearance proto) {
-    this.proto = proto;
-    numberFormat = SensorAppearanceProviderImpl.createNumberFormat(this.proto.pointsAfterDecimal);
+    BasicSensorAppearance basicSensorAppearance = proto;
+    numberFormat =
+        SensorAppearanceProviderImpl.createNumberFormat(basicSensorAppearance.pointsAfterDecimal);
+    this.proto = basicSensorAppearance;
   }
 
   @Override

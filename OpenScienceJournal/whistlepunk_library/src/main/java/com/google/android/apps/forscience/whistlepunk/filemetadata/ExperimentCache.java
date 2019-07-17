@@ -31,6 +31,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperi
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -172,7 +174,8 @@ class ExperimentCache {
    * @param experimentOverview the updated experimentOverview to set on the cached experiment if
    *     they have the same ID.
    */
-  void onExperimentOverviewUpdated(GoosciUserMetadata.ExperimentOverview experimentOverview) {
+  void onExperimentOverviewUpdated(
+      @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview experimentOverview) {
     if (!isDifferentFromActive(experimentOverview)) {
       activeExperiment.setLastUsedTime(experimentOverview.lastUsedTimeMs);
       activeExperiment.setArchived(context, appAccount, experimentOverview.isArchived);
@@ -298,7 +301,8 @@ class ExperimentCache {
    * parameter localExperimentId.
    */
   private void immediateWriteIfActiveChanging(
-      GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
+      @MigrateAs(Destination.EITHER)
+          GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
     if (activeExperiment != null
         && activeExperimentNeedsWrite
         && isDifferentFromActive(localExperimentOverview)) {
@@ -423,6 +427,7 @@ class ExperimentCache {
       proto.fileVersion.platformVersion = 0;
     }
 
+    @MigrateAs(Destination.BUILDER)
     Version.FileVersion fileVersion = proto.fileVersion;
 
     if (fileVersion.version == newMajorVersion
@@ -518,7 +523,8 @@ class ExperimentCache {
     proto.fileVersion.platformVersion = platformVersion;
   }
 
-  private File getExperimentFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {
+  private File getExperimentFile(
+      @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview experimentOverview) {
     return getExperimentFile(experimentOverview.experimentId);
   }
 
@@ -534,7 +540,8 @@ class ExperimentCache {
     return new File(experimentDirectory, FileMetadataManager.ASSETS_DIRECTORY);
   }
 
-  private boolean isDifferentFromActive(GoosciUserMetadata.ExperimentOverview other) {
+  private boolean isDifferentFromActive(
+      @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview other) {
     if (activeExperiment == null) {
       return true;
     }

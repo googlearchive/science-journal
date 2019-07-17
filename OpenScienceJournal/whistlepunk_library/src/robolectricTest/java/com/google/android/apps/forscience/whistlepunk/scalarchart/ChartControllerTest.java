@@ -29,6 +29,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +65,7 @@ public class ChartControllerTest {
     DataController dc = new InMemorySensorDatabase().makeSimpleController(mmm);
     final String runId = "runId";
     Trial trial = trialBetween(mmm, 0, 50, runId);
+    @MigrateAs(Destination.BUILDER)
     final GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = "foo";
     chartController.loadRunData(
@@ -139,7 +142,8 @@ public class ChartControllerTest {
 
   @NonNull
   private ChartController.ChartLoadingStatus makeStatus(
-      final String runId, final GoosciSensorLayout.SensorLayout layout) {
+      final String runId,
+      @MigrateAs(Destination.EITHER) final GoosciSensorLayout.SensorLayout layout) {
     return new ChartController.ChartLoadingStatus() {
       @Override
       public int getGraphLoadStatus() {

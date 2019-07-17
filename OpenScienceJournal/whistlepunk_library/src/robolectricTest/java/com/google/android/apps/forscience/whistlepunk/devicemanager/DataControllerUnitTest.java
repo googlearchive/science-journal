@@ -33,6 +33,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -69,6 +71,7 @@ public class DataControllerUnitTest {
     final Experiment experiment = cExperiment.getValue();
 
     ArrayList<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.maximumYAxisValue = 5;
     layouts.add(layout);

@@ -39,6 +39,8 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import org.junit.Test;
@@ -234,6 +236,7 @@ public class ScalarSensorTest {
 
   @Test
   public void testComputeFilterOnlyScale() {
+    @MigrateAs(Destination.BUILDER)
     ScaleTransform transform = new ScaleTransform();
     transform.sourceBottom = 0;
     transform.sourceTop = 10;
@@ -266,6 +269,7 @@ public class ScalarSensorTest {
 
   @Test
   public void testTranslateFilter() {
+    @MigrateAs(Destination.BUILDER)
     ScaleTransform transform = new ScaleTransform();
     transform.sourceBottom = 0;
     transform.sourceTop = 10;
@@ -323,6 +327,7 @@ public class ScalarSensorTest {
 
   @Test
   public void testZoomUpTwoTiers() {
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = "test";
     Trial trial =
@@ -393,8 +398,10 @@ public class ScalarSensorTest {
     data.checkObserver(observer);
   }
 
+  @MigrateAs(Destination.EITHER)
   @NonNull
   private ScaleTransform rpmToHertz() {
+    @MigrateAs(Destination.BUILDER)
     ScaleTransform transform = new ScaleTransform();
     transform.sourceBottom = 0;
     transform.sourceTop = 60;

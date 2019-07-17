@@ -52,6 +52,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
@@ -383,15 +385,18 @@ public class AddNoteDialog extends DialogFragment {
     long timestamp =
         AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock().getNow();
     if (hasPicture()) {
+      @MigrateAs(Destination.BUILDER)
       GoosciPictureLabelValue.PictureLabelValue labelValue =
           new GoosciPictureLabelValue.PictureLabelValue();
       labelValue.filePath = pictureLabelPath;
+      @MigrateAs(Destination.BUILDER)
       GoosciCaption.Caption caption = new GoosciCaption.Caption();
       caption.text = input.getText().toString();
       caption.lastEditedTimestamp = timestamp;
       return Label.newLabelWithValue(
           timestamp, GoosciLabel.Label.ValueType.PICTURE, labelValue, caption);
     } else {
+      @MigrateAs(Destination.BUILDER)
       GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
       labelValue.text = input.getText().toString();
       return Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);
@@ -433,6 +438,7 @@ public class AddNoteDialog extends DialogFragment {
     if (inputLayout.isErrorEnabled()) {
       return false;
     }
+    @MigrateAs(Destination.BUILDER)
     GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
     labelValue.text = text;
     input.setText("");
@@ -447,11 +453,13 @@ public class AddNoteDialog extends DialogFragment {
   }
 
   private boolean addPictureLabel(Experiment experiment) {
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue labelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     labelValue.filePath = pictureLabelPath;
     Label label =
         Label.fromUuidAndValue(timestamp, uuid, GoosciLabel.Label.ValueType.PICTURE, labelValue);
+    @MigrateAs(Destination.BUILDER)
     GoosciCaption.Caption caption = new GoosciCaption.Caption();
     caption.text = input.getText().toString();
     caption.lastEditedTimestamp = label.getCreationTimeMs();

@@ -101,6 +101,8 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsCo
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import java.text.NumberFormat;
@@ -842,6 +844,7 @@ public class RunReviewFragment extends Fragment
           @Override
           public void onCaptionEdit(String updatedCaption) {
             if (!claimExperimentsMode) {
+              @MigrateAs(Destination.BUILDER)
               GoosciCaption.Caption caption = new GoosciCaption.Caption();
               caption.text = updatedCaption;
               caption.lastEditedTimestamp = System.currentTimeMillis();
@@ -1149,7 +1152,9 @@ public class RunReviewFragment extends Fragment
   }
 
   private void populateStats(
-      TrialStats trialStats, StatsList statsList, GoosciSensorLayout.SensorLayout layout) {
+      TrialStats trialStats,
+      StatsList statsList,
+      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
     currentSensorStats = trialStats;
     int color =
         getActivity().getResources().getIntArray(R.array.graph_colors_array)[layout.colorIndex];
@@ -1183,7 +1188,8 @@ public class RunReviewFragment extends Fragment
     loadStatsAndChart(sensorLayout, statsList);
   }
 
-  private String getSonificationType(GoosciSensorLayout.SensorLayout sensorLayout) {
+  private String getSonificationType(
+      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout sensorLayout) {
     return LocalSensorOptionsStorage.loadFromLayoutExtras(sensorLayout)
         .getReadOnly()
         .getString(
@@ -1325,7 +1331,8 @@ public class RunReviewFragment extends Fragment
     button.setContentDescription(content);
   }
 
-  private void populateSensorViews(View rootView, GoosciSensorLayout.SensorLayout sensorLayout) {
+  private void populateSensorViews(
+      View rootView, @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout sensorLayout) {
     final Context context = rootView.getContext();
     final TextView sensorNameText = (TextView) rootView.findViewById(R.id.run_review_sensor_name);
     // Experiments created with C don't appear to contain sensorLayout information.

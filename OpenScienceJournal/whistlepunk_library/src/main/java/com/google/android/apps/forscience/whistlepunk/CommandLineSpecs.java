@@ -20,6 +20,8 @@ import android.content.res.Resources;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,6 +44,7 @@ public class CommandLineSpecs {
       String id = parts[0];
       String color = parts.length > 1 ? parts[1] : null;
       String side = parts.length > 2 ? parts[2] : null;
+      @MigrateAs(Destination.BUILDER)
       GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
       layout.sensorId = id;
       if (color != null) {

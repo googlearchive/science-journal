@@ -27,10 +27,13 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,9 +47,11 @@ public class TrialUnitTest {
   private SensorAppearanceProvider fakeProvider = new FakeUnitAppearanceProvider();
 
   private Trial makeSimpleTrial(long startTime, String sensorId) {
-    GoosciSensorLayout.SensorLayout[] layouts =
-        new GoosciSensorLayout.SensorLayout[] {new GoosciSensorLayout.SensorLayout()};
-    layouts[0].sensorId = sensorId;
+    GoosciSensorLayout.SensorLayout[] layouts = new GoosciSensorLayout.SensorLayout[1];
+    @MigrateAs(Destination.BUILDER)
+    SensorLayout layouts1 = new GoosciSensorLayout.SensorLayout();
+    layouts1.sensorId = sensorId;
+    layouts[0] = layouts1;
     return Trial.newTrial(startTime, layouts, fakeProvider, null);
   }
 
@@ -140,6 +145,7 @@ public class TrialUnitTest {
 
   @Test
   public void testNewTrialWithAppearances() {
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = "foo";
     MemoryAppearanceProvider provider = new MemoryAppearanceProvider();

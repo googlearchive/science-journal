@@ -59,6 +59,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
@@ -365,6 +367,7 @@ public class RecorderControllerImpl implements RecorderController {
     GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
         new GoosciSensorTriggerLabelValue.SensorTriggerLabelValue();
     labelValue.triggerInformation = trigger.getTriggerProto().triggerInformation;
+    @MigrateAs(Destination.BUILDER)
     GoosciCaption.Caption caption = null;
     if (!TextUtils.isEmpty((trigger.getNoteText()))) {
       caption = new GoosciCaption.Caption();
@@ -847,7 +850,8 @@ public class RecorderControllerImpl implements RecorderController {
             0);
   }
 
-  String getLayoutLoggingString(String loggingId, GoosciSensorLayout.SensorLayout layout) {
+  String getLayoutLoggingString(
+      String loggingId, @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
     StringBuilder builder = new StringBuilder();
     builder.append(loggingId);
     builder.append("|");

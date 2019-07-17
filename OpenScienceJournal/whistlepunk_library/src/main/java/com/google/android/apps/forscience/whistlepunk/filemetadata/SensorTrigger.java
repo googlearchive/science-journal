@@ -24,9 +24,11 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
 import com.google.common.primitives.Ints;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
+import com.google.protobuf.nano.NanoEnumValue;
 import java.util.Objects;
 
 /** A wrapper class for a SensorTrigger proto. */
@@ -47,7 +49,10 @@ public class SensorTrigger {
 
   // Short cut to create an alert type SensorTrigger.
   public static SensorTrigger newAlertTypeTrigger(
-      String sensorId, TriggerWhen triggerWhen, int[] alertTypes, double triggerValue) {
+      String sensorId,
+      TriggerWhen triggerWhen,
+      @NanoEnumValue(TriggerAlertType.class) int[] alertTypes,
+      double triggerValue) {
     SensorTrigger result =
         new SensorTrigger(
             sensorId, triggerWhen, TriggerActionType.TRIGGER_ACTION_ALERT, triggerValue);
@@ -234,7 +239,9 @@ public class SensorTrigger {
         && hasSameAlertTypes(getAlertTypes(), other.getAlertTypes());
   }
 
-  public static boolean hasSameAlertTypes(int[] first, int[] second) {
+  public static boolean hasSameAlertTypes(
+      @NanoEnumValue(TriggerAlertType.class) int[] first,
+      @NanoEnumValue(TriggerAlertType.class) int[] second) {
     if (first == null || second == null) {
       return first == null && second == null;
     }
@@ -244,17 +251,19 @@ public class SensorTrigger {
   }
 
   // For TRIGGER_ACTION_ALERT only.
+  @NanoEnumValue(TriggerAlertType.class)
   public int[] getAlertTypes() {
     return triggerProto.triggerInformation.triggerAlertTypes;
   }
 
   public boolean hasAlertType(int alertType) {
+    @NanoEnumValue(TriggerAlertType.class)
     int[] alertTypes = triggerProto.triggerInformation.triggerAlertTypes;
     return Ints.indexOf(alertTypes, alertType) != -1;
   }
 
   // For TRIGGER_ACTION_ALERT only.
-  public void setAlertTypes(int[] alertTypes) {
+  public void setAlertTypes(@NanoEnumValue(TriggerAlertType.class) int[] alertTypes) {
     triggerProto.triggerInformation.triggerAlertTypes = alertTypes;
   }
 

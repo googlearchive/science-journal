@@ -26,6 +26,8 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 
 /** Presents options for calculating and presenting frequency on the Android device. */
 public class FrequencyOptionsPresenter implements SensorPresenter.OptionsPresenter {
@@ -113,6 +115,7 @@ public class FrequencyOptionsPresenter implements SensorPresenter.OptionsPresent
     return false;
   }
 
+  @MigrateAs(Destination.EITHER)
   protected GoosciSensorConfig.BleSensorConfig.ScaleTransform getDefaultScaleTransform() {
     return null;
   }

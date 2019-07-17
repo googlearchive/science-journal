@@ -59,7 +59,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.protobuf.nano.NanoEnumValue;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -238,8 +240,10 @@ public class EditTriggerFragment extends Fragment {
       typeSpinner.setSelection(actionType.getNumber());
       whenSpinner.setSelection(triggerToEdit.getTriggerWhen().getNumber());
       if (actionType == TriggerActionType.TRIGGER_ACTION_ALERT) {
+        @NanoEnumValue(TriggerAlertType.class)
         int[] alertTypes = triggerToEdit.getAlertTypes();
         for (int i = 0; i < alertTypes.length; i++) {
+          @NanoEnumValue(TriggerAlertType.class)
           int alertType = alertTypes[i];
           if (alertType == TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO) {
             audioAlert.setChecked(true);
@@ -431,6 +435,7 @@ public class EditTriggerFragment extends Fragment {
   }
 
   // Calculates the current list of alert types based on which alert checkboxes are selected.
+  @NanoEnumValue(TriggerAlertType.class)
   private int[] getCurrentAlertTypes() {
     List<Integer> alertTypesList = new ArrayList<>();
     if (hapticAlert.isChecked()) {
@@ -442,9 +447,10 @@ public class EditTriggerFragment extends Fragment {
     if (audioAlert.isChecked()) {
       alertTypesList.add(TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO);
     }
+    @NanoEnumValue(TriggerAlertType.class)
     int[] alertTypes = new int[alertTypesList.size()];
     for (int i = 0; i < alertTypesList.size(); i++) {
-      alertTypes[i] = alertTypesList.get(i);
+      alertTypes[i] = TriggerInformation.checkTriggerAlertTypeOrThrow(alertTypesList.get(i));
     }
     return alertTypes;
   }
@@ -544,6 +550,7 @@ public class EditTriggerFragment extends Fragment {
         isUpdated = true;
       }
     } else if (triggerType == TriggerActionType.TRIGGER_ACTION_ALERT) {
+      @NanoEnumValue(TriggerAlertType.class)
       int[] alertTypes = getCurrentAlertTypes();
       if (!SensorTrigger.hasSameAlertTypes(alertTypes, triggerToEdit.getAlertTypes())) {
         triggerToEdit.setAlertTypes(alertTypes);

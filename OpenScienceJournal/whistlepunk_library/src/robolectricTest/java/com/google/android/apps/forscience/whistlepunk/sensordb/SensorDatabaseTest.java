@@ -29,6 +29,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalar
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
 import java.io.File;
@@ -321,6 +323,7 @@ public class SensorDatabaseTest {
 
     GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
     GoosciTrial.Trial trial = new GoosciTrial.Trial();
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "foo";
     trial.recordingRange =
@@ -356,6 +359,7 @@ public class SensorDatabaseTest {
 
     GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
     GoosciTrial.Trial trial = new GoosciTrial.Trial();
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "foo";
     trial.recordingRange =
@@ -426,6 +430,7 @@ public class SensorDatabaseTest {
 
     GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
     GoosciTrial.Trial trial = new GoosciTrial.Trial();
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "foo";
     trial.recordingRange =

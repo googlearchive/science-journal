@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance.BasicSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
@@ -48,6 +49,8 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListen
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.ArrayList;
@@ -132,6 +135,7 @@ public class RecorderControllerTest {
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
 
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = "aa:bb:cc:dd";
     layout.cardView = CardView.GRAPH;
@@ -470,6 +474,7 @@ public class RecorderControllerTest {
 
     rc.setLayoutSupplier(
         () -> {
+          @MigrateAs(Destination.BUILDER)
           GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
           layout.sensorId = this.sensorId;
           return Lists.newArrayList(layout);
@@ -543,8 +548,10 @@ public class RecorderControllerTest {
 
   public static GoosciSensorSpec.SensorSpec makeSensorProto(String name) {
     GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
-    spec.rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
-    spec.rememberedAppearance.name = name;
+    @MigrateAs(Destination.BUILDER)
+    BasicSensorAppearance rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
+    rememberedAppearance.name = name;
+    spec.rememberedAppearance = rememberedAppearance;
     return spec;
   }
 

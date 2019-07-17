@@ -46,6 +46,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictur
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsWithActionAreaFragment;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -517,6 +519,7 @@ public class ExperimentActivity extends AppCompatActivity
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
       if (pictureUUID != null && pictureRelativePath != null) {
+        @MigrateAs(Destination.BUILDER)
         GoosciPictureLabelValue.PictureLabelValue labelValue = new PictureLabelValue();
         labelValue.filePath = pictureRelativePath;
         Label label =

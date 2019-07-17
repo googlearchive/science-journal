@@ -59,6 +59,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictur
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.collect.Lists;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Observable;
 import java.io.File;
 import java.io.IOException;
@@ -150,6 +152,7 @@ public class SimpleMetaDataManagerTest {
     Experiment experiment = metaDataManager.newExperiment();
 
     String testLabelString = "test label";
+    @MigrateAs(Destination.BUILDER)
     GoosciTextLabelValue.TextLabelValue textLabelValue = new GoosciTextLabelValue.TextLabelValue();
     textLabelValue.text = testLabelString;
 
@@ -168,9 +171,11 @@ public class SimpleMetaDataManagerTest {
     String testPicturePath = "file:" + tmpFile.getAbsolutePath();
     String testPictureCaption = "life, the universe, and everything";
 
+    @MigrateAs(Destination.BUILDER)
     GoosciCaption.Caption caption = new GoosciCaption.Caption();
     caption.text = testPictureCaption;
 
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue labelValue =
         new GoosciPictureLabelValue.PictureLabelValue();
     labelValue.filePath = testPicturePath;
@@ -214,6 +219,7 @@ public class SimpleMetaDataManagerTest {
     final ApplicationLabel startId2 =
         new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "startId2", "startId2", 2);
     final Label label = Label.newLabel(3, ValueType.TEXT);
+    @MigrateAs(Destination.BUILDER)
     GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
     labelValue.text = "text";
     label.setLabelProtoData(labelValue);
@@ -418,9 +424,11 @@ public class SimpleMetaDataManagerTest {
   public void testRunStorage() {
     Experiment experiment = metaDataManager.newDatabaseExperiment();
     final ApplicationLabel startLabel = newStartLabel("startId", 1);
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
     layout1.sensorId = "sensor1";
     layout1.maximumYAxisValue = 5;
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
     layout2.sensorId = "sensor2";
     final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
@@ -448,8 +456,10 @@ public class SimpleMetaDataManagerTest {
   public void testDatabaseExperimentDelete() {
     Experiment experiment = metaDataManager.newDatabaseExperiment();
     final ApplicationLabel startLabel = newStartLabel("startId", 1);
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
     layout1.sensorId = "sensor1";
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
     layout2.sensorId = "sensor2";
     final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
@@ -472,8 +482,10 @@ public class SimpleMetaDataManagerTest {
 
   @Test
   public void testExperimentSensorLayout() {
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
     layout1.sensorId = "sensorId1";
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
     layout2.sensorId = "sensorId2";
     String experimentId = Arbitrary.string();
@@ -483,6 +495,7 @@ public class SimpleMetaDataManagerTest {
         Lists.newArrayList(layout1.sensorId, layout2.sensorId),
         getIds(metaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
 
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout3 = new GoosciSensorLayout.SensorLayout();
     layout3.sensorId = "sensorId3";
     metaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3));
@@ -653,6 +666,7 @@ public class SimpleMetaDataManagerTest {
   public void testMigrateExperimentsToFiles() {
     Experiment experiment = metaDataManager.newDatabaseExperiment();
     for (int i = 0; i < 50; i++) {
+      @MigrateAs(Destination.BUILDER)
       GoosciPictureLabelValue.PictureLabelValue labelValue =
           new GoosciPictureLabelValue.PictureLabelValue();
       labelValue.filePath = "fake/path";

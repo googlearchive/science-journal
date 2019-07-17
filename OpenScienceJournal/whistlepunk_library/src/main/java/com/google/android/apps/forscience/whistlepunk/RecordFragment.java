@@ -66,6 +66,8 @@ import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.view.RxView;
 import io.reactivex.subjects.BehaviorSubject;
 import java.text.NumberFormat;
@@ -637,12 +639,15 @@ public class RecordFragment extends PanesToolFragment
     }
   }
 
+  @MigrateAs(Destination.EITHER)
   static GoosciSensorLayout.SensorLayout defaultLayout(
       ColorAllocator colorAllocator, int[] usedColors) {
     return defaultLayout(colorAllocator.getNextColor(usedColors));
   }
 
+  @MigrateAs(Destination.EITHER)
   public static GoosciSensorLayout.SensorLayout defaultLayout(int colorIndex) {
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = null;
     layout.cardView = DEFAULT_CARD_VIEW;
@@ -1396,7 +1401,8 @@ public class RecordFragment extends PanesToolFragment
     presenter.onAudioSettingsCanceled(originalSonificationTypes[0]);
   }
 
-  public int getPositionOfLayout(GoosciSensorLayout.SensorLayout layout) {
+  public int getPositionOfLayout(
+      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
     if (sensorCardAdapter == null) {
       return -1;
     }

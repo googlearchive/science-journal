@@ -26,6 +26,8 @@ import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.collect.Lists;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
 import java.io.IOException;
@@ -241,7 +243,7 @@ public class UserMetadataManager {
     startWriteTimer();
   }
 
-  public void removeMyDevice(GoosciDeviceSpec.DeviceSpec device) {
+  public void removeMyDevice(@MigrateAs(Destination.EITHER) GoosciDeviceSpec.DeviceSpec device) {
     GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
 
     if (userMetadata == null) {

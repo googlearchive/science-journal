@@ -36,6 +36,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 
 /** ViewHolder and helper methods for showing notes in a list. */
 public class NoteViewHolder extends RecyclerView.ViewHolder {
@@ -214,6 +216,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         labelValue.triggerInformation.valueToTrigger);
   }
 
+  @MigrateAs(Destination.EITHER)
   private static GoosciSensorAppearance.BasicSensorAppearance createDefaultAppearance() {
     return new GoosciSensorAppearance.BasicSensorAppearance();
   }

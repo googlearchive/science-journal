@@ -34,6 +34,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensors.CameraPreview;
 import com.google.common.base.Optional;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
@@ -167,6 +169,7 @@ public class CameraFragment extends PanesToolFragment {
                   new LoggingConsumer<String>(TAG, "taking picture") {
                     @Override
                     public void success(String relativePicturePath) {
+                      @MigrateAs(Destination.BUILDER)
                       GoosciPictureLabelValue.PictureLabelValue labelValue =
                           new GoosciPictureLabelValue.PictureLabelValue();
                       labelValue.filePath = relativePicturePath;

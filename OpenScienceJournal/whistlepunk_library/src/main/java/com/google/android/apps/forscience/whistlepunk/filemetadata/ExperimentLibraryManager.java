@@ -21,6 +21,8 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import com.google.common.base.Strings;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,6 +94,7 @@ public class ExperimentLibraryManager {
 
     ArrayList<GoosciExperimentLibrary.SyncExperiment> experiments =
         new ArrayList<>(Arrays.asList(proto.syncExperiment));
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment newExperiment =
         new GoosciExperimentLibrary.SyncExperiment();
     newExperiment.experimentId = experimentId;
@@ -131,6 +134,7 @@ public class ExperimentLibraryManager {
    */
   private void updateExperiment(
       GoosciExperimentLibrary.SyncExperiment experiment, boolean serverArchived) {
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment toMerge = getExperiment(experiment.experimentId);
     if (toMerge == null) {
       addExperiment(experiment);
@@ -194,6 +198,7 @@ public class ExperimentLibraryManager {
    * @param deleted Whether or not the experiment is locally deleted.
    */
   public void setDeleted(String experimentId, boolean deleted) {
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
     experiment.deleted = deleted;
     writeExperimentLibrary();
@@ -225,6 +230,7 @@ public class ExperimentLibraryManager {
    * @param timeInMillis The time the experiment was last opened.
    */
   public void setOpened(String experimentId, long timeInMillis) {
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
     experiment.lastOpened = timeInMillis;
     writeExperimentLibrary();
@@ -256,6 +262,7 @@ public class ExperimentLibraryManager {
    * @param timeInMillis The time the experiment was last modified.
    */
   public void setModified(String experimentId, long timeInMillis) {
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
     experiment.lastModified = timeInMillis;
     writeExperimentLibrary();
@@ -278,6 +285,7 @@ public class ExperimentLibraryManager {
    * @param fileId The file id for the experiment.
    */
   public void setFileId(String experimentId, String fileId) {
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
     experiment.fileId = fileId;
     writeExperimentLibrary();

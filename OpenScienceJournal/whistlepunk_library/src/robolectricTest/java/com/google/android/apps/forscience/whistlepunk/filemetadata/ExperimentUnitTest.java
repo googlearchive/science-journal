@@ -24,6 +24,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -65,6 +67,7 @@ public class ExperimentUnitTest {
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
     assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
 
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "sensorId";
     experiment.setSensorLayouts(Arrays.asList(sensorLayout));
@@ -79,6 +82,7 @@ public class ExperimentUnitTest {
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
     assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
 
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "sensorId";
     experiment.updateSensorLayout(0, sensorLayout);
@@ -106,6 +110,7 @@ public class ExperimentUnitTest {
   @Test
   public void testUpdatesProtoOnlyWhenNeeded() {
     GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layoutProto = new GoosciSensorLayout.SensorLayout();
     layoutProto.sensorId = "sensorId";
     proto.sensorLayouts = new GoosciSensorLayout.SensorLayout[] {layoutProto};
@@ -118,6 +123,7 @@ public class ExperimentUnitTest {
     expSensorProto.setSensorId("sensorId");
     proto.experimentSensors = new ExperimentSensor[] {expSensorProto.build()};
 
+    @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     overview.experimentId = "cheese";
 
@@ -130,6 +136,7 @@ public class ExperimentUnitTest {
     assertEquals(result.experimentSensors.length, 1);
 
     List<GoosciSensorLayout.SensorLayout> layouts = experiment.getSensorLayouts();
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "secondSensorId";
     layouts.add(sensorLayout);

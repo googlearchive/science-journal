@@ -30,6 +30,8 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -98,7 +100,7 @@ public class TriggerHelper {
 
   /** Adds the trigger ID to the layout's active triggers if it is not already in the list. */
   public static void addTriggerToLayoutActiveTriggers(
-      GoosciSensorLayout.SensorLayout layout, String triggerId) {
+      @MigrateAs(Destination.BUILDER) GoosciSensorLayout.SensorLayout layout, String triggerId) {
     int oldSize = layout.activeSensorTriggerIds.length;
     for (int i = 0; i < oldSize; i++) {
       if (TextUtils.equals(layout.activeSensorTriggerIds[i], triggerId)) {
@@ -115,7 +117,7 @@ public class TriggerHelper {
 
   /** Removes the trigger ID from the layout's active triggers. */
   public static void removeTriggerFromLayoutActiveTriggers(
-      GoosciSensorLayout.SensorLayout layout, String triggerId) {
+      @MigrateAs(Destination.BUILDER) GoosciSensorLayout.SensorLayout layout, String triggerId) {
     // Use an ArrayList intermediate for simplicity.
     List<String> triggersList = new ArrayList<>();
     triggersList.addAll(Arrays.asList(layout.activeSensorTriggerIds));

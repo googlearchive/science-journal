@@ -22,6 +22,8 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypePr
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ValueFilter;
 import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -63,6 +65,7 @@ public class BleSensorTest {
     BleSensorSpec bleSensor = new BleSensorSpec("address", "name");
     bleSensor.setCustomFrequencyEnabled(false);
 
+    @MigrateAs(Destination.BUILDER)
     ScaleTransform transform = new ScaleTransform();
     transform.sourceBottom = 0;
     transform.sourceTop = 10;

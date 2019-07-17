@@ -18,6 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.SensorStat.StatType;
+import com.google.protobuf.nano.NanoEnumValue;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,7 +65,7 @@ public class TrialStats {
     trialStats.statStatus = status;
   }
 
-  public void putStat(int type, double value) {
+  public void putStat(@NanoEnumValue(StatType.class) int type, double value) {
     for (GoosciTrial.SensorStat sensorStat : trialStats.sensorStats) {
       if (sensorStat.statType == type) {
         sensorStat.statValue = value;
@@ -78,7 +80,7 @@ public class TrialStats {
     trialStats.sensorStats[newSize - 1] = newStat;
   }
 
-  public double getStatValue(int type, double defaultValue) {
+  public double getStatValue(@NanoEnumValue(StatType.class) int type, double defaultValue) {
     for (GoosciTrial.SensorStat sensorStat : trialStats.sensorStats) {
       if (sensorStat.statType == type) {
         return sensorStat.statValue;
@@ -87,7 +89,7 @@ public class TrialStats {
     return defaultValue;
   }
 
-  public boolean hasStat(int type) {
+  public boolean hasStat(@NanoEnumValue(StatType.class) int type) {
     for (GoosciTrial.SensorStat sensorStat : trialStats.sensorStats) {
       if (sensorStat.statType == type) {
         return true;

@@ -29,6 +29,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictur
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
@@ -181,6 +183,7 @@ public class Label implements Parcelable {
    * Gets the GoosciTextLabelValue.TextLabelValue for this label. If changes are made, this needs to
    * be re-set on the Label for them to be saved.
    */
+  @MigrateAs(Destination.EITHER)
   public GoosciTextLabelValue.TextLabelValue getTextLabelValue() {
     if (label.type == ValueType.TEXT) {
       try {
@@ -200,6 +203,7 @@ public class Label implements Parcelable {
    * Gets the PictureLabelValue for this label. If changes are made, this needs to be re-set on the
    * Label for them to be saved.
    */
+  @MigrateAs(Destination.EITHER)
   public GoosciPictureLabelValue.PictureLabelValue getPictureLabelValue() {
     if (label.type == ValueType.PICTURE) {
       try {

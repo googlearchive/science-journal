@@ -42,6 +42,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import io.reactivex.Single;
 import java.io.File;
@@ -174,6 +176,7 @@ public class FileMetadataManager {
                 throw new IOException("Lost experiment has corrupt or missing experiment proto.");
               }
 
+              @MigrateAs(Destination.BUILDER)
               GoosciUserMetadata.ExperimentOverview overview =
                   populateOverview(proto, experimentId);
 
@@ -486,6 +489,7 @@ public class FileMetadataManager {
       throw new ZipException("Cannot import from file version: " + versionToString(proto));
     }
 
+    @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview overview = populateOverview(proto, experimentId);
     HashMap<String, String> trialIdMap = updateTrials(proto, newExperiment);
 
@@ -631,8 +635,10 @@ public class FileMetadataManager {
     return proto;
   }
 
+  @MigrateAs(Destination.EITHER)
   private GoosciUserMetadata.ExperimentOverview populateOverview(
       GoosciExperiment.Experiment proto, String experimentId) {
+    @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     overview.title = proto.title;
     overview.trialCount = proto.totalTrials;
@@ -666,7 +672,7 @@ public class FileMetadataManager {
     userMetadataManager.addMyDevice(device);
   }
 
-  public void removeMyDevice(GoosciDeviceSpec.DeviceSpec device) {
+  public void removeMyDevice(@MigrateAs(Destination.EITHER) GoosciDeviceSpec.DeviceSpec device) {
     userMetadataManager.removeMyDevice(device);
   }
 

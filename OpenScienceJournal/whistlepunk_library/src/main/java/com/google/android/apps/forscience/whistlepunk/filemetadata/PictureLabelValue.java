@@ -18,6 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue.LabelValue.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 
 /** A Label which is represented by a set of pictures. */
 @Deprecated
@@ -60,7 +62,8 @@ public class PictureLabelValue extends LabelValue {
     return filePath;
   }
 
-  public static String getFilePath(GoosciLabelValue.LabelValue value) {
+  public static String getFilePath(
+      @MigrateAs(Destination.EITHER) GoosciLabelValue.LabelValue value) {
     return value.getDataOrDefault(KEY_FILE_PATH, "");
   }
 
@@ -82,22 +85,28 @@ public class PictureLabelValue extends LabelValue {
     return getCaption(getValue());
   }
 
-  public static String getCaption(GoosciLabelValue.LabelValue value) {
+  public static String getCaption(
+      @MigrateAs(Destination.EITHER) GoosciLabelValue.LabelValue value) {
     return value.getDataOrDefault(KEY_CAPTION, "");
   }
 
-  public static void clearCaption(GoosciLabelValue.LabelValue value) {
+  public static void clearCaption(
+      @MigrateAs(Destination.BUILDER) GoosciLabelValue.LabelValue value) {
     value.putData(KEY_CAPTION, "");
   }
 
   public static void populateLabelValue(
-      GoosciLabelValue.LabelValue value, String path, String caption) {
+      @MigrateAs(Destination.BUILDER) GoosciLabelValue.LabelValue value,
+      String path,
+      String caption) {
     value.type = ValueType.PICTURE;
     value.putData(KEY_FILE_PATH, path);
     value.putData(KEY_CAPTION, caption);
   }
 
+  @MigrateAs(Destination.EITHER)
   private static GoosciLabelValue.LabelValue createLabelValue(String path, String caption) {
+    @MigrateAs(Destination.BUILDER)
     GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
     populateLabelValue(value, path, caption);
     return value;

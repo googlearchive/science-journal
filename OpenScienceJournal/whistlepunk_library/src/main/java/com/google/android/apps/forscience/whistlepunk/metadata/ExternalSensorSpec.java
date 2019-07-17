@@ -23,9 +23,12 @@ import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance.BasicSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -142,8 +145,10 @@ public abstract class ExternalSensorSpec {
     // TODO: fill in other fields here?  hostDescription?  hostId?
     GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
     spec.info = getGadgetInfo(getAddress());
-    spec.rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
-    spec.rememberedAppearance.name = getName();
+    @MigrateAs(Destination.BUILDER)
+    BasicSensorAppearance rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
+    rememberedAppearance.name = getName();
+    spec.rememberedAppearance = rememberedAppearance;
     spec.config = getConfig();
     return spec;
   }

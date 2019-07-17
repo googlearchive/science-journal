@@ -46,6 +46,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentFragment;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
@@ -200,6 +202,7 @@ public class GalleryFragment extends PanesToolFragment
     addButton.setOnClickListener(
         view -> {
           final long timestamp = getTimestamp(addButton.getContext());
+          @MigrateAs(Destination.BUILDER)
           GoosciPictureLabelValue.PictureLabelValue labelValue =
               new GoosciPictureLabelValue.PictureLabelValue();
           String selectedImage = galleryAdapter.getSelectedImage();

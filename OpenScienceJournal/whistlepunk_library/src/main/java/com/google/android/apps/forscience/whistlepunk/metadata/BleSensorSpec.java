@@ -24,6 +24,8 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 
@@ -176,7 +178,9 @@ public class BleSensorSpec extends ExternalSensorSpec {
     return null;
   }
 
+  @MigrateAs(Destination.EITHER)
   private GoosciSensorConfig.BleSensorConfig.ScaleTransform tenBitsToPercent() {
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorConfig.BleSensorConfig.ScaleTransform transform =
         new GoosciSensorConfig.BleSensorConfig.ScaleTransform();
     transform.sourceBottom = 0;

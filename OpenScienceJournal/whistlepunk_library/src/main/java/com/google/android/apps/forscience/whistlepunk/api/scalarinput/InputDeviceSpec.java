@@ -35,6 +35,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.html.HtmlEscapers;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +93,8 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   private String name;
   private InputDevice.InputDeviceConfig config;
 
-  public static InputDeviceSpec fromProto(GoosciDeviceSpec.DeviceSpec proto) {
+  public static InputDeviceSpec fromProto(
+      @MigrateAs(Destination.EITHER) GoosciDeviceSpec.DeviceSpec proto) {
     return new InputDeviceSpec(proto.info.getProviderId(), proto.info.getAddress(), proto.name);
   }
 
@@ -199,7 +202,9 @@ public class InputDeviceSpec extends ExternalSensorSpec {
     return InputDeviceSpec.joinAddresses(getProviderType(), getDeviceAddress());
   }
 
+  @MigrateAs(Destination.EITHER)
   public GoosciDeviceSpec.DeviceSpec asDeviceSpec() {
+    @MigrateAs(Destination.BUILDER)
     GoosciDeviceSpec.DeviceSpec deviceSpec = new GoosciDeviceSpec.DeviceSpec();
     deviceSpec.info = getGadgetInfo(getDeviceAddress());
     deviceSpec.name = getName();

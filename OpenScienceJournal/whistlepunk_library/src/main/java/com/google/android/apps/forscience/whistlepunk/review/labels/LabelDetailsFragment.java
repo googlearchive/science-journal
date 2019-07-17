@@ -46,6 +46,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Maybe;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.BehaviorSubject;
@@ -229,6 +231,7 @@ abstract class LabelDetailsFragment extends Fragment {
   }
 
   private void saveCaptionChanges(Experiment experiment, String newText) {
+    @MigrateAs(Destination.BUILDER)
     GoosciCaption.Caption caption = new GoosciCaption.Caption();
     caption.text = newText;
     caption.lastEditedTimestamp = clock.getNow();

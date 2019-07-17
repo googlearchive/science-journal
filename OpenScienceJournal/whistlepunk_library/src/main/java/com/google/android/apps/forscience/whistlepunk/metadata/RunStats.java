@@ -20,7 +20,10 @@ import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.SensorStat;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.SensorStat.StatType;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
+import com.google.protobuf.nano.NanoEnumValue;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,7 +34,9 @@ import java.util.Set;
  * key/value pairs which can be read and written to the database.
  */
 public class RunStats {
+  @NanoEnumValue(StatType.class)
   private static final int TYPE_NOT_FOUND = -1;
+
   private static final int DEFAULT_VALUE = 0;
   private TrialStats trialStats;
   private static Map<String, Integer> keyMap = new HashMap<>();
@@ -72,6 +77,7 @@ public class RunStats {
   }
 
   public void putStat(String key, double value) {
+    @NanoEnumValue(StatType.class)
     int type = keyToType(key);
     trialStats.putStat(type, value);
   }
@@ -113,12 +119,13 @@ public class RunStats {
     return result;
   }
 
+  @NanoEnumValue(StatType.class)
   private static int keyToType(String key) {
     if (keyMap.size() == 0) {
       initializeKeyMap();
     }
     if (keyMap.containsKey(key)) {
-      return keyMap.get(key);
+      return SensorStat.checkStatTypeOrThrow(keyMap.get(key));
     }
     return TYPE_NOT_FOUND;
   }

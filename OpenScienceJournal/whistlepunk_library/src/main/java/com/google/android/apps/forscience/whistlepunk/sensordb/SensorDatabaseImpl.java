@@ -37,6 +37,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Range;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -380,6 +382,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
 
   // This method gets the protos for a single sensor/trialID combination in the given
   // TimeRange.
+  @MigrateAs(Destination.EITHER)
   public GoosciScalarSensorData.ScalarSensorDataDump getScalarReadingSensorProtos(
       String trialId, String sensorTag, TimeRange range) {
     try (Cursor cursor = getCursor(trialId, new String[] {sensorTag}, range, 0, 0)) {
@@ -396,8 +399,10 @@ public class SensorDatabaseImpl implements SensorDatabase {
     }
   }
 
+  @MigrateAs(Destination.EITHER)
   private GoosciScalarSensorData.ScalarSensorDataDump cursorAsScalarSensorDataDump(
       Cursor cursor, String trialId, String sensorTag) {
+    @MigrateAs(Destination.BUILDER)
     GoosciScalarSensorData.ScalarSensorDataDump sensor =
         new GoosciScalarSensorData.ScalarSensorDataDump();
 

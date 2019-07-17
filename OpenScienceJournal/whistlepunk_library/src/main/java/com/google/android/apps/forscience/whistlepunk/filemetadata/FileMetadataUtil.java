@@ -33,6 +33,8 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperiment
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import io.reactivex.Single;
 import java.io.DataInputStream;
@@ -344,7 +346,8 @@ public class FileMetadataUtil {
   }
 
   @VisibleForTesting
-  public boolean canImportFromVersion(Version.FileVersion fileVersion) {
+  public boolean canImportFromVersion(
+      @MigrateAs(Destination.EITHER) Version.FileVersion fileVersion) {
     switch (fileVersion.platform) {
       case ANDROID:
         return fileVersion.version == 1 && fileVersion.minorVersion <= 2;

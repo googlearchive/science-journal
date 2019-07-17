@@ -17,7 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse; 
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -26,6 +26,8 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -56,6 +58,7 @@ public class ExperimentLibraryManagerTest {
   public void testSetArchived() {
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";
@@ -73,6 +76,7 @@ public class ExperimentLibraryManagerTest {
   public void testSetDeleted() {
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";
@@ -90,6 +94,7 @@ public class ExperimentLibraryManagerTest {
   public void testSetOpened() {
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";
@@ -107,6 +112,7 @@ public class ExperimentLibraryManagerTest {
   public void testSetModified() {
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";
@@ -131,6 +137,7 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id2";
@@ -157,6 +164,7 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";
@@ -180,6 +188,7 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";
@@ -202,6 +211,7 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";
@@ -222,6 +232,7 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";
@@ -242,6 +253,7 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";
@@ -265,6 +277,7 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary library =
         new GoosciExperimentLibrary.ExperimentLibrary();
+    @MigrateAs(Destination.BUILDER)
     GoosciExperimentLibrary.SyncExperiment experiment =
         new GoosciExperimentLibrary.SyncExperiment();
     experiment.experimentId = "id";

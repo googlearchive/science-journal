@@ -17,6 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig.BleSensorConfig.ScaleTransform;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 
 /** Filter that applies a linear function to the incoming function */
 public class ScaleFilter implements ValueFilter {
@@ -25,7 +27,7 @@ public class ScaleFilter implements ValueFilter {
   private final double sourceRange;
   private final double destRange;
 
-  public ScaleFilter(ScaleTransform transform) {
+  public ScaleFilter(@MigrateAs(Destination.EITHER) ScaleTransform transform) {
     sourceBottom = transform.sourceBottom;
     sourceRange = transform.sourceTop - sourceBottom;
     destBottom = transform.destBottom;

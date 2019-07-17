@@ -71,9 +71,12 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLa
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version.FileVersion;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
@@ -233,6 +236,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
       // Remove experiment description, turn it into a text note.
       if (!TextUtils.isEmpty(experiment.getDescription())) {
+        @MigrateAs(Destination.BUILDER)
         GoosciTextLabelValue.TextLabelValue descriptionValue =
             new GoosciTextLabelValue.TextLabelValue();
         descriptionValue.text = experiment.getDescription();
@@ -305,6 +309,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     if (label.getType() != ValueType.PICTURE) {
       return false;
     }
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue = label.getPictureLabelValue();
     File oldFile = new File(pictureLabelValue.filePath);
     if (!oldFile.exists()) {
@@ -832,14 +837,18 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     // Version 1 for starters.
     // TODO: Remove this if we default the proto to 1.
-    expProto.fileVersion = new Version.FileVersion();
-    expProto.fileVersion.version = 1;
+    @MigrateAs(Destination.BUILDER)
+    FileVersion fileVersion = new Version.FileVersion();
+    fileVersion.version = 1;
+    expProto.fileVersion = fileVersion;
 
     return Experiment.fromExperiment(expProto, createExperimentOverviewFromCursor(cursor));
   }
 
+  @MigrateAs(Destination.EITHER)
   private static GoosciUserMetadata.ExperimentOverview createExperimentOverviewFromCursor(
       Cursor cursor) {
+    @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview overviewProto =
         new GoosciUserMetadata.ExperimentOverview();
     overviewProto.lastUsedTimeMs = cursor.getLong(7);
@@ -956,7 +965,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
   }
 
-  private void fillLayoutValues(ContentValues values, GoosciSensorLayout.SensorLayout layout) {
+  private void fillLayoutValues(
+      ContentValues values, @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
     values.put(RunSensorsColumns.SENSOR_ID, layout.sensorId);
     values.put(RunSensorsColumns.LAYOUT, MessageNano.toByteArray(layout));
   }
@@ -1035,6 +1045,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     // Now get sensor layouts.
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout;
     try {
       cursor =
@@ -1394,10 +1405,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
         if (value != null) {
           // Add new types of labels to this list, upgrading to Captions where appropriate
           if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
+            @MigrateAs(Destination.BUILDER)
             GoosciPictureLabelValue.PictureLabelValue labelValue =
                 new GoosciPictureLabelValue.PictureLabelValue();
             labelValue.filePath =
                 PictureLabelValue.getAbsoluteFilePath(PictureLabelValue.getFilePath(value));
+            @MigrateAs(Destination.BUILDER)
             GoosciCaption.Caption caption = new GoosciCaption.Caption();
             caption.lastEditedTimestamp = timestamp;
             caption.text = PictureLabelValue.getCaption(value);
@@ -1405,6 +1418,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             goosciLabel.protoData = MessageNano.toByteArray(labelValue);
             goosciLabel.caption = caption;
           } else if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
+            @MigrateAs(Destination.BUILDER)
             GoosciTextLabelValue.TextLabelValue labelValue =
                 new GoosciTextLabelValue.TextLabelValue();
             labelValue.text = TextLabelValue.getText(value);
@@ -1413,6 +1427,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
           } else if (TextUtils.equals(type, SENSOR_TRIGGER_LABEL_TAG)) {
             // Convert old sensor triggers into text notes because we don't have enough
             // info to keep them as triggers.
+            @MigrateAs(Destination.BUILDER)
             GoosciTextLabelValue.TextLabelValue labelValue =
                 new GoosciTextLabelValue.TextLabelValue();
             String autoText = SensorTriggerLabelValue.getAutogenText(value);
@@ -1437,6 +1452,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
           // list.
           final String data = cursor.getString(LabelQuery.DATA_INDEX);
           if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
+            @MigrateAs(Destination.BUILDER)
             GoosciTextLabelValue.TextLabelValue labelValue =
                 new GoosciTextLabelValue.TextLabelValue();
             labelValue.text = data;
@@ -1444,6 +1460,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
             goosciLabel.protoData = MessageNano.toByteArray(labelValue);
           } else if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
             // Early picture labels had no captions.
+            @MigrateAs(Destination.BUILDER)
             GoosciPictureLabelValue.PictureLabelValue labelValue =
                 new GoosciPictureLabelValue.PictureLabelValue();
             labelValue.filePath = data;

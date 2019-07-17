@@ -32,6 +32,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperi
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
 import junit.framework.Assert;
@@ -329,6 +331,7 @@ public class ExperimentCacheTest {
     GoosciExperiment.Experiment proto = createExperimentProto();
     proto.fileVersion.version = ExperimentCache.VERSION;
     proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION + 1;
+    @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     overview.experimentId = "foo";
     cache.upgradeExperimentVersionIfNeeded(

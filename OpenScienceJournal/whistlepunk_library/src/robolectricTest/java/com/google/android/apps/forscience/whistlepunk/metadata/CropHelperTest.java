@@ -34,6 +34,8 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDat
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +57,7 @@ public class CropHelperTest {
     metadataManager = new MemoryMetadataManager();
     dataController = new InMemorySensorDatabase().makeSimpleController(metadataManager);
     sensorLayouts = new GoosciSensorLayout.SensorLayout[1];
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = "sensor";
     sensorLayouts[0] = layout;

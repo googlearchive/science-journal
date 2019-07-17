@@ -32,6 +32,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.android.apps.forscience.whistlepunk.sensordb.IncrementableMonotonicClock;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.File;
 import java.io.IOException;
 import org.junit.After;
@@ -169,6 +171,7 @@ public class FileMetadataManagerTest {
 
   @Test
   public void versionChecks() {
+    @MigrateAs(Destination.BUILDER)
     Version.FileVersion fileVersion = new Version.FileVersion();
     fileVersion.version = 1;
     fileVersion.minorVersion = 1;

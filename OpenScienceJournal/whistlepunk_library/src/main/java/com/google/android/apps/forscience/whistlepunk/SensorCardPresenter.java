@@ -61,6 +61,8 @@ import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.collect.Lists;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import com.jakewharton.rxbinding2.view.RxView;
@@ -1268,6 +1270,7 @@ public class SensorCardPresenter {
     }
   }
 
+  @MigrateAs(Destination.EITHER)
   @NonNull
   GoosciSensorLayout.SensorLayout buildLayout() {
     // Get an updated min and max, and return layout.
@@ -1282,7 +1285,9 @@ public class SensorCardPresenter {
     return copyLayout(layout);
   }
 
-  private GoosciSensorLayout.SensorLayout copyLayout(GoosciSensorLayout.SensorLayout layout) {
+  @MigrateAs(Destination.EITHER)
+  private GoosciSensorLayout.SensorLayout copyLayout(
+      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
     try {
       return GoosciSensorLayout.SensorLayout.parseFrom(MessageNano.toByteArray(layout));
     } catch (InvalidProtocolBufferNanoException e) {

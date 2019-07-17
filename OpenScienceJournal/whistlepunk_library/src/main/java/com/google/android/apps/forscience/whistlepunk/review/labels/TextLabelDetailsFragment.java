@@ -35,6 +35,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /** Details view controller for TextLabel */
@@ -110,6 +112,7 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
   }
 
   private void saveTextChanges(String newText, Experiment experiment) {
+    @MigrateAs(Destination.BUILDER)
     GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
     labelValue.text = newText;
     originalLabel.setLabelProtoData(labelValue);

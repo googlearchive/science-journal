@@ -18,6 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import androidx.annotation.IntDef;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -87,7 +89,9 @@ public class ApplicationLabel {
     super();
   }
 
+  @MigrateAs(Destination.EITHER)
   private static GoosciLabelValue.LabelValue createStorageValue(@Type int type) {
+    @MigrateAs(Destination.BUILDER)
     GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
     value.putData(KEY_VALUE_TYPE, String.valueOf(type));
     return value;

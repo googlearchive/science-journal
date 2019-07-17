@@ -88,6 +88,8 @@ import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerPro
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -550,6 +552,7 @@ public class ExperimentListFragment extends Fragment
         AppSingleton.getInstance(applicationContext).getSensorEnvironment().getDefaultClock();
 
     // Create a text label 1 second ago with default text.
+    @MigrateAs(Destination.BUILDER)
     GoosciTextLabelValue.TextLabelValue goosciTextLabel1 =
         new GoosciTextLabelValue.TextLabelValue();
     goosciTextLabel1.text = res.getString(R.string.first_experiment_second_text_note);
@@ -559,6 +562,7 @@ public class ExperimentListFragment extends Fragment
     e.addLabel(e, textLabel1);
 
     // Create a text label 2 seconds ago with default text.
+    @MigrateAs(Destination.BUILDER)
     GoosciTextLabelValue.TextLabelValue goosciTextLabel2 =
         new GoosciTextLabelValue.TextLabelValue();
     goosciTextLabel2.text = res.getString(R.string.first_experiment_text_note);
@@ -568,6 +572,7 @@ public class ExperimentListFragment extends Fragment
     e.addLabel(e, textLabel2);
 
     // Create a picture label 4 second ago with a default drawable and caption.
+    @MigrateAs(Destination.BUILDER)
     GoosciCaption.Caption caption = new GoosciCaption.Caption();
     caption.text = res.getString(R.string.first_experiment_picture_note_caption);
     caption.lastEditedTimestamp = clock.getNow() - 4000;
@@ -577,6 +582,7 @@ public class ExperimentListFragment extends Fragment
         PictureUtils.createImageFile(
             applicationContext, appAccount, e.getExperimentId(), pictureLabel.getLabelId());
     PictureUtils.writeDrawableToFile(applicationContext, pictureFile, R.drawable.first_note);
+    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
         new GoosciPictureLabelValue.PictureLabelValue();
     goosciPictureLabel.filePath =
@@ -1099,6 +1105,7 @@ public class ExperimentListFragment extends Fragment
       }
       Resources res = applicationContext.getResources();
       // First on the UI thread, set what experiment we're trying to load.
+      @MigrateAs(Destination.BUILDER)
       GoosciUserMetadata.ExperimentOverview overview = item.experimentOverview;
       holder.experimentId = overview.experimentId;
 
@@ -1246,7 +1253,10 @@ public class ExperimentListFragment extends Fragment
     }
 
     private void setExperimentArchived(
-        GoosciUserMetadata.ExperimentOverview overview, final int position, boolean archived) {
+        @MigrateAs(value = Destination.BUILDER, storedAsSubmessage = true)
+            GoosciUserMetadata.ExperimentOverview overview,
+        final int position,
+        boolean archived) {
       if (isParentGone()) {
         return;
       }
@@ -1306,7 +1316,10 @@ public class ExperimentListFragment extends Fragment
     }
 
     private void showArchivedSnackbar(
-        GoosciUserMetadata.ExperimentOverview overview, int position, boolean archived) {
+        @MigrateAs(value = Destination.BUILDER, storedAsSubmessage = true)
+            GoosciUserMetadata.ExperimentOverview overview,
+        int position,
+        boolean archived) {
       if (isParentGone()) {
         return;
       }

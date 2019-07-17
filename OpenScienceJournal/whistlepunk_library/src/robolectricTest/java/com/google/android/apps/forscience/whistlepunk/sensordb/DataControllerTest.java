@@ -40,6 +40,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +60,7 @@ public class DataControllerTest {
     final DataController dc = makeSimpleController();
 
     final List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+    @MigrateAs(Destination.BUILDER)
     final GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = Arbitrary.string();
     layouts.add(layout);
@@ -163,6 +166,7 @@ public class DataControllerTest {
     StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
     dc.createExperiment(cExperiment);
     Experiment experiment = cExperiment.getValue();
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = "oldSensorId";
     List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);
@@ -207,6 +211,7 @@ public class DataControllerTest {
     dc.addSensorToExperiment(
         experiment.getExperimentId(), "oldSensorId", TestConsumers.expectingSuccess());
 
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.sensorId = "oldSensorId";
     List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);

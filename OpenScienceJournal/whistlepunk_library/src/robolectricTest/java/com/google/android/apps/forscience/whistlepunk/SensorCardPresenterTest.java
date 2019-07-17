@@ -39,6 +39,8 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.common.collect.Lists;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +106,7 @@ public class SensorCardPresenterTest {
 
     LocalSensorOptionsStorage localStorage = new LocalSensorOptionsStorage();
     localStorage.load().put(key, "fromCardSettings");
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
     layout.putAllExtras(localStorage.exportAsLayoutExtras());
 

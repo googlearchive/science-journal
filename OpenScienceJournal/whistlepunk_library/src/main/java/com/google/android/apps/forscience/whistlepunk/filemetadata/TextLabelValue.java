@@ -18,6 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue.LabelValue.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 
 /** A label value which represents a piece of text. */
 @Deprecated
@@ -52,16 +54,19 @@ public class TextLabelValue extends LabelValue {
     return getText(getValue());
   }
 
-  public static String getText(GoosciLabelValue.LabelValue value) {
+  public static String getText(@MigrateAs(Destination.EITHER) GoosciLabelValue.LabelValue value) {
     return value.getDataOrThrow(KEY_LABEL_TEXT);
   }
 
-  public static void populateLabelValue(GoosciLabelValue.LabelValue value, String text) {
+  public static void populateLabelValue(
+      @MigrateAs(Destination.BUILDER) GoosciLabelValue.LabelValue value, String text) {
     value.type = ValueType.TEXT;
     value.putData(KEY_LABEL_TEXT, text);
   }
 
+  @MigrateAs(Destination.EITHER)
   private static GoosciLabelValue.LabelValue createLabelValue(String text) {
+    @MigrateAs(Destination.BUILDER)
     GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
     populateLabelValue(value, text);
     return value;

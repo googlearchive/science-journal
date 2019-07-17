@@ -35,10 +35,14 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.ExperimentOverview;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
+import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version.FileVersion;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +82,7 @@ public class Experiment extends LabelListHolder {
 
   public static Experiment newExperiment(long creationTime, String experimentId, int colorIndex) {
     GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+    @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview experimentOverview =
         new GoosciUserMetadata.ExperimentOverview();
     experimentOverview.lastUsedTimeMs = creationTime;
@@ -88,11 +93,13 @@ public class Experiment extends LabelListHolder {
     proto.totalTrials = 0;
 
     // This experiment is being created with the latest VERSION available.
-    proto.fileVersion = new Version.FileVersion();
-    proto.fileVersion.version = ExperimentCache.VERSION;
-    proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION;
-    proto.fileVersion.platformVersion = ExperimentCache.PLATFORM_VERSION;
-    proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
+    @MigrateAs(Destination.BUILDER)
+    FileVersion fileVersion = new Version.FileVersion();
+    fileVersion.version = ExperimentCache.VERSION;
+    fileVersion.minorVersion = ExperimentCache.MINOR_VERSION;
+    fileVersion.platformVersion = ExperimentCache.PLATFORM_VERSION;
+    fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
+    proto.fileVersion = fileVersion;
 
     return new Experiment(proto, experimentOverview);
   }
@@ -125,7 +132,7 @@ public class Experiment extends LabelListHolder {
       GoosciExperiment.Experiment experimentProto,
       GoosciUserMetadata.ExperimentOverview experimentOverview) {
     this.proto = experimentProto;
-    this.experimentOverview = experimentOverview;
+    ExperimentOverview experimentOverview1 = experimentOverview;
     labels = new ArrayList<>();
     for (GoosciLabel.Label labelProto : this.proto.labels) {
       labels.add(Label.fromLabel(labelProto));
@@ -145,17 +152,18 @@ public class Experiment extends LabelListHolder {
 
     title = this.proto.title;
     description = this.proto.description;
-    lastUsedTimeMs = this.experimentOverview.lastUsedTimeMs;
+    lastUsedTimeMs = experimentOverview1.lastUsedTimeMs;
     if (!Strings.isNullOrEmpty(this.proto.imagePath)) {
       // Relative to the experiment, not the account root.
       imagePath = getPathRelativeToExperiment(this.proto.imagePath);
     } else {
       // Overview is relative to the account root. Be sure to trim 2 levels
-      imagePath = getPathRelativeToExperiment(this.experimentOverview.imagePath);
+      imagePath = getPathRelativeToExperiment(experimentOverview1.imagePath);
     }
-    isArchived = this.experimentOverview.isArchived;
+    isArchived = experimentOverview1.isArchived;
     totalTrials = this.proto.totalTrials;
-    trialCount = this.experimentOverview.trialCount;
+    trialCount = experimentOverview1.trialCount;
+    this.experimentOverview = experimentOverview1;
   }
 
   /**
@@ -540,7 +548,8 @@ public class Experiment extends LabelListHolder {
     return sensorTriggers;
   }
 
-  public List<SensorTrigger> getActiveSensorTriggers(GoosciSensorLayout.SensorLayout layout) {
+  public List<SensorTrigger> getActiveSensorTriggers(
+      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
     List<SensorTrigger> result = new ArrayList<>(layout.activeSensorTriggerIds.length);
     for (String triggerId : layout.activeSensorTriggerIds) {
       SensorTrigger trigger = getSensorTrigger(triggerId);
@@ -940,6 +949,7 @@ public class Experiment extends LabelListHolder {
 
     if (localTrial != null) {
       // Since the local trial exists, set the caption.
+      @MigrateAs(Destination.BUILDER)
       Caption caption = new Caption();
       caption.text = externalTrial.getCaptionText();
       localTrial.setCaption(caption);
@@ -950,6 +960,7 @@ public class Experiment extends LabelListHolder {
 
       if (localLabel != null) {
         // Since the local trial exists, set the caption.
+        @MigrateAs(Destination.BUILDER)
         Caption caption = new Caption();
         caption.text = externalLabel.getCaptionText();
         localLabel.setCaption(caption);
@@ -1275,6 +1286,7 @@ public class Experiment extends LabelListHolder {
     Label localLabel = getLabel(external.getChangedElementId());
 
     if (localLabel != null) {
+      @MigrateAs(Destination.BUILDER)
       Caption newCaption = new Caption();
       newCaption.text = localLabel.getCaptionText() + " " + externalLabel.getCaptionText();
       localLabel.setCaption(newCaption);
@@ -1285,6 +1297,7 @@ public class Experiment extends LabelListHolder {
     Trial externalTrial = externalExperiment.getTrial(external.getChangedElementId());
     Trial localTrial = getTrial(external.getChangedElementId());
     if (localTrial != null) {
+      @MigrateAs(Destination.BUILDER)
       Caption newCaption = new Caption();
       newCaption.text = localTrial.getCaptionText() + " " + externalTrial.getCaptionText();
       localTrial.setCaption(newCaption);
