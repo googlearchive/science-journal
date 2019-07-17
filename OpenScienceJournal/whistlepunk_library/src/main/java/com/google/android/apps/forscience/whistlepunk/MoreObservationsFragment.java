@@ -37,6 +37,12 @@ public class MoreObservationsFragment extends Fragment {
   private RecyclerView gridView;
   private ObservationsAdapter adapter;
 
+  public static Fragment newInstance() {
+    MoreObservationsFragment fragment = new MoreObservationsFragment();
+    fragment.setArguments(new Bundle());
+    return fragment;
+  }
+
   @Nullable
   @Override
   public View onCreateView(

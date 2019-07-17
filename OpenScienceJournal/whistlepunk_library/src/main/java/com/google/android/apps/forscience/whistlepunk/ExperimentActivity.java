@@ -162,12 +162,13 @@ public class ExperimentActivity extends AppCompatActivity
 
   private void setExperimentFragmentId(Experiment experiment) {
     FragmentManager fragmentManager = getSupportFragmentManager();
+    String experimentDetailsTag = "experimentDetails";
 
     if (experimentFragment == null) {
       // If we haven't cached the fragment, go looking for it.
       ExperimentDetailsWithActionAreaFragment oldFragment =
           (ExperimentDetailsWithActionAreaFragment)
-              fragmentManager.findFragmentById(R.id.experiment_pane);
+              fragmentManager.findFragmentByTag(experimentDetailsTag);
       if (oldFragment != null
           && oldFragment.getExperimentId().equals(experiment.getExperimentId())) {
         experimentFragment = oldFragment;
@@ -181,7 +182,16 @@ public class ExperimentActivity extends AppCompatActivity
           ExperimentDetailsWithActionAreaFragment.newInstance(
               appAccount, experiment.getExperimentId(), createTaskStack, claimExperimentsMode);
 
-      fragmentManager.beginTransaction().replace(R.id.experiment_pane, experimentFragment).commit();
+      if (fragmentManager.findFragmentById(R.id.experiment_pane) != null) {
+        fragmentManager
+            .beginTransaction()
+            .hide(fragmentManager.findFragmentById(R.id.experiment_pane))
+            .commit();
+      }
+      fragmentManager
+          .beginTransaction()
+          .add(R.id.experiment_pane, experimentFragment, experimentDetailsTag)
+          .commit();
     } else {
       experimentFragment.setExperimentId(experiment.getExperimentId());
     }
@@ -432,6 +442,32 @@ public class ExperimentActivity extends AppCompatActivity
       takePicture();
     } else if (item.equals(ActionAreaItem.GALLERY)) {
       Log.v(TAG, "clicked gallery");
+    } else if (item.equals(ActionAreaItem.MORE)) {
+      Log.v(TAG, "clicked more observations");
+      moreObservationsClicked();
+    }
+  }
+
+  // TODO(b/137214973): Update this as a part of b/137214973
+  private void moreObservationsClicked() {
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    String moreObservationsTag = "moreObservations";
+    if (fragmentManager.findFragmentById(R.id.experiment_pane) != null) {
+      fragmentManager
+          .beginTransaction()
+          .hide(fragmentManager.findFragmentById(R.id.experiment_pane))
+          .commit();
+    }
+    if (fragmentManager.findFragmentByTag(moreObservationsTag) != null) {
+      fragmentManager
+          .beginTransaction()
+          .show(fragmentManager.findFragmentByTag(moreObservationsTag))
+          .commit();
+    } else {
+      fragmentManager
+          .beginTransaction()
+          .add(R.id.experiment_pane, MoreObservationsFragment.newInstance(), moreObservationsTag)
+          .commit();
     }
   }
 
