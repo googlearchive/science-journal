@@ -40,9 +40,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;

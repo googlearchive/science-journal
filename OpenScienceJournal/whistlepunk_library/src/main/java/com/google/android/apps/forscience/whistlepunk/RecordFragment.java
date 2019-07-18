@@ -50,7 +50,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;

@@ -21,7 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -54,18 +54,16 @@ public class SensorTriggerTest {
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            new int[] {
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO
+            new TriggerAlertType[] {
+              TriggerAlertType.TRIGGER_ALERT_VISUAL, TriggerAlertType.TRIGGER_ALERT_AUDIO
             },
             10.);
     same =
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            new int[] {
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO
+            new TriggerAlertType[] {
+              TriggerAlertType.TRIGGER_ALERT_VISUAL, TriggerAlertType.TRIGGER_ALERT_AUDIO
             },
             10.);
     trigger.setTriggerActionType(
@@ -79,9 +77,8 @@ public class SensorTriggerTest {
         SensorTrigger.newAlertTypeTrigger(
             "1",
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            new int[] {
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO
+            new TriggerAlertType[] {
+              TriggerAlertType.TRIGGER_ALERT_VISUAL, TriggerAlertType.TRIGGER_ALERT_AUDIO
             },
             10.);
     assertTrue(trigger.getNoteText().isEmpty());
@@ -246,18 +243,16 @@ public class SensorTriggerTest {
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            new int[] {
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL,
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO
+            new TriggerAlertType[] {
+              TriggerAlertType.TRIGGER_ALERT_VISUAL, TriggerAlertType.TRIGGER_ALERT_AUDIO
             },
             10.);
     second =
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            new int[] {
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO,
-              TriggerInformation.TriggerAlertType.TRIGGER_ALERT_VISUAL
+            new TriggerAlertType[] {
+              TriggerAlertType.TRIGGER_ALERT_AUDIO, TriggerAlertType.TRIGGER_ALERT_VISUAL
             },
             10.);
     assertTrue(first.userSettingsEquals(second));
@@ -266,7 +261,7 @@ public class SensorTriggerTest {
         SensorTrigger.newAlertTypeTrigger(
             "sensorId",
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
-            new int[] {TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO},
+            new TriggerAlertType[] {TriggerAlertType.TRIGGER_ALERT_AUDIO},
             10.);
     assertFalse(first.userSettingsEquals(second));
 

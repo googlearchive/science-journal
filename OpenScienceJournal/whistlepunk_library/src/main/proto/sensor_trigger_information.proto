@@ -58,7 +58,7 @@ message TriggerInformation {
   // The type of alert to use when the trigger fires, if this is an
   // TRIGGER_ACTION_ALERT type.
   enum TriggerAlertType {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     TRIGGER_ALERT_VISUAL = 1;
     TRIGGER_ALERT_AUDIO = 2;
