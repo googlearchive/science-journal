@@ -22,8 +22,9 @@ import static org.junit.Assert.assertNull;
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec.DeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
@@ -214,10 +215,11 @@ public class UserMetadataManagerTest {
   public void testAddAndRemoveMyDevice() {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
-    @MigrateAs(Destination.BUILDER)
-    GoosciDeviceSpec.DeviceSpec device = new GoosciDeviceSpec.DeviceSpec();
-    device.info = GoosciGadgetInfo.GadgetInfo.getDefaultInstance();
-    device.name = "Name";
+    DeviceSpec device =
+        GoosciDeviceSpec.DeviceSpec.newBuilder()
+            .setInfo(GoosciGadgetInfo.GadgetInfo.getDefaultInstance())
+            .setName("Name")
+            .build();
     assertEquals(0, smm.getMyDevices().size());
     smm.addMyDevice(device);
     assertEquals(1, smm.getMyDevices().size());

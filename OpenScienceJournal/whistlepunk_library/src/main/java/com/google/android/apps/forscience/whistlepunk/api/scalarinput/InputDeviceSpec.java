@@ -24,8 +24,8 @@ import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.InputDevice;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.MkrSciBleDeviceSpec;
@@ -35,8 +35,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.html.HtmlEscapers;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -93,9 +91,9 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   private String name;
   private InputDevice.InputDeviceConfig config;
 
-  public static InputDeviceSpec fromProto(
-      @MigrateAs(Destination.EITHER) GoosciDeviceSpec.DeviceSpec proto) {
-    return new InputDeviceSpec(proto.info.getProviderId(), proto.info.getAddress(), proto.name);
+  public static InputDeviceSpec fromProto(GoosciDeviceSpec.DeviceSpec proto) {
+    return new InputDeviceSpec(
+        proto.getInfo().getProviderId(), proto.getInfo().getAddress(), proto.getName());
   }
 
   public InputDeviceSpec(String providerType, String deviceAddress, String deviceName) {
@@ -202,13 +200,11 @@ public class InputDeviceSpec extends ExternalSensorSpec {
     return InputDeviceSpec.joinAddresses(getProviderType(), getDeviceAddress());
   }
 
-  @MigrateAs(Destination.EITHER)
   public GoosciDeviceSpec.DeviceSpec asDeviceSpec() {
-    @MigrateAs(Destination.BUILDER)
-    GoosciDeviceSpec.DeviceSpec deviceSpec = new GoosciDeviceSpec.DeviceSpec();
-    deviceSpec.info = getGadgetInfo(getDeviceAddress());
-    deviceSpec.name = getName();
-    return deviceSpec;
+    return GoosciDeviceSpec.DeviceSpec.newBuilder()
+        .setInfo(getGadgetInfo(getDeviceAddress()))
+        .setName(getName())
+        .build();
   }
 
   public static List<InputDeviceSpec> fromProtos(List<GoosciDeviceSpec.DeviceSpec> protos) {

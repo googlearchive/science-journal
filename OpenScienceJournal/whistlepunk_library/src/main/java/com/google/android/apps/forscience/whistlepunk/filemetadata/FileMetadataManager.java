@@ -30,7 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
@@ -672,7 +672,7 @@ public class FileMetadataManager {
     userMetadataManager.addMyDevice(device);
   }
 
-  public void removeMyDevice(@MigrateAs(Destination.EITHER) GoosciDeviceSpec.DeviceSpec device) {
+  public void removeMyDevice(GoosciDeviceSpec.DeviceSpec device) {
     userMetadataManager.removeMyDevice(device);
   }
 
