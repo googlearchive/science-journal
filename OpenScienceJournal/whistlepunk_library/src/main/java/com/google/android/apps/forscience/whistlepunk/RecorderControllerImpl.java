@@ -786,7 +786,7 @@ public class RecorderControllerImpl implements RecorderController {
 
   @NonNull
   private String textForSnapshot(GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot) {
-    return snapshot.sensor.rememberedAppearance.name + " has value " + snapshot.value;
+    return snapshot.sensor.rememberedAppearance.getName() + " has value " + snapshot.value;
   }
 
   @NonNull

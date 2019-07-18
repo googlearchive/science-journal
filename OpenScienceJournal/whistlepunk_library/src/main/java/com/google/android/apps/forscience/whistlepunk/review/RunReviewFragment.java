@@ -79,7 +79,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -1339,7 +1339,7 @@ public class RunReviewFragment extends Fragment
     GoosciSensorAppearance.BasicSensorAppearance basicAppearance =
         getTrial().getAppearances().get(sensorLayout.sensorId);
     if (basicAppearance != null) {
-      sensorNameText.setText(basicAppearance.name);
+      sensorNameText.setText(basicAppearance.getName());
       final ImageView sensorIconImage = (ImageView) rootView.findViewById(R.id.sensor_icon);
       final SensorAppearance appearance =
           ProtoSensorAppearance.getAppearanceFromProtoOrProvider(

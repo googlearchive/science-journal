@@ -29,15 +29,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 
 /** ViewHolder and helper methods for showing notes in a list. */
 public class NoteViewHolder extends RecyclerView.ViewHolder {
@@ -154,11 +152,11 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
           snapshot.sensor.rememberedAppearance;
       TextView sensorName = (TextView) snapshotLayout.findViewById(R.id.sensor_name);
       sensorName.setCompoundDrawablesRelative(null, null, null, null);
-      sensorName.setText(appearance.name);
+      sensorName.setText(appearance.getName());
       String value =
-          BuiltInSensorAppearance.formatValue(snapshot.value, appearance.pointsAfterDecimal);
+          BuiltInSensorAppearance.formatValue(snapshot.value, appearance.getPointsAfterDecimal());
       ((TextView) snapshotLayout.findViewById(R.id.sensor_value))
-          .setText(String.format(valueFormat, value, appearance.units));
+          .setText(String.format(valueFormat, value, appearance.getUnits()));
 
       loadLargeDrawable(appearance, sensorAppearanceProvider, snapshotLayout, snapshot.value);
     }
@@ -201,14 +199,14 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     sensorName.setText(
         context
             .getResources()
-            .getString(R.string.trigger_label_name_header, appearance.name, triggerWhenText));
+            .getString(R.string.trigger_label_name_header, appearance.getName(), triggerWhenText));
 
     String valueFormat = context.getResources().getString(R.string.data_with_units);
     String value =
         BuiltInSensorAppearance.formatValue(
-            labelValue.triggerInformation.valueToTrigger, appearance.pointsAfterDecimal);
+            labelValue.triggerInformation.valueToTrigger, appearance.getPointsAfterDecimal());
     ((TextView) valuesList.findViewById(R.id.sensor_value))
-        .setText(String.format(valueFormat, value, appearance.units));
+        .setText(String.format(valueFormat, value, appearance.getUnits()));
     loadLargeDrawable(
         appearance,
         AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount),
@@ -216,9 +214,8 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
         labelValue.triggerInformation.valueToTrigger);
   }
 
-  @MigrateAs(Destination.EITHER)
   private static GoosciSensorAppearance.BasicSensorAppearance createDefaultAppearance() {
-    return new GoosciSensorAppearance.BasicSensorAppearance();
+    return GoosciSensorAppearance.BasicSensorAppearance.getDefaultInstance();
   }
 
   private static void loadLargeDrawable(
@@ -226,7 +223,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       SensorAppearanceProvider appearanceProvider,
       ViewGroup layout,
       double value) {
-    GoosciIcon.IconPath iconPath = appearance.largeIconPath;
+    GoosciIcon.IconPath iconPath = appearance.getLargeIconPath();
     SensorAppearance sa = getSensorAppearance(appearance, appearanceProvider);
     if (sa != null) {
       SensorAnimationBehavior behavior = sa.getSensorAnimationBehavior();
@@ -238,10 +235,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
   private static SensorAppearance getSensorAppearance(
       GoosciSensorAppearance.BasicSensorAppearance appearance,
       SensorAppearanceProvider appearanceProvider) {
-    GoosciIcon.IconPath iconPath = appearance.iconPath;
-    if (iconPath == null) {
-      return new ProtoSensorAppearance(appearance);
-    }
+    GoosciIcon.IconPath iconPath = appearance.getIconPath();
     switch (iconPath.getType()) {
       case BUILTIN:
         return appearanceProvider.getAppearance(iconPath.getPathString());
@@ -253,6 +247,6 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       case MKRSCI_ANDROID_BLE:
         return MkrSciBleSensorAppearance.get(iconPath.getPathString());
     }
-    return null;
+    return new ProtoSensorAppearance(appearance);
   }
 }

@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensors.AccelerometerSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.AmbientLightSensor;
@@ -32,8 +32,6 @@ import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSe
 import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -58,20 +56,17 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
 
   private DataController dataController;
 
-  @MigrateAs(Destination.EITHER)
   public static GoosciSensorAppearance.BasicSensorAppearance toProto(
       SensorAppearance appearance, Context context) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorAppearance.BasicSensorAppearance proto =
-        new GoosciSensorAppearance.BasicSensorAppearance();
-    proto.name = appearance.getName(context);
-    proto.locale = getLanguageTag(context);
-    proto.iconPath = appearance.getSmallIconPath();
-    proto.largeIconPath = appearance.getLargeIconPath();
-    proto.units = appearance.getUnits(context);
-    proto.shortDescription = appearance.getShortDescription(context);
-    proto.pointsAfterDecimal = appearance.getPointsAfterDecimal();
-    return proto;
+    return GoosciSensorAppearance.BasicSensorAppearance.newBuilder()
+        .setName(appearance.getName(context))
+        .setLocale(getLanguageTag(context))
+        .setIconPath(appearance.getSmallIconPath())
+        .setLargeIconPath(appearance.getLargeIconPath())
+        .setUnits(appearance.getUnits(context))
+        .setShortDescription(appearance.getShortDescription(context))
+        .setPointsAfterDecimal(appearance.getPointsAfterDecimal())
+        .build();
   }
 
   private static String getLanguageTag(Context context) {
@@ -299,19 +294,16 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     return UNKNOWN_SENSOR_APPEARANCE;
   }
 
-  @MigrateAs(Destination.EITHER)
   public static GoosciSensorAppearance.BasicSensorAppearance appearanceToProto(
       SensorAppearance appearance, Context context) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorAppearance.BasicSensorAppearance proto =
-        new GoosciSensorAppearance.BasicSensorAppearance();
-    proto.name = appearance.getName(context);
-    proto.units = appearance.getUnits(context);
-    proto.shortDescription = appearance.getShortDescription(context);
-    proto.iconPath = appearance.getSmallIconPath();
-    proto.largeIconPath = appearance.getLargeIconPath();
-    proto.pointsAfterDecimal = appearance.getPointsAfterDecimal();
-    return proto;
+    return GoosciSensorAppearance.BasicSensorAppearance.newBuilder()
+        .setName(appearance.getName(context))
+        .setUnits(appearance.getUnits(context))
+        .setShortDescription(appearance.getShortDescription(context))
+        .setIconPath(appearance.getSmallIconPath())
+        .setLargeIconPath(appearance.getLargeIconPath())
+        .setPointsAfterDecimal(appearance.getPointsAfterDecimal())
+        .build();
   }
 
   public static NumberFormat createNumberFormat(int pointsAfterDecimalInNumberFormat) {

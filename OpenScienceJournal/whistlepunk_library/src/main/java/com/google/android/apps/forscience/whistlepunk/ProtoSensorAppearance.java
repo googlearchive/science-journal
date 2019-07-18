@@ -19,8 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance.BasicSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance.BasicSensorAppearance;
 import io.reactivex.Single;
 import java.text.NumberFormat;
 
@@ -32,13 +31,11 @@ public class ProtoSensorAppearance implements SensorAppearance {
   // TODO: Revisit this constant -- should it be even smaller, like 5?
   public static final int MAX_POINTS_AFTER_DECIMAL = 10;
 
-  private GoosciSensorAppearance.BasicSensorAppearance proto;
+  private BasicSensorAppearance proto;
   private NumberFormat numberFormat;
 
   public static SensorAppearance getAppearanceFromProtoOrProvider(
-      GoosciSensorAppearance.BasicSensorAppearance proto,
-      String sensorId,
-      SensorAppearanceProvider appearanceProvider) {
+      BasicSensorAppearance proto, String sensorId, SensorAppearanceProvider appearanceProvider) {
 
     SensorAppearance providerAppearance = appearanceProvider.getAppearance(sensorId);
     if (providerAppearance != null && providerAppearance != appearanceProvider.getAppearance("0")) {
@@ -48,21 +45,22 @@ public class ProtoSensorAppearance implements SensorAppearance {
     }
   }
 
-  public ProtoSensorAppearance(GoosciSensorAppearance.BasicSensorAppearance proto) {
+  public ProtoSensorAppearance(BasicSensorAppearance proto) {
     BasicSensorAppearance basicSensorAppearance = proto;
     numberFormat =
-        SensorAppearanceProviderImpl.createNumberFormat(basicSensorAppearance.pointsAfterDecimal);
+        SensorAppearanceProviderImpl.createNumberFormat(
+            basicSensorAppearance.getPointsAfterDecimal());
     this.proto = basicSensorAppearance;
   }
 
   @Override
   public String getName(Context context) {
-    return proto.name;
+    return proto.getName();
   }
 
   @Override
   public String getUnits(Context context) {
-    return proto.units;
+    return proto.getUnits();
   }
 
   @Override
@@ -72,7 +70,7 @@ public class ProtoSensorAppearance implements SensorAppearance {
 
   @Override
   public String getShortDescription(Context context) {
-    return proto.shortDescription;
+    return proto.getShortDescription();
   }
 
   @Override
@@ -109,6 +107,6 @@ public class ProtoSensorAppearance implements SensorAppearance {
 
   @Override
   public int getPointsAfterDecimal() {
-    return proto.pointsAfterDecimal;
+    return proto.getPointsAfterDecimal();
   }
 }

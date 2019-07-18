@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -36,10 +36,10 @@ public class SensorAppearanceProviderImplTest {
 
     GoosciSensorAppearance.BasicSensorAppearance proto =
         SensorAppearanceProviderImpl.toProto(appearance, context);
-    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.iconPath.getType());
-    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.largeIconPath.getType());
-    assertEquals("sensorId", proto.iconPath.getPathString());
-    assertEquals("sensorId", proto.largeIconPath.getPathString());
+    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.getIconPath().getType());
+    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.getLargeIconPath().getType());
+    assertEquals("sensorId", proto.getIconPath().getPathString());
+    assertEquals("sensorId", proto.getLargeIconPath().getPathString());
 
     // TODO: re-enable once we have this implemented for all SDKs (b/63933068)
     // This should be a BCP 47 language tag, like "en-US"

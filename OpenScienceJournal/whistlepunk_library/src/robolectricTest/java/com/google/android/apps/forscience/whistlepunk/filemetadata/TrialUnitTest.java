@@ -25,7 +25,7 @@ import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.MemoryAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
@@ -159,6 +159,6 @@ public class TrialUnitTest {
         });
     Trial trial = Trial.newTrial(7, new GoosciSensorLayout.SensorLayout[] {layout}, provider, null);
     Map<String, GoosciSensorAppearance.BasicSensorAppearance> appearances = trial.getAppearances();
-    assertEquals("Fun name!", appearances.get("foo").name);
+    assertEquals("Fun name!", appearances.get("foo").getName());
   }
 }

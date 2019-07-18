@@ -28,9 +28,8 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorAppearance.BasicSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
@@ -322,7 +321,7 @@ public class RecorderControllerTest {
         snapshot.test().assertNoErrors().assertValueCount(1).values().get(0);
 
     GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot shot = value.snapshots[0];
-    assertEquals(sensorName, shot.sensor.rememberedAppearance.name);
+    assertEquals(sensorName, shot.sensor.rememberedAppearance.getName());
     assertEquals(50.0, shot.value, 0.01);
     assertEquals(10, shot.timestampMs);
 
@@ -512,7 +511,7 @@ public class RecorderControllerTest {
     assertEquals(Lists.newArrayList(this.sensorId), sensorIds);
     GoosciSensorAppearance.BasicSensorAppearance appearance =
         trial.getAppearances().get(sensorIds.get(0));
-    assertEquals(sensorName, appearance.name);
+    assertEquals(sensorName, appearance.getName());
   }
 
   private Supplier<RecorderServiceConnection> connectionSupplier() {
@@ -548,10 +547,8 @@ public class RecorderControllerTest {
 
   public static GoosciSensorSpec.SensorSpec makeSensorProto(String name) {
     GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
-    @MigrateAs(Destination.BUILDER)
-    BasicSensorAppearance rememberedAppearance = new GoosciSensorAppearance.BasicSensorAppearance();
-    rememberedAppearance.name = name;
-    spec.rememberedAppearance = rememberedAppearance;
+    spec.rememberedAppearance =
+        GoosciSensorAppearance.BasicSensorAppearance.newBuilder().setName(name).build();
     return spec;
   }
 

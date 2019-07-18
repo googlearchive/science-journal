@@ -104,7 +104,7 @@ public class RecordFragmentTest {
             .snapshots[0]
             .sensor
             .rememberedAppearance
-            .name);
+            .getName());
   }
 
   private static Context getContext() {

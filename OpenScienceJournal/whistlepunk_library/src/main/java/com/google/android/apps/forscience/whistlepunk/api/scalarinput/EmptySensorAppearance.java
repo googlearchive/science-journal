@@ -69,12 +69,12 @@ public class EmptySensorAppearance implements SensorAppearance {
 
   @Override
   public GoosciIcon.IconPath getSmallIconPath() {
-    return null;
+    return GoosciIcon.IconPath.getDefaultInstance();
   }
 
   @Override
   public GoosciIcon.IconPath getLargeIconPath() {
-    return null;
+    return GoosciIcon.IconPath.getDefaultInstance();
   }
 
   @Override

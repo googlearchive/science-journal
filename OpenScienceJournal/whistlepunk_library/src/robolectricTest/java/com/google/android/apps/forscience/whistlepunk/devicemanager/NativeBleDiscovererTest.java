@@ -119,7 +119,7 @@ public class NativeBleDiscovererTest {
     discoverer.startScanning(listener, TestConsumers.expectingSuccess());
     assertEquals(1, sensorsSeen.seen.size());
     GoosciSensorSpec.SensorSpec sensor = sensorsSeen.seen.get(0).getSensorSpec();
-    assertEquals(name, sensor.rememberedAppearance.name);
+    assertEquals(name, sensor.rememberedAppearance.getName());
     assertEquals(address, sensor.info.getAddress());
     assertEquals(BleSensorSpec.TYPE, sensor.info.getProviderId());
     assertFalse(onScanDone.hasRun);
