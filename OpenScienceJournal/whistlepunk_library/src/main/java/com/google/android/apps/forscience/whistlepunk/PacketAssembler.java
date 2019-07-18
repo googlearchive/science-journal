@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import androidx.annotation.VisibleForTesting;
 import android.util.Log;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Pin;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -82,7 +83,7 @@ public class PacketAssembler {
     }
 
     GoosciSensor.Data sensorValue = sensorData.getData();
-    GoosciSensor.Pin sensorPin = sensorValue.pin;
+    Pin sensorPin = sensorValue.pin;
 
     double data;
 

@@ -86,7 +86,7 @@ message VirtualPin {
 
 // Pin of a specific type.
 message Pin {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   oneof pin {
     AnalogPin analog_pin = 10;
