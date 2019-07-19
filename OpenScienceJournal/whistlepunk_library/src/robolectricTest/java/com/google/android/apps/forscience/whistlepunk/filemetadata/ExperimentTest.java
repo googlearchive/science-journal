@@ -663,7 +663,7 @@ public class ExperimentTest {
     Label label2 = Label.fromLabel(label.getLabelProto());
     GoosciPictureLabelValue.PictureLabelValue pictureLabelValue2 =
         new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue.filePath = "bar";
+    pictureLabelValue2.filePath = "bar";
     label2.setLabelProtoData(pictureLabelValue2);
     experimentClient.updateLabel(experimentClient, label2);
 
