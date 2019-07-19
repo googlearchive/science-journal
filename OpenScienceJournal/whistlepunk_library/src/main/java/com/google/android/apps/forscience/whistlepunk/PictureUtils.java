@@ -134,7 +134,8 @@ public class PictureUtils {
       ImageView view,
       AppAccount appAccount,
       String experimentId,
-      String relativeFilePath) {
+      String relativeFilePath,
+      boolean scale) {
     if (isDestroyed(context)) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Trying to load image for destroyed context");
@@ -145,15 +146,27 @@ public class PictureUtils {
     File file =
         FileMetadataUtil.getInstance()
             .getExperimentFile(appAccount, experimentId, relativeFilePath);
-    // Use last modified time as part of the signature to force a glide cache refresh.
-    GlideApp.with(context)
-        .load(file.getAbsolutePath())
-        .placeholder(R.drawable.placeholder)
-        .signature(new ObjectKey(file.getPath() + file.lastModified()))
-        .fitCenter()
-        // caches only the final image, after reducing the resolution
-        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-        .into(view);
+    if (scale) {
+      // Use last modified time as part of the signature to force a glide cache refresh.
+      GlideApp.with(context)
+          .load(file.getAbsolutePath())
+          .placeholder(R.drawable.placeholder)
+          .signature(new ObjectKey(file.getPath() + file.lastModified()))
+          .centerCrop()
+          // caches only the final image, after reducing the resolution
+          .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+          .into(view);
+    } else {
+      // Use last modified time as part of the signature to force a glide cache refresh.
+      GlideApp.with(context)
+          .load(file.getAbsolutePath())
+          .placeholder(R.drawable.placeholder)
+          .signature(new ObjectKey(file.getPath() + file.lastModified()))
+          .fitCenter()
+          // caches only the final image, after reducing the resolution
+          .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+          .into(view);
+    }
   }
 
   private static boolean isDestroyed(Context context) {

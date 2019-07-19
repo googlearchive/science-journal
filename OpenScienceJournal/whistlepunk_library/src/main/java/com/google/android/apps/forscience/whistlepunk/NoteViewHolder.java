@@ -88,7 +88,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       GoosciPictureLabelValue.PictureLabelValue labelValue = label.getPictureLabelValue();
       image.setVisibility(View.VISIBLE);
       PictureUtils.loadExperimentImage(
-          image.getContext(), image, appAccount, experimentId, labelValue.filePath);
+          image.getContext(), image, appAccount, experimentId, labelValue.filePath, true);
     } else {
       PictureUtils.clearImage(image);
       image.setVisibility(View.GONE);

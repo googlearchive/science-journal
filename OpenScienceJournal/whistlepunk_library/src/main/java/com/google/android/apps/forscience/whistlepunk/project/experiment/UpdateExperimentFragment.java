@@ -283,7 +283,7 @@ public class UpdateExperimentFragment extends Fragment {
             PictureUtils.getExperimentOverviewRelativeImagePath(experimentId, pictureLabelPath);
         setImagePath(overviewPath);
         PictureUtils.loadExperimentImage(
-            getActivity(), photoPreview, appAccount, experimentId, pictureLabelPath);
+            getActivity(), photoPreview, appAccount, experimentId, pictureLabelPath, false);
       } else {
         pictureLabelPath = null;
       }

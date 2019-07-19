@@ -38,6 +38,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1610,12 +1611,19 @@ public class ExperimentDetailsFragment extends Fragment
       if (label.getType() == GoosciLabel.Label.ValueType.PICTURE) {
         GoosciPictureLabelValue.PictureLabelValue labelValue = label.getPictureLabelValue();
         noteView.findViewById(R.id.note_image).setVisibility(View.VISIBLE);
+        ImageView imageView = noteView.findViewById(R.id.note_image);
+        // Note images should be smaller if they're a part of a trial
+        imageView.getLayoutParams().height =
+            (int)
+                TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 100, noteView.getResources().getDisplayMetrics());
         PictureUtils.loadExperimentImage(
             noteView.getContext(),
-            (ImageView) noteView.findViewById(R.id.note_image),
+            imageView,
             parentReference.get().appAccount,
             experiment.getExperimentId(),
-            labelValue.filePath);
+            labelValue.filePath,
+            true);
       }
 
       if (label.getType() != GoosciLabel.Label.ValueType.SENSOR_TRIGGER

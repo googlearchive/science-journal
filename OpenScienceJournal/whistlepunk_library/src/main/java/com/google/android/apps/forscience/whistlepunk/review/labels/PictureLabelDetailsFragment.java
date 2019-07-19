@@ -93,7 +93,8 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
         imageView,
         appAccount,
         experimentId,
-        originalLabel.getPictureLabelValue().filePath);
+        originalLabel.getPictureLabelValue().filePath,
+        false);
   }
 
   @Override

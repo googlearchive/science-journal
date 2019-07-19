@@ -354,7 +354,7 @@ public class AddNoteDialog extends DialogFragment {
     setViewVisibilities(takePictureBtn, imageView, !hasPicture());
     if (pictureLabelPath != null) {
       PictureUtils.loadExperimentImage(
-          getActivity(), imageView, appAccount, experimentId, pictureLabelPath);
+          getActivity(), imageView, appAccount, experimentId, pictureLabelPath, false);
     }
 
     takePictureBtn.setOnClickListener(
@@ -497,7 +497,7 @@ public class AddNoteDialog extends DialogFragment {
       ImageView imageView = (ImageView) dialog.findViewById(R.id.picture_note_preview_image);
       if (resultCode == Activity.RESULT_OK) {
         PictureUtils.loadExperimentImage(
-            getActivity(), imageView, appAccount, experimentId, pictureLabelPath);
+            getActivity(), imageView, appAccount, experimentId, pictureLabelPath, false);
       } else {
         pictureLabelPath = null;
       }
