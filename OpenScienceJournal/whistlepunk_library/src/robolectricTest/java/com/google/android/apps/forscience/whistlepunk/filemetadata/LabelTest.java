@@ -19,9 +19,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import android.os.Parcel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
@@ -73,10 +74,8 @@ public class LabelTest {
 
   @Test
   public void testCanCreatePictureLabel() {
-    @MigrateAs(Destination.BUILDER)
-    GoosciCaption.Caption caption = new GoosciCaption.Caption();
-    caption.text = "kitten";
-    caption.lastEditedTimestamp = 5;
+    Caption caption =
+        GoosciCaption.Caption.newBuilder().setText("kitten").setLastEditedTimestamp(5).build();
     @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue labelValue =
         new GoosciPictureLabelValue.PictureLabelValue();

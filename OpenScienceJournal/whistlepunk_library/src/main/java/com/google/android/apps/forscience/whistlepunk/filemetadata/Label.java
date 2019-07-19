@@ -22,8 +22,9 @@ import android.os.Parcelable;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
@@ -83,7 +84,11 @@ public class Label implements Parcelable {
     result.getLabelProto().creationTimeMs = System.currentTimeMillis();
     result.getLabelProto().labelId = java.util.UUID.randomUUID().toString();
     if (result.getLabelProto().caption != null) {
-      result.getLabelProto().caption.lastEditedTimestamp = System.currentTimeMillis();
+      Caption newCaption =
+          result.getLabelProto().caption.toBuilder()
+              .setLastEditedTimestamp(System.currentTimeMillis())
+              .build();
+      result.getLabelProto().caption = newCaption;
     }
     return result;
   }
@@ -168,7 +173,7 @@ public class Label implements Parcelable {
     if (label.caption == null) {
       return "";
     }
-    return label.caption.text;
+    return label.caption.getText();
   }
 
   public void setCaption(GoosciCaption.Caption caption) {

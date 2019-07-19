@@ -38,11 +38,11 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
@@ -367,17 +367,15 @@ public class RecorderControllerImpl implements RecorderController {
     GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
         new GoosciSensorTriggerLabelValue.SensorTriggerLabelValue();
     labelValue.triggerInformation = trigger.getTriggerProto().triggerInformation;
-    @MigrateAs(Destination.BUILDER)
-    GoosciCaption.Caption caption = null;
+    GoosciCaption.Caption.Builder caption = null;
     if (!TextUtils.isEmpty((trigger.getNoteText()))) {
-      caption = new GoosciCaption.Caption();
-      caption.lastEditedTimestamp = timestamp;
-      caption.text = trigger.getNoteText();
+      caption = GoosciCaption.Caption.newBuilder();
+      caption.setLastEditedTimestamp(timestamp).setText(trigger.getNoteText());
     }
     labelValue.sensor = getSensorSpec(trigger.getSensorId(), sensorRegistry);
     final Label triggerLabel =
         Label.newLabelWithValue(
-            timestamp, GoosciLabel.Label.ValueType.SENSOR_TRIGGER, labelValue, caption);
+            timestamp, GoosciLabel.Label.ValueType.SENSOR_TRIGGER, labelValue, caption.build());
     if (isRecording()) {
       // Adds the label to the trial and saves the updated experiment.
       getSelectedExperiment()

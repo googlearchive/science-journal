@@ -27,10 +27,10 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
@@ -538,9 +538,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
-    @MigrateAs(Destination.BUILDER)
-    Caption caption = new Caption();
-    caption.text = "caption";
+    Caption caption = Caption.newBuilder().setText("caption").build();
     label.setCaption(caption);
 
     Experiment experimentClient =
@@ -856,9 +854,7 @@ public class ExperimentTest {
     experimentServer.addTrial(trial);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
-    @MigrateAs(Destination.BUILDER)
-    Caption caption = new Caption();
-    caption.text = "caption";
+    Caption caption = Caption.newBuilder().setText("caption").build();
     label.setCaption(caption);
 
     trial.addLabel(label);
@@ -869,9 +865,7 @@ public class ExperimentTest {
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
-    @MigrateAs(Destination.BUILDER)
-    Caption caption2 = new Caption();
-    caption2.text = "caption2";
+    Caption caption2 = Caption.newBuilder().setText("caption2").build();
     label2.setCaption(caption2);
 
     Trial clientTrial = experimentClient.getTrial(trial.getTrialId());
@@ -910,9 +904,7 @@ public class ExperimentTest {
     experimentServer.addTrial(trial);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
-    @MigrateAs(Destination.BUILDER)
-    Caption caption = new Caption();
-    caption.text = "caption";
+    Caption caption = Caption.newBuilder().setText("caption").build();
     label.setCaption(caption);
 
     trial.addLabel(label);
@@ -953,9 +945,7 @@ public class ExperimentTest {
     experimentClient.addTrial(trial);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
-    @MigrateAs(Destination.BUILDER)
-    Caption caption = new Caption();
-    caption.text = "caption";
+    Caption caption = Caption.newBuilder().setText("caption").build();
     label.setCaption(caption);
     trial.addLabel(experimentClient, label);
 
@@ -987,9 +977,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
-    @MigrateAs(Destination.BUILDER)
-    Caption caption = new Caption();
-    caption.text = "caption";
+    Caption caption = Caption.newBuilder().setText("caption").build();
     label.setCaption(caption);
 
     experimentServer.addLabel(experimentServer, label);
@@ -1006,18 +994,14 @@ public class ExperimentTest {
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
-    @MigrateAs(Destination.BUILDER)
-    Caption caption2 = new Caption();
-    caption2.text = "caption2";
+    Caption caption2 = Caption.newBuilder().setText("caption2").build();
     label2.setCaption(caption2);
 
     experimentClient.updateLabel(experimentClient, label2);
 
     Label label3 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
-    @MigrateAs(Destination.BUILDER)
-    Caption caption3 = new Caption();
-    caption3.text = "caption3";
+    Caption caption3 = Caption.newBuilder().setText("caption3").build();
     label3.setCaption(caption3);
 
     experimentServer.updateLabel(experimentServer, label3);
@@ -1039,9 +1023,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
-    @MigrateAs(Destination.BUILDER)
-    Caption caption = new Caption();
-    caption.text = "caption";
+    Caption caption = Caption.newBuilder().setText("caption").build();
     label.setCaption(caption);
 
     experimentServer.addLabel(experimentServer, label);
@@ -1060,9 +1042,7 @@ public class ExperimentTest {
 
     Label label3 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
-    @MigrateAs(Destination.BUILDER)
-    Caption caption3 = new Caption();
-    caption3.text = "caption3";
+    Caption caption3 = Caption.newBuilder().setText("caption3").build();
     label3.setCaption(caption3);
 
     experimentServer.updateLabel(experimentServer, label3);
@@ -1084,9 +1064,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
-    @MigrateAs(Destination.BUILDER)
-    Caption caption = new Caption();
-    caption.text = "caption";
+    Caption caption = Caption.newBuilder().setText("caption").build();
     label.setCaption(caption);
 
     experimentServer.addLabel(experimentServer, label);
@@ -1103,9 +1081,7 @@ public class ExperimentTest {
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
-    @MigrateAs(Destination.BUILDER)
-    Caption caption2 = new Caption();
-    caption2.text = "caption2";
+    Caption caption2 = Caption.newBuilder().setText("caption2").build();
     label2.setCaption(caption2);
 
     experimentClient.updateLabel(experimentClient, label2);
@@ -1208,9 +1184,7 @@ public class ExperimentTest {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
     Label label = Label.newLabel(1, ValueType.TEXT);
-    @MigrateAs(Destination.BUILDER)
-    Caption caption = new Caption();
-    caption.text = "caption";
+    Caption caption = Caption.newBuilder().setText("caption").build();
     label.setCaption(caption);
 
     experimentServer.addLabel(experimentServer, label);
@@ -1227,9 +1201,7 @@ public class ExperimentTest {
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
-    @MigrateAs(Destination.BUILDER)
-    Caption caption2 = new Caption();
-    caption2.text = "caption2";
+    Caption caption2 = Caption.newBuilder().setText("caption2").build();
     label2.setCaption(caption2);
     experimentClient.addChange(Change.newModifyTypeChange(ElementType.CAPTION, label.getLabelId()));
     assertThat(experimentClient.getChanges()).hasSize(2);

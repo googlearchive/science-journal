@@ -87,8 +87,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
@@ -844,10 +845,11 @@ public class RunReviewFragment extends Fragment
           @Override
           public void onCaptionEdit(String updatedCaption) {
             if (!claimExperimentsMode) {
-              @MigrateAs(Destination.BUILDER)
-              GoosciCaption.Caption caption = new GoosciCaption.Caption();
-              caption.text = updatedCaption;
-              caption.lastEditedTimestamp = System.currentTimeMillis();
+              Caption caption =
+                  GoosciCaption.Caption.newBuilder()
+                      .setText(updatedCaption)
+                      .setLastEditedTimestamp(System.currentTimeMillis())
+                      .build();
               getTrial().setCaption(caption);
               experiment.addChange(
                   Change.newModifyTypeChange(ElementType.CAPTION, getTrial().getTrialId()));

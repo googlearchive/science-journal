@@ -53,8 +53,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -171,9 +171,7 @@ public class SimpleMetaDataManagerTest {
     String testPicturePath = "file:" + tmpFile.getAbsolutePath();
     String testPictureCaption = "life, the universe, and everything";
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciCaption.Caption caption = new GoosciCaption.Caption();
-    caption.text = testPictureCaption;
+    Caption caption = GoosciCaption.Caption.newBuilder().setText(testPictureCaption).build();
 
     @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue labelValue =

@@ -30,9 +30,9 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProviderIm
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -283,7 +283,7 @@ public class Trial extends LabelListHolder {
     if (trial.caption == null) {
       return "";
     }
-    return trial.caption.text;
+    return trial.caption.getText();
   }
 
   public void setCaption(GoosciCaption.Caption caption) {

@@ -59,9 +59,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
@@ -1410,10 +1410,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 new GoosciPictureLabelValue.PictureLabelValue();
             labelValue.filePath =
                 PictureLabelValue.getAbsoluteFilePath(PictureLabelValue.getFilePath(value));
-            @MigrateAs(Destination.BUILDER)
-            GoosciCaption.Caption caption = new GoosciCaption.Caption();
-            caption.lastEditedTimestamp = timestamp;
-            caption.text = PictureLabelValue.getCaption(value);
+            Caption caption =
+                GoosciCaption.Caption.newBuilder()
+                    .setLastEditedTimestamp(timestamp)
+                    .setText(PictureLabelValue.getCaption(value))
+                    .build();
             goosciLabel.type = ValueType.PICTURE;
             goosciLabel.protoData = MessageNano.toByteArray(labelValue);
             goosciLabel.caption = caption;

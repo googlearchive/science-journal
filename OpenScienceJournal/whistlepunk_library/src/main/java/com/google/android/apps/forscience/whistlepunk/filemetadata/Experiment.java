@@ -25,11 +25,11 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
@@ -949,9 +949,7 @@ public class Experiment extends LabelListHolder {
 
     if (localTrial != null) {
       // Since the local trial exists, set the caption.
-      @MigrateAs(Destination.BUILDER)
-      Caption caption = new Caption();
-      caption.text = externalTrial.getCaptionText();
+      Caption caption = Caption.newBuilder().setText(externalTrial.getCaptionText()).build();
       localTrial.setCaption(caption);
     } else {
       String labelId = external.getChangedElementId();
@@ -960,9 +958,7 @@ public class Experiment extends LabelListHolder {
 
       if (localLabel != null) {
         // Since the local trial exists, set the caption.
-        @MigrateAs(Destination.BUILDER)
-        Caption caption = new Caption();
-        caption.text = externalLabel.getCaptionText();
+        Caption caption = Caption.newBuilder().setText(externalLabel.getCaptionText()).build();
         localLabel.setCaption(caption);
       }
     }
@@ -1286,9 +1282,10 @@ public class Experiment extends LabelListHolder {
     Label localLabel = getLabel(external.getChangedElementId());
 
     if (localLabel != null) {
-      @MigrateAs(Destination.BUILDER)
-      Caption newCaption = new Caption();
-      newCaption.text = localLabel.getCaptionText() + " " + externalLabel.getCaptionText();
+      Caption newCaption =
+          Caption.newBuilder()
+              .setText(localLabel.getCaptionText() + " " + externalLabel.getCaptionText())
+              .build();
       localLabel.setCaption(newCaption);
       addChange(Change.newModifyTypeChange(ElementType.CAPTION, localLabel.getLabelId()));
       return;
@@ -1297,9 +1294,10 @@ public class Experiment extends LabelListHolder {
     Trial externalTrial = externalExperiment.getTrial(external.getChangedElementId());
     Trial localTrial = getTrial(external.getChangedElementId());
     if (localTrial != null) {
-      @MigrateAs(Destination.BUILDER)
-      Caption newCaption = new Caption();
-      newCaption.text = localTrial.getCaptionText() + " " + externalTrial.getCaptionText();
+      Caption newCaption =
+          Caption.newBuilder()
+              .setText(localTrial.getCaptionText() + " " + externalTrial.getCaptionText())
+              .build();
       localTrial.setCaption(newCaption);
       addChange(Change.newModifyTypeChange(ElementType.CAPTION, localTrial.getTrialId()));
     }

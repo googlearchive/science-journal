@@ -48,8 +48,9 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
@@ -389,10 +390,11 @@ public class AddNoteDialog extends DialogFragment {
       GoosciPictureLabelValue.PictureLabelValue labelValue =
           new GoosciPictureLabelValue.PictureLabelValue();
       labelValue.filePath = pictureLabelPath;
-      @MigrateAs(Destination.BUILDER)
-      GoosciCaption.Caption caption = new GoosciCaption.Caption();
-      caption.text = input.getText().toString();
-      caption.lastEditedTimestamp = timestamp;
+      Caption caption =
+          GoosciCaption.Caption.newBuilder()
+              .setText(input.getText().toString())
+              .setLastEditedTimestamp(timestamp)
+              .build();
       return Label.newLabelWithValue(
           timestamp, GoosciLabel.Label.ValueType.PICTURE, labelValue, caption);
     } else {
@@ -459,10 +461,11 @@ public class AddNoteDialog extends DialogFragment {
     labelValue.filePath = pictureLabelPath;
     Label label =
         Label.fromUuidAndValue(timestamp, uuid, GoosciLabel.Label.ValueType.PICTURE, labelValue);
-    @MigrateAs(Destination.BUILDER)
-    GoosciCaption.Caption caption = new GoosciCaption.Caption();
-    caption.text = input.getText().toString();
-    caption.lastEditedTimestamp = label.getCreationTimeMs();
+    Caption caption =
+        GoosciCaption.Caption.newBuilder()
+            .setText(input.getText().toString())
+            .setLastEditedTimestamp(label.getCreationTimeMs())
+            .build();
     label.setCaption(caption);
     addLabel(label, getDataController(input.getContext()), experiment, input.getContext());
     pictureLabelPath = null;

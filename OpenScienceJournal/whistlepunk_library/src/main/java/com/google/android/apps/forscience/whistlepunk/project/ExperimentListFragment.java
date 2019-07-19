@@ -79,8 +79,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -572,12 +572,12 @@ public class ExperimentListFragment extends Fragment
     e.addLabel(e, textLabel2);
 
     // Create a picture label 4 second ago with a default drawable and caption.
-    @MigrateAs(Destination.BUILDER)
-    GoosciCaption.Caption caption = new GoosciCaption.Caption();
-    caption.text = res.getString(R.string.first_experiment_picture_note_caption);
-    caption.lastEditedTimestamp = clock.getNow() - 4000;
+    GoosciCaption.Caption.Builder caption =
+        GoosciCaption.Caption.newBuilder()
+            .setText(res.getString(R.string.first_experiment_picture_note_caption))
+            .setLastEditedTimestamp(clock.getNow() - 4000);
     Label pictureLabel =
-        Label.newLabel(caption.lastEditedTimestamp, GoosciLabel.Label.ValueType.PICTURE);
+        Label.newLabel(caption.getLastEditedTimestamp(), GoosciLabel.Label.ValueType.PICTURE);
     File pictureFile =
         PictureUtils.createImageFile(
             applicationContext, appAccount, e.getExperimentId(), pictureLabel.getLabelId());
@@ -589,7 +589,7 @@ public class ExperimentListFragment extends Fragment
         FileMetadataUtil.getInstance()
             .getRelativePathInExperiment(e.getExperimentId(), pictureFile);
     pictureLabel.setLabelProtoData(goosciPictureLabel);
-    pictureLabel.setCaption(caption);
+    pictureLabel.setCaption(caption.build());
     e.addLabel(e, pictureLabel);
 
     // TODO: Add a recording item if required by b/64844798.
