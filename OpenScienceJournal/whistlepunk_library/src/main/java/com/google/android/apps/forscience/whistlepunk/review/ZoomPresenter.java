@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import androidx.annotation.VisibleForTesting;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 
 /**

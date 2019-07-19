@@ -145,7 +145,7 @@ message SensorStat {
   option (proto2.nano.message_as_lite) = false;
 
   enum StatType {
-    option (proto2.nano.enum_as_lite) = false;
+    option (proto2.nano.enum_as_lite) = true;
 
     MINIMUM = 1;          // The minimum value.
     MAXIMUM = 2;          // The maximum value.

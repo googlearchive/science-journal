@@ -18,13 +18,10 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.SensorStat;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.SensorStat.StatType;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ZoomRecorder;
-import com.google.protobuf.nano.NanoEnumValue;
-import java.util.HashMap;
+import com.google.common.collect.ImmutableMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -34,38 +31,29 @@ import java.util.Set;
  * key/value pairs which can be read and written to the database.
  */
 public class RunStats {
-  @NanoEnumValue(StatType.class)
-  private static final int TYPE_NOT_FOUND = -1;
-
   private static final int DEFAULT_VALUE = 0;
+  private static final Map<String, StatType> KEY_MAP =
+      ImmutableMap.<String, StatType>builder()
+          .put(StatsAccumulator.KEY_AVERAGE, StatType.AVERAGE)
+          .put(StatsAccumulator.KEY_MIN, StatType.MINIMUM)
+          .put(StatsAccumulator.KEY_MAX, StatType.MAXIMUM)
+          .put(StatsAccumulator.KEY_NUM_DATA_POINTS, StatType.NUM_DATA_POINTS)
+          .put(StatsAccumulator.KEY_TOTAL_DURATION, StatType.TOTAL_DURATION)
+          .put(ZoomRecorder.STATS_KEY_TIER_COUNT, StatType.ZOOM_PRESENTER_TIER_COUNT)
+          .put(
+              ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS,
+              StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS)
+          .build();
+
   private TrialStats trialStats;
-  private static Map<String, Integer> keyMap = new HashMap<>();
 
   public static RunStats fromTrialStats(TrialStats trialStats) {
-    if (keyMap.size() == 0) {
-      initializeKeyMap();
-    }
     RunStats runStats = new RunStats(trialStats);
     return runStats;
   }
 
   private RunStats(TrialStats trialStats) {
     this.trialStats = trialStats;
-  }
-
-  private static void initializeKeyMap() {
-    keyMap.put(StatsAccumulator.KEY_AVERAGE, GoosciTrial.SensorStat.StatType.AVERAGE);
-    keyMap.put(StatsAccumulator.KEY_MIN, GoosciTrial.SensorStat.StatType.MINIMUM);
-    keyMap.put(StatsAccumulator.KEY_MAX, GoosciTrial.SensorStat.StatType.MAXIMUM);
-    keyMap.put(
-        StatsAccumulator.KEY_NUM_DATA_POINTS, GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS);
-    keyMap.put(StatsAccumulator.KEY_TOTAL_DURATION, GoosciTrial.SensorStat.StatType.TOTAL_DURATION);
-    keyMap.put(
-        ZoomRecorder.STATS_KEY_TIER_COUNT,
-        GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_TIER_COUNT);
-    keyMap.put(
-        ZoomRecorder.STATS_KEY_ZOOM_LEVEL_BETWEEN_TIERS,
-        GoosciTrial.SensorStat.StatType.ZOOM_PRESENTER_ZOOM_LEVEL_BETWEEN_TIERS);
   }
 
   public RunStats(String sensorId) {
@@ -77,8 +65,7 @@ public class RunStats {
   }
 
   public void putStat(String key, double value) {
-    @NanoEnumValue(StatType.class)
-    int type = keyToType(key);
+    StatType type = keyToType(key);
     trialStats.putStat(type, value);
   }
 
@@ -111,7 +98,7 @@ public class RunStats {
 
   public Set<String> getKeys() {
     Set<String> result = new HashSet<>();
-    for (String key : keyMap.keySet()) {
+    for (String key : KEY_MAP.keySet()) {
       if (trialStats.hasStat(keyToType(key))) {
         result.add(key);
       }
@@ -119,14 +106,10 @@ public class RunStats {
     return result;
   }
 
-  @NanoEnumValue(StatType.class)
-  private static int keyToType(String key) {
-    if (keyMap.size() == 0) {
-      initializeKeyMap();
+  private static StatType keyToType(String key) {
+    if (KEY_MAP.containsKey(key)) {
+      return KEY_MAP.get(key);
     }
-    if (keyMap.containsKey(key)) {
-      return SensorStat.checkStatTypeOrThrow(keyMap.get(key));
-    }
-    return TYPE_NOT_FOUND;
+    throw new IllegalArgumentException("StatType not found for key " + key);
   }
 }

@@ -20,6 +20,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import org.junit.Test;
@@ -33,25 +34,25 @@ public class TrialStatsTest {
   public void testGetAndSet() {
     TrialStats stats = new TrialStats("sensorId");
     stats.setStatStatus(StatStatus.VALID);
-    stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 42);
-    stats.putStat(GoosciTrial.SensorStat.StatType.MINIMUM, 10);
+    stats.putStat(StatType.AVERAGE, 42);
+    stats.putStat(StatType.MINIMUM, 10);
 
-    assertTrue(stats.hasStat(GoosciTrial.SensorStat.StatType.AVERAGE));
-    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, 0), 42.0);
-    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, 0), 10.0);
+    assertTrue(stats.hasStat(StatType.AVERAGE));
+    assertEquals(stats.getStatValue(StatType.AVERAGE, 0), 42.0);
+    assertEquals(stats.getStatValue(StatType.MINIMUM, 0), 10.0);
 
     // New values overwrite old values
-    stats.putStat(GoosciTrial.SensorStat.StatType.AVERAGE, 41);
-    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, 0), 41.0);
+    stats.putStat(StatType.AVERAGE, 41);
+    assertEquals(stats.getStatValue(StatType.AVERAGE, 0), 41.0);
 
     // Check that missing information works properly.
-    assertFalse(stats.hasStat(GoosciTrial.SensorStat.StatType.MAXIMUM));
+    assertFalse(stats.hasStat(StatType.MAXIMUM));
     // Test default too
-    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 52.0), 52.0);
+    assertEquals(stats.getStatValue(StatType.MAXIMUM, 52.0), 52.0);
 
     // Put another one, just for fun.
-    stats.putStat(GoosciTrial.SensorStat.StatType.MAXIMUM, 52);
-    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, 0), 52.0);
+    stats.putStat(StatType.MAXIMUM, 52);
+    assertEquals(stats.getStatValue(StatType.MAXIMUM, 0), 52.0);
   }
 
   @Test

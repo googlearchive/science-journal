@@ -29,6 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
@@ -181,11 +182,10 @@ public class CropHelperTest {
             .getTrial(trial.getTrialId())
             .getStatsForSensor("sensor");
     assertTrue(stats.statsAreValid());
-    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, -1), 50.0, DELTA);
-    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, -1), 60.0, DELTA);
-    assertEquals(stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, -1), 70.0, DELTA);
-    assertEquals(
-        stats.getStatValue(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, -1), 3.0, DELTA);
+    assertEquals(stats.getStatValue(StatType.MINIMUM, -1), 50.0, DELTA);
+    assertEquals(stats.getStatValue(StatType.AVERAGE, -1), 60.0, DELTA);
+    assertEquals(stats.getStatValue(StatType.MAXIMUM, -1), 70.0, DELTA);
+    assertEquals(stats.getStatValue(StatType.NUM_DATA_POINTS, -1), 3.0, DELTA);
   }
 
   @Test
