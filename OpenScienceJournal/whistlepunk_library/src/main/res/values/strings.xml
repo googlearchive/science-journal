@@ -1804,7 +1804,7 @@ Permissions notice:
     <!-- Description for velocity tracker option in more observations fragment [CHAR_LIMIT=80] -->
     <string name="more_observations_velocity_tracker_description">Using augmented reality, track and measure objects</string>
 
-    <!-- Prompt for a user to fit an ARCore image to track [CHAR_LIMIT=25] -->
+    <!-- Prompt for a user to fit an ARCore image to track [CHAR_LIMIT=40] -->
     <string name="fit_image_to_scan">Fit image to scan</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
