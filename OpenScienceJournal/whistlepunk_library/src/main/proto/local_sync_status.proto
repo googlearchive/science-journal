@@ -36,7 +36,7 @@ message LocalSyncStatus {
 
 // The sync status of a single experiment.
 message ExperimentStatus {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   // The Experiment ID.
   optional string experimentId = 1;
