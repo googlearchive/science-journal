@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.Change.ChangeType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import java.util.UUID;
@@ -47,12 +48,13 @@ public class Change {
   }
 
   public Change(ChangeType changeType, ElementType elementType, String elementId) {
-    this(changeType, new GoosciExperiment.ChangedElement(), UUID.randomUUID().toString());
-    changeProto.changedData.type = elementType;
-    changeProto.changedData.id = elementId;
+    this(changeType, ChangedElement.getDefaultInstance(), UUID.randomUUID().toString());
+    ChangedElement newChangedData =
+        changeProto.changedData.toBuilder().setType(elementType).setId(elementId).build();
+    changeProto.changedData = newChangedData;
   }
 
-  public Change(ChangeType changeType, GoosciExperiment.ChangedElement element) {
+  public Change(ChangeType changeType, ChangedElement element) {
     this(changeType, element, UUID.randomUUID().toString());
   }
 
@@ -60,7 +62,7 @@ public class Change {
     changeProto = proto;
   }
 
-  private Change(ChangeType changeType, GoosciExperiment.ChangedElement element, String changeId) {
+  private Change(ChangeType changeType, ChangedElement element, String changeId) {
     changeProto = new GoosciExperiment.Change();
     changeProto.changedData = element;
     changeProto.type = changeType;
@@ -76,11 +78,11 @@ public class Change {
   }
 
   public String getChangedElementId() {
-    return changeProto.changedData.id;
+    return changeProto.changedData.getId();
   }
 
   public ElementType getChangedElementType() {
-    return changeProto.changedData.type;
+    return changeProto.changedData.getType();
   }
 
   public String getChangeId() {

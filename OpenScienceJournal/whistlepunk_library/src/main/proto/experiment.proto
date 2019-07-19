@@ -174,7 +174,7 @@ message Change {
  * An indication of what element was changed by this change.
  */
 message ChangedElement {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   enum ElementType {
     option (proto2.nano.enum_as_lite) = true;
