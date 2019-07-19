@@ -31,7 +31,6 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.nano.MessageNano;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,42 +93,37 @@ public class PacketAssemblerTest {
   }
 
   private class GoosciSensorBuilder {
+    @MigrateAs(Destination.BUILDER)
     private GoosciSensor.SensorData sensorData;
-    private GoosciSensor.Data data;
+
+    private com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Data.Builder data;
 
     GoosciSensorBuilder() {
       sensorData = new GoosciSensor.SensorData();
-      data = new GoosciSensor.Data();
-      data.pin = Pin.getDefaultInstance();
+      data =
+          com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Data.newBuilder()
+              .setPin(Pin.getDefaultInstance());
+      data.setPin(Pin.getDefaultInstance());
     }
 
     GoosciSensorBuilder setAnalogPin() {
       AnalogPin analogPin = AnalogPin.newBuilder().setPin(0).build();
-      Pin newPin = data.pin.toBuilder().setAnalogPin(analogPin).build();
-      @MigrateAs(Destination.BUILDER)
-      GoosciSensor.Data newData = MessageNano.cloneUsingSerialization(data);
-      newData.pin = newPin;
-      data = newData;
+      Pin newPin = data.getPin().toBuilder().setAnalogPin(analogPin).build();
+      data.setPin(newPin);
       return this;
     }
 
     GoosciSensorBuilder setDigitalPin() {
       DigitalPin digitalPin = DigitalPin.newBuilder().setPin(0).build();
-      Pin newPin = data.pin.toBuilder().setDigitalPin(digitalPin).build();
-      @MigrateAs(Destination.BUILDER)
-      GoosciSensor.Data newData = MessageNano.cloneUsingSerialization(data);
-      newData.pin = newPin;
-      data = newData;
+      Pin newPin = data.getPin().toBuilder().setDigitalPin(digitalPin).build();
+      data.setPin(newPin);
       return this;
     }
 
     GoosciSensorBuilder setVirtualPin() {
       VirtualPin virtualPin = VirtualPin.newBuilder().setPin(0).build();
-      Pin newPin = data.pin.toBuilder().setVirtualPin(virtualPin).build();
-      @MigrateAs(Destination.BUILDER)
-      GoosciSensor.Data newData = MessageNano.cloneUsingSerialization(data);
-      newData.pin = newPin;
-      data = newData;
+      Pin newPin = data.getPin().toBuilder().setVirtualPin(virtualPin).build();
+      data.setPin(newPin);
       return this;
     }
 
@@ -169,7 +163,7 @@ public class PacketAssemblerTest {
     }
 
     GoosciSensorBuilder commit() {
-      sensorData.setData(data);
+      sensorData.setData(data.build());
       return this;
     }
 

@@ -160,7 +160,7 @@ message StringValue {
 };
 
 message Data {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required Pin pin = 1;
   oneof value {
