@@ -17,6 +17,7 @@
 syntax = "proto2";
 
 package goosci;
+
 import "third_party/android/nanoproto/nano_descriptor.proto";
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
@@ -44,7 +45,7 @@ message BleSensorConfig {
   // Defines a linear transform that maps the range [sourceBottom, sourceTop] in
   // the incoming data to [destBottom, destTop] in the outgoing, filtered data.
   message ScaleTransform {
-    option (proto2.nano.message_as_lite) = false;
+    option (proto2.nano.message_as_lite) = true;
 
     optional double sourceBottom = 1 [default = 0];
     optional double sourceTop = 2 [default = 1];

@@ -25,7 +25,7 @@ import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.MemorySensorHistoryStorage;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
@@ -62,7 +62,7 @@ public class BluetoothSensorTest {
     assertNull(new BluetoothSensor("sensorId", sensor, SPEC).getDefaultScaleTransform());
 
     GoosciSensorConfig.BleSensorConfig.ScaleTransform transform =
-        new GoosciSensorConfig.BleSensorConfig.ScaleTransform();
+        GoosciSensorConfig.BleSensorConfig.ScaleTransform.getDefaultInstance();
     sensor.setCustomScaleTransform(transform);
     assertEquals(
         transform, new BluetoothSensor("sensorId", sensor, SPEC).getDefaultScaleTransform());
@@ -87,7 +87,7 @@ public class BluetoothSensorTest {
                 new RecordingSensorObserver(),
                 new StubStatusListener(),
                 environment);
-    assertEquals(null, bleClient.mostRecentAddress);
+    assertNull(bleClient.mostRecentAddress);
     recorder.startObserving();
     assertEquals("address", bleClient.mostRecentAddress);
   }

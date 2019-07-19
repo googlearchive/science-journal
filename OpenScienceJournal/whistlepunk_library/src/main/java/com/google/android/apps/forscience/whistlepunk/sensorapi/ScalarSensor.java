@@ -37,7 +37,7 @@ import com.google.android.apps.forscience.whistlepunk.StatsListener;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioGenerator;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SimpleJsynAudioGenerator;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
@@ -50,8 +50,6 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.UptimeClock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FrequencyOptionsPresenter.FilterChangeListener;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -349,7 +347,6 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
     return false;
   }
 
-  @MigrateAs(Destination.EITHER)
   protected GoosciSensorConfig.BleSensorConfig.ScaleTransform getDefaultScaleTransform() {
     return null;
   }
@@ -435,8 +432,7 @@ public abstract class ScalarSensor extends SensorChoice implements FilterChangeL
       long newWindow,
       double newFilter,
       boolean newEnabled,
-      @MigrateAs(Destination.EITHER)
-          GoosciSensorConfig.BleSensorConfig.ScaleTransform scaleTransform) {
+      GoosciSensorConfig.BleSensorConfig.ScaleTransform scaleTransform) {
     ValueFilter valueFilter = computeFrequencyFilter(newWindow, newFilter, newEnabled);
     if (scaleTransform == null) {
       return valueFilter;

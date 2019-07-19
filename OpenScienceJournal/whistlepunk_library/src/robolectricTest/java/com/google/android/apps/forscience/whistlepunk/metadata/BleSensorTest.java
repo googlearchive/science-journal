@@ -16,14 +16,15 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig.BleSensorConfig.ScaleTransform;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig.ScaleTransform;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ValueFilter;
 import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -37,17 +38,17 @@ public class BleSensorTest {
     bleSensor.setCustomPin("A7");
 
     assertEquals(SensorTypeProvider.TYPE_RAW, bleSensor.getSensorType());
-    assertEquals(false, bleSensor.getFrequencyEnabled());
+    assertFalse(bleSensor.getFrequencyEnabled());
     assertEquals("A0", bleSensor.getPin());
 
     bleSensor.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
     assertEquals(SensorTypeProvider.TYPE_CUSTOM, bleSensor.getSensorType());
-    assertEquals(true, bleSensor.getFrequencyEnabled());
+    assertTrue(bleSensor.getFrequencyEnabled());
     assertEquals("A7", bleSensor.getPin());
 
     bleSensor.setSensorType(SensorTypeProvider.TYPE_ROTATION);
     assertEquals(SensorTypeProvider.TYPE_ROTATION, bleSensor.getSensorType());
-    assertEquals(true, bleSensor.getFrequencyEnabled());
+    assertTrue(bleSensor.getFrequencyEnabled());
     assertEquals("A0", bleSensor.getPin());
 
     // Custom pin is unused, but still stored
@@ -56,7 +57,7 @@ public class BleSensorTest {
     // Custom settings have not been overridden
     bleSensor.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
     assertEquals(SensorTypeProvider.TYPE_CUSTOM, bleSensor.getSensorType());
-    assertEquals(true, bleSensor.getFrequencyEnabled());
+    assertTrue(bleSensor.getFrequencyEnabled());
     assertEquals("A7", bleSensor.getPin());
   }
 
@@ -65,19 +66,20 @@ public class BleSensorTest {
     BleSensorSpec bleSensor = new BleSensorSpec("address", "name");
     bleSensor.setCustomFrequencyEnabled(false);
 
-    @MigrateAs(Destination.BUILDER)
-    ScaleTransform transform = new ScaleTransform();
-    transform.sourceBottom = 0;
-    transform.sourceTop = 10;
-    transform.destBottom = 0;
-    transform.destTop = 100;
+    ScaleTransform transform =
+        ScaleTransform.newBuilder()
+            .setSourceBottom(0)
+            .setSourceTop(10)
+            .setDestBottom(0)
+            .setDestTop(100)
+            .build();
 
     bleSensor.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
     bleSensor.setCustomScaleTransform(transform);
     assertEquals(transform, bleSensor.getScaleTransform());
 
     bleSensor.setSensorType(SensorTypeProvider.TYPE_ROTATION);
-    assertEquals(null, bleSensor.getScaleTransform());
+    assertNull(bleSensor.getScaleTransform());
 
     bleSensor.setSensorType(SensorTypeProvider.TYPE_RAW);
     ValueFilter computedFilter =

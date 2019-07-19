@@ -19,12 +19,11 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.TestData;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ExplicitExecutor;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig.BleSensorConfig.ScaleTransform;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig.ScaleTransform;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
@@ -49,6 +48,14 @@ import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class ScalarSensorTest {
+  private static final ScaleTransform RPM_TO_HERTZ =
+      ScaleTransform.newBuilder()
+          .setSourceBottom(0)
+          .setSourceTop(60)
+          .setDestBottom(0)
+          .setDestTop(1)
+          .build();
+
   private final MemoryMetadataManager metadata = new MemoryMetadataManager();
   private InMemorySensorDatabase db = new InMemorySensorDatabase();
   private final RecordingDataController recordingController =
@@ -236,12 +243,13 @@ public class ScalarSensorTest {
 
   @Test
   public void testComputeFilterOnlyScale() {
-    @MigrateAs(Destination.BUILDER)
-    ScaleTransform transform = new ScaleTransform();
-    transform.sourceBottom = 0;
-    transform.sourceTop = 10;
-    transform.destBottom = 0;
-    transform.destTop = 100;
+    ScaleTransform transform =
+        ScaleTransform.newBuilder()
+            .setSourceBottom(0)
+            .setSourceTop(10)
+            .setDestBottom(0)
+            .setDestTop(100)
+            .build();
     ValueFilter valueFilter = ScalarSensor.computeValueFilter(1000, 0, false, transform);
     assertEquals(30.0, valueFilter.filterValue(0, 3.0), 0.001);
   }
@@ -254,7 +262,7 @@ public class ScalarSensorTest {
 
   @Test
   public void testComputeFilterCombined() {
-    ScaleTransform transform = rpmToHertz();
+    ScaleTransform transform = RPM_TO_HERTZ;
     double latest = feed20HzSignal(ScalarSensor.computeValueFilter(100, 0, true, transform));
     assertEquals(20.0, latest, 0.01);
   }
@@ -269,12 +277,13 @@ public class ScalarSensorTest {
 
   @Test
   public void testTranslateFilter() {
-    @MigrateAs(Destination.BUILDER)
-    ScaleTransform transform = new ScaleTransform();
-    transform.sourceBottom = 0;
-    transform.sourceTop = 10;
-    transform.destBottom = 90;
-    transform.destTop = 100;
+    ScaleTransform transform =
+        ScaleTransform.newBuilder()
+            .setSourceBottom(0)
+            .setSourceTop(10)
+            .setDestBottom(90)
+            .setDestTop(100)
+            .build();
     ValueFilter buffer = ScalarSensor.computeValueFilter(100, 0, false, transform);
     assertEquals(3090, buffer.filterValue(0, 3000), 0.01);
   }
@@ -284,7 +293,7 @@ public class ScalarSensorTest {
     BleSensorSpec bleSensor = new BleSensorSpec("address", "name");
     bleSensor.setSensorType(SensorTypeProvider.TYPE_CUSTOM);
     bleSensor.setCustomFrequencyEnabled(true);
-    bleSensor.setCustomScaleTransform(rpmToHertz());
+    bleSensor.setCustomScaleTransform(RPM_TO_HERTZ);
     BluetoothSensor bluetoothSensor =
         new BluetoothSensor(
             "sensorId", bleSensor, BluetoothSensor.ANNING_SERVICE_SPEC, getUiThreadExecutor());
@@ -396,17 +405,5 @@ public class ScalarSensorTest {
     data.addPoint(0, 0);
     data.addPoint(1, 1);
     data.checkObserver(observer);
-  }
-
-  @MigrateAs(Destination.EITHER)
-  @NonNull
-  private ScaleTransform rpmToHertz() {
-    @MigrateAs(Destination.BUILDER)
-    ScaleTransform transform = new ScaleTransform();
-    transform.sourceBottom = 0;
-    transform.sourceTop = 60;
-    transform.destBottom = 0;
-    transform.destTop = 1;
-    return transform;
   }
 }

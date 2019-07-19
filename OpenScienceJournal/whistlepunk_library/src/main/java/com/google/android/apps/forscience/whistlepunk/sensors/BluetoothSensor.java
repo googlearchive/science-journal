@@ -30,8 +30,8 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalP
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Interval;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Pin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.VirtualPin;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;

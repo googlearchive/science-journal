@@ -21,11 +21,10 @@ import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig.ScaleTransform;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 
@@ -33,6 +32,13 @@ import com.google.protobuf.nano.MessageNano;
 public class BleSensorSpec extends ExternalSensorSpec {
   private static final String TAG = "BleSensorSpec";
   public static final String TYPE = "bluetooth_le";
+  private static final ScaleTransform TEN_BITS_TO_PERCENT =
+      ScaleTransform.newBuilder()
+          .setSourceBottom(0)
+          .setSourceTop(1023)
+          .setDestBottom(0)
+          .setDestTop(100)
+          .build();
 
   /** Human readable name of the sensor. */
   private String name;
@@ -143,16 +149,16 @@ public class BleSensorSpec extends ExternalSensorSpec {
     return null;
   }
 
-  public void setCustomScaleTransform(GoosciSensorConfig.BleSensorConfig.ScaleTransform transform) {
+  public void setCustomScaleTransform(ScaleTransform transform) {
     config.customScaleTransform = transform;
   }
 
-  public GoosciSensorConfig.BleSensorConfig.ScaleTransform getScaleTransform() {
+  public ScaleTransform getScaleTransform() {
     switch (getSensorType()) {
       case SensorTypeProvider.TYPE_ROTATION:
         return null;
       case SensorTypeProvider.TYPE_RAW:
-        return tenBitsToPercent();
+        return TEN_BITS_TO_PERCENT;
       case SensorTypeProvider.TYPE_CUSTOM:
         return config.customScaleTransform;
     }
@@ -162,10 +168,10 @@ public class BleSensorSpec extends ExternalSensorSpec {
 
   @Override
   public String getLoggingId() {
-    return super.getLoggingId() + ":" + getLogTagFromType(getSensorType());
+    return super.getLoggingId() + ":" + getLogTagFromType();
   }
 
-  private String getLogTagFromType(int type) {
+  private String getLogTagFromType() {
     switch (getSensorType()) {
       case SensorTypeProvider.TYPE_ROTATION:
         return "rot";
@@ -176,18 +182,6 @@ public class BleSensorSpec extends ExternalSensorSpec {
     }
     complainSensorType();
     return null;
-  }
-
-  @MigrateAs(Destination.EITHER)
-  private GoosciSensorConfig.BleSensorConfig.ScaleTransform tenBitsToPercent() {
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorConfig.BleSensorConfig.ScaleTransform transform =
-        new GoosciSensorConfig.BleSensorConfig.ScaleTransform();
-    transform.sourceBottom = 0;
-    transform.sourceTop = 1023;
-    transform.destBottom = 0;
-    transform.destTop = 100;
-    return transform;
   }
 
   @SuppressLint("WrongConstant")
