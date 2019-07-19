@@ -25,11 +25,14 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.google.protobuf.ExtensionRegistryLite;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.MessageLite;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -59,6 +62,7 @@ public class Label implements Parcelable {
     return new Label(creationTimeMs, java.util.UUID.randomUUID().toString(), valueType);
   }
 
+  // TODO(b/110156716): remove this method.
   /** Creates a new label with the specified label value. */
   public static Label newLabelWithValue(
       long creationTimeMs, ValueType type, MessageNano data, GoosciCaption.Caption caption) {
@@ -68,8 +72,25 @@ public class Label implements Parcelable {
     return result;
   }
 
+  /** Creates a new label with the specified label value. */
+  public static Label newLabelWithValue(
+      long creationTimeMs, ValueType type, MessageLite data, GoosciCaption.Caption caption) {
+    Label result = new Label(creationTimeMs, java.util.UUID.randomUUID().toString(), type);
+    result.setLabelProtoData(data);
+    result.setCaption(caption);
+    return result;
+  }
+
+  // TODO(b/110156716): remove this method.
   public static Label fromUuidAndValue(
       long creationTimeMs, String uuid, ValueType type, MessageNano data) {
+    Label result = new Label(creationTimeMs, uuid, type);
+    result.setLabelProtoData(data);
+    return result;
+  }
+
+  public static Label fromUuidAndValue(
+      long creationTimeMs, String uuid, ValueType type, MessageLite data) {
     Label result = new Label(creationTimeMs, uuid, type);
     result.setLabelProtoData(data);
     return result;
@@ -188,12 +209,12 @@ public class Label implements Parcelable {
    * Gets the GoosciTextLabelValue.TextLabelValue for this label. If changes are made, this needs to
    * be re-set on the Label for them to be saved.
    */
-  @MigrateAs(Destination.EITHER)
   public GoosciTextLabelValue.TextLabelValue getTextLabelValue() {
     if (label.type == ValueType.TEXT) {
       try {
-        return GoosciTextLabelValue.TextLabelValue.parseFrom(label.protoData);
-      } catch (InvalidProtocolBufferNanoException e) {
+        return GoosciTextLabelValue.TextLabelValue.parseFrom(
+            label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+      } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
         }
@@ -262,12 +283,21 @@ public class Label implements Parcelable {
     return null;
   }
 
+  // TODO(b/110156716): remove this method.
   /**
    * Sets the proto data and type on this label. This must be done in order to save changes back to
    * the label that occur on the protoData field.
    */
   public void setLabelProtoData(MessageNano data) {
     label.protoData = MessageNano.toByteArray(data);
+  }
+
+  /**
+   * Sets the proto data and type on this label. This must be done in order to save changes back to
+   * the label that occur on the protoData field.
+   */
+  public void setLabelProtoData(MessageLite data) {
+    label.protoData = data.toByteArray();
   }
 
   /** Deletes any assets associated with this label */

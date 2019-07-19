@@ -56,7 +56,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.collect.Lists;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
@@ -152,11 +151,11 @@ public class SimpleMetaDataManagerTest {
     Experiment experiment = metaDataManager.newExperiment();
 
     String testLabelString = "test label";
-    @MigrateAs(Destination.BUILDER)
-    GoosciTextLabelValue.TextLabelValue textLabelValue = new GoosciTextLabelValue.TextLabelValue();
-    textLabelValue.text = testLabelString;
+    GoosciTextLabelValue.TextLabelValue.Builder textLabelValue =
+        GoosciTextLabelValue.TextLabelValue.newBuilder();
+    textLabelValue.setText(testLabelString);
 
-    Label textLabel = Label.newLabelWithValue(1, ValueType.TEXT, textLabelValue, null);
+    Label textLabel = Label.newLabelWithValue(1, ValueType.TEXT, textLabelValue.build(), null);
     experiment.addLabel(experiment, textLabel);
     File tmpFile;
     try {
@@ -191,7 +190,7 @@ public class SimpleMetaDataManagerTest {
     boolean foundPicture = false;
     for (Label foundLabel : labels) {
       if (foundLabel.getType() == ValueType.TEXT) {
-        assertEquals(testLabelString, foundLabel.getTextLabelValue().text);
+        assertEquals(testLabelString, foundLabel.getTextLabelValue().getText());
         assertEquals(textLabel.getLabelId(), foundLabel.getLabelId());
         foundText = true;
       }
@@ -217,10 +216,10 @@ public class SimpleMetaDataManagerTest {
     final ApplicationLabel startId2 =
         new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "startId2", "startId2", 2);
     final Label label = Label.newLabel(3, ValueType.TEXT);
-    @MigrateAs(Destination.BUILDER)
-    GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
-    labelValue.text = "text";
-    label.setLabelProtoData(labelValue);
+    GoosciTextLabelValue.TextLabelValue.Builder labelValue =
+        GoosciTextLabelValue.TextLabelValue.newBuilder();
+    labelValue.setText("text");
+    label.setLabelProtoData(labelValue.build());
     ApplicationLabel stopId2 =
         new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "stopId2", "startId2", 4);
     final ApplicationLabel startId3 =
@@ -626,7 +625,7 @@ public class SimpleMetaDataManagerTest {
         metaDataManager.getDatabaseExperimentById(secondExp.getExperimentId());
     List<Label> labels = secondExpResult.getLabels();
     assertEquals(2, labels.size());
-    assertEquals("Description", labels.get(0).getTextLabelValue().text);
+    assertEquals("Description", labels.get(0).getTextLabelValue().getText());
     assertEquals("path/to/photo", labels.get(1).getPictureLabelValue().filePath);
     assertTrue(labels.get(0).getTimeStamp() < secondExpResult.getCreationTimeMs());
     assertTrue(labels.get(1).getTimeStamp() < secondExpResult.getCreationTimeMs());

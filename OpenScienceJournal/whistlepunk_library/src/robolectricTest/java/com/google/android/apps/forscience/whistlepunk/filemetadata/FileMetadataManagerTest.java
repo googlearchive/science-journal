@@ -29,7 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.android.apps.forscience.whistlepunk.sensordb.IncrementableMonotonicClock;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
@@ -90,7 +90,7 @@ public class FileMetadataManagerTest {
         Label.newLabelWithValue(
             clock.getNow(),
             GoosciLabel.Label.ValueType.TEXT,
-            new GoosciTextLabelValue.TextLabelValue(),
+            GoosciTextLabelValue.TextLabelValue.newBuilder().build(),
             null));
     fmm.updateExperiment(experiment, true);
 

@@ -29,8 +29,6 @@ option optimize_for = LITE_RUNTIME;
  * set of snapshotted values from one or more sensors. Added in V2.
  */
 message TextLabelValue {
-  option (proto2.nano.message_as_lite) = false;
-
   // The user's text.
   optional string text = 1;
 };

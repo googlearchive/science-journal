@@ -34,9 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /** Details view controller for TextLabel */
@@ -67,7 +65,7 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
     noteTextLayout =
         (TextInputLayout) inflater.inflate(R.layout.text_label_details_fragment, container, false);
     noteText = noteTextLayout.findViewById(R.id.note_text);
-    noteText.setText(originalLabel.getTextLabelValue().text);
+    noteText.setText(originalLabel.getTextLabelValue().getText());
     noteText.post(() -> noteText.setSelection(noteText.getText().toString().length()));
 
     RxTextView.afterTextChangeEvents(noteText)
@@ -112,10 +110,10 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
   }
 
   private void saveTextChanges(String newText, Experiment experiment) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
-    labelValue.text = newText;
-    originalLabel.setLabelProtoData(labelValue);
+    GoosciTextLabelValue.TextLabelValue.Builder labelValue =
+        GoosciTextLabelValue.TextLabelValue.newBuilder();
+    labelValue.setText(newText);
+    originalLabel.setLabelProtoData(labelValue.build());
     saveUpdatedOriginalLabel(
         experiment, Change.newModifyTypeChange(ElementType.NOTE, originalLabel.getLabelId()));
   }

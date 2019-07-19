@@ -51,8 +51,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelV
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.widget.RxTextView;
@@ -259,7 +259,7 @@ public class AddNoteDialog extends DialogFragment {
         if (savedLabel != null) {
           if (savedLabel.getType() == GoosciLabel.Label.ValueType.TEXT) {
             // Text labels don't use the caption field.
-            text = savedLabel.getTextLabelValue().text;
+            text = savedLabel.getTextLabelValue().getText();
           } else {
             text = savedLabel.getCaptionText();
           }
@@ -398,10 +398,11 @@ public class AddNoteDialog extends DialogFragment {
       return Label.newLabelWithValue(
           timestamp, GoosciLabel.Label.ValueType.PICTURE, labelValue, caption);
     } else {
-      @MigrateAs(Destination.BUILDER)
-      GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
-      labelValue.text = input.getText().toString();
-      return Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);
+      GoosciTextLabelValue.TextLabelValue.Builder labelValue =
+          GoosciTextLabelValue.TextLabelValue.newBuilder();
+      labelValue.setText(input.getText().toString());
+      return Label.newLabelWithValue(
+          timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue.build(), null);
     }
   }
 
@@ -440,12 +441,13 @@ public class AddNoteDialog extends DialogFragment {
     if (inputLayout.isErrorEnabled()) {
       return false;
     }
-    @MigrateAs(Destination.BUILDER)
-    GoosciTextLabelValue.TextLabelValue labelValue = new GoosciTextLabelValue.TextLabelValue();
-    labelValue.text = text;
+    GoosciTextLabelValue.TextLabelValue.Builder labelValue =
+        GoosciTextLabelValue.TextLabelValue.newBuilder();
+    labelValue.setText(text);
     input.setText("");
     Label label =
-        Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);
+        Label.newLabelWithValue(
+            timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue.build(), null);
     addLabel(label, getDataController(input.getContext()), experiment, input.getContext());
     return true;
   }

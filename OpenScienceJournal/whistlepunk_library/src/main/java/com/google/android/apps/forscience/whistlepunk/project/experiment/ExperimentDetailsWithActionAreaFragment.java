@@ -1611,7 +1611,8 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
       }
 
       if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
-        ((TextView) noteView.findViewById(R.id.note_text)).setText(label.getTextLabelValue().text);
+        ((TextView) noteView.findViewById(R.id.note_text))
+            .setText(label.getTextLabelValue().getText());
       } else {
         noteView.findViewById(R.id.note_text).setVisibility(View.GONE);
       }

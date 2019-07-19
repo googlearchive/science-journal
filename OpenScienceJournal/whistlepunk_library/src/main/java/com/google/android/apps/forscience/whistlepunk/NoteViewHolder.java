@@ -65,7 +65,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
   public void setNote(
       Label label, AppAccount appAccount, String experimentId, boolean claimExperimentsMode) {
     if (label.getType() == GoosciLabel.Label.ValueType.TEXT) {
-      String text = label.getTextLabelValue().text;
+      String text = label.getTextLabelValue().getText();
       image.setVisibility(View.GONE);
       // No caption, and no caption edit button.
       captionIcon.setVisibility(View.GONE);

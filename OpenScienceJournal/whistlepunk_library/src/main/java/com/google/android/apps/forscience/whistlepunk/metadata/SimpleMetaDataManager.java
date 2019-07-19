@@ -67,7 +67,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
@@ -236,13 +235,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
       // Remove experiment description, turn it into a text note.
       if (!TextUtils.isEmpty(experiment.getDescription())) {
-        @MigrateAs(Destination.BUILDER)
-        GoosciTextLabelValue.TextLabelValue descriptionValue =
-            new GoosciTextLabelValue.TextLabelValue();
-        descriptionValue.text = experiment.getDescription();
+        GoosciTextLabelValue.TextLabelValue.Builder descriptionValue =
+            GoosciTextLabelValue.TextLabelValue.newBuilder();
+        descriptionValue.setText(experiment.getDescription());
         Label descriptionLabel =
             Label.newLabelWithValue(
-                experiment.getCreationTimeMs() - 500, ValueType.TEXT, descriptionValue, null);
+                experiment.getCreationTimeMs() - 500,
+                ValueType.TEXT,
+                descriptionValue.build(),
+                null);
         experiment.setDescription("");
         experiment.addLabel(experiment, descriptionLabel);
       }
@@ -1419,33 +1420,32 @@ public class SimpleMetaDataManager implements MetaDataManager {
             goosciLabel.protoData = MessageNano.toByteArray(labelValue);
             goosciLabel.caption = caption;
           } else if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
-            @MigrateAs(Destination.BUILDER)
-            GoosciTextLabelValue.TextLabelValue labelValue =
-                new GoosciTextLabelValue.TextLabelValue();
-            labelValue.text = TextLabelValue.getText(value);
+            GoosciTextLabelValue.TextLabelValue.Builder labelValue =
+                GoosciTextLabelValue.TextLabelValue.newBuilder();
+            labelValue.setText(TextLabelValue.getText(value));
             goosciLabel.type = ValueType.TEXT;
-            goosciLabel.protoData = MessageNano.toByteArray(labelValue);
+            goosciLabel.protoData = labelValue.build().toByteArray();
           } else if (TextUtils.equals(type, SENSOR_TRIGGER_LABEL_TAG)) {
             // Convert old sensor triggers into text notes because we don't have enough
             // info to keep them as triggers.
-            @MigrateAs(Destination.BUILDER)
-            GoosciTextLabelValue.TextLabelValue labelValue =
-                new GoosciTextLabelValue.TextLabelValue();
+            GoosciTextLabelValue.TextLabelValue.Builder labelValue =
+                GoosciTextLabelValue.TextLabelValue.newBuilder();
             String autoText = SensorTriggerLabelValue.getAutogenText(value);
             String customText = SensorTriggerLabelValue.getCustomText(value);
             if (TextUtils.isEmpty(customText)) {
-              labelValue.text =
+              labelValue.setText(
                   String.format(
-                      context.getResources().getString(R.string.old_trigger_note_format), autoText);
+                      context.getResources().getString(R.string.old_trigger_note_format),
+                      autoText));
             } else {
-              labelValue.text =
+              labelValue.setText(
                   String.format(
                       context.getResources().getString(R.string.old_trigger_note_format_custom),
                       customText,
-                      autoText);
+                      autoText));
             }
             goosciLabel.type = ValueType.TEXT;
-            goosciLabel.protoData = MessageNano.toByteArray(labelValue);
+            goosciLabel.protoData = labelValue.build().toByteArray();
           }
         } else {
           // Old text, picture and application labels were added when label data
@@ -1453,12 +1453,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
           // list.
           final String data = cursor.getString(LabelQuery.DATA_INDEX);
           if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
-            @MigrateAs(Destination.BUILDER)
-            GoosciTextLabelValue.TextLabelValue labelValue =
-                new GoosciTextLabelValue.TextLabelValue();
-            labelValue.text = data;
+            GoosciTextLabelValue.TextLabelValue.Builder labelValue =
+                GoosciTextLabelValue.TextLabelValue.newBuilder();
+            labelValue.setText(data);
             goosciLabel.type = ValueType.TEXT;
-            goosciLabel.protoData = MessageNano.toByteArray(labelValue);
+            goosciLabel.protoData = labelValue.build().toByteArray();
           } else if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
             // Early picture labels had no captions.
             @MigrateAs(Destination.BUILDER)
