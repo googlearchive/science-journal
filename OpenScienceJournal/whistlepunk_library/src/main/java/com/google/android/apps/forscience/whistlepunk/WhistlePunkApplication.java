@@ -36,6 +36,7 @@ import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDi
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.licenses.LicenseProvider;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
+import com.google.ar.core.ArCoreApk;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 import java.util.Map;
@@ -156,12 +157,18 @@ public abstract class WhistlePunkApplication extends Application {
     enableStrictMode();
     setupBackupAgent();
     setupNotificationChannel();
+    initiateARCoreCheck();
   }
 
   protected void setupBackupAgent() {
     // Register your backup agent to receive settings change events here.
     // Learn more at
     // https://developer.android.com/guide/topics/data/keyvaluebackup.html#BackupAgentHelper.
+  }
+
+  private void initiateARCoreCheck() {
+    // Initiate ARCore device compatibility check here to reduce latency.
+    ArCoreApk.getInstance().checkAvailability(this);
   }
 
   protected RefWatcher installLeakCanary() {

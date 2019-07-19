@@ -16,10 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.arcore;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import android.util.Log;
@@ -40,27 +38,9 @@ import java.io.InputStream;
 public class AugmentedImageFragment extends ArFragment {
   private static final String TAG = "ARFragment";
 
-  // Do a runtime check for the OpenGL level available at runtime.
-  private static final double MIN_OPENGL_VERSION = 3.0;
-
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
-
-    // TODO(b/137010611): consolidate all ARCore runtime checks
-    // Check for Sceneform being supported on this device.
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-      Log.e(TAG, "Sceneform requires Android N or later");
-    }
-
-    String openGlVersionString =
-        ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
-            .getDeviceConfigurationInfo()
-            .getGlEsVersion();
-    if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
-      Log.e(TAG, "Sceneform requires OpenGL ES 3.0 or later");
-
-    }
   }
 
   @Override

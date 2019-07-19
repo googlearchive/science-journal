@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.support.design.snackbar.Snackbar;
@@ -48,7 +47,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLib
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.project.ExperimentListFragment;
 import com.google.android.material.navigation.NavigationView;
-import com.google.ar.core.ArCoreApk;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -61,9 +59,6 @@ public class MainActivity extends ActivityWithNavigationView {
   // ExperimentListFragment, and ClaimExperimentsActivity.
   public static final String ARG_USE_PANES = "use_panes";
   protected static final int NO_SELECTED_ITEM = -1;
-  private static final int ARCORE_QUERY_TIMER_MS = 200;
-
-  public static final boolean AR_CORE = false;
 
   /**
    * The ARG_SELECTED_NAV_ITEM_ID value from onCreate's savedInstanceState if there is one, or
@@ -128,11 +123,6 @@ public class MainActivity extends ActivityWithNavigationView {
     feedbackProvider = WhistlePunkApplication.getAppServices(this).getFeedbackProvider();
 
     setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-    // Initiate ARCore check here to reduce latency.
-    if (AR_CORE) {
-      ArCoreApk.getInstance().checkAvailability(this);
-    }
   }
 
   @Override
@@ -286,18 +276,6 @@ public class MainActivity extends ActivityWithNavigationView {
 
   private boolean isMultiWindowEnabled() {
     return MultiWindowUtils.isMultiWindowEnabled(getApplicationContext());
-  }
-
-  private boolean isARCoreEnabled() {
-    if (AR_CORE) {
-      ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
-      if (availability.isTransient()) {
-        // Set timer to re-query at 5Hz while compatibility is checked in the background.
-        new Handler().postDelayed(() -> isARCoreEnabled(), ARCORE_QUERY_TIMER_MS);
-      }
-      return availability.isSupported();
-    }
-    return false;
   }
 
   /**
