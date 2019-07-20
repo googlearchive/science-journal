@@ -68,8 +68,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelV
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version.FileVersion;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
@@ -835,10 +833,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     // Version 1 for starters.
     // TODO: Remove this if we default the proto to 1.
-    @MigrateAs(Destination.BUILDER)
-    FileVersion fileVersion = new Version.FileVersion();
-    fileVersion.version = 1;
-    expProto.fileVersion = fileVersion;
+    expProto.fileVersion = Version.FileVersion.newBuilder().setVersion(1).build();
 
     return Experiment.fromExperiment(expProto, createExperimentOverviewFromCursor(cursor));
   }

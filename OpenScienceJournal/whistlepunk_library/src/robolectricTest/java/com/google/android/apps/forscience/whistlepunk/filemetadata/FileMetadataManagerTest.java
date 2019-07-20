@@ -30,10 +30,8 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperiment
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.sensordb.IncrementableMonotonicClock;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.File;
 import java.io.IOException;
 import org.junit.After;
@@ -90,7 +88,7 @@ public class FileMetadataManagerTest {
         Label.newLabelWithValue(
             clock.getNow(),
             GoosciLabel.Label.ValueType.TEXT,
-            GoosciTextLabelValue.TextLabelValue.newBuilder().build(),
+            GoosciTextLabelValue.TextLabelValue.getDefaultInstance(),
             null));
     fmm.updateExperiment(experiment, true);
 
@@ -171,41 +169,41 @@ public class FileMetadataManagerTest {
 
   @Test
   public void versionChecks() {
-    @MigrateAs(Destination.BUILDER)
-    Version.FileVersion fileVersion = new Version.FileVersion();
-    fileVersion.version = 1;
-    fileVersion.minorVersion = 1;
-    fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
-    fileVersion.platformVersion = 1;
-    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion));
+    Version.FileVersion.Builder fileVersion =
+        Version.FileVersion.newBuilder()
+            .setVersion(1)
+            .setMinorVersion(1)
+            .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID)
+            .setPlatformVersion(1);
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
 
-    fileVersion.minorVersion = 2;
-    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion));
+    fileVersion.setMinorVersion(2);
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
 
-    fileVersion.minorVersion = 3;
-    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
+    fileVersion.setMinorVersion(3);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
 
-    fileVersion.version = 2;
-    fileVersion.minorVersion = 1;
-    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
+    fileVersion.setVersion(2).setMinorVersion(1);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
 
-    fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.IOS;
-    fileVersion.version = 1;
-    fileVersion.minorVersion = 1;
-    fileVersion.platformVersion = 1;
-    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
+    fileVersion
+        .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.IOS)
+        .setVersion(1)
+        .setMinorVersion(1)
+        .setPlatformVersion(1);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
 
-    fileVersion.platformVersion = 2;
-    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
+    fileVersion.setPlatformVersion(2);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
 
-    fileVersion.platformVersion = 3;
-    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion));
+    fileVersion.setPlatformVersion(3);
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
 
-    fileVersion.minorVersion = 2;
-    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion));
+    fileVersion.setMinorVersion(2);
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
 
-    fileVersion.minorVersion = 3;
-    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion));
+    fileVersion.setMinorVersion(3);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
   }
 
   private static Context getContext() {

@@ -52,7 +52,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import io.reactivex.Single;
@@ -398,9 +397,7 @@ public class AddNoteDialog extends DialogFragment {
           timestamp, GoosciLabel.Label.ValueType.PICTURE, labelValue, caption);
     } else {
       TextLabelValue labelValue =
-          GoosciTextLabelValue.TextLabelValue.newBuilder()
-              .setText(input.getText().toString())
-              .build();
+          TextLabelValue.newBuilder().setText(input.getText().toString()).build();
       return Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);
     }
   }
@@ -440,8 +437,7 @@ public class AddNoteDialog extends DialogFragment {
     if (inputLayout.isErrorEnabled()) {
       return false;
     }
-    TextLabelValue labelValue =
-        GoosciTextLabelValue.TextLabelValue.newBuilder().setText(text).build();
+    TextLabelValue labelValue = TextLabelValue.newBuilder().setText(text).build();
     input.setText("");
     Label label =
         Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);

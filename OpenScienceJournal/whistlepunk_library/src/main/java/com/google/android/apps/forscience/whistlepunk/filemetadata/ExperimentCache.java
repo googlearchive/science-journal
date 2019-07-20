@@ -27,10 +27,10 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.File;
@@ -420,49 +420,47 @@ class ExperimentCache {
       int newMinorVersion,
       int newPlatformVersion) {
 
+    Version.FileVersion.Builder fileVersion;
     if (proto.fileVersion == null) {
-      proto.fileVersion = new Version.FileVersion();
-      proto.fileVersion.version = 0;
-      proto.fileVersion.minorVersion = 0;
-      proto.fileVersion.platformVersion = 0;
+      fileVersion = Version.FileVersion.newBuilder();
+      fileVersion.setVersion(0).setMinorVersion(0).setPlatformVersion(0);
+    } else {
+      fileVersion = proto.fileVersion.toBuilder();
     }
 
-    @MigrateAs(Destination.BUILDER)
-    Version.FileVersion fileVersion = proto.fileVersion;
-
-    if (fileVersion.version == newMajorVersion
-        && fileVersion.minorVersion == newMinorVersion
-        && fileVersion.platformVersion == newPlatformVersion) {
+    if (fileVersion.getVersion() == newMajorVersion
+        && fileVersion.getMinorVersion() == newMinorVersion
+        && fileVersion.getPlatformVersion() == newPlatformVersion) {
       // No upgrade needed, this is running the same version as us.
       return;
     }
-    if (fileVersion.version > newMajorVersion) {
+    if (fileVersion.getVersion() > newMajorVersion) {
       // It is too new for us to read -- the major version is later than ours.
       failureListener.onNewerVersionDetected(experimentOverview);
       return;
     }
     // Try to upgrade the major version
-    if (fileVersion.version == 0) {
+    if (fileVersion.getVersion() == 0) {
       // Do any work to increment the minor version.
 
-      if (fileVersion.version < newMajorVersion) {
+      if (fileVersion.getVersion() < newMajorVersion) {
         // Upgrade from 0 to 1, for example: Increment the major version and reset the minor
         // version.
         // Other work could be done here first like populating protos.
-        revMajorVersionTo(proto, 1);
+        revMajorVersionTo(fileVersion, 1);
       }
     }
-    if (fileVersion.version == 1) {
+    if (fileVersion.getVersion() == 1) {
       // Minor version upgrades are done within the if statement
       // for their major version counterparts.
-      if (fileVersion.minorVersion == 0 && fileVersion.minorVersion < newMinorVersion) {
+      if (fileVersion.getMinorVersion() == 0 && fileVersion.getMinorVersion() < newMinorVersion) {
         // Upgrade minor version from 0 to 1, within in major version 1, for example.
-        fileVersion.minorVersion = 1;
+        fileVersion.setMinorVersion(1);
       }
 
-      if (fileVersion.minorVersion == 1 && fileVersion.minorVersion < newMinorVersion) {
+      if (fileVersion.getMinorVersion() == 1 && fileVersion.getMinorVersion() < newMinorVersion) {
         // Upgrade minor version from 1 to 2, within in major version 1, for example.
-        fileVersion.minorVersion = 2;
+        fileVersion.setMinorVersion(2);
       }
 
       // More minor version upgrades for major version 1 could be done here.
@@ -470,12 +468,14 @@ class ExperimentCache {
       // Also, update any data from incomplete or buggy platformVersions here.
       // See go/platform-version
       // TODO: create open-sourceable version of this doc
-      if (fileVersion.platformVersion == 0 && fileVersion.platformVersion < newPlatformVersion) {
+      if (fileVersion.getPlatformVersion() == 0
+          && fileVersion.getPlatformVersion() < newPlatformVersion) {
         // Any further upgrades may do work in logic below
-        setPlatformVersion(proto, 1);
+        setPlatformVersion(fileVersion, 1);
       }
 
-      if (fileVersion.platformVersion == 1 && fileVersion.platformVersion < newPlatformVersion) {
+      if (fileVersion.getPlatformVersion() == 1
+          && fileVersion.getPlatformVersion() < newPlatformVersion) {
         // Update trial indexes for each trial in the experiment
         // Since this has never been set, we don't know about deleted trials, so we will
         // just do our best and index over again.
@@ -484,43 +484,51 @@ class ExperimentCache {
         for (GoosciTrial.Trial trial : proto.trials) {
           trial.trialNumberInExperiment = ++count;
         }
-        setPlatformVersion(proto, 2);
+        setPlatformVersion(fileVersion, 2);
       }
 
-      if (fileVersion.platform != GoosciGadgetInfo.GadgetInfo.Platform.ANDROID) {
+      if (fileVersion.getPlatform() != GoosciGadgetInfo.GadgetInfo.Platform.ANDROID) {
         // Update platform version to reflect Android, if this is coming from iOS.
         // Also put any iOS version specific fixes in here, if we find any issues.
-        setPlatformVersion(proto, newPlatformVersion);
+        setPlatformVersion(fileVersion, newPlatformVersion);
       }
 
-      if (fileVersion.platformVersion < newPlatformVersion) {
+      if (fileVersion.getPlatformVersion() < newPlatformVersion) {
         // We will already be at platformVersion 2 or greater. Do any necessary platform
         // bug fixes here before increasing to newPlatformVersion. None are necessary
         // at this time.
-        setPlatformVersion(proto, newPlatformVersion);
+        setPlatformVersion(fileVersion, newPlatformVersion);
       }
 
       // When we are ready for version 2.0, we would do work in the following if statement
       // and then call incrementMajorVersion.
-      if (fileVersion.version < newMajorVersion) {
+      if (fileVersion.getVersion() < newMajorVersion) {
         // Do any work to upgrade version, then increment the version when we are
         // ready to go to 2.0 or above.
-        revMajorVersionTo(proto, 2);
+        revMajorVersionTo(fileVersion, 2);
       }
     }
+    proto.fileVersion = fileVersion.build();
 
     // We've made changes we need to save.
     startWriteTimer();
   }
 
-  private void revMajorVersionTo(GoosciExperiment.Experiment proto, int majorVersion) {
-    proto.fileVersion.version = majorVersion;
-    proto.fileVersion.minorVersion = 0;
+  private static void revMajorVersionTo(Version.FileVersion.Builder fileVersion, int majorVersion) {
+    fileVersion.setVersion(majorVersion).setMinorVersion(0);
   }
 
-  private void setPlatformVersion(GoosciExperiment.Experiment proto, int platformVersion) {
-    proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
-    proto.fileVersion.platformVersion = platformVersion;
+  private static void setPlatformVersion(
+      Version.FileVersion.Builder fileVersion, int platformVersion) {
+    fileVersion
+        .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID)
+        .setPlatformVersion(platformVersion);
+  }
+
+  private static void setPlatformVersion(GoosciExperiment.Experiment proto, int platformVersion) {
+    Version.FileVersion.Builder fileVersion = proto.fileVersion.toBuilder();
+    setPlatformVersion(fileVersion, platformVersion);
+    proto.fileVersion = fileVersion.build();
   }
 
   private File getExperimentFile(

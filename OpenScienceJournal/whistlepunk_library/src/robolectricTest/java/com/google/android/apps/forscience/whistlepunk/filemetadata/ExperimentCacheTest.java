@@ -28,10 +28,10 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
@@ -201,15 +201,18 @@ public class ExperimentCacheTest {
   @Test
   public void testUpgradeStartsWriteTimer() {
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.version = 0;
-    proto.fileVersion.minorVersion = 0;
-    proto.fileVersion.platformVersion = 0;
+    proto.fileVersion =
+        proto.fileVersion.toBuilder()
+            .setVersion(0)
+            .setMinorVersion(0)
+            .setPlatformVersion(0)
+            .build();
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
-    assertEquals(1, proto.fileVersion.version);
-    assertEquals(1, proto.fileVersion.minorVersion);
-    assertEquals(1, proto.fileVersion.platformVersion);
-    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
+    assertEquals(1, proto.fileVersion.getVersion());
+    assertEquals(1, proto.fileVersion.getMinorVersion());
+    assertEquals(1, proto.fileVersion.getPlatformVersion());
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.getPlatform());
     assertTrue(cache.needsWrite());
   }
 
@@ -219,23 +222,26 @@ public class ExperimentCacheTest {
     proto.fileVersion = null;
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
-    assertEquals(1, proto.fileVersion.version);
-    assertEquals(1, proto.fileVersion.minorVersion);
-    assertEquals(1, proto.fileVersion.platformVersion);
-    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
+    assertEquals(1, proto.fileVersion.getVersion());
+    assertEquals(1, proto.fileVersion.getMinorVersion());
+    assertEquals(1, proto.fileVersion.getPlatformVersion());
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.getPlatform());
   }
 
   @Test
   public void testNoUpgradeDoesNotStartWriteTimer() {
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.version = 1;
-    proto.fileVersion.minorVersion = 1;
-    proto.fileVersion.platformVersion = 1;
+    proto.fileVersion =
+        proto.fileVersion.toBuilder()
+            .setVersion(1)
+            .setMinorVersion(1)
+            .setPlatformVersion(1)
+            .build();
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
-    assertEquals(1, proto.fileVersion.version);
-    assertEquals(1, proto.fileVersion.minorVersion);
-    assertEquals(1, proto.fileVersion.platformVersion);
+    assertEquals(1, proto.fileVersion.getVersion());
+    assertEquals(1, proto.fileVersion.getMinorVersion());
+    assertEquals(1, proto.fileVersion.getPlatformVersion());
     assertFalse(cache.needsWrite());
   }
 
@@ -244,8 +250,11 @@ public class ExperimentCacheTest {
     cache =
         new ExperimentCache(getContext(), appAccount, getFailureExpectedListener(), 0, elm, lsm);
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.version = ExperimentCache.VERSION + 1;
-    proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION;
+    proto.fileVersion =
+        proto.fileVersion.toBuilder()
+            .setVersion(ExperimentCache.VERSION + 1)
+            .setMinorVersion(ExperimentCache.MINOR_VERSION)
+            .build();
     cache.upgradeExperimentVersionIfNeeded(
         proto,
         new GoosciUserMetadata.ExperimentOverview(),
@@ -258,70 +267,81 @@ public class ExperimentCacheTest {
   @Test
   public void testOnlyUpgradesMinorVersion() {
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.version = 1;
-    proto.fileVersion.minorVersion = 0;
+    proto.fileVersion = proto.fileVersion.toBuilder().setVersion(1).setMinorVersion(0).build();
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
-    assertEquals(1, proto.fileVersion.version);
-    assertEquals(1, proto.fileVersion.minorVersion);
+    assertEquals(1, proto.fileVersion.getVersion());
+    assertEquals(1, proto.fileVersion.getMinorVersion());
   }
 
   @Test
   public void testUpgradesToMinor2() {
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.version = 1;
-    proto.fileVersion.minorVersion = 1;
-    proto.fileVersion.platformVersion = 2;
-    proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
+    proto.fileVersion =
+        proto.fileVersion.toBuilder()
+            .setVersion(1)
+            .setMinorVersion(1)
+            .setPlatformVersion(2)
+            .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID)
+            .build();
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 2, 500);
-    assertEquals(1, proto.fileVersion.version);
-    assertEquals(2, proto.fileVersion.minorVersion);
-    assertEquals(500, proto.fileVersion.platformVersion);
-    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
+    assertEquals(1, proto.fileVersion.getVersion());
+    assertEquals(2, proto.fileVersion.getMinorVersion());
+    assertEquals(500, proto.fileVersion.getPlatformVersion());
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.getPlatform());
   }
 
   @Test
   public void testDontDowngradePlatform() {
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.version = 1;
-    proto.fileVersion.minorVersion = 2;
-    proto.fileVersion.platformVersion = 1000;
-    proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
+    proto.fileVersion =
+        proto.fileVersion.toBuilder()
+            .setVersion(1)
+            .setMinorVersion(2)
+            .setPlatformVersion(1000)
+            .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID)
+            .build();
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 2, 500);
-    assertEquals(1, proto.fileVersion.version);
-    assertEquals(2, proto.fileVersion.minorVersion);
-    assertEquals(1000, proto.fileVersion.platformVersion);
-    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
+    assertEquals(1, proto.fileVersion.getVersion());
+    assertEquals(2, proto.fileVersion.getMinorVersion());
+    assertEquals(1000, proto.fileVersion.getPlatformVersion());
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.getPlatform());
   }
 
   @Test
   public void testChangePlatformToAndroid() {
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.version = 1;
-    proto.fileVersion.minorVersion = 1;
-    proto.fileVersion.platformVersion = 1000;
-    proto.fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.IOS;
+    proto.fileVersion =
+        proto.fileVersion.toBuilder()
+            .setVersion(1)
+            .setMinorVersion(1)
+            .setPlatformVersion(1000)
+            .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.IOS)
+            .build();
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 2, 500);
-    assertEquals(1, proto.fileVersion.version);
-    assertEquals(2, proto.fileVersion.minorVersion);
-    assertEquals(500, proto.fileVersion.platformVersion);
-    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.platform);
+    assertEquals(1, proto.fileVersion.getVersion());
+    assertEquals(2, proto.fileVersion.getMinorVersion());
+    assertEquals(500, proto.fileVersion.getPlatformVersion());
+    assertEquals(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID, proto.fileVersion.getPlatform());
   }
 
   @Test
   public void testOnlyUpgradesPlatformVersion() {
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.version = 1;
-    proto.fileVersion.minorVersion = 1;
-    proto.fileVersion.platformVersion = 0;
+    proto.fileVersion =
+        proto.fileVersion.toBuilder()
+            .setVersion(1)
+            .setMinorVersion(1)
+            .setPlatformVersion(0)
+            .build();
     cache.upgradeExperimentVersionIfNeeded(
         proto, new GoosciUserMetadata.ExperimentOverview(), 1, 1, 1);
-    assertEquals(1, proto.fileVersion.version);
-    assertEquals(1, proto.fileVersion.minorVersion);
-    assertEquals(1, proto.fileVersion.platformVersion);
+    assertEquals(1, proto.fileVersion.getVersion());
+    assertEquals(1, proto.fileVersion.getMinorVersion());
+    assertEquals(1, proto.fileVersion.getPlatformVersion());
   }
 
   @Test
@@ -329,8 +349,11 @@ public class ExperimentCacheTest {
     cache =
         new ExperimentCache(getContext(), appAccount, getFailureExpectedListener(), 0, elm, lsm);
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.version = ExperimentCache.VERSION;
-    proto.fileVersion.minorVersion = ExperimentCache.MINOR_VERSION + 1;
+    proto.fileVersion =
+        proto.fileVersion.toBuilder()
+            .setVersion(ExperimentCache.VERSION)
+            .setMinorVersion(ExperimentCache.MINOR_VERSION + 1)
+            .build();
     @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     overview.experimentId = "foo";
@@ -341,8 +364,8 @@ public class ExperimentCacheTest {
         ExperimentCache.MINOR_VERSION,
         ExperimentCache.PLATFORM_VERSION);
     // Version should be unchanged -- don't upgrade minor version.
-    assertEquals(ExperimentCache.VERSION, proto.fileVersion.version);
-    assertEquals(ExperimentCache.MINOR_VERSION + 1, proto.fileVersion.minorVersion);
+    assertEquals(ExperimentCache.VERSION, proto.fileVersion.getVersion());
+    assertEquals(ExperimentCache.MINOR_VERSION + 1, proto.fileVersion.getMinorVersion());
 
     // But no errors yet -- didn't try to save it.
     assertEquals(0, mFailureCount);
@@ -360,9 +383,12 @@ public class ExperimentCacheTest {
   public void testPlatformVersion1To2() {
     // From 1.1.1 to 1.1.2, we index the trials within the experiment.
     GoosciExperiment.Experiment proto = createExperimentProto();
-    proto.fileVersion.platformVersion = 1;
-    proto.fileVersion.version = 1;
-    proto.fileVersion.minorVersion = 1;
+    proto.fileVersion =
+        proto.fileVersion.toBuilder()
+            .setPlatformVersion(1)
+            .setVersion(1)
+            .setMinorVersion(1)
+            .build();
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     GoosciTrial.Trial trial1 = new GoosciTrial.Trial();
     GoosciTrial.Trial trial2 = new GoosciTrial.Trial();
@@ -370,7 +396,7 @@ public class ExperimentCacheTest {
 
     cache.upgradeExperimentVersionIfNeeded(proto, overview, 1, 1, 2);
     assertEquals(0, mFailureCount);
-    assertEquals(2, proto.fileVersion.platformVersion);
+    assertEquals(2, proto.fileVersion.getPlatformVersion());
     assertEquals(2, proto.totalTrials);
     assertEquals(1, proto.trials[0].trialNumberInExperiment);
     assertEquals(2, proto.trials[1].trialNumberInExperiment);
@@ -379,7 +405,7 @@ public class ExperimentCacheTest {
   @NonNull
   private GoosciExperiment.Experiment createExperimentProto() {
     GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-    proto.fileVersion = new Version.FileVersion();
+    proto.fileVersion = Version.FileVersion.getDefaultInstance();
     return proto;
   }
 }

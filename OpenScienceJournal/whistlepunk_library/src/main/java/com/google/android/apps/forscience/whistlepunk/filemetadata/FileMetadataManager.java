@@ -33,12 +33,12 @@ import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -530,13 +530,13 @@ public class FileMetadataManager {
 
   private String versionToString(GoosciExperiment.Experiment proto) {
     Version.FileVersion fileVersion = proto.fileVersion;
-    return fileVersion.version
+    return fileVersion.getVersion()
         + "."
-        + fileVersion.minorVersion
+        + fileVersion.getMinorVersion()
         + "."
-        + fileVersion.platform.getNumber()
+        + fileVersion.getPlatform().getNumber()
         + "."
-        + fileVersion.platformVersion;
+        + fileVersion.getPlatformVersion();
   }
 
   private Single<Boolean> unzipExperimentFile(

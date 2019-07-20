@@ -30,14 +30,13 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.ExperimentOverview;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version.FileVersion;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -93,13 +92,13 @@ public class Experiment extends LabelListHolder {
     proto.totalTrials = 0;
 
     // This experiment is being created with the latest VERSION available.
-    @MigrateAs(Destination.BUILDER)
-    FileVersion fileVersion = new Version.FileVersion();
-    fileVersion.version = ExperimentCache.VERSION;
-    fileVersion.minorVersion = ExperimentCache.MINOR_VERSION;
-    fileVersion.platformVersion = ExperimentCache.PLATFORM_VERSION;
-    fileVersion.platform = GoosciGadgetInfo.GadgetInfo.Platform.ANDROID;
-    proto.fileVersion = fileVersion;
+    proto.fileVersion =
+        Version.FileVersion.newBuilder()
+            .setVersion(ExperimentCache.VERSION)
+            .setMinorVersion(ExperimentCache.MINOR_VERSION)
+            .setPlatformVersion(ExperimentCache.PLATFORM_VERSION)
+            .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID)
+            .build();
 
     return new Experiment(proto, experimentOverview);
   }
@@ -736,11 +735,11 @@ public class Experiment extends LabelListHolder {
 
   @VisibleForTesting
   public int getVersion() {
-    return proto.fileVersion.version;
+    return proto.fileVersion.getVersion();
   }
 
   int getMinorVersion() {
-    return proto.fileVersion.minorVersion;
+    return proto.fileVersion.getMinorVersion();
   }
 
   /**

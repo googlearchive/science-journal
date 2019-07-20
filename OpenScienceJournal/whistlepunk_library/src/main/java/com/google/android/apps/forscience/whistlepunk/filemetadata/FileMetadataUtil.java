@@ -31,10 +31,8 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import io.reactivex.Single;
 import java.io.DataInputStream;
@@ -346,24 +344,23 @@ public class FileMetadataUtil {
   }
 
   @VisibleForTesting
-  public boolean canImportFromVersion(
-      @MigrateAs(Destination.EITHER) Version.FileVersion fileVersion) {
-    switch (fileVersion.platform) {
+  public boolean canImportFromVersion(Version.FileVersion fileVersion) {
+    switch (fileVersion.getPlatform()) {
       case ANDROID:
-        return fileVersion.version == 1 && fileVersion.minorVersion <= 2;
+        return fileVersion.getVersion() == 1 && fileVersion.getMinorVersion() <= 2;
       case IOS:
-        if (fileVersion.version != 1) {
+        if (fileVersion.getVersion() != 1) {
           return false;
         }
-        if (fileVersion.minorVersion == 1) {
-          return fileVersion.platformVersion >= 3;
+        if (fileVersion.getMinorVersion() == 1) {
+          return fileVersion.getPlatformVersion() >= 3;
         }
-        return fileVersion.minorVersion == 2;
+        return fileVersion.getMinorVersion() == 2;
     }
 
     // Not IOS or Android?  Did we finally release on Commodore 64?  Well, as long as it's
     // using a released file version.
-    return fileVersion.version == 1 && fileVersion.minorVersion == 2;
+    return fileVersion.getVersion() == 1 && fileVersion.getMinorVersion() == 2;
   }
 
   private void writeProtoToFile(byte[] protoBytes, File file) throws IOException {

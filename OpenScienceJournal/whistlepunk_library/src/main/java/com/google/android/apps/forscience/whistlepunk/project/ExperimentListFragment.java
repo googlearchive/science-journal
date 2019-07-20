@@ -81,9 +81,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataU
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
@@ -555,7 +553,7 @@ public class ExperimentListFragment extends Fragment
 
     // Create a text label 1 second ago with default text.
     TextLabelValue goosciTextLabel1 =
-        GoosciTextLabelValue.TextLabelValue.newBuilder()
+        TextLabelValue.newBuilder()
             .setText(res.getString(R.string.first_experiment_second_text_note))
             .build();
     Label textLabel1 =
@@ -565,7 +563,7 @@ public class ExperimentListFragment extends Fragment
 
     // Create a text label 2 seconds ago with default text.
     TextLabelValue goosciTextLabel2 =
-        GoosciTextLabelValue.TextLabelValue.newBuilder()
+        TextLabelValue.newBuilder()
             .setText(res.getString(R.string.first_experiment_text_note))
             .build();
     Label textLabel2 =
@@ -585,7 +583,7 @@ public class ExperimentListFragment extends Fragment
             applicationContext, appAccount, e.getExperimentId(), pictureLabel.getLabelId());
     PictureUtils.writeDrawableToFile(applicationContext, pictureFile, R.drawable.first_note);
     PictureLabelValue goosciPictureLabel =
-        GoosciPictureLabelValue.PictureLabelValue.newBuilder()
+        PictureLabelValue.newBuilder()
             .setFilePath(
                 FileMetadataUtil.getInstance()
                     .getRelativePathInExperiment(e.getExperimentId(), pictureFile))
