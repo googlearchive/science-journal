@@ -81,8 +81,10 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataU
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
@@ -552,27 +554,23 @@ public class ExperimentListFragment extends Fragment
         AppSingleton.getInstance(applicationContext).getSensorEnvironment().getDefaultClock();
 
     // Create a text label 1 second ago with default text.
-    GoosciTextLabelValue.TextLabelValue.Builder goosciTextLabel1 =
-        GoosciTextLabelValue.TextLabelValue.newBuilder();
-    goosciTextLabel1.setText(res.getString(R.string.first_experiment_second_text_note));
+    TextLabelValue goosciTextLabel1 =
+        GoosciTextLabelValue.TextLabelValue.newBuilder()
+            .setText(res.getString(R.string.first_experiment_second_text_note))
+            .build();
     Label textLabel1 =
         Label.newLabelWithValue(
-            clock.getNow() - 1000,
-            GoosciLabel.Label.ValueType.TEXT,
-            goosciTextLabel1.build(),
-            null);
+            clock.getNow() - 1000, GoosciLabel.Label.ValueType.TEXT, goosciTextLabel1, null);
     e.addLabel(e, textLabel1);
 
     // Create a text label 2 seconds ago with default text.
-    GoosciTextLabelValue.TextLabelValue.Builder goosciTextLabel2 =
-        GoosciTextLabelValue.TextLabelValue.newBuilder();
-    goosciTextLabel2.setText(res.getString(R.string.first_experiment_text_note));
+    TextLabelValue goosciTextLabel2 =
+        GoosciTextLabelValue.TextLabelValue.newBuilder()
+            .setText(res.getString(R.string.first_experiment_text_note))
+            .build();
     Label textLabel2 =
         Label.newLabelWithValue(
-            clock.getNow() - 2000,
-            GoosciLabel.Label.ValueType.TEXT,
-            goosciTextLabel2.build(),
-            null);
+            clock.getNow() - 2000, GoosciLabel.Label.ValueType.TEXT, goosciTextLabel2, null);
     e.addLabel(e, textLabel2);
 
     // Create a picture label 4 second ago with a default drawable and caption.
@@ -586,12 +584,12 @@ public class ExperimentListFragment extends Fragment
         PictureUtils.createImageFile(
             applicationContext, appAccount, e.getExperimentId(), pictureLabel.getLabelId());
     PictureUtils.writeDrawableToFile(applicationContext, pictureFile, R.drawable.first_note);
-    @MigrateAs(Destination.BUILDER)
-    GoosciPictureLabelValue.PictureLabelValue goosciPictureLabel =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    goosciPictureLabel.filePath =
-        FileMetadataUtil.getInstance()
-            .getRelativePathInExperiment(e.getExperimentId(), pictureFile);
+    PictureLabelValue goosciPictureLabel =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder()
+            .setFilePath(
+                FileMetadataUtil.getInstance()
+                    .getRelativePathInExperiment(e.getExperimentId(), pictureFile))
+            .build();
     pictureLabel.setLabelProtoData(goosciPictureLabel);
     pictureLabel.setCaption(caption.build());
     e.addLabel(e, pictureLabel);

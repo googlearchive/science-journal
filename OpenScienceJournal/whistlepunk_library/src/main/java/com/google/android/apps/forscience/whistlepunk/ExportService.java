@@ -605,13 +605,13 @@ public class ExportService extends Service {
     for (Trial t : experiment.getTrials()) {
       for (Label l : t.getLabels()) {
         if (l.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-          filesToVerify.add(l.getPictureLabelValue().filePath);
+          filesToVerify.add(l.getPictureLabelValue().getFilePath());
         }
       }
     }
     for (Label l : experiment.getLabels()) {
       if (l.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-        filesToVerify.add(l.getPictureLabelValue().filePath);
+        filesToVerify.add(l.getPictureLabelValue().getFilePath());
       }
     }
     filesToVerify.add(experiment.getImagePath());

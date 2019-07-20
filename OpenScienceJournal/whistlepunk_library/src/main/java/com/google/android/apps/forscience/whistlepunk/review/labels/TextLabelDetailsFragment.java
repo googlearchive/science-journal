@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /** Details view controller for TextLabel */
@@ -110,10 +111,9 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
   }
 
   private void saveTextChanges(String newText, Experiment experiment) {
-    GoosciTextLabelValue.TextLabelValue.Builder labelValue =
-        GoosciTextLabelValue.TextLabelValue.newBuilder();
-    labelValue.setText(newText);
-    originalLabel.setLabelProtoData(labelValue.build());
+    TextLabelValue labelValue =
+        GoosciTextLabelValue.TextLabelValue.newBuilder().setText(newText).build();
+    originalLabel.setLabelProtoData(labelValue);
     saveUpdatedOriginalLabel(
         experiment, Change.newModifyTypeChange(ElementType.NOTE, originalLabel.getLabelId()));
   }

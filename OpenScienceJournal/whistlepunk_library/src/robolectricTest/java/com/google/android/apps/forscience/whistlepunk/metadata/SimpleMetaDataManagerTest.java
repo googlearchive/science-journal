@@ -55,7 +55,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelV
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.collect.Lists;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
@@ -151,11 +151,10 @@ public class SimpleMetaDataManagerTest {
     Experiment experiment = metaDataManager.newExperiment();
 
     String testLabelString = "test label";
-    GoosciTextLabelValue.TextLabelValue.Builder textLabelValue =
-        GoosciTextLabelValue.TextLabelValue.newBuilder();
-    textLabelValue.setText(testLabelString);
+    TextLabelValue textLabelValue =
+        GoosciTextLabelValue.TextLabelValue.newBuilder().setText(testLabelString).build();
 
-    Label textLabel = Label.newLabelWithValue(1, ValueType.TEXT, textLabelValue.build(), null);
+    Label textLabel = Label.newLabelWithValue(1, ValueType.TEXT, textLabelValue, null);
     experiment.addLabel(experiment, textLabel);
     File tmpFile;
     try {
@@ -172,10 +171,8 @@ public class SimpleMetaDataManagerTest {
 
     Caption caption = GoosciCaption.Caption.newBuilder().setText(testPictureCaption).build();
 
-    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue labelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    labelValue.filePath = testPicturePath;
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath(testPicturePath).build();
 
     Label pictureLabel = Label.newLabelWithValue(2, ValueType.PICTURE, labelValue, caption);
     experiment.addLabel(experiment, pictureLabel);
@@ -195,7 +192,7 @@ public class SimpleMetaDataManagerTest {
         foundText = true;
       }
       if (foundLabel.getType() == ValueType.PICTURE) {
-        assertEquals(testPicturePath, foundLabel.getPictureLabelValue().filePath);
+        assertEquals(testPicturePath, foundLabel.getPictureLabelValue().getFilePath());
         assertEquals(pictureLabel.getLabelId(), foundLabel.getLabelId());
         assertEquals(testPictureCaption, foundLabel.getCaptionText());
         foundPicture = true;
@@ -216,10 +213,9 @@ public class SimpleMetaDataManagerTest {
     final ApplicationLabel startId2 =
         new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_START, "startId2", "startId2", 2);
     final Label label = Label.newLabel(3, ValueType.TEXT);
-    GoosciTextLabelValue.TextLabelValue.Builder labelValue =
-        GoosciTextLabelValue.TextLabelValue.newBuilder();
-    labelValue.setText("text");
-    label.setLabelProtoData(labelValue.build());
+    TextLabelValue labelValue =
+        GoosciTextLabelValue.TextLabelValue.newBuilder().setText("text").build();
+    label.setLabelProtoData(labelValue);
     ApplicationLabel stopId2 =
         new ApplicationLabel(ApplicationLabel.TYPE_RECORDING_STOP, "stopId2", "startId2", 4);
     final ApplicationLabel startId3 =
@@ -626,7 +622,7 @@ public class SimpleMetaDataManagerTest {
     List<Label> labels = secondExpResult.getLabels();
     assertEquals(2, labels.size());
     assertEquals("Description", labels.get(0).getTextLabelValue().getText());
-    assertEquals("path/to/photo", labels.get(1).getPictureLabelValue().filePath);
+    assertEquals("path/to/photo", labels.get(1).getPictureLabelValue().getFilePath());
     assertTrue(labels.get(0).getTimeStamp() < secondExpResult.getCreationTimeMs());
     assertTrue(labels.get(1).getTimeStamp() < secondExpResult.getCreationTimeMs());
     assertTrue(secondExpResult.getDisplayTitle(getContext()).startsWith("Title"));
@@ -663,12 +659,10 @@ public class SimpleMetaDataManagerTest {
   public void testMigrateExperimentsToFiles() {
     Experiment experiment = metaDataManager.newDatabaseExperiment();
     for (int i = 0; i < 50; i++) {
-      @MigrateAs(Destination.BUILDER)
-      GoosciPictureLabelValue.PictureLabelValue labelValue =
-          new GoosciPictureLabelValue.PictureLabelValue();
-      labelValue.filePath = "fake/path";
-      Label label = Label.newLabelWithValue(i * 1000, ValueType.PICTURE, labelValue, null);
-      LabelValue deprecatedValue = PictureLabelValue.fromPicture(labelValue.filePath, "");
+      GoosciPictureLabelValue.PictureLabelValue.Builder labelValue =
+          GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("fake/path");
+      Label label = Label.newLabelWithValue(i * 1000, ValueType.PICTURE, labelValue.build(), null);
+      LabelValue deprecatedValue = PictureLabelValue.fromPicture(labelValue.getFilePath(), "");
       // In the database, labels are stored separately. Add them directly here so that we
       // don't need to re-create methods to update them from the SimpleMetadataManager.
       metaDataManager.addDatabaseLabel(

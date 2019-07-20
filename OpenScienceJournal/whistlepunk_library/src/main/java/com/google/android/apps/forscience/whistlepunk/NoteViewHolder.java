@@ -33,7 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearanc
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 
@@ -88,7 +88,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       GoosciPictureLabelValue.PictureLabelValue labelValue = label.getPictureLabelValue();
       image.setVisibility(View.VISIBLE);
       PictureUtils.loadExperimentImage(
-          image.getContext(), image, appAccount, experimentId, labelValue.filePath, true);
+          image.getContext(), image, appAccount, experimentId, labelValue.getFilePath(), true);
     } else {
       PictureUtils.clearImage(image);
       image.setVisibility(View.GONE);

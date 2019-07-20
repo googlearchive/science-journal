@@ -267,7 +267,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   private void requestDownload(Activity activity, Context context, Label label) {
     ExportService.requestDownloadPermissions(
         () -> {
-          String sourcePath = label.getPictureLabelValue().filePath;
+          String sourcePath = label.getPictureLabelValue().getFilePath();
           File sourceFile =
               new File(
                   PictureUtils.getExperimentImagePath(
@@ -290,7 +290,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
               context,
               appAccount,
               experimentId,
-              label.getPictureLabelValue().filePath,
+              label.getPictureLabelValue().getFilePath(),
               label.getCaptionText());
     }
   }

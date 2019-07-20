@@ -44,11 +44,9 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
@@ -204,9 +202,8 @@ public class GalleryNoteFragment extends Fragment
     addButton.setOnClickListener(
         view -> {
           final long timestamp = getTimestamp(addButton.getContext());
-          @MigrateAs(Destination.BUILDER)
-          GoosciPictureLabelValue.PictureLabelValue labelValue =
-              new GoosciPictureLabelValue.PictureLabelValue();
+          GoosciPictureLabelValue.PictureLabelValue.Builder labelValue =
+              GoosciPictureLabelValue.PictureLabelValue.newBuilder();
 
           if (listener != null) {
             listener
@@ -226,17 +223,17 @@ public class GalleryNoteFragment extends Fragment
                         try {
                           UpdateExperimentFragment.copyUriToFile(
                               addButton.getContext(), Uri.parse(selectedImage), imageFile);
-                          labelValue.filePath =
+                          labelValue.setFilePath(
                               FileMetadataUtil.getInstance()
-                                  .getRelativePathInExperiment(experimentId, imageFile);
+                                  .getRelativePathInExperiment(experimentId, imageFile));
                         } catch (IOException e) {
                           if (Log.isLoggable(TAG, Log.DEBUG)) {
                             Log.d(TAG, e.getMessage());
                           }
-                          labelValue.filePath = "";
+                          labelValue.clearFilePath();
                         }
 
-                        result.setLabelProtoData(labelValue);
+                        result.setLabelProtoData(labelValue.build());
                         if (listener != null) {
                           listener.onPictureLabelTaken(result);
                         }

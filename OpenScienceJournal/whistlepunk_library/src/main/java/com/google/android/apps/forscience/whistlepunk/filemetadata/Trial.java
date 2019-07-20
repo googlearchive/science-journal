@@ -32,13 +32,11 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearanc
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -130,7 +128,6 @@ public class Trial extends LabelListHolder {
     trialStats = new HashMap<>();
   }
 
-  @MigrateAs(Destination.EITHER)
   public GoosciPictureLabelValue.PictureLabelValue getCoverPictureLabelValue() {
     for (Label label : labels) {
       if (label.getType() == ValueType.PICTURE) {

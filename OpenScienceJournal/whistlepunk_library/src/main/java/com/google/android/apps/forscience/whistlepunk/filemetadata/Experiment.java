@@ -691,7 +691,7 @@ public class Experiment extends LabelListHolder {
   protected void onPictureLabelAdded(Label label) {
     // Relative to Experiment.
     if (TextUtils.isEmpty(imagePath)) {
-      imagePath = getPathRelativeToExperiment(label.getPictureLabelValue().filePath);
+      imagePath = getPathRelativeToExperiment(label.getPictureLabelValue().getFilePath());
     }
   }
 
@@ -699,7 +699,7 @@ public class Experiment extends LabelListHolder {
   protected void beforeDeletingPictureLabel(Label label) {
     // Both relative to Experiment
     if (TextUtils.equals(
-        imagePath, getPathRelativeToExperiment(label.getPictureLabelValue().filePath))) {
+        imagePath, getPathRelativeToExperiment(label.getPictureLabelValue().getFilePath()))) {
       // This is the picture label which is used as the cover photo for this experiment.
       // Try to find another, oldest first.
       for (int i = labels.size() - 1; i >= 0; i--) {
@@ -707,7 +707,7 @@ public class Experiment extends LabelListHolder {
         if (!TextUtils.equals(other.getLabelId(), label.getLabelId())
             && other.getType() == ValueType.PICTURE) {
           // Should be relative to Experiment.
-          imagePath = getPathRelativeToExperiment(other.getPictureLabelValue().filePath);
+          imagePath = getPathRelativeToExperiment(other.getPictureLabelValue().getFilePath());
           return;
         }
       }
@@ -889,7 +889,7 @@ public class Experiment extends LabelListHolder {
       case NOTE:
         Label label = getLabel(local.getChangedElementId());
         if (label != null && label.getType() == ValueType.PICTURE) {
-          filesToSync.addImageUpload(label.getPictureLabelValue().filePath);
+          filesToSync.addImageUpload(label.getPictureLabelValue().getFilePath());
         }
         break;
       case TRIAL:
@@ -1062,7 +1062,7 @@ public class Experiment extends LabelListHolder {
       }
     } else {
       if (externalLabel.getType() == ValueType.PICTURE) {
-        filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
+        filesToSync.addImageDownload(externalLabel.getPictureLabelValue().getFilePath());
       }
       // This is not a delete. The label still exists in the external experiment.
       // Find if the label is associated with a trial, externally.
@@ -1222,12 +1222,12 @@ public class Experiment extends LabelListHolder {
           if (externalLabel != null) {
             trial.addLabel(this, Label.copyOf(externalLabel));
             if (externalLabel.getType() == ValueType.PICTURE) {
-              filesToSync.addImageUpload(externalLabel.getPictureLabelValue().filePath);
+              filesToSync.addImageUpload(externalLabel.getPictureLabelValue().getFilePath());
             }
 
             if (localLabel != null) {
               if (localLabel.getType() == ValueType.PICTURE) {
-                filesToSync.addImageDownload(localLabel.getPictureLabelValue().filePath);
+                filesToSync.addImageDownload(localLabel.getPictureLabelValue().getFilePath());
               }
             }
           } else {
@@ -1252,12 +1252,12 @@ public class Experiment extends LabelListHolder {
         if (externalLabel != null) {
           addLabel(this, Label.copyOf(externalLabel));
           if (externalLabel.getType() == ValueType.PICTURE) {
-            filesToSync.addImageDownload(externalLabel.getPictureLabelValue().filePath);
+            filesToSync.addImageDownload(externalLabel.getPictureLabelValue().getFilePath());
           }
 
           if (localLabel != null) {
             if (localLabel.getType() == ValueType.PICTURE) {
-              filesToSync.addImageUpload(localLabel.getPictureLabelValue().filePath);
+              filesToSync.addImageUpload(localLabel.getPictureLabelValue().getFilePath());
             }
           }
         } else {

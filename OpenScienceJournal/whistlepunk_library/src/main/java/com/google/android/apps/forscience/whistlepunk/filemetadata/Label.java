@@ -25,16 +25,14 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
@@ -229,12 +227,12 @@ public class Label implements Parcelable {
    * Gets the PictureLabelValue for this label. If changes are made, this needs to be re-set on the
    * Label for them to be saved.
    */
-  @MigrateAs(Destination.EITHER)
   public GoosciPictureLabelValue.PictureLabelValue getPictureLabelValue() {
     if (label.type == ValueType.PICTURE) {
       try {
-        return GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.protoData);
-      } catch (InvalidProtocolBufferNanoException e) {
+        return GoosciPictureLabelValue.PictureLabelValue.parseFrom(
+            label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+      } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
         }
@@ -306,7 +304,7 @@ public class Label implements Parcelable {
       File file =
           new File(
               PictureUtils.getExperimentImagePath(
-                  context, appAccount, experimentId, getPictureLabelValue().filePath));
+                  context, appAccount, experimentId, getPictureLabelValue().getFilePath()));
       boolean deleted = file.delete();
       if (!deleted && Log.isLoggable(TAG, Log.WARN)) {
         Log.w(TAG, "Could not delete " + file.toString());

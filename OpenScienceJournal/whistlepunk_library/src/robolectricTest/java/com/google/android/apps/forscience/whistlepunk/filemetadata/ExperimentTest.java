@@ -30,10 +30,11 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
@@ -81,9 +82,9 @@ public class ExperimentTest {
 
     // Add a label manually, outside of the proto
     GoosciPictureLabelValue.PictureLabelValue labelValueProto =
-        new GoosciPictureLabelValue.PictureLabelValue();
+        GoosciPictureLabelValue.PictureLabelValue.getDefaultInstance();
     GoosciLabel.Label labelProto = new GoosciLabel.Label();
-    labelProto.protoData = MessageNano.toByteArray(labelValueProto);
+    labelProto.protoData = labelValueProto.toByteArray();
     labelProto.type = ValueType.PICTURE;
     experiment.getLabels().add(Label.fromLabel(labelProto));
     assertEquals(1, experiment.getLabelCount());
@@ -96,9 +97,7 @@ public class ExperimentTest {
     // Try constructing an experiment from a proto that already has these fields.
     Experiment experiment2 =
         ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
-    assertTrue(
-        MessageNano.messageNanoEquals(
-            experiment2.getLabels().get(0).getPictureLabelValue(), labelValueProto));
+    assertEquals(labelValueProto, experiment2.getLabels().get(0).getPictureLabelValue());
     assertEquals(1, experiment2.getLabelCount());
     List<Label> labels = experiment2.getLabels();
     labels.add(Label.newLabel(20, ValueType.TEXT));
@@ -502,10 +501,8 @@ public class ExperimentTest {
   public void testMergeExperimentsImageLabelAddOnly() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue.filePath = "foo";
+    PictureLabelValue pictureLabelValue =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("foo").build();
     Label label = Label.newLabel(1, ValueType.PICTURE);
     label.setLabelProtoData(pictureLabelValue);
 
@@ -566,10 +563,8 @@ public class ExperimentTest {
   public void testMergeExperimentsLabelAddAndEdit() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue.filePath = "foo";
+    PictureLabelValue pictureLabelValue =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("foo").build();
     Label label = Label.newLabel(1, ValueType.PICTURE);
     label.setLabelProtoData(pictureLabelValue);
 
@@ -580,9 +575,8 @@ public class ExperimentTest {
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
     Label label2 = Label.fromLabel(label.getLabelProto());
-    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue2 =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue2.filePath = "bar";
+    PictureLabelValue pictureLabelValue2 =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("bar").build();
     label2.setLabelProtoData(pictureLabelValue2);
     experimentClient.updateLabel(experimentClient, label2);
 
@@ -609,10 +603,8 @@ public class ExperimentTest {
   public void testMergeExperimentsLabelAddAndDelete() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue.filePath = "foo";
+    PictureLabelValue pictureLabelValue =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("foo").build();
     Label label = Label.newLabel(1, ValueType.PICTURE);
     label.setLabelProtoData(pictureLabelValue);
 
@@ -647,10 +639,8 @@ public class ExperimentTest {
   public void testMergeExperimentsLabelAddAndEditDelete() {
     Experiment experimentServer = Experiment.newExperiment(1, "experimentId", 1);
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue.filePath = "foo";
+    PictureLabelValue pictureLabelValue =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("foo").build();
     Label label = Label.newLabel(1, ValueType.PICTURE);
     label.setLabelProtoData(pictureLabelValue);
 
@@ -661,9 +651,8 @@ public class ExperimentTest {
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
     Label label2 = Label.fromLabel(label.getLabelProto());
-    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue2 =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue2.filePath = "bar";
+    PictureLabelValue pictureLabelValue2 =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("bar").build();
     label2.setLabelProtoData(pictureLabelValue2);
     experimentClient.updateLabel(experimentClient, label2);
 
@@ -773,10 +762,8 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue.filePath = "foo";
+    PictureLabelValue pictureLabelValue =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("foo").build();
     Label label = Label.newLabel(1, ValueType.PICTURE);
     label.setLabelProtoData(pictureLabelValue);
 
@@ -815,10 +802,8 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue.filePath = "foo";
+    PictureLabelValue pictureLabelValue =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("foo").build();
     Label label = Label.newLabel(1, ValueType.PICTURE);
     label.setLabelProtoData(pictureLabelValue);
 
@@ -1143,10 +1128,8 @@ public class ExperimentTest {
 
     experimentServer.addTrial(trial);
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciPictureLabelValue.PictureLabelValue pictureLabelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    pictureLabelValue.filePath = "foo";
+    PictureLabelValue pictureLabelValue =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("foo").build();
     Label label = Label.newLabel(1, ValueType.PICTURE);
     label.setLabelProtoData(pictureLabelValue);
 

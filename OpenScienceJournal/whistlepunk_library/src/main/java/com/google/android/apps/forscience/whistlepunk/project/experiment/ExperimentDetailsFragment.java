@@ -88,9 +88,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.apps.forscience.whistlepunk.review.ExportOptionsDialogFragment;
 import com.google.android.apps.forscience.whistlepunk.review.PinnedNoteAdapter;
@@ -1228,7 +1228,7 @@ public class ExperimentDetailsFragment extends Fragment
                       context,
                       parentReference.get().appAccount,
                       experiment.getExperimentId(),
-                      item.getLabel().getPictureLabelValue().filePath,
+                      item.getLabel().getPictureLabelValue().getFilePath(),
                       item.getLabel().getCaptionText());
           popupMenu
               .getMenu()
@@ -1275,7 +1275,7 @@ public class ExperimentDetailsFragment extends Fragment
       Activity activity = parentReference.get().getActivity();
       ExportService.requestDownloadPermissions(
           () -> {
-            String sourcePath = item.getLabel().getPictureLabelValue().filePath;
+            String sourcePath = item.getLabel().getPictureLabelValue().getFilePath();
             File sourceFile =
                 new File(
                     PictureUtils.getExperimentImagePath(
@@ -1622,7 +1622,7 @@ public class ExperimentDetailsFragment extends Fragment
             imageView,
             parentReference.get().appAccount,
             experiment.getExperimentId(),
-            labelValue.filePath,
+            labelValue.getFilePath(),
             true);
       }
 

@@ -22,13 +22,13 @@ import android.os.Parcel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,9 +63,9 @@ public class LabelTest {
 
     assertEquals(label.getType(), ValueType.TEXT);
 
-    GoosciTextLabelValue.TextLabelValue.Builder labelValue = label.getTextLabelValue().toBuilder();
-    labelValue.setText("The meaning of life");
-    label.setLabelProtoData(labelValue.build());
+    TextLabelValue labelValue =
+        label.getTextLabelValue().toBuilder().setText("The meaning of life").build();
+    label.setLabelProtoData(labelValue);
 
     assertEquals("The meaning of life", label.getTextLabelValue().getText());
     assertEquals(label.canEditTimestamp(), true);
@@ -75,14 +75,12 @@ public class LabelTest {
   public void testCanCreatePictureLabel() {
     Caption caption =
         GoosciCaption.Caption.newBuilder().setText("kitten").setLastEditedTimestamp(5).build();
-    @MigrateAs(Destination.BUILDER)
-    GoosciPictureLabelValue.PictureLabelValue labelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    labelValue.filePath = "path/to/photo";
+    PictureLabelValue labelValue =
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("path/to/photo").build();
     Label label = Label.newLabelWithValue(10, ValueType.PICTURE, labelValue, caption);
 
     assertEquals(label.getType(), ValueType.PICTURE);
-    assertEquals("path/to/photo", label.getPictureLabelValue().filePath);
+    assertEquals("path/to/photo", label.getPictureLabelValue().getFilePath());
     assertEquals(10, label.getTimeStamp());
     assertEquals("kitten", label.getCaptionText());
     assertEquals(label.canEditTimestamp(), true);
@@ -152,10 +150,9 @@ public class LabelTest {
 
   @Test
   public void testDeepCopy() {
-    GoosciTextLabelValue.TextLabelValue.Builder textLabelValue1 =
-        GoosciTextLabelValue.TextLabelValue.newBuilder();
-    textLabelValue1.setText("peanutbutter");
-    Label first = Label.newLabelWithValue(10, ValueType.TEXT, textLabelValue1.build(), null);
+    TextLabelValue textLabelValue1 =
+        GoosciTextLabelValue.TextLabelValue.newBuilder().setText("peanutbutter").build();
+    Label first = Label.newLabelWithValue(10, ValueType.TEXT, textLabelValue1, null);
     Label second = Label.copyOf(first);
     assertNotEquals(first.getLabelId(), second.getLabelId());
     assertEquals(first.getTimeStamp(), second.getTimeStamp());
@@ -163,10 +160,9 @@ public class LabelTest {
     assertEquals("peanutbutter", second.getTextLabelValue().getText());
 
     // Changing the first doesn't change the second.
-    GoosciTextLabelValue.TextLabelValue.Builder textLabelValue2 =
-        GoosciTextLabelValue.TextLabelValue.newBuilder();
-    textLabelValue2.setText("jelly");
-    first.setLabelProtoData(textLabelValue2.build());
+    TextLabelValue textLabelValue2 =
+        GoosciTextLabelValue.TextLabelValue.newBuilder().setText("jelly").build();
+    first.setLabelProtoData(textLabelValue2);
     assertEquals("peanutbutter", second.getTextLabelValue().getText());
 
     first.setTimestamp(20);

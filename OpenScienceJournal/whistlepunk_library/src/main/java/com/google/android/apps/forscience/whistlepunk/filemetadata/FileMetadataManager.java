@@ -32,9 +32,9 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -42,9 +42,10 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.Version;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import com.google.protobuf.ExtensionRegistryLite;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -258,9 +259,10 @@ public class FileMetadataManager {
         if (label.type == ValueType.PICTURE) {
           try {
             GoosciPictureLabelValue.PictureLabelValue labelValue =
-                GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.protoData);
-            usedImagePaths.add(labelValue.filePath);
-          } catch (InvalidProtocolBufferNanoException e) {
+                GoosciPictureLabelValue.PictureLabelValue.parseFrom(
+                    label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+            usedImagePaths.add(labelValue.getFilePath());
+          } catch (InvalidProtocolBufferException e) {
             if (Log.isLoggable(TAG, Log.WARN)) {
               Log.w(TAG, "Failed to parse trial PictureLabelValue in lost experiment", e);
             }
@@ -272,9 +274,10 @@ public class FileMetadataManager {
       if (label.type == ValueType.PICTURE) {
         try {
           GoosciPictureLabelValue.PictureLabelValue labelValue =
-              GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.protoData);
-          usedImagePaths.add(labelValue.filePath);
-        } catch (InvalidProtocolBufferNanoException e) {
+              GoosciPictureLabelValue.PictureLabelValue.parseFrom(
+                  label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+          usedImagePaths.add(labelValue.getFilePath());
+        } catch (InvalidProtocolBufferException e) {
           if (Log.isLoggable(TAG, Log.WARN)) {
             Log.w(TAG, "Failed to parse experiment PictureLabelValue in lost experiment", e);
           }

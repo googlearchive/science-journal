@@ -93,7 +93,7 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
         imageView,
         appAccount,
         experimentId,
-        originalLabel.getPictureLabelValue().filePath,
+        originalLabel.getPictureLabelValue().getFilePath(),
         false);
   }
 
@@ -107,7 +107,7 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
                 getContext(),
                 appAccount,
                 experimentId,
-                originalLabel.getPictureLabelValue().filePath,
+                originalLabel.getPictureLabelValue().getFilePath(),
                 originalLabel.getCaptionText());
     if (shareIntent != null) {
       menu.findItem(R.id.btn_share_photo).setVisible(true);
@@ -128,7 +128,10 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
           .getValue()
           .addChange(Change.newModifyTypeChange(ElementType.NOTE, originalLabel.getLabelId()));
       PictureUtils.launchExternalEditor(
-          getActivity(), appAccount, experimentId, originalLabel.getPictureLabelValue().filePath);
+          getActivity(),
+          appAccount,
+          experimentId,
+          originalLabel.getPictureLabelValue().getFilePath());
       return true;
     } else if (item.getItemId() == R.id.btn_share_photo) {
       if (shareIntent != null) {
@@ -152,7 +155,7 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
     Context context = getContext();
     ExportService.requestDownloadPermissions(
         () -> {
-          String sourcePath = originalLabel.getPictureLabelValue().filePath;
+          String sourcePath = originalLabel.getPictureLabelValue().getFilePath();
           File sourceFile =
               new File(
                   PictureUtils.getExperimentImagePath(

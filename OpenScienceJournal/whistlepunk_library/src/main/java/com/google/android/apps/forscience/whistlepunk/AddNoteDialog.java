@@ -51,10 +51,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelV
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciPictureLabelValue;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
@@ -264,7 +263,7 @@ public class AddNoteDialog extends DialogFragment {
             text = savedLabel.getCaptionText();
           }
           if (savedLabel.getType() == GoosciLabel.Label.ValueType.PICTURE) {
-            pictureLabelPath = savedLabel.getPictureLabelValue().filePath;
+            pictureLabelPath = savedLabel.getPictureLabelValue().getFilePath();
           }
           uuid = savedLabel.getLabelId();
         }
@@ -386,10 +385,10 @@ public class AddNoteDialog extends DialogFragment {
     long timestamp =
         AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock().getNow();
     if (hasPicture()) {
-      @MigrateAs(Destination.BUILDER)
       GoosciPictureLabelValue.PictureLabelValue labelValue =
-          new GoosciPictureLabelValue.PictureLabelValue();
-      labelValue.filePath = pictureLabelPath;
+          GoosciPictureLabelValue.PictureLabelValue.newBuilder()
+              .setFilePath(pictureLabelPath)
+              .build();
       Caption caption =
           GoosciCaption.Caption.newBuilder()
               .setText(input.getText().toString())
@@ -398,11 +397,11 @@ public class AddNoteDialog extends DialogFragment {
       return Label.newLabelWithValue(
           timestamp, GoosciLabel.Label.ValueType.PICTURE, labelValue, caption);
     } else {
-      GoosciTextLabelValue.TextLabelValue.Builder labelValue =
-          GoosciTextLabelValue.TextLabelValue.newBuilder();
-      labelValue.setText(input.getText().toString());
-      return Label.newLabelWithValue(
-          timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue.build(), null);
+      TextLabelValue labelValue =
+          GoosciTextLabelValue.TextLabelValue.newBuilder()
+              .setText(input.getText().toString())
+              .build();
+      return Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);
     }
   }
 
@@ -441,13 +440,11 @@ public class AddNoteDialog extends DialogFragment {
     if (inputLayout.isErrorEnabled()) {
       return false;
     }
-    GoosciTextLabelValue.TextLabelValue.Builder labelValue =
-        GoosciTextLabelValue.TextLabelValue.newBuilder();
-    labelValue.setText(text);
+    TextLabelValue labelValue =
+        GoosciTextLabelValue.TextLabelValue.newBuilder().setText(text).build();
     input.setText("");
     Label label =
-        Label.newLabelWithValue(
-            timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue.build(), null);
+        Label.newLabelWithValue(timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);
     addLabel(label, getDataController(input.getContext()), experiment, input.getContext());
     return true;
   }
@@ -457,10 +454,10 @@ public class AddNoteDialog extends DialogFragment {
   }
 
   private boolean addPictureLabel(Experiment experiment) {
-    @MigrateAs(Destination.BUILDER)
     GoosciPictureLabelValue.PictureLabelValue labelValue =
-        new GoosciPictureLabelValue.PictureLabelValue();
-    labelValue.filePath = pictureLabelPath;
+        GoosciPictureLabelValue.PictureLabelValue.newBuilder()
+            .setFilePath(pictureLabelPath)
+            .build();
     Label label =
         Label.fromUuidAndValue(timestamp, uuid, GoosciLabel.Label.ValueType.PICTURE, labelValue);
     Caption caption =
