@@ -29,10 +29,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import android.support.design.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import com.google.android.apps.forscience.whistlepunk.CameraFragment.ListenerProvider;
@@ -62,8 +64,8 @@ import java.util.UUID;
 public class ExperimentActivity extends AppCompatActivity
     implements CallbacksProvider,
         ListenerProvider,
-        TextToolFragment.ListenerProvider,
-        GalleryFragment.ListenerProvider,
+        TextNoteFragment.ListenerProvider,
+        GalleryNoteFragment.ListenerProvider,
         ExperimentDetailsWithActionAreaFragment.ListenerProvider,
         ActionAreaListener {
   private static final String TAG = "ExperimentActivity";
@@ -71,8 +73,16 @@ public class ExperimentActivity extends AppCompatActivity
   public static final String EXTRA_EXPERIMENT_ID = "experimentId";
   public static final String EXTRA_CLAIM_EXPERIMENTS_MODE = "claimExperimentsMode";
 
+  private static final String MORE_OBSERVATIONS_TAG = "moreObservations";
+  private static final String NOTE_TAG = "note";
+  private static final String SENSOR_TAG = "sensor";
+  private static final String GALLERY_TAG = "gallery";
+  private static final String EXPERIMENT_DETAILS_TAG = "experimentDetails";
+
   private static final String EXTRA_PICTURE_UUID = "pictureUUID";
   private static final String EXTRA_PICTURE_PATH = "picturePath";
+
+  private static final String EXTRA_ACTIVE_FRAGMENT = "activeFragment";
 
   private ProgressBar recordingBar;
   private RxPermissions permissions;
@@ -81,6 +91,7 @@ public class ExperimentActivity extends AppCompatActivity
   private boolean claimExperimentsMode;
   private String pictureUUID;
   private String pictureRelativePath;
+  private String activeFragment;
 
   private static final int ARCORE_QUERY_TIMER_MS = 200;
   private static final double MIN_OPENGL_VERSION = 3.0;
@@ -169,13 +180,11 @@ public class ExperimentActivity extends AppCompatActivity
 
   private void setExperimentFragmentId(Experiment experiment) {
     FragmentManager fragmentManager = getSupportFragmentManager();
-    String experimentDetailsTag = "experimentDetails";
-
     if (experimentFragment == null) {
       // If we haven't cached the fragment, go looking for it.
       ExperimentDetailsWithActionAreaFragment oldFragment =
           (ExperimentDetailsWithActionAreaFragment)
-              fragmentManager.findFragmentByTag(experimentDetailsTag);
+              fragmentManager.findFragmentByTag(EXPERIMENT_DETAILS_TAG);
       if (oldFragment != null
           && oldFragment.getExperimentId().equals(experiment.getExperimentId())) {
         experimentFragment = oldFragment;
@@ -184,23 +193,37 @@ public class ExperimentActivity extends AppCompatActivity
     }
 
     if (experimentFragment == null) {
-      boolean createTaskStack = true;
       experimentFragment =
           ExperimentDetailsWithActionAreaFragment.newInstance(
-              appAccount, experiment.getExperimentId(), createTaskStack, claimExperimentsMode);
+              appAccount,
+              experiment.getExperimentId(),
+              true /* createTaskStack */,
+              claimExperimentsMode);
 
-      if (fragmentManager.findFragmentById(R.id.experiment_pane) != null) {
-        fragmentManager
-            .beginTransaction()
-            .hide(fragmentManager.findFragmentById(R.id.experiment_pane))
-            .commit();
-      }
       fragmentManager
           .beginTransaction()
-          .add(R.id.experiment_pane, experimentFragment, experimentDetailsTag)
+          .add(R.id.experiment_pane, experimentFragment, EXPERIMENT_DETAILS_TAG)
+          .hide(experimentFragment)
           .commit();
     } else {
       experimentFragment.setExperimentId(experiment.getExperimentId());
+    }
+    showVisibleFragment();
+  }
+
+  private void showVisibleFragment() {
+    if (activeFragment != null) {
+      showFragmentByTag(activeFragment);
+    } else {
+      showExperimentFragment();
+    }
+  }
+
+  private void showExperimentFragment() {
+    hideAllFragments();
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    if (experimentFragment != null) {
+      fragmentManager.beginTransaction().show(experimentFragment).commit();
     }
   }
 
@@ -278,10 +301,30 @@ public class ExperimentActivity extends AppCompatActivity
 
   @Override
   public void onBackPressed() {
-    if (experimentFragment.handleOnBackPressed()) {
+    if (experimentFragment.isVisible()) {
+      if (experimentFragment.handleOnBackPressed()) {
+        return;
+      }
+    } else {
+      closeToolFragment();
       return;
     }
     super.onBackPressed();
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int itemId = item.getItemId();
+    if (itemId == android.R.id.home) {
+      onBackPressed();
+      return true;
+    }
+    return false;
+  }
+
+  private void closeToolFragment() {
+    activeFragment = null;
+    showExperimentFragment();
   }
 
   @Override
@@ -348,8 +391,8 @@ public class ExperimentActivity extends AppCompatActivity
   }
 
   @Override
-  public GalleryFragment.Listener getGalleryListener() {
-    return new GalleryFragment.Listener() {
+  public GalleryNoteFragment.Listener getGalleryListener() {
+    return new GalleryNoteFragment.Listener() {
       @Override
       public Observable<String> getActiveExperimentId() {
         return ExperimentActivity.this.getActiveExperimentId();
@@ -358,6 +401,7 @@ public class ExperimentActivity extends AppCompatActivity
       @Override
       public void onPictureLabelTaken(Label label) {
         addNewLabel(label);
+        closeToolFragment();
       }
 
       @Override
@@ -368,8 +412,11 @@ public class ExperimentActivity extends AppCompatActivity
   }
 
   @Override
-  public TextToolFragment.TextLabelFragmentListener getTextLabelFragmentListener() {
-    return result -> addNewLabel(result);
+  public TextNoteFragment.TextLabelFragmentListener getTextLabelFragmentListener() {
+    return result -> {
+      addNewLabel(result);
+      closeToolFragment();
+    };
   }
 
   @SuppressLint("CheckResult")
@@ -441,40 +488,54 @@ public class ExperimentActivity extends AppCompatActivity
   @Override
   public void onClick(ActionAreaItem item) {
     if (item.equals(ActionAreaItem.NOTE)) {
-      Log.v(TAG, "clicked note");
+      showFragmentByTag(NOTE_TAG);
     } else if (item.equals(ActionAreaItem.SENSOR)) {
-      Log.v(TAG, "clicked sensor");
+      showFragmentByTag(SENSOR_TAG);
     } else if (item.equals(ActionAreaItem.CAMERA)) {
-      Log.v(TAG, "clicked camera");
       takePicture();
     } else if (item.equals(ActionAreaItem.GALLERY)) {
-      Log.v(TAG, "clicked gallery");
+      showFragmentByTag(GALLERY_TAG);
     } else if (item.equals(ActionAreaItem.MORE)) {
-      Log.v(TAG, "clicked more observations");
-      moreObservationsClicked();
+      showFragmentByTag(MORE_OBSERVATIONS_TAG);
     }
   }
 
-  // TODO(b/137214973): Update this as a part of b/137214973
-  private void moreObservationsClicked() {
+  private void hideAllFragments() {
     FragmentManager fragmentManager = getSupportFragmentManager();
-    String moreObservationsTag = "moreObservations";
-    if (fragmentManager.findFragmentById(R.id.experiment_pane) != null) {
-      fragmentManager
-          .beginTransaction()
-          .hide(fragmentManager.findFragmentById(R.id.experiment_pane))
-          .commit();
+    for (Fragment fragment : fragmentManager.getFragments()) {
+      if (fragment.isVisible()) {
+        fragmentManager.beginTransaction().hide(fragment).commitNow();
+      }
     }
-    if (fragmentManager.findFragmentByTag(moreObservationsTag) != null) {
-      fragmentManager
-          .beginTransaction()
-          .show(fragmentManager.findFragmentByTag(moreObservationsTag))
-          .commit();
+  }
+
+  private void showFragmentByTag(String tag) {
+    hideAllFragments();
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    Fragment fragment = fragmentManager.findFragmentByTag(tag);
+    if (fragment != null) {
+      fragmentManager.beginTransaction().show(fragment).commit();
     } else {
       fragmentManager
           .beginTransaction()
-          .add(R.id.experiment_pane, MoreObservationsFragment.newInstance(), moreObservationsTag)
+          .add(R.id.experiment_pane, createFragmentByTag(tag), tag)
           .commit();
+    }
+    activeFragment = tag;
+  }
+
+  private Fragment createFragmentByTag(String tag) {
+    switch (tag) {
+      case NOTE_TAG:
+        return new TextNoteFragment();
+      case SENSOR_TAG:
+        // TODO(b/132652303): add sensor fragment
+      case GALLERY_TAG:
+        return GalleryNoteFragment.newInstance(appAccount);
+      case MORE_OBSERVATIONS_TAG:
+        return MoreObservationsFragment.newInstance();
+      default:
+        throw new IllegalArgumentException("Invalid fragment tag: " + tag);
     }
   }
 
@@ -483,6 +544,8 @@ public class ExperimentActivity extends AppCompatActivity
     super.onSaveInstanceState(outState);
     outState.putString(EXTRA_PICTURE_UUID, pictureUUID);
     outState.putString(EXTRA_PICTURE_PATH, pictureRelativePath);
+
+    outState.putString(EXTRA_ACTIVE_FRAGMENT, activeFragment);
   }
 
   @Override
@@ -490,6 +553,8 @@ public class ExperimentActivity extends AppCompatActivity
     super.onRestoreInstanceState(savedInstanceState);
     pictureUUID = savedInstanceState.getString(EXTRA_PICTURE_UUID);
     pictureRelativePath = savedInstanceState.getString(EXTRA_PICTURE_PATH);
+
+    activeFragment = savedInstanceState.getString(EXTRA_ACTIVE_FRAGMENT);
   }
 
   @SuppressLint("CheckResult")
@@ -538,7 +603,7 @@ public class ExperimentActivity extends AppCompatActivity
   }
 
   private void openGallery() {
-    // TODO(b/137214973): open gallery fragment
+    showFragmentByTag(GALLERY_TAG);
   }
 
   private void openDraw() {
