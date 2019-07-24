@@ -408,6 +408,7 @@ public class FileMetadataManager {
     experimentLibraryManager.addExperiment(experiment.getExperimentId());
     experimentLibraryManager.setModified(
         experiment.getExperimentId(), experiment.getLastUsedTime());
+    experimentLibraryManager.setArchived(experiment.getExperimentId(), experiment.isArchived());
   }
 
   public void updateExperiment(Experiment experiment, boolean setDirty) {
