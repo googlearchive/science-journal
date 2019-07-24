@@ -15,7 +15,6 @@
  */
 
 syntax = "proto2";
-import "third_party/android/nanoproto/nano_descriptor.proto";
 
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
