@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         >
 
-        <android.support.design.textfield.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/edit_note_text_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,13 +59,13 @@
             android:inputType="textCapSentences|textAutoCorrect"
             android:maxLines="@integer/label_edit_max_lines">
 
-            <android.support.design.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_note_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 />
 
-        </android.support.design.textfield.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <ImageButton
             android:layout_width="@dimen/accessibility_touch_target_min_size"

@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<android.support.design.textfield.TextInputLayout
+<com.google.android.material.textfield.TextInputLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -23,12 +23,12 @@
     android:minHeight="@dimen/accessibility_touch_target_min_size"
     >
 
-    <android.support.design.textfield.TextInputEditText
+    <com.google.android.material.textfield.TextInputEditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/note_text"
         android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
         />
 
-</android.support.design.textfield.TextInputLayout>
+</com.google.android.material.textfield.TextInputLayout>
 

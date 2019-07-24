@@ -19,7 +19,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <android.support.design.textfield.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/title_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,14 +30,14 @@
         android:minHeight="@dimen/accessibility_touch_target_min_size"
         app:errorEnabled="true">
 
-        <android.support.design.textfield.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/experiment_title_hint"
             android:id="@+id/title"
             />
 
-    </android.support.design.textfield.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 </FrameLayout>
 

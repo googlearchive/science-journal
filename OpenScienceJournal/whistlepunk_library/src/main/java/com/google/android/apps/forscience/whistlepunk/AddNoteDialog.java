@@ -26,8 +26,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import android.support.design.textfield.TextInputEditText;
-import android.support.design.textfield.TextInputLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
@@ -53,6 +51,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Cap
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;

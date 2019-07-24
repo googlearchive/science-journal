@@ -17,8 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.os.Bundle;
-import android.support.design.textfield.TextInputEditText;
-import android.support.design.textfield.TextInputLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -36,6 +34,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /** Details view controller for TextLabel */

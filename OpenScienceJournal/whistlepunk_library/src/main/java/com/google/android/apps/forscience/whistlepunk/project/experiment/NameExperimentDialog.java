@@ -21,8 +21,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import android.support.design.textfield.TextInputEditText;
-import android.support.design.textfield.TextInputLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
@@ -35,6 +33,8 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 
 /** Dialog prompting a user to name an experiment. */
