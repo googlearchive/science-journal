@@ -611,7 +611,8 @@ public class ExperimentActivity extends AppCompatActivity
   }
 
   private void openVelocityTracker() {
-    startActivity(ARVelocityActivity.getLaunchIntent(this));
+    startActivity(ARVelocityActivity.getIntent(
+        this, appAccount, getIntent().getStringExtra(EXTRA_EXPERIMENT_ID)));
   }
 
   protected ObservationOption[] getMoreObservationOptions() {

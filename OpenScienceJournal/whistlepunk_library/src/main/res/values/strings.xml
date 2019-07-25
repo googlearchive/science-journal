@@ -1807,6 +1807,12 @@ Permissions notice:
     <!-- Prompt for a user to fit an ARCore image to track [CHAR_LIMIT=40] -->
     <string name="fit_image_to_scan">Fit image to scan</string>
 
+    <!-- Prompt when velocity tracker recognizes an image but is not tracking it [CHAR_LIMIT=80] -->
+    <string name="ar_detecting_image">Detecting Image</string>
+
+    <!-- Prompt when velocity tracker stops tracking an image [CHAR_LIMIT=80] -->
+    <string name="ar_not_tracking">Not tracking</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
 </resources>

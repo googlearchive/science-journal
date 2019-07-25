@@ -16,6 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk.arcore;
 
+import static com.google.android.apps.forscience.whistlepunk.ExperimentActivity.EXTRA_ACCOUNT_KEY;
+import static com.google.android.apps.forscience.whistlepunk.ExperimentActivity.EXTRA_EXPERIMENT_ID;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.core.AugmentedImage.TrackingMethod;
 import com.google.ar.core.Frame;
@@ -41,6 +46,7 @@ public class ARVelocityActivity extends AppCompatActivity {
   private static final String TAG = "ARVelocity";
   private ArFragment arFragment;
   private ImageView fitToScanView;
+  private TextView velocityText;
   private static final float INTERVAL_TIME_SECONDS = 1f;
   private float delTime;
   private Vector3 lastPos;
@@ -57,6 +63,7 @@ public class ARVelocityActivity extends AppCompatActivity {
 
     arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
     fitToScanView = findViewById(R.id.image_view_fit_to_scan);
+    velocityText = findViewById(R.id.velocity_tracker_velocity_text);
     arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdateFrame);
   }
 
@@ -66,11 +73,15 @@ public class ARVelocityActivity extends AppCompatActivity {
 
     if (augmentedImageMap.isEmpty()) {
       fitToScanView.setVisibility(View.VISIBLE);
+      velocityText.setVisibility(View.INVISIBLE);
     }
   }
 
-  public static Intent getLaunchIntent(Context context) {
-    return new Intent(context, ARVelocityActivity.class);
+  public static Intent getIntent(Context context, AppAccount appAccount, String experimentId) {
+    Intent intent = new Intent(context, ARVelocityActivity.class);
+    intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
+    intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
+    return intent;
   }
 
   private void onUpdateFrame(FrameTime frameTime) {
@@ -87,6 +98,8 @@ public class ARVelocityActivity extends AppCompatActivity {
       switch (augmentedImage.getTrackingState()) {
         case PAUSED:
           // When an image is in the PAUSED state, it has been detected, but not yet tracked.
+          velocityText.setVisibility(View.VISIBLE);
+          velocityText.setText(getResources().getString(R.string.ar_detecting_image));
           if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Detected Image " + augmentedImage.getIndex());
           }
@@ -105,6 +118,7 @@ public class ARVelocityActivity extends AppCompatActivity {
             calculateVelocity(augmentedImage.getCenterPose(), frameTime.getDeltaSeconds());
           } else {
             lastPos = null;
+            velocityText.setText(getResources().getString(R.string.ar_not_tracking));
             if (Log.isLoggable(TAG, Log.DEBUG)) {
               Log.d(TAG, "Not actively tracking");
             }
@@ -140,6 +154,8 @@ public class ARVelocityActivity extends AppCompatActivity {
       // Calculate velocity in meters per second.
       Vector3 displacement = Vector3.subtract(currPos, lastPos);
       Vector3 avgVelocity = displacement.scaled(delTime);
+      // TODO(b/135678092): Add a string resource for the following
+      velocityText.setText(String.format("%.2f m/s", avgVelocity.length()));
       if (Log.isLoggable(TAG, Log.DEBUG)) {
         Log.d(TAG, String.format("V: %.2f", avgVelocity.length()));
       }

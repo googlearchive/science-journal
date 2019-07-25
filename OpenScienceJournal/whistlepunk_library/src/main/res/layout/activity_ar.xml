@@ -34,4 +34,20 @@
       android:src="@drawable/fit_to_scan"
       android:contentDescription="@string/fit_image_to_scan" />
 
+  <!-- Use match_parent here or else every value change causes a full requestLayout -->
+  <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
+      android:id="@+id/velocity_tracker_velocity_text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:minWidth="@dimen/sensor_card_back_icon_size"
+      android:textColor="@color/text_color_dark_grey"
+      android:textSize="@dimen/sensor_card_live_value_text_size"
+      android:visibility="invisible"
+      android:background="@color/text_color_white"
+      android:layout_centerVertical="true"
+      android:focusable="true"
+      android:layout_marginTop="600dp"
+      android:layout_marginLeft="200dp"
+      />
+
 </FrameLayout>
