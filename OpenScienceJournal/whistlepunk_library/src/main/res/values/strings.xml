@@ -1786,6 +1786,9 @@ Permissions notice:
     <!-- Title for action area button to navigate to additional note types [CHAR_LIMIT=25] -->
     <string name="more">More</string>
 
+    <!-- Description of empty tool area with action bar at the bottom [CHAR_LIMIT=100]-->
+    <string name="add_notes">Add more observation notes</string>
+
     <!-- Title for gallery option in more observations fragment [CHAR_LIMIT=25] -->
     <string name="more_observations_gallery_title">Gallery</string>
 

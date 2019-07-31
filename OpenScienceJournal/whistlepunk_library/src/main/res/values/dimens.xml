@@ -243,4 +243,6 @@
 
     <!-- Columns in More Observations fragment grid -->
     <integer name="more_observations_column_count">2</integer>
+
+    <bool name="is_tablet">false</bool>
 </resources>

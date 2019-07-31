@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2019 Google Inc. All Rights Reserved.
 
@@ -14,20 +13,25 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ExperimentActivity">
+    android:orientation="vertical">
 
-  <FrameLayout
-      android:id="@+id/experiment_pane"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <include layout="@layout/experiment_details" />
+    </FrameLayout>
 
-  <FrameLayout
-      android:id="@+id/tool_pane"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
+    <com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView
+        android:id="@+id/action_area"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/action_area_height"
+        app:isBottomLayout="true"
+        />
 
-</FrameLayout>
+</LinearLayout>

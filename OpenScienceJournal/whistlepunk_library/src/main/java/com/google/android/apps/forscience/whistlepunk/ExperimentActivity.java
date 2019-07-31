@@ -22,6 +22,8 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,6 +33,7 @@ import androidx.annotation.VisibleForTesting;
 import android.support.design.snackbar.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -78,11 +81,12 @@ public class ExperimentActivity extends AppCompatActivity
   private static final String SENSOR_TAG = "sensor";
   private static final String GALLERY_TAG = "gallery";
   private static final String EXPERIMENT_DETAILS_TAG = "experimentDetails";
+  private static final String DEFAULT_ADD_MORE_OBSERVATIONS_TAG = "defaultAddMoreObservations";
 
   private static final String EXTRA_PICTURE_UUID = "pictureUUID";
   private static final String EXTRA_PICTURE_PATH = "picturePath";
 
-  private static final String EXTRA_ACTIVE_FRAGMENT = "activeFragment";
+  private static final String EXTRA_ACTIVE_TOOL_FRAGMENT_TAG = "activeToolFragmentTag";
 
   private ProgressBar recordingBar;
   private RxPermissions permissions;
@@ -91,7 +95,9 @@ public class ExperimentActivity extends AppCompatActivity
   private boolean claimExperimentsMode;
   private String pictureUUID;
   private String pictureRelativePath;
-  private String activeFragment;
+  private String activeToolFragmentTag;
+
+  private boolean isTwoPane;
 
   private static final int ARCORE_QUERY_TIMER_MS = 200;
   private static final double MIN_OPENGL_VERSION = 3.0;
@@ -124,6 +130,12 @@ public class ExperimentActivity extends AppCompatActivity
     PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(this);
     PerfTrackerProvider.TimerToken experimentLoad = perfTracker.startTimer();
     setContentView(R.layout.activity_experiment_layout);
+
+    Resources resources = getResources();
+    boolean isTablet = resources.getBoolean(R.bool.is_tablet);
+    boolean isLandscape =
+        resources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    isTwoPane = isTablet && isLandscape;
 
     recordingBar = findViewById(R.id.recording_progress_bar);
 
@@ -179,12 +191,8 @@ public class ExperimentActivity extends AppCompatActivity
   }
 
   private void setExperimentFragmentId(Experiment experiment) {
-    FragmentManager fragmentManager = getSupportFragmentManager();
     if (experimentFragment == null) {
-      // If we haven't cached the fragment, go looking for it.
-      ExperimentDetailsWithActionAreaFragment oldFragment =
-          (ExperimentDetailsWithActionAreaFragment)
-              fragmentManager.findFragmentByTag(EXPERIMENT_DETAILS_TAG);
+      ExperimentDetailsWithActionAreaFragment oldFragment = lookupExperimentFragment();
       if (oldFragment != null
           && oldFragment.getExperimentId().equals(experiment.getExperimentId())) {
         experimentFragment = oldFragment;
@@ -193,38 +201,65 @@ public class ExperimentActivity extends AppCompatActivity
     }
 
     if (experimentFragment == null) {
-      experimentFragment =
-          ExperimentDetailsWithActionAreaFragment.newInstance(
-              appAccount,
-              experiment.getExperimentId(),
-              true /* createTaskStack */,
-              claimExperimentsMode);
-
-      fragmentManager
-          .beginTransaction()
-          .add(R.id.experiment_pane, experimentFragment, EXPERIMENT_DETAILS_TAG)
-          .hide(experimentFragment)
-          .commit();
+      experimentFragment = createExperimentFragment(experiment.getExperimentId());
     } else {
       experimentFragment.setExperimentId(experiment.getExperimentId());
     }
-    showVisibleFragment();
+    setUpFragments();
   }
 
-  private void showVisibleFragment() {
-    if (activeFragment != null) {
-      showFragmentByTag(activeFragment);
-    } else {
-      showExperimentFragment();
-    }
-  }
-
-  private void showExperimentFragment() {
-    hideAllFragments();
+  private ExperimentDetailsWithActionAreaFragment lookupExperimentFragment() {
     FragmentManager fragmentManager = getSupportFragmentManager();
-    if (experimentFragment != null) {
-      fragmentManager.beginTransaction().show(experimentFragment).commit();
+    return (ExperimentDetailsWithActionAreaFragment)
+        fragmentManager.findFragmentByTag(EXPERIMENT_DETAILS_TAG);
+  }
+
+  private ExperimentDetailsWithActionAreaFragment createExperimentFragment(String id) {
+    return ExperimentDetailsWithActionAreaFragment.newInstance(
+        appAccount, id, true /* createTaskStack */, claimExperimentsMode);
+  }
+
+  public void setUpFragments() {
+    showDefaultFragments();
+    if (activeToolFragmentTag != null) {
+      showFragmentByTagInToolPane(activeToolFragmentTag);
     }
+  }
+
+  private void showDefaultFragments() {
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    if (isTwoPane) {
+      showFragmentByTagInToolPane(DEFAULT_ADD_MORE_OBSERVATIONS_TAG);
+    } else {
+      hideAllFragmentsInToolPane();
+    }
+    if (experimentFragment == null) {
+      experimentFragment = lookupExperimentFragment();
+    }
+    if (experimentFragment != null) {
+      if (fragmentManager.findFragmentByTag(EXPERIMENT_DETAILS_TAG) != null) {
+        fragmentManager.beginTransaction().show(experimentFragment).commit();
+      } else {
+        fragmentManager
+            .beginTransaction()
+            .add(R.id.experiment_pane, experimentFragment, EXPERIMENT_DETAILS_TAG)
+            .commit();
+      }
+    }
+  }
+
+  private void closeToolFragment() {
+    activeToolFragmentTag = null;
+    showDefaultFragments();
+  }
+
+  private void openToolFragment(String tag) {
+    showFragmentByTagInToolPane(tag);
+    activeToolFragmentTag = tag;
+  }
+
+  public boolean isTwoPane() {
+    return isTwoPane;
   }
 
   @Override
@@ -245,11 +280,12 @@ public class ExperimentActivity extends AppCompatActivity
     }
     if (appSingleton.getAndClearMostRecentOpenWasImport()) {
       AccessibilityUtils.makeSnackbar(
-              findViewById(R.id.experiment_pane),
+              findViewById(R.id.tool_pane),
               getResources().getString(R.string.import_failed_recording),
               Snackbar.LENGTH_SHORT)
           .show();
     }
+    setUpFragments();
   }
 
   @Override
@@ -301,13 +337,25 @@ public class ExperimentActivity extends AppCompatActivity
 
   @Override
   public void onBackPressed() {
-    if (experimentFragment.isVisible()) {
-      if (experimentFragment.handleOnBackPressed()) {
+    if (isTwoPane) {
+      if (activeToolFragmentTag == null
+          || activeToolFragmentTag.equals(DEFAULT_ADD_MORE_OBSERVATIONS_TAG)) {
+        if (experimentFragment.handleOnBackPressed()) {
+          return;
+        }
+      } else {
+        closeToolFragment();
         return;
       }
     } else {
-      closeToolFragment();
-      return;
+      if (experimentFragment != null && experimentFragment.isVisible()) {
+        if (experimentFragment.handleOnBackPressed()) {
+          return;
+        }
+      } else {
+        closeToolFragment();
+        return;
+      }
     }
     super.onBackPressed();
   }
@@ -320,11 +368,6 @@ public class ExperimentActivity extends AppCompatActivity
       return true;
     }
     return false;
-  }
-
-  private void closeToolFragment() {
-    activeFragment = null;
-    showExperimentFragment();
   }
 
   @Override
@@ -438,7 +481,7 @@ public class ExperimentActivity extends AppCompatActivity
 
   private void onAddNewLabelFailed() {
     AccessibilityUtils.makeSnackbar(
-            findViewById(R.id.experiment_pane),
+            findViewById(R.id.tool_pane),
             getResources().getString(R.string.label_failed_save),
             Snackbar.LENGTH_LONG)
         .show();
@@ -488,29 +531,31 @@ public class ExperimentActivity extends AppCompatActivity
   @Override
   public void onClick(ActionAreaItem item) {
     if (item.equals(ActionAreaItem.NOTE)) {
-      showFragmentByTag(NOTE_TAG);
+      openToolFragment(NOTE_TAG);
     } else if (item.equals(ActionAreaItem.SENSOR)) {
-      showFragmentByTag(SENSOR_TAG);
+      openToolFragment(SENSOR_TAG);
     } else if (item.equals(ActionAreaItem.CAMERA)) {
       takePicture();
     } else if (item.equals(ActionAreaItem.GALLERY)) {
-      showFragmentByTag(GALLERY_TAG);
+      openToolFragment(GALLERY_TAG);
     } else if (item.equals(ActionAreaItem.MORE)) {
-      showFragmentByTag(MORE_OBSERVATIONS_TAG);
+      openToolFragment(MORE_OBSERVATIONS_TAG);
     }
   }
 
-  private void hideAllFragments() {
+  private void hideAllFragmentsInToolPane() {
     FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentTransaction ft = fragmentManager.beginTransaction();
     for (Fragment fragment : fragmentManager.getFragments()) {
-      if (fragment.isVisible()) {
-        fragmentManager.beginTransaction().hide(fragment).commitNow();
+      if (!fragment.equals(experimentFragment) || !isTwoPane) {
+        ft.hide(fragment);
       }
     }
+    ft.commit();
   }
 
-  private void showFragmentByTag(String tag) {
-    hideAllFragments();
+  private void showFragmentByTagInToolPane(String tag) {
+    hideAllFragmentsInToolPane();
     FragmentManager fragmentManager = getSupportFragmentManager();
     Fragment fragment = fragmentManager.findFragmentByTag(tag);
     if (fragment != null) {
@@ -518,10 +563,9 @@ public class ExperimentActivity extends AppCompatActivity
     } else {
       fragmentManager
           .beginTransaction()
-          .add(R.id.experiment_pane, createFragmentByTag(tag), tag)
+          .add(R.id.tool_pane, createFragmentByTag(tag), tag)
           .commit();
     }
-    activeFragment = tag;
   }
 
   private Fragment createFragmentByTag(String tag) {
@@ -534,6 +578,8 @@ public class ExperimentActivity extends AppCompatActivity
         return GalleryNoteFragment.newInstance(appAccount);
       case MORE_OBSERVATIONS_TAG:
         return MoreObservationsFragment.newInstance();
+      case DEFAULT_ADD_MORE_OBSERVATIONS_TAG:
+        return AddMoreObservationNotesFragment.newInstance();
       default:
         throw new IllegalArgumentException("Invalid fragment tag: " + tag);
     }
@@ -545,7 +591,7 @@ public class ExperimentActivity extends AppCompatActivity
     outState.putString(EXTRA_PICTURE_UUID, pictureUUID);
     outState.putString(EXTRA_PICTURE_PATH, pictureRelativePath);
 
-    outState.putString(EXTRA_ACTIVE_FRAGMENT, activeFragment);
+    outState.putString(EXTRA_ACTIVE_TOOL_FRAGMENT_TAG, activeToolFragmentTag);
   }
 
   @Override
@@ -554,7 +600,7 @@ public class ExperimentActivity extends AppCompatActivity
     pictureUUID = savedInstanceState.getString(EXTRA_PICTURE_UUID);
     pictureRelativePath = savedInstanceState.getString(EXTRA_PICTURE_PATH);
 
-    activeFragment = savedInstanceState.getString(EXTRA_ACTIVE_FRAGMENT);
+    activeToolFragmentTag = savedInstanceState.getString(EXTRA_ACTIVE_TOOL_FRAGMENT_TAG);
   }
 
   @SuppressLint("CheckResult")
@@ -575,7 +621,7 @@ public class ExperimentActivity extends AppCompatActivity
                           pictureUUID);
                 } else {
                   AccessibilityUtils.makeSnackbar(
-                          findViewById(R.id.experiment_pane),
+                          findViewById(R.id.tool_pane),
                           getResources().getString(R.string.input_camera_permission_denied),
                           Snackbar.LENGTH_LONG)
                       .show();
@@ -603,7 +649,7 @@ public class ExperimentActivity extends AppCompatActivity
   }
 
   private void openGallery() {
-    showFragmentByTag(GALLERY_TAG);
+    openToolFragment(GALLERY_TAG);
   }
 
   private void openDraw() {

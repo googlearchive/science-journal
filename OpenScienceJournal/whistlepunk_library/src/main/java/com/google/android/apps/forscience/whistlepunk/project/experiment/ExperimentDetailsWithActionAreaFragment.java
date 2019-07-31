@@ -387,8 +387,12 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
 
     ActionAreaView actionArea = view.findViewById(R.id.action_area);
     ExperimentActivity experimentActivity = (ExperimentActivity) activity;
-    actionArea.addItems(
-        getContext(), experimentActivity.getActionAreaItems(), experimentActivity);
+    if (experimentActivity.isTwoPane()) {
+      actionArea.setVisibility(View.GONE);
+    } else {
+      actionArea.addItems(
+          getContext(), experimentActivity.getActionAreaItems(), experimentActivity);
+    }
     if (savedInstanceState != null) {
       includeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
       getActivity().invalidateOptionsMenu();
