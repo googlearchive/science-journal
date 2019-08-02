@@ -1772,7 +1772,7 @@ Permissions notice:
     <string name="text_note">Text</string>
 
     <!-- Title for action area button to add a new sensor note [CHAR_LIMIT=25] -->
-    <string name="sensor_note">Sensor</string>
+    <string name="sensor_note">Sensors</string>
 
     <!-- Title for action area button to add a new camera note [CHAR_LIMIT=25] -->
     <string name="camera_note">Camera</string>
