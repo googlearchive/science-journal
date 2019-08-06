@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.StatFs;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.FileProvider;
 import android.util.Log;
@@ -417,5 +419,20 @@ public class FileMetadataUtil {
 
   public String getTrialProtoFileName(String protoId) {
     return RECORDING + protoId + DOT_PROTO;
+  }
+
+  public long getFreeSpaceInMb() {
+    File path = Environment.getDataDirectory();
+    StatFs stat = new StatFs(path.getPath());
+    long blockSize;
+    long availableBlocks;
+    blockSize = stat.getBlockSizeLong();
+    availableBlocks = stat.getAvailableBlocksLong();
+    long bytesFree = availableBlocks * blockSize;
+    long mbFree = bytesFree / (1024 * 1024);
+    if (Log.isLoggable(TAG, Log.INFO)) {
+      Log.i(TAG, "Available storage: " + mbFree);
+    }
+    return mbFree;
   }
 }

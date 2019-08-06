@@ -30,15 +30,18 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 
 /** Activity that lets the user choose what to do with their old experiments. */
 public class OldUserOptionPromptActivity extends AppCompatActivity {
   private static final String TAG = "OldUserOptionPrompt";
   private static final String KEY_SHOULD_LAUNCH =
       "key_should_launch_old_user_option_prompt_activity";
+  private final SnackbarManager snackbarManager = new SnackbarManager();
 
   private int unclaimedExperimentCount;
 
@@ -108,6 +111,16 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
   }
 
   private void showMoveAllExperimentsPrompt() {
+    long mbFree = FileMetadataUtil.getInstance().getFreeSpaceInMb();
+    if (mbFree < 100) {
+      Snackbar bar =
+          AccessibilityUtils.makeSnackbar(
+              findViewById(R.id.prompt_text),
+              getResources().getString(R.string.claim_failed_disk_space),
+              Snackbar.LENGTH_LONG);
+      snackbarManager.showSnackbar(bar);
+      return;
+    }
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
     builder.setTitle(
         getResources()

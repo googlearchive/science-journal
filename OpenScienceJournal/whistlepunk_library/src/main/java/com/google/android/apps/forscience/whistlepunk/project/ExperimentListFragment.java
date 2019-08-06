@@ -1078,6 +1078,13 @@ public class ExperimentListFragment extends Fragment
                     unclaimedExperimentCount));
         holder.claimButton.setOnClickListener(
             v -> {
+              long mbFree = FileMetadataUtil.getInstance().getFreeSpaceInMb();
+              if (mbFree < 100) {
+                showSnackbar(
+                    applicationContext.getResources().getString(R.string.claim_failed_disk_space),
+                    null);
+                return;
+              }
               if (isParentGone()) {
                 return;
               }

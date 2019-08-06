@@ -1660,6 +1660,9 @@ Permissions notice:
     <!-- Text for claim failure toast [CHAR_LIMIT=50] -->
     <string name="claim_failed">Claim failed, submit feedback in the menu.</string>
 
+    <!-- Text for not enough space to claim message [CHAR_LIMIT=50] -->
+    <string name="claim_failed_disk_space">Not enough disk space to claim experiments.</string>
+
     <!-- Text for sync failure toast [CHAR_LIMIT=50] -->
     <string name="sync_failed">Sync failed, try again or submit feedback.</string>
 
