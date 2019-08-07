@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.fragment.app.Fragment;
@@ -50,6 +51,10 @@ public class GetStartedActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_get_started);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
 
     // Before letting the user sign in, get the DataController for the NonSignedInAccount and
     // call DataController.getLastUsedUnarchivedExperiment, which will upgrade the database, if

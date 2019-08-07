@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -39,6 +40,10 @@ public class SensorInfoActivity extends AppCompatActivity {
     final String sensorId = getIntent().getStringExtra(EXTRA_SENSOR_ID);
     final int color = getIntent().getIntExtra(EXTRA_COLOR_ID, R.color.color_primary);
     setContentView(R.layout.activity_sensor_info);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
 
     WhistlePunkApplication.getUsageTracker(this)
         .trackEvent(

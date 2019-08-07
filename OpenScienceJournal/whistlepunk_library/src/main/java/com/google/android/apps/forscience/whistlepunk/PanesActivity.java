@@ -17,6 +17,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -313,6 +314,10 @@ public class PanesActivity extends AppCompatActivity
     PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(this);
     PerfTrackerProvider.TimerToken experimentLoad = perfTracker.startTimer();
     setContentView(R.layout.panes_layout);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
     RxView.layoutChangeEvents(findViewById(R.id.container))
         .subscribe(
             event -> {

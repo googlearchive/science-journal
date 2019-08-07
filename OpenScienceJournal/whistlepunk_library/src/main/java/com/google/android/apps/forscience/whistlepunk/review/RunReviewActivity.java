@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
@@ -71,6 +72,10 @@ public class RunReviewActivity extends MetadataActivity {
     super.onCreate(savedInstanceState);
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
     setContentView(R.layout.activity_run_review);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
 
     fromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
     appAccount =

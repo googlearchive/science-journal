@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.project;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
@@ -48,6 +49,10 @@ public class ClaimExperimentsActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_claim_experiments);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
 
     AppAccount claimingAccount =
         WhistlePunkApplication.getAccount(this, getIntent(), ARG_ACCOUNT_KEY);

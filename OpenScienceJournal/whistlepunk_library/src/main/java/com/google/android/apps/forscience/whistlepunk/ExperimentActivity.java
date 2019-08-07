@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
@@ -133,6 +134,9 @@ public class ExperimentActivity extends AppCompatActivity
 
     Resources resources = getResources();
     boolean isTablet = resources.getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
     boolean isLandscape =
         resources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     isTwoPane = isTablet && isLandscape;

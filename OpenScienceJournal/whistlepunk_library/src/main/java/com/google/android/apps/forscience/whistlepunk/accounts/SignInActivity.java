@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,6 +40,10 @@ public class SignInActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_sign_in);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
 
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
       Fragment fragment = new SignInFragment();

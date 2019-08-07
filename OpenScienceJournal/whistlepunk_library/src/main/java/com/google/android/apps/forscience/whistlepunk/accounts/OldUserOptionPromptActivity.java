@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.snackbar.Snackbar;
@@ -95,6 +96,10 @@ public class OldUserOptionPromptActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.activity_old_user_option_prompt);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
 
     findViewById(R.id.drive_view).setOnClickListener(v -> showMoveAllExperimentsPrompt());
     findViewById(R.id.delete_view).setOnClickListener(v -> showDeleteAllPrompt());

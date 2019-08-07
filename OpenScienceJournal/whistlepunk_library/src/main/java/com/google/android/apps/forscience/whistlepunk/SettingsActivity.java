@@ -19,6 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.appcompat.app.ActionBar;
@@ -51,7 +52,10 @@ public class SettingsActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_settings);
-
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
     AppAccount appAccount = WhistlePunkApplication.getAccount(this, getIntent(), KEY_ACCOUNT_KEY);
 
     ActionBar actionBar = getSupportActionBar();

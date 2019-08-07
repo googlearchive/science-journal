@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.AppCompatActivity;
@@ -92,6 +93,10 @@ public class LabelDetailsActivity extends AppCompatActivity {
 
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_label_details);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
 
     // TODO: Enable transitions between note views in the experiment or trial note list
     // and these activities, similar to RunReview transition. This may involve
