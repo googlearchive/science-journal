@@ -16,27 +16,17 @@
 package com.google.android.apps.forscience.whistlepunk.actionarea;
 
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.res.ResourcesCompat;
 import android.util.AttributeSet;
-import android.view.ContextThemeWrapper;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.whistlepunk.R;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Reusable custom UI component for the action area in Science Journal.
  *
- * <p>ActionAreaView provides an area at either the bottom or the right side of the view to allow
- * users to add notes, take snapshots, add sensors, and take other actions depending on the
- * remainder of the view.
+ * <p>ActionAreaView provides an area at the bottom of the view to allow users to add notes, take
+ * snapshots, add sensors, and take other actions depending on the remainder of the view.
  *
  * <p>The action area will always be visible on screen even if the remaining content on screen is
  * scrollable.
@@ -45,35 +35,28 @@ import java.util.List;
  * actions should be declared in ActionAreaItem to maximize code readability and reuse throughout
  * the many views that contain an action area.
  *
- * <p>To include an action area at the bottom, simply add the following to your layout resource file
- * replacing {@code app:isBottomLayout="true"} with {@code app:isBottomLayout="false"} and swapping
- * the {@code layout_width} and {@code layout_height} if you want the app bar on the right side of
- * the screen instead of at the bottom.
+ * <p>To include an action area, simply add the following to your layout resource file.
  *
  * <pre>
  * &lt;com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView
  *     android:id="@+id/action_area"
- *     android:layout_width="match_parent"
- *     android:layout_height="@dimen/action_area_height"
- *     app:isBottomLayout="true" /&gt;
+ *     style="@style/DefaultActionArea" /&gt;
  * </pre>
  */
-public class ActionAreaView extends LinearLayout {
-  private boolean isBottomLayout = true;
-  private final List<ActionAreaItemView> actionAreaItemViews = new ArrayList<>();
-  private ActionAreaListener listener;
+public class ActionAreaView extends CardView {
+  private final ActionAreaItemView[] actionAreaItemViews = new ActionAreaItemView[4];
 
   public ActionAreaView(@NonNull Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    initView(context, attrs);
+    initView(context);
   }
 
-  private void initView(@NonNull Context context, @Nullable AttributeSet attrs) {
-    if (attrs != null) {
-      TypedArray a =
-          context.getTheme().obtainStyledAttributes(attrs, R.styleable.ActionAreaView, 0, 0);
-      isBottomLayout = a.getBoolean(R.styleable.ActionAreaView_isBottomLayout, true);
-    }
+  private void initView(Context context) {
+    inflate(context, R.layout.action_area, this);
+    actionAreaItemViews[0] = findViewById(R.id.action_area_item_0);
+    actionAreaItemViews[1] = findViewById(R.id.action_area_item_1);
+    actionAreaItemViews[2] = findViewById(R.id.action_area_item_2);
+    actionAreaItemViews[3] = findViewById(R.id.action_area_item_3);
   }
 
   /**
@@ -92,26 +75,12 @@ public class ActionAreaView extends LinearLayout {
       throw new AssertionError("Action area can only hold 4 items");
     }
 
-    // Removing all previously added action area items
-    actionAreaItemViews.clear();
-    removeAllViews();
-    this.listener = listener;
-    if (isBottomLayout) {
-      setOrientation(HORIZONTAL);
-      setBackground(getResources().getDrawable(R.drawable.action_area_view_bottom_bg));
-    } else {
-      setOrientation(VERTICAL);
-      setBackground(getResources().getDrawable(R.drawable.action_area_view_right_bg));
-    }
-
     for (int i = 0; i < 4; i++) {
       ActionAreaItem item = null;
       if (actionAreaItems.length > i) {
         item = actionAreaItems[i];
       }
-      ActionAreaItemView view = new ActionAreaItemView(context, item);
-      actionAreaItemViews.add(view);
-      addView(view);
+      actionAreaItemViews[i].setActionAreaItem(context, item, listener);
     }
   }
 
@@ -124,48 +93,6 @@ public class ActionAreaView extends LinearLayout {
   public void updateColor(Context context, int style) {
     for (ActionAreaItemView item : actionAreaItemViews) {
       item.updateView(context, style);
-    }
-  }
-
-  private class ActionAreaItemView extends LinearLayout {
-    private final ActionAreaItem actionAreaItem;
-
-    private ActionAreaItemView(Context context, ActionAreaItem actionAreaItem) {
-      super(context);
-      this.actionAreaItem = actionAreaItem;
-      initView(context);
-    }
-
-    private void initView(Context context) {
-      inflate(context, R.layout.action_area_item, this);
-      if (isBottomLayout) {
-        setLayoutParams(new LayoutParams(0, LayoutParams.MATCH_PARENT, 1));
-      } else {
-        setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1));
-      }
-      setGravity(Gravity.CENTER);
-      if (actionAreaItem != null) {
-        TextView textView = findViewById(R.id.text_view);
-        textView.setText(actionAreaItem.getContentDescriptionId());
-        textView.setContentDescription(
-            getResources().getString(actionAreaItem.getContentDescriptionId()));
-        updateView(context, R.style.DefaultActionAreaIcon);
-        setOnClickListener((View view) -> listener.onClick(actionAreaItem));
-      }
-    }
-
-    private void updateView(Context context, int style) {
-      if (actionAreaItem != null) {
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(context, style);
-        // Use the correctly colored icon and on touch ripple based on the passed in style
-        Drawable drawable =
-            ResourcesCompat.getDrawable(
-                getResources(), actionAreaItem.getIconId(), wrapper.getTheme());
-        ((TextView) findViewById(R.id.text_view))
-            .setCompoundDrawablesRelativeWithIntrinsicBounds(null, drawable, null, null);
-        setBackground(ResourcesCompat.getDrawable(
-            getResources(), R.drawable.action_area_ripple, wrapper.getTheme()));
-      }
     }
   }
 

@@ -236,10 +236,13 @@
     <!-- Font sizing for sign in screen -->
     <dimen name="sign_in_text_font_size">14sp</dimen>
 
-    <!-- Height of action area for portrait mode-->
-    <dimen name="action_area_height">87dp</dimen>
-    <!-- Width of action area for landscape mode-->
-    <dimen name="action_area_width">87dp</dimen>
+    <!-- Height of action area -->
+    <dimen name="action_area_height">90dp</dimen>
+    <!-- Margins of action area -->
+    <dimen name="action_area_bottom_margin">20dp</dimen>
+    <dimen name="action_area_side_margin">10dp</dimen>
+    <!-- Padding for list above/behind action area -->
+    <dimen name="list_bottom_padding_with_action_area">130dp</dimen>
 
     <!-- Columns in More Observations fragment grid -->
     <integer name="more_observations_column_count">2</integer>

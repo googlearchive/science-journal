@@ -155,4 +155,16 @@
         <item name="icon">@color/action_area_red_dark</item>
         <item name="icon_background">@color/action_area_red_light</item>
     </style>
+
+    <style name="DefaultActionArea">
+        <item name="android:layout_marginStart">@dimen/action_area_side_margin</item>
+        <item name="android:layout_marginEnd">@dimen/action_area_side_margin</item>
+        <item name="android:layout_marginBottom">@dimen/action_area_bottom_margin</item>
+        <item name="android:stateListAnimator">@animator/action_area_elevation</item>
+        <item name="cardCornerRadius">15dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/action_area_height</item>
+    </style>
 </resources>
