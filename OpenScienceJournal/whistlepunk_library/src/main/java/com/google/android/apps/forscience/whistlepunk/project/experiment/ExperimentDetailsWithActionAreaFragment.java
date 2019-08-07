@@ -723,7 +723,7 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
   }
 
   public boolean handleOnBackPressed() {
-    if (progressBar.getVisibility() == View.VISIBLE) {
+    if (progressBar != null && progressBar.getVisibility() == View.VISIBLE) {
       return true;
     }
 
