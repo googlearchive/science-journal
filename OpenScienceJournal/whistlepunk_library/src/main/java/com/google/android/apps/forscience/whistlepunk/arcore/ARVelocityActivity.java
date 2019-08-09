@@ -23,12 +23,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.TooltipCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RecorderController;
+import com.google.android.apps.forscience.whistlepunk.Snapshotter;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.core.AugmentedImage.TrackingMethod;
 import com.google.ar.core.Frame;
@@ -37,8 +45,12 @@ import com.google.ar.core.TrackingState;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.ux.ArFragment;
+import com.google.common.base.Throwables;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /** Activity that allows user to measure velocity of a ARCore tracked object. */
@@ -51,9 +63,15 @@ public class ARVelocityActivity extends AppCompatActivity {
   private float delTime;
   private Vector3 lastPos;
   private Vector3 currPos;
+  private AppAccount appAccount;
+  private AppSingleton singleton;
+  private ImageButton snapshotButton;
+  private RecorderController rc;
+  private String observerId;
+  private VelocitySensor velocitySensor;
 
   // Augmented images that are currently being tracked.
-  private final Set<AugmentedImage> augmentedImageMap = new HashSet<>();
+  private final Set<AugmentedImage> augmentedImageSet = new HashSet<>();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -65,16 +83,32 @@ public class ARVelocityActivity extends AppCompatActivity {
     fitToScanView = findViewById(R.id.image_view_fit_to_scan);
     velocityText = findViewById(R.id.velocity_tracker_velocity_text);
     arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdateFrame);
+    snapshotButton = findViewById(R.id.snapshot_button);
+    appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
+    singleton = AppSingleton.getInstance(this);
+    velocitySensor = singleton.getVelocitySensor();
+
+    setUpRecording();
+
+    attachSnapshotButton(snapshotButton);
   }
 
   @Override
   protected void onResume() {
     super.onResume();
 
-    if (augmentedImageMap.isEmpty()) {
+    if (augmentedImageSet.isEmpty()) {
       fitToScanView.setVisibility(View.VISIBLE);
       velocityText.setVisibility(View.INVISIBLE);
     }
+  }
+
+  @Override
+  protected void onStop() {
+    if (rc != null) {
+      rc.stopObserving(VelocitySensor.ID, observerId);
+    }
+    super.onStop();
   }
 
   public static Intent getIntent(Context context, AppAccount appAccount, String experimentId) {
@@ -100,9 +134,6 @@ public class ARVelocityActivity extends AppCompatActivity {
           // When an image is in the PAUSED state, it has been detected, but not yet tracked.
           velocityText.setVisibility(View.VISIBLE);
           velocityText.setText(getResources().getString(R.string.ar_detecting_image));
-          if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Detected Image " + augmentedImage.getIndex());
-          }
           break;
 
         case TRACKING:
@@ -110,23 +141,22 @@ public class ARVelocityActivity extends AppCompatActivity {
             fitToScanView.setVisibility(View.GONE);
 
             // Create a new anchor for newly found images.
-            if (!augmentedImageMap.contains(augmentedImage)) {
+            if (!augmentedImageSet.contains(augmentedImage)) {
               arFragment.getArSceneView().getSession().createAnchor(augmentedImage.getCenterPose());
-              augmentedImageMap.add(augmentedImage);
+              augmentedImageSet.add(augmentedImage);
             }
 
             calculateVelocity(augmentedImage.getCenterPose(), frameTime.getDeltaSeconds());
           } else {
             lastPos = null;
             velocityText.setText(getResources().getString(R.string.ar_not_tracking));
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-              Log.d(TAG, "Not actively tracking");
-            }
+            snapshotButton.setVisibility(View.GONE);
           }
           break;
 
         case STOPPED:
-          augmentedImageMap.remove(augmentedImage);
+          velocityText.setVisibility(View.INVISIBLE);
+          augmentedImageSet.remove(augmentedImage);
           break;
       }
     }
@@ -142,25 +172,67 @@ public class ARVelocityActivity extends AppCompatActivity {
 
     delTime += deltaSeconds;
 
-    if (Log.isLoggable(TAG, Log.DEBUG)) {
-      Log.d(TAG, String
-          .format("P: %.2f Px: %.2f Py: %.2f Pz: %.2f ", currPos.length(), currPos.x, currPos.y,
-              currPos.z));
-    }
-
     if (lastPos == null) {
       lastPos = currPos;
     } else if (delTime >= INTERVAL_TIME_SECONDS) {
+
       // Calculate velocity in meters per second.
       Vector3 displacement = Vector3.subtract(currPos, lastPos);
-      Vector3 avgVelocity = displacement.scaled(delTime);
+      Vector3 avgVelocity = displacement.scaled(1 / delTime);
+      float velocityValue = avgVelocity.length();
+
       // TODO(b/135678092): Add a string resource for the following
-      velocityText.setText(String.format("%.2f m/s", avgVelocity.length()));
-      if (Log.isLoggable(TAG, Log.DEBUG)) {
-        Log.d(TAG, String.format("V: %.2f", avgVelocity.length()));
-      }
+      velocityText.setText(String.format(Locale.getDefault(), "%.2f m/s", velocityValue));
+      snapshotButton.setVisibility(View.VISIBLE);
+
+      velocitySensor.setNextVelocity(velocityValue);
+
       delTime = 0;
       lastPos = currPos;
     }
   }
+
+  private void setUpRecording(){
+
+    rc = singleton.getRecorderController(appAccount);
+    observerId = rc.startObserving(
+        VelocitySensor.ID,
+        new ArrayList<>(),
+        (timestamp, value) -> {},
+        null,
+        null,
+        singleton.getSensorRegistry());
+  }
+
+  public void attachSnapshotButton(View snapshotButton) {
+    String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
+
+    // Pass in the velocity ID to take a snapshot of just the velocity sensor.
+    List<String> ids = new ArrayList<>();
+    ids.add(VelocitySensor.ID);
+
+    snapshotButton.setOnClickListener(
+        v -> {
+          Snapshotter snapshotter =
+              new Snapshotter(
+                  singleton.getRecorderController(appAccount),
+                  singleton.getDataController(appAccount),
+                  singleton.getSensorRegistry());
+          singleton
+              .getRecorderController(appAccount)
+              .watchRecordingStatus()
+              .firstElement()
+              .flatMapSingle(status -> snapshotter.addSnapshotLabel(experimentId, status, ids))
+              .subscribe(
+                  (Label label) -> singleton.onLabelsAdded().onNext(label),
+                  (Throwable e) -> {
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                      Log.d(TAG, Throwables.getStackTraceAsString(e));
+                    }
+                  });
+        });
+    TooltipCompat.setTooltipText(
+        snapshotButton, getResources().getString(R.string.snapshot_button_description));
+  }
+
 }

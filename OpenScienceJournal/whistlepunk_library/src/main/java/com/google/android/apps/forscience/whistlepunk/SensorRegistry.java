@@ -40,6 +40,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.LinearAcceleromete
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -185,6 +186,7 @@ public class SensorRegistry {
 
   private void addAvailableBuiltinSensors(Context context) {
     final Context appContext = context.getApplicationContext();
+    AppSingleton singleton = AppSingleton.getInstance(appContext);
     AvailableSensors available =
         new AvailableSensors() {
           @Override
@@ -223,6 +225,10 @@ public class SensorRegistry {
 
     if (CompassSensor.isCompassSensorAvailable(available)) {
       addBuiltInSensor(new CompassSensor());
+    }
+
+    if (VelocitySensor.isVelocitySensorAvailable(appContext)) {
+      addBuiltInSensor(singleton.getVelocitySensor());
     }
 
     if (DevOptionsFragment.isAmbientTemperatureSensorEnabled(context)) {

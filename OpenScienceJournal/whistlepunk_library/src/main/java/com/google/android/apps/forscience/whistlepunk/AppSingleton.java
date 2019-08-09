@@ -33,6 +33,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncMana
 import com.google.android.apps.forscience.whistlepunk.metadata.SimpleMetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabaseImpl;
+import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.google.common.base.Optional;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -62,6 +63,7 @@ public class AppSingleton {
   private final AudioSource audioSource = new AudioSource();
   private BleClientImpl bleClient;
   private final Map<AppAccount, RecorderControllerImpl> recorderControllers = new HashMap<>();
+  private VelocitySensor velocitySensor;
   private SensorRegistry sensorRegistry;
   private PrefsSensorHistoryStorage prefsSensorHistoryStorage;
   private Map<String, SensorProvider> externalSensorProviders;
@@ -209,6 +211,13 @@ public class AppSingleton {
       recorderControllers.put(appAccount, recorderController);
     }
     return recorderController;
+  }
+
+  public VelocitySensor getVelocitySensor() {
+    if (velocitySensor == null) {
+      velocitySensor = new VelocitySensor();
+    }
+    return velocitySensor;
   }
 
   // TODO: stop depending on this.  Each experiment should have its own registry

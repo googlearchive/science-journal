@@ -31,6 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.sensors.LinearAcceleromete
 import com.google.android.apps.forscience.whistlepunk.sensors.MagneticStrengthSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SineWavePseudoSensor;
+import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.google.common.base.Preconditions;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
@@ -102,6 +103,23 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     // If we add new on-device sensors/icons, they need to be added here.
 
     // TODO: add these when the sensors are added to the adapter?
+    // TODO(b/138994689): Update the Velocity Sensor icon and strings once they are finalized
+    putAppearance(
+        VelocitySensor.ID,
+        BuiltInSensorAppearance.create(
+            R.string.vel,
+            R.drawable.ic_sensor_acc_y_white_24dp,
+            R.string.vel_units,
+            R.string.sensor_desc_short_acc_x,
+            R.string.sensor_desc_first_paragraph_acc,
+            R.string.sensor_desc_second_paragraph_acc,
+            R.drawable.learnmore_acc,
+            new ImageViewSensorAnimationBehavior(
+                R.drawable.accy_level_drawable,
+                ImageViewSensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE_ROTATES),
+            BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL,
+            VelocitySensor.ID));
+
     putAppearance(
         AccelerometerSensor.Axis.X.getSensorId(),
         BuiltInSensorAppearance.create(

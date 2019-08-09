@@ -59,6 +59,9 @@
     <!-- Displayed name of a sensor that shows a sine wave [CHAR_LIMIT=25] -->
     <string name="sine_wave">Sine wave</string>
 
+    <!-- Displayed name of a sensor that shows velocity from the AR tracker [CHAR_LIMIT=25] -->
+    <string name="vel">Velocity</string>
+
     <!-- Displayed name of a sensor that shows acceleration along the X axis [CHAR_LIMIT=25] -->
     <string name="acc_x">Accelerometer X</string>
 
@@ -82,6 +85,9 @@
 
     <!-- Displayed name of a sensor that records and displays a video stream [CHAR_LIMIT=25] -->
     <string name="video_stream">Video stream</string>
+
+    <!-- Displayed units for a velocity sensor [CHAR_LIMIT=10] -->
+    <string name="vel_units">m/s</string>
 
     <!-- Displayed units for an acceleration sensor [CHAR_LIMIT=10] -->
     <string name="acc_units">m/s\u00B2</string>

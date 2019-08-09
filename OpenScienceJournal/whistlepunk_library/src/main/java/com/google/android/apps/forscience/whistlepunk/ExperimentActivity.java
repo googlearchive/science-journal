@@ -19,15 +19,12 @@ import static com.google.android.apps.forscience.whistlepunk.PictureUtils.REQUES
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -55,7 +52,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsWithActionAreaFragment;
-import com.google.ar.core.ArCoreApk;
+import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -97,11 +94,7 @@ public class ExperimentActivity extends AppCompatActivity
   private String pictureUUID;
   private String pictureRelativePath;
   private String activeToolFragmentTag;
-
   private boolean isTwoPane;
-
-  private static final int ARCORE_QUERY_TIMER_MS = 200;
-  private static final double MIN_OPENGL_VERSION = 3.0;
 
   @NonNull
   public static Intent launchIntent(
@@ -690,7 +683,7 @@ public class ExperimentActivity extends AppCompatActivity
     if (Flags.showDrawOption()) {
       options.add(drawOption);
     }
-    if (isARCoreEnabled()) {
+    if (VelocitySensor.isVelocitySensorAvailable(getApplicationContext())) {
       options.add(velocityTrackerOption);
     }
 
@@ -710,40 +703,5 @@ public class ExperimentActivity extends AppCompatActivity
       actionAreaItems[3] = ActionAreaItem.MORE;
     }
     return actionAreaItems;
-  }
-
-  private boolean isARCoreEnabled() {
-    if (Flags.showVelocityTrackerOption()) {
-
-      // Calling checkAvailability() will determine if ARCore is supported on this device.
-      ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
-
-      // Transient means this state is temporary and we should re-check availability soon.
-      if (availability.isTransient()) {
-        // Set timer to re-query availability while compatibility is checked in the background.
-        // We should not return while availability is transient, so return value is ignored here.
-        new Handler().postDelayed(() -> isARCoreEnabled(), ARCORE_QUERY_TIMER_MS);
-      }
-
-      // Check that the device is compatible with Sceneform.
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        Log.e(TAG, "Sceneform requires Android N or later");
-        return false;
-      }
-
-      // Do a runtime check for the OpenGL level available at runtime.
-      String openGlVersionString =
-        ((ActivityManager) this.getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE))
-            .getDeviceConfigurationInfo()
-            .getGlEsVersion();
-      if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
-        Log.e(TAG, "Sceneform requires OpenGL ES 3.0 or later");
-        return false;
-      }
-
-      // The availability is not transient here so we return whether or not ARCore is supported.
-      return availability.isSupported();
-    }
-    return false;
   }
 }

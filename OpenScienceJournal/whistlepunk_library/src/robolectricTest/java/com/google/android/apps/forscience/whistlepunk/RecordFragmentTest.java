@@ -91,7 +91,7 @@ public class RecordFragmentTest {
     exp.getSensorLayouts().add(layout);
 
     TestObserver<Label> test =
-        new Snapshotter(rc, dc, reg).addSnapshotLabelToHolder(exp, exp).test();
+        new Snapshotter(rc, dc, reg).addSnapshotLabelToHolder(exp, exp, exp.getSensorIds()).test();
     assertTrue(test.await(2, TimeUnit.SECONDS));
     test.assertComplete();
 

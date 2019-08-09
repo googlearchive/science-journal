@@ -21,6 +21,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
+import java.util.List;
 
 public class Snapshotter {
   private final RecorderController recorderController;
@@ -43,17 +46,32 @@ public class Snapshotter {
             e -> {
               LabelListHolder holder =
                   status.isRecording() ? e.getTrial(status.getCurrentRunId()) : e;
-              return addSnapshotLabelToHolder(e, holder);
+              return addSnapshotLabelToHolder(e, holder, e.getSensorIds());
+            });
+  }
+
+  public Single<Label> addSnapshotLabel(String experimentId, RecordingStatus status,
+      List<String> ids) {
+    // When experiment is loaded, add label
+    return RxDataController.getExperimentById(dataController, experimentId)
+        .<Label>flatMap(
+            new Function<Experiment, SingleSource<? extends Label>>() {
+              @Override
+              public SingleSource<? extends Label> apply(Experiment e) throws Exception {
+                LabelListHolder holder =
+                    status.isRecording() ? e.getTrial(status.getCurrentRunId()) : e;
+                return Snapshotter.this.addSnapshotLabelToHolder(e, holder, ids);
+              }
             });
   }
 
   @VisibleForTesting
-  public Single<Label> addSnapshotLabelToHolder(
-      final Experiment selectedExperiment, final LabelListHolder labelListHolder) {
+  public Single<Label> addSnapshotLabelToHolder(final Experiment selectedExperiment,
+      final LabelListHolder labelListHolder, List<String> ids) {
     RecorderController rc = recorderController;
 
     // get proto
-    return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), sensorRegistry)
+    return rc.generateSnapshotLabelValue(ids, sensorRegistry)
 
         // Make it into a label
         .map(
