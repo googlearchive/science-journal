@@ -392,7 +392,7 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     } else {
       actionArea.addItems(
           getContext(), experimentActivity.getActionAreaItems(), experimentActivity);
-      setUpOnScroll(actionArea);
+      actionArea.setUpScrollListener(details);
     }
     if (savedInstanceState != null) {
       includeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
@@ -400,15 +400,6 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     }
 
     return view;
-  }
-
-  public void setUpOnScroll(ActionAreaView actionArea) {
-    details
-        .getViewTreeObserver()
-        .addOnScrollChangedListener(
-            () ->
-                actionArea.setSelected(
-                    details.canScrollVertically(1 /*positive to check scrolling down*/)));
   }
 
   public void loadExperimentData(final Experiment experiment) {

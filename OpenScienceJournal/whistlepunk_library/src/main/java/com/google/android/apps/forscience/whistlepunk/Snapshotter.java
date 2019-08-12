@@ -15,7 +15,9 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.content.Context;
 import androidx.annotation.VisibleForTesting;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
@@ -37,6 +39,14 @@ public class Snapshotter {
     this.recorderController = recorderController;
     this.dataController = dataController;
     this.sensorRegistry = sensorRegistry;
+  }
+
+  public static Snapshotter createFromContext(Context context, AppAccount appAccount) {
+    AppSingleton singleton = AppSingleton.getInstance(context);
+    return new Snapshotter(
+        singleton.getRecorderController(appAccount),
+        singleton.getDataController(appAccount),
+        singleton.getSensorRegistry());
   }
 
   public Single<Label> addSnapshotLabel(String experimentId, RecordingStatus status) {

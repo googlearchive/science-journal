@@ -23,6 +23,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
+import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.PopupMenu;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -171,7 +172,7 @@ public class SensorCardPresenter {
   private boolean isSingleCard = true;
   private View.OnClickListener retryClickListener;
   private boolean paused = false;
-  private final RecordFragment parentFragment;
+  private final Fragment parentFragment;
   private PopupMenu popupMenu;
   private boolean allowRetry = true;
   private CardTriggerPresenter cardTriggerPresenter;
@@ -225,7 +226,7 @@ public class SensorCardPresenter {
       GoosciSensorLayout.SensorLayout layout,
       String experimentId,
       ExternalAxisController.InteractionListener interactionListener,
-      RecordFragment fragment) {
+      Fragment fragment) {
     this.dataViewOptions = dataViewOptions;
     this.sensorSettingsController = sensorSettingsController;
     this.recorderController = recorderController;
@@ -702,9 +703,16 @@ public class SensorCardPresenter {
                   recorderController.getAppAccount().getAccountKey());
               intent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, sensorId);
               intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, experimentId);
-              intent.putExtra(
-                  TriggerListActivity.EXTRA_LAYOUT_POSITION,
-                  parentFragment.getPositionOfLayout(layout));
+              if (parentFragment instanceof SensorFragment) {
+                intent.putExtra(
+                    TriggerListActivity.EXTRA_LAYOUT_POSITION,
+                    ((SensorFragment) parentFragment).getPositionOfLayout(layout));
+              } else if (parentFragment instanceof RecordFragment) {
+                // TODO(b/134590927): Delete this logic when deleting RecordFragment
+                intent.putExtra(
+                    TriggerListActivity.EXTRA_LAYOUT_POSITION,
+                    ((RecordFragment) parentFragment).getPositionOfLayout(layout));
+              }
               parentFragment.getActivity().startActivity(intent);
               return true;
             } else if (itemId == R.id.btn_sensor_card_set_triggers) {
@@ -732,7 +740,12 @@ public class SensorCardPresenter {
       return false;
     }
     layout.activeSensorTriggerIds = null;
-    parentFragment.disableAllTriggers(layout, this);
+    if (parentFragment instanceof SensorFragment) {
+      ((SensorFragment) parentFragment).disableAllTriggers(layout, this);
+    } else if (parentFragment instanceof RecordFragment) {
+      // TODO(b/134590927): Delete this logic when deleting RecordFragment
+      ((RecordFragment) parentFragment).disableAllTriggers(layout, this);
+    }
     return true;
   }
 
@@ -752,8 +765,16 @@ public class SensorCardPresenter {
         TriggerListActivity.EXTRA_ACCOUNT_KEY, recorderController.getAppAccount().getAccountKey());
     intent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, sensorId);
     intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, experimentId);
-    intent.putExtra(
-        TriggerListActivity.EXTRA_LAYOUT_POSITION, parentFragment.getPositionOfLayout(layout));
+    if (parentFragment instanceof SensorFragment) {
+      intent.putExtra(
+          TriggerListActivity.EXTRA_LAYOUT_POSITION,
+          ((SensorFragment) parentFragment).getPositionOfLayout(layout));
+    } else if (parentFragment instanceof RecordFragment) {
+      // TODO(b/134590927): Delete this logic when deleting RecordFragment
+      intent.putExtra(
+          TriggerListActivity.EXTRA_LAYOUT_POSITION,
+          ((RecordFragment) parentFragment).getPositionOfLayout(layout));
+    }
     parentFragment.getActivity().startActivity(intent);
     return true;
   }

@@ -36,6 +36,8 @@ public final class ActionAreaItem {
       new ActionAreaItem(R.string.more, R.drawable.ic_more);
   public static final ActionAreaItem SNAPSHOT
       = new ActionAreaItem(R.string.snapshot, R.drawable.ic_snap_shot);
+  public static final ActionAreaItem ADD_SENSOR =
+      new ActionAreaItem(R.string.add_sensor_card, R.drawable.ic_add_sensor);
 
   private final int contentDescriptionId;
   private final int iconId;

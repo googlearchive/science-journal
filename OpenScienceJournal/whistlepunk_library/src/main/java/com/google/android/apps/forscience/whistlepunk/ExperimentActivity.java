@@ -94,6 +94,7 @@ public class ExperimentActivity extends AppCompatActivity
   private String pictureUUID;
   private String pictureRelativePath;
   private String activeToolFragmentTag;
+  private String experimentId;
   private boolean isTwoPane;
 
   @NonNull
@@ -137,7 +138,7 @@ public class ExperimentActivity extends AppCompatActivity
     recordingBar = findViewById(R.id.recording_progress_bar);
 
     appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
-    String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
+    experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
     // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
     // the experiment stream when this activity is destroyed.
@@ -570,7 +571,7 @@ public class ExperimentActivity extends AppCompatActivity
       case NOTE_TAG:
         return new TextNoteFragment();
       case SENSOR_TAG:
-        // TODO(b/132652303): add sensor fragment
+        return SensorFragment.newInstance(appAccount, experimentId);
       case GALLERY_TAG:
         return GalleryNoteFragment.newInstance(appAccount);
       case MORE_OBSERVATIONS_TAG:

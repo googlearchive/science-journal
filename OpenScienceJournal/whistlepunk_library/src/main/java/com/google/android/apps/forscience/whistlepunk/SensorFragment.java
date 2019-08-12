@@ -39,6 +39,9 @@ import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
@@ -64,7 +67,9 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.base.Suppliers;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
@@ -76,17 +81,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Fragment controlling adding recordings in the observe pane.
- *
- * @deprecated Moving to {@link SensorFragment}.
- */
-@Deprecated
-public class RecordFragment extends PanesToolFragment
+/** Fragment controlling adding sensor recordings in the ExperimentActivity. */
+public class SensorFragment extends Fragment
     implements Handler.Callback,
         StopRecordingNoDataDialog.StopRecordingDialogListener,
-        AudioSettingsDialog.AudioSettingsDialogListener {
-  private static final String TAG = "RecordFragment";
+        AudioSettingsDialog.AudioSettingsDialogListener,
+        ActionAreaListener {
+  private static final String TAG = "SensorFragment";
 
   private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
   private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
@@ -97,9 +98,6 @@ public class RecordFragment extends PanesToolFragment
 
   private static final boolean DEFAULT_AUDIO_ENABLED = false;
   private static final boolean DEFAULT_SHOW_STATS_OVERLAY = false;
-
-  // TODO: this is never written.  Remove this logic
-  private static final String EXTRA_SENSOR_IDS = "sensorIds";
 
   private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
   private final SnackbarManager snackbarManager = new SnackbarManager();
@@ -172,6 +170,8 @@ public class RecordFragment extends PanesToolFragment
   private Handler handler;
   private FeatureDiscoveryProvider featureDiscoveryProvider;
 
+  private ControlBarController controlBarController;
+
   /**
    * Most recent result from {@link RecorderController#pauseObservingAll()}, which must be passed
    * when we resume
@@ -184,18 +184,13 @@ public class RecordFragment extends PanesToolFragment
   RxEvent uiStop = new RxEvent();
   RxEvent contextDetach = new RxEvent();
 
-  public static RecordFragment newInstance(AppAccount appAccount, String experimentId) {
-    RecordFragment fragment = new RecordFragment();
+  public static SensorFragment newInstance(AppAccount appAccount, String experimentId) {
+    SensorFragment fragment = new SensorFragment();
     Bundle args = new Bundle();
     args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(KEY_EXPERIMENT_ID, experimentId);
     fragment.setArguments(args);
     return fragment;
-  }
-
-  public RecordFragment() {
-    whenVisibilityGained().subscribe(o -> startUI());
-    whenVisibilityLost().subscribe(o -> stopUI());
   }
 
   @Override
@@ -221,6 +216,9 @@ public class RecordFragment extends PanesToolFragment
     handler = new Handler(this);
     featureDiscoveryProvider =
         WhistlePunkApplication.getAppServices(getActivity()).getFeatureDiscoveryProvider();
+
+    controlBarController =
+        new ControlBarController(getAppAccount(), getExperimentId(), new SnackbarManager());
 
     setHasOptionsMenu(true);
   }
@@ -270,6 +268,7 @@ public class RecordFragment extends PanesToolFragment
   @Override
   public void onPause() {
     saveCurrentExperiment();
+    stopUI();
     super.onPause();
   }
 
@@ -296,6 +295,7 @@ public class RecordFragment extends PanesToolFragment
     // Reload sensor appearances in case they have changed while away from this fragment,
     getSensorAppearanceProvider()
         .loadAppearances(LoggingConsumer.<Success>expectSuccess(TAG, "Load appearances"));
+    startUI();
   }
 
   private void startUI() {
@@ -348,13 +348,7 @@ public class RecordFragment extends PanesToolFragment
             selectedExperiment -> {
               recordingStatus
                   .firstElement()
-                  .subscribe(
-                      status -> {
-                        if (!readSensorsFromExtras(rc)) {
-                          // By spec, newExperiments should always be non-zero
-                          onSelectedExperimentChanged(selectedExperiment, rc, status);
-                        }
-                      });
+                  .subscribe(status -> onSelectedExperimentChanged(selectedExperiment, rc, status));
             },
             // If this fails to load due to the experiment having been deleted on another
             // device, go ahead and silently catch the error so the entire app doesn't crash.
@@ -362,31 +356,10 @@ public class RecordFragment extends PanesToolFragment
             // back out of the view to get back to an expected state. It is extremely unlikely
             // that a user will hit this case b/124102081
             error -> {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(TAG, "Failed to display sensors.", error);
-                }
+              if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Failed to display sensors.", error);
+              }
             });
-  }
-
-  public boolean readSensorsFromExtras(RecorderController rc) {
-    Bundle extras = getActivity().getIntent().getExtras();
-    if (extras == null) {
-      return false;
-    }
-    String sensorIds = extras.getString(EXTRA_SENSOR_IDS, "");
-    if (TextUtils.isEmpty(sensorIds)) {
-      return false;
-    }
-
-    recordingStatus
-        .firstElement()
-        .subscribe(
-            status -> {
-              List<GoosciSensorLayout.SensorLayout> layouts =
-                  CommandLineSpecs.buildLayouts(sensorIds, RecordFragment.this.getResources());
-              setSensorPresenters(layouts, rc, status);
-            });
-    return true;
   }
 
   private void onNewRecordingStatus(RecordingStatus newStatus) {
@@ -414,19 +387,6 @@ public class RecordFragment extends PanesToolFragment
       }
     }
     recordingWasCanceled = false;
-  }
-
-  @Override
-  public void onDestroyPanesView() {
-    // TODO: extract presenter with lifespan identical to the views.
-    if (sensorCardAdapter != null) {
-      sensorCardAdapter.onDestroy();
-      sensorCardAdapter = null;
-    }
-
-    if (externalAxis != null) {
-      externalAxis.destroy();
-    }
   }
 
   private List<GoosciSensorLayout.SensorLayout> safeSaveCurrentLayouts() {
@@ -469,6 +429,15 @@ public class RecordFragment extends PanesToolFragment
     if (sensorRegistry != null) {
       sensorRegistry.removePendingOperations(TAG);
     }
+
+    if (sensorCardAdapter != null) {
+      sensorCardAdapter.onDestroy();
+      sensorCardAdapter = null;
+    }
+
+    if (externalAxis != null) {
+      externalAxis.destroy();
+    }
     super.onDestroy();
   }
 
@@ -481,10 +450,14 @@ public class RecordFragment extends PanesToolFragment
   }
 
   @Override
-  public View onCreatePanesView(
+  public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     final ViewGroup rootView =
-        (ViewGroup) inflater.inflate(R.layout.fragment_record, container, false);
+        (ViewGroup) inflater.inflate(R.layout.fragment_sensor, container, false);
+    ActionAreaView actionArea = rootView.findViewById(R.id.action_area);
+    ActionAreaItem[] actionAreaItems = {ActionAreaItem.ADD_SENSOR, ActionAreaItem.SNAPSHOT};
+    actionArea.addItems(getContext(), actionAreaItems, this);
+    actionArea.setUpScrollListener(rootView.findViewById(R.id.sensor_card_recycler_view));
 
     View resetButton = rootView.findViewById(R.id.btn_reset);
     ExternalAxisView axisView = (ExternalAxisView) rootView.findViewById(R.id.external_x_axis);
@@ -510,6 +483,9 @@ public class RecordFragment extends PanesToolFragment
 
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, getView());
     sensorCardLayoutManager = new LinearLayoutManager(getActivity());
+
+    FloatingActionButton record = rootView.findViewById(R.id.record);
+    controlBarController.attachRecordButton(record, getFragmentManager());
 
     if (savedInstanceState != null) {
       sensorCardLayoutManager.onRestoreInstanceState(
@@ -704,36 +680,7 @@ public class RecordFragment extends PanesToolFragment
     sensorCardAdapter =
         new SensorCardAdapter(
             sensorCardPresenters,
-            new View.OnClickListener() {
-              @Override
-              public void onClick(View v) {
-                int numAvailableSources = getAvailableSources().size();
-                if (numAvailableSources != 0) {
-                  SensorCardPresenter sensorCardPresenter =
-                      createSensorCardPresenter(
-                          defaultLayout(colorAllocator, sensorCardAdapter.getUsedColors()), rc);
-                  sensorCardPresenter.setActive(
-                      true,
-                      /** force UI updates */
-                      true);
-                  sensorCardAdapter.addSensorCardPresenter(sensorCardPresenter);
-                  updateAvailableSensors();
-                  sensorCardPresenter.initializeSensorSelection();
-                  if (!sensorCardAdapter.canAddMoreCards()) {
-                    // If only one source is left, this is the final card. Because the
-                    // add button will be hidden, we are actually scrolled to this
-                    // positionalready and no scrolling will happen without forcing a
-                    // scroll using scrollToPositionWithOffset.
-                    sensorCardLayoutManager.scrollToPositionWithOffset(
-                        sensorCardAdapter.getItemCount() - 1, 1);
-                  } else {
-                    sensorCardLayoutManager.scrollToPosition(sensorCardAdapter.getItemCount() - 1);
-                  }
-                  activateSensorCardPresenter(sensorCardPresenter, true);
-                  saveCurrentExperiment();
-                }
-              }
-            },
+            null,
             new SensorCardAdapter.CardRemovedListener() {
               @Override
               public void onCardRemoved(SensorCardPresenter sensorCardPresenter) {
@@ -816,6 +763,28 @@ public class RecordFragment extends PanesToolFragment
         .addOnGlobalLayoutListener(() -> adjustSensorCardAddAlpha());
   }
 
+  public void addNewSensor() {
+    int numAvailableSources = getAvailableSources().size();
+    if (numAvailableSources != 0) {
+      // TODO(b/134092906): Disable add sensor button when no more sensors are available, then
+      //  remove the check for numAvailableSources != 0
+      RecorderController rc = getRecorderController();
+      SensorCardPresenter sensorCardPresenter =
+          createSensorCardPresenter(
+              defaultLayout(colorAllocator, sensorCardAdapter.getUsedColors()), rc);
+      sensorCardPresenter.setActive(
+          true,
+          /** force UI updates */
+          true);
+      sensorCardAdapter.addSensorCardPresenter(sensorCardPresenter);
+      updateAvailableSensors();
+      sensorCardPresenter.initializeSensorSelection();
+      sensorCardLayoutManager.scrollToPosition(sensorCardAdapter.getItemCount() - 1);
+      activateSensorCardPresenter(sensorCardPresenter, true);
+      saveCurrentExperiment();
+    }
+  }
+
   private List<String> getAllIncludedSources() {
     return nonEmptySensorList(Lists.newArrayList(sensorRegistry.getIncludedSources()));
   }
@@ -859,9 +828,9 @@ public class RecordFragment extends PanesToolFragment
     if (sensorCardAdapter == null || !sensorCardAdapter.canAddMoreCards()) {
       return;
     }
-    View bottomPanel = getView().findViewById(R.id.bottom_panel);
-    if (bottomPanel != null) {
-      bottomPanel.getHitRect(panelRect);
+    View topPanel = getView().findViewById(R.id.top_panel);
+    if (topPanel != null) {
+      topPanel.getHitRect(panelRect);
     }
     sensorCardAdapter.adjustAddViewAlpha(panelRect);
   }
@@ -1444,5 +1413,32 @@ public class RecordFragment extends PanesToolFragment
       }
     }
     return null;
+  }
+
+  @Override
+  public void onClick(ActionAreaItem item) {
+    if (item.equals(ActionAreaItem.ADD_SENSOR)) {
+      addNewSensor();
+    } else if (item.equals(ActionAreaItem.SNAPSHOT)) {
+      takeSnapshot();
+    }
+  }
+
+  private void takeSnapshot() {
+    AppAccount appAccount = getAppAccount();
+    Snapshotter snapshotter = Snapshotter.createFromContext(getContext(), appAccount);
+    AppSingleton singleton = AppSingleton.getInstance(getContext());
+    singleton
+        .getRecorderController(appAccount)
+        .watchRecordingStatus()
+        .firstElement()
+        .flatMapSingle(status -> snapshotter.addSnapshotLabel(getExperimentId(), status))
+        .subscribe(
+            (Label label) -> singleton.onLabelsAdded().onNext(label),
+            (Throwable e) -> {
+              if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, Throwables.getStackTraceAsString(e));
+              }
+            });
   }
 }

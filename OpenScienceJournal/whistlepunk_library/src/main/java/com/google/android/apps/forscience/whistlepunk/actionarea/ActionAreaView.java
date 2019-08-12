@@ -19,6 +19,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.View;
 import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.whistlepunk.R;
 
@@ -94,6 +95,15 @@ public class ActionAreaView extends CardView {
     for (ActionAreaItemView item : actionAreaItemViews) {
       item.updateView(context, style);
     }
+  }
+
+  public void setUpScrollListener(View scrollingView) {
+    scrollingView
+        .getViewTreeObserver()
+        .addOnScrollChangedListener(
+            () ->
+                this.setSelected(
+                    scrollingView.canScrollVertically(1 /*positive to check scrolling down*/)));
   }
 
   /**

@@ -75,6 +75,7 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       CardRemovedListener cardRemovedListener,
       SensorCardHeaderToggleListener sensorCardHeaderToggleListener) {
     this.sensorCardPresenters = sensorCardPresenters;
+    // TODO(b/134590927): Delete onAddButtonClickListener as part of killing RecordFragment
     this.onAddButtonClickListener = onAddButtonClickListener;
     this.sensorCardHeaderToggleListener = sensorCardHeaderToggleListener;
     this.cardRemovedListener = cardRemovedListener;
@@ -239,7 +240,9 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       cardViewHolder.toggleButton.setOnClickListener(onToggleClickListener);
     } else if (getItemViewType(position) == TYPE_SENSOR_ADD) {
       AddCardViewHolder addCardViewHolder = (AddCardViewHolder) viewHolder;
-      addCardViewHolder.button.setOnClickListener(onAddButtonClickListener);
+      if (onAddButtonClickListener != null) {
+        addCardViewHolder.button.setOnClickListener(onAddButtonClickListener);
+      }
       addView = addCardViewHolder.itemView;
     }
   }
@@ -260,11 +263,19 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   @Override
   public int getItemCount() {
     int size = sensorCardPresenters.size();
-    if (ENABLE_MULTIPLE_SENSOR_CARDS && !uiIsLocked && getMaxSensorCount() > size) {
+    if (shouldShowAddMoreSensorCardsButton()) {
       return size + 1;
     } else {
       return size;
     }
+  }
+
+  private boolean shouldShowAddMoreSensorCardsButton() {
+    int size = sensorCardPresenters.size();
+    return ENABLE_MULTIPLE_SENSOR_CARDS
+        && !uiIsLocked
+        && getMaxSensorCount() > size
+        && !Flags.showActionBar();
   }
 
   @Override
