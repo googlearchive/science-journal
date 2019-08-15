@@ -21,9 +21,10 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.ExperimentStatus;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Manages the Sync Status for Science Journal All changes should be made using the getters and
@@ -33,7 +34,8 @@ import java.util.Arrays;
  */
 public class LocalSyncManager {
   private static final String TAG = "localSyncManager";
-  private GoosciLocalSyncStatus.LocalSyncStatus proto;
+  private final HashMap<String, ExperimentSyncStatus> statusMap = new HashMap<>();
+  private long lastSyncedLibraryVersion = -1L;
   private final AppAccount account;
 
   /** Constructor for an LocalSyncManager that creates a new LocalSyncStatus proto. */
@@ -45,8 +47,10 @@ public class LocalSyncManager {
   @VisibleForTesting
   public LocalSyncManager(
       GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus, AppAccount account) {
-    proto = localSyncStatus;
     this.account = account;
+    if (localSyncStatus != null) {
+      setLocalSyncStatus(localSyncStatus);
+    }
   }
 
   /**
@@ -55,7 +59,11 @@ public class LocalSyncManager {
    * @param localSyncStatus The KicalSyncStatus to manage.
    */
   public void setLocalSyncStatus(GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus) {
-    proto = localSyncStatus;
+    lastSyncedLibraryVersion = localSyncStatus.lastSyncedLibraryVersion;
+    statusMap.clear();
+    for (ExperimentStatus status : localSyncStatus.experimentStatus) {
+      statusMap.put(status.getExperimentId(), new ExperimentSyncStatus(status));
+    }
   }
 
   /**
@@ -75,12 +83,10 @@ public class LocalSyncManager {
    */
   public void addExperiment(String experimentId) {
     populateLocalSyncManager();
-    ArrayList<ExperimentStatus> list = new ArrayList<>(Arrays.asList(proto.experimentStatus));
-    ExperimentStatus status = ExperimentStatus.newBuilder().setExperimentId(experimentId).build();
-    list.add(status);
-    proto.experimentStatus = list.toArray(new ExperimentStatus[list.size()]);
-    proto.lastSyncedLibraryVersion = -1L; // Added to force a sync on claim all.
-    writeLocalSyncStatus();
+    if (!statusMap.containsKey(experimentId)) {
+      statusMap.put(experimentId, new ExperimentSyncStatus(experimentId));
+      writeLocalSyncStatus();
+    }
   }
 
   /**
@@ -89,29 +95,9 @@ public class LocalSyncManager {
    * @param experimentId The id of the experiment to get status for.
    * @return The ExperimentStatus of the experiment, or null if not found.
    */
-  private ExperimentStatus getExperimentStatus(String experimentId) {
+  private ExperimentSyncStatus getExperimentStatus(String experimentId) {
     populateLocalSyncManager();
-    if (experimentId.isEmpty()) {
-      return null;
-    }
-
-    for (ExperimentStatus experimentStatus : proto.experimentStatus) {
-      if (experimentId.equals(experimentStatus.getExperimentId())) {
-        return experimentStatus;
-      }
-    }
-
-    return null;
-  }
-
-  private void updateProtoExperimentStatus(ExperimentStatus newStatus) {
-    for (int i = 0; i < proto.experimentStatus.length; i++) {
-      if (proto.experimentStatus[i].getExperimentId().equals(newStatus.getExperimentId())) {
-        proto.experimentStatus[i] = newStatus;
-        return;
-      }
-    }
-    throw new IllegalArgumentException("Experiment status not found in proto");
+    return statusMap.get(experimentId);
   }
 
   /**
@@ -121,13 +107,14 @@ public class LocalSyncManager {
    * @param experimentId The id of the experiment to set status for.
    */
   public void setDirty(String experimentId, boolean dirty) {
-    ExperimentStatus status = getExperimentStatus(experimentId).toBuilder().setDirty(dirty).build();
-    updateProtoExperimentStatus(status);
-    // Reset the remote version to force a sync.
-    if (dirty) {
-      proto.lastSyncedLibraryVersion = 0;
+    ExperimentSyncStatus status = getExperimentStatus(experimentId);
+    if (status != null) {
+      status.setDirty(dirty);
+      if (dirty) {
+        lastSyncedLibraryVersion = 0L;
+      }
+      writeLocalSyncStatus();
     }
-    writeLocalSyncStatus();
   }
 
   /**
@@ -138,8 +125,11 @@ public class LocalSyncManager {
    * @return Whether or not the experiment has local changes.
    */
   public boolean getDirty(String experimentId) {
-    ExperimentStatus status = getExperimentStatus(experimentId);
-    return status.getDirty();
+    ExperimentSyncStatus status = getExperimentStatus(experimentId);
+    if (status == null) {
+      return false;
+    }
+    return status.isDirty();
   }
 
   /**
@@ -149,10 +139,11 @@ public class LocalSyncManager {
    * @param version The last version of the experiment synced to or from Drive.
    */
   public void setLastSyncedVersion(String experimentId, long version) {
-    ExperimentStatus status =
-        getExperimentStatus(experimentId).toBuilder().setLastSyncedVersion(version).build();
-    updateProtoExperimentStatus(status);
-    writeLocalSyncStatus();
+    ExperimentSyncStatus status = getExperimentStatus(experimentId);
+    if (status != null) {
+      status.setLastSyncedVersion(version);
+      writeLocalSyncStatus();
+    }
   }
 
   /**
@@ -162,7 +153,10 @@ public class LocalSyncManager {
    * @return The last version of the experiment synced to or from Drive.
    */
   public long getLastSyncedVersion(String experimentId) {
-    ExperimentStatus status = getExperimentStatus(experimentId);
+    ExperimentSyncStatus status = getExperimentStatus(experimentId);
+    if (status == null) {
+      return -1L;
+    }
     return status.getLastSyncedVersion();
   }
 
@@ -173,10 +167,11 @@ public class LocalSyncManager {
    * @param archived Whether the server says the experiment is archived.
    */
   public void setServerArchived(String experimentId, boolean archived) {
-    ExperimentStatus status =
-        getExperimentStatus(experimentId).toBuilder().setServerArchived(archived).build();
-    updateProtoExperimentStatus(status);
-    writeLocalSyncStatus();
+    ExperimentSyncStatus status = getExperimentStatus(experimentId);
+    if (status != null) {
+      status.setServerArchived(archived);
+      writeLocalSyncStatus();
+    }
   }
 
   /**
@@ -186,8 +181,11 @@ public class LocalSyncManager {
    * @return Whether the server says the experiment is archived.
    */
   public boolean getServerArchived(String experimentId) {
-    ExperimentStatus status = getExperimentStatus(experimentId);
-    return status.getServerArchived();
+    ExperimentSyncStatus status = getExperimentStatus(experimentId);
+    if (status == null) {
+      return false;
+    }
+    return status.isServerArchived();
   }
 
   /**
@@ -197,10 +195,11 @@ public class LocalSyncManager {
    * @param downloaded Whether the experiment is downloaded.
    */
   public void setDownloaded(String experimentId, boolean downloaded) {
-    ExperimentStatus status =
-        getExperimentStatus(experimentId).toBuilder().setDownloaded(downloaded).build();
-    updateProtoExperimentStatus(status);
-    writeLocalSyncStatus();
+    ExperimentSyncStatus status = getExperimentStatus(experimentId);
+    if (status != null) {
+      status.setDownloaded(downloaded);
+      writeLocalSyncStatus();
+    }
   }
 
   /**
@@ -210,24 +209,27 @@ public class LocalSyncManager {
    * @return Whether the experiment is downloaded.
    */
   public boolean getDownloaded(String experimentId) {
-    ExperimentStatus status = getExperimentStatus(experimentId);
-    return status.getDownloaded();
+    ExperimentSyncStatus status = getExperimentStatus(experimentId);
+    if (status == null) {
+      return true;
+    }
+    return status.isDownloaded();
   }
 
   public long getLastSyncedLibraryVersion() {
     populateLocalSyncManager();
-    return proto.lastSyncedLibraryVersion;
+    return lastSyncedLibraryVersion;
   }
 
   public void setLastSyncedLibraryVersion(long version) {
     populateLocalSyncManager();
-    proto.lastSyncedLibraryVersion = version;
+    this.lastSyncedLibraryVersion = version;
     writeLocalSyncStatus();
   }
 
   private void writeLocalSyncStatus() {
     try {
-      FileMetadataUtil.getInstance().writeLocalSyncStatusFile(proto, account);
+      FileMetadataUtil.getInstance().writeLocalSyncStatusFile(generateProto(), account);
     } catch (IOException ioe) {
       // Would like to do something else here, but not sure what else there really is to do.
       if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -241,8 +243,92 @@ public class LocalSyncManager {
   // thread.
   // TODO(b/111649596) Test this
   private void populateLocalSyncManager() {
-    if (proto == null) {
-      proto = FileMetadataUtil.getInstance().readLocalSyncStatusFile(account);
+    if (statusMap.isEmpty()) {
+      LocalSyncStatus proto = FileMetadataUtil.getInstance().readLocalSyncStatusFile(account);
+      setLocalSyncStatus(proto);
     }
+  }
+
+  private LocalSyncStatus generateProto() {
+    LocalSyncStatus proto = new LocalSyncStatus();
+    proto.lastSyncedLibraryVersion = lastSyncedLibraryVersion;
+    ArrayList<ExperimentStatus> statusList = new ArrayList<>();
+
+    for (ExperimentSyncStatus status : statusMap.values()) {
+      statusList.add(status.generateProto());
+    }
+
+    proto.experimentStatus = statusList.toArray(new ExperimentStatus[statusList.size()]);
+    return proto;
+  }
+}
+
+class ExperimentSyncStatus {
+  private String experimentId;
+  private boolean dirty = true;
+  private long lastSyncedVersion = -1L;
+  private boolean serverArchived = false;
+  private boolean downloaded = false;
+
+  public ExperimentSyncStatus(String id) {
+    experimentId = id;
+  }
+
+  public ExperimentSyncStatus(ExperimentStatus status) {
+    experimentId = status.getExperimentId();
+    dirty = status.getDirty();
+    lastSyncedVersion = status.getLastSyncedVersion();
+    serverArchived = status.getServerArchived();
+    downloaded = status.getDownloaded();
+  }
+
+  public String getExperimentId() {
+    return experimentId;
+  }
+
+  public void setExperimentId(String experimentId) {
+    this.experimentId = experimentId;
+  }
+
+  public boolean isDirty() {
+    return dirty;
+  }
+
+  public void setDirty(boolean dirty) {
+    this.dirty = dirty;
+  }
+
+  public boolean isServerArchived() {
+    return serverArchived;
+  }
+
+  public void setServerArchived(boolean serverArchived) {
+    this.serverArchived = serverArchived;
+  }
+
+  public boolean isDownloaded() {
+    return downloaded;
+  }
+
+  public void setDownloaded(boolean downloaded) {
+    this.downloaded = downloaded;
+  }
+
+  public long getLastSyncedVersion() {
+    return lastSyncedVersion;
+  }
+
+  public void setLastSyncedVersion(long lastSyncedVersion) {
+    this.lastSyncedVersion = lastSyncedVersion;
+  }
+
+  public ExperimentStatus generateProto() {
+    ExperimentStatus.Builder builder = ExperimentStatus.newBuilder();
+    builder.setExperimentId(experimentId);
+    builder.setDirty(dirty);
+    builder.setLastSyncedVersion(lastSyncedVersion);
+    builder.setServerArchived(serverArchived);
+    builder.setDownloaded(downloaded);
+    return builder.build();
   }
 }
