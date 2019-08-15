@@ -31,6 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version.FileVersion;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
@@ -44,7 +45,6 @@ import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -64,7 +64,6 @@ public class Experiment extends LabelListHolder {
   public static final String EXPERIMENTS = "experiments/";
 
   private GoosciUserMetadata.ExperimentOverview experimentOverview;
-  private GoosciExperiment.Experiment proto;
   private List<GoosciSensorLayout.SensorLayout> sensorLayouts;
   private List<ExperimentSensor> experimentSensors;
   private List<SensorTrigger> sensorTriggers;
@@ -72,12 +71,14 @@ public class Experiment extends LabelListHolder {
   private final List<Change> changes;
   private String title;
   private String description;
+  private final FileVersion fileVersion;
   // Relative to the experiment, not the account root.
   private String imagePath;
   private int trialCount;
   private int totalTrials;
   private boolean isArchived;
   private long lastUsedTimeMs;
+  private final long creationTimeMs;
 
   public static Experiment newExperiment(long creationTime, String experimentId, int colorIndex) {
     GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
@@ -130,38 +131,46 @@ public class Experiment extends LabelListHolder {
   private Experiment(
       GoosciExperiment.Experiment experimentProto,
       GoosciUserMetadata.ExperimentOverview experimentOverview) {
-    this.proto = experimentProto;
+
     ExperimentOverview experimentOverview1 = experimentOverview;
     labels = new ArrayList<>();
-    for (GoosciLabel.Label labelProto : this.proto.labels) {
+    for (GoosciLabel.Label labelProto : experimentProto.labels) {
       labels.add(Label.fromLabel(labelProto));
     }
     trials = new ArrayList<>();
-    for (GoosciTrial.Trial trial : this.proto.trials) {
+    for (GoosciTrial.Trial trial : experimentProto.trials) {
       trials.add(Trial.fromTrial(trial));
     }
     sensorTriggers = new ArrayList<>();
-    for (GoosciSensorTrigger.SensorTrigger proto : this.proto.sensorTriggers) {
+    for (GoosciSensorTrigger.SensorTrigger proto : experimentProto.sensorTriggers) {
       sensorTriggers.add(SensorTrigger.fromProto(proto));
     }
     changes = new ArrayList<>();
-    for (GoosciExperiment.Change proto : this.proto.changes) {
+    for (GoosciExperiment.Change proto : experimentProto.changes) {
       addChange(Change.fromProto(proto));
     }
 
-    title = this.proto.title;
-    description = this.proto.description;
+    sensorLayouts = new ArrayList<>();
+    Collections.addAll(sensorLayouts, experimentProto.sensorLayouts);
+
+    experimentSensors = new ArrayList<>();
+    Collections.addAll(experimentSensors, experimentProto.experimentSensors);
+
+    title = experimentProto.title;
+    description = experimentProto.description;
     lastUsedTimeMs = experimentOverview1.lastUsedTimeMs;
-    if (!Strings.isNullOrEmpty(this.proto.imagePath)) {
+    if (!Strings.isNullOrEmpty(experimentProto.imagePath)) {
       // Relative to the experiment, not the account root.
-      imagePath = getPathRelativeToExperiment(this.proto.imagePath);
+      imagePath = getPathRelativeToExperiment(experimentProto.imagePath);
     } else {
       // Overview is relative to the account root. Be sure to trim 2 levels
       imagePath = getPathRelativeToExperiment(experimentOverview1.imagePath);
     }
     isArchived = experimentOverview1.isArchived;
-    totalTrials = this.proto.totalTrials;
+    totalTrials = experimentProto.totalTrials;
     trialCount = experimentOverview1.trialCount;
+    creationTimeMs = experimentProto.creationTimeMs;
+    fileVersion = experimentProto.fileVersion;
     this.experimentOverview = experimentOverview1;
   }
 
@@ -172,7 +181,55 @@ public class Experiment extends LabelListHolder {
    * @return The experiment's underlying protocolbuffer.
    */
   public GoosciExperiment.Experiment getExperimentProto() {
-    updateExperimentProto();
+    // All local fields that represent experiment state must be merged back into the proto here.
+    GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+    if (sensorLayouts != null) {
+      proto.sensorLayouts =
+          sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
+    }
+
+    if (experimentSensors != null) {
+      proto.experimentSensors =
+          experimentSensors.toArray(new ExperimentSensor[experimentSensors.size()]);
+    }
+
+    if (sensorTriggers != null) {
+      proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[sensorTriggers.size()];
+      int index = 0;
+      for (SensorTrigger trigger : sensorTriggers) {
+        proto.sensorTriggers[index++] = trigger.getTriggerProto();
+      }
+    }
+
+    if (trials != null) {
+      proto.trials = new GoosciTrial.Trial[trials.size()];
+      int index = 0;
+      for (Trial trial : trials) {
+        proto.trials[index++] = trial.getTrialProto();
+      }
+    }
+
+    if (labels != null) {
+      proto.labels = new GoosciLabel.Label[labels.size()];
+      int index = 0;
+      for (Label label : labels) {
+        proto.labels[index++] = label.getLabelProto();
+      }
+    }
+    if (changes != null) {
+      proto.changes = new GoosciExperiment.Change[changes.size()];
+      int index = 0;
+      for (Change change : changes) {
+        proto.changes[index++] = change.getChangeProto();
+      }
+    }
+    // Relative to the experiment.
+    proto.imagePath = getPathRelativeToExperiment(imagePath);
+    proto.title = title;
+    proto.description = description;
+    proto.totalTrials = totalTrials;
+    proto.fileVersion = fileVersion;
+    proto.creationTimeMs = creationTimeMs;
     return proto;
   }
 
@@ -199,7 +256,7 @@ public class Experiment extends LabelListHolder {
   }
 
   public long getCreationTimeMs() {
-    return proto.creationTimeMs;
+    return creationTimeMs;
   }
 
   public void setArchived(Context context, AppAccount appAccount, boolean archived) {
@@ -367,12 +424,12 @@ public class Experiment extends LabelListHolder {
   public void setTrials(List<Trial> trials) {
     this.trials = Preconditions.checkNotNull(trials);
     experimentOverview.trialCount = this.trials.size();
-    proto.totalTrials = this.trials.size();
+    totalTrials = this.trials.size();
 
     // Make sure it isn't any larger than this. That's possible if runs were deleted.
     for (int i = 0; i < trials.size(); i++) {
-      if (trials.get(i).getTrialNumberInExperiment() > proto.totalTrials) {
-        proto.totalTrials = trials.get(i).getTrialNumberInExperiment();
+      if (trials.get(i).getTrialNumberInExperiment() > totalTrials) {
+        totalTrials = trials.get(i).getTrialNumberInExperiment();
       }
     }
   }
@@ -506,9 +563,6 @@ public class Experiment extends LabelListHolder {
   }
 
   public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
-    if (sensorLayouts == null) {
-      sensorLayouts = new ArrayList<>(Arrays.asList(proto.sensorLayouts));
-    }
     return sensorLayouts;
   }
 
@@ -528,9 +582,6 @@ public class Experiment extends LabelListHolder {
   }
 
   public List<ExperimentSensor> getExperimentSensors() {
-    if (experimentSensors == null) {
-      experimentSensors = new ArrayList<>(Arrays.asList(proto.experimentSensors));
-    }
     return experimentSensors;
   }
 
@@ -623,60 +674,6 @@ public class Experiment extends LabelListHolder {
     }
   }
 
-  /**
-   * Updates the experiment protocol buffer. This should be done before the protocol buffer is saved
-   * because otherwise it may not reflect the latest changes to the experiment.
-   */
-  private void updateExperimentProto() {
-    // All local fields that represent experiment state must be merged back into the proto here.
-
-    if (sensorLayouts != null) {
-      proto.sensorLayouts =
-          sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
-    }
-
-    if (experimentSensors != null) {
-      proto.experimentSensors =
-          experimentSensors.toArray(new ExperimentSensor[experimentSensors.size()]);
-    }
-
-    if (sensorTriggers != null) {
-      proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[sensorTriggers.size()];
-      int index = 0;
-      for (SensorTrigger trigger : sensorTriggers) {
-        proto.sensorTriggers[index++] = trigger.getTriggerProto();
-      }
-    }
-
-    if (trials != null) {
-      proto.trials = new GoosciTrial.Trial[trials.size()];
-      int index = 0;
-      for (Trial trial : trials) {
-        proto.trials[index++] = trial.getTrialProto();
-      }
-    }
-
-    if (labels != null) {
-      proto.labels = new GoosciLabel.Label[labels.size()];
-      int index = 0;
-      for (Label label : labels) {
-        proto.labels[index++] = label.getLabelProto();
-      }
-    }
-    if (changes != null) {
-      proto.changes = new GoosciExperiment.Change[changes.size()];
-      int index = 0;
-      for (Change change : changes) {
-        proto.changes[index++] = change.getChangeProto();
-      }
-    }
-    // Relative to the experiment.
-    proto.imagePath = getPathRelativeToExperiment(imagePath);
-    proto.title = title;
-    proto.description = description;
-    proto.totalTrials = totalTrials;
-  }
-
   public List<String> getSensorIds() {
     List<GoosciSensorLayout.SensorLayout> sensorLayoutList = getSensorLayouts();
     List<String> sensorIds = new ArrayList<>();
@@ -731,15 +728,6 @@ public class Experiment extends LabelListHolder {
 
   public List<Change> getChanges() {
     return changes;
-  }
-
-  @VisibleForTesting
-  public int getVersion() {
-    return proto.fileVersion.getVersion();
-  }
-
-  int getMinorVersion() {
-    return proto.fileVersion.getMinorVersion();
   }
 
   /**
@@ -806,7 +794,6 @@ public class Experiment extends LabelListHolder {
   public FileSyncCollection mergeFrom(
       Experiment externalExperiment, Context context, AppAccount appAccount, boolean overwrite) {
     if (overwrite) {
-      proto = externalExperiment.proto;
       changes.clear();
       changes.addAll(externalExperiment.changes);
       trials.clear();

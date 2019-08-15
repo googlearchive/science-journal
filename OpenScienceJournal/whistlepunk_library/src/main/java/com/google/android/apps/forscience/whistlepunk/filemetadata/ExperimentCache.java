@@ -350,9 +350,9 @@ class ExperimentCache {
   /** Writes the active experiment to a file. */
   @VisibleForTesting
   void writeActiveExperimentFile() {
-    if (activeExperiment.getVersion() > VERSION
-        || activeExperiment.getVersion() == VERSION
-            && activeExperiment.getMinorVersion() > MINOR_VERSION) {
+    GoosciExperiment.Experiment proto = activeExperiment.getExperimentProto();
+    if ((proto.version > VERSION)
+        || (proto.version == VERSION && proto.minorVersion > MINOR_VERSION)) {
       // If the major version is too new, or the minor version is too new, we can't save this.
       // TODO: Or should this throw onWriteFailed?
       failureListener.onNewerVersionDetected(activeExperiment.getExperimentOverview());
