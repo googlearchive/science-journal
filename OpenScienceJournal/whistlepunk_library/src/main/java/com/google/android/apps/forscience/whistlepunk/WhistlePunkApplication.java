@@ -106,6 +106,16 @@ public abstract class WhistlePunkApplication extends Application {
         public CloudSyncProvider getCloudSyncProvider() {
           return cloudSyncProvider;
         }
+
+        @Override
+        public PerfTrackerProvider getPerfTrackerProvider() {
+          return perfTrackerProvider;
+        }
+
+        @Override
+        public Map<String, SensorDiscoverer> getSensorDiscoverers() {
+          return sensorDiscoverers;
+        }
       };
 
   public static AppServices getAppServices(Context context) {
@@ -127,13 +137,11 @@ public abstract class WhistlePunkApplication extends Application {
   }
 
   public static Map<String, SensorDiscoverer> getExternalSensorDiscoverers(Context context) {
-    WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
-    return app.sensorDiscoverers;
+    return getAppServices(context).getSensorDiscoverers();
   }
 
   public static PerfTrackerProvider getPerfTrackerProvider(Context context) {
-    WhistlePunkApplication app = (WhistlePunkApplication) context.getApplicationContext();
-    return app.perfTrackerProvider;
+    return getAppServices(context).getPerfTrackerProvider();
   }
 
   public static Intent getLaunchIntentForPanesActivity(

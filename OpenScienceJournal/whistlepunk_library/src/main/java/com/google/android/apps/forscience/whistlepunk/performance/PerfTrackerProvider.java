@@ -21,6 +21,71 @@ import android.content.Context;
 import java.util.UUID;
 
 public interface PerfTrackerProvider {
+
+  PerfTrackerProvider STUB = new PerfTrackerProvider() {
+    @Override
+    public TimerToken startTimer() {
+      return null;
+    }
+
+    @Override
+    public void stopTimer(TimerToken token, String eventName) {
+    }
+
+    @Override
+    public void startGlobalTimer(String eventName) {
+    }
+
+    @Override
+    public void stopGlobalTimer(String eventName) {
+    }
+
+    @Override
+    public void stopGlobalTimer(String eventName, String newEventName) {
+    }
+
+    @Override
+    public boolean startPerfTrackerEventDebugActivity(Context context) {
+      return false;
+    }
+
+    @Override
+    public void startJankRecorder(String eventName) {
+    }
+
+    @Override
+    public void stopJankRecorder(String eventName) {
+    }
+
+    @Override
+    public void watchForMemoryLeak(Object object) {
+    }
+
+    @Override
+    public void recordBatterySnapshotOnForegroundServiceStart() {
+    }
+
+    @Override
+    public void recordBatterySnapshotOnForegroundServiceStop() {
+    }
+
+    @Override
+    public void recordBatterySnapshot(String eventName) {
+    }
+
+    @Override
+    public void onAppCreate(Application app) {
+    }
+
+    @Override
+    public void onActivityInit() {
+    }
+
+    @Override
+    public void onAppInteractive() {
+    }
+  };
+
   class TimerToken {
     private UUID uuid;
 

@@ -19,10 +19,14 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.StubCloudSyncProvider;
+import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.feedback.FeedbackProvider;
 import com.google.android.apps.forscience.whistlepunk.licenses.LicenseProvider;
+import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.squareup.leakcanary.RefWatcher;
+import java.util.HashMap;
+import java.util.Map;
 
 public interface AppServices {
   AppServices STUB =
@@ -66,6 +70,16 @@ public interface AppServices {
         public CloudSyncProvider getCloudSyncProvider() {
           return new StubCloudSyncProvider();
         }
+
+        @Override
+        public PerfTrackerProvider getPerfTrackerProvider() {
+          return PerfTrackerProvider.STUB;
+        }
+
+        @Override
+        public Map<String, SensorDiscoverer> getSensorDiscoverers() {
+          return new HashMap<>();
+        }
       };
 
   RefWatcher getRefWatcher();
@@ -83,4 +97,8 @@ public interface AppServices {
   LicenseProvider getLicenseProvider();
 
   CloudSyncProvider getCloudSyncProvider();
+
+  PerfTrackerProvider getPerfTrackerProvider();
+
+  Map<String, SensorDiscoverer> getSensorDiscoverers();
 }
