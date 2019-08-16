@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncColle
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
@@ -954,7 +955,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       metaDataManager.moveExperimentToAnotherAccount(experiment, targetAccount);
 
       // Move scalar sensor data.
-      List<GoosciScalarSensorData.ScalarSensorDataDump> scalarSensorData =
+      List<ScalarSensorDataDump> scalarSensorData =
           sensorDatabase.getScalarReadingProtosAsList(experiment.getExperimentProto());
       ScalarSensorDumpReader scalarSensorDumpReader =
           new ScalarSensorDumpReader(targetDataController);

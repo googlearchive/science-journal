@@ -19,10 +19,9 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.BatchDataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +47,9 @@ public class ScalarSensorDumpReader {
   public void readData(
       GoosciScalarSensorData.ScalarSensorData scalarSensorData, Map<String, String> idMap) {
     int zoomBufferSize = zoomLevelBetweenTiers * 2;
-    for (GoosciScalarSensorData.ScalarSensorDataDump sensor : scalarSensorData.sensors) {
-      ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.tag, zoomBufferSize, 1);
-      String trialId = idMap.get(sensor.trialId);
+    for (ScalarSensorDataDump sensor : scalarSensorData.sensors) {
+      ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.getTag(), zoomBufferSize, 1);
+      String trialId = idMap.get(sensor.getTrialId());
       zoomRecorder.setTrialId(trialId);
       try (BatchDataController batchController = new BatchDataController(dataController)) {
         addAllRows(sensor, zoomRecorder, trialId, batchController);
@@ -62,11 +61,11 @@ public class ScalarSensorDumpReader {
     }
   }
 
-  public void readData(List<GoosciScalarSensorData.ScalarSensorDataDump> scalarSensorData) {
+  public void readData(List<ScalarSensorDataDump> scalarSensorData) {
     int zoomBufferSize = zoomLevelBetweenTiers * 2;
-    for (GoosciScalarSensorData.ScalarSensorDataDump sensor : scalarSensorData) {
-      ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.tag, zoomBufferSize, 1);
-      String trialId = sensor.trialId;
+    for (ScalarSensorDataDump sensor : scalarSensorData) {
+      ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.getTag(), zoomBufferSize, 1);
+      String trialId = sensor.getTrialId();
       zoomRecorder.setTrialId(trialId);
       try (BatchDataController batchController = new BatchDataController(dataController)) {
         addAllRows(sensor, zoomRecorder, trialId, batchController);
@@ -78,12 +77,11 @@ public class ScalarSensorDumpReader {
     }
   }
 
-  public void readData(
-      @MigrateAs(Destination.EITHER) GoosciScalarSensorData.ScalarSensorDataDump sensor) {
+  public void readData(ScalarSensorDataDump sensor) {
     int zoomBufferSize = zoomLevelBetweenTiers * 2;
 
-    ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.tag, zoomBufferSize, 1);
-    String trialId = sensor.trialId;
+    ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.getTag(), zoomBufferSize, 1);
+    String trialId = sensor.getTrialId();
     zoomRecorder.setTrialId(trialId);
     try (BatchDataController batchController = new BatchDataController(dataController)) {
       addAllRows(sensor, zoomRecorder, trialId, batchController);
@@ -95,16 +93,16 @@ public class ScalarSensorDumpReader {
   }
 
   private void addAllRows(
-      @MigrateAs(Destination.EITHER) GoosciScalarSensorData.ScalarSensorDataDump sensor,
+      ScalarSensorDataDump sensor,
       ZoomRecorder zoomRecorder,
       String trialId,
       RecordingDataController batchController) {
-    for (ScalarSensorDataRow row : sensor.rows) {
+    for (ScalarSensorDataRow row : sensor.getRowsList()) {
       addData(
           batchController,
           zoomRecorder,
           trialId,
-          sensor.tag,
+          sensor.getTag(),
           row.getTimestampMillis(),
           row.getValue());
     }

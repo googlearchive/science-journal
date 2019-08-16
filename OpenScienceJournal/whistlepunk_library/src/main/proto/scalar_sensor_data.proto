@@ -36,7 +36,7 @@ message ScalarSensorData {
 }
 
 message ScalarSensorDataDump {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   optional string tag = 1;
   repeated ScalarSensorDataRow rows = 2;

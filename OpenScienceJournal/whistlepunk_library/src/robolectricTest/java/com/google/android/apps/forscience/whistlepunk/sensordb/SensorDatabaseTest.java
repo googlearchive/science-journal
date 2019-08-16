@@ -24,6 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -345,9 +346,9 @@ public class SensorDatabaseTest {
     db.addScalarReading(trial.trialId, "foo", 0, timestamp + 4, value);
 
     GoosciScalarSensorData.ScalarSensorData data = db.getScalarReadingProtos(experiment);
-    assertEquals("foo", data.sensors[0].tag);
-    assertEquals(2, data.sensors[0].rows.length);
-    assertEquals(trial.trialId, data.sensors[0].trialId);
+    assertEquals("foo", data.sensors[0].getTag());
+    assertEquals(2, data.sensors[0].getRowsCount());
+    assertEquals(trial.trialId, data.sensors[0].getTrialId());
   }
 
   @Test
@@ -381,8 +382,8 @@ public class SensorDatabaseTest {
     db.addScalarReading("0", "foo", 0, timestamp + 4, value);
 
     GoosciScalarSensorData.ScalarSensorData data = db.getScalarReadingProtos(experiment);
-    assertEquals("foo", data.sensors[0].tag);
-    assertEquals(2, data.sensors[0].rows.length);
+    assertEquals("foo", data.sensors[0].getTag());
+    assertEquals(2, data.sensors[0].getRowsCount());
   }
 
   @Test
@@ -396,11 +397,11 @@ public class SensorDatabaseTest {
     db.addScalarReading("id", "foo", 0, timestamp + 2, value);
     db.addScalarReading("id", "bar", 0, timestamp + 2, value);
     db.addScalarReading("id", "foo", 0, timestamp + 4, value);
-    GoosciScalarSensorData.ScalarSensorDataDump sensor =
+    ScalarSensorDataDump sensor =
         db.getScalarReadingSensorProtos(
             "id", "foo", TimeRange.oldest(Range.closed(timestamp - 1, timestamp + 3)));
-    assertEquals("foo", sensor.tag);
-    assertEquals(2, sensor.rows.length);
+    assertEquals("foo", sensor.getTag());
+    assertEquals(2, sensor.getRowsCount());
   }
 
   @Test
@@ -414,11 +415,11 @@ public class SensorDatabaseTest {
     db.addScalarReading("id", "foo", 0, timestamp + 2, value);
     db.addScalarReading("id", "bar", 0, timestamp + 2, value);
     db.addScalarReading("id", "foo", 0, timestamp + 4, value);
-    GoosciScalarSensorData.ScalarSensorDataDump sensor =
+    ScalarSensorDataDump sensor =
         db.getScalarReadingSensorProtos(
             "id", "foobar", TimeRange.oldest(Range.closed(timestamp - 1, timestamp + 3)));
-    assertEquals("foobar", sensor.tag);
-    assertEquals(0, sensor.rows.length);
+    assertEquals("foobar", sensor.getTag());
+    assertEquals(0, sensor.getRowsCount());
   }
 
   @Test
@@ -451,11 +452,10 @@ public class SensorDatabaseTest {
     db.addScalarReading(trial.trialId, "bar", 0, timestamp + 2, value);
     db.addScalarReading(trial.trialId, "foo", 0, timestamp + 4, value);
 
-    List<GoosciScalarSensorData.ScalarSensorDataDump> data =
-        db.getScalarReadingProtosAsList(experiment);
-    assertEquals("foo", data.get(0).tag);
-    assertEquals(2, data.get(0).rows.length);
-    assertEquals(trial.trialId, data.get(0).trialId);
+    List<ScalarSensorDataDump> data = db.getScalarReadingProtosAsList(experiment);
+    assertEquals("foo", data.get(0).getTag());
+    assertEquals(2, data.get(0).getRowsCount());
+    assertEquals(trial.trialId, data.get(0).getTrialId());
   }
 
   @Before
