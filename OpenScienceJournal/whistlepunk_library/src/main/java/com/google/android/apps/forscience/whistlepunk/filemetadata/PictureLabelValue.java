@@ -16,10 +16,8 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import androidx.annotation.VisibleForTesting;
+import com.google.android.apps.forscience.whistlepunk.LabelValuePojo;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue.LabelValue.ValueType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 
 /** A Label which is represented by a set of pictures. */
 @Deprecated
@@ -27,18 +25,18 @@ public class PictureLabelValue extends LabelValue {
   private static final String KEY_FILE_PATH = "file_path";
   private static final String KEY_CAPTION = "caption";
 
-  public PictureLabelValue(GoosciLabelValue.LabelValue value) {
+  public PictureLabelValue(LabelValuePojo value) {
     super(value);
-  }
-
-  public static PictureLabelValue fromPicture(String path, String caption) {
-    return new PictureLabelValue(createLabelValue(path, caption));
   }
 
   @VisibleForTesting
   PictureLabelValue() {
     super();
-    value.type = ValueType.PICTURE;
+    value.setType(ValueType.PICTURE);
+  }
+
+  public static PictureLabelValue fromPicture(String path, String caption) {
+    return new PictureLabelValue(createLabelValue(path, caption));
   }
 
   @Override
@@ -48,6 +46,10 @@ public class PictureLabelValue extends LabelValue {
 
   public String getFilePath() {
     return getFilePath(getValue());
+  }
+
+  public static String getFilePath(LabelValuePojo value) {
+    return value.getDataOrDefault(KEY_FILE_PATH, "");
   }
 
   /** @return the pure disk path of the file, without any "file" prepending. */
@@ -60,11 +62,6 @@ public class PictureLabelValue extends LabelValue {
       filePath = filePath.substring("file:".length());
     }
     return filePath;
-  }
-
-  public static String getFilePath(
-      @MigrateAs(Destination.EITHER) GoosciLabelValue.LabelValue value) {
-    return value.getDataOrDefault(KEY_FILE_PATH, "");
   }
 
   /** Changes the path for this picture label value. */
@@ -85,29 +82,22 @@ public class PictureLabelValue extends LabelValue {
     return getCaption(getValue());
   }
 
-  public static String getCaption(
-      @MigrateAs(Destination.EITHER) GoosciLabelValue.LabelValue value) {
+  public static String getCaption(LabelValuePojo value) {
     return value.getDataOrDefault(KEY_CAPTION, "");
   }
 
-  public static void clearCaption(
-      @MigrateAs(Destination.BUILDER) GoosciLabelValue.LabelValue value) {
+  public static void clearCaption(LabelValuePojo value) {
     value.putData(KEY_CAPTION, "");
   }
 
-  public static void populateLabelValue(
-      @MigrateAs(Destination.BUILDER) GoosciLabelValue.LabelValue value,
-      String path,
-      String caption) {
-    value.type = ValueType.PICTURE;
+  public static void populateLabelValue(LabelValuePojo value, String path, String caption) {
+    value.setType(ValueType.PICTURE);
     value.putData(KEY_FILE_PATH, path);
     value.putData(KEY_CAPTION, caption);
   }
 
-  @MigrateAs(Destination.EITHER)
-  private static GoosciLabelValue.LabelValue createLabelValue(String path, String caption) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
+  private static LabelValuePojo createLabelValue(String path, String caption) {
+    LabelValuePojo value = new LabelValuePojo();
     populateLabelValue(value, path, caption);
     return value;
   }

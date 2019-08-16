@@ -33,6 +33,7 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
+import com.google.android.apps.forscience.whistlepunk.LabelValuePojo;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
@@ -104,7 +105,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
   private Context context;
   private AppAccount appAccount;
   private Clock clock;
-  private Object lock = new Object();
+  private final Object lock = new Object();
   private FileMetadataManager fileMetadataManager;
   private final ExperimentLibraryManager experimentLibraryManager;
   private final LocalSyncManager localSyncManager;
@@ -1292,7 +1293,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     values.put(LabelColumns.LABEL_ID, label.getLabelId());
     values.put(LabelColumns.START_LABEL_ID, trialId);
     // The database will only ever have one label value per label, so this is OK here.
-    values.put(LabelColumns.VALUE, MessageNano.toByteArray(labelValue.getValue()));
+    values.put(LabelColumns.VALUE, MessageNano.toByteArray(labelValue.getValue().toProto()));
     db.insert(Tables.LABELS, null, values);
   }
 
@@ -1315,7 +1316,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     values.put(LabelColumns.TIMESTAMP, label.getTimeStamp());
     values.put(LabelColumns.LABEL_ID, label.getLabelId());
     values.put(LabelColumns.START_LABEL_ID, label.getTrialId());
-    values.put(LabelColumns.VALUE, MessageNano.toByteArray(label.getValue()));
+    values.put(LabelColumns.VALUE, MessageNano.toByteArray(label.getValue().toProto()));
     synchronized (lock) {
       final SQLiteDatabase db = dbHelper.getWritableDatabase();
       db.insert(Tables.LABELS, null, values);
@@ -1382,11 +1383,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
         // TODO: fix code smell: perhaps make a factory?
         final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
         long timestamp = cursor.getLong(LabelQuery.TIMESTAMP_INDEX);
-        GoosciLabelValue.LabelValue value = null;
+        LabelValuePojo value = null;
         try {
           byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
           if (blob != null) {
-            value = GoosciLabelValue.LabelValue.parseFrom(blob);
+            value = new LabelValuePojo(GoosciLabelValue.LabelValue.parseFrom(blob));
           }
         } catch (InvalidProtocolBufferNanoException ex) {
           Log.d(TAG, "Unable to parse label value");
@@ -1509,11 +1510,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
         final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
         final String trialId = cursor.getString(LabelQuery.START_LABEL_ID_INDEX);
         long timestamp = cursor.getLong(LabelQuery.TIMESTAMP_INDEX);
-        GoosciLabelValue.LabelValue value = null;
+        LabelValuePojo value = null;
         try {
           byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
           if (blob != null) {
-            value = GoosciLabelValue.LabelValue.parseFrom(blob);
+            value = new LabelValuePojo(GoosciLabelValue.LabelValue.parseFrom(blob));
           }
         } catch (InvalidProtocolBufferNanoException ex) {
           Log.d(TAG, "Unable to parse label value");
@@ -1535,28 +1536,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
       }
     }
     return labels;
-  }
-
-  private void setStats(String trialId, String sensorId, TrialStats stats) {
-    ContentValues values = new ContentValues();
-    values.put(RunStatsColumns.START_LABEL_ID, trialId);
-    values.put(RunStatsColumns.SENSOR_TAG, sensorId);
-    RunStats runStats = RunStats.fromTrialStats(stats);
-    for (String key : runStats.getKeys()) {
-      values.put(RunStatsColumns.STAT_NAME, key);
-      values.put(RunStatsColumns.STAT_VALUE, runStats.getStat(key));
-      synchronized (lock) {
-        final SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.insert(Tables.RUN_STATS, null, values);
-      }
-    }
-    // Add the status too
-    values.put(RunStatsColumns.STAT_NAME, StatsAccumulator.KEY_STATUS);
-    values.put(RunStatsColumns.STAT_VALUE, runStats.getStatus());
-    synchronized (lock) {
-      final SQLiteDatabase db = dbHelper.getWritableDatabase();
-      db.insert(Tables.RUN_STATS, null, values);
-    }
   }
 
   private static TrialStats getDatabaseStats(SQLiteDatabase db, String trialId, String sensorId) {
@@ -1648,7 +1627,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     synchronized (lock) {
       final SQLiteDatabase db = dbHelper.getWritableDatabase();
       final ContentValues values = new ContentValues();
-      values.put(LabelColumns.VALUE, MessageNano.toByteArray(updatedLabel.getValue()));
+      values.put(LabelColumns.VALUE, MessageNano.toByteArray(updatedLabel.getValue().toProto()));
       values.put(LabelColumns.TIMESTAMP, updatedLabel.getTimeStamp());
       db.update(
           Tables.LABELS,

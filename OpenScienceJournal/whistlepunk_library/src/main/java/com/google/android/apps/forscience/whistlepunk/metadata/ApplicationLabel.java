@@ -17,9 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
 import androidx.annotation.IntDef;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.android.apps.forscience.whistlepunk.LabelValuePojo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -61,10 +59,9 @@ public class ApplicationLabel {
   private String trialId;
 
   /** The value of this label. */
-  private GoosciLabelValue.LabelValue value;
+  private LabelValuePojo value;
 
-  public ApplicationLabel(
-      String id, String startLabelId, long timestamp, GoosciLabelValue.LabelValue value) {
+  public ApplicationLabel(String id, String startLabelId, long timestamp, LabelValuePojo value) {
     this(id, startLabelId, timestamp);
     this.value = value;
   }
@@ -89,10 +86,8 @@ public class ApplicationLabel {
     super();
   }
 
-  @MigrateAs(Destination.EITHER)
-  private static GoosciLabelValue.LabelValue createStorageValue(@Type int type) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
+  private static LabelValuePojo createStorageValue(@Type int type) {
+    LabelValuePojo value = new LabelValuePojo();
     value.putData(KEY_VALUE_TYPE, String.valueOf(type));
     return value;
   }
@@ -110,7 +105,7 @@ public class ApplicationLabel {
   }
 
   /** @return Bundle value of this label's contents. */
-  public GoosciLabelValue.LabelValue getValue() {
+  public LabelValuePojo getValue() {
     return value;
   };
 

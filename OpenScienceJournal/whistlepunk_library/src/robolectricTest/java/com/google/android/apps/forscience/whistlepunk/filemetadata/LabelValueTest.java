@@ -17,8 +17,8 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static junit.framework.Assert.assertEquals;
 
+import com.google.android.apps.forscience.whistlepunk.LabelValuePojo;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -40,7 +40,7 @@ public class LabelValueTest {
 
   @Test
   public void testPictureLabelValue() {
-    GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
+    LabelValuePojo value = new LabelValuePojo();
     PictureLabelValue.populateLabelValue(value, "path/to/photo", "cheese!");
 
     assertEquals("path/to/photo", PictureLabelValue.getFilePath(value));
@@ -59,7 +59,7 @@ public class LabelValueTest {
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
             "note",
             7.5);
-    GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
+    LabelValuePojo value = new LabelValuePojo();
     SensorTriggerLabelValue.populateLabelValue(value, trigger, "note");
 
     assertEquals("note", SensorTriggerLabelValue.getCustomText(value));

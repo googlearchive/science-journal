@@ -15,28 +15,27 @@
  */
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.LabelValuePojo;
 
 /** Interprets a label */
-// TODO: This will be deprecated. Rename to LegacyLabelValue, and rename classes that inherit
-// from it as well.
+// TODO(b/139426335): Rename to LegacyLabelValue, and rename classes that inherit from it as well.
 @Deprecated
 public abstract class LabelValue {
-  GoosciLabelValue.LabelValue value;
+  LabelValuePojo value;
 
-  public LabelValue(GoosciLabelValue.LabelValue value) {
+  public LabelValue(LabelValuePojo value) {
     this.value = value;
   }
 
   public LabelValue() {
-    value = new GoosciLabelValue.LabelValue();
+    value = new LabelValuePojo();
   }
 
-  public GoosciLabelValue.LabelValue getValue() {
+  public LabelValuePojo getValue() {
     return value;
   }
 
-  protected void setValue(GoosciLabelValue.LabelValue value) {
+  protected void setValue(LabelValuePojo value) {
     this.value = value;
   }
 
