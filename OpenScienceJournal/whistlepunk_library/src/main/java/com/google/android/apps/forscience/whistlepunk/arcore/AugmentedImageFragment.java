@@ -75,7 +75,7 @@ public class AugmentedImageFragment extends ArFragment {
     }
 
     // Load the pre-existing augmented image database.
-    try (InputStream is = getResources().openRawResource(R.raw.sj_logo)) {
+    try (InputStream is = getResources().openRawResource(R.raw.sj_logo_tracker)) {
       augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, is);
     } catch (IOException e) {
       Log.e(TAG, "IO exception loading augmented image database.", e);

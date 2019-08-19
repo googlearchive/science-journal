@@ -22,6 +22,7 @@ import static com.google.android.apps.forscience.whistlepunk.ExperimentActivity.
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.TooltipCompat;
 import android.util.Log;
@@ -30,11 +31,15 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.ControlBarController;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
+import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
 import com.google.android.apps.forscience.whistlepunk.Snapshotter;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.google.ar.core.AugmentedImage;
@@ -65,8 +70,11 @@ public class ARVelocityActivity extends AppCompatActivity {
   private Vector3 currPos;
   private AppAccount appAccount;
   private AppSingleton singleton;
+  private String experimentId;
   private ImageButton snapshotButton;
+  private ImageButton recordButton;
   private RecorderController rc;
+  private ControlBarController cbc;
   private String observerId;
   private VelocitySensor velocitySensor;
 
@@ -76,7 +84,6 @@ public class ARVelocityActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     setContentView(R.layout.activity_ar);
 
     arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
@@ -84,13 +91,21 @@ public class ARVelocityActivity extends AppCompatActivity {
     velocityText = findViewById(R.id.velocity_tracker_velocity_text);
     arFragment.getArSceneView().getScene().addOnUpdateListener(this::onUpdateFrame);
     snapshotButton = findViewById(R.id.snapshot_button);
+    recordButton = findViewById(R.id.record_button);
     appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
+    experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
     singleton = AppSingleton.getInstance(this);
+    rc = singleton.getRecorderController(appAccount);
     velocitySensor = singleton.getVelocitySensor();
+    cbc = new ControlBarController(appAccount, experimentId, new SnackbarManager());
 
     setUpRecording();
 
-    attachSnapshotButton(snapshotButton);
+    // Hiding button after previous method call, which sets visibility to true due to
+    // ControlBarController's methods. We don't want the
+    // button to be shown until the image tracking has started. Once Action Area is completed, we
+    // probably won't be using ControlBarController and should revisit this then.
+    recordButton.setVisibility(View.GONE);
   }
 
   @Override
@@ -116,6 +131,27 @@ public class ARVelocityActivity extends AppCompatActivity {
     intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
     return intent;
+  }
+
+  private void setUpRecording(){
+
+    // Note: this will probably change when we have an on-screen graph.
+    observerId = rc.startObserving(
+        VelocitySensor.ID,
+        new ArrayList<>(),
+        (timestamp, value) -> {},
+        null,
+        null,
+        singleton.getSensorRegistry());
+
+    RxDataController.getExperimentById(singleton.getDataController(appAccount), experimentId)
+        .subscribe(
+            experiment -> {
+              rc.setSelectedExperiment(experiment);
+              attachSnapshotButton(snapshotButton);
+              cbc.attachRecordButton(recordButton, getSupportFragmentManager());
+            });
+    rc.setLayoutSupplier(() -> buildLayouts());
   }
 
   private void onUpdateFrame(FrameTime frameTime) {
@@ -145,12 +181,14 @@ public class ARVelocityActivity extends AppCompatActivity {
               arFragment.getArSceneView().getSession().createAnchor(augmentedImage.getCenterPose());
               augmentedImageSet.add(augmentedImage);
             }
-
             calculateVelocity(augmentedImage.getCenterPose(), frameTime.getDeltaSeconds());
+            snapshotButton.setVisibility(View.VISIBLE);
+            recordButton.setVisibility(View.VISIBLE);
           } else {
             lastPos = null;
             velocityText.setText(getResources().getString(R.string.ar_not_tracking));
             snapshotButton.setVisibility(View.GONE);
+            recordButton.setVisibility(View.GONE);
           }
           break;
 
@@ -163,19 +201,15 @@ public class ARVelocityActivity extends AppCompatActivity {
   }
 
   private void calculateVelocity(Pose centerPose, float deltaSeconds){
-
     Pose anchorPose = arFragment.getArSceneView().getSession().getAllAnchors().iterator().next()
         .getPose();
-
     currPos = Vector3.subtract(new Vector3(centerPose.tx(), centerPose.ty(), centerPose.tz()),
         new Vector3(anchorPose.tx(), anchorPose.ty(), anchorPose.tz()));
-
     delTime += deltaSeconds;
 
     if (lastPos == null) {
       lastPos = currPos;
     } else if (delTime >= INTERVAL_TIME_SECONDS) {
-
       // Calculate velocity in meters per second.
       Vector3 displacement = Vector3.subtract(currPos, lastPos);
       Vector3 avgVelocity = displacement.scaled(1 / delTime);
@@ -183,8 +217,6 @@ public class ARVelocityActivity extends AppCompatActivity {
 
       // TODO(b/135678092): Add a string resource for the following
       velocityText.setText(String.format(Locale.getDefault(), "%.2f m/s", velocityValue));
-      snapshotButton.setVisibility(View.VISIBLE);
-
       velocitySensor.setNextVelocity(velocityValue);
 
       delTime = 0;
@@ -192,21 +224,14 @@ public class ARVelocityActivity extends AppCompatActivity {
     }
   }
 
-  private void setUpRecording(){
-
-    rc = singleton.getRecorderController(appAccount);
-    observerId = rc.startObserving(
-        VelocitySensor.ID,
-        new ArrayList<>(),
-        (timestamp, value) -> {},
-        null,
-        null,
-        singleton.getSensorRegistry());
+  @NonNull
+  public List<GoosciSensorLayout.SensorLayout> buildLayouts() {
+    List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+    layouts.add(velocitySensor.buildLayout());
+    return layouts;
   }
 
   public void attachSnapshotButton(View snapshotButton) {
-    String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
-
     // Pass in the velocity ID to take a snapshot of just the velocity sensor.
     List<String> ids = new ArrayList<>();
     ids.add(VelocitySensor.ID);
@@ -234,5 +259,4 @@ public class ARVelocityActivity extends AppCompatActivity {
     TooltipCompat.setTooltipText(
         snapshotButton, getResources().getString(R.string.snapshot_button_description));
   }
-
 }

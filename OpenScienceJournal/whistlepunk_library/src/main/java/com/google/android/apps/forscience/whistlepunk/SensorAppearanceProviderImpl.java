@@ -117,7 +117,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
             new ImageViewSensorAnimationBehavior(
                 R.drawable.accy_level_drawable,
                 ImageViewSensorAnimationBehavior.TYPE_ACCELEROMETER_SCALE_ROTATES),
-            BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL,
+            2 /* 2 decimal places */,
             VelocitySensor.ID));
 
     putAppearance(

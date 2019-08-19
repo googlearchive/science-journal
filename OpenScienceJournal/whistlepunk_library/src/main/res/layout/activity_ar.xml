@@ -64,4 +64,20 @@
       style="?attr/borderlessButtonStyle"
       />
 
+  <ImageButton
+      android:id="@+id/record_button"
+      android:layout_width="@dimen/accessibility_touch_target_min_size"
+      android:layout_height="@dimen/accessibility_touch_target_min_size"
+      android:layout_marginTop="300dp"
+      android:layout_marginEnd="150dp"
+      android:visibility="gone"
+      android:src="@drawable/ic_recording_red_42dp"
+      android:alpha="@dimen/icon_active_alpha"
+      android:contentDescription="@string/btn_record_description"
+      android:layout_gravity="center"
+      android:scaleType="center"
+      android:background="?attr/selectableItemBackgroundBorderless"
+      style="?attr/borderlessButtonStyle"
+      />
+
 </FrameLayout>
