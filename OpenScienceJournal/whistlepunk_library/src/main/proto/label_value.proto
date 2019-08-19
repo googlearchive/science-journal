@@ -18,8 +18,6 @@ syntax = "proto2";
 
 package goosci;
 
-import "third_party/android/nanoproto/nano_descriptor.proto";
-
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciLabelValue";
 option objc_class_prefix = "GSJ";
@@ -30,8 +28,6 @@ option optimize_for = LITE_RUNTIME;
  * This is deprecated in V2.
  */
 message LabelValue {
-  option (proto2.nano.message_as_lite) = false;
-
   // Data can be used to store a diverse set of label values. Each label type
   // should have its own set of keys into this map to store required
   // information. For example, a text label might have a key for the text field,
@@ -42,12 +38,10 @@ message LabelValue {
   // knowing ahead of time which label types might exist. Other files, like
   // images, can be referenced using this map and should be named by a unique
   // GUID and placed in the assets directory within the experiment.
-  map<string, string> data = 1 [(proto2.nano.generate_as) = LITE];
+  map<string, string> data = 1;
 
   // TODO: document how data and proto_data are written and read for each type
   enum ValueType {
-    option (proto2.nano.enum_as_lite) = true;
-
     TEXT = 1;  // A text label.
     PICTURE =
         2;  // A label that has a picture and may also have a text caption.

@@ -323,12 +323,12 @@ class ExperimentSyncStatus {
   }
 
   public ExperimentStatus generateProto() {
-    ExperimentStatus.Builder builder = ExperimentStatus.newBuilder();
-    builder.setExperimentId(experimentId);
-    builder.setDirty(dirty);
-    builder.setLastSyncedVersion(lastSyncedVersion);
-    builder.setServerArchived(serverArchived);
-    builder.setDownloaded(downloaded);
-    return builder.build();
+    return ExperimentStatus.newBuilder()
+        .setExperimentId(experimentId)
+        .setDirty(dirty)
+        .setLastSyncedVersion(lastSyncedVersion)
+        .setServerArchived(serverArchived)
+        .setDownloaded(downloaded)
+        .build();
   }
 }

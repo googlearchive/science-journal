@@ -65,13 +65,14 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import com.google.protobuf.ExtensionRegistryLite;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
@@ -1293,7 +1294,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     values.put(LabelColumns.LABEL_ID, label.getLabelId());
     values.put(LabelColumns.START_LABEL_ID, trialId);
     // The database will only ever have one label value per label, so this is OK here.
-    values.put(LabelColumns.VALUE, MessageNano.toByteArray(labelValue.getValue().toProto()));
+    values.put(LabelColumns.VALUE, labelValue.getValue().toProto().toByteArray());
     db.insert(Tables.LABELS, null, values);
   }
 
@@ -1316,7 +1317,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     values.put(LabelColumns.TIMESTAMP, label.getTimeStamp());
     values.put(LabelColumns.LABEL_ID, label.getLabelId());
     values.put(LabelColumns.START_LABEL_ID, label.getTrialId());
-    values.put(LabelColumns.VALUE, MessageNano.toByteArray(label.getValue().toProto()));
+    values.put(LabelColumns.VALUE, label.getValue().toProto().toByteArray());
     synchronized (lock) {
       final SQLiteDatabase db = dbHelper.getWritableDatabase();
       db.insert(Tables.LABELS, null, values);
@@ -1387,9 +1388,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
         try {
           byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
           if (blob != null) {
-            value = new LabelValuePojo(GoosciLabelValue.LabelValue.parseFrom(blob));
+            value =
+                new LabelValuePojo(
+                    GoosciLabelValue.LabelValue.parseFrom(
+                        blob, ExtensionRegistryLite.getGeneratedRegistry()));
           }
-        } catch (InvalidProtocolBufferNanoException ex) {
+        } catch (InvalidProtocolBufferException ex) {
           Log.d(TAG, "Unable to parse label value");
         }
         GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
@@ -1514,9 +1518,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
         try {
           byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
           if (blob != null) {
-            value = new LabelValuePojo(GoosciLabelValue.LabelValue.parseFrom(blob));
+            value =
+                new LabelValuePojo(
+                    GoosciLabelValue.LabelValue.parseFrom(
+                        blob, ExtensionRegistryLite.getGeneratedRegistry()));
           }
-        } catch (InvalidProtocolBufferNanoException ex) {
+        } catch (InvalidProtocolBufferException ex) {
           Log.d(TAG, "Unable to parse label value");
         }
         if (value == null) {
@@ -1627,7 +1634,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     synchronized (lock) {
       final SQLiteDatabase db = dbHelper.getWritableDatabase();
       final ContentValues values = new ContentValues();
-      values.put(LabelColumns.VALUE, MessageNano.toByteArray(updatedLabel.getValue().toProto()));
+      values.put(LabelColumns.VALUE, updatedLabel.getValue().toProto().toByteArray());
       values.put(LabelColumns.TIMESTAMP, updatedLabel.getTimeStamp());
       db.update(
           Tables.LABELS,

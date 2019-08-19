@@ -15,11 +15,9 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue.LabelValue.ValueType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -30,22 +28,20 @@ public class LabelValuePojo {
   private ValueType type;
 
   public LabelValuePojo() {
-    type = ValueType.TEXT;
   }
 
   public LabelValuePojo(GoosciLabelValue.LabelValue proto) {
     data.putAll(proto.getDataMap());
-    type = proto.type;
+    type = proto.hasType() ? proto.getType() : null;
   }
 
   public GoosciLabelValue.LabelValue toProto() {
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabelValue.LabelValue proto = new GoosciLabelValue.LabelValue();
-    proto.putAllData(data);
+    GoosciLabelValue.LabelValue.Builder builder =
+        GoosciLabelValue.LabelValue.newBuilder().putAllData(data);
     if (type != null) {
-      proto.type = type;
+      builder.setType(type);
     }
-    return proto;
+    return builder.build();
   }
 
   public void putData(String key, String value) {
@@ -69,7 +65,7 @@ public class LabelValuePojo {
   }
 
   public ValueType getType() {
-    return type;
+    return (type != null) ? type : ValueType.TEXT;
   }
 
   @Override

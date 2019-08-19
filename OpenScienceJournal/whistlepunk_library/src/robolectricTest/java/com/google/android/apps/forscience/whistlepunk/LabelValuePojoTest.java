@@ -18,12 +18,10 @@ package com.google.android.apps.forscience.whistlepunk;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue.LabelValue.ValueType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabelValue;
 import com.google.common.testing.EqualsTester;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.nano.MessageNano;
+import com.google.common.truth.extensions.proto.LiteProtoTruth;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -33,24 +31,22 @@ import org.robolectric.RobolectricTestRunner;
  */
 @RunWith(RobolectricTestRunner.class)
 public class LabelValuePojoTest {
-  private static final GoosciLabelValue.LabelValue defaultProto = new GoosciLabelValue.LabelValue();
-  private static final GoosciLabelValue.LabelValue proto;
-  static {
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabelValue.LabelValue builder = new GoosciLabelValue.LabelValue();
-    builder.type = ValueType.PICTURE;
-    builder.putData("favoriteColor", "purple");
-    builder.putData("favoriteFood", "lobster");
-    proto = builder;
-  }
+  private static final GoosciLabelValue.LabelValue DEFAULT_PROTO =
+      GoosciLabelValue.LabelValue.getDefaultInstance();
+  private static final GoosciLabelValue.LabelValue PROTO =
+      GoosciLabelValue.LabelValue.newBuilder()
+          .setType(ValueType.PICTURE)
+          .putData("favoriteColor", "purple")
+          .putData("favoriteFood", "lobster")
+          .build();
 
   @Test
   public void testToProto() {
     LabelValuePojo defaultPojo = new LabelValuePojo();
-    assertThat(MessageNano.toByteArray(defaultPojo.toProto())).isEqualTo(MessageNano.toByteArray(defaultProto));
+    LiteProtoTruth.assertThat(defaultPojo.toProto()).isEqualTo(DEFAULT_PROTO);
 
-    LabelValuePojo pojo = new LabelValuePojo(proto);
-    assertThat(MessageNano.toByteArray(pojo.toProto())).isEqualTo(MessageNano.toByteArray(proto));
+    LabelValuePojo pojo = new LabelValuePojo(PROTO);
+    LiteProtoTruth.assertThat(pojo.toProto()).isEqualTo(PROTO);
   }
 
   @Test
@@ -58,7 +54,7 @@ public class LabelValuePojoTest {
     LabelValuePojo defaultPojo = new LabelValuePojo();
     assertThat(defaultPojo.getType()).isEqualTo(ValueType.TEXT);
 
-    LabelValuePojo pojo = new LabelValuePojo(proto);
+    LabelValuePojo pojo = new LabelValuePojo(PROTO);
     assertThat(pojo.getType()).isEqualTo(ValueType.PICTURE);
   }
 
@@ -67,7 +63,7 @@ public class LabelValuePojoTest {
     LabelValuePojo defaultPojo = new LabelValuePojo();
     assertThrows(IllegalArgumentException.class, () -> defaultPojo.getDataOrThrow("Elvis"));
 
-    LabelValuePojo pojo = new LabelValuePojo(proto);
+    LabelValuePojo pojo = new LabelValuePojo(PROTO);
     assertThat(pojo.getDataOrThrow("favoriteColor")).isEqualTo("purple");
     assertThrows(IllegalArgumentException.class, () -> pojo.getDataOrThrow("Elvis"));
   }
@@ -77,7 +73,7 @@ public class LabelValuePojoTest {
     LabelValuePojo defaultPojo = new LabelValuePojo();
     assertThat(defaultPojo.getDataOrDefault("favoriteCar", "Prius")).isEqualTo("Prius");
 
-    LabelValuePojo pojo = new LabelValuePojo(proto);
+    LabelValuePojo pojo = new LabelValuePojo(PROTO);
     assertThat(pojo.getDataOrDefault("favoriteColor", "orange")).isEqualTo("purple");
     assertThat(pojo.getDataOrDefault("favoriteCar", "Prius")).isEqualTo("Prius");
   }
@@ -85,9 +81,9 @@ public class LabelValuePojoTest {
   @Test
   public void testEquals() {
     LabelValuePojo defaultPojo1 = new LabelValuePojo();
-    LabelValuePojo defaultPojo2 = new LabelValuePojo(defaultProto);
+    LabelValuePojo defaultPojo2 = new LabelValuePojo(DEFAULT_PROTO);
 
-    LabelValuePojo pojo1 = new LabelValuePojo(proto);
+    LabelValuePojo pojo1 = new LabelValuePojo(PROTO);
     LabelValuePojo pojo2 = new LabelValuePojo();
     pojo2.setType(ValueType.PICTURE);
     pojo2.putData("favoriteColor", "purple");
