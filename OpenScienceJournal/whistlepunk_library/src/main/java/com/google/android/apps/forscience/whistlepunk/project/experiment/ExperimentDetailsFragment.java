@@ -94,7 +94,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Senso
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.apps.forscience.whistlepunk.review.ExportOptionsDialogFragment;
 import com.google.android.apps.forscience.whistlepunk.review.PinnedNoteAdapter;
-import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.review.labels.LabelDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
@@ -1672,7 +1672,7 @@ public class ExperimentDetailsFragment extends Fragment
 
       button.setOnClickListener(
           view ->
-              RunReviewActivity.launch(
+              RunReviewDeprecatedActivity.launch(
                   noteHolder.getContext(),
                   parentReference.get().appAccount,
                   runId,
@@ -1695,7 +1695,7 @@ public class ExperimentDetailsFragment extends Fragment
         if (!isRecording()) {
           // Can't click into details pages when recording.
           String runId = (String) v.getTag(R.id.run_title_text);
-          RunReviewActivity.launch(
+          RunReviewDeprecatedActivity.launch(
               v.getContext(),
               parentReference.get().appAccount,
               runId,

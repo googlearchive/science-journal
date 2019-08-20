@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
-import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity;
 
 /**
  * Foreground service that keeps our application alive while recorders are recording.
@@ -92,12 +92,16 @@ public class RecorderService extends Service implements IRecorderService {
 
   private void notifyRecordingEnded(
       AppAccount appAccount, String runId, String experimentId, String experimentTitle) {
-    Intent intent = new Intent(getApplicationContext(), RunReviewActivity.class);
-
-    intent.putExtra(RunReviewFragment.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
-    intent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, experimentId);
-    intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, runId);
-    intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, 0);
+    Intent intent;
+    if (Flags.showActionBar()) {
+      intent =
+          RunReviewActivity.createLaunchIntent(
+              getApplicationContext(), appAccount, runId, experimentId, 0, false, false, false);
+    } else {
+      intent =
+          RunReviewDeprecatedActivity.createLaunchIntent(
+              getApplicationContext(), appAccount, runId, experimentId, 0, false, false, false);
+    }
     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
     PendingIntent notificationIntent =

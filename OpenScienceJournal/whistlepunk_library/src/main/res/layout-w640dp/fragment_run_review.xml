@@ -44,6 +44,7 @@
         android:id="@+id/pinned_note_list"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_gravity="top|center_horizontal"
+        android:clipToPadding="false"
         />
 
     <include layout="@layout/run_review_below_app_bar_layout"/>
@@ -57,6 +58,11 @@
         app:layout_anchorGravity="bottom|center_horizontal"
         android:visibility="gone"
         />
+
+    <com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView
+        android:id="@+id/action_area"
+        style="@style/DefaultActionArea"
+        android:layout_gravity="bottom"/>
 
 </com.google.android.apps.forscience.whistlepunk.review.FreezeableCoordinatorLayout>
 

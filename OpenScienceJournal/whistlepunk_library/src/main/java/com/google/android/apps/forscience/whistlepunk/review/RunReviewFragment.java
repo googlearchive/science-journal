@@ -60,6 +60,7 @@ import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
+import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
@@ -76,6 +77,7 @@ import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
@@ -141,9 +143,6 @@ public class RunReviewFragment extends Fragment
   private int loadingStatus = GRAPH_LOAD_STATUS_IDLE;
 
   public static final double MILLIS_IN_A_SECOND = 1000.0;
-
-  public static final int LABEL_TYPE_TEXT = 0;
-  public static final int LABEL_TYPE_PICTURE = 1;
 
   private ImageButton runReviewPlaybackButton;
   private AudioPlaybackController audioPlaybackController;
@@ -484,7 +483,31 @@ public class RunReviewFragment extends Fragment
     chartController.setShowStatsOverlay(showStatsOverlay);
     runReviewOverlay.setChartController(chartController);
 
+    ActionAreaView actionArea = rootView.findViewById(R.id.action_area);
+    Activity activity = getActivity();
+    if (activity instanceof RunReviewActivity) {
+      RunReviewActivity runReviewActivity = (RunReviewActivity) activity;
+      if (runReviewActivity.isTwoPane()) {
+        actionArea.setVisibility(View.GONE);
+      } else {
+        actionArea.addItems(
+            getContext(), runReviewActivity.getActionAreaItems(), runReviewActivity);
+        RecyclerView pinnedNoteList = rootView.findViewById(R.id.pinned_note_list);
+        pinnedNoteList.setPadding(
+            0,
+            0,
+            0,
+            getResources().getDimensionPixelOffset(R.dimen.list_bottom_padding_with_action_area));
+        actionArea.setUpScrollListener(pinnedNoteList);
+      }
+    } else {
+      actionArea.setVisibility(View.GONE);
+    }
     return rootView;
+  }
+
+  protected long getTimestamp() {
+    return runReviewOverlay.getTimestamp();
   }
 
   @Override
@@ -544,9 +567,16 @@ public class RunReviewFragment extends Fragment
         menu.findItem(R.id.action_download).setVisible(false);
       }
 
-      if (((RunReviewActivity) getActivity()).isFromRecord()) {
-        // If this is from record, always enable deletion.
-        menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+      if (Flags.showActionBar()) {
+        if (((RunReviewActivity) getActivity()).isFromRecord()) {
+          // If this is from record, always enable deletion.
+          menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+        }
+      } else {
+        if (((RunReviewDeprecatedActivity) getActivity()).isFromRecord()) {
+          // If this is from record, always enable deletion.
+          menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+        }
       }
     }
 

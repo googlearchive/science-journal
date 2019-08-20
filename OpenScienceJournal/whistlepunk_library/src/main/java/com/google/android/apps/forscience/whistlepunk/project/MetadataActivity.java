@@ -20,8 +20,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity;
 
-/** Activity which should not be usable if we are currently recording. */
+/**
+ * Activity which should not be usable if we are currently recording.
+ *
+ * @deprecated Only used by {@link RunReviewDeprecatedActivity} Logic is duplicated in {@link
+ *     RunReviewActivity}
+ */
+@Deprecated
 public abstract class MetadataActivity extends AppCompatActivity {
   private static final String TAG = "MetadataActivity";
 

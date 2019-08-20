@@ -35,6 +35,7 @@ import android.widget.EditText;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
+import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -163,7 +164,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
     int viewType = getItemViewType(position);
     if (viewType == TYPE_ADD_LABEL) {
-      if (!claimExperimentsMode) {
+      if (!claimExperimentsMode && !Flags.showActionBar()) {
         holder.itemView.setOnClickListener(view -> clickListener.onAddLabelButtonClicked());
       } else {
         holder.itemView.setVisibility(View.GONE);

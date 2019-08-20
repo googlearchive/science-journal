@@ -62,6 +62,7 @@ import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.ExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
+import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
@@ -97,6 +98,7 @@ import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemD
 import com.google.android.apps.forscience.whistlepunk.review.ExportOptionsDialogFragment;
 import com.google.android.apps.forscience.whistlepunk.review.PinnedNoteAdapter;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.review.labels.LabelDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
@@ -1687,16 +1689,8 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
 
       button.setOnClickListener(
           view ->
-              RunReviewActivity.launch(
-                  noteHolder.getContext(),
-                  parentReference.get().appAccount,
-                  runId,
-                  experiment.getExperimentId(),
-                  0 /* sensor index deprecated */,
-                  false /* from record */,
-                  false /* create task */,
-                  parentReference.get().claimExperimentsMode,
-                  null));
+              launchRunReviewActivity(
+                  noteHolder.getContext(), runId, 0 /* sensor index deprecated */));
     }
 
     private void removeSensorData(DetailsViewHolder holder) {
@@ -1705,21 +1699,39 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
       setIndeterminateSensorData(holder);
     }
 
+    private void launchRunReviewActivity(Context context, String runId, int activeSensorIndex) {
+      if (Flags.showActionBar()) {
+        RunReviewActivity.launch(
+            context,
+            parentReference.get().appAccount,
+            runId,
+            experiment.getExperimentId(),
+            activeSensorIndex,
+            false /* from record */,
+            false /* create task */,
+            parentReference.get().claimExperimentsMode,
+            null);
+
+      } else {
+        RunReviewDeprecatedActivity.launch(
+            context,
+            parentReference.get().appAccount,
+            runId,
+            experiment.getExperimentId(),
+            activeSensorIndex,
+            false /* from record */,
+            false /* create task */,
+            parentReference.get().claimExperimentsMode,
+            null);
+      }
+    }
+
     private View.OnClickListener createRunClickListener(final int selectedSensorIndex) {
       return v -> {
         if (!isRecording()) {
           // Can't click into details pages when recording.
           String runId = (String) v.getTag(R.id.run_title_text);
-          RunReviewActivity.launch(
-              v.getContext(),
-              parentReference.get().appAccount,
-              runId,
-              experiment.getExperimentId(),
-              selectedSensorIndex,
-              false /* from record */,
-              false /* create task */,
-              parentReference.get().claimExperimentsMode,
-              null);
+          launchRunReviewActivity(v.getContext(), runId, selectedSensorIndex);
         }
       };
     }

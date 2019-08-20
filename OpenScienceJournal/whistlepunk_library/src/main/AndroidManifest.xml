@@ -152,7 +152,7 @@
                 android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
         </activity>
         <activity
-            android:name=".review.RunReviewActivity"
+            android:name=".review.RunReviewDeprecatedActivity"
             android:exported="false"
             android:label="@string/run_review_activity_label"
             android:theme="@style/AppTheme.RunReview"
@@ -161,6 +161,17 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
+        </activity>
+        <activity
+            android:name=".review.RunReviewActivity"
+            android:exported="false"
+            android:label="@string/run_review_activity_label"
+            android:theme="@style/AppTheme.RunReview"
+            android:parentActivityName=".PanesActivity"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.ExperimentActivity"/>
         </activity>
         <activity
             android:name=".review.labels.LabelDetailsActivity"
@@ -218,12 +229,12 @@
             android:name=".review.UpdateRunActivity"
             android:exported="false"
             android:label="@string/title_edit_trial_activity"
-            android:parentActivityName=".review.RunReviewActivity"
+            android:parentActivityName=".review.RunReviewDeprecatedActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateVisible|adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity"/>
         </activity>
         <activity
             android:name=".SettingsActivity"

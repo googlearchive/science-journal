@@ -24,6 +24,7 @@ import androidx.core.app.NavUtils;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
+import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -31,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 
 /** Activity managing a LabelDetails page */
@@ -145,7 +147,11 @@ public class LabelDetailsActivity extends AppCompatActivity {
           WhistlePunkApplication.getLaunchIntentForPanesActivity(
               this, getAppAccount(), getExperimentId(), false /* claimExperimentsMode */);
     } else if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
-      upIntent = new Intent(this, RunReviewActivity.class);
+      if (Flags.showActionBar()) {
+        upIntent = new Intent(this, RunReviewActivity.class);
+      } else {
+        upIntent = new Intent(this, RunReviewDeprecatedActivity.class);
+      }
       upIntent.putExtra(
           RunReviewFragment.ARG_ACCOUNT_KEY, getIntent().getExtras().getString(ARG_ACCOUNT_KEY));
       upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, getExperimentId());

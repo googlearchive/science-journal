@@ -18,27 +18,25 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.RecorderService;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
+import com.google.android.apps.forscience.whistlepunk.project.MetadataActivity;
 
-/** Displays the experiment trial, notes for the trial, and the action bar to add more notes. */
-public class RunReviewActivity extends NoteTakingActivity {
-  public static final String EXTRA_FROM_RECORD = "from_record_activity";
-  public static final String EXTRA_CREATE_TASK = "create_task";
+/** @deprecated Moving to {@link RunReviewActivity}. */
+@Deprecated
+public class RunReviewDeprecatedActivity extends MetadataActivity {
+  private static final String FRAGMENT_TAG = "fragment";
   private boolean fromRecord;
-  private RunReviewFragment fragment;
+  private AppAccount appAccount;
 
   /**
-   * Launches a new recording review activity
+   * Launches a new run review activity
    *
    * @param startLabelId The ID of the start run label.
    * @param activeSensorIndex The index of the sensor which ought to be displayed first.
@@ -56,7 +54,6 @@ public class RunReviewActivity extends NoteTakingActivity {
       boolean createTask,
       boolean claimExperimentsMode,
       Bundle options) {
-    // TODO(saff): fancy schmancy material transition here (see specs)
     final Intent intent =
         createLaunchIntent(
             context,
@@ -71,7 +68,7 @@ public class RunReviewActivity extends NoteTakingActivity {
   }
 
   /**
-   * Returns a new recording review activity intent
+   * Returns a new run review activity intent
    *
    * @param startLabelId The ID of the start run label.
    * @param activeSensorIndex The index of the sensor which ought to be displayed first.
@@ -87,14 +84,14 @@ public class RunReviewActivity extends NoteTakingActivity {
       boolean fromRecord,
       boolean createTask,
       boolean claimExperimentsMode) {
-    final Intent intent = new Intent(context, RunReviewActivity.class);
-    intent.putExtra(NoteTakingActivity.EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
-    intent.putExtra(NoteTakingActivity.EXTRA_EXPERIMENT_ID, experimentId);
-    intent.putExtra(NoteTakingActivity.EXTRA_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
-    intent.putExtra(EXTRA_FROM_RECORD, fromRecord);
-    intent.putExtra(EXTRA_CREATE_TASK, createTask);
+    final Intent intent = new Intent(context, RunReviewDeprecatedActivity.class);
+    intent.putExtra(RunReviewFragment.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
+    intent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, experimentId);
     intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, startLabelId);
     intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, activeSensorIndex);
+    intent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD, fromRecord);
+    intent.putExtra(RunReviewActivity.EXTRA_CREATE_TASK, createTask);
+    intent.putExtra(RunReviewFragment.ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
     return intent;
   }
 
@@ -102,47 +99,35 @@ public class RunReviewActivity extends NoteTakingActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     WhistlePunkApplication.getPerfTrackerProvider(this).onActivityInit();
-
-    fromRecord = getIntent().getExtras().getBoolean(EXTRA_FROM_RECORD, false);
-  }
-
-  @Override
-  protected Fragment getDefaultFragment() {
-    if (fragment == null) {
-      fragment =
-          (RunReviewFragment) getSupportFragmentManager().findFragmentByTag(DEFAULT_FRAGMENT_TAG);
+    setContentView(R.layout.activity_run_review);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
-    if (fragment == null) {
-      fragment =
+
+    fromRecord = getIntent().getExtras().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD, false);
+    appAccount =
+        WhistlePunkApplication.getAccount(this, getIntent(), RunReviewFragment.ARG_ACCOUNT_KEY);
+
+    if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
+      RunReviewFragment fragment =
           RunReviewFragment.newInstance(
               appAccount,
-              getIntent().getExtras().getString(NoteTakingActivity.EXTRA_EXPERIMENT_ID),
+              getIntent().getExtras().getString(RunReviewFragment.ARG_EXPERIMENT_ID),
               getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
               getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
-              getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true),
-              getIntent().getExtras().getBoolean(NoteTakingActivity.EXTRA_CLAIM_EXPERIMENTS_MODE));
+              getIntent().getExtras().getBoolean(RunReviewActivity.EXTRA_CREATE_TASK, true),
+              getIntent().getExtras().getBoolean(RunReviewFragment.ARG_CLAIM_EXPERIMENTS_MODE));
+      getSupportFragmentManager()
+          .beginTransaction()
+          .add(R.id.container, fragment, FRAGMENT_TAG)
+          .commit();
     }
-    return fragment;
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-
-    final RecorderController recorderController =
-        AppSingleton.getInstance(this).getRecorderController(appAccount);
-
-    recorderController
-        .watchRecordingStatus()
-        .firstElement()
-        .subscribe(
-            status -> {
-              boolean recording = status.isRecording();
-              if (recording) {
-                finish();
-              }
-            });
-
     RecorderService.clearRecordingCompletedNotification(getApplicationContext());
   }
 
@@ -153,13 +138,15 @@ public class RunReviewActivity extends NoteTakingActivity {
   }
 
   @Override
-  public void onBackPressed() {
-    if (!handleOnBackPressed()) {
-      super.onBackPressed();
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+    if (fragment != null) {
+      fragment.onActivityResult(requestCode, resultCode, data);
     }
   }
 
-  private boolean handleOnBackPressed() {
+  @Override
+  public void onBackPressed() {
     Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
     if (fragment != null) {
       // If the edit time dialog is showing, make it hide on back pressed.
@@ -168,39 +155,18 @@ public class RunReviewActivity extends NoteTakingActivity {
               fragment.getChildFragmentManager().findFragmentByTag(EditLabelTimeDialog.TAG);
       if (editLabelTimeDialog != null) {
         editLabelTimeDialog.dismiss();
-        return true;
+        return;
       }
     }
-    return false;
+    super.onBackPressed();
   }
 
   @Override
-  protected boolean handleDefaultFragmentOnBackPressed() {
-    return handleOnBackPressed();
-  }
-
-  @Override
-  protected String getTrialIdForLabel() {
-    return getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID);
-  }
-
-  @Override
-  protected void onLabelAdded(String trialId) {}
-
-  @Override
-  protected long getTimestamp(Context context) {
-    return ((RunReviewFragment) getDefaultFragment()).getTimestamp();
+  protected AppAccount getAppAccount() {
+    return appAccount;
   }
 
   boolean isFromRecord() {
     return fromRecord;
-  }
-
-  @Override
-  public ActionAreaItem[] getActionAreaItems() {
-    ActionAreaItem[] actionAreaItems = {
-      ActionAreaItem.NOTE, ActionAreaItem.CAMERA, ActionAreaItem.GALLERY
-    };
-    return actionAreaItems;
   }
 }
