@@ -15,87 +15,35 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import static com.google.android.apps.forscience.whistlepunk.PictureUtils.REQUEST_TAKE_PHOTO;
-
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import android.support.design.snackbar.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
-import com.google.android.apps.forscience.whistlepunk.CameraFragment.ListenerProvider;
 import com.google.android.apps.forscience.whistlepunk.MoreObservationsFragment.ObservationOption;
-import com.google.android.apps.forscience.whistlepunk.RecordFragment.CallbacksProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.arcore.ARVelocityActivity;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsWithActionAreaFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
-import com.tbruyelle.rxpermissions2.RxPermissions;
-import io.reactivex.Observable;
-import io.reactivex.Single;
 import io.reactivex.subjects.SingleSubject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /** Displays the experiment and the action bar. */
-public class ExperimentActivity extends AppCompatActivity
-    implements CallbacksProvider,
-        ListenerProvider,
-        TextNoteFragment.ListenerProvider,
-        GalleryNoteFragment.ListenerProvider,
+public class ExperimentActivity extends NoteTakingActivity
+    implements SensorFragment.CallbacksProvider,
         ExperimentDetailsWithActionAreaFragment.ListenerProvider,
         ActionAreaListener {
-  private static final String TAG = "ExperimentActivity";
-  public static final String EXTRA_ACCOUNT_KEY = "accountKey";
-  public static final String EXTRA_EXPERIMENT_ID = "experimentId";
-  public static final String EXTRA_CLAIM_EXPERIMENTS_MODE = "claimExperimentsMode";
-
-  private static final String MORE_OBSERVATIONS_TAG = "moreObservations";
-  private static final String NOTE_TAG = "note";
-  private static final String SENSOR_TAG = "sensor";
-  private static final String GALLERY_TAG = "gallery";
-  private static final String EXPERIMENT_DETAILS_TAG = "experimentDetails";
-  private static final String DEFAULT_ADD_MORE_OBSERVATIONS_TAG = "defaultAddMoreObservations";
-
-  private static final String EXTRA_PICTURE_UUID = "pictureUUID";
-  private static final String EXTRA_PICTURE_PATH = "picturePath";
-
-  private static final String EXTRA_ACTIVE_TOOL_FRAGMENT_TAG = "activeToolFragmentTag";
-
-  private ProgressBar recordingBar;
-  private RxPermissions permissions;
-  private RxEvent paused = new RxEvent();
-  private AppAccount appAccount;
-  private boolean claimExperimentsMode;
-  private String pictureUUID;
-  private String pictureRelativePath;
-  private String activeToolFragmentTag;
-  private String experimentId;
-  private boolean isTwoPane;
 
   @NonNull
   public static Intent launchIntent(
@@ -107,11 +55,10 @@ public class ExperimentActivity extends AppCompatActivity
     return intent;
   }
 
-  private ExperimentDetailsWithActionAreaFragment experimentFragment = null;
-
   // SingleSubject remembers the loaded value (if any) and delivers it to any observers.
   private SingleSubject<Experiment> activeExperiment = SingleSubject.create();
-
+  private ExperimentDetailsWithActionAreaFragment experimentFragment = null;
+  private boolean claimExperimentsMode;
   private RxEvent destroyed = new RxEvent();
 
   @Override
@@ -121,24 +68,9 @@ public class ExperimentActivity extends AppCompatActivity
       setTheme(R.style.preview_experiment_details);
     }
     super.onCreate(savedInstanceState);
-    permissions = new RxPermissions(this);
+
     PerfTrackerProvider perfTracker = WhistlePunkApplication.getPerfTrackerProvider(this);
     PerfTrackerProvider.TimerToken experimentLoad = perfTracker.startTimer();
-    setContentView(R.layout.activity_experiment_layout);
-
-    Resources resources = getResources();
-    boolean isTablet = resources.getBoolean(R.bool.is_tablet);
-    if (!isTablet) {
-      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    }
-    boolean isLandscape =
-        resources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-    isTwoPane = isTablet && isLandscape;
-
-    recordingBar = findViewById(R.id.recording_progress_bar);
-
-    appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
-    experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
     // By adding the subscription to mUntilDestroyed, we make sure that we can disconnect from
     // the experiment stream when this activity is destroyed.
@@ -152,36 +84,18 @@ public class ExperimentActivity extends AppCompatActivity
               .subscribe(
                   status -> {
                     if (status.state == RecordingState.ACTIVE) {
-                      showRecordingBar();
-                      Log.d(TAG, "start recording");
                       experimentFragment.onStartRecording(status.currentRecording.getRunId());
-                    } else {
-                      hideRecordingBar();
                     }
                     perfTracker.stopTimer(
                         experimentLoad, TrackerConstants.PRIMES_EXPERIMENT_LOADED);
                     perfTracker.onAppInteractive();
                   });
         });
-
-    Single<Experiment> exp = whenSelectedExperiment(experimentId, getDataController());
     exp.takeUntil(destroyed.happensNext())
         .subscribe(activeExperiment::onSuccess, error -> finish());
 
-    AppSingleton.getInstance(this)
-        .whenLabelsAdded(appAccount)
-        .takeUntil(destroyed.happens())
-        .subscribe(event -> onLabelAdded(event.getTrialId()));
-    WhistlePunkApplication.getUsageTracker(this).trackScreenView(TrackerConstants.SCREEN_PANES);
-  }
-
-  @VisibleForTesting
-  public static Single<Experiment> whenSelectedExperiment(
-      String experimentId, DataController dataController) {
-    if (Log.isLoggable(TAG, Log.INFO)) {
-      Log.i(TAG, "Launching specified experiment id: " + experimentId);
-    }
-    return RxDataController.getExperimentById(dataController, experimentId);
+    WhistlePunkApplication.getUsageTracker(this)
+        .trackScreenView(TrackerConstants.SCREEN_EXPERIMENT);
   }
 
   public void onArchivedStateChanged() {
@@ -206,10 +120,15 @@ public class ExperimentActivity extends AppCompatActivity
     setUpFragments();
   }
 
+  @Override
+  protected Fragment getDefaultFragment() {
+    return experimentFragment;
+  }
+
   private ExperimentDetailsWithActionAreaFragment lookupExperimentFragment() {
     FragmentManager fragmentManager = getSupportFragmentManager();
     return (ExperimentDetailsWithActionAreaFragment)
-        fragmentManager.findFragmentByTag(EXPERIMENT_DETAILS_TAG);
+        fragmentManager.findFragmentByTag(DEFAULT_FRAGMENT_TAG);
   }
 
   private ExperimentDetailsWithActionAreaFragment createExperimentFragment(String id) {
@@ -217,65 +136,14 @@ public class ExperimentActivity extends AppCompatActivity
         appAccount, id, true /* createTaskStack */, claimExperimentsMode);
   }
 
-  public void setUpFragments() {
-    showDefaultFragments();
-    if (activeToolFragmentTag != null) {
-      showFragmentByTagInToolPane(activeToolFragmentTag);
-    }
-  }
-
-  private void showDefaultFragments() {
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    if (isTwoPane) {
-      showFragmentByTagInToolPane(DEFAULT_ADD_MORE_OBSERVATIONS_TAG);
-    } else {
-      hideAllFragmentsInToolPane();
-    }
-    if (experimentFragment == null) {
-      experimentFragment = lookupExperimentFragment();
-    }
-    if (experimentFragment != null) {
-      if (fragmentManager.findFragmentByTag(EXPERIMENT_DETAILS_TAG) != null) {
-        fragmentManager.beginTransaction().show(experimentFragment).commit();
-      } else {
-        fragmentManager
-            .beginTransaction()
-            .add(R.id.experiment_pane, experimentFragment, EXPERIMENT_DETAILS_TAG)
-            .commit();
-      }
-    }
-  }
-
-  private void closeToolFragment() {
-    activeToolFragmentTag = null;
-    showDefaultFragments();
-  }
-
-  private void openToolFragment(String tag) {
-    showFragmentByTagInToolPane(tag);
-    activeToolFragmentTag = tag;
-  }
-
-  public boolean isTwoPane() {
-    return isTwoPane;
-  }
-
-  @Override
-  protected void onDestroy() {
-    destroyed.onHappened();
-    super.onDestroy();
-  }
-
   @Override
   public void onResume() {
     super.onResume();
-    AppSingleton appSingleton = AppSingleton.getInstance(this);
-    appSingleton.setResumedActivity(this);
-    paused.happensNext().subscribe(() -> appSingleton.setNoLongerResumedActivity(this));
 
     if (!isMultiWindowEnabled()) {
       updateRecorderControllerForResume();
     }
+    AppSingleton appSingleton = AppSingleton.getInstance(this);
     if (appSingleton.getAndClearMostRecentOpenWasImport()) {
       AccessibilityUtils.makeSnackbar(
               findViewById(R.id.tool_pane),
@@ -283,7 +151,6 @@ public class ExperimentActivity extends AppCompatActivity
               Snackbar.LENGTH_SHORT)
           .show();
     }
-    setUpFragments();
   }
 
   @Override
@@ -292,7 +159,6 @@ public class ExperimentActivity extends AppCompatActivity
       updateRecorderControllerForPause();
       logState(TrackerConstants.ACTION_PAUSED);
     }
-    paused.happens();
     super.onPause();
   }
 
@@ -312,7 +178,6 @@ public class ExperimentActivity extends AppCompatActivity
     }
     super.onStop();
   }
-
 
   private void logState(String action) {
     WhistlePunkApplication.getUsageTracker(this)
@@ -334,56 +199,12 @@ public class ExperimentActivity extends AppCompatActivity
   }
 
   @Override
-  public void onBackPressed() {
-    if (isTwoPane) {
-      if (activeToolFragmentTag == null
-          || activeToolFragmentTag.equals(DEFAULT_ADD_MORE_OBSERVATIONS_TAG)) {
-        if (experimentFragment.handleOnBackPressed()) {
-          return;
-        }
-      } else {
-        closeToolFragment();
-        return;
-      }
-    } else {
-      if (experimentFragment != null && experimentFragment.isVisible()) {
-        if (experimentFragment.handleOnBackPressed()) {
-          return;
-        }
-      } else {
-        closeToolFragment();
-        return;
-      }
-    }
-    super.onBackPressed();
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    int itemId = item.getItemId();
-    if (itemId == android.R.id.home) {
-      onBackPressed();
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public RecordFragment.UICallbacks getRecordFragmentCallbacks() {
-    return new RecordFragment.UICallbacks() {
+  public SensorFragment.UICallbacks getRecordFragmentCallbacks() {
+    return new SensorFragment.UICallbacks() {
       @Override
       void onRecordingSaved(String runId, Experiment experiment) {
         logState(TrackerConstants.ACTION_RECORDED);
         experimentFragment.loadExperimentData(experiment);
-      }
-
-      @Override
-      public void onRecordingRequested(String experimentName, boolean userInitiated) {
-        showRecordingBar();
-        // We don't call expandSheet until after we've called
-        // experimentFragment.onStartRecording (below in onRecordingStart). Otherwise, the
-        // ExperimentFragment won't be able to scroll to the bottom because the details
-        // lists's height will be zero. Scrolling doesn't work if a View's height is zero.
       }
 
       @Override
@@ -400,250 +221,30 @@ public class ExperimentActivity extends AppCompatActivity
 
       @Override
       void onRecordingStopped() {
-        hideRecordingBar();
         experimentFragment.onStopRecording();
       }
-
-      @Override
-      void maximizeFragment() {
-
-      }
     };
   }
 
   @Override
-  public CameraFragment.CameraFragmentListener getCameraFragmentListener() {
-    return new CameraFragment.CameraFragmentListener() {
-      @Override
-      public RxPermissions getPermissions() {
-        return permissions;
-      }
-
-      @Override
-      public void onPictureLabelTaken(final Label label) {
-        addNewLabel(label);
-      }
-
-      @Override
-      public Observable<String> getActiveExperimentId() {
-        return ExperimentActivity.this.getActiveExperimentId();
-      }
-    };
-  }
-
-  @Override
-  public GalleryNoteFragment.Listener getGalleryListener() {
-    return new GalleryNoteFragment.Listener() {
-      @Override
-      public Observable<String> getActiveExperimentId() {
-        return ExperimentActivity.this.getActiveExperimentId();
-      }
-
-      @Override
-      public void onPictureLabelTaken(Label label) {
-        addNewLabel(label);
-        closeToolFragment();
-      }
-
-      @Override
-      public RxPermissions getPermissions() {
-        return permissions;
-      }
-    };
-  }
-
-  @Override
-  public TextNoteFragment.TextLabelFragmentListener getTextLabelFragmentListener() {
-    return result -> {
-      addNewLabel(result);
-      closeToolFragment();
-    };
-  }
-
-  @SuppressLint("CheckResult")
-  private void addNewLabel(Label label) {
-    // Get the most recent experiment, or wait if none has been loaded yet.
-    activeExperiment.subscribe(
-        e -> {
-          // if it is recording, add it to the recorded trial instead!
-          String trialId = experimentFragment.getActiveRecordingId();
-          if (TextUtils.isEmpty(trialId)) {
-            e.addLabel(e, label);
-          } else {
-            e.getTrial(trialId).addLabel(e, label);
-          }
-          RxDataController.updateExperiment(getDataController(), e, true)
-              .subscribe(() -> onLabelAdded(trialId), error -> onAddNewLabelFailed());
-        });
-  }
-
-  private void onAddNewLabelFailed() {
-    AccessibilityUtils.makeSnackbar(
-            findViewById(R.id.tool_pane),
-            getResources().getString(R.string.label_failed_save),
-            Snackbar.LENGTH_LONG)
-        .show();
-  }
-
-  private void onLabelAdded(String trialId) {
-    logState(TrackerConstants.ACTION_LABEL_ADDED);
+  protected void onLabelAdded(String trialId) {
     if (TextUtils.isEmpty(trialId)) {
       // TODO: is this expensive?  Should we trigger a more incremental update?
       experimentFragment.reloadAndScrollToBottom();
     } else {
       experimentFragment.onRecordingTrialUpdated(trialId);
     }
-  }
-
-  private DataController getDataController() {
-    return AppSingleton.getInstance(ExperimentActivity.this).getDataController(appAccount);
+    logState(TrackerConstants.ACTION_LABEL_ADDED);
   }
 
   @Override
-  public void onRequestPermissionsResult(
-      int requestCode, String[] permissions, int[] grantResults) {
-    PermissionUtils.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
-  }
-
-  private void showRecordingBar() {
-    if (recordingBar != null) {
-      recordingBar.setVisibility(View.VISIBLE);
-    }
-  }
-
-  private void hideRecordingBar() {
-    if (recordingBar != null) {
-      recordingBar.setVisibility(View.GONE);
-    }
-  }
-
-  private Observable<String> getActiveExperimentId() {
-    return activeExperiment.map(e -> e.getExperimentId()).toObservable();
+  protected String getTrialIdForLabel() {
+    return experimentFragment.getActiveRecordingId();
   }
 
   @Override
-  public ExperimentDetailsWithActionAreaFragment.Listener getExperimentDetailsFragmentListener() {
-    return changed -> ExperimentActivity.this.onArchivedStateChanged();
-  }
-
-  @Override
-  public void onClick(ActionAreaItem item) {
-    if (item.equals(ActionAreaItem.NOTE)) {
-      openToolFragment(NOTE_TAG);
-    } else if (item.equals(ActionAreaItem.SENSOR)) {
-      openToolFragment(SENSOR_TAG);
-    } else if (item.equals(ActionAreaItem.CAMERA)) {
-      takePicture();
-    } else if (item.equals(ActionAreaItem.GALLERY)) {
-      openToolFragment(GALLERY_TAG);
-    } else if (item.equals(ActionAreaItem.MORE)) {
-      openToolFragment(MORE_OBSERVATIONS_TAG);
-    }
-  }
-
-  private void hideAllFragmentsInToolPane() {
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    FragmentTransaction ft = fragmentManager.beginTransaction();
-    for (Fragment fragment : fragmentManager.getFragments()) {
-      if (!fragment.equals(experimentFragment) || !isTwoPane) {
-        ft.hide(fragment);
-      }
-    }
-    ft.commit();
-  }
-
-  private void showFragmentByTagInToolPane(String tag) {
-    hideAllFragmentsInToolPane();
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    Fragment fragment = fragmentManager.findFragmentByTag(tag);
-    if (fragment != null) {
-      fragmentManager.beginTransaction().show(fragment).commit();
-    } else {
-      fragmentManager
-          .beginTransaction()
-          .add(R.id.tool_pane, createFragmentByTag(tag), tag)
-          .commit();
-    }
-  }
-
-  private Fragment createFragmentByTag(String tag) {
-    switch (tag) {
-      case NOTE_TAG:
-        return new TextNoteFragment();
-      case SENSOR_TAG:
-        return SensorFragment.newInstance(appAccount, experimentId);
-      case GALLERY_TAG:
-        return GalleryNoteFragment.newInstance(appAccount);
-      case MORE_OBSERVATIONS_TAG:
-        return MoreObservationsFragment.newInstance();
-      case DEFAULT_ADD_MORE_OBSERVATIONS_TAG:
-        return AddMoreObservationNotesFragment.newInstance();
-      default:
-        throw new IllegalArgumentException("Invalid fragment tag: " + tag);
-    }
-  }
-
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    outState.putString(EXTRA_PICTURE_UUID, pictureUUID);
-    outState.putString(EXTRA_PICTURE_PATH, pictureRelativePath);
-
-    outState.putString(EXTRA_ACTIVE_TOOL_FRAGMENT_TAG, activeToolFragmentTag);
-  }
-
-  @Override
-  protected void onRestoreInstanceState(Bundle savedInstanceState) {
-    super.onRestoreInstanceState(savedInstanceState);
-    pictureUUID = savedInstanceState.getString(EXTRA_PICTURE_UUID);
-    pictureRelativePath = savedInstanceState.getString(EXTRA_PICTURE_PATH);
-
-    activeToolFragmentTag = savedInstanceState.getString(EXTRA_ACTIVE_TOOL_FRAGMENT_TAG);
-  }
-
-  @SuppressLint("CheckResult")
-  private void takePicture() {
-    if (permissions != null) {
-      permissions
-          .request(Manifest.permission.CAMERA)
-          .subscribe(
-              granted -> {
-                if (granted) {
-                  pictureUUID = UUID.randomUUID().toString();
-                  // After a user takes a picture, onActivityResult will be called.
-                  pictureRelativePath =
-                      PictureUtils.capturePictureLabel(
-                          this,
-                          appAccount,
-                          activeExperiment.getValue().getExperimentId(),
-                          pictureUUID);
-                } else {
-                  AccessibilityUtils.makeSnackbar(
-                          findViewById(R.id.tool_pane),
-                          getResources().getString(R.string.input_camera_permission_denied),
-                          Snackbar.LENGTH_LONG)
-                      .show();
-                }
-              });
-    }
-  }
-
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-      if (pictureUUID != null && pictureRelativePath != null) {
-        PictureLabelValue labelValue =
-            PictureLabelValue.newBuilder().setFilePath(pictureRelativePath).build();
-        Label label =
-            Label.fromUuidAndValue(
-                AppSingleton.getInstance(this).getSensorEnvironment().getDefaultClock().getNow(),
-                pictureUUID,
-                GoosciLabel.Label.ValueType.PICTURE,
-                labelValue);
-        addNewLabel(label);
-      }
-    }
+  protected boolean handleDefaultFragmentOnBackPressed() {
+    return experimentFragment.handleOnBackPressed();
   }
 
   private void openGallery() {
@@ -696,6 +297,7 @@ public class ExperimentActivity extends AppCompatActivity
     return Flags.showDrawOption() || Flags.showVelocityTrackerOption();
   }
 
+  @Override
   public ActionAreaItem[] getActionAreaItems() {
     ActionAreaItem[] actionAreaItems = {
       ActionAreaItem.NOTE, ActionAreaItem.SENSOR, ActionAreaItem.CAMERA, ActionAreaItem.GALLERY

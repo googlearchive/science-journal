@@ -42,6 +42,7 @@ public final class TrackerConstants {
   public static final String SCREEN_TRIGGER_EDIT = "trigger_edit";
   public static final String SCREEN_SENSOR_INFO = "sensor_info";
   public static final String SCREEN_PANES = "panes";
+  public static final String SCREEN_EXPERIMENT = "experiment";
 
   // Custom dimension indices.
   public static final int DIMENSION_MODE = 1;

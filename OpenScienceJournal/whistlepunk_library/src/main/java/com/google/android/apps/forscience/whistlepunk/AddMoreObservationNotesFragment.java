@@ -38,8 +38,8 @@ public class AddMoreObservationNotesFragment extends Fragment {
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.add_more_observations_note_fragment, null);
     ActionAreaView actionArea = rootView.findViewById(R.id.action_area);
-    ExperimentActivity experimentActivity = (ExperimentActivity) getActivity();
-    actionArea.addItems(getContext(), experimentActivity.getActionAreaItems(), experimentActivity);
+    NoteTakingActivity noteTakingActivity = (NoteTakingActivity) getActivity();
+    actionArea.addItems(getContext(), noteTakingActivity.getActionAreaItems(), noteTakingActivity);
     return rootView;
   }
 }

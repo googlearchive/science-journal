@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -49,7 +50,6 @@ import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateE
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
-import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 import io.reactivex.subjects.SingleSubject;
 import java.io.File;
@@ -81,7 +81,7 @@ public class GalleryNoteFragment extends Fragment
   private RxEvent destroyed = new RxEvent();
 
   public interface Listener {
-    Observable<String> getActiveExperimentId();
+    String getExperimentId();
 
     void onPictureLabelTaken(Label label);
 
@@ -201,46 +201,45 @@ public class GalleryNoteFragment extends Fragment
   public void attachAddButton(FloatingActionButton addButton) {
     addButton.setOnClickListener(
         view -> {
-          final long timestamp = getTimestamp(addButton.getContext());
+          Activity activity = getActivity();
+          if (activity == null) {
+            return;
+          }
+          final long timestamp =
+              ((NoteTakingActivity) activity).getTimestamp(addButton.getContext());
           GoosciPictureLabelValue.PictureLabelValue.Builder labelValue =
               GoosciPictureLabelValue.PictureLabelValue.newBuilder();
 
           if (listener != null) {
-            listener
-                .getActiveExperimentId()
-                .firstElement()
-                .subscribe(
-                    experimentId -> {
-                      List<String> selectedImages = galleryAdapter.getSelectedImages();
-                      for (String selectedImage : selectedImages) {
+            String experimentId = listener.getExperimentId();
+            List<String> selectedImages = galleryAdapter.getSelectedImages();
+            for (String selectedImage : selectedImages) {
 
-                        Label result =
-                            Label.newLabel(timestamp, GoosciLabel.Label.ValueType.PICTURE);
-                        File imageFile =
-                            PictureUtils.createImageFile(
-                                getActivity(), getAppAccount(), experimentId, result.getLabelId());
+              Label result = Label.newLabel(timestamp, GoosciLabel.Label.ValueType.PICTURE);
+              File imageFile =
+                  PictureUtils.createImageFile(
+                      getActivity(), getAppAccount(), experimentId, result.getLabelId());
 
-                        try {
-                          UpdateExperimentFragment.copyUriToFile(
-                              addButton.getContext(), Uri.parse(selectedImage), imageFile);
-                          labelValue.setFilePath(
-                              FileMetadataUtil.getInstance()
-                                  .getRelativePathInExperiment(experimentId, imageFile));
-                        } catch (IOException e) {
-                          if (Log.isLoggable(TAG, Log.DEBUG)) {
-                            Log.d(TAG, e.getMessage());
-                          }
-                          labelValue.clearFilePath();
-                        }
+              try {
+                UpdateExperimentFragment.copyUriToFile(
+                    addButton.getContext(), Uri.parse(selectedImage), imageFile);
+                labelValue.setFilePath(
+                    FileMetadataUtil.getInstance()
+                        .getRelativePathInExperiment(experimentId, imageFile));
+              } catch (IOException e) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                  Log.d(TAG, e.getMessage());
+                }
+                labelValue.clearFilePath();
+              }
 
-                        result.setLabelProtoData(labelValue.build());
-                        if (listener != null) {
-                          listener.onPictureLabelTaken(result);
-                        }
-                      }
-                      galleryAdapter.deselectImages();
-                      addButtonEnabled.onNext(false);
-                    });
+              result.setLabelProtoData(labelValue.build());
+              if (listener != null) {
+                listener.onPictureLabelTaken(result);
+              }
+            }
+            galleryAdapter.deselectImages();
+            addButtonEnabled.onNext(false);
           }
         });
 
@@ -253,14 +252,6 @@ public class GalleryNoteFragment extends Fragment
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putIntegerArrayList(KEY_SELECTED_PHOTOS, galleryAdapter.selectedIndices);
-  }
-
-  private long getTimestamp(Context context) {
-    return getClock(context).getNow();
-  }
-
-  private Clock getClock(Context context) {
-    return AppSingleton.getInstance(context).getSensorEnvironment().getDefaultClock();
   }
 
   private void loadImages() {

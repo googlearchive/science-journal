@@ -106,14 +106,6 @@ public class SensorFragment extends Fragment
     public static UICallbacks NULL = new UICallbacks() {};
 
     /**
-     * Called when recording is about to start
-     *
-     * @param experimentName the name of the experiment we're recording in.
-     * @param userInitiated whether the user requested this recording (vs a trigger)
-     */
-    void onRecordingRequested(String experimentName, boolean userInitiated) {}
-
-    /**
      * Called when recording starts
      *
      * @param recordingStatus the current recording status
@@ -128,9 +120,6 @@ public class SensorFragment extends Fragment
      * accordingly
      */
     void onRecordingSaved(String runId, Experiment experiment) {}
-
-    /** Called when the record fragment wants to be maximized. */
-    void maximizeFragment() {}
   }
 
   public interface CallbacksProvider {
@@ -1040,10 +1029,6 @@ public class SensorFragment extends Fragment
    * @param isStarting whether recording is just starting.
    */
   private void lockUiForRecording(boolean isStarting, boolean userInitiated) {
-    if (isStarting) {
-      uICallbacks.onRecordingRequested(getExperimentName(), userInitiated);
-    }
-
     // Lock the sensor cards and add button
     if (sensorCardAdapter != null) {
       sensorCardAdapter.setUiLockedForRecording(true);
@@ -1217,7 +1202,6 @@ public class SensorFragment extends Fragment
       bar.setAction(
           R.string.scroll_to_card,
           v -> {
-            uICallbacks.maximizeFragment();
             sensorCardLayoutManager.scrollToPosition(getPositionOfPresenter(presenter));
           });
       snackbarManager.showSnackbar(bar);

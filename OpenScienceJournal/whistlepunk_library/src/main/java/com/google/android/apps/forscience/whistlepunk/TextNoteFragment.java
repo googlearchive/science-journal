@@ -16,6 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -81,7 +82,12 @@ public class TextNoteFragment extends Fragment {
   public void setupAddButton(FloatingActionButton addButton) {
     addButton.setOnClickListener(
         view -> {
-          final long timestamp = getTimestamp(addButton.getContext());
+          Activity activity = getActivity();
+          if (activity == null) {
+            return;
+          }
+          final long timestamp =
+              ((NoteTakingActivity) activity).getTimestamp(addButton.getContext());
           TextLabelValue labelValue =
               GoosciTextLabelValue.TextLabelValue.newBuilder()
                   .setText(textView.getText().toString())
@@ -115,14 +121,6 @@ public class TextNoteFragment extends Fragment {
       outState.putString(KEY_TEXT, textView.getText().toString());
     }
     super.onSaveInstanceState(outState);
-  }
-
-  private long getTimestamp(Context context) {
-    return getClock(context).getNow();
-  }
-
-  private Clock getClock(Context context) {
-    return AppSingleton.getInstance(context).getSensorEnvironment().getDefaultClock();
   }
 
   private TextLabelFragmentListener getListener(Context context) {
