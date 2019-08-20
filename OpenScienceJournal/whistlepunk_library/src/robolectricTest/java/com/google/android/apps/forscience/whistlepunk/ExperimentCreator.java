@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary.ExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
@@ -65,7 +65,7 @@ public class ExperimentCreator {
     AppAccount appAccount = NonSignedInAccount.getInstance(context);
     ExperimentLibraryManager elm =
         AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount);
-    elm.setLibrary(new ExperimentLibrary());
+    elm.setLibrary(ExperimentLibrary.getDefaultInstance());
     elm.addExperiment(experiment.getExperimentId());
     LocalSyncManager lsm = AppSingleton.getInstance(context).getLocalSyncManager(appAccount);
     lsm.setLocalSyncStatus(new LocalSyncStatus());

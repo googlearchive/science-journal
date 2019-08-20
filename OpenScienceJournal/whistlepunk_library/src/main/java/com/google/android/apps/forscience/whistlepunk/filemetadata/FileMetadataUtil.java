@@ -31,7 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
@@ -371,22 +371,20 @@ public class FileMetadataUtil {
     }
   }
 
-  public void writeExperimentLibraryFile(
-      GoosciExperimentLibrary.ExperimentLibrary library, AppAccount appAccount) throws IOException {
-    writeProtoToFile(MessageNano.toByteArray(library), getExperimentLibraryFile(appAccount));
+  public void writeExperimentLibraryFile(ExperimentLibrary library, AppAccount appAccount)
+      throws IOException {
+    writeProtoToFile(library.toByteArray(), getExperimentLibraryFile(appAccount));
   }
 
-  public GoosciExperimentLibrary.ExperimentLibrary readExperimentLibraryFile(
-      AppAccount appAccount) {
-    GoosciExperimentLibrary.ExperimentLibrary library =
-        new GoosciExperimentLibrary.ExperimentLibrary();
+  public ExperimentLibrary readExperimentLibraryFile(AppAccount appAccount) {
+    ExperimentLibrary library = null;
     File libraryFile = getExperimentLibraryFile(appAccount);
     if (libraryFile.canRead()) {
       byte[] libraryBytes = new byte[(int) libraryFile.length()];
       try (FileInputStream fis = new FileInputStream(libraryFile);
           DataInputStream dis = new DataInputStream(fis);) {
         dis.readFully(libraryBytes);
-        library = MessageNano.mergeFrom(library, libraryBytes);
+        library = ExperimentLibrary.parseFrom(libraryBytes);
       } catch (Exception e) {
         Log.e(TAG, "Exception reading Experiment Library file", e);
       }

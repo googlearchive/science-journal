@@ -25,8 +25,8 @@ import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
@@ -71,7 +71,7 @@ public class FileMetadataManagerTest {
     lsm.setLocalSyncStatus(new LocalSyncStatus());
     ExperimentLibraryManager elm =
         AppSingleton.getInstance(getContext()).getExperimentLibraryManager(getAppAccount());
-    elm.setLibrary(new ExperimentLibrary());
+    elm.setLibrary(ExperimentLibrary.getDefaultInstance());
     Experiment experiment = fmm.newExperiment();
     assertEquals(experiment.getCreationTimeMs(), clock.getNow());
     assertEquals(
@@ -110,7 +110,7 @@ public class FileMetadataManagerTest {
     lsm.setLocalSyncStatus(new LocalSyncStatus());
     ExperimentLibraryManager elm =
         AppSingleton.getInstance(getContext()).getExperimentLibraryManager(getAppAccount());
-    elm.setLibrary(new ExperimentLibrary());
+    elm.setLibrary(ExperimentLibrary.getDefaultInstance());
     Experiment first = fmm.newExperiment();
     clock.increment();
     Experiment second = fmm.newExperiment();

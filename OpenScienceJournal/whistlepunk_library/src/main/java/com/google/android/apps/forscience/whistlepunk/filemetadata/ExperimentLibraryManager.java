@@ -19,24 +19,23 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.SyncExperiment;
 import com.google.common.base.Strings;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Manages a Science Journal experiment library. All changes should be made using the getters and
- * setters provided, rather than by getting the underlying protocol buffer and making changes to
- * that directly. Changes to the underlying proto outside this class may be overwritten and may not
- * be saved.
+ * Manages a Science Journal experiment library.
  */
 public class ExperimentLibraryManager {
   private static final String TAG = "experimentLibrary";
-  private GoosciExperimentLibrary.ExperimentLibrary proto;
+  private String folderId;
+  private final Map<String, LibrarySyncExperiment> experiments = new HashMap<>();
   private final AppAccount account;
 
   /** Constructor for an ExperimentLibraryManager that creates a new ExperimentLibrary. */
@@ -49,11 +48,11 @@ public class ExperimentLibraryManager {
    * testing.
    */
   @VisibleForTesting
-  public ExperimentLibraryManager(
-      GoosciExperimentLibrary.ExperimentLibrary library,
-      AppAccount account) {
-    proto = library;
+  public ExperimentLibraryManager(ExperimentLibrary library, AppAccount account) {
     this.account = account;
+    if (library != null) {
+      setLibrary(library);
+    }
   }
 
   /**
@@ -61,24 +60,35 @@ public class ExperimentLibraryManager {
    *
    * @param library The library to manage.
    */
-  public void setLibrary(GoosciExperimentLibrary.ExperimentLibrary library) {
-    proto = library;
+  public void setLibrary(ExperimentLibrary library) {
+    experiments.clear();
+    if (library == null) {
+      this.folderId = null;
+      return;
+    }
+    for (SyncExperiment experiment : library.getSyncExperimentList()) {
+      LibrarySyncExperiment lse =
+          new LibrarySyncExperiment(
+              experiment.getExperimentId(),
+              experiment.getFileId(),
+              experiment.getLastOpened(),
+              experiment.getLastModified(),
+              experiment.getDeleted(),
+              experiment.getArchived());
+      experiments.put(experiment.getExperimentId(), lse);
+    }
+    this.folderId = library.getFolderId();
   }
 
   /**
-   * Gets the SyncExperiment proto from the ExperimentLibrary that matches the experiment id
+   * Gets the LocalSyncExperiment from the ExperimentLibraryManager that matches the experiment id
    *
    * @param experimentId The experiment to find.
    * @return The SyncExperiment if found, or null.
    */
-  GoosciExperimentLibrary.SyncExperiment getExperiment(String experimentId) {
+  LibrarySyncExperiment getExperiment(String experimentId) {
     populateExperimentLibraryManager();
-    for (GoosciExperimentLibrary.SyncExperiment experiment : proto.syncExperiment) {
-      if (experimentId.equals(experiment.experimentId)) {
-        return experiment;
-      }
-    }
-    return null;
+    return experiments.get(experimentId);
   }
 
   /**
@@ -91,17 +101,7 @@ public class ExperimentLibraryManager {
     if (getExperiment(experimentId) != null) {
       return;
     }
-
-    ArrayList<GoosciExperimentLibrary.SyncExperiment> experiments =
-        new ArrayList<>(Arrays.asList(proto.syncExperiment));
-    @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment newExperiment =
-        new GoosciExperimentLibrary.SyncExperiment();
-    newExperiment.experimentId = experimentId;
-    experiments.add(newExperiment);
-
-    proto.syncExperiment =
-        experiments.toArray(new GoosciExperimentLibrary.SyncExperiment[experiments.size()]);
+    experiments.put(experimentId, new LibrarySyncExperiment(experimentId));
     writeExperimentLibrary();
   }
 
@@ -110,17 +110,21 @@ public class ExperimentLibraryManager {
    *
    * @param experiment The SyncEcperiment to add.
    */
-  void addExperiment(GoosciExperimentLibrary.SyncExperiment experiment) {
-    if (getExperiment(experiment.experimentId) != null) {
+  void addExperiment(SyncExperiment experiment) {
+    if (experiments.containsKey(experiment.getExperimentId())) {
       throw new IllegalArgumentException("Experiment already exists");
     }
 
-    ArrayList<GoosciExperimentLibrary.SyncExperiment> experiments =
-        new ArrayList<>(Arrays.asList(proto.syncExperiment));
-    experiments.add(experiment);
+    LibrarySyncExperiment lse =
+        new LibrarySyncExperiment(
+            experiment.getExperimentId(),
+            experiment.getFileId(),
+            experiment.getLastOpened(),
+            experiment.getLastModified(),
+            experiment.getDeleted(),
+            experiment.getArchived());
+    experiments.put(lse.getExperimentId(), lse);
 
-    proto.syncExperiment =
-        experiments.toArray(new GoosciExperimentLibrary.SyncExperiment[experiments.size()]);
     writeExperimentLibrary();
   }
 
@@ -130,23 +134,22 @@ public class ExperimentLibraryManager {
    *
    * @param experiment The SyncExperiment to update
    * @param serverArchived The archive state seen when last synced to the server, from the
-   *        LocalSyncManager.
+   *     LocalSyncManager.
    */
-  private void updateExperiment(
-      GoosciExperimentLibrary.SyncExperiment experiment, boolean serverArchived) {
+  private void updateExperiment(SyncExperiment experiment, boolean serverArchived) {
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment toMerge = getExperiment(experiment.experimentId);
+    LibrarySyncExperiment toMerge = experiments.get(experiment.getExperimentId());
     if (toMerge == null) {
       addExperiment(experiment);
     } else {
-      if (experiment.lastOpened > toMerge.lastOpened) {
-        toMerge.lastOpened = experiment.lastOpened;
+      if (experiment.getLastOpened() > toMerge.getLastOpened()) {
+        toMerge.setLastOpened(experiment.getLastOpened());
       }
-      if (experiment.lastModified > toMerge.lastModified) {
-        toMerge.lastModified = experiment.lastModified;
+      if (experiment.getLastModified() > toMerge.getLastModified()) {
+        toMerge.setLastModified(experiment.getLastModified());
       }
-      if (experiment.deleted) {
-        toMerge.deleted = true;
+      if (experiment.getDeleted()) {
+        toMerge.setDeleted(true);
       }
 
       // serverArchived is the state that we saw on the server during the last sync.
@@ -156,8 +159,8 @@ public class ExperimentLibraryManager {
       // If only one of local and passed-in unarchived, serverArchived will be true, and one of the
       // experiments will be false, and we want to keep whichever one changed, and which is
       // is different from server archived.
-      if (experiment.archived != toMerge.archived) {
-        toMerge.archived = !serverArchived;
+      if (experiment.getArchived() != toMerge.isArchived()) {
+        toMerge.setArchived(!serverArchived);
       }
     }
   }
@@ -169,8 +172,11 @@ public class ExperimentLibraryManager {
    * @param archived Whether or not the experiment is locally archived.
    */
   public void setArchived(String experimentId, boolean archived) {
-    getExperiment(experimentId).archived = archived;
-    writeExperimentLibrary();
+    LibrarySyncExperiment lse = experiments.get(experimentId);
+    if (lse != null) {
+      lse.setArchived(archived);
+      writeExperimentLibrary();
+    }
   }
 
   /**
@@ -180,13 +186,13 @@ public class ExperimentLibraryManager {
    * @return Whether or not the experiment is locally archived.
    */
   public boolean isArchived(String experimentId) {
-    return getExperiment(experimentId).archived;
+    return getExperiment(experimentId).isArchived();
   }
 
   public void setAllDeleted(boolean deleted) {
     populateExperimentLibraryManager();
-    for (GoosciExperimentLibrary.SyncExperiment experiment : proto.syncExperiment) {
-      experiment.deleted = deleted;
+    for (LibrarySyncExperiment experiment : experiments.values()) {
+      experiment.setDeleted(deleted);
     }
     writeExperimentLibrary();
   }
@@ -198,10 +204,11 @@ public class ExperimentLibraryManager {
    * @param deleted Whether or not the experiment is locally deleted.
    */
   public void setDeleted(String experimentId, boolean deleted) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
-    experiment.deleted = deleted;
-    writeExperimentLibrary();
+    LibrarySyncExperiment lse = experiments.get(experimentId);
+    if (lse != null) {
+      lse.setDeleted(deleted);
+      writeExperimentLibrary();
+    }
   }
 
   /**
@@ -211,7 +218,7 @@ public class ExperimentLibraryManager {
    * @return Whether or not the experiment is locally deleted.
    */
   public boolean isDeleted(String experimentId) {
-    return getExperiment(experimentId).deleted;
+    return getExperiment(experimentId).isDeleted();
   }
 
   /**
@@ -230,10 +237,11 @@ public class ExperimentLibraryManager {
    * @param timeInMillis The time the experiment was last opened.
    */
   public void setOpened(String experimentId, long timeInMillis) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
-    experiment.lastOpened = timeInMillis;
-    writeExperimentLibrary();
+    LibrarySyncExperiment lse = experiments.get(experimentId);
+    if (lse != null) {
+      lse.setLastOpened(timeInMillis);
+      writeExperimentLibrary();
+    }
   }
 
   /**
@@ -243,7 +251,7 @@ public class ExperimentLibraryManager {
    * @return the last opened time for the experiment, in millis.
    */
   public long getOpened(String experimentId) {
-    return getExperiment(experimentId).lastOpened;
+    return getExperiment(experimentId).getLastOpened();
   }
 
   /**
@@ -262,10 +270,11 @@ public class ExperimentLibraryManager {
    * @param timeInMillis The time the experiment was last modified.
    */
   public void setModified(String experimentId, long timeInMillis) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
-    experiment.lastModified = timeInMillis;
-    writeExperimentLibrary();
+    LibrarySyncExperiment lse = experiments.get(experimentId);
+    if (lse != null) {
+      lse.setLastModified(timeInMillis);
+      writeExperimentLibrary();
+    }
   }
 
   /**
@@ -275,7 +284,7 @@ public class ExperimentLibraryManager {
    * @return the last modified time for the experiment, in millis.
    */
   public long getModified(String experimentId) {
-    return getExperiment(experimentId).lastModified;
+    return getExperiment(experimentId).getLastModified();
   }
 
   /**
@@ -285,10 +294,11 @@ public class ExperimentLibraryManager {
    * @param fileId The file id for the experiment.
    */
   public void setFileId(String experimentId, String fileId) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment experiment = getExperiment(experimentId);
-    experiment.fileId = fileId;
-    writeExperimentLibrary();
+    LibrarySyncExperiment lse = experiments.get(experimentId);
+    if (lse != null) {
+      lse.setFileId(fileId);
+      writeExperimentLibrary();
+    }
   }
 
   /**
@@ -298,7 +308,7 @@ public class ExperimentLibraryManager {
    * @return the file id for the experiment.
    */
   public String getFileId(String experimentId) {
-    return getExperiment(experimentId).fileId;
+    return getExperiment(experimentId).getFileId();
   }
 
   /**
@@ -306,38 +316,33 @@ public class ExperimentLibraryManager {
    *
    * @param library The experiment to merge from.
    */
-  public void merge(
-      GoosciExperimentLibrary.ExperimentLibrary library, LocalSyncManager syncManager) {
+  public void merge(ExperimentLibrary library, LocalSyncManager syncManager) {
     populateExperimentLibraryManager();
-    if (!Strings.isNullOrEmpty(library.folderId)) {
-      proto.folderId = library.folderId;
+    if (!Strings.isNullOrEmpty(library.getFolderId())) {
+      folderId = library.getFolderId();
     }
-    for (GoosciExperimentLibrary.SyncExperiment experiment : library.syncExperiment) {
+    for (SyncExperiment experiment : library.getSyncExperimentList()) {
       boolean serverArchived = false;
-      if (syncManager.hasExperiment(experiment.experimentId)) {
-        serverArchived = syncManager.getServerArchived(experiment.experimentId);
+      if (syncManager.hasExperiment(experiment.getExperimentId())) {
+        serverArchived = syncManager.getServerArchived(experiment.getExperimentId());
       } else {
-        syncManager.addExperiment(experiment.experimentId);
-        syncManager.setDirty(experiment.experimentId, true);
+        syncManager.addExperiment(experiment.getExperimentId());
+        syncManager.setDirty(experiment.getExperimentId(), true);
       }
       updateExperiment(experiment, serverArchived);
     }
     writeExperimentLibrary();
   }
 
-  public List<String> getKnownExperiments() {
+  public Set<String> getKnownExperiments() {
     populateExperimentLibraryManager();
-    ArrayList<String> experiments = new ArrayList<>();
-    for (GoosciExperimentLibrary.SyncExperiment experiment : proto.syncExperiment) {
-      experiments.add(experiment.experimentId);
-    }
-    return experiments;
+    return experiments.keySet();
   }
 
   private void writeExperimentLibrary() {
     synchronized (account.getLockForExperimentLibraryFile()) {
       try {
-        FileMetadataUtil.getInstance().writeExperimentLibraryFile(proto, account);
+        FileMetadataUtil.getInstance().writeExperimentLibraryFile(generateProto(), account);
       } catch (IOException ioe) {
         // Would like to do something else here, but not sure what else there really is to do.
         if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -347,23 +352,34 @@ public class ExperimentLibraryManager {
     }
   }
 
+  private ExperimentLibrary generateProto() {
+    ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
+    if (library.hasFolderId()) {
+      library.setFolderId(folderId);
+    }
+    for (LibrarySyncExperiment experiment : experiments.values()) {
+      library.addSyncExperiment(experiment.generateProto());
+    }
+    return library.build();
+  }
+
   // Reads the saved experiment library manager file from disk, if the Library has not already
   // been set to a non-null value. This lets us move initialization of this object to the background
   // TODO(b/111649596) Test this
   private void populateExperimentLibraryManager() {
-    if (proto == null) {
-      proto = FileMetadataUtil.getInstance().readExperimentLibraryFile(account);
+    if (experiments.isEmpty()) {
+      setLibrary(FileMetadataUtil.getInstance().readExperimentLibraryFile(account));
     }
   }
 
   public void setFolderId(String folderId) {
     populateExperimentLibraryManager();
-    proto.folderId = folderId;
+    this.folderId = folderId;
     writeExperimentLibrary();
   }
 
   public String getFolderId() {
     populateExperimentLibraryManager();
-    return proto.folderId;
+    return folderId;
   }
 }
