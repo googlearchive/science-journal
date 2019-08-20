@@ -181,7 +181,7 @@ public class ExportService extends Service {
     intent.putExtra(EXTRA_RELATIVE_TIME, relativeTime);
     intent.putExtra(EXTRA_SENSOR_IDS, sensorIds);
     intent.putExtra(EXTRA_SAVE_LOCALLY, saveLocally);
-    context.startService(intent);
+    startService(context, intent, TrackerConstants.ACTION_EXPORT_TRIAL);
   }
 
   /**
@@ -193,7 +193,7 @@ public class ExportService extends Service {
     intent.setAction(ACTION_EXPORT_EXPERIMENT);
     intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(EXTRA_EXPERIMENT_ID, experimentId);
-    context.startService(intent);
+    startService(context, intent, TrackerConstants.ACTION_EXPORT_EXPERIMENT);
   }
 
   /**
@@ -205,7 +205,7 @@ public class ExportService extends Service {
     intent.setAction(ACTION_IMPORT_EXPERIMENT);
     intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(EXTRA_IMPORT_URI, file.toString());
-    context.startService(intent);
+    startService(context, intent, TrackerConstants.ACTION_IMPORT_EXPERIMENT);
   }
 
   /** Starts this service to clean up old files. */
@@ -213,7 +213,20 @@ public class ExportService extends Service {
     Intent intent = new Intent(context, ExportService.class);
     intent.setAction(ACTION_CLEAN_OLD_FILES);
     intent.putExtra(EXTRA_ACCOUNT_KEY, appAccount.getAccountKey());
-    context.startService(intent);
+    startService(context, intent, TrackerConstants.ACTION_CLEAN_OLD_EXPORT_FILES);
+  }
+
+  // TODO(b/139755550): Move startService to an appropriate utility class.
+  private static void startService(Context context, Intent intent, String trackerAction) {
+    try {
+      context.getApplicationContext().startService(intent);
+    } catch (IllegalStateException e) {
+      // The application is in a state where the service can not be started (such as not in the
+      // foreground in a state when services are allowed).
+      String labelFromStackTrace = TrackerConstants.createLabelFromStackTrace(e);
+      WhistlePunkApplication.getUsageTracker(context)
+          .trackEvent(TrackerConstants.CATEGORY_FAILURE, trackerAction, labelFromStackTrace, 0);
+    }
   }
 
   private AppAccount getAppAccount(Intent intent) {

@@ -140,6 +140,12 @@ public final class TrackerConstants {
   public static final String ACTION_MANUAL_SYNC_STARTED = "ManualSyncStarted";
   public static final String ACTION_PERMISSION_REQUEST_FAILED = "PermissionRequestFailed";
   public static final String ACTION_MISSING_REMOTE_FILE_ID = "MissingRemoteFileId";
+  public static final String ACTION_EXPORT_TRIAL = "ExportTrial";
+  public static final String ACTION_EXPORT_EXPERIMENT = "ExportExperiment";
+  public static final String ACTION_IMPORT_EXPERIMENT = "ImportExperiment";
+  public static final String ACTION_CLEAN_OLD_EXPORT_FILES = "CleanOldExportFiles";
+  public static final String ACTION_SYNC_EXPERIMENT_LIBRARY_FILE = "SyncExperimentLibraryFile";
+  public static final String ACTION_SYNC_EXPERIMENT_PROTO_FILE = "SyncExperimentProtoFile";
 
   // Labels
   public static final String LABEL_RECORD = "record";
