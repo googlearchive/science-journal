@@ -1861,6 +1861,12 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void addActiveRecording(Trial trial) {
+      // If trial is somehow null, there's nothing much we can do. This was causing NPE crashes,
+      // probably due to asynchronous modifications of the protos. This case will hopefully occur
+      // less often with Lite protos, but checking to be sure will at least prevent a crash.
+      if (trial == null) {
+        return;
+      }
       if (findTrialIndex(trial.getTrialId()) == -1) {
         // active recording goes to end of list
         items.add(new ExperimentDetailItem(trial, scalarDisplayOptions, true));
