@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
+import android.transition.Slide;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -210,6 +211,9 @@ public class SensorFragment extends Fragment
         new ControlBarController(getAppAccount(), getExperimentId(), new SnackbarManager());
 
     setHasOptionsMenu(true);
+
+    setEnterTransition(new Slide());
+    setExitTransition(new Slide());
   }
 
   private void onAudioPermissionChanged(@PermissionUtils.PermissionState int newState) {

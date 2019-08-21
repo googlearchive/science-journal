@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.transition.Slide;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -127,6 +128,8 @@ public class GalleryNoteFragment extends Fragment
             });
 
     whenLoaderManager.onSuccess(getLoaderManager());
+    setEnterTransition(new Slide());
+    setExitTransition(new Slide());
   }
 
   @Override

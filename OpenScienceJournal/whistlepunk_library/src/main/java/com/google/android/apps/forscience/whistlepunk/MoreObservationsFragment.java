@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.transition.Slide;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,6 +42,13 @@ public class MoreObservationsFragment extends Fragment {
     MoreObservationsFragment fragment = new MoreObservationsFragment();
     fragment.setArguments(new Bundle());
     return fragment;
+  }
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setEnterTransition(new Slide());
+    setExitTransition(new Slide());
   }
 
   @Nullable

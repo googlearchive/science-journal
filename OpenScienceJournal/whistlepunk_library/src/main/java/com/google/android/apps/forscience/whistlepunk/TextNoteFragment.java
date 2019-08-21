@@ -22,6 +22,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import android.text.TextUtils;
+import android.transition.Slide;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +52,13 @@ public class TextNoteFragment extends Fragment {
 
   public interface ListenerProvider {
     TextNoteFragment.TextLabelFragmentListener getTextLabelFragmentListener();
+  }
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setEnterTransition(new Slide());
+    setExitTransition(new Slide());
   }
 
   @Override

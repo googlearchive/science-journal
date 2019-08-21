@@ -201,26 +201,16 @@ public abstract class NoteTakingActivity extends AppCompatActivity
 
   @Override
   public void onBackPressed() {
-    if (isTwoPane) {
-      if (activeToolFragmentTag == null
-          || activeToolFragmentTag.equals(DEFAULT_ADD_MORE_OBSERVATIONS_TAG)) {
-        if (handleDefaultFragmentOnBackPressed()) {
-          return;
-        }
-      } else {
-        closeToolFragment();
+    if (activeToolFragmentTag == null
+        || activeToolFragmentTag.equals(DEFAULT_ADD_MORE_OBSERVATIONS_TAG)) {
+      if (handleDefaultFragmentOnBackPressed()) {
         return;
       }
     } else {
-      if (defaultFragment != null && defaultFragment.isVisible()) {
-        if (handleDefaultFragmentOnBackPressed()) {
-          return;
-        }
-      } else {
-        closeToolFragment();
-        return;
-      }
+      closeToolFragment();
+      return;
     }
+
     super.onBackPressed();
   }
 
@@ -335,7 +325,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction ft = fragmentManager.beginTransaction();
     for (Fragment fragment : fragmentManager.getFragments()) {
-      if (!fragment.equals(defaultFragment) || !isTwoPane) {
+      if (!fragment.equals(defaultFragment)) {
         ft.hide(fragment);
       }
     }
