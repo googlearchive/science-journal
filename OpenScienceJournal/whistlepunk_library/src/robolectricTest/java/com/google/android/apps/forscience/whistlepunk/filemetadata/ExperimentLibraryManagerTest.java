@@ -25,6 +25,7 @@ import static junit.framework.Assert.assertTrue;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.SyncExperiment;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
@@ -59,11 +60,10 @@ public class ExperimentLibraryManagerTest {
   public void testSetArchived() {
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder().setExperimentId("id").build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     ExperimentLibraryManager manager = getTestManager(library.build());
     manager.setArchived("id", false);
@@ -76,11 +76,10 @@ public class ExperimentLibraryManagerTest {
   public void testSetDeleted() {
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder().setExperimentId("id").build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     ExperimentLibraryManager manager = getTestManager(library.build());
     manager.setDeleted("id", false);
@@ -93,11 +92,10 @@ public class ExperimentLibraryManagerTest {
   public void testSetOpened() {
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder().setExperimentId("id").build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     ExperimentLibraryManager manager = getTestManager(library.build());
     manager.setOpened("id", 10);
@@ -110,11 +108,10 @@ public class ExperimentLibraryManagerTest {
   public void testSetModified() {
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder().setExperimentId("id").build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     ExperimentLibraryManager manager = getTestManager(library.build());
     manager.setModified("id", 10);
@@ -134,13 +131,13 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id2");
-    experiment.setArchived(true);
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder()
+            .setExperimentId("id2")
+            .setArchived(true)
+            .build();
 
-    library.addSyncExperiment(experiment.build());
-    library.setFolderId("bar");
+    library.addSyncExperiment(experiment).setFolderId("bar");
 
     manager.merge(library.build(), getTestLocalSyncManager());
 
@@ -160,13 +157,14 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
-    experiment.setLastModified(200);
-    experiment.setLastOpened(300);
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder()
+            .setExperimentId("id")
+            .setLastModified(200)
+            .setLastOpened(300)
+            .build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     manager.merge(library.build(), getTestLocalSyncManager());
 
@@ -183,13 +181,14 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
-    experiment.setLastModified(200);
-    experiment.setLastOpened(50);
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder()
+            .setExperimentId("id")
+            .setLastModified(200)
+            .setLastOpened(50)
+            .build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     manager.merge(library.build(), getTestLocalSyncManager());
 
@@ -205,12 +204,13 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
-    experiment.setDeleted(true);
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder()
+            .setExperimentId("id")
+            .setDeleted(true)
+            .build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     manager.merge(library.build(), getTestLocalSyncManager());
 
@@ -225,12 +225,13 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
-    experiment.setDeleted(false);
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder()
+            .setExperimentId("id")
+            .setDeleted(false)
+            .build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     manager.merge(library.build(), getTestLocalSyncManager());
 
@@ -245,12 +246,13 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
-    experiment.setArchived(true);
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder()
+            .setExperimentId("id")
+            .setArchived(true)
+            .build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     LocalSyncManager localSync = getTestLocalSyncManager();
     localSync.addExperiment("id");
@@ -268,12 +270,13 @@ public class ExperimentLibraryManagerTest {
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
     @MigrateAs(Destination.BUILDER)
-    GoosciExperimentLibrary.SyncExperiment.Builder experiment =
-        GoosciExperimentLibrary.SyncExperiment.newBuilder();
-    experiment.setExperimentId("id");
-    experiment.setArchived(false);
+    SyncExperiment experiment =
+        GoosciExperimentLibrary.SyncExperiment.newBuilder()
+            .setExperimentId("id")
+            .setArchived(false)
+            .build();
 
-    library.addSyncExperiment(experiment.build());
+    library.addSyncExperiment(experiment);
 
     LocalSyncManager localSync = getTestLocalSyncManager();
     localSync.addExperiment("id");

@@ -105,11 +105,11 @@ class LibrarySyncExperiment {
     if (experimentId != null) {
       builder.setExperimentId(experimentId);
     }
-    builder.setLastOpened(lastOpened);
-    builder.setLastModified(lastModified);
-    builder.setDeleted(deleted);
-    builder.setArchived(archived);
-
-    return builder.build();
+    return builder
+        .setLastOpened(lastOpened)
+        .setLastModified(lastModified)
+        .setDeleted(deleted)
+        .setArchived(archived)
+        .build();
   }
 }

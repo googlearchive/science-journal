@@ -38,7 +38,7 @@ message ExperimentLibrary {
 // A single experiment to be synced to Drive.
 // Next Tag: 7
 message SyncExperiment {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   // The Drive fileId.
   optional string fileId = 1;
