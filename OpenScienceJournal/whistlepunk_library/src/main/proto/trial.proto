@@ -17,17 +17,17 @@
 syntax = "proto2";
 
 package goosci;
-option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
-option java_outer_classname = "GoosciTrial";
-option objc_class_prefix = "GSJ";
-option optimize_for = LITE_RUNTIME;
 
 import "third_party/android/nanoproto/nano_descriptor.proto";
-
 import "basic_sensor_appearance.proto";
 import "caption.proto";
 import "label.proto";
 import "sensor_layout.proto";
+
+option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
+option java_outer_classname = "GoosciTrial";
+option objc_class_prefix = "GSJ";
+option optimize_for = LITE_RUNTIME;
 
 /*
  * Trial protobuf definition
@@ -78,7 +78,7 @@ message Trial {
 
   // Version 1.2: Added
   message AppearanceEntry {
-    option (proto2.nano.message_as_lite) = false;
+    option (proto2.nano.message_as_lite) = true;
 
     // The sensor ID associated with this within this experiment.
     // This has no global uniqueness or parseable meaning outside this
@@ -100,7 +100,7 @@ message Trial {
   // two trials within an experiment should have the same index. Starts at 1
   // (different from an index, which starts at 0!)
   optional int32 trialNumberInExperiment = 13;
-};
+}
 
 /*
  * A time range
@@ -113,7 +113,7 @@ message Range {
 
   // The end of a range.
   optional int64 endMs = 2;
-};
+}
 
 /*
  * Trial stats for a single sensor. Each sensor may have multiple individual

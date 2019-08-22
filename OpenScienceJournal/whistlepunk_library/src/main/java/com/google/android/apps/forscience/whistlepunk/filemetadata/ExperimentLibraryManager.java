@@ -22,8 +22,6 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.SyncExperiment;
 import com.google.common.base.Strings;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,7 +135,6 @@ public class ExperimentLibraryManager {
    *     LocalSyncManager.
    */
   private void updateExperiment(SyncExperiment experiment, boolean serverArchived) {
-    @MigrateAs(Destination.BUILDER)
     LibrarySyncExperiment toMerge = experiments.get(experiment.getExperimentId());
     if (toMerge == null) {
       addExperiment(experiment);

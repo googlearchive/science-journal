@@ -34,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Trial.AppearanceEntry;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.base.Preconditions;
@@ -113,15 +114,16 @@ public class Trial extends LabelListHolder {
     trial.sensorLayouts = sensorLayouts;
     trial.trialId = trialId;
 
-    trial.sensorAppearances = new GoosciTrial.Trial.AppearanceEntry[sensorLayouts.length];
+    trial.sensorAppearances = new AppearanceEntry[sensorLayouts.length];
     for (int i = 0; i < sensorLayouts.length; i++) {
-      GoosciTrial.Trial.AppearanceEntry entry = new GoosciTrial.Trial.AppearanceEntry();
       GoosciSensorLayout.SensorLayout layout = sensorLayouts[i];
-      entry.sensorId = layout.sensorId;
-      entry.rememberedAppearance =
-          SensorAppearanceProviderImpl.appearanceToProto(
-              provider.getAppearance(layout.sensorId), context);
-      trial.sensorAppearances[i] = entry;
+      trial.sensorAppearances[i] =
+          AppearanceEntry.newBuilder()
+              .setSensorId(layout.sensorId)
+              .setRememberedAppearance(
+                  SensorAppearanceProviderImpl.appearanceToProto(
+                      provider.getAppearance(layout.sensorId), context))
+              .build();
     }
 
     labels = new ArrayList<>();
@@ -354,8 +356,8 @@ public class Trial extends LabelListHolder {
   public Map<String, GoosciSensorAppearance.BasicSensorAppearance> getAppearances() {
     // TODO: need a putAppearance method for changes
     HashMap<String, GoosciSensorAppearance.BasicSensorAppearance> appearances = new HashMap<>();
-    for (GoosciTrial.Trial.AppearanceEntry entry : trial.sensorAppearances) {
-      appearances.put(entry.sensorId, entry.rememberedAppearance);
+    for (AppearanceEntry entry : trial.sensorAppearances) {
+      appearances.put(entry.getSensorId(), entry.getRememberedAppearance());
     }
     return appearances;
   }
