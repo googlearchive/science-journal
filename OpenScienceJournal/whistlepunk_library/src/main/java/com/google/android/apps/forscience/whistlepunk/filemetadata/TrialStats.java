@@ -19,6 +19,8 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +75,7 @@ public class TrialStats {
     }
     int newSize = trialStats.sensorStats.length + 1;
     trialStats.sensorStats = Arrays.copyOf(trialStats.sensorStats, newSize);
+    @MigrateAs(Destination.BUILDER)
     GoosciTrial.SensorStat newStat = new GoosciTrial.SensorStat();
     newStat.statType = type;
     newStat.statValue = value;
