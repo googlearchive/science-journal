@@ -35,6 +35,8 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibra
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import io.reactivex.Single;
 import java.io.DataInputStream;
@@ -393,11 +395,15 @@ public class FileMetadataUtil {
   }
 
   public void writeLocalSyncStatusFile(
-      GoosciLocalSyncStatus.LocalSyncStatus status, AppAccount appAccount) throws IOException {
+      @MigrateAs(Destination.EITHER) GoosciLocalSyncStatus.LocalSyncStatus status,
+      AppAccount appAccount)
+      throws IOException {
     writeProtoToFile(MessageNano.toByteArray(status), getLocalSyncStatusFile(appAccount));
   }
 
+  @MigrateAs(Destination.EITHER)
   public GoosciLocalSyncStatus.LocalSyncStatus readLocalSyncStatusFile(AppAccount appAccount) {
+    @MigrateAs(Destination.BUILDER)
     GoosciLocalSyncStatus.LocalSyncStatus status = new GoosciLocalSyncStatus.LocalSyncStatus();
     File statusFile = getLocalSyncStatusFile(appAccount);
     if (statusFile.canRead()) {

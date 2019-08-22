@@ -22,6 +22,8 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.ExperimentStatus;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +48,8 @@ public class LocalSyncManager {
   /** Constructor for an LocalSyncManager using an existing LocalSyncStatus. Useful for testing. */
   @VisibleForTesting
   public LocalSyncManager(
-      GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus, AppAccount account) {
+      @MigrateAs(Destination.EITHER) GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus,
+      AppAccount account) {
     this.account = account;
     if (localSyncStatus != null) {
       setLocalSyncStatus(localSyncStatus);
@@ -58,7 +61,8 @@ public class LocalSyncManager {
    *
    * @param localSyncStatus The KicalSyncStatus to manage.
    */
-  public void setLocalSyncStatus(GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus) {
+  public void setLocalSyncStatus(
+      @MigrateAs(Destination.EITHER) GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus) {
     lastSyncedLibraryVersion = localSyncStatus.lastSyncedLibraryVersion;
     statusMap.clear();
     for (ExperimentStatus status : localSyncStatus.experimentStatus) {
@@ -249,7 +253,9 @@ public class LocalSyncManager {
     }
   }
 
+  @MigrateAs(Destination.EITHER)
   private LocalSyncStatus generateProto() {
+    @MigrateAs(Destination.BUILDER)
     LocalSyncStatus proto = new LocalSyncStatus();
     proto.lastSyncedLibraryVersion = lastSyncedLibraryVersion;
     ArrayList<ExperimentStatus> statusList = new ArrayList<>();
