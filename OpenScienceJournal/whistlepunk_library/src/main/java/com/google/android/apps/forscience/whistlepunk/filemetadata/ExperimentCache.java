@@ -76,19 +76,21 @@ class ExperimentCache {
     void onNewerVersionDetected(GoosciUserMetadata.ExperimentOverview experimentOverview);
   }
 
-  private FailureListener failureListener;
-  private Context context;
-  private AppAccount appAccount;
-  private Experiment activeExperiment;
-  private ProtoFileHelper<GoosciExperiment.Experiment> experimentProtoFileHelper;
-  private boolean activeExperimentNeedsWrite = false;
-  private LocalSyncManager localSyncManager;
-  private ExperimentLibraryManager experimentLibraryManager;
+  private final FailureListener failureListener;
+  private final Context context;
+  private final AppAccount appAccount;
+  private final ProtoFileHelper<GoosciExperiment.Experiment> experimentProtoFileHelper;
+  private final LocalSyncManager localSyncManager;
+  private final ExperimentLibraryManager experimentLibraryManager;
   private final long writeDelayMs;
 
   private final Handler handler;
   private final ExecutorService backgroundWriteThread;
   private final Runnable writeRunnable;
+
+  private final Object activeExperimentLock = new Object();
+  private Experiment activeExperiment;
+  private boolean activeExperimentNeedsWrite;
 
   public ExperimentCache(Context context, AppAccount appAccount, FailureListener failureListener) {
     this(context, appAccount, failureListener, WRITE_DELAY_MS);
@@ -125,8 +127,16 @@ class ExperimentCache {
     backgroundWriteThread = Executors.newSingleThreadExecutor();
     writeRunnable =
         () -> {
-          if (activeExperimentNeedsWrite) {
-            backgroundWriteThread.execute(this::writeActiveExperimentFile);
+          synchronized (activeExperimentLock) {
+            if (activeExperimentNeedsWrite) {
+              final Experiment experimentToWrite = activeExperiment;
+              if (experimentToWrite != null) {
+                backgroundWriteThread.execute(
+                    () -> {
+                      writeExperimentFile(experimentToWrite);
+                    });
+              }
+            }
           }
         };
     this.writeDelayMs = writeDelayMs;
@@ -137,7 +147,9 @@ class ExperimentCache {
 
   @VisibleForTesting
   Experiment getActiveExperimentForTests() {
-    return activeExperiment;
+    synchronized (activeExperimentLock) {
+      return activeExperiment;
+    }
   }
 
   /**
@@ -150,19 +162,22 @@ class ExperimentCache {
       failureListener.onWriteFailed(experiment);
       return false;
     }
-    return setExistingActiveExperiment(experiment);
+    setExistingActiveExperiment(experiment);
+    return true;
   }
 
   /** Updates the given experiment. */
   void updateExperiment(Experiment experiment, boolean setDirty) {
-    if (isDifferentFromActive(experiment.getExperimentOverview())) {
-      immediateWriteIfActiveChanging(experiment.getExperimentOverview());
+    synchronized (activeExperimentLock) {
+      if (isDifferentFromActive(experiment.getExperimentOverview())) {
+        immediateWriteIfActiveChanging(experiment.getExperimentOverview());
+      }
+      experimentLibraryManager.setModified(
+          experiment.getExperimentId(), experiment.getLastUsedTime());
+      localSyncManager.setDirty(experiment.getExperimentId(), setDirty);
+      activeExperiment = experiment;
+      startWriteTimer();
     }
-    experimentLibraryManager.setModified(
-        experiment.getExperimentId(), experiment.getLastUsedTime());
-    localSyncManager.setDirty(experiment.getExperimentId(), setDirty);
-    activeExperiment = experiment;
-    startWriteTimer();
   }
 
   /**
@@ -176,10 +191,12 @@ class ExperimentCache {
    */
   void onExperimentOverviewUpdated(
       @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview experimentOverview) {
-    if (!isDifferentFromActive(experimentOverview)) {
-      activeExperiment.setLastUsedTime(experimentOverview.lastUsedTimeMs);
-      activeExperiment.setArchived(context, appAccount, experimentOverview.isArchived);
-      activeExperiment.getExperimentOverview().imagePath = experimentOverview.imagePath;
+    synchronized (activeExperimentLock) {
+      if (!isDifferentFromActive(experimentOverview)) {
+        activeExperiment.setLastUsedTime(experimentOverview.lastUsedTimeMs);
+        activeExperiment.setArchived(context, appAccount, experimentOverview.isArchived);
+        activeExperiment.getExperimentOverview().imagePath = experimentOverview.imagePath;
+      }
     }
   }
 
@@ -191,13 +208,15 @@ class ExperimentCache {
    *     used for lookup.
    */
   Experiment getExperiment(GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
-    // Write only if the experiment ID is changing. If it's not changing, we just want to
-    // reload even if it was dirty.
-    if (isDifferentFromActive(localExperimentOverview)) {
-      immediateWriteIfActiveChanging(localExperimentOverview);
-      loadActiveExperimentFromFile(localExperimentOverview);
+    synchronized (activeExperimentLock) {
+      // Write only if the experiment ID is changing. If it's not changing, we just want to
+      // reload even if it was dirty.
+      if (isDifferentFromActive(localExperimentOverview)) {
+        immediateWriteIfActiveChanging(localExperimentOverview);
+        loadActiveExperimentFromFile(localExperimentOverview);
+      }
+      return activeExperiment;
     }
-    return activeExperiment;
   }
 
   /**
@@ -213,18 +232,20 @@ class ExperimentCache {
       // so that the user can't see pictures any more?
       return;
     }
-    if (activeExperiment != null
-        && TextUtils.equals(
-            activeExperiment.getExperimentOverview().experimentId, localExperimentId)) {
-      activeExperiment = null;
-      cancelWriteTimer();
-      activeExperimentNeedsWrite = false;
-      if (experimentLibraryManager.getExperiment(localExperimentId) != null) {
-        experimentLibraryManager.setDeleted(localExperimentId, true);
-        localSyncManager.setDirty(localExperimentId, true);
-      } else {
-        if (Log.isLoggable(TAG, Log.WARN)) {
-          Log.w(TAG, "Experiment Library didn't contain experiment: " + localExperimentId);
+    synchronized (activeExperimentLock) {
+      if (activeExperiment != null
+          && TextUtils.equals(
+              activeExperiment.getExperimentOverview().experimentId, localExperimentId)) {
+        activeExperiment = null;
+        cancelWriteTimer();
+        activeExperimentNeedsWrite = false;
+        if (experimentLibraryManager.getExperiment(localExperimentId) != null) {
+          experimentLibraryManager.setDeleted(localExperimentId, true);
+          localSyncManager.setDirty(localExperimentId, true);
+        } else {
+          if (Log.isLoggable(TAG, Log.WARN)) {
+            Log.w(TAG, "Experiment Library didn't contain experiment: " + localExperimentId);
+          }
         }
       }
     }
@@ -240,15 +261,19 @@ class ExperimentCache {
 
   void beforeMovingAllExperimentsToAnotherAccount() {
     // This ExperimentCache is losing all experiments.
-    activeExperiment = null;
+    synchronized (activeExperimentLock) {
+      activeExperiment = null;
+    }
   }
 
   void beforeMovingExperimentToAnotherAccount(String localExperimentId) {
     // This ExperimentCache is losing the experiment.
-    if (activeExperiment != null
-        && TextUtils.equals(
-            activeExperiment.getExperimentOverview().experimentId, localExperimentId)) {
-      activeExperiment = null;
+    synchronized (activeExperimentLock) {
+      if (activeExperiment != null
+          && TextUtils.equals(
+              activeExperiment.getExperimentOverview().experimentId, localExperimentId)) {
+        activeExperiment = null;
+      }
     }
   }
 
@@ -257,14 +282,15 @@ class ExperimentCache {
    * for the first time. Sets the dirty bit to true, then starts a timer if needed to make sure that
    * the write happens within a reasonable time frame.
    */
-  private boolean setExistingActiveExperiment(Experiment experiment) {
-    immediateWriteIfActiveChanging(experiment.getExperimentOverview());
+  private void setExistingActiveExperiment(Experiment experiment) {
+    synchronized (activeExperimentLock) {
+      immediateWriteIfActiveChanging(experiment.getExperimentOverview());
 
-    // Then set the new experiment and set the dirty bit to true, resetting the write timer,
-    // so that we save it soon.
-    activeExperiment = experiment;
-    startWriteTimer();
-    return true;
+      // Then set the new experiment and set the dirty bit to true, resetting the write timer,
+      // so that we save it soon.
+      activeExperiment = experiment;
+      startWriteTimer();
+    }
   }
 
   /** Create a folder with the experiment ID, and create the appropriate folders within it. */
@@ -303,13 +329,15 @@ class ExperimentCache {
   private void immediateWriteIfActiveChanging(
       @MigrateAs(Destination.EITHER)
           GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
-    if (activeExperiment != null
-        && activeExperimentNeedsWrite
-        && isDifferentFromActive(localExperimentOverview)) {
-      // First write the old active experiment if the ID has changed.
-      // Then cancel the write timer on the old experiment. We will reset it below.
-      cancelWriteTimer();
-      writeActiveExperimentFile();
+    synchronized (activeExperimentLock) {
+      if (activeExperiment != null
+          && activeExperimentNeedsWrite
+          && isDifferentFromActive(localExperimentOverview)) {
+        // First write the old active experiment if the ID has changed.
+        // Then cancel the write timer on the old experiment. We will reset it below.
+        cancelWriteTimer();
+        writeActiveExperimentFile();
+      }
     }
   }
 
@@ -318,58 +346,74 @@ class ExperimentCache {
   }
 
   private void startWriteTimer() {
-    if (activeExperimentNeedsWrite) {
-      // The timer is already running.
-      return;
-    }
+    synchronized (activeExperimentLock) {
+      if (activeExperimentNeedsWrite) {
+        // The timer is already running.
+        return;
+      }
 
-    // TODO: I think this can only be null during tests.  Can we rewrite the tests to remove
-    //       this possibility?
-    if (activeExperiment != null) {
-      // We're going to write a new file, so rev the platform version
-      setPlatformVersion(activeExperiment.getExperimentProto(), PLATFORM_VERSION);
-    }
+      // TODO: I think this can only be null during tests.  Can we rewrite the tests to remove
+      //       this possibility?
+      if (activeExperiment != null) {
+        // We're going to write a new file, so rev the platform version
+        setPlatformVersion(activeExperiment.getExperimentProto(), PLATFORM_VERSION);
+      }
 
-    activeExperimentNeedsWrite = true;
-    handler.postDelayed(writeRunnable, writeDelayMs);
+      activeExperimentNeedsWrite = true;
+      handler.postDelayed(writeRunnable, writeDelayMs);
+    }
   }
 
   @VisibleForTesting
   boolean needsWrite() {
-    return activeExperimentNeedsWrite;
+    synchronized (activeExperimentLock) {
+      return activeExperimentNeedsWrite;
+    }
   }
 
   /** Writes the active experiment to a file immediately, if needed. */
   void saveImmediately() {
-    if (activeExperimentNeedsWrite) {
-      cancelWriteTimer();
-      writeActiveExperimentFile();
+    synchronized (activeExperimentLock) {
+      if (activeExperimentNeedsWrite) {
+        cancelWriteTimer();
+        writeActiveExperimentFile();
+      }
     }
   }
 
   /** Writes the active experiment to a file. */
   @VisibleForTesting
   void writeActiveExperimentFile() {
-    GoosciExperiment.Experiment proto = activeExperiment.getExperimentProto();
+    writeExperimentFile(activeExperiment);
+  }
+
+  /** Writes the given experiment to a file. */
+  @VisibleForTesting
+  void writeExperimentFile(Experiment experimentToWrite) {
+    GoosciExperiment.Experiment proto = experimentToWrite.getExperimentProto();
     if ((proto.version > VERSION)
         || (proto.version == VERSION && proto.minorVersion > MINOR_VERSION)) {
       // If the major version is too new, or the minor version is too new, we can't save this.
       // TODO: Or should this throw onWriteFailed?
-      failureListener.onNewerVersionDetected(activeExperiment.getExperimentOverview());
+      failureListener.onNewerVersionDetected(experimentToWrite.getExperimentOverview());
       return;
     }
 
-    File experimentFile = getExperimentFile(activeExperiment.getExperimentOverview());
+    File experimentFile = getExperimentFile(experimentToWrite.getExperimentOverview());
     boolean success;
     synchronized (appAccount.getLockForExperimentProtoFile()) {
       success =
           experimentProtoFileHelper.writeToFile(
-              experimentFile, activeExperiment.getExperimentProto(), getUsageTracker());
+              experimentFile, experimentToWrite.getExperimentProto(), getUsageTracker());
     }
     if (success) {
-      activeExperimentNeedsWrite = false;
+      synchronized (activeExperimentLock) {
+        if (activeExperiment == experimentToWrite) {
+          activeExperimentNeedsWrite = false;
+        }
+      }
     } else {
-      failureListener.onWriteFailed(activeExperiment);
+      failureListener.onWriteFailed(experimentToWrite);
     }
   }
 
@@ -386,15 +430,17 @@ class ExperimentCache {
           experimentProtoFileHelper.readFromFile(
               experimentFile, GoosciExperiment.Experiment::parseFrom, getUsageTracker());
     }
-    if (proto != null) {
-      upgradeExperimentVersionIfNeeded(proto, experimentOverview);
-      activeExperiment = Experiment.fromExperiment(proto, experimentOverview);
-      localSyncManager.addExperiment(activeExperiment.getExperimentId());
-      experimentLibraryManager.addExperiment(activeExperiment.getExperimentId());
-    } else {
-      // Or maybe pass a FailureListener into the load instead of failing here.
-      failureListener.onReadFailed(experimentOverview);
-      activeExperiment = null;
+    synchronized (activeExperimentLock) {
+      if (proto != null) {
+        upgradeExperimentVersionIfNeeded(proto, experimentOverview);
+        activeExperiment = Experiment.fromExperiment(proto, experimentOverview);
+        localSyncManager.addExperiment(activeExperiment.getExperimentId());
+        experimentLibraryManager.addExperiment(activeExperiment.getExperimentId());
+      } else {
+        // Or maybe pass a FailureListener into the load instead of failing here.
+        failureListener.onReadFailed(experimentOverview);
+        activeExperiment = null;
+      }
     }
   }
 
@@ -550,11 +596,13 @@ class ExperimentCache {
 
   private boolean isDifferentFromActive(
       @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview other) {
-    if (activeExperiment == null) {
-      return true;
+    synchronized (activeExperimentLock) {
+      if (activeExperiment == null) {
+        return true;
+      }
+      return !TextUtils.equals(
+          other.experimentId, activeExperiment.getExperimentOverview().experimentId);
     }
-    return !TextUtils.equals(
-        other.experimentId, activeExperiment.getExperimentOverview().experimentId);
   }
 
   @VisibleForTesting
