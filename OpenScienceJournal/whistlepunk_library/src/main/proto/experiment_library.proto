@@ -28,7 +28,7 @@ option optimize_for = LITE_RUNTIME;
 // Next Tag: 3
 // LINT: LEGACY_NAMES
 message ExperimentLibrary {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   repeated SyncExperiment syncExperiment = 1;
   // The folder ID of the "Science Journal" folder.

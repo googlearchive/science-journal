@@ -27,8 +27,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibra
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.SyncExperiment;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -59,7 +57,6 @@ public class ExperimentLibraryManagerTest {
   @Test
   public void testSetArchived() {
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder().setExperimentId("id").build();
 
@@ -75,7 +72,6 @@ public class ExperimentLibraryManagerTest {
   @Test
   public void testSetDeleted() {
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder().setExperimentId("id").build();
 
@@ -91,7 +87,6 @@ public class ExperimentLibraryManagerTest {
   @Test
   public void testSetOpened() {
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder().setExperimentId("id").build();
 
@@ -107,7 +102,6 @@ public class ExperimentLibraryManagerTest {
   @Test
   public void testSetModified() {
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder().setExperimentId("id").build();
 
@@ -130,7 +124,6 @@ public class ExperimentLibraryManagerTest {
     assertNull(manager.getExperiment("id2"));
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder()
             .setExperimentId("id2")
@@ -156,7 +149,6 @@ public class ExperimentLibraryManagerTest {
     manager.setOpened("id", 100);
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder()
             .setExperimentId("id")
@@ -180,7 +172,6 @@ public class ExperimentLibraryManagerTest {
     manager.setOpened("id", 100);
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder()
             .setExperimentId("id")
@@ -203,7 +194,6 @@ public class ExperimentLibraryManagerTest {
     manager.setDeleted("id", false);
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder()
             .setExperimentId("id")
@@ -224,7 +214,6 @@ public class ExperimentLibraryManagerTest {
     manager.setDeleted("id", true);
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder()
             .setExperimentId("id")
@@ -245,7 +234,6 @@ public class ExperimentLibraryManagerTest {
     manager.setArchived("id", false);
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder()
             .setExperimentId("id")
@@ -269,7 +257,6 @@ public class ExperimentLibraryManagerTest {
     manager.setArchived("id", true);
 
     GoosciExperimentLibrary.ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    @MigrateAs(Destination.BUILDER)
     SyncExperiment experiment =
         GoosciExperimentLibrary.SyncExperiment.newBuilder()
             .setExperimentId("id")
