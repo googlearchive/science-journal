@@ -18,11 +18,12 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import androidx.annotation.VisibleForTesting;
 import android.util.Log;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Data;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Pin;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.protobuf.ExtensionRegistryLite;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayOutputStream;
 
 public class PacketAssembler {
@@ -66,8 +67,9 @@ public class PacketAssembler {
     GoosciSensor.SensorData sensorData;
 
     try {
-      sensorData = GoosciSensor.SensorData.parseFrom(bs);
-    } catch (InvalidProtocolBufferNanoException e) {
+      sensorData =
+          GoosciSensor.SensorData.parseFrom(bs, ExtensionRegistryLite.getGeneratedRegistry());
+    } catch (InvalidProtocolBufferException e) {
       raiseError(e.getLocalizedMessage());
       if (Log.isLoggable(TAG, Log.DEBUG)) {
         Log.d(TAG, "Failed to parse sensor value because " + e.getMessage());
@@ -113,7 +115,7 @@ public class PacketAssembler {
       return;
     }
 
-    long relativeTime = sensorData.timestampKey;
+    long relativeTime = sensorData.getTimestampKey();
 
     if (timeSkew == -1) {
       // Haven't seen a value yet. Let's calculate the time skew assuming no

@@ -184,7 +184,7 @@ message Error {
 };
 
 message SensorData {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   required uint32 timestamp_key = 1;
   oneof result {

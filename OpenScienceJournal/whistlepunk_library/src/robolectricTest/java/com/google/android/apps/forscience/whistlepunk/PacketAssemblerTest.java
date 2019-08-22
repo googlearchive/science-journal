@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogValue;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalPin;
@@ -27,10 +28,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.IntValue
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Pin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.StringValue;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.VirtualPin;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,13 +91,12 @@ public class PacketAssemblerTest {
   }
 
   private class GoosciSensorBuilder {
-    @MigrateAs(Destination.BUILDER)
-    private GoosciSensor.SensorData sensorData;
+    private GoosciSensor.SensorData.Builder sensorData;
 
     private com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Data.Builder data;
 
     GoosciSensorBuilder() {
-      sensorData = new GoosciSensor.SensorData();
+      sensorData = GoosciSensor.SensorData.newBuilder().setTimestampKey(0);
       data =
           com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Data.newBuilder()
               .setPin(Pin.getDefaultInstance());
@@ -128,47 +125,47 @@ public class PacketAssemblerTest {
     }
 
     GoosciSensorBuilder setAnalogValue(int value, int timestampMs) {
-      sensorData.timestampKey = timestampMs;
+      sensorData.setTimestampKey(timestampMs);
       AnalogValue av = AnalogValue.newBuilder().setValue(value).build();
       data.setAnalogValue(av);
       return this;
     }
 
     GoosciSensorBuilder setDigitalValue(boolean value, int timestampMs) {
-      sensorData.timestampKey = timestampMs;
+      sensorData.setTimestampKey(timestampMs);
       DigitalValue dv = DigitalValue.newBuilder().setValue(value).build();
       data.setDigitalValue(dv);
       return this;
     }
 
     GoosciSensorBuilder setIntValue(int value, int timestampMs) {
-      sensorData.timestampKey = timestampMs;
+      sensorData.setTimestampKey(timestampMs);
       IntValue iv = IntValue.newBuilder().setValue(value).build();
       data.setIntValue(iv);
       return this;
     }
 
     GoosciSensorBuilder setFloatValue(float value, int timestampMs) {
-      sensorData.timestampKey = timestampMs;
+      sensorData.setTimestampKey(timestampMs);
       FloatValue fv = FloatValue.newBuilder().setValue(value).build();
       data.setFloatValue(fv);
       return this;
     }
 
     GoosciSensorBuilder setStringValue(String value, int timestampMs) {
-      sensorData.timestampKey = timestampMs;
+      sensorData.setTimestampKey(timestampMs);
       StringValue sv = StringValue.newBuilder().setValue(value).build();
       data.setStringValue(sv);
       return this;
     }
 
     GoosciSensorBuilder commit() {
-      sensorData.setData(data.build());
+      sensorData.setData(data);
       return this;
     }
 
     byte[] toByteArray() {
-      return GoosciSensor.SensorData.toByteArray(sensorData);
+      return sensorData.build().toByteArray();
     }
   }
 
