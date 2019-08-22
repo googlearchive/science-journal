@@ -25,6 +25,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.util.Arrays;
@@ -89,10 +91,12 @@ public class SensorTrigger {
   protected SensorTrigger(
       String sensorId, TriggerWhen triggerWhen, TriggerActionType actionType, double triggerValue) {
     triggerProto = new GoosciSensorTrigger.SensorTrigger();
-    triggerProto.triggerInformation = new TriggerInformation();
-    triggerProto.triggerInformation.triggerWhen = triggerWhen;
-    triggerProto.triggerInformation.triggerActionType = actionType;
-    triggerProto.triggerInformation.valueToTrigger = triggerValue;
+    @MigrateAs(Destination.BUILDER)
+    TriggerInformation triggerInformation = new TriggerInformation();
+    triggerInformation.triggerWhen = triggerWhen;
+    triggerInformation.triggerActionType = actionType;
+    triggerInformation.valueToTrigger = triggerValue;
+    triggerProto.triggerInformation = triggerInformation;
     triggerProto.sensorId = sensorId;
     triggerProto.triggerId = java.util.UUID.randomUUID().toString();
     updateLastUsed();
