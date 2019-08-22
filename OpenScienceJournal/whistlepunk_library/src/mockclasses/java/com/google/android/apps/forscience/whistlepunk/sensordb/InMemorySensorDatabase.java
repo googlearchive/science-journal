@@ -36,6 +36,8 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.collect.Range;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Observable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -144,6 +146,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
   @Override
   public GoosciScalarSensorData.ScalarSensorData getScalarReadingProtos(
       GoosciExperiment.Experiment experiment) {
+    @MigrateAs(Destination.BUILDER)
     GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
     List<ScalarSensorDataDump> sensorDataList = getScalarReadingProtosAsList(experiment);
     data.sensors = sensorDataList.toArray(new ScalarSensorDataDump[0]);
@@ -183,6 +186,7 @@ public class InMemorySensorDatabase implements SensorDatabase {
         sensorDataList.add(getScalarReadingSensorProtos(tag, timeRange));
       }
     }
+    @MigrateAs(Destination.BUILDER)
     GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
     data.sensors = sensorDataList.toArray(new ScalarSensorDataDump[0]);
     return data;

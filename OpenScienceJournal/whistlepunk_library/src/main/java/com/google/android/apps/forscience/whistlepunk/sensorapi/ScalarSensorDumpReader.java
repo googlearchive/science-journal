@@ -22,6 +22,8 @@ import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +47,8 @@ public class ScalarSensorDumpReader {
   }
 
   public void readData(
-      GoosciScalarSensorData.ScalarSensorData scalarSensorData, Map<String, String> idMap) {
+      @MigrateAs(Destination.EITHER) GoosciScalarSensorData.ScalarSensorData scalarSensorData,
+      Map<String, String> idMap) {
     int zoomBufferSize = zoomLevelBetweenTiers * 2;
     for (ScalarSensorDataDump sensor : scalarSensorData.sensors) {
       ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.getTag(), zoomBufferSize, 1);

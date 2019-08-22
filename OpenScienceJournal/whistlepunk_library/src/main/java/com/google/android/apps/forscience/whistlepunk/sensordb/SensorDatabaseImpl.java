@@ -38,6 +38,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Range;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -353,6 +355,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
   @Override
   public GoosciScalarSensorData.ScalarSensorData getScalarReadingProtos(
       GoosciExperiment.Experiment experiment) {
+    @MigrateAs(Destination.BUILDER)
     GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
     List<ScalarSensorDataDump> sensorDataList = getScalarReadingProtosAsList(experiment);
     data.sensors = sensorDataList.toArray(new ScalarSensorDataDump[0]);
@@ -452,6 +455,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
   @Override
   public GoosciScalarSensorData.ScalarSensorData getScalarReadingProtosForTrial(
       GoosciExperiment.Experiment experiment, String trialId) {
+    @MigrateAs(Destination.BUILDER)
     GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
     List<ScalarSensorDataDump> sensorDataList =
         getScalarReadingProtosForTrialAsList(experiment, trialId);

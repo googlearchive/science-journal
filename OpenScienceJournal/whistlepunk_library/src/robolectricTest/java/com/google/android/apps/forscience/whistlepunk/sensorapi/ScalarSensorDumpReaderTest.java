@@ -27,6 +27,8 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataMan
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.junit.Test;
@@ -42,6 +44,7 @@ public class ScalarSensorDumpReaderTest {
 
   @Test
   public void testDataSuccessfullyWritten() {
+    @MigrateAs(Destination.BUILDER)
     GoosciScalarSensorData.ScalarSensorData scalarSensorData =
         new GoosciScalarSensorData.ScalarSensorData();
     ScalarSensorDataDump.Builder sensor =
