@@ -30,8 +30,6 @@ import "gadget_info.proto";
 // Specification of an observable sensor.
 // Added in V2
 message SensorSpec {
-  option (proto2.nano.message_as_lite) = false;
-
   // Provider, address, hostid, etc.
   optional GadgetInfo info = 1;
 

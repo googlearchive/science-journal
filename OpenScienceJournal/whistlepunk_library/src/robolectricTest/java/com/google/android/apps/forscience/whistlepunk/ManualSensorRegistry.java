@@ -18,11 +18,8 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import androidx.collection.ArrayMap;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance.BasicSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.nano.MessageNano;
 import java.util.Map;
 
 class ManualSensorRegistry extends SensorRegistry {
@@ -40,10 +37,7 @@ class ManualSensorRegistry extends SensorRegistry {
       String sensorId, SensorAppearanceProvider appearanceProvider, Context context) {
     GoosciSensorSpec.SensorSpec result = super.getSpecForId(sensorId, appearanceProvider, context);
     BasicSensorAppearance newRememberedAppearance =
-        result.rememberedAppearance.toBuilder().setName(sensorNames.get(sensorId)).build();
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorSpec.SensorSpec newResult = MessageNano.cloneUsingSerialization(result);
-    newResult.rememberedAppearance = newRememberedAppearance;
-    return newResult;
+        result.getRememberedAppearance().toBuilder().setName(sensorNames.get(sensorId)).build();
+    return result.toBuilder().setRememberedAppearance(newRememberedAppearance).build();
   }
 }

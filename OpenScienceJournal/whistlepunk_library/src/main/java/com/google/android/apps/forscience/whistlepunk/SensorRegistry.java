@@ -24,7 +24,7 @@ import android.util.Pair;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
@@ -45,6 +45,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -320,21 +321,19 @@ public class SensorRegistry {
     GoosciSensorAppearance.BasicSensorAppearance appearance =
         SensorAppearanceProviderImpl.toProto(appearanceProvider.getAppearance(sensorId), context);
     SensorRegistryItem item = sensorRegistry.get(sensorId);
-    GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
-
-    // TODO: fill in rest of proto (hostId, hostDescription)
-    spec.rememberedAppearance = appearance;
-    spec.info =
-        GoosciGadgetInfo.GadgetInfo.newBuilder()
-            .setProviderId(item.providerId)
-            .setAddress(getAddress(item))
-            .build();
+    GoosciSensorSpec.SensorSpec.Builder spec =
+        GoosciSensorSpec.SensorSpec.newBuilder()
+            .setRememberedAppearance(appearance)
+            .setInfo(
+                GoosciGadgetInfo.GadgetInfo.newBuilder()
+                    .setProviderId(item.providerId)
+                    .setAddress(getAddress(item)));
 
     if (item.externalSpec != null) {
-      spec.config = item.externalSpec.getConfig();
+      spec.setConfig(ByteString.copyFrom(item.externalSpec.getConfig()));
     }
 
-    return spec;
+    return spec.build();
   }
 
   private String getAddress(SensorRegistryItem item) {

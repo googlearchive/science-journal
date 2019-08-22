@@ -23,9 +23,10 @@ import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.ByteString;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -140,12 +141,12 @@ public abstract class ExternalSensorSpec {
 
   public GoosciSensorSpec.SensorSpec asGoosciSpec() {
     // TODO: fill in other fields here?  hostDescription?  hostId?
-    GoosciSensorSpec.SensorSpec spec = new GoosciSensorSpec.SensorSpec();
-    spec.info = getGadgetInfo(getAddress());
-    spec.rememberedAppearance =
-        GoosciSensorAppearance.BasicSensorAppearance.newBuilder().setName(getName()).build();
-    spec.config = getConfig();
-    return spec;
+    return GoosciSensorSpec.SensorSpec.newBuilder()
+        .setInfo(getGadgetInfo(getAddress()))
+        .setRememberedAppearance(
+            GoosciSensorAppearance.BasicSensorAppearance.newBuilder().setName(getName()))
+        .setConfig(ByteString.copyFrom(getConfig()))
+        .build();
   }
 
   /**
@@ -168,7 +169,8 @@ public abstract class ExternalSensorSpec {
     if (spec == null) {
       return null;
     }
-    GoosciGadgetInfo.GadgetInfo info = Preconditions.checkNotNull(spec.info);
+    GoosciGadgetInfo.GadgetInfo info =
+        Preconditions.checkNotNull(spec.hasInfo() ? spec.getInfo() : null);
     SensorProvider sensorProvider = providerMap.get(info.getProviderId());
     if (sensorProvider == null) {
       throw new IllegalArgumentException(
@@ -178,7 +180,8 @@ public abstract class ExternalSensorSpec {
               + providerMap.keySet());
     }
 
-    return sensorProvider.buildSensorSpec(spec.rememberedAppearance.getName(), spec.config);
+    return sensorProvider.buildSensorSpec(
+        spec.getRememberedAppearance().getName(), spec.getConfig().toByteArray());
   }
 
   public static GoosciSensorSpec.SensorSpec toGoosciSpec(ExternalSensorSpec spec) {

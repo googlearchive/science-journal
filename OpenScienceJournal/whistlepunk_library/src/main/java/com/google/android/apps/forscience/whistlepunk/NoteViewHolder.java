@@ -149,7 +149,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       ViewGroup snapshotLayout = (ViewGroup) valuesList.getChildAt(i);
 
       GoosciSensorAppearance.BasicSensorAppearance appearance =
-          snapshot.sensor.rememberedAppearance;
+          snapshot.sensor.getRememberedAppearance();
       TextView sensorName = (TextView) snapshotLayout.findViewById(R.id.sensor_name);
       sensorName.setCompoundDrawablesRelative(null, null, null, null);
       sensorName.setText(appearance.getName());
@@ -188,7 +188,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
             .getStringArray(R.array.trigger_when_list_note_text)[
             labelValue.triggerInformation.triggerWhen.getNumber()];
     GoosciSensorAppearance.BasicSensorAppearance appearance =
-        labelValue.sensor.rememberedAppearance;
+        labelValue.sensor.getRememberedAppearance();
 
     if (appearance == null) {
       // TODO: when is this necessary?  Can we prevent it?  Remove this workaround after

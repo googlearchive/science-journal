@@ -103,7 +103,7 @@ public class RecordFragmentTest {
             .getSnapshotLabelValue()
             .snapshots[0]
             .sensor
-            .rememberedAppearance
+            .getRememberedAppearance()
             .getName());
   }
 

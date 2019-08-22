@@ -26,7 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.AccumulatingConsumer;
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.DeviceRegistry;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -239,8 +239,8 @@ public class ScalarInputDiscovererTest {
     assertTrue(
         sid.startScanning(new TestScanListener(c, onScanDone), TestConsumers.expectingSuccess()));
     GoosciSensorSpec.SensorSpec sensor = c.getOnlySeen().getSensorSpec();
-    assertEquals(ScalarInputSpec.TYPE, sensor.info.getProviderId());
-    assertEquals(s.getSensorName(), sensor.rememberedAppearance.getName());
+    assertEquals(ScalarInputSpec.TYPE, sensor.getInfo().getProviderId());
+    assertEquals(s.getSensorName(), sensor.getRememberedAppearance().getName());
 
     assertFalse(onScanDone.hasRun);
     scheduler.incrementTime(200);

@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import java.util.ArrayList;
 import java.util.Arrays;

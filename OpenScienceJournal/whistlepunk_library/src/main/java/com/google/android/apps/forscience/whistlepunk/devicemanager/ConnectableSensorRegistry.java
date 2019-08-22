@@ -34,13 +34,12 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.TaskPool;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Runnables;
-import com.google.protobuf.nano.MessageNano;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -398,7 +397,7 @@ public class ConnectableSensorRegistry {
 
   public static final boolean isSameSensorAndSpec(
       GoosciSensorSpec.SensorSpec a, GoosciSensorSpec.SensorSpec b) {
-    return MessageNano.messageNanoEquals(a, b);
+    return a.equals(b);
   }
 
   private String findSensorKey(ConnectableSensor sensor) {

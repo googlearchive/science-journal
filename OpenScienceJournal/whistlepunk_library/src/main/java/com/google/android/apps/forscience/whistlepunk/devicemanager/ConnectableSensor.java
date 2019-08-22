@@ -20,11 +20,10 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.nano.MessageNano;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,7 +147,7 @@ public class ConnectableSensor {
   }
 
   public String getAddress() {
-    return spec.info.getAddress();
+    return spec.getInfo().getAddress();
   }
 
   public String getConnectedSensorId() {
@@ -178,7 +177,7 @@ public class ConnectableSensor {
 
     ConnectableSensor that = (ConnectableSensor) o;
 
-    if (!MessageNano.messageNanoEquals(spec, that.spec)) {
+    if (!spec.equals(that.spec)) {
       return false;
     }
 

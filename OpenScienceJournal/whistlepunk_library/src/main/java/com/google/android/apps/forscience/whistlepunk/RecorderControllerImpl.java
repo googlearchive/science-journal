@@ -32,8 +32,8 @@ import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -784,7 +784,7 @@ public class RecorderControllerImpl implements RecorderController {
 
   @NonNull
   private String textForSnapshot(GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot) {
-    return snapshot.sensor.rememberedAppearance.getName() + " has value " + snapshot.value;
+    return snapshot.sensor.getRememberedAppearance().getName() + " has value " + snapshot.value;
   }
 
   @NonNull

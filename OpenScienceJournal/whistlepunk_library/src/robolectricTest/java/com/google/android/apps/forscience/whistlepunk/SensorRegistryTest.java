@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.Consumer;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -183,7 +183,7 @@ public class SensorRegistryTest {
 
     GoosciSensorSpec.SensorSpec specProto =
         reg.getSpecForId(id, buildAppearanceProvider(), context);
-    assertEquals(bleSpec.getAddress(), specProto.info.getAddress());
+    assertEquals(bleSpec.getAddress(), specProto.getInfo().getAddress());
 
     ExternalSensorSpec afterRoundTrip = ExternalSensorSpec.fromGoosciSpec(specProto, providers);
 
@@ -203,8 +203,8 @@ public class SensorRegistryTest {
 
     GoosciSensorSpec.SensorSpec spec =
         reg.getSpecForId(DecibelSensor.ID, buildAppearanceProvider(), context);
-    assertEquals(SensorRegistry.WP_HARDWARE_PROVIDER_ID, spec.info.getProviderId());
-    assertEquals(DecibelSensor.ID, spec.info.getAddress());
+    assertEquals(SensorRegistry.WP_HARDWARE_PROVIDER_ID, spec.getInfo().getProviderId());
+    assertEquals(DecibelSensor.ID, spec.getInfo().getAddress());
   }
 
   @NonNull
