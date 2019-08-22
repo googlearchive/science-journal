@@ -20,13 +20,14 @@ import android.annotation.SuppressLint;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
+import com.google.android.apps.forscience.whistlepunk.BleSensorConfigPojo;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig.ScaleTransform;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorConfig;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-import com.google.protobuf.nano.MessageNano;
+import com.google.protobuf.ExtensionRegistryLite;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 /** Represents a specification of a BLE sensor which is exposing the Making Science service. */
 public class BleSensorSpec extends ExternalSensorSpec {
@@ -43,13 +44,13 @@ public class BleSensorSpec extends ExternalSensorSpec {
   /** Human readable name of the sensor. */
   private String name;
 
-  private GoosciSensorConfig.BleSensorConfig config = new GoosciSensorConfig.BleSensorConfig();
+  private BleSensorConfigPojo config = new BleSensorConfigPojo();
 
   // TODO: read in descriptor.
 
   public BleSensorSpec(String address, String name) {
     this.name = name;
-    config.address = address;
+    config.setAddress(address);
     // Configure default sensor options (b/27106781)
     setSensorType(SensorTypeProvider.TYPE_RAW);
   }
@@ -61,7 +62,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
 
   @Override
   public String getAddress() {
-    return config.address;
+    return config.getAddress();
   }
 
   @Override
@@ -76,14 +77,16 @@ public class BleSensorSpec extends ExternalSensorSpec {
 
   @Override
   public byte[] getConfig() {
-    return MessageNano.toByteArray(config);
+    return config.toProto().toByteArray();
   }
 
   @VisibleForTesting
   public void loadFromConfig(byte[] data) {
     try {
-      config = GoosciSensorConfig.BleSensorConfig.parseFrom(data);
-    } catch (InvalidProtocolBufferNanoException e) {
+      config =
+          new BleSensorConfigPojo(
+              BleSensorConfig.parseFrom(data, ExtensionRegistryLite.getGeneratedRegistry()));
+    } catch (InvalidProtocolBufferException e) {
       Log.e(TAG, "Could not deserialize config", e);
       throw new IllegalStateException(e);
     }
@@ -97,27 +100,28 @@ public class BleSensorSpec extends ExternalSensorSpec {
   // Methods that access config proto fields
   public @SensorTypeProvider.SensorKind int getSensorType() {
     // TODO: SensorType is stored as a string in the proto, but we should store it as an enum.
-    if (TextUtils.isEmpty(config.sensorType) || !TextUtils.isDigitsOnly(config.sensorType)) {
+    if (TextUtils.isEmpty(config.getSensorType())
+        || !TextUtils.isDigitsOnly(config.getSensorType())) {
       // If the type isn't set, use a custom type.
       return SensorTypeProvider.TYPE_ROTATION;
     }
-    return Integer.valueOf(config.sensorType);
+    return Integer.parseInt(config.getSensorType());
   }
 
   public void setSensorType(@SensorTypeProvider.SensorKind int sensorType) {
-    config.sensorType = String.valueOf(sensorType);
+    config.setSensorType(String.valueOf(sensorType));
   }
 
   public String getCustomPin() {
-    return config.customPin;
+    return config.getCustomPin();
   }
 
   public void setCustomPin(String pin) {
-    config.customPin = pin;
+    config.setCustomPin(pin);
   }
 
   public boolean getCustomFrequencyEnabled() {
-    return config.customFrequency;
+    return config.getCustomFrequency();
   }
 
   public boolean getFrequencyEnabled() {
@@ -134,7 +138,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
   }
 
   public void setCustomFrequencyEnabled(boolean frequency) {
-    config.customFrequency = frequency;
+    config.setCustomFrequency(frequency);
   }
 
   public String getPin() {
@@ -150,7 +154,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
   }
 
   public void setCustomScaleTransform(ScaleTransform transform) {
-    config.customScaleTransform = transform;
+    config.setCustomScaleTransform(transform);
   }
 
   public ScaleTransform getScaleTransform() {
@@ -160,7 +164,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
       case SensorTypeProvider.TYPE_RAW:
         return TEN_BITS_TO_PERCENT;
       case SensorTypeProvider.TYPE_CUSTOM:
-        return config.customScaleTransform;
+        return config.getCustomScaleTransform();
     }
     complainSensorType();
     return null;
