@@ -20,6 +20,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.UUID;
 
 /** A wrapper class for a Change proto. */
@@ -63,10 +65,12 @@ public class Change {
   }
 
   private Change(ChangeType changeType, ChangedElement element, String changeId) {
-    changeProto = new GoosciExperiment.Change();
-    changeProto.changedData = element;
-    changeProto.type = changeType;
-    changeProto.changeId = changeId;
+    @MigrateAs(Destination.BUILDER)
+    GoosciExperiment.Change change = new GoosciExperiment.Change();
+    change.changedData = element;
+    change.type = changeType;
+    change.changeId = changeId;
+    changeProto = change;
   }
 
   public Change() {
