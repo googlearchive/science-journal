@@ -83,6 +83,7 @@ public class ExperimentTest {
     // Add a label manually, outside of the proto
     GoosciPictureLabelValue.PictureLabelValue labelValueProto =
         GoosciPictureLabelValue.PictureLabelValue.getDefaultInstance();
+    @MigrateAs(Destination.BUILDER)
     GoosciLabel.Label labelProto = new GoosciLabel.Label();
     labelProto.protoData = labelValueProto.toByteArray();
     labelProto.type = ValueType.PICTURE;
@@ -370,6 +371,7 @@ public class ExperimentTest {
 
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.labels = new GoosciLabel.Label[1];
+    @MigrateAs(Destination.BUILDER)
     GoosciLabel.Label labelProto = new GoosciLabel.Label();
     labelProto.labelId = "labelId";
     labelProto.timestampMs = 1;

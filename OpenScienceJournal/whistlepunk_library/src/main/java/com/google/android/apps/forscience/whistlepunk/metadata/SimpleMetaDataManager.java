@@ -1396,6 +1396,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         } catch (InvalidProtocolBufferException ex) {
           Log.d(TAG, "Unable to parse label value");
         }
+        @MigrateAs(Destination.BUILDER)
         GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
         goosciLabel.labelId = labelId;
         goosciLabel.timestampMs = timestamp;

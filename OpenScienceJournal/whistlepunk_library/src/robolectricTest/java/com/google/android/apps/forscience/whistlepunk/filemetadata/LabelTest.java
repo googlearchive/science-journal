@@ -29,6 +29,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelVa
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +39,9 @@ import org.robolectric.RobolectricTestRunner;
 /** Tests for labels. Labels implement Parcelable so they need to be tested in AndroidTest. */
 @RunWith(RobolectricTestRunner.class)
 public class LabelTest {
+  @MigrateAs(Destination.EITHER)
   private GoosciLabel.Label makeGoosciLabel(ValueType type, long timestamp) {
+    @MigrateAs(Destination.BUILDER)
     GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
     goosciLabel.timestampMs = timestamp;
     goosciLabel.creationTimeMs = timestamp;
@@ -111,6 +115,7 @@ public class LabelTest {
 
   @Test
   public void testParcelableBehavior() {
+    @MigrateAs(Destination.BUILDER)
     GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
     goosciLabel.timestampMs = 10;
     goosciLabel.type = ValueType.SENSOR_TRIGGER;

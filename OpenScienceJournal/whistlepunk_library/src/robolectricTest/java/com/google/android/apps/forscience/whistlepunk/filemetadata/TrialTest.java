@@ -27,6 +27,8 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -39,6 +41,7 @@ public class TrialTest {
   public void testTrialWithLabels() throws Exception {
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.labels = new GoosciLabel.Label[1];
+    @MigrateAs(Destination.BUILDER)
     GoosciLabel.Label labelProto = new GoosciLabel.Label();
     labelProto.labelId = "labelId";
     labelProto.timestampMs = 1;

@@ -33,6 +33,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapsh
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
@@ -117,11 +119,13 @@ public class Label implements Parcelable {
   }
 
   private Label(long creationTimeMs, String labelId, ValueType valueType) {
-    label = new GoosciLabel.Label();
-    label.timestampMs = creationTimeMs;
-    label.creationTimeMs = creationTimeMs;
-    label.labelId = labelId;
-    label.type = valueType;
+    @MigrateAs(Destination.BUILDER)
+    GoosciLabel.Label label1 = new GoosciLabel.Label();
+    label1.timestampMs = creationTimeMs;
+    label1.creationTimeMs = creationTimeMs;
+    label1.labelId = labelId;
+    label1.type = valueType;
+    label = label1;
   }
 
   protected Label(Parcel in) {
