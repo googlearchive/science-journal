@@ -25,13 +25,13 @@ import com.google.android.apps.forscience.ble.BleFlowListener;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.PacketAssembler;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.AnalogPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.DigitalPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Interval;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Pin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.VirtualPin;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
@@ -192,11 +192,10 @@ public class BluetoothSensor extends ScalarSensor {
   }
 
   private byte[] buildConfigProtoForDevice(BleSensorSpec sensor) {
-    GoosciSensor.SensorDataRequest sdr = new GoosciSensor.SensorDataRequest();
-    sdr.timestampKey = 42; // arbitrary constant.  TMOLTUAE.
-    sdr.interval = Interval.newBuilder().setCount(1).setFrequency(20).build();
-
-    sdr.pin = new Pin[1];
+    GoosciSensor.SensorDataRequest.Builder sdr =
+        GoosciSensor.SensorDataRequest.newBuilder()
+            .setTimestampKey(42) // arbitrary constant.  TMOLTUAE.
+            .setInterval(Interval.newBuilder().setCount(1).setFrequency(20));
     Pin.Builder pin = Pin.newBuilder();
     String pinName = sensor.getPin();
     PinTypeProvider pinTypeProvider = new PinTypeProvider();
@@ -217,9 +216,9 @@ public class BluetoothSensor extends ScalarSensor {
     // Note the following comment entered during a previous code review:
     // for later, i'd rewrite this as sdr.pin = new Pin[] { pin };
     // it'll save you a conformance violation when migrating sdr.
-    sdr.pin[0] = pin.build();
+    sdr.addPin(pin);
 
-    byte[] value = GoosciSensor.SensorDataRequest.toByteArray(sdr);
+    byte[] value = sdr.build().toByteArray();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     try {
       byte v = (byte) value.length;
