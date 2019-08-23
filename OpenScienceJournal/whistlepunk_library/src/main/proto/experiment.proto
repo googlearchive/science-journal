@@ -76,7 +76,7 @@ message Experiment {
 
   // Version 1.1: Added
   message SensorEntry {
-    option (proto2.nano.message_as_lite) = false;
+    option (proto2.nano.message_as_lite) = true;
 
     // The sensor ID associated with this within this experiment.
     // This has no global uniqueness or parseable meaning outside this
