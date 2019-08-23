@@ -142,7 +142,7 @@ message SensorTrialStats {
  * Represents a single stat, i.e. average = 42 or num_data_points = 17.
  */
 message SensorStat {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   enum StatType {
     option (proto2.nano.enum_as_lite) = true;

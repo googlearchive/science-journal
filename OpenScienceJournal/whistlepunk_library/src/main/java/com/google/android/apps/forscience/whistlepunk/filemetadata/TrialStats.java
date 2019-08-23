@@ -16,11 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,33 +66,31 @@ public class TrialStats {
   }
 
   public void putStat(StatType type, double value) {
-    for (GoosciTrial.SensorStat sensorStat : trialStats.sensorStats) {
-      if (sensorStat.statType == type) {
-        sensorStat.statValue = value;
+    for (int i = 0; i < trialStats.sensorStats.length; i++) {
+      if (trialStats.sensorStats[i].getStatType() == type) {
+        trialStats.sensorStats[i] =
+            trialStats.sensorStats[i].toBuilder().setStatValue(value).build();
         return;
       }
     }
     int newSize = trialStats.sensorStats.length + 1;
     trialStats.sensorStats = Arrays.copyOf(trialStats.sensorStats, newSize);
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.SensorStat newStat = new GoosciTrial.SensorStat();
-    newStat.statType = type;
-    newStat.statValue = value;
-    trialStats.sensorStats[newSize - 1] = newStat;
+    trialStats.sensorStats[newSize - 1] =
+        SensorStat.newBuilder().setStatType(type).setStatValue(value).build();
   }
 
   public double getStatValue(StatType type, double defaultValue) {
-    for (GoosciTrial.SensorStat sensorStat : trialStats.sensorStats) {
-      if (sensorStat.statType == type) {
-        return sensorStat.statValue;
+    for (SensorStat sensorStat : trialStats.sensorStats) {
+      if (sensorStat.getStatType() == type) {
+        return sensorStat.getStatValue();
       }
     }
     return defaultValue;
   }
 
   public boolean hasStat(StatType type) {
-    for (GoosciTrial.SensorStat sensorStat : trialStats.sensorStats) {
-      if (sensorStat.statType == type) {
+    for (SensorStat sensorStat : trialStats.sensorStats) {
+      if (sensorStat.getStatType() == type) {
         return true;
       }
     }

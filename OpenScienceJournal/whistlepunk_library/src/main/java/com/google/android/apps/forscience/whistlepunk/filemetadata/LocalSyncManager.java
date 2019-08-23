@@ -247,8 +247,8 @@ public class LocalSyncManager {
   }
 
   private LocalSyncStatus generateProto() {
-    LocalSyncStatus.Builder proto = LocalSyncStatus.newBuilder();
-    proto.setLastSyncedLibraryVersion(lastSyncedLibraryVersion);
+    LocalSyncStatus.Builder proto =
+        LocalSyncStatus.newBuilder().setLastSyncedLibraryVersion(lastSyncedLibraryVersion);
 
     for (ExperimentSyncStatus status : statusMap.values()) {
       proto.addExperimentStatus(status.generateProto());
