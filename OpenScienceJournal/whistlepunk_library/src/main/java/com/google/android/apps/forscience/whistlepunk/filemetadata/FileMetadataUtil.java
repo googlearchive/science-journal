@@ -32,11 +32,10 @@ import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.nano.MessageNano;
 import io.reactivex.Single;
 import java.io.DataInputStream;
@@ -395,30 +394,23 @@ public class FileMetadataUtil {
   }
 
   public void writeLocalSyncStatusFile(
-      @MigrateAs(Destination.EITHER) GoosciLocalSyncStatus.LocalSyncStatus status,
-      AppAccount appAccount)
-      throws IOException {
-    writeProtoToFile(MessageNano.toByteArray(status), getLocalSyncStatusFile(appAccount));
+      GoosciLocalSyncStatus.LocalSyncStatus status, AppAccount appAccount) throws IOException {
+    writeProtoToFile(status.toByteArray(), getLocalSyncStatusFile(appAccount));
   }
 
-  @MigrateAs(Destination.EITHER)
   public GoosciLocalSyncStatus.LocalSyncStatus readLocalSyncStatusFile(AppAccount appAccount) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciLocalSyncStatus.LocalSyncStatus status = new GoosciLocalSyncStatus.LocalSyncStatus();
     File statusFile = getLocalSyncStatusFile(appAccount);
     if (statusFile.canRead()) {
-      byte[] statusBytes = new byte[(int) statusFile.length()];
-      try (FileInputStream fis = new FileInputStream(statusFile);
-          DataInputStream dis = new DataInputStream(fis);) {
-        dis.readFully(statusBytes);
-        status = MessageNano.mergeFrom(status, statusBytes);
+      try (FileInputStream fis = new FileInputStream(statusFile)) {
+        return GoosciLocalSyncStatus.LocalSyncStatus.parseFrom(
+            fis, ExtensionRegistryLite.getGeneratedRegistry());
       } catch (Exception e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, "Exception reading Local Sync Status file", e);
         }
       }
     }
-    return status;
+    return GoosciLocalSyncStatus.LocalSyncStatus.getDefaultInstance();
   }
 
   public String getTrialProtoFileName(String protoId) {

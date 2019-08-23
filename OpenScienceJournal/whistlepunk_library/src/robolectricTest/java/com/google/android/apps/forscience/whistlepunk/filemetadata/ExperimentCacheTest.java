@@ -27,7 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -104,7 +104,9 @@ public class ExperimentCacheTest {
     cleanUp();
     appAccount = NonSignedInAccount.getInstance(getContext());
     elm = new ExperimentLibraryManager(ExperimentLibrary.getDefaultInstance(), appAccount);
-    lsm = new LocalSyncManager(new GoosciLocalSyncStatus.LocalSyncStatus(), appAccount);
+    lsm =
+        new LocalSyncManager(
+            GoosciLocalSyncStatus.LocalSyncStatus.getDefaultInstance(), appAccount);
     cache = new ExperimentCache(getContext(), appAccount, getFailureFailsListener(), 0, elm, lsm);
   }
 

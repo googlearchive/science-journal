@@ -27,7 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
@@ -68,7 +68,7 @@ public class FileMetadataManagerTest {
     FileMetadataManager fmm = new FileMetadataManager(getContext(), getAppAccount(), clock);
     LocalSyncManager lsm =
         AppSingleton.getInstance(getContext()).getLocalSyncManager(getAppAccount());
-    lsm.setLocalSyncStatus(new LocalSyncStatus());
+    lsm.setLocalSyncStatus(LocalSyncStatus.getDefaultInstance());
     ExperimentLibraryManager elm =
         AppSingleton.getInstance(getContext()).getExperimentLibraryManager(getAppAccount());
     elm.setLibrary(ExperimentLibrary.getDefaultInstance());
@@ -107,7 +107,7 @@ public class FileMetadataManagerTest {
     FileMetadataManager fmm = new FileMetadataManager(getContext(), getAppAccount(), clock);
     LocalSyncManager lsm =
         AppSingleton.getInstance(getContext()).getLocalSyncManager(getAppAccount());
-    lsm.setLocalSyncStatus(new LocalSyncStatus());
+    lsm.setLocalSyncStatus(LocalSyncStatus.getDefaultInstance());
     ExperimentLibraryManager elm =
         AppSingleton.getInstance(getContext()).getExperimentLibraryManager(getAppAccount());
     elm.setLibrary(ExperimentLibrary.getDefaultInstance());

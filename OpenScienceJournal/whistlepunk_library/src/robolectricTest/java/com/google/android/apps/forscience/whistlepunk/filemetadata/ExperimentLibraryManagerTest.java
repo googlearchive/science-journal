@@ -26,7 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.SyncExperiment;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.LocalSyncStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -50,7 +50,8 @@ public class ExperimentLibraryManagerTest {
   }
 
   private LocalSyncManager getTestLocalSyncManager() {
-    return new LocalSyncManager(new LocalSyncStatus(),
+    return new LocalSyncManager(
+        LocalSyncStatus.getDefaultInstance(),
         NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
   }
 

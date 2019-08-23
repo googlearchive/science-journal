@@ -20,12 +20,8 @@ import androidx.annotation.VisibleForTesting;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.ExperimentStatus;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.LocalSyncStatus;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -47,9 +43,7 @@ public class LocalSyncManager {
 
   /** Constructor for an LocalSyncManager using an existing LocalSyncStatus. Useful for testing. */
   @VisibleForTesting
-  public LocalSyncManager(
-      @MigrateAs(Destination.EITHER) GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus,
-      AppAccount account) {
+  public LocalSyncManager(LocalSyncStatus localSyncStatus, AppAccount account) {
     this.account = account;
     if (localSyncStatus != null) {
       setLocalSyncStatus(localSyncStatus);
@@ -61,11 +55,10 @@ public class LocalSyncManager {
    *
    * @param localSyncStatus The KicalSyncStatus to manage.
    */
-  public void setLocalSyncStatus(
-      @MigrateAs(Destination.EITHER) GoosciLocalSyncStatus.LocalSyncStatus localSyncStatus) {
-    lastSyncedLibraryVersion = localSyncStatus.lastSyncedLibraryVersion;
+  public void setLocalSyncStatus(LocalSyncStatus localSyncStatus) {
+    lastSyncedLibraryVersion = localSyncStatus.getLastSyncedLibraryVersion();
     statusMap.clear();
-    for (ExperimentStatus status : localSyncStatus.experimentStatus) {
+    for (ExperimentStatus status : localSyncStatus.getExperimentStatusList()) {
       statusMap.put(status.getExperimentId(), new ExperimentSyncStatus(status));
     }
   }
@@ -253,19 +246,15 @@ public class LocalSyncManager {
     }
   }
 
-  @MigrateAs(Destination.EITHER)
   private LocalSyncStatus generateProto() {
-    @MigrateAs(Destination.BUILDER)
-    LocalSyncStatus proto = new LocalSyncStatus();
-    proto.lastSyncedLibraryVersion = lastSyncedLibraryVersion;
-    ArrayList<ExperimentStatus> statusList = new ArrayList<>();
+    LocalSyncStatus.Builder proto = LocalSyncStatus.newBuilder();
+    proto.setLastSyncedLibraryVersion(lastSyncedLibraryVersion);
 
     for (ExperimentSyncStatus status : statusMap.values()) {
-      statusList.add(status.generateProto());
+      proto.addExperimentStatus(status.generateProto());
     }
 
-    proto.experimentStatus = statusList.toArray(new ExperimentStatus[statusList.size()]);
-    return proto;
+    return proto.build();
   }
 }
 

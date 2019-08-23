@@ -21,7 +21,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.LocalSyncStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -34,7 +34,8 @@ public class LocalSyncManagerTest {
   @Test
   public void testSetDirty() {
     LocalSyncManager manager =
-        new LocalSyncManager(new LocalSyncStatus(),
+        new LocalSyncManager(
+            LocalSyncStatus.getDefaultInstance(),
             NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
     manager.addExperiment("id");
     manager.setLastSyncedLibraryVersion(10L);
@@ -50,7 +51,8 @@ public class LocalSyncManagerTest {
   @Test
   public void testSetLastSyncedVersion() {
     LocalSyncManager manager =
-        new LocalSyncManager(new LocalSyncStatus(),
+        new LocalSyncManager(
+            LocalSyncStatus.getDefaultInstance(),
             NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
     manager.addExperiment("id");
 
@@ -63,7 +65,8 @@ public class LocalSyncManagerTest {
   @Test
   public void testSetServerArchived() {
     LocalSyncManager manager =
-        new LocalSyncManager(new LocalSyncStatus(),
+        new LocalSyncManager(
+            LocalSyncStatus.getDefaultInstance(),
             NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
     manager.addExperiment("id");
 
@@ -76,7 +79,8 @@ public class LocalSyncManagerTest {
   @Test
   public void testSetDownloaded() {
     LocalSyncManager manager =
-        new LocalSyncManager(new LocalSyncStatus(),
+        new LocalSyncManager(
+            LocalSyncStatus.getDefaultInstance(),
             NonSignedInAccount.getInstance(RuntimeEnvironment.application.getApplicationContext()));
     manager.addExperiment("id");
 

@@ -41,7 +41,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInpu
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciLocalSyncStatus.LocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
@@ -102,7 +102,7 @@ public class SimpleMetaDataManagerTest {
     metaDataManager = makeMetaDataManager();
     LocalSyncManager lsm =
         AppSingleton.getInstance(getContext()).getLocalSyncManager(getAppAccount());
-    lsm.setLocalSyncStatus(new LocalSyncStatus());
+    lsm.setLocalSyncStatus(LocalSyncStatus.getDefaultInstance());
     ExperimentLibraryManager elm =
         AppSingleton.getInstance(getContext()).getExperimentLibraryManager(getAppAccount());
     elm.setLibrary(ExperimentLibrary.getDefaultInstance());
