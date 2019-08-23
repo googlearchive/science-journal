@@ -769,15 +769,17 @@ public class RecorderControllerImpl implements RecorderController {
     return subject.firstElement().map(value -> generateSnapshot(spec, value));
   }
 
+  @MigrateAs(Destination.EITHER)
   private GoosciSnapshotValue.SnapshotLabelValue buildSnapshotLabelValue(
       List<SensorSnapshot> snapshots) {
+    @MigrateAs(Destination.BUILDER)
     GoosciSnapshotValue.SnapshotLabelValue value = new GoosciSnapshotValue.SnapshotLabelValue();
     value.snapshots = snapshots.toArray(new SensorSnapshot[snapshots.size()]);
     return value;
   }
 
   private Observable<String> textsForSnapshotLabelValue(
-      GoosciSnapshotValue.SnapshotLabelValue value) {
+      @MigrateAs(Destination.EITHER) GoosciSnapshotValue.SnapshotLabelValue value) {
     return Observable.fromArray(value.snapshots).map(this::textForSnapshot);
   }
 

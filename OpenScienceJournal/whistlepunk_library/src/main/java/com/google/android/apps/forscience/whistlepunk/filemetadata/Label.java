@@ -270,6 +270,7 @@ public class Label implements Parcelable {
    * Gets the SnapshotLabelValue for this label. If changes are made, this needs to be re-set on the
    * Label for them to be saved.
    */
+  @MigrateAs(Destination.EITHER)
   public GoosciSnapshotValue.SnapshotLabelValue getSnapshotLabelValue() {
     if (label.type == ValueType.SNAPSHOT) {
       try {
