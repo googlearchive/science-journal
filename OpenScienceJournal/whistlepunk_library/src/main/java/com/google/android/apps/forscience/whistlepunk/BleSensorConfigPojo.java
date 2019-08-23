@@ -86,7 +86,7 @@ public class BleSensorConfigPojo {
   }
 
   public boolean getCustomFrequency() {
-    return (customFrequency != null) ? customFrequency : false;
+    return (customFrequency != null) && customFrequency;
   }
 
   public void setCustomScaleTransform(ScaleTransform customScaleTransform) {
