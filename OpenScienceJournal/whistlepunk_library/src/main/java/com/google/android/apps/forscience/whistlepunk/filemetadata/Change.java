@@ -16,12 +16,10 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.Change.ChangeType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.UUID;
 
 /** A wrapper class for a Change proto. */
@@ -52,8 +50,10 @@ public class Change {
   public Change(ChangeType changeType, ElementType elementType, String elementId) {
     this(changeType, ChangedElement.getDefaultInstance(), UUID.randomUUID().toString());
     ChangedElement newChangedData =
-        changeProto.changedData.toBuilder().setType(elementType).setId(elementId).build();
-    changeProto.changedData = newChangedData;
+        changeProto.getChangedData().toBuilder().setType(elementType).setId(elementId).build();
+    changeProto = changeProto.toBuilder()
+        .setChangedData(newChangedData)
+        .build();
   }
 
   public Change(ChangeType changeType, ChangedElement element) {
@@ -65,16 +65,15 @@ public class Change {
   }
 
   private Change(ChangeType changeType, ChangedElement element, String changeId) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciExperiment.Change change = new GoosciExperiment.Change();
-    change.changedData = element;
-    change.type = changeType;
-    change.changeId = changeId;
-    changeProto = change;
+    GoosciExperiment.Change.Builder change = GoosciExperiment.Change.newBuilder();
+    change.setChangedData(element);
+    change.setType(changeType);
+    change.setChangeId(changeId);
+    changeProto = change.build();
   }
 
   public Change() {
-    changeProto = new GoosciExperiment.Change();
+    changeProto = GoosciExperiment.Change.getDefaultInstance();
   }
 
   public GoosciExperiment.Change getChangeProto() {
@@ -82,19 +81,19 @@ public class Change {
   }
 
   public String getChangedElementId() {
-    return changeProto.changedData.getId();
+    return changeProto.getChangedData().getId();
   }
 
   public ElementType getChangedElementType() {
-    return changeProto.changedData.getType();
+    return changeProto.getChangedData().getType();
   }
 
   public String getChangeId() {
-    return changeProto.changeId;
+    return changeProto.getChangeId();
   }
 
   public ChangeType getChangeType() {
-    return changeProto.type;
+    return changeProto.getType();
   }
 
   @Override

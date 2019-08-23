@@ -146,7 +146,8 @@ public class Experiment extends LabelListHolder {
       sensorTriggers.add(SensorTrigger.fromProto(proto));
     }
     changes = new ArrayList<>();
-    for (GoosciExperiment.Change proto : experimentProto.changes) {
+    for (com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.Change proto :
+        experimentProto.changes) {
       addChange(Change.fromProto(proto));
     }
 
@@ -217,7 +218,9 @@ public class Experiment extends LabelListHolder {
       }
     }
     if (changes != null) {
-      proto.changes = new GoosciExperiment.Change[changes.size()];
+      proto.changes =
+          new com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.Change
+              [changes.size()];
       int index = 0;
       for (Change change : changes) {
         proto.changes[index++] = change.getChangeProto();
