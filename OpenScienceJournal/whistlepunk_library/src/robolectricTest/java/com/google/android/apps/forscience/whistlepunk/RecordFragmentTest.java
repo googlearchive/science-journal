@@ -95,14 +95,15 @@ public class RecordFragmentTest {
     assertTrue(test.await(2, TimeUnit.SECONDS));
     test.assertComplete();
 
-    assertEquals(55, exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0].value, .00001);
+    assertEquals(
+        55, exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0].getValue(), .00001);
     assertEquals(
         "name",
         exp.getLabels()
             .get(0)
             .getSnapshotLabelValue()
             .snapshots[0]
-            .sensor
+            .getSensor()
             .getRememberedAppearance()
             .getName());
   }

@@ -34,8 +34,8 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypePr
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 
 /** ViewHolder and helper methods for showing notes in a list. */
 public class NoteViewHolder extends RecyclerView.ViewHolder {
@@ -149,16 +149,17 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       ViewGroup snapshotLayout = (ViewGroup) valuesList.getChildAt(i);
 
       GoosciSensorAppearance.BasicSensorAppearance appearance =
-          snapshot.sensor.getRememberedAppearance();
+          snapshot.getSensor().getRememberedAppearance();
       TextView sensorName = (TextView) snapshotLayout.findViewById(R.id.sensor_name);
       sensorName.setCompoundDrawablesRelative(null, null, null, null);
       sensorName.setText(appearance.getName());
       String value =
-          BuiltInSensorAppearance.formatValue(snapshot.value, appearance.getPointsAfterDecimal());
+          BuiltInSensorAppearance.formatValue(
+              snapshot.getValue(), appearance.getPointsAfterDecimal());
       ((TextView) snapshotLayout.findViewById(R.id.sensor_value))
           .setText(String.format(valueFormat, value, appearance.getUnits()));
 
-      loadLargeDrawable(appearance, sensorAppearanceProvider, snapshotLayout, snapshot.value);
+      loadLargeDrawable(appearance, sensorAppearanceProvider, snapshotLayout, snapshot.getValue());
     }
   }
 

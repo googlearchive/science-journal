@@ -42,6 +42,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
@@ -758,8 +759,8 @@ public class RecorderControllerImpl implements RecorderController {
     //   each Maybe to be resolved to its actual snapshotText).
   }
 
-  private MaybeSource<GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot> makeSnapshot(
-      String sensorId, SensorRegistry sensorRegistry) throws Exception {
+  private MaybeSource<SensorSnapshot> makeSnapshot(String sensorId, SensorRegistry sensorRegistry)
+      throws Exception {
     BehaviorSubject<ScalarReading> subject = latestValues.get(sensorId);
     if (subject == null) {
       return Maybe.empty();
@@ -769,11 +770,9 @@ public class RecorderControllerImpl implements RecorderController {
   }
 
   private GoosciSnapshotValue.SnapshotLabelValue buildSnapshotLabelValue(
-      List<GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot> snapshots) {
+      List<SensorSnapshot> snapshots) {
     GoosciSnapshotValue.SnapshotLabelValue value = new GoosciSnapshotValue.SnapshotLabelValue();
-    value.snapshots =
-        snapshots.toArray(
-            new GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot[snapshots.size()]);
+    value.snapshots = snapshots.toArray(new SensorSnapshot[snapshots.size()]);
     return value;
   }
 
@@ -783,19 +782,19 @@ public class RecorderControllerImpl implements RecorderController {
   }
 
   @NonNull
-  private String textForSnapshot(GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot) {
-    return snapshot.sensor.getRememberedAppearance().getName() + " has value " + snapshot.value;
+  private String textForSnapshot(SensorSnapshot snapshot) {
+    return snapshot.getSensor().getRememberedAppearance().getName()
+        + " has value "
+        + snapshot.getValue();
   }
 
   @NonNull
-  private GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot generateSnapshot(
-      GoosciSensorSpec.SensorSpec spec, ScalarReading reading) {
-    GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot =
-        new GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot();
-    snapshot.sensor = spec;
-    snapshot.value = reading.getValue();
-    snapshot.timestampMs = reading.getCollectedTimeMillis();
-    return snapshot;
+  private SensorSnapshot generateSnapshot(GoosciSensorSpec.SensorSpec spec, ScalarReading reading) {
+    return SensorSnapshot.newBuilder()
+        .setSensor(spec)
+        .setValue(reading.getValue())
+        .setTimestampMs(reading.getCollectedTimeMillis())
+        .build();
   }
 
   @Override

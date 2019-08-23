@@ -34,7 +34,7 @@ message SnapshotLabelValue {
   option (proto2.nano.message_as_lite) = false;
 
   message SensorSnapshot {
-    option (proto2.nano.message_as_lite) = false;
+    option (proto2.nano.message_as_lite) = true;
 
     // The sensor that recorded the value
     optional SensorSpec sensor = 1;
