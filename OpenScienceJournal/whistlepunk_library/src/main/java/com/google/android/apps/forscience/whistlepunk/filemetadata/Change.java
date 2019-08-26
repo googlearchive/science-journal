@@ -65,11 +65,12 @@ public class Change {
   }
 
   private Change(ChangeType changeType, ChangedElement element, String changeId) {
-    GoosciExperiment.Change.Builder change = GoosciExperiment.Change.newBuilder();
-    change.setChangedData(element);
-    change.setType(changeType);
-    change.setChangeId(changeId);
-    changeProto = change.build();
+    changeProto =
+        GoosciExperiment.Change.newBuilder()
+            .setChangedData(element)
+            .setType(changeType)
+            .setChangeId(changeId)
+            .build();
   }
 
   public Change() {

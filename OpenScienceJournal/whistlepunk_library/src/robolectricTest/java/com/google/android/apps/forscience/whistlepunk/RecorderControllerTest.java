@@ -39,8 +39,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
@@ -321,7 +321,7 @@ public class RecorderControllerTest {
     GoosciSnapshotValue.SnapshotLabelValue value =
         snapshot.test().assertNoErrors().assertValueCount(1).values().get(0);
 
-    SensorSnapshot shot = value.snapshots[0];
+    SensorSnapshot shot = value.getSnapshots(0);
     assertEquals(sensorName, shot.getSensor().getRememberedAppearance().getName());
     assertEquals(50.0, shot.getValue(), 0.01);
     assertEquals(10, shot.getTimestampMs());

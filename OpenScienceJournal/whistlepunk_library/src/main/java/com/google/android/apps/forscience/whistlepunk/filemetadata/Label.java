@@ -26,10 +26,10 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
@@ -270,12 +270,12 @@ public class Label implements Parcelable {
    * Gets the SnapshotLabelValue for this label. If changes are made, this needs to be re-set on the
    * Label for them to be saved.
    */
-  @MigrateAs(Destination.EITHER)
   public GoosciSnapshotValue.SnapshotLabelValue getSnapshotLabelValue() {
     if (label.type == ValueType.SNAPSHOT) {
       try {
-        return GoosciSnapshotValue.SnapshotLabelValue.parseFrom(label.protoData);
-      } catch (InvalidProtocolBufferNanoException e) {
+        return GoosciSnapshotValue.SnapshotLabelValue.parseFrom(
+            label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+      } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
         }

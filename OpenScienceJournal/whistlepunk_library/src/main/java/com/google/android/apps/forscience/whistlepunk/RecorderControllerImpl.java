@@ -42,10 +42,10 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
@@ -769,18 +769,15 @@ public class RecorderControllerImpl implements RecorderController {
     return subject.firstElement().map(value -> generateSnapshot(spec, value));
   }
 
-  @MigrateAs(Destination.EITHER)
   private GoosciSnapshotValue.SnapshotLabelValue buildSnapshotLabelValue(
       List<SensorSnapshot> snapshots) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciSnapshotValue.SnapshotLabelValue value = new GoosciSnapshotValue.SnapshotLabelValue();
-    value.snapshots = snapshots.toArray(new SensorSnapshot[snapshots.size()]);
-    return value;
+    return GoosciSnapshotValue.SnapshotLabelValue.newBuilder().addAllSnapshots(snapshots).build();
   }
 
   private Observable<String> textsForSnapshotLabelValue(
-      @MigrateAs(Destination.EITHER) GoosciSnapshotValue.SnapshotLabelValue value) {
-    return Observable.fromArray(value.snapshots).map(this::textForSnapshot);
+      GoosciSnapshotValue.SnapshotLabelValue value) {
+    return Observable.fromIterable(value.getSnapshotsList())
+        .map(this::textForSnapshot);
   }
 
   @NonNull

@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue.SnapshotLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 
 /** ViewHolder and helper methods for showing notes in a list. */
@@ -126,26 +127,27 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
   public static void loadSnapshotsIntoList(
       ViewGroup valuesList, Label label, AppAccount appAccount) {
     Context context = valuesList.getContext();
-    GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot[] snapshots =
-        label.getSnapshotLabelValue().snapshots;
+    SnapshotLabelValue snapshotLabelValue = label.getSnapshotLabelValue();
 
     valuesList.setVisibility(View.VISIBLE);
     // Make sure it has the correct number of views, re-using as many as possible.
     int childCount = valuesList.getChildCount();
-    if (childCount < snapshots.length) {
-      for (int i = 0; i < snapshots.length - childCount; i++) {
+    int snapshotsCount = snapshotLabelValue.getSnapshotsCount();
+    if (childCount < snapshotsCount) {
+      for (int i = 0; i < snapshotsCount - childCount; i++) {
         LayoutInflater.from(context).inflate(R.layout.snapshot_value_details, valuesList);
       }
-    } else if (childCount > snapshots.length) {
-      valuesList.removeViews(0, childCount - snapshots.length);
+    } else if (childCount > snapshotsCount) {
+      valuesList.removeViews(0, childCount - snapshotsCount);
     }
 
     SensorAppearanceProvider sensorAppearanceProvider =
         AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount);
 
     String valueFormat = context.getResources().getString(R.string.data_with_units);
-    for (int i = 0; i < snapshots.length; i++) {
-      GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot = snapshots[i];
+    for (int i = 0; i < snapshotsCount; i++) {
+      GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot snapshot =
+          snapshotLabelValue.getSnapshots(i);
       ViewGroup snapshotLayout = (ViewGroup) valuesList.getChildAt(i);
 
       GoosciSensorAppearance.BasicSensorAppearance appearance =

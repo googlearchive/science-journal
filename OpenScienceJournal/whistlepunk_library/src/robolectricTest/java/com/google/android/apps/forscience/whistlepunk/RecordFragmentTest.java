@@ -96,13 +96,13 @@ public class RecordFragmentTest {
     test.assertComplete();
 
     assertEquals(
-        55, exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0].getValue(), .00001);
+        55, exp.getLabels().get(0).getSnapshotLabelValue().getSnapshots(0).getValue(), .00001);
     assertEquals(
         "name",
         exp.getLabels()
             .get(0)
             .getSnapshotLabelValue()
-            .snapshots[0]
+            .getSnapshots(0)
             .getSensor()
             .getRememberedAppearance()
             .getName());
