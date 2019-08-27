@@ -65,7 +65,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.collect.ImmutableList;
@@ -1988,10 +1987,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 c.getString(0),
                 c.getString(1),
                 c.getLong(2),
-                GoosciSensorTriggerInformation.TriggerInformation.parseFrom(c.getBlob(3))));
+                GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
+                    c.getBlob(3), ExtensionRegistryLite.getGeneratedRegistry())));
         c.moveToNext();
       }
-    } catch (InvalidProtocolBufferNanoException e) {
+    } catch (InvalidProtocolBufferException e) {
       e.printStackTrace();
     } finally {
       if (c != null) {

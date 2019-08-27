@@ -106,10 +106,10 @@ public class LabelTest {
 
     assertEquals(ValueType.SENSOR_TRIGGER, label.getType());
 
-    assertEquals(label.getSensorTriggerLabelValue().triggerInformation.noteText, "note");
+    assertEquals(label.getSensorTriggerLabelValue().triggerInformation.getNoteText(), "note");
     assertEquals(label.canEditTimestamp(), false);
     assertEquals(
-        label.getSensorTriggerLabelValue().triggerInformation.triggerWhen,
+        label.getSensorTriggerLabelValue().triggerInformation.getTriggerWhen(),
         GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW);
   }
 
@@ -140,7 +140,7 @@ public class LabelTest {
 
     assertEquals(ValueType.SENSOR_TRIGGER, result.getType());
     assertEquals(20, result.getTimeStamp());
-    assertEquals("note", result.getSensorTriggerLabelValue().triggerInformation.noteText);
+    assertEquals("note", result.getSensorTriggerLabelValue().triggerInformation.getNoteText());
   }
 
   @Test

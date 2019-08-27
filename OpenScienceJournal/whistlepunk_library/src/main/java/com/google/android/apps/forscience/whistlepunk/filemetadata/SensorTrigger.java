@@ -20,15 +20,12 @@ import android.os.Bundle;
 import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 import android.util.Log;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.migration.nano2lite.runtime.RepeatedFields;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.util.Objects;
@@ -93,11 +90,12 @@ public class SensorTrigger {
   protected SensorTrigger(
       String sensorId, TriggerWhen triggerWhen, TriggerActionType actionType, double triggerValue) {
     triggerProto = new GoosciSensorTrigger.SensorTrigger();
-    @MigrateAs(Destination.BUILDER)
-    TriggerInformation triggerInformation = new TriggerInformation();
-    triggerInformation.triggerWhen = triggerWhen;
-    triggerInformation.triggerActionType = actionType;
-    triggerInformation.valueToTrigger = triggerValue;
+    TriggerInformation triggerInformation =
+        TriggerInformation.newBuilder()
+            .setTriggerWhen(triggerWhen)
+            .setTriggerActionType(actionType)
+            .setValueToTrigger(triggerValue)
+            .build();
     triggerProto.triggerInformation = triggerInformation;
     triggerProto.sensorId = sensorId;
     triggerProto.triggerId = java.util.UUID.randomUUID().toString();
@@ -130,48 +128,41 @@ public class SensorTrigger {
   }
 
   public Double getValueToTrigger() {
-    return triggerProto.triggerInformation.valueToTrigger;
+    return triggerProto.triggerInformation.getValueToTrigger();
   }
 
   public void setValueToTrigger(double valueToTrigger) {
-    @MigrateAs(Destination.BUILDER)
-    TriggerInformation triggerInformation =
-        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
-    triggerInformation.valueToTrigger = valueToTrigger;
-    triggerProto.triggerInformation = triggerInformation;
+    triggerProto.triggerInformation =
+        triggerProto.triggerInformation.toBuilder().setValueToTrigger(valueToTrigger).build();
   }
 
   public TriggerWhen getTriggerWhen() {
-    return triggerProto.triggerInformation.triggerWhen;
+    return triggerProto.triggerInformation.getTriggerWhen();
   }
 
   public void setTriggerWhen(TriggerWhen triggerWhen) {
-    @MigrateAs(Destination.BUILDER)
-    TriggerInformation triggerInformation =
-        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
-    triggerInformation.triggerWhen = triggerWhen;
-    triggerProto.triggerInformation = triggerInformation;
+    triggerProto.triggerInformation =
+        triggerProto.triggerInformation.toBuilder().setTriggerWhen(triggerWhen).build();
   }
 
   public TriggerActionType getActionType() {
-    return triggerProto.triggerInformation.triggerActionType;
+    return triggerProto.triggerInformation.getTriggerActionType();
   }
 
   public void setTriggerActionType(TriggerActionType actionType) {
-    if (triggerProto.triggerInformation.triggerActionType == actionType) {
+    if (triggerProto.triggerInformation.getTriggerActionType() == actionType) {
       return;
     }
-    @MigrateAs(Destination.BUILDER)
-    TriggerInformation triggerInformation =
-        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
+    TriggerInformation.Builder triggerInformation = triggerProto.triggerInformation.toBuilder();
     // Clear old metadata to defaults when the new trigger is set.
-    if (triggerInformation.triggerActionType == TriggerActionType.TRIGGER_ACTION_NOTE) {
-      triggerInformation.noteText = "";
-    } else if (triggerInformation.triggerActionType == TriggerActionType.TRIGGER_ACTION_ALERT) {
-      triggerInformation.triggerAlertTypes = new TriggerAlertType[] {};
+    if (triggerInformation.getTriggerActionType() == TriggerActionType.TRIGGER_ACTION_NOTE) {
+      triggerInformation.clearNoteText();
+    } else if (triggerInformation.getTriggerActionType()
+        == TriggerActionType.TRIGGER_ACTION_ALERT) {
+      triggerInformation.clearTriggerAlertTypes();
     }
-    triggerInformation.triggerActionType = actionType;
-    triggerProto.triggerInformation = triggerInformation;
+    triggerInformation.setTriggerActionType(actionType);
+    triggerProto.triggerInformation = triggerInformation.build();
   }
 
   public long getLastUsed() {
@@ -197,22 +188,24 @@ public class SensorTrigger {
       isInitialized = true;
       result = false;
     } else {
-      if (triggerProto.triggerInformation.triggerWhen == TriggerWhen.TRIGGER_WHEN_AT) {
+      if (triggerProto.triggerInformation.getTriggerWhen() == TriggerWhen.TRIGGER_WHEN_AT) {
         // Not just an equality check: also test to see if the threshold was crossed in
         // either direction.
         result =
-            doubleEquals(newValue, triggerProto.triggerInformation.valueToTrigger)
+            doubleEquals(newValue, triggerProto.triggerInformation.getValueToTrigger())
                 || crossedThreshold(newValue, oldValue);
-      } else if (triggerProto.triggerInformation.triggerWhen
+      } else if (triggerProto.triggerInformation.getTriggerWhen()
           == TriggerWhen.TRIGGER_WHEN_DROPS_BELOW) {
         result = droppedBelow(newValue, oldValue);
-      } else if (triggerProto.triggerInformation.triggerWhen
+      } else if (triggerProto.triggerInformation.getTriggerWhen()
           == TriggerWhen.TRIGGER_WHEN_RISES_ABOVE) {
         result = roseAbove(newValue, oldValue);
-      } else if (triggerProto.triggerInformation.triggerWhen == TriggerWhen.TRIGGER_WHEN_BELOW) {
-        return newValue < triggerProto.triggerInformation.valueToTrigger;
-      } else if (triggerProto.triggerInformation.triggerWhen == TriggerWhen.TRIGGER_WHEN_ABOVE) {
-        return newValue > triggerProto.triggerInformation.valueToTrigger;
+      } else if (triggerProto.triggerInformation.getTriggerWhen()
+          == TriggerWhen.TRIGGER_WHEN_BELOW) {
+        return newValue < triggerProto.triggerInformation.getValueToTrigger();
+      } else if (triggerProto.triggerInformation.getTriggerWhen()
+          == TriggerWhen.TRIGGER_WHEN_ABOVE) {
+        return newValue > triggerProto.triggerInformation.getValueToTrigger();
       }
     }
     oldValue = newValue;
@@ -226,20 +219,20 @@ public class SensorTrigger {
   }
 
   private boolean droppedBelow(double newValue, double oldValue) {
-    return newValue < triggerProto.triggerInformation.valueToTrigger
-        && oldValue >= triggerProto.triggerInformation.valueToTrigger;
+    return newValue < triggerProto.triggerInformation.getValueToTrigger()
+        && oldValue >= triggerProto.triggerInformation.getValueToTrigger();
   }
 
   private boolean roseAbove(double newValue, double oldValue) {
-    return newValue > triggerProto.triggerInformation.valueToTrigger
-        && oldValue <= triggerProto.triggerInformation.valueToTrigger;
+    return newValue > triggerProto.triggerInformation.getValueToTrigger()
+        && oldValue <= triggerProto.triggerInformation.getValueToTrigger();
   }
 
   private boolean crossedThreshold(double newValue, double oldValue) {
-    return (newValue < triggerProto.triggerInformation.valueToTrigger
-            && oldValue > triggerProto.triggerInformation.valueToTrigger)
-        || (newValue > triggerProto.triggerInformation.valueToTrigger
-            && oldValue < triggerProto.triggerInformation.valueToTrigger);
+    return (newValue < triggerProto.triggerInformation.getValueToTrigger()
+            && oldValue > triggerProto.triggerInformation.getValueToTrigger())
+        || (newValue > triggerProto.triggerInformation.getValueToTrigger()
+            && oldValue < triggerProto.triggerInformation.getValueToTrigger());
   }
 
   // Returns true if the other SensorTrigger is the same as this one, ignoring the trigger ID
@@ -256,11 +249,12 @@ public class SensorTrigger {
 
   // For TRIGGER_ACTION_ALERT only.
   public ImmutableSet<TriggerAlertType> getAlertTypes() {
-    return ImmutableSet.copyOf(triggerProto.triggerInformation.triggerAlertTypes);
+    return ImmutableSet.copyOf(triggerProto.triggerInformation.getTriggerAlertTypesList());
   }
 
   public boolean hasAlertType(TriggerAlertType alertType) {
-    for (TriggerAlertType triggerAlertType : triggerProto.triggerInformation.triggerAlertTypes) {
+    for (TriggerAlertType triggerAlertType :
+        triggerProto.triggerInformation.getTriggerAlertTypesList()) {
       if (triggerAlertType == alertType) {
         return true;
       }
@@ -270,26 +264,23 @@ public class SensorTrigger {
 
   // For TRIGGER_ACTION_ALERT only.
   public void setAlertTypes(Set<TriggerAlertType> alertTypes) {
-    @MigrateAs(Destination.BUILDER)
-    TriggerInformation triggerInformation =
-        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
-    triggerInformation.triggerAlertTypes =
-        RepeatedFields.safeCopy(alertTypes.toArray(new TriggerAlertType[alertTypes.size()]));
-    triggerProto.triggerInformation = triggerInformation;
+    TriggerInformation.Builder triggerInformation = triggerProto.triggerInformation.toBuilder();
+    triggerInformation.clearTriggerAlertTypes();
+    for (TriggerAlertType alertType : alertTypes) {
+      triggerInformation.addTriggerAlertTypes(alertType);
+    }
+    triggerProto.triggerInformation = triggerInformation.build();
   }
 
   // For TRIGGER_ACTION_NOTE only.
   public String getNoteText() {
-    return triggerProto.triggerInformation.noteText;
+    return triggerProto.triggerInformation.getNoteText();
   }
 
   // For TRIGGER_ACTION_NOTE only.
   public void setNoteText(String newText) {
-    @MigrateAs(Destination.BUILDER)
-    TriggerInformation triggerInformation =
-        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
-    triggerInformation.noteText = newText;
-    triggerProto.triggerInformation = triggerInformation;
+    triggerProto.triggerInformation =
+        triggerProto.triggerInformation.toBuilder().setNoteText(newText).build();
   }
 
   public Bundle toBundle() {
@@ -311,14 +302,13 @@ public class SensorTrigger {
   }
 
   public boolean shouldTriggerOnlyWhenRecording() {
-    return triggerProto.triggerInformation.triggerOnlyWhenRecording;
+    return triggerProto.triggerInformation.getTriggerOnlyWhenRecording();
   }
 
   public void setTriggerOnlyWhenRecording(boolean triggerOnlyWhenRecording) {
-    @MigrateAs(Destination.BUILDER)
-    TriggerInformation triggerInformation =
-        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
-    triggerInformation.triggerOnlyWhenRecording = triggerOnlyWhenRecording;
-    triggerProto.triggerInformation = triggerInformation;
+    triggerProto.triggerInformation =
+        triggerProto.triggerInformation.toBuilder()
+            .setTriggerOnlyWhenRecording(triggerOnlyWhenRecording)
+            .build();
   }
 }

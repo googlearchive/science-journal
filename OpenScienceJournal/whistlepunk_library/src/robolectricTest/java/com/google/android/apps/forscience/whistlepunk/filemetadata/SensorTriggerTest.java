@@ -77,12 +77,12 @@ public class SensorTriggerTest {
             ImmutableSet.of(
                 TriggerAlertType.TRIGGER_ALERT_VISUAL, TriggerAlertType.TRIGGER_ALERT_AUDIO),
             10.);
-    assertThat(trigger.getNoteText().isEmpty()).isTrue();
+    assertThat(trigger.getNoteText()).isEmpty();
     assertThat(trigger.getAlertTypes()).hasSize(2);
 
     trigger.setTriggerActionType(
         GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType.TRIGGER_ACTION_NOTE);
-    assertThat(trigger.getNoteText().isEmpty()).isTrue();
+    assertThat(trigger.getNoteText()).isEmpty();
     assertThat(trigger.getAlertTypes()).isEmpty();
 
     trigger =
@@ -91,13 +91,13 @@ public class SensorTriggerTest {
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_AT,
             "text",
             10.);
-    assertThat("text").isEqualTo(trigger.getNoteText());
+    assertThat(trigger.getNoteText()).isEqualTo("text");
     assertThat(trigger.getAlertTypes()).isEmpty();
 
     trigger.setTriggerActionType(
         GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
             .TRIGGER_ACTION_START_RECORDING);
-    assertThat(trigger.getNoteText().isEmpty()).isTrue();
+    assertThat(trigger.getNoteText()).isEmpty();
     assertThat(trigger.getAlertTypes()).isEmpty();
   }
 

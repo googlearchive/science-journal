@@ -189,7 +189,7 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     String triggerWhenText =
         context.getResources()
             .getStringArray(R.array.trigger_when_list_note_text)[
-            labelValue.triggerInformation.triggerWhen.getNumber()];
+            labelValue.triggerInformation.getTriggerWhen().getNumber()];
     GoosciSensorAppearance.BasicSensorAppearance appearance =
         labelValue.sensor.getRememberedAppearance();
 
@@ -207,14 +207,14 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     String valueFormat = context.getResources().getString(R.string.data_with_units);
     String value =
         BuiltInSensorAppearance.formatValue(
-            labelValue.triggerInformation.valueToTrigger, appearance.getPointsAfterDecimal());
+            labelValue.triggerInformation.getValueToTrigger(), appearance.getPointsAfterDecimal());
     ((TextView) valuesList.findViewById(R.id.sensor_value))
         .setText(String.format(valueFormat, value, appearance.getUnits()));
     loadLargeDrawable(
         appearance,
         AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount),
         valuesList,
-        labelValue.triggerInformation.valueToTrigger);
+        labelValue.triggerInformation.getValueToTrigger());
   }
 
   private static GoosciSensorAppearance.BasicSensorAppearance createDefaultAppearance() {
