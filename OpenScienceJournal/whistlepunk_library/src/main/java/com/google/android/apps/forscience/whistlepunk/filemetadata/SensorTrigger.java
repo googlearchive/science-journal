@@ -25,12 +25,14 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.protobuf.migration.nano2lite.runtime.RepeatedFields;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
 
 /** A wrapper class for a SensorTrigger proto. */
 public class SensorTrigger {
@@ -52,7 +54,7 @@ public class SensorTrigger {
   public static SensorTrigger newAlertTypeTrigger(
       String sensorId,
       TriggerWhen triggerWhen,
-      TriggerAlertType[] alertTypes,
+      Set<TriggerAlertType> alertTypes,
       double triggerValue) {
     SensorTrigger result =
         new SensorTrigger(
@@ -132,7 +134,11 @@ public class SensorTrigger {
   }
 
   public void setValueToTrigger(double valueToTrigger) {
-    triggerProto.triggerInformation.valueToTrigger = valueToTrigger;
+    @MigrateAs(Destination.BUILDER)
+    TriggerInformation triggerInformation =
+        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
+    triggerInformation.valueToTrigger = valueToTrigger;
+    triggerProto.triggerInformation = triggerInformation;
   }
 
   public TriggerWhen getTriggerWhen() {
@@ -140,7 +146,11 @@ public class SensorTrigger {
   }
 
   public void setTriggerWhen(TriggerWhen triggerWhen) {
-    triggerProto.triggerInformation.triggerWhen = triggerWhen;
+    @MigrateAs(Destination.BUILDER)
+    TriggerInformation triggerInformation =
+        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
+    triggerInformation.triggerWhen = triggerWhen;
+    triggerProto.triggerInformation = triggerInformation;
   }
 
   public TriggerActionType getActionType() {
@@ -151,15 +161,17 @@ public class SensorTrigger {
     if (triggerProto.triggerInformation.triggerActionType == actionType) {
       return;
     }
+    @MigrateAs(Destination.BUILDER)
+    TriggerInformation triggerInformation =
+        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
     // Clear old metadata to defaults when the new trigger is set.
-    if (triggerProto.triggerInformation.triggerActionType
-        == TriggerActionType.TRIGGER_ACTION_NOTE) {
-      triggerProto.triggerInformation.noteText = "";
-    } else if (triggerProto.triggerInformation.triggerActionType
-        == TriggerActionType.TRIGGER_ACTION_ALERT) {
-      triggerProto.triggerInformation.triggerAlertTypes = new TriggerAlertType[] {};
+    if (triggerInformation.triggerActionType == TriggerActionType.TRIGGER_ACTION_NOTE) {
+      triggerInformation.noteText = "";
+    } else if (triggerInformation.triggerActionType == TriggerActionType.TRIGGER_ACTION_ALERT) {
+      triggerInformation.triggerAlertTypes = new TriggerAlertType[] {};
     }
-    triggerProto.triggerInformation.triggerActionType = actionType;
+    triggerInformation.triggerActionType = actionType;
+    triggerProto.triggerInformation = triggerInformation;
   }
 
   public long getLastUsed() {
@@ -239,23 +251,12 @@ public class SensorTrigger {
         && getActionType() == other.getActionType()
         && getTriggerWhen() == other.getTriggerWhen()
         && TextUtils.equals(getNoteText(), other.getNoteText())
-        && hasSameAlertTypes(getAlertTypes(), other.getAlertTypes());
-  }
-
-  public static boolean hasSameAlertTypes(TriggerAlertType[] first, TriggerAlertType[] second) {
-    if (first == null || second == null) {
-      return first == null && second == null;
-    }
-    TriggerAlertType[] firstCopy = Arrays.copyOf(first, first.length);
-    TriggerAlertType[] secondCopy = Arrays.copyOf(second, second.length);
-    Arrays.sort(firstCopy);
-    Arrays.sort(secondCopy);
-    return Arrays.equals(firstCopy, secondCopy);
+        && Objects.equals(getAlertTypes(), other.getAlertTypes());
   }
 
   // For TRIGGER_ACTION_ALERT only.
-  public TriggerAlertType[] getAlertTypes() {
-    return triggerProto.triggerInformation.triggerAlertTypes;
+  public ImmutableSet<TriggerAlertType> getAlertTypes() {
+    return ImmutableSet.copyOf(triggerProto.triggerInformation.triggerAlertTypes);
   }
 
   public boolean hasAlertType(TriggerAlertType alertType) {
@@ -268,8 +269,13 @@ public class SensorTrigger {
   }
 
   // For TRIGGER_ACTION_ALERT only.
-  public void setAlertTypes(TriggerAlertType[] alertTypes) {
-    triggerProto.triggerInformation.triggerAlertTypes = alertTypes;
+  public void setAlertTypes(Set<TriggerAlertType> alertTypes) {
+    @MigrateAs(Destination.BUILDER)
+    TriggerInformation triggerInformation =
+        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
+    triggerInformation.triggerAlertTypes =
+        RepeatedFields.safeCopy(alertTypes.toArray(new TriggerAlertType[alertTypes.size()]));
+    triggerProto.triggerInformation = triggerInformation;
   }
 
   // For TRIGGER_ACTION_NOTE only.
@@ -279,7 +285,11 @@ public class SensorTrigger {
 
   // For TRIGGER_ACTION_NOTE only.
   public void setNoteText(String newText) {
-    triggerProto.triggerInformation.noteText = newText;
+    @MigrateAs(Destination.BUILDER)
+    TriggerInformation triggerInformation =
+        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
+    triggerInformation.noteText = newText;
+    triggerProto.triggerInformation = triggerInformation;
   }
 
   public Bundle toBundle() {
@@ -305,6 +315,10 @@ public class SensorTrigger {
   }
 
   public void setTriggerOnlyWhenRecording(boolean triggerOnlyWhenRecording) {
-    triggerProto.triggerInformation.triggerOnlyWhenRecording = triggerOnlyWhenRecording;
+    @MigrateAs(Destination.BUILDER)
+    TriggerInformation triggerInformation =
+        MessageNano.cloneUsingSerialization(triggerProto.triggerInformation);
+    triggerInformation.triggerOnlyWhenRecording = triggerOnlyWhenRecording;
+    triggerProto.triggerInformation = triggerInformation;
   }
 }

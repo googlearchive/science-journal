@@ -40,8 +40,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
@@ -76,6 +76,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Keeps track of:
@@ -286,9 +287,7 @@ public class RecorderControllerImpl implements RecorderController {
     // regarding start/stop recording and notes. Right now behavior may not seem repeatable
     // depending on timing of callbacks and order of triggers. b/
     boolean triggerWasFired = false;
-    if (trigger.getActionType()
-            == GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
-                .TRIGGER_ACTION_START_RECORDING
+    if (trigger.getActionType() == TriggerActionType.TRIGGER_ACTION_START_RECORDING
         && !isRecording()
         && getSelectedExperiment() != null) {
       if (!recordingStateChangeInProgress) {
@@ -306,9 +305,7 @@ public class RecorderControllerImpl implements RecorderController {
                 null,
                 0);
       }
-    } else if (trigger.getActionType()
-            == GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
-                .TRIGGER_ACTION_STOP_RECORDING
+    } else if (trigger.getActionType() == TriggerActionType.TRIGGER_ACTION_STOP_RECORDING
         && isRecording()) {
       if (!recordingStateChangeInProgress) {
         triggerWasFired = true;
@@ -324,21 +321,18 @@ public class RecorderControllerImpl implements RecorderController {
                 null,
                 0);
       }
-    } else if (trigger.getActionType()
-        == GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
-            .TRIGGER_ACTION_NOTE) {
+    } else if (trigger.getActionType() == TriggerActionType.TRIGGER_ACTION_NOTE) {
       triggerWasFired = true;
       addTriggerLabel(timestamp, trigger, sensorRegistry);
-    } else if (trigger.getActionType()
-        == GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType
-            .TRIGGER_ACTION_ALERT) {
-      if (trigger.getAlertTypes().length > 0) {
+    } else if (trigger.getActionType() == TriggerActionType.TRIGGER_ACTION_ALERT) {
+      Set<TriggerAlertType> alertTypes = trigger.getAlertTypes();
+      if (!alertTypes.isEmpty()) {
         triggerWasFired = true;
       }
-      if (trigger.hasAlertType(TriggerInformation.TriggerAlertType.TRIGGER_ALERT_PHYSICAL)) {
+      if (alertTypes.contains(TriggerAlertType.TRIGGER_ALERT_PHYSICAL)) {
         getTriggerHelper().doVibrateAlert(context);
       }
-      if (trigger.hasAlertType(TriggerInformation.TriggerAlertType.TRIGGER_ALERT_AUDIO)) {
+      if (alertTypes.contains(TriggerAlertType.TRIGGER_ALERT_AUDIO)) {
         getTriggerHelper().doAudioAlert(context);
       }
       // Visual alerts are not covered in RecorderControllerImpl.

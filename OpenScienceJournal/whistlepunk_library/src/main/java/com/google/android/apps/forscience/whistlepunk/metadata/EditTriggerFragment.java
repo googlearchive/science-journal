@@ -59,13 +59,14 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
+import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 /** Fragment for adding or editing a trigger. */
 public class EditTriggerFragment extends Fragment {
@@ -238,16 +239,13 @@ public class EditTriggerFragment extends Fragment {
       typeSpinner.setSelection(actionType.getNumber());
       whenSpinner.setSelection(triggerToEdit.getTriggerWhen().getNumber());
       if (actionType == TriggerActionType.TRIGGER_ACTION_ALERT) {
-        TriggerAlertType[] alertTypes = triggerToEdit.getAlertTypes();
-        for (int i = 0; i < alertTypes.length; i++) {
-          TriggerAlertType alertType = alertTypes[i];
-          if (alertType == TriggerAlertType.TRIGGER_ALERT_AUDIO) {
-            audioAlert.setChecked(true);
-          } else if (alertType == TriggerAlertType.TRIGGER_ALERT_VISUAL) {
-            visualAlert.setChecked(true);
-          } else if (alertType == TriggerAlertType.TRIGGER_ALERT_PHYSICAL) {
-            hapticAlert.setChecked(true);
-          }
+        Set<TriggerAlertType> alertTypes = triggerToEdit.getAlertTypes();
+        if (alertTypes.contains(TriggerAlertType.TRIGGER_ALERT_AUDIO)) {
+          audioAlert.setChecked(true);
+        } else if (alertTypes.contains(TriggerAlertType.TRIGGER_ALERT_VISUAL)) {
+          visualAlert.setChecked(true);
+        } else if (alertTypes.contains(TriggerAlertType.TRIGGER_ALERT_PHYSICAL)) {
+          hapticAlert.setChecked(true);
         }
       } else if (actionType == TriggerActionType.TRIGGER_ACTION_NOTE) {
         noteValue.setText(triggerToEdit.getNoteText());
@@ -431,18 +429,18 @@ public class EditTriggerFragment extends Fragment {
   }
 
   // Calculates the current list of alert types based on which alert checkboxes are selected.
-  private TriggerAlertType[] getCurrentAlertTypes() {
-    List<TriggerAlertType> alertTypesList = new ArrayList<>();
+  private ImmutableSet<TriggerAlertType> getCurrentAlertTypes() {
+    ImmutableSet.Builder<TriggerAlertType> alertTypesSet = ImmutableSet.builder();
     if (hapticAlert.isChecked()) {
-      alertTypesList.add(TriggerAlertType.TRIGGER_ALERT_PHYSICAL);
+      alertTypesSet.add(TriggerAlertType.TRIGGER_ALERT_PHYSICAL);
     }
     if (visualAlert.isChecked()) {
-      alertTypesList.add(TriggerAlertType.TRIGGER_ALERT_VISUAL);
+      alertTypesSet.add(TriggerAlertType.TRIGGER_ALERT_VISUAL);
     }
     if (audioAlert.isChecked()) {
-      alertTypesList.add(TriggerAlertType.TRIGGER_ALERT_AUDIO);
+      alertTypesSet.add(TriggerAlertType.TRIGGER_ALERT_AUDIO);
     }
-    return alertTypesList.toArray(new TriggerAlertType[alertTypesList.size()]);
+    return alertTypesSet.build();
   }
 
   // Saves the trigger based on the current state of the UI and returns to the parent activity.
@@ -540,8 +538,8 @@ public class EditTriggerFragment extends Fragment {
         isUpdated = true;
       }
     } else if (triggerType == TriggerActionType.TRIGGER_ACTION_ALERT) {
-      TriggerAlertType[] alertTypes = getCurrentAlertTypes();
-      if (!SensorTrigger.hasSameAlertTypes(alertTypes, triggerToEdit.getAlertTypes())) {
+      Set<TriggerAlertType> alertTypes = getCurrentAlertTypes();
+      if (!alertTypes.equals(triggerToEdit.getAlertTypes())) {
         triggerToEdit.setAlertTypes(alertTypes);
         isUpdated = true;
       }
@@ -617,7 +615,7 @@ public class EditTriggerFragment extends Fragment {
       return false;
     }
     if (typeSpinner.getSelectedItemPosition() == TriggerActionType.TRIGGER_ACTION_ALERT_VALUE
-        && getCurrentAlertTypes().length == 0) {
+        && getCurrentAlertTypes().isEmpty()) {
       AccessibilityUtils.makeSnackbar(
               getView(),
               getResources().getString(R.string.alert_trigger_needs_alerts),
