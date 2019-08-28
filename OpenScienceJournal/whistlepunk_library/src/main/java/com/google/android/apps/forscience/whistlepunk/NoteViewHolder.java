@@ -34,9 +34,9 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypePr
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue.SnapshotLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 
 /** ViewHolder and helper methods for showing notes in a list. */
 public class NoteViewHolder extends RecyclerView.ViewHolder {
@@ -189,9 +189,9 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     String triggerWhenText =
         context.getResources()
             .getStringArray(R.array.trigger_when_list_note_text)[
-            labelValue.triggerInformation.getTriggerWhen().getNumber()];
+            labelValue.getTriggerInformation().getTriggerWhen().getNumber()];
     GoosciSensorAppearance.BasicSensorAppearance appearance =
-        labelValue.sensor.getRememberedAppearance();
+        labelValue.getSensor().getRememberedAppearance();
 
     if (appearance == null) {
       // TODO: when is this necessary?  Can we prevent it?  Remove this workaround after
@@ -207,14 +207,15 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     String valueFormat = context.getResources().getString(R.string.data_with_units);
     String value =
         BuiltInSensorAppearance.formatValue(
-            labelValue.triggerInformation.getValueToTrigger(), appearance.getPointsAfterDecimal());
+            labelValue.getTriggerInformation().getValueToTrigger(),
+            appearance.getPointsAfterDecimal());
     ((TextView) valuesList.findViewById(R.id.sensor_value))
         .setText(String.format(valueFormat, value, appearance.getUnits()));
     loadLargeDrawable(
         appearance,
         AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount),
         valuesList,
-        labelValue.triggerInformation.getValueToTrigger());
+        labelValue.getTriggerInformation().getValueToTrigger());
   }
 
   private static GoosciSensorAppearance.BasicSensorAppearance createDefaultAppearance() {

@@ -25,13 +25,13 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.nano.MessageNano;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -98,18 +98,19 @@ public class LabelTest {
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
             "note",
             7.5);
-    GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
-        new GoosciSensorTriggerLabelValue.SensorTriggerLabelValue();
-    labelValue.triggerInformation = trigger.getTriggerProto().triggerInformation;
+    SensorTriggerLabelValue labelValue =
+        GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.newBuilder()
+            .setTriggerInformation(trigger.getTriggerProto().triggerInformation)
+            .build();
 
     Label label = Label.newLabelWithValue(10, ValueType.SENSOR_TRIGGER, labelValue, null);
 
     assertEquals(ValueType.SENSOR_TRIGGER, label.getType());
 
-    assertEquals(label.getSensorTriggerLabelValue().triggerInformation.getNoteText(), "note");
+    assertEquals(label.getSensorTriggerLabelValue().getTriggerInformation().getNoteText(), "note");
     assertEquals(label.canEditTimestamp(), false);
     assertEquals(
-        label.getSensorTriggerLabelValue().triggerInformation.getTriggerWhen(),
+        label.getSensorTriggerLabelValue().getTriggerInformation().getTriggerWhen(),
         GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW);
   }
 
@@ -125,10 +126,11 @@ public class LabelTest {
             GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
             "note",
             7.5);
-    GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
-        new GoosciSensorTriggerLabelValue.SensorTriggerLabelValue();
-    labelValue.triggerInformation = trigger.getTriggerProto().triggerInformation;
-    goosciLabel.protoData = MessageNano.toByteArray(labelValue);
+    SensorTriggerLabelValue labelValue =
+        GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.newBuilder()
+            .setTriggerInformation(trigger.getTriggerProto().triggerInformation)
+            .build();
+    goosciLabel.protoData = labelValue.toByteArray();
     Label label = Label.fromLabel(goosciLabel);
 
     label.setTimestamp(20);
@@ -140,7 +142,7 @@ public class LabelTest {
 
     assertEquals(ValueType.SENSOR_TRIGGER, result.getType());
     assertEquals(20, result.getTimeStamp());
-    assertEquals("note", result.getSensorTriggerLabelValue().triggerInformation.getNoteText());
+    assertEquals("note", result.getSensorTriggerLabelValue().getTriggerInformation().getNoteText());
   }
 
   @Test

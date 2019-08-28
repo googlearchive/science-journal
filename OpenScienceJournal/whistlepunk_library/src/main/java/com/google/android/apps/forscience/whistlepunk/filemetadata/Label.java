@@ -26,10 +26,10 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
@@ -254,8 +254,9 @@ public class Label implements Parcelable {
   public GoosciSensorTriggerLabelValue.SensorTriggerLabelValue getSensorTriggerLabelValue() {
     if (label.type == ValueType.SENSOR_TRIGGER) {
       try {
-        return GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.parseFrom(label.protoData);
-      } catch (InvalidProtocolBufferNanoException e) {
+        return GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.parseFrom(
+            label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+      } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
         }

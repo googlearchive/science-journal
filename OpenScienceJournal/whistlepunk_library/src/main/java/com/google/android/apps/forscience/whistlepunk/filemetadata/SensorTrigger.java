@@ -270,8 +270,8 @@ public class SensorTrigger {
 
   // For TRIGGER_ACTION_ALERT only.
   public void setAlertTypes(Set<TriggerAlertType> alertTypes) {
-    TriggerInformation.Builder triggerInformation = triggerProto.triggerInformation.toBuilder();
-    triggerInformation.clearTriggerAlertTypes();
+    TriggerInformation.Builder triggerInformation =
+        triggerProto.triggerInformation.toBuilder().clearTriggerAlertTypes();
     for (TriggerAlertType alertType : alertTypes) {
       triggerInformation.addTriggerAlertTypes(alertType);
     }

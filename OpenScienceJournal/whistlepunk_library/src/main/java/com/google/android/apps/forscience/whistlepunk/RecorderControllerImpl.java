@@ -42,10 +42,10 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue.SnapshotLabelValue.SensorSnapshot;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerHelper;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
@@ -359,18 +359,21 @@ public class RecorderControllerImpl implements RecorderController {
     if (getSelectedExperiment() == null) {
       return;
     }
-    GoosciSensorTriggerLabelValue.SensorTriggerLabelValue labelValue =
-        new GoosciSensorTriggerLabelValue.SensorTriggerLabelValue();
-    labelValue.triggerInformation = trigger.getTriggerProto().triggerInformation;
+    GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.Builder labelValue =
+        GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.newBuilder()
+            .setTriggerInformation(trigger.getTriggerProto().triggerInformation);
     GoosciCaption.Caption.Builder caption = null;
     if (!TextUtils.isEmpty((trigger.getNoteText()))) {
       caption = GoosciCaption.Caption.newBuilder();
       caption.setLastEditedTimestamp(timestamp).setText(trigger.getNoteText());
     }
-    labelValue.sensor = getSensorSpec(trigger.getSensorId(), sensorRegistry);
+    labelValue.setSensor(getSensorSpec(trigger.getSensorId(), sensorRegistry));
     final Label triggerLabel =
         Label.newLabelWithValue(
-            timestamp, GoosciLabel.Label.ValueType.SENSOR_TRIGGER, labelValue, caption.build());
+            timestamp,
+            GoosciLabel.Label.ValueType.SENSOR_TRIGGER,
+            labelValue.build(),
+            caption.build());
     if (isRecording()) {
       // Adds the label to the trial and saves the updated experiment.
       getSelectedExperiment()
