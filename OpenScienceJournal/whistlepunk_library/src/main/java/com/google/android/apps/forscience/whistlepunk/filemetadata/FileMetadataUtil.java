@@ -33,10 +33,9 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.protobuf.ExtensionRegistryLite;
-import com.google.protobuf.nano.MessageNano;
 import io.reactivex.Single;
 import java.io.DataInputStream;
 import java.io.File;
@@ -182,9 +181,7 @@ public class FileMetadataUtil {
                         public void success(GoosciScalarSensorData.ScalarSensorData sensorData) {
                           try (FileOutputStream sensorStream =
                               new FileOutputStream(sensorProtoFileName)) {
-                            byte[] sensorBytes = MessageNano.toByteArray(sensorData);
-                            sensorStream.write(sensorBytes);
-
+                            sensorData.writeTo(sensorStream);
                           } catch (IOException ioException) {
                             s.onError(ioException);
                             return;

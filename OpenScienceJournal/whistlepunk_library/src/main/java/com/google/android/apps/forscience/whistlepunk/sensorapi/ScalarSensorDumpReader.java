@@ -19,11 +19,9 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.BatchDataController;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +45,9 @@ public class ScalarSensorDumpReader {
   }
 
   public void readData(
-      @MigrateAs(Destination.EITHER) GoosciScalarSensorData.ScalarSensorData scalarSensorData,
-      Map<String, String> idMap) {
+      GoosciScalarSensorData.ScalarSensorData scalarSensorData, Map<String, String> idMap) {
     int zoomBufferSize = zoomLevelBetweenTiers * 2;
-    for (ScalarSensorDataDump sensor : scalarSensorData.sensors) {
+    for (ScalarSensorDataDump sensor : scalarSensorData.getSensorsList()) {
       ZoomRecorder zoomRecorder = new ZoomRecorder(sensor.getTag(), zoomBufferSize, 1);
       String trialId = idMap.get(sensor.getTrialId());
       zoomRecorder.setTrialId(trialId);

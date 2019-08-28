@@ -33,10 +33,10 @@ import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
@@ -508,8 +508,8 @@ public class FileMetadataManager {
     File dataFile = new File(externalPath, "sensorData.proto");
 
     if (dataFile.exists()) {
-      ProtoFileHelper<GoosciScalarSensorData.ScalarSensorData> dataProtoFileHelper =
-          new ProtoFileHelper<>();
+      LiteProtoFileHelper<GoosciScalarSensorData.ScalarSensorData> dataProtoFileHelper =
+          new LiteProtoFileHelper<>();
       GoosciScalarSensorData.ScalarSensorData dataProto =
           dataProtoFileHelper.readFromFile(
               dataFile,

@@ -35,10 +35,10 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncColle
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
@@ -48,7 +48,6 @@ import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Range;
-import com.google.protobuf.nano.MessageNano;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import java.io.File;
@@ -999,8 +998,7 @@ public class DataControllerImpl implements DataController, RecordingDataControll
                                 FileMetadataUtil.getInstance().getTrialProtoFileName(trialId));
                         try (FileOutputStream sensorStream =
                             new FileOutputStream(sensorProtoFile)) {
-                          byte[] sensorBytes = MessageNano.toByteArray(proto);
-                          sensorStream.write(sensorBytes);
+                          proto.writeTo(sensorStream);
                           return sensorProtoFile;
                         } catch (IOException ioException) {
                           return null;

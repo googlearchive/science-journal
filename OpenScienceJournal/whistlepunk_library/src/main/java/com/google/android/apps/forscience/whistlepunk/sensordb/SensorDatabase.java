@@ -17,9 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import io.reactivex.Observable;
 import java.util.List;
 

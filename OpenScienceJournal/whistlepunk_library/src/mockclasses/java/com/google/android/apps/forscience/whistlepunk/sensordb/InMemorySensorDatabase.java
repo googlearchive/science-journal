@@ -26,18 +26,16 @@ import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.StubAppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.collect.Range;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Observable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -146,11 +144,10 @@ public class InMemorySensorDatabase implements SensorDatabase {
   @Override
   public GoosciScalarSensorData.ScalarSensorData getScalarReadingProtos(
       GoosciExperiment.Experiment experiment) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
+    GoosciScalarSensorData.ScalarSensorData.Builder data =
+        GoosciScalarSensorData.ScalarSensorData.newBuilder();
     List<ScalarSensorDataDump> sensorDataList = getScalarReadingProtosAsList(experiment);
-    data.sensors = sensorDataList.toArray(new ScalarSensorDataDump[0]);
-    return data;
+    return data.addAllSensors(sensorDataList).build();
   }
 
   @Override
@@ -186,10 +183,9 @@ public class InMemorySensorDatabase implements SensorDatabase {
         sensorDataList.add(getScalarReadingSensorProtos(tag, timeRange));
       }
     }
-    @MigrateAs(Destination.BUILDER)
-    GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
-    data.sensors = sensorDataList.toArray(new ScalarSensorDataDump[0]);
-    return data;
+    return GoosciScalarSensorData.ScalarSensorData.newBuilder()
+        .addAllSensors(sensorDataList)
+        .build();
   }
 
   public ScalarSensorDataDump getScalarReadingSensorProtos(String sensorTag, TimeRange range) {

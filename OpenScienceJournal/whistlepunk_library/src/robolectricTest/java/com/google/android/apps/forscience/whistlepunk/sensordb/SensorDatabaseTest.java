@@ -24,9 +24,9 @@ import com.google.android.apps.forscience.whistlepunk.Arbitrary;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
@@ -346,9 +346,9 @@ public class SensorDatabaseTest {
     db.addScalarReading(trial.trialId, "foo", 0, timestamp + 4, value);
 
     GoosciScalarSensorData.ScalarSensorData data = db.getScalarReadingProtos(experiment);
-    assertEquals("foo", data.sensors[0].getTag());
-    assertEquals(2, data.sensors[0].getRowsCount());
-    assertEquals(trial.trialId, data.sensors[0].getTrialId());
+    assertEquals("foo", data.getSensors(0).getTag());
+    assertEquals(2, data.getSensors(0).getRowsCount());
+    assertEquals(trial.trialId, data.getSensors(0).getTrialId());
   }
 
   @Test
@@ -382,8 +382,8 @@ public class SensorDatabaseTest {
     db.addScalarReading("0", "foo", 0, timestamp + 4, value);
 
     GoosciScalarSensorData.ScalarSensorData data = db.getScalarReadingProtos(experiment);
-    assertEquals("foo", data.sensors[0].getTag());
-    assertEquals(2, data.sensors[0].getRowsCount());
+    assertEquals("foo", data.getSensors(0).getTag());
+    assertEquals(2, data.getSensors(0).getRowsCount());
   }
 
   @Test

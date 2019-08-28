@@ -26,10 +26,10 @@ import androidx.core.util.Pair;
 import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
@@ -38,8 +38,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.Range;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -355,11 +353,9 @@ public class SensorDatabaseImpl implements SensorDatabase {
   @Override
   public GoosciScalarSensorData.ScalarSensorData getScalarReadingProtos(
       GoosciExperiment.Experiment experiment) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
-    List<ScalarSensorDataDump> sensorDataList = getScalarReadingProtosAsList(experiment);
-    data.sensors = sensorDataList.toArray(new ScalarSensorDataDump[0]);
-    return data;
+    return GoosciScalarSensorData.ScalarSensorData.newBuilder()
+        .addAllSensors(getScalarReadingProtosAsList(experiment))
+        .build();
   }
 
   @Override
@@ -455,12 +451,9 @@ public class SensorDatabaseImpl implements SensorDatabase {
   @Override
   public GoosciScalarSensorData.ScalarSensorData getScalarReadingProtosForTrial(
       GoosciExperiment.Experiment experiment, String trialId) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciScalarSensorData.ScalarSensorData data = new GoosciScalarSensorData.ScalarSensorData();
-    List<ScalarSensorDataDump> sensorDataList =
-        getScalarReadingProtosForTrialAsList(experiment, trialId);
-    data.sensors = sensorDataList.toArray(new ScalarSensorDataDump[0]);
-    return data;
+    return GoosciScalarSensorData.ScalarSensorData.newBuilder()
+        .addAllSensors(getScalarReadingProtosForTrialAsList(experiment, trialId))
+        .build();
   }
 
   private List<ScalarSensorDataDump> getScalarReadingProtosForTrialAsList(

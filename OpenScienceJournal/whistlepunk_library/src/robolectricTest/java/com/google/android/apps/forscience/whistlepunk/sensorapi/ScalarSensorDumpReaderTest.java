@@ -19,16 +19,14 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
 import com.google.android.apps.forscience.whistlepunk.sensordb.TimeRange;
 import com.google.common.collect.Range;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.junit.Test;
@@ -44,9 +42,8 @@ public class ScalarSensorDumpReaderTest {
 
   @Test
   public void testDataSuccessfullyWritten() {
-    @MigrateAs(Destination.BUILDER)
-    GoosciScalarSensorData.ScalarSensorData scalarSensorData =
-        new GoosciScalarSensorData.ScalarSensorData();
+    GoosciScalarSensorData.ScalarSensorData.Builder scalarSensorData =
+        GoosciScalarSensorData.ScalarSensorData.newBuilder();
     ScalarSensorDataDump.Builder sensor =
         ScalarSensorDataDump.newBuilder().setTag("foo").setTrialId("id");
     ArrayList<ScalarSensorDataRow> rowList = new ArrayList<>();
@@ -60,10 +57,10 @@ public class ScalarSensorDumpReaderTest {
     }
     sensor.addAllRows(rowList);
     sensorList.add(sensor.build());
-    scalarSensorData.sensors = sensorList.toArray(new ScalarSensorDataDump[0]);
+    scalarSensorData.addAllSensors(sensorList);
 
     ScalarSensorDumpReader reader = new ScalarSensorDumpReader(recordingController);
-    reader.readData(scalarSensorData, idMap);
+    reader.readData(scalarSensorData.build(), idMap);
 
     ScalarReadingList readings =
         db.getScalarReadings("id", "foo", TimeRange.oldest(Range.all()), 0, 0);

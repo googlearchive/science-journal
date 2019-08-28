@@ -17,7 +17,6 @@
 syntax = "proto2";
 
 package goosci;
-import "third_party/android/nanoproto/nano_descriptor.proto";
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciScalarSensorData";
@@ -30,22 +29,16 @@ option optimize_for = LITE_RUNTIME;
  */
 
 message ScalarSensorData {
-  option (proto2.nano.message_as_lite) = false;
-
   repeated ScalarSensorDataDump sensors = 1;
 }
 
 message ScalarSensorDataDump {
-  option (proto2.nano.message_as_lite) = true;
-
   optional string tag = 1;
   repeated ScalarSensorDataRow rows = 2;
   optional string trialId = 3;
 }
 
 message ScalarSensorDataRow {
-  option (proto2.nano.message_as_lite) = true;
-
   optional int64 timestampMillis = 1;
   optional double value = 2;
 }
