@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import static junit.framework.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
@@ -27,7 +27,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMe
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,61 +40,61 @@ public class ExperimentUnitTest {
   public void testNewExperiment() {
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(10, "localId", 0);
-    assertEquals(experiment.getCreationTimeMs(), 10);
-    assertEquals(experiment.getLastUsedTime(), 10);
-    assertEquals(experiment.isArchived(), false);
+    assertThat(experiment.getCreationTimeMs()).isEqualTo(10);
+    assertThat(experiment.getLastUsedTime()).isEqualTo(10);
+    assertThat(experiment.isArchived()).isFalse();
   }
 
   @Test
   public void testTriggers() {
     // No triggers on creation
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
-    assertEquals(
-        experiment.getSensorTriggersForSensor("sensorId"), Collections.<SensorTrigger>emptyList());
+    assertThat(experiment.getSensorTriggersForSensor("sensorId")).isEmpty();
 
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
     triggerProto.sensorId = "sensorId";
     SensorTrigger trigger = SensorTrigger.fromProto(triggerProto);
     experiment.addSensorTrigger(trigger);
-    assertEquals(experiment.getSensorTriggersForSensor("sensorId").size(), 1);
-    assertEquals(experiment.getExperimentProto().sensorTriggers.length, 1);
+    assertThat(experiment.getSensorTriggersForSensor("sensorId")).hasSize(1);
+    assertThat(experiment.getExperimentProto().sensorTriggers).hasLength(1);
   }
 
   @Test
   public void testLayouts() {
     // No layouts on creation
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
-    assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
+    assertThat(experiment.getSensorLayouts()).isEmpty();
 
     @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "sensorId";
     experiment.setSensorLayouts(Arrays.asList(sensorLayout));
 
-    assertEquals(experiment.getSensorLayouts().size(), 1);
-    assertEquals(experiment.getExperimentProto().sensorLayouts.length, 1);
+    assertThat(experiment.getSensorLayouts()).hasSize(1);
+    assertThat(experiment.getExperimentProto().sensorLayouts).hasLength(1);
   }
 
   @Test
   public void testLayoutsWithUpdate() {
     // No layouts on creation
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
-    assertEquals(experiment.getSensorLayouts(), Collections.emptyList());
+    assertThat(experiment.getSensorLayouts()).isEmpty();
 
     @MigrateAs(Destination.BUILDER)
     GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
     sensorLayout.sensorId = "sensorId";
     experiment.updateSensorLayout(0, sensorLayout);
 
-    assertEquals(experiment.getSensorLayouts().size(), 1);
-    assertEquals(experiment.getExperimentProto().sensorLayouts.length, 1);
+    assertThat(experiment.getSensorLayouts()).hasSize(1);
+    assertThat(experiment.getExperimentProto().sensorLayouts).hasLength(1);
   }
 
   @Test
   public void testExperimentSensors() {
     // No sensors on creation
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
-    assertEquals(experiment.getExperimentSensors(), Collections.emptyList());
+    assertThat(experiment.getExperimentSensors()).isEmpty();
 
     com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor
             .Builder
@@ -103,8 +102,8 @@ public class ExperimentUnitTest {
     sensor.setSensorId("sensorId");
     experiment.setExperimentSensors(Arrays.asList(sensor.build()));
 
-    assertEquals(experiment.getExperimentSensors().size(), 1);
-    assertEquals(experiment.getExperimentProto().experimentSensors.length, 1);
+    assertThat(experiment.getExperimentSensors()).hasSize(1);
+    assertThat(experiment.getExperimentProto().experimentSensors).hasLength(1);
   }
 
   @Test
@@ -114,6 +113,7 @@ public class ExperimentUnitTest {
     GoosciSensorLayout.SensorLayout layoutProto = new GoosciSensorLayout.SensorLayout();
     layoutProto.sensorId = "sensorId";
     proto.sensorLayouts = new GoosciSensorLayout.SensorLayout[] {layoutProto};
+    @MigrateAs(Destination.BUILDER)
     GoosciSensorTrigger.SensorTrigger triggerProto = new GoosciSensorTrigger.SensorTrigger();
     triggerProto.sensorId = "sensorId";
     proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[] {triggerProto};
@@ -131,9 +131,9 @@ public class ExperimentUnitTest {
 
     // Try to get the proto *before* converting the objects into lists.
     GoosciExperiment.Experiment result = experiment.getExperimentProto();
-    assertEquals(result.sensorLayouts.length, 1);
-    assertEquals(result.sensorTriggers.length, 1);
-    assertEquals(result.experimentSensors.length, 1);
+    assertThat(result.sensorLayouts).hasLength(1);
+    assertThat(result.sensorTriggers).hasLength(1);
+    assertThat(result.experimentSensors).hasLength(1);
 
     List<GoosciSensorLayout.SensorLayout> layouts = experiment.getSensorLayouts();
     @MigrateAs(Destination.BUILDER)
@@ -144,7 +144,7 @@ public class ExperimentUnitTest {
     // Now update the layouts and make sure it still works as expected.
     experiment.setSensorLayouts(layouts);
     result = experiment.getExperimentProto();
-    assertEquals(result.sensorLayouts.length, 2);
-    assertEquals(result.sensorLayouts[1].sensorId, "secondSensorId");
+    assertThat(result.sensorLayouts).hasLength(2);
+    assertThat(result.sensorLayouts[1].sensorId).isEqualTo("secondSensorId");
   }
 }

@@ -26,6 +26,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciSensorTrigger;
 import com.google.common.collect.ImmutableSet;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
+import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.util.Objects;
@@ -89,25 +91,29 @@ public class SensorTrigger {
   @VisibleForTesting
   protected SensorTrigger(
       String sensorId, TriggerWhen triggerWhen, TriggerActionType actionType, double triggerValue) {
-    triggerProto = new GoosciSensorTrigger.SensorTrigger();
+    @MigrateAs(Destination.BUILDER)
+    GoosciSensorTrigger.SensorTrigger sensorTrigger = new GoosciSensorTrigger.SensorTrigger();
     TriggerInformation triggerInformation =
         TriggerInformation.newBuilder()
             .setTriggerWhen(triggerWhen)
             .setTriggerActionType(actionType)
             .setValueToTrigger(triggerValue)
             .build();
-    triggerProto.triggerInformation = triggerInformation;
-    triggerProto.sensorId = sensorId;
-    triggerProto.triggerId = java.util.UUID.randomUUID().toString();
+    sensorTrigger.triggerInformation = triggerInformation;
+    sensorTrigger.sensorId = sensorId;
+    sensorTrigger.triggerId = java.util.UUID.randomUUID().toString();
+    triggerProto = sensorTrigger;
     updateLastUsed();
   }
 
   private SensorTrigger(
       String triggerId, String sensorId, long lastUsed, TriggerInformation triggerInformation) {
-    triggerProto = new GoosciSensorTrigger.SensorTrigger();
-    triggerProto.triggerInformation = triggerInformation;
-    triggerProto.sensorId = sensorId;
-    triggerProto.triggerId = triggerId;
+    @MigrateAs(Destination.BUILDER)
+    GoosciSensorTrigger.SensorTrigger sensorTrigger = new GoosciSensorTrigger.SensorTrigger();
+    sensorTrigger.triggerInformation = triggerInformation;
+    sensorTrigger.sensorId = sensorId;
+    sensorTrigger.triggerId = triggerId;
+    triggerProto = sensorTrigger;
     setLastUsed(lastUsed);
   }
 
