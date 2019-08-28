@@ -18,39 +18,33 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial.SensorTrialStats;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /** Metadata object for the stats stored along with a trial */
 public class TrialStats {
-  private GoosciTrial.SensorTrialStats trialStats;
+  private SensorTrialStats trialStats;
 
   public static Map<String, TrialStats> fromTrial(GoosciTrial.Trial trial) {
     Map<String, TrialStats> result = new HashMap<>();
-    for (GoosciTrial.SensorTrialStats stats : trial.trialStats) {
-      result.put(stats.sensorId, new TrialStats(stats));
+    for (SensorTrialStats stats : trial.trialStats) {
+      result.put(stats.getSensorId(), new TrialStats(stats));
     }
     return result;
   }
 
   public TrialStats(String sensorId) {
-    @MigrateAs(Destination.BUILDER)
-    SensorTrialStats sensorTrialStats = new GoosciTrial.SensorTrialStats();
-    sensorTrialStats.sensorId = sensorId;
-    trialStats = sensorTrialStats;
+    trialStats = SensorTrialStats.newBuilder().setSensorId(sensorId).build();
   }
 
-  public TrialStats(GoosciTrial.SensorTrialStats trialStats) {
+  public TrialStats(SensorTrialStats trialStats) {
     this.trialStats = trialStats;
   }
 
-  public GoosciTrial.SensorTrialStats getSensorTrialStatsProto() {
+  public SensorTrialStats getSensorTrialStatsProto() {
     return trialStats;
   }
 
@@ -59,33 +53,35 @@ public class TrialStats {
   }
 
   public String getSensorId() {
-    return trialStats.sensorId;
+    return trialStats.getSensorId();
   }
 
   public boolean statsAreValid() {
-    return trialStats.statStatus == StatStatus.VALID;
+    return trialStats.getStatStatus() == StatStatus.VALID;
   }
 
   public void setStatStatus(StatStatus status) {
-    trialStats.statStatus = status;
+    trialStats = trialStats.toBuilder().setStatStatus(status).build();
   }
 
   public void putStat(StatType type, double value) {
-    for (int i = 0; i < trialStats.sensorStats.length; i++) {
-      if (trialStats.sensorStats[i].getStatType() == type) {
-        trialStats.sensorStats[i] =
-            trialStats.sensorStats[i].toBuilder().setStatValue(value).build();
+    for (int i = 0; i < trialStats.getSensorStatsCount(); i++) {
+      if (trialStats.getSensorStats(i).getStatType() == type) {
+        SensorStat newSensorStat =
+            trialStats.getSensorStats(i).toBuilder().setStatValue(value).build();
+        trialStats = trialStats.toBuilder().setSensorStats(i, newSensorStat).build();
         return;
       }
     }
-    int newSize = trialStats.sensorStats.length + 1;
-    trialStats.sensorStats = Arrays.copyOf(trialStats.sensorStats, newSize);
-    trialStats.sensorStats[newSize - 1] =
-        SensorStat.newBuilder().setStatType(type).setStatValue(value).build();
+
+    trialStats =
+        trialStats.toBuilder()
+            .addSensorStats(SensorStat.newBuilder().setStatType(type).setStatValue(value).build())
+            .build();
   }
 
   public double getStatValue(StatType type, double defaultValue) {
-    for (SensorStat sensorStat : trialStats.sensorStats) {
+    for (SensorStat sensorStat : trialStats.getSensorStatsList()) {
       if (sensorStat.getStatType() == type) {
         return sensorStat.getStatValue();
       }
@@ -94,7 +90,7 @@ public class TrialStats {
   }
 
   public boolean hasStat(StatType type) {
-    for (SensorStat sensorStat : trialStats.sensorStats) {
+    for (SensorStat sensorStat : trialStats.getSensorStatsList()) {
       if (sensorStat.getStatType() == type) {
         return true;
       }

@@ -120,7 +120,7 @@ message Range {
  * stats.
  */
 message SensorTrialStats {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   // The sensor ID associated with this stat (to be looked up in
   // sensorAppearances)

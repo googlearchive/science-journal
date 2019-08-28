@@ -34,6 +34,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Trial.AppearanceEntry;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
@@ -315,7 +316,7 @@ public class Trial extends LabelListHolder {
   }
 
   private void updateTrialProtoWithStats() {
-    GoosciTrial.SensorTrialStats[] result = new GoosciTrial.SensorTrialStats[trialStats.size()];
+    SensorTrialStats[] result = new SensorTrialStats[trialStats.size()];
     int i = 0;
     for (String key : trialStats.keySet()) {
       result[i++] = trialStats.get(key).getSensorTrialStatsProto();

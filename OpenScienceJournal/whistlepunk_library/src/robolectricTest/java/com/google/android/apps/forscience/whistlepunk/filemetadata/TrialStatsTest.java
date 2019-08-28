@@ -20,11 +20,10 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -59,10 +58,11 @@ public class TrialStatsTest {
 
   @Test
   public void testCopy() {
-    @MigrateAs(Destination.BUILDER)
-    GoosciTrial.SensorTrialStats sensorTrialStats = new GoosciTrial.SensorTrialStats();
-    sensorTrialStats.sensorId = "sensorId";
-    sensorTrialStats.statStatus = StatStatus.NEEDS_UPDATE;
+    SensorTrialStats sensorTrialStats =
+        GoosciTrial.SensorTrialStats.newBuilder()
+            .setSensorId("sensorId")
+            .setStatStatus(StatStatus.NEEDS_UPDATE)
+            .build();
     TrialStats initial = new TrialStats(sensorTrialStats);
 
     TrialStats other = new TrialStats("sensorId");
