@@ -361,7 +361,7 @@ public class RecorderControllerImpl implements RecorderController {
     }
     GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.Builder labelValue =
         GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.newBuilder()
-            .setTriggerInformation(trigger.getTriggerProto().triggerInformation);
+            .setTriggerInformation(trigger.getTriggerProto().getTriggerInformation());
     GoosciCaption.Caption.Builder caption = null;
     if (!TextUtils.isEmpty((trigger.getNoteText()))) {
       caption = GoosciCaption.Caption.newBuilder();

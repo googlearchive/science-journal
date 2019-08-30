@@ -22,8 +22,6 @@ option java_outer_classname = "GoosciSensorTrigger";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
-import "third_party/android/nanoproto/nano_descriptor.proto";
-
 import "sensor_trigger_information.proto";
 
 /*
@@ -31,8 +29,6 @@ import "sensor_trigger_information.proto";
  * Added in V2.
  */
 message SensorTrigger {
-  option (proto2.nano.message_as_lite) = false;
-
   // The sensor ID associated with this trigger. This is not mutable.
   optional string sensorId = 1;
 

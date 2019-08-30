@@ -100,7 +100,7 @@ public class LabelTest {
             7.5);
     SensorTriggerLabelValue labelValue =
         GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.newBuilder()
-            .setTriggerInformation(trigger.getTriggerProto().triggerInformation)
+            .setTriggerInformation(trigger.getTriggerProto().getTriggerInformation())
             .build();
 
     Label label = Label.newLabelWithValue(10, ValueType.SENSOR_TRIGGER, labelValue, null);
@@ -128,7 +128,7 @@ public class LabelTest {
             7.5);
     SensorTriggerLabelValue labelValue =
         GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.newBuilder()
-            .setTriggerInformation(trigger.getTriggerProto().triggerInformation)
+            .setTriggerInformation(trigger.getTriggerProto().getTriggerInformation())
             .build();
     goosciLabel.protoData = labelValue.toByteArray();
     Label label = Label.fromLabel(goosciLabel);

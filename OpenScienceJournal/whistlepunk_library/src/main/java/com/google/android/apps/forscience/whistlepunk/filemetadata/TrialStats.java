@@ -76,7 +76,7 @@ public class TrialStats {
 
     trialStats =
         trialStats.toBuilder()
-            .addSensorStats(SensorStat.newBuilder().setStatType(type).setStatValue(value).build())
+            .addSensorStats(SensorStat.newBuilder().setStatType(type).setStatValue(value))
             .build();
   }
 
