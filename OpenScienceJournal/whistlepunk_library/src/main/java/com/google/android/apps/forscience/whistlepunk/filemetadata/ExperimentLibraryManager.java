@@ -351,7 +351,7 @@ public class ExperimentLibraryManager {
 
   private ExperimentLibrary generateProto() {
     ExperimentLibrary.Builder library = ExperimentLibrary.newBuilder();
-    if (library.hasFolderId()) {
+    if (folderId != null) {
       library.setFolderId(folderId);
     }
     for (LibrarySyncExperiment experiment : experiments.values()) {
