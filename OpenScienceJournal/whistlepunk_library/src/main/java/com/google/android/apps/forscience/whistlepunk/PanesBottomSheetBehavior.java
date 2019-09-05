@@ -26,7 +26,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import android.support.design.R;
 import androidx.core.os.ParcelableCompat;
 import androidx.core.os.ParcelableCompatCreatorCallbacks;
 import androidx.customview.view.AbsSavedState;
@@ -43,6 +42,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import com.google.android.material.R;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -437,7 +437,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
    *
    * @param peekHeight The height of the collapsed bottom sheet in pixels, or {@link
    *     #PEEK_HEIGHT_AUTO} to configure the sheet to peek automatically at 16:9 ratio keyline.
-   * @attr ref android.support.design.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
+   * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
    */
   public final void setPeekHeight(int peekHeight) {
     boolean layout = false;
@@ -464,7 +464,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
    *
    * @return The height of the collapsed bottom sheet in pixels, or {@link #PEEK_HEIGHT_AUTO} if the
    *     sheet is configured to peek automatically at 16:9 ratio keyline
-   * @attr ref android.support.design.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
+   * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
    */
   public final int getPeekHeight() {
     return peekHeightAuto ? PEEK_HEIGHT_AUTO : peekHeight;
@@ -474,7 +474,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
    * is expanded once. Setting this to true has no effect unless the sheet is hideable.
    *
    * @param skipCollapsed True if the bottom sheet should skip the collapsed state.
-   * @attr ref android.support.design.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
+   * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
    */
   public void setSkipCollapsed(boolean skipCollapsed) {
     this.skipCollapsed = skipCollapsed;
@@ -484,7 +484,7 @@ public class PanesBottomSheetBehavior<V extends View> extends CoordinatorLayout.
    * is expanded once.
    *
    * @return Whether the bottom sheet should skip the collapsed state.
-   * @attr ref android.support.design.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
+   * @attr ref com.google.android.material.R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
    */
   public boolean getSkipCollapsed() {
     return skipCollapsed;
