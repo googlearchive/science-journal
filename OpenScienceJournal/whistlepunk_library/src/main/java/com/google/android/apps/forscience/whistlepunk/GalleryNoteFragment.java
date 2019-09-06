@@ -113,7 +113,10 @@ public class GalleryNoteFragment extends Fragment
     galleryAdapter =
         new GalleryItemAdapter(
             getActivity(),
-            () -> addButtonEnabled.onNext(!galleryAdapter.selectedIndices.isEmpty()));
+            () -> {
+              addButtonEnabled.onNext(!galleryAdapter.selectedIndices.isEmpty());
+              updateTitle();
+            });
 
     permissionGranted
         .distinctUntilChanged()
@@ -183,6 +186,8 @@ public class GalleryNoteFragment extends Fragment
 
     requestPermission();
     attachAddButton(addButton);
+    setUpTitle(rootView.findViewById(R.id.tool_pane_title_bar));
+
     return rootView;
   }
 
@@ -249,6 +254,24 @@ public class GalleryNoteFragment extends Fragment
     addButton.setEnabled(false);
 
     addButtonEnabled.subscribe(enabled -> addButton.setEnabled(enabled));
+  }
+
+  private void setUpTitle(View titleBarView) {
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (activity != null) {
+      if (activity.isTwoPane()) {
+        ((TextView) titleBarView.findViewById(R.id.title_bar_text))
+            .setText(R.string.action_bar_gallery);
+        ((ImageView) titleBarView.findViewById(R.id.title_bar_icon))
+            .setImageDrawable(
+                getResources().getDrawable(R.drawable.ic_gallery, activity.getActivityTheme()));
+        titleBarView
+            .findViewById(R.id.title_bar_close)
+            .setOnClickListener(v -> activity.closeToolFragment());
+      } else {
+        titleBarView.setVisibility(View.GONE);
+      }
+    }
   }
 
   @Override
@@ -459,6 +482,40 @@ public class GalleryNoteFragment extends Fragment
         image = itemView.findViewById(R.id.image);
         selectedIndicator = itemView.findViewById(R.id.selected_indicator);
         selectedText = itemView.findViewById(R.id.selected_text);
+      }
+    }
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    if (isVisible()) {
+      updateTitle();
+    }
+  }
+
+  @Override
+  public void onHiddenChanged(boolean hidden) {
+    super.onHiddenChanged(hidden);
+    if (!hidden) {
+      updateTitle();
+    }
+  }
+
+  private void updateTitle() {
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (activity != null) {
+
+      String title = getString(R.string.action_bar_gallery);
+      int selectedImagesCount = galleryAdapter.getSelectedImages().size();
+      if (selectedImagesCount > 0) {
+        title = String.format(getString(R.string.gallery_selected_title), selectedImagesCount);
+      }
+
+      if (activity.isTwoPane()) {
+        ((TextView) getView().findViewById(R.id.title_bar_text)).setText(title);
+      } else {
+        activity.updateTitleByToolFragment(title);
       }
     }
   }

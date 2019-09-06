@@ -27,6 +27,7 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -83,7 +84,7 @@ public class TextNoteFragment extends Fragment {
 
     FloatingActionButton addButton = rootView.findViewById(R.id.btn_add_inline);
     setupAddButton(addButton);
-
+    setUpTitle(rootView.findViewById(R.id.tool_pane_title_bar));
     return rootView;
   }
 
@@ -103,7 +104,9 @@ public class TextNoteFragment extends Fragment {
           Label result =
               Label.newLabelWithValue(
                   timestamp, GoosciLabel.Label.ValueType.TEXT, labelValue, null);
-          getListener(addButton.getContext()).onTextLabelTaken(result);
+          if (listener != null) {
+            listener.onTextLabelTaken(result);
+          }
 
           log(addButton.getContext(), result);
           // Clear the text
@@ -112,6 +115,24 @@ public class TextNoteFragment extends Fragment {
     addButton.setEnabled(false);
 
     whenText.subscribe(text -> addButton.setEnabled(!TextUtils.isEmpty(text)));
+  }
+
+  private void setUpTitle(View titleBarView) {
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (activity != null) {
+      if (activity.isTwoPane()) {
+        ((TextView) titleBarView.findViewById(R.id.title_bar_text))
+            .setText(R.string.action_bar_text_note);
+        ((ImageView) titleBarView.findViewById(R.id.title_bar_icon))
+            .setImageDrawable(
+                getResources().getDrawable(R.drawable.ic_text, activity.getActivityTheme()));
+        titleBarView
+            .findViewById(R.id.title_bar_close)
+            .setOnClickListener(v -> activity.closeToolFragment());
+      } else {
+        titleBarView.setVisibility(View.GONE);
+      }
+    }
   }
 
   private void log(Context context, Label result) {
@@ -131,19 +152,43 @@ public class TextNoteFragment extends Fragment {
     super.onSaveInstanceState(outState);
   }
 
-  private TextLabelFragmentListener getListener(Context context) {
-    if (listener == null) {
-      if (context instanceof ListenerProvider) {
-        listener = ((ListenerProvider) context).getTextLabelFragmentListener();
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    listener = ((ListenerProvider) context).getTextLabelFragmentListener();
+  }
+
+  @Override
+  public void onDetach() {
+    super.onDetach();
+    listener = null;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    if (isVisible()) {
+      updateTitle();
+    }
+  }
+
+  @Override
+  public void onHiddenChanged(boolean hidden) {
+    super.onHiddenChanged(hidden);
+    if (!hidden) {
+      updateTitle();
+    }
+  }
+
+  private void updateTitle() {
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (activity != null) {
+      String title = getString(R.string.action_bar_text_note);
+      if (activity.isTwoPane()) {
+        ((TextView) getView().findViewById(R.id.title_bar_text)).setText(title);
       } else {
-        Fragment parentFragment = getParentFragment();
-        if (parentFragment instanceof ListenerProvider) {
-          listener = ((ListenerProvider) parentFragment).getTextLabelFragmentListener();
-        } else if (parentFragment == null) {
-          listener = ((ListenerProvider) getActivity()).getTextLabelFragmentListener();
-        }
+        activity.updateTitleByToolFragment(title);
       }
     }
-    return listener;
   }
 }

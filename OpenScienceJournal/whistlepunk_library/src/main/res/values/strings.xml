@@ -1485,6 +1485,9 @@ Permissions notice:
     <!-- Content description for an icon showing a gallery image is not selected [CHAR_LIMIT="none"] -->
     <string name="content_description_not_selected">not selected</string>
 
+    <!-- Title for note taking activity when gallery is active and has a non-zero number of images selected [CHAR_LIMIT=50] -->
+    <string name="gallery_selected_title"><xliff:g id="selected_number" example="6">%1$d</xliff:g> Selected</string>
+
     <!-- Title for a chooser to open a photo editing app [CHAR_LIMIT=50] -->
     <string name="photo_editor_dialog_title">Edit photo with&#8230;</string>
 
@@ -1827,6 +1830,18 @@ Permissions notice:
 
     <!-- Prompt when velocity tracker stops tracking an image [CHAR_LIMIT=80] -->
     <string name="ar_not_tracking">Not tracking</string>
+
+    <!-- Action bar title for new text note fragment [CHAR_LIMIT=40] -->
+    <string name="action_bar_text_note">Add new text note</string>
+
+    <!-- Action bar title for new sensor note fragment [CHAR_LIMIT=40] -->
+    <string name="action_bar_sensor_note">Add new sensor note</string>
+
+    <!-- Action bar title for gallery fragment [CHAR_LIMIT=40] -->
+    <string name="action_bar_gallery">Select images</string>
+
+    <!-- Action bar title for more observations fragment [CHAR_LIMIT=40] -->
+    <string name="action_bar_more">More observations</string>
 
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->

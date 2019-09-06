@@ -35,7 +35,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -65,6 +64,7 @@ import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
+import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
@@ -78,6 +78,7 @@ import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
+import com.google.android.apps.forscience.whistlepunk.actionarea.TitleProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
@@ -125,14 +126,15 @@ import java.util.concurrent.TimeUnit;
 /**
  * A fragment to handle displaying Experiment details, runs and labels.
  *
- * This fragment is displayed in ExperimentActivity and shows the Experiment details and the action
- * area to add notes to the current experiment.
+ * <p>This fragment is displayed in ExperimentActivity and shows the Experiment details and the
+ * action area to add notes to the current experiment.
  *
- * TODO(b/134590927): Rename this class back to ExperimentDetailsFragment.
- **/
+ * <p>TODO(b/134590927): Rename this class back to ExperimentDetailsFragment.
+ */
 public class ExperimentDetailsWithActionAreaFragment extends Fragment
     implements DeleteMetadataItemDialog.DeleteDialogListener,
-        NameExperimentDialog.OnExperimentTitleChangeListener {
+        NameExperimentDialog.OnExperimentTitleChangeListener,
+        TitleProvider {
 
   public interface Listener {
     void onArchivedStateChanged(Experiment changed);
@@ -347,13 +349,6 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
         inflater.inflate(
             R.layout.fragment_panes_experiment_details_with_action_area, container, false);
 
-    AppCompatActivity activity = (AppCompatActivity) getActivity();
-    ActionBar actionBar = activity.getSupportActionBar();
-    if (actionBar != null) {
-      actionBar.setDisplayHomeAsUpEnabled(true);
-      actionBar.setHomeButtonEnabled(true);
-    }
-
     emptyView = (TextView) view.findViewById(R.id.empty_list);
     emptyView.setText(R.string.empty_experiment);
     emptyView.setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -374,6 +369,10 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
           if (activeTrialId != null) {
             adapter.addActiveRecording(experiment.getTrial(activeTrialId));
           }
+          Context context = getContext();
+          if (context != null) {
+            setTitle(experiment.getDisplayTitle(context));
+          }
         });
     this.adapter = adapter;
 
@@ -388,7 +387,7 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, view);
 
     ActionAreaView actionArea = view.findViewById(R.id.action_area);
-    ExperimentActivity experimentActivity = (ExperimentActivity) activity;
+    ExperimentActivity experimentActivity = (ExperimentActivity) getActivity();
     if (experimentActivity.isTwoPane()) {
       actionArea.setVisibility(View.GONE);
     } else {
@@ -528,13 +527,6 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     }
 
     setExperimentItemsOrder(experiment);
-
-    getActivity().setTitle(experiment.getDisplayTitle(getActivity()));
-
-    Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
-    if (toolbar != null) {
-      toolbar.setTitle(experiment.getDisplayTitle(getActivity()));
-    }
   }
 
   private DataController getDataController() {
@@ -2058,5 +2050,17 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     return experiment != null
         && !TextUtils.isEmpty(experiment.getImagePath())
         && claimExperimentsMode;
+  }
+
+  private void setTitle(String experimentName) {
+    Activity activity = getActivity();
+    if (activity != null) {
+      ((NoteTakingActivity) activity).updateTitleByDefaultFragment(experimentName);
+    }
+  }
+
+  @Override
+  public String getTitle() {
+    return experiment == null ? null : experiment.getTitle();
   }
 }

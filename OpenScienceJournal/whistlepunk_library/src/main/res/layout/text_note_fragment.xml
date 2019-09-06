@@ -14,41 +14,50 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:fillViewport="true"
+    android:orientation="vertical"
+    android:background="@color/background_color"
     >
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/text_label_hint"
-        android:padding="16dp"
-        android:background="@android:color/transparent"
-        android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
-        android:gravity="start"
-        android:minLines="3"
-        android:importantForAutofill="no" />
+    <include layout="@layout/fragment_tool_pane_title"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_add_inline"
-        app:fabCustomSize="@dimen/accessibility_touch_target_min_size"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:backgroundTint="?attr/icon_background"
-        android:contentDescription="@string/add_experiment_note"
-        android:src="@drawable/ic_sending_fab_icon"
-        app:rippleColor="?attr/icon"
-        android:layout_gravity="bottom|center"/>
-    </FrameLayout>
-</ScrollView>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        >
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/text_label_hint"
+                android:padding="16dp"
+                android:background="@android:color/transparent"
+                android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+                android:gravity="start"
+                android:minLines="3"
+                android:importantForAutofill="no" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_add_inline"
+                app:fabCustomSize="@dimen/accessibility_touch_target_min_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:backgroundTint="?attr/icon_background"
+                android:contentDescription="@string/add_experiment_note"
+                android:src="@drawable/ic_sending_fab_icon"
+                app:rippleColor="?attr/icon"
+                android:layout_gravity="bottom|center"/>
+        </FrameLayout>
+    </ScrollView>
+</LinearLayout>

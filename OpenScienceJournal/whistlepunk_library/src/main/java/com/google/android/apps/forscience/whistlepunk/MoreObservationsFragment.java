@@ -145,4 +145,28 @@ public class MoreObservationsFragment extends Fragment {
       this.listener = listener;
     }
   }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    if (isVisible()) {
+      updateTitle();
+    }
+  }
+
+  @Override
+  public void onHiddenChanged(boolean hidden) {
+    super.onHiddenChanged(hidden);
+    if (!hidden) {
+      updateTitle();
+    }
+  }
+
+  private void updateTitle() {
+    Activity activity = getActivity();
+    if (activity != null) {
+      ((NoteTakingActivity) activity)
+          .updateTitleByToolFragment(getString(R.string.action_bar_more));
+    }
+  }
 }

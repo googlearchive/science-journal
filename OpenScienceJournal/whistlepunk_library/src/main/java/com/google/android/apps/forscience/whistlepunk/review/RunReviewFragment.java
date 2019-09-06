@@ -64,6 +64,7 @@ import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
+import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
 import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
@@ -78,6 +79,7 @@ import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
+import com.google.android.apps.forscience.whistlepunk.actionarea.TitleProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
@@ -117,7 +119,8 @@ public class RunReviewFragment extends Fragment
         EditTimeDialogListener,
         DeleteMetadataItemDialog.DeleteDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener,
-        ChartController.ChartLoadingStatus {
+        ChartController.ChartLoadingStatus,
+        TitleProvider {
   public static final String ARG_ACCOUNT_KEY = "accountKey";
   public static final String ARG_EXPERIMENT_ID = "experimentId";
   public static final String ARG_START_LABEL_ID = "start_label_id";
@@ -840,9 +843,7 @@ public class RunReviewFragment extends Fragment
       ((AppCompatActivity) activity).supportStartPostponedEnterTransition();
       return;
     }
-    ((AppCompatActivity) activity)
-        .getSupportActionBar()
-        .setTitle(trial.getTitle(rootView.getContext()));
+    setTitle(trial.getTitle(rootView.getContext()));
 
     final RecyclerView pinnedNoteList = (RecyclerView) rootView.findViewById(R.id.pinned_note_list);
     LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -1452,6 +1453,9 @@ public class RunReviewFragment extends Fragment
   }
 
   private Trial getTrial() {
+    if (experiment == null) {
+      return null;
+    }
     return experiment.getTrial(trialId);
   }
 
@@ -1918,5 +1922,21 @@ public class RunReviewFragment extends Fragment
 
   protected GoosciSensorLayout.SensorLayout getSensorLayout() {
     return getTrial().getSensorLayouts().get(selectedSensorIndex);
+  }
+
+  private void setTitle(String trialName) {
+    Activity activity = getActivity();
+    if (activity != null) {
+      ((NoteTakingActivity) activity).updateTitleByDefaultFragment(trialName);
+    }
+  }
+
+  @Override
+  public String getTitle() {
+    Trial trial = getTrial();
+    if (trial == null) {
+      return getString(R.string.run_review_activity_label);
+    }
+    return trial.getTitle(getContext());
   }
 }

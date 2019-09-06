@@ -17,81 +17,89 @@
 <!-- This is the portrait layout for Record fragment. There is a Landscape
      layout as well; any additions or changes should be done to both files. -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/background_color" >
 
+    <include layout="@layout/fragment_tool_pane_title"/>
+
     <RelativeLayout
-        android:id="@+id/top_panel"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:elevation="2dp"
-        tools:ignore="UnusedAttribute" >
+        android:layout_height="match_parent" >
 
-        <com.google.android.apps.forscience.whistlepunk.RecordExternalAxisView
-            android:id="@+id/external_x_axis"
+        <RelativeLayout
+            android:id="@+id/top_panel"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/external_axis_height"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="@dimen/cardview_margin"
-            android:paddingLeft="@dimen/external_axis_left_padding"
-            android:paddingRight="@dimen/external_axis_right_padding"
-            app:mainColor="@color/text_color_dark_grey" />
+            android:elevation="2dp"
+            tools:ignore="UnusedAttribute" >
 
-    </RelativeLayout>
+            <com.google.android.apps.forscience.whistlepunk.RecordExternalAxisView
+                android:id="@+id/external_x_axis"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/external_axis_height"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="@dimen/cardview_margin"
+                android:paddingLeft="@dimen/external_axis_left_padding"
+                android:paddingRight="@dimen/external_axis_right_padding"
+                app:mainColor="@color/text_color_dark_grey" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/sensor_card_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingTop="@dimen/external_axis_height"
-        android:paddingBottom="@dimen/list_bottom_padding_with_action_area"
-        android:visibility="gone"
-        />
+        </RelativeLayout>
 
-    <!-- Wrap the mini FAB in a clickable layout to meet minimum accessibility size. -->
-    <FrameLayout
-        android:id="@+id/btn_reset"
-        android:layout_width="@dimen/reset_btn_holder_width"
-        android:layout_height="@dimen/reset_btn_holder_height"
-        android:layout_below="@id/top_panel"
-        android:layout_alignParentEnd="true"
-        android:visibility="invisible" >
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/sensor_card_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="@dimen/external_axis_height"
+            android:paddingBottom="@dimen/list_bottom_padding_with_action_area"
+            android:visibility="gone"
+            />
+
+        <!-- Wrap the mini FAB in a clickable layout to meet minimum accessibility size. -->
+        <FrameLayout
+            android:id="@+id/btn_reset"
+            android:layout_width="@dimen/reset_btn_holder_width"
+            android:layout_height="@dimen/reset_btn_holder_height"
+            android:layout_below="@id/top_panel"
+            android:layout_alignParentEnd="true"
+            android:visibility="invisible" >
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginBottom="@dimen/reset_btn_margin_bottom"
+                android:layout_marginEnd="@dimen/reset_btn_margin_end"
+                android:contentDescription="@string/btn_reset_description"
+                android:duplicateParentState="true"
+                android:padding="0dp"
+                android:src="@drawable/ic_last_page_white_24dp"
+                app:backgroundTint="@color/color_primary_dark"
+                app:fabSize="mini" />
+
+        </FrameLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/record"
+            app:fabCustomSize="@dimen/accessibility_touch_target_min_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginBottom="@dimen/reset_btn_margin_bottom"
-            android:layout_marginEnd="@dimen/reset_btn_margin_end"
-            android:contentDescription="@string/btn_reset_description"
-            android:duplicateParentState="true"
-            android:padding="0dp"
-            android:src="@drawable/ic_last_page_white_24dp"
-            app:backgroundTint="@color/color_primary_dark"
-            app:fabSize="mini" />
+            android:layout_margin="16dp"
+            android:contentDescription="@string/btn_record_description"
+            android:src="@drawable/ic_recording_red_42dp"
+            android:layout_gravity="center"
+            android:layout_above="@+id/action_area"/>
 
-    </FrameLayout>
+        <com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView
+            style="@style/DefaultActionArea"
+            android:id="@+id/action_area"
+            android:layout_alignParentBottom="true"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/record"
-        app:fabCustomSize="@dimen/accessibility_touch_target_min_size"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/btn_record_description"
-        android:src="@drawable/ic_recording_red_42dp"
-        android:layout_gravity="center"
-        android:layout_above="@+id/action_area"/>
-
-    <com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView
-        style="@style/DefaultActionArea"
-        android:id="@+id/action_area"
-        android:layout_alignParentBottom="true"/>
-
-</RelativeLayout>
+    </RelativeLayout>
+</LinearLayout>

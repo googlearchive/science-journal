@@ -14,57 +14,65 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/background_color"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/gallery"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+    <include layout="@layout/fragment_tool_pane_title" />
 
-    <LinearLayout
-        android:id="@+id/complaint"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/background_color"
-        android:orientation="vertical"
-        android:visibility="gone"
-        >
+        android:layout_height="match_parent" >
 
-        <TextView
-            android:id="@+id/preview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal|top"
-            android:padding="40dp"
-            android:text="@string/input_photo_library_permission_denied"
-            android:textColor="@color/text_color_black"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/gallery"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             />
 
-        <Button
-            android:id="@+id/open_settings"
+       <LinearLayout
+            android:id="@+id/complaint"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/background_color"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/preview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal|top"
+                android:padding="40dp"
+                android:text="@string/input_photo_library_permission_denied"
+                android:textColor="@color/text_color_black"
+                />
+
+            <Button
+                android:id="@+id/open_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/action_retry"
+                />
+        </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_add"
+            app:fabCustomSize="@dimen/accessibility_touch_target_min_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/action_retry"
-            />
-    </LinearLayout>
+            android:layout_margin="16dp"
+            app:backgroundTint="@android:color/white"
+            android:contentDescription="@string/add_experiment_note"
+            android:src="@drawable/ic_sending_fab_icon"
+            app:rippleColor="?attr/icon"
+            android:layout_gravity="bottom|center"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_add"
-        app:fabCustomSize="@dimen/accessibility_touch_target_min_size"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:backgroundTint="@android:color/white"
-        android:contentDescription="@string/add_experiment_note"
-        android:src="@drawable/ic_sending_fab_icon"
-        app:rippleColor="?attr/icon"
-        android:layout_gravity="bottom|center"/>
-
-</FrameLayout>
+    </FrameLayout>
+</LinearLayout>

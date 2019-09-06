@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.Resources.Theme;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,10 +36,12 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
+import com.google.android.apps.forscience.whistlepunk.actionarea.TitleProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
@@ -138,6 +141,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     if (activeToolFragmentTag != null) {
       showFragmentByTagInToolPane(activeToolFragmentTag);
     }
+    updateTitle();
   }
 
   private void showDefaultFragments() {
@@ -160,11 +164,12 @@ public abstract class NoteTakingActivity extends AppCompatActivity
             .commit();
       }
     }
+    updateTitle();
   }
 
   protected abstract Fragment getDefaultFragment();
 
-  private void closeToolFragment() {
+  public void closeToolFragment() {
     activeToolFragmentTag = null;
     showDefaultFragments();
   }
@@ -172,10 +177,32 @@ public abstract class NoteTakingActivity extends AppCompatActivity
   protected void openToolFragment(String tag) {
     showFragmentByTagInToolPane(tag);
     activeToolFragmentTag = tag;
+    updateTitle();
   }
 
   public boolean isTwoPane() {
     return isTwoPane;
+  }
+
+  private String getDefaultFragmentTitle() {
+    if (defaultFragment != null) {
+      return ((TitleProvider) defaultFragment).getTitle();
+    }
+    return null;
+  }
+
+  public void updateTitle() {
+    setTitle(getDefaultFragmentTitle());
+  }
+
+  public void updateTitleByToolFragment(String title) {
+    if (activeToolFragmentTag != null && !isTwoPane) {
+      setTitle(title);
+    }
+  }
+
+  public void updateTitleByDefaultFragment(String title) {
+    setTitle(title);
   }
 
   @Override
@@ -417,6 +444,10 @@ public abstract class NoteTakingActivity extends AppCompatActivity
         addNewLabel(label);
       }
     }
+  }
+
+  public Theme getActivityTheme() {
+    return new ContextThemeWrapper(this, R.style.DefaultActionAreaIcon).getTheme();
   }
 
   public abstract ActionAreaItem[] getActionAreaItems();

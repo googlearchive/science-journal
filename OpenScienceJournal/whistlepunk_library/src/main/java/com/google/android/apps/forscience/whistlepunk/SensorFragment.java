@@ -36,6 +36,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Success;
@@ -289,6 +291,9 @@ public class SensorFragment extends Fragment
     getSensorAppearanceProvider()
         .loadAppearances(LoggingConsumer.<Success>expectSuccess(TAG, "Load appearances"));
     startUI();
+    if (isVisible()) {
+      updateTitle();
+    }
   }
 
   private void startUI() {
@@ -484,8 +489,27 @@ public class SensorFragment extends Fragment
       sensorCardLayoutManager.onRestoreInstanceState(
           savedInstanceState.getParcelable(KEY_SAVED_RECYCLER_LAYOUT));
     }
+    setUpTitle(rootView.findViewById(R.id.tool_pane_title_bar));
 
     return rootView;
+  }
+
+  private void setUpTitle(View titleBarView) {
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (activity != null) {
+      if (activity.isTwoPane()) {
+        ((TextView) titleBarView.findViewById(R.id.title_bar_text))
+            .setText(R.string.action_bar_sensor_note);
+        ((ImageView) titleBarView.findViewById(R.id.title_bar_icon))
+            .setImageDrawable(
+                getResources().getDrawable(R.drawable.ic_sensor, activity.getActivityTheme()));
+        titleBarView
+            .findViewById(R.id.title_bar_close)
+            .setOnClickListener(v -> activity.closeToolFragment());
+      } else {
+        titleBarView.setVisibility(View.GONE);
+      }
+    }
   }
 
   public void setRecordingTimeUpdateListener(
@@ -1019,14 +1043,6 @@ public class SensorFragment extends Fragment
     updateRecordingUIState(status);
   }
 
-  private String getExperimentName() {
-    if (selectedExperiment != null) {
-      return selectedExperiment.getDisplayTitle(getActivity());
-    } else {
-      return "";
-    }
-  }
-
   /**
    * Locks the UI to user imput in order to do a recording state change.
    *
@@ -1428,5 +1444,21 @@ public class SensorFragment extends Fragment
                 Log.d(TAG, Throwables.getStackTraceAsString(e));
               }
             });
+  }
+
+  @Override
+  public void onHiddenChanged(boolean hidden) {
+    super.onHiddenChanged(hidden);
+    if (!hidden) {
+      updateTitle();
+    }
+  }
+
+  private void updateTitle() {
+    Activity activity = getActivity();
+    if (activity != null) {
+      ((NoteTakingActivity) activity)
+          .updateTitleByToolFragment(getString(R.string.action_bar_sensor_note));
+    }
   }
 }

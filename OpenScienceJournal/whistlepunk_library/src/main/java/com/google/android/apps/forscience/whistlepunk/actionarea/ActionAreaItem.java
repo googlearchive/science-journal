@@ -25,13 +25,13 @@ import com.google.android.apps.forscience.whistlepunk.R;
  */
 public final class ActionAreaItem {
   public static final ActionAreaItem NOTE =
-      new ActionAreaItem(R.string.text_note, R.drawable.ic_text);
+      new ActionAreaItem(R.string.text_note, R.drawable.ic_text_with_circle);
   public static final ActionAreaItem SENSOR =
-      new ActionAreaItem(R.string.sensor_note, R.drawable.ic_sensor);
+      new ActionAreaItem(R.string.sensor_note, R.drawable.ic_sensor_with_circle);
   public static final ActionAreaItem CAMERA =
       new ActionAreaItem(R.string.camera_note, R.drawable.ic_camera);
   public static final ActionAreaItem GALLERY =
-      new ActionAreaItem(R.string.gallery_note, R.drawable.ic_gallery);
+      new ActionAreaItem(R.string.gallery_note, R.drawable.ic_gallery_with_circle);
   public static final ActionAreaItem MORE =
       new ActionAreaItem(R.string.more, R.drawable.ic_more);
   public static final ActionAreaItem SNAPSHOT
