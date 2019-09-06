@@ -65,9 +65,13 @@ public class ARVelocityActivity extends AppCompatActivity {
   private ImageView fitToScanView;
   private TextView velocityText;
   private static final float INTERVAL_TIME_SECONDS = 1f;
+  private static final float TEXT_UPDATE_TIME_SECONDS = 0.25f;
+  // TODO(b/139936569): When ARCore SDK is updated to 1.11+, change this constant accordingly
+  private static final int INTERVAL_FRAMES = 30;
   private float delTime;
+  private float textUpdateTime;
+  private float totalDistance;
   private Vector3 lastPos;
-  private Vector3 currPos;
   private AppAccount appAccount;
   private AppSingleton singleton;
   private String experimentId;
@@ -77,6 +81,8 @@ public class ARVelocityActivity extends AppCompatActivity {
   private ControlBarController cbc;
   private String observerId;
   private VelocitySensor velocitySensor;
+  private List<Vector3> positions;
+  private int currIndex; // Index of next empty place in position list
 
   // Augmented images that are currently being tracked.
   private final Set<AugmentedImage> augmentedImageSet = new HashSet<>();
@@ -98,6 +104,7 @@ public class ARVelocityActivity extends AppCompatActivity {
     rc = singleton.getRecorderController(appAccount);
     velocitySensor = singleton.getVelocitySensor();
     cbc = new ControlBarController(appAccount, experimentId, new SnackbarManager());
+    positions = new ArrayList<>();
 
     setUpRecording();
 
@@ -133,7 +140,7 @@ public class ARVelocityActivity extends AppCompatActivity {
     return intent;
   }
 
-  private void setUpRecording(){
+  private void setUpRecording() {
 
     // Note: this will probably change when we have an on-screen graph.
     observerId = rc.startObserving(
@@ -181,11 +188,13 @@ public class ARVelocityActivity extends AppCompatActivity {
               arFragment.getArSceneView().getSession().createAnchor(augmentedImage.getCenterPose());
               augmentedImageSet.add(augmentedImage);
             }
-            calculateVelocity(augmentedImage.getCenterPose(), frameTime.getDeltaSeconds());
+            averageVelocityEveryFrame(augmentedImage.getCenterPose(), frameTime.getDeltaSeconds());
             snapshotButton.setVisibility(View.VISIBLE);
             recordButton.setVisibility(View.VISIBLE);
           } else {
             lastPos = null;
+            positions = new ArrayList<>();
+            currIndex = 0;
             velocityText.setText(getResources().getString(R.string.ar_not_tracking));
             snapshotButton.setVisibility(View.GONE);
             recordButton.setVisibility(View.GONE);
@@ -200,11 +209,20 @@ public class ARVelocityActivity extends AppCompatActivity {
     }
   }
 
-  private void calculateVelocity(Pose centerPose, float deltaSeconds){
+  // TODO(b/140589451): pull the math logic out into a class that just knows about positions
+  //  vectors and timestamps, in order to write unit tests to demonstrate the differences between
+  //  each method of velocity calculation
+
+  // Every interval, calculate the velocity over the past interval, record and report this value.
+  // Use this method for the simplest definition of "velocity" with least data points on graph.
+  private void calculateVelocity(Pose centerPose, float deltaSeconds) {
     Pose anchorPose = arFragment.getArSceneView().getSession().getAllAnchors().iterator().next()
         .getPose();
-    currPos = Vector3.subtract(new Vector3(centerPose.tx(), centerPose.ty(), centerPose.tz()),
-        new Vector3(anchorPose.tx(), anchorPose.ty(), anchorPose.tz()));
+    Vector3 currPos =
+        new Vector3(
+            centerPose.tx() - anchorPose.tx(),
+            centerPose.ty() - anchorPose.ty(),
+            centerPose.tz() - anchorPose.tz());
     delTime += deltaSeconds;
 
     if (lastPos == null) {
@@ -212,15 +230,104 @@ public class ARVelocityActivity extends AppCompatActivity {
     } else if (delTime >= INTERVAL_TIME_SECONDS) {
       // Calculate velocity in meters per second.
       Vector3 displacement = Vector3.subtract(currPos, lastPos);
-      Vector3 avgVelocity = displacement.scaled(1 / delTime);
-      float velocityValue = avgVelocity.length();
-
+      float velocityValue = displacement.length() / delTime;
+      velocitySensor.setNextVelocity(velocityValue);
       // TODO(b/135678092): Add a string resource for the following
       velocityText.setText(String.format(Locale.getDefault(), "%.2f m/s", velocityValue));
-      velocitySensor.setNextVelocity(velocityValue);
-
       delTime = 0;
       lastPos = currPos;
+    }
+  }
+
+  // Every frame, calculate the velocity over the past frame, record this value. Current FPS is 30.
+  // Report this value (update text) based on a text update interval time.
+  // Use this method for maximum data points and a calculation closer to instantaneous velocity.
+  // Note that this tends to have a less smooth graph.
+  private void calculateVelocityEveryFrame(Pose centerPose, float deltaSeconds) {
+    Pose anchorPose =
+        arFragment.getArSceneView().getSession().getAllAnchors().iterator().next().getPose();
+    Vector3 currPos =
+        new Vector3(
+            centerPose.tx() - anchorPose.tx(),
+            centerPose.ty() - anchorPose.ty(),
+            centerPose.tz() - anchorPose.tz());
+    textUpdateTime += deltaSeconds;
+
+    if (lastPos != null) {
+      // Calculate velocity in meters per second.
+      Vector3 displacement = Vector3.subtract(currPos, lastPos);
+      float velocityValue = displacement.length() / deltaSeconds;
+      velocitySensor.setNextVelocity(velocityValue);
+
+      if (textUpdateTime >= TEXT_UPDATE_TIME_SECONDS) {
+        // TODO(b/135678092): Add a string resource for the following
+        velocityText.setText(String.format(Locale.getDefault(), "%.2f m/s", velocityValue));
+        textUpdateTime = 0;
+      }
+    }
+    lastPos = currPos;
+  }
+
+  // Every frame, calculate the velocity over the past interval, and record this value.
+  // Report this value (update text) based on a text update interval time.
+  // Use this method for maximum data points and a calculation closer to average velocity.
+  // This method tends to have a smoother graph than calculateVelocityEveryFrame, and more data
+  // points on the graph, so this is the currently used method.
+  private void averageVelocityEveryFrame(Pose centerPose, float deltaSeconds) {
+    Pose anchorPose =
+        arFragment.getArSceneView().getSession().getAllAnchors().iterator().next().getPose();
+    Vector3 currPos =
+        new Vector3(
+            centerPose.tx() - anchorPose.tx(),
+            centerPose.ty() - anchorPose.ty(),
+            centerPose.tz() - anchorPose.tz());
+    positions.add(currPos);
+    currIndex++;
+    textUpdateTime += deltaSeconds;
+
+    if (currIndex >= INTERVAL_FRAMES) {
+      // Calculate velocity over the past second.
+      Vector3 displacement = Vector3.subtract(currPos, positions.get(currIndex - INTERVAL_FRAMES));
+      float velocityValue = displacement.length() / INTERVAL_TIME_SECONDS;
+      velocitySensor.setNextVelocity(velocityValue);
+
+      if (textUpdateTime >= TEXT_UPDATE_TIME_SECONDS) {
+        // TODO(b/135678092): Add a string resource for the following
+        velocityText.setText(String.format(Locale.getDefault(), "%.2f m/s", velocityValue));
+        textUpdateTime = 0;
+      }
+    }
+  }
+
+  // Every interval, calculate the speed over the past interval, record and report this value.
+  // Speed is calculated by adding the distance gained every frame, and dividing total distance over
+  // the interval by interval time.
+  // Use this method for the simplest definition of "speed" with least data points on graph.
+  // This is the "speed" equivalent of the calculateVelocity method.
+  private void calculateSpeed(Pose centerPose, float deltaSeconds) {
+    Pose anchorPose =
+        arFragment.getArSceneView().getSession().getAllAnchors().iterator().next().getPose();
+    Vector3 currPos =
+        new Vector3(
+            centerPose.tx() - anchorPose.tx(),
+            centerPose.ty() - anchorPose.ty(),
+            centerPose.tz() - anchorPose.tz());
+    delTime += deltaSeconds;
+
+    if (lastPos != null) {
+      float distance = Vector3.subtract(currPos, lastPos).length();
+      totalDistance += distance;
+    }
+    lastPos = currPos;
+
+    if (delTime >= INTERVAL_TIME_SECONDS) {
+      // Calculate velocity in meters per second.
+      float speedValue = totalDistance / delTime;
+      velocitySensor.setNextVelocity(speedValue);
+      // TODO(b/135678092): Add a string resource for the following
+      velocityText.setText(String.format(Locale.getDefault(), "%.2f m/s", speedValue));
+      delTime = 0;
+      totalDistance = 0;
     }
   }
 
