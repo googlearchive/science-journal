@@ -31,7 +31,7 @@
         android:layout_height="match_parent"
         tools:context="com.google.android.apps.forscience.whistlepunk.project.ProjectFragment">
 
-        <android.support.design.appbar.AppBarLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
@@ -51,7 +51,7 @@
             </androidx.appcompat.widget.Toolbar>
 
 
-        </android.support.design.appbar.AppBarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
         <FrameLayout
             android:id="@+id/content_container"
