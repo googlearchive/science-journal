@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.snackbar.Snackbar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
@@ -36,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
+import com.google.android.material.snackbar.Snackbar;
 
 /** Activity that lets the user choose what to do with their old experiments. */
 public class OldUserOptionPromptActivity extends AppCompatActivity {

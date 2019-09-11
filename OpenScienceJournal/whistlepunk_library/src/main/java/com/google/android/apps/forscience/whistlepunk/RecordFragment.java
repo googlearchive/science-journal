@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import androidx.annotation.NonNull;
-import android.support.design.snackbar.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -64,6 +63,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;

@@ -19,7 +19,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.snackbar.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,6 +50,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.protobuf.nano.MessageNano;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

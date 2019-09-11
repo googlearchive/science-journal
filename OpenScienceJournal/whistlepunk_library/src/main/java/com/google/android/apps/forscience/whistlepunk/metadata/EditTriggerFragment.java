@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import android.support.design.snackbar.Snackbar;
 import androidx.fragment.app.Fragment;
 import androidx.core.app.NavUtils;
 import androidx.appcompat.app.ActionBar;
@@ -59,6 +58,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import java.text.DecimalFormat;

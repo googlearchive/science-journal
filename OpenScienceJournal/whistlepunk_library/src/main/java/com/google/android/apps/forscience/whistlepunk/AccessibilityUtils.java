@@ -19,11 +19,11 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.graphics.Rect;
 import androidx.annotation.VisibleForTesting;
-import android.support.design.snackbar.Snackbar;
 import android.view.MotionEvent;
 import android.view.TouchDelegate;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
+import com.google.android.material.snackbar.Snackbar;
 import java.util.List;
 
 /** Class for general-use accessibility utils. */

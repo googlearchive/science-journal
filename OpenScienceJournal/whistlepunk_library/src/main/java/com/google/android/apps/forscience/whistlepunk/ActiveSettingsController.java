@@ -19,13 +19,13 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
-import android.support.design.snackbar.Snackbar;
 import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ActiveBundle;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * Controller for settings dialogs that make live changes to ActiveBundles.

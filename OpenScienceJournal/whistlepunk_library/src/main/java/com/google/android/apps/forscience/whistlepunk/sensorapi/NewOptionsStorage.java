@@ -16,12 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import android.support.design.snackbar.Snackbar;
 import android.util.Log;
 import android.view.View;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * Interface for loading and storing a sensor's options from persistent storage.
