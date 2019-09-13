@@ -22,6 +22,7 @@ import androidx.annotation.VisibleForTesting;
 import android.view.MotionEvent;
 import android.view.TouchDelegate;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.accessibility.AccessibilityManager;
 import com.google.android.material.snackbar.Snackbar;
 import java.util.List;
@@ -131,6 +132,17 @@ public final class AccessibilityUtils {
     bar.getView().setContentDescription(message);
     bar.setDuration(getLongerToastDurationIfAccessibilityEnabled(context, bar));
     bar.setActionTextColor(context.getResources().getColor(R.color.snackbar_action_color));
+    return bar;
+  }
+
+  public static Snackbar makeSnackbar(
+      View view, String message, int length, String action, OnClickListener onClickAction) {
+    Context context = view.getContext();
+    Snackbar bar = Snackbar.make(view, message, length);
+    bar.getView().setContentDescription(message);
+    bar.setDuration(getLongerToastDurationIfAccessibilityEnabled(context, bar));
+    bar.setActionTextColor(context.getResources().getColor(R.color.snackbar_action_color));
+    bar.setAction(action, onClickAction);
     return bar;
   }
 }

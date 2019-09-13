@@ -27,6 +27,7 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -81,6 +82,18 @@ public class TextNoteFragment extends Fragment {
     if (savedInstanceState != null) {
       textView.setText(savedInstanceState.getString(KEY_TEXT));
     }
+
+    textView.setOnFocusChangeListener(
+        (v, hasFocus) -> {
+          InputMethodManager imm =
+              (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+          if (hasFocus) {
+            imm.showSoftInputFromInputMethod(v.getWindowToken(), 0);
+          } else {
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+          }
+        });
+    textView.requestFocus();
 
     FloatingActionButton addButton = rootView.findViewById(R.id.btn_add_inline);
     setupAddButton(addButton);

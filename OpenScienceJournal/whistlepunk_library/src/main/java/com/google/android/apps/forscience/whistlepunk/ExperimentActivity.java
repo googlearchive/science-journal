@@ -243,6 +243,7 @@ public class ExperimentActivity extends NoteTakingActivity
       void onRecordingSaved(String runId, Experiment experiment) {
         logState(TrackerConstants.ACTION_RECORDED);
         experimentFragment.loadExperimentData(experiment);
+        onNoteSaved();
       }
 
       @Override
@@ -264,6 +265,16 @@ public class ExperimentActivity extends NoteTakingActivity
     };
   }
 
+  private void onNoteSaved() {
+    AccessibilityUtils.makeSnackbar(
+            findViewById(R.id.tool_pane),
+            getResources().getString(R.string.note_saved),
+            Snackbar.LENGTH_LONG,
+            getResources().getString(R.string.note_saved_action),
+            v -> showDefaultFragments())
+        .show();
+  }
+
   @Override
   protected void onLabelAdded(String trialId) {
     if (TextUtils.isEmpty(trialId)) {
@@ -272,6 +283,7 @@ public class ExperimentActivity extends NoteTakingActivity
     } else {
       experimentFragment.onRecordingTrialUpdated(trialId);
     }
+    onNoteSaved();
     logState(TrackerConstants.ACTION_LABEL_ADDED);
   }
 
@@ -283,10 +295,13 @@ public class ExperimentActivity extends NoteTakingActivity
 
   @Override
   public void closeToolFragment() {
-    if (isRecording && isTwoPane() && activeToolFragmentTag.equals(SENSOR_TAG)) {
+    if (isRecording && activeToolFragmentTag.equals(SENSOR_TAG)) {
       return;
     }
     super.closeToolFragment();
+    if (isRecording) {
+      openToolFragment(SENSOR_TAG);
+    }
   }
 
   @Override
