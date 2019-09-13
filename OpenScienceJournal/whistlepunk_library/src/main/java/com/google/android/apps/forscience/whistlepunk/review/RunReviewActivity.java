@@ -18,8 +18,10 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources.Theme;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+import android.view.ContextThemeWrapper;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
@@ -126,6 +128,11 @@ public class RunReviewActivity extends NoteTakingActivity {
   }
 
   @Override
+  protected String getDefaultToolFragmentTag() {
+    return DEFAULT_ADD_MORE_OBSERVATIONS_TAG;
+  }
+
+  @Override
   protected void onResume() {
     super.onResume();
 
@@ -150,6 +157,11 @@ public class RunReviewActivity extends NoteTakingActivity {
   public void onRequestPermissionsResult(
       int requestCode, String permissions[], int[] grantResults) {
     PermissionUtils.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+  }
+
+  @Override
+  public Theme getActivityTheme() {
+    return new ContextThemeWrapper(this, R.style.BlueActionAreaIcon).getTheme();
   }
 
   @Override

@@ -25,8 +25,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Throwables;
@@ -131,6 +136,89 @@ public class ControlBarController {
                 recordButton.setImageDrawable(
                     resources.getDrawable(R.drawable.ic_recording_red_42dp));
               }
+            });
+  }
+
+  /**
+   * Updates the recording button, action area, title bar, and sensor card view for {@link
+   * SensorFragment} when a recording starts/stops.
+   */
+  protected void attachSensorFragmentView(
+      CardView recordButton,
+      FragmentManager fragmentManager,
+      ActionAreaView actionAreaView,
+      ActionAreaListener listener,
+      View sensorCardRecyclerView,
+      View titleBarView,
+      boolean isTwoPane) {
+    Observable<RecordingStatus> recordingStatus =
+        AppSingleton.getInstance(recordButton.getContext())
+            .getRecorderController(appAccount)
+            .watchRecordingStatus();
+
+    recordButton.setVisibility(View.VISIBLE);
+    RxView.clicks(recordButton)
+        .flatMapMaybe(click -> recordingStatus.firstElement())
+        .subscribe(
+            status -> {
+              if (status.isRecording()) {
+                tryStopRecording(recordButton, fragmentManager);
+              } else {
+                tryStartRecording(recordButton);
+              }
+            });
+
+    recordingStatus
+        .takeUntil(RxView.detaches(recordButton))
+        .subscribe(
+            status -> {
+              recordButton.setEnabled(status.state.shouldEnableRecordButton());
+              Resources resources = recordButton.getResources();
+              int titleId = 0;
+              int contentDescriptionId = 0;
+              int imageResourceId = 0;
+
+              int paddingBottom =
+                  resources.getDimensionPixelOffset(R.dimen.list_bottom_padding_with_action_area);
+
+              if (status.state.shouldShowStopButton()) {
+                titleId = R.string.btn_stop_label;
+                contentDescriptionId = R.string.btn_stop_description;
+                imageResourceId = R.drawable.ic_recording_stop_42dp;
+
+                ActionAreaItem[] actionAreaItems = {
+                  ActionAreaItem.NOTE, ActionAreaItem.SNAPSHOT, ActionAreaItem.CAMERA
+                };
+                actionAreaView.addItems(actionAreaView.getContext(), actionAreaItems, listener);
+                actionAreaView.updateColor(actionAreaView.getContext(), R.style.RedActionAreaIcon);
+
+                int paddingTop = resources.getDimensionPixelSize(R.dimen.external_axis_height);
+                sensorCardRecyclerView.setPadding(0, paddingTop, 0, paddingBottom);
+
+                titleBarView.setVisibility(View.GONE);
+              } else {
+                titleId = R.string.btn_record_label;
+                contentDescriptionId = R.string.btn_record_description;
+                imageResourceId = R.drawable.ic_recording_red_42dp;
+
+                ActionAreaItem[] actionAreaItems = {
+                  ActionAreaItem.ADD_SENSOR, ActionAreaItem.SNAPSHOT
+                };
+                actionAreaView.addItems(actionAreaView.getContext(), actionAreaItems, listener);
+                actionAreaView.updateColor(
+                    actionAreaView.getContext(), R.style.DefaultActionAreaIcon);
+
+                sensorCardRecyclerView.setPadding(0, 0, 0, paddingBottom);
+
+                if (isTwoPane) {
+                  titleBarView.setVisibility(View.VISIBLE);
+                }
+              }
+              ((TextView) recordButton.findViewById(R.id.record_button_text)).setText(titleId);
+              ((ImageView) recordButton.findViewById(R.id.record_button_icon))
+                  .setImageResource(imageResourceId);
+              recordButton.setContentDescription(resources.getString(contentDescriptionId));
+              recordButton.invalidate();
             });
   }
 

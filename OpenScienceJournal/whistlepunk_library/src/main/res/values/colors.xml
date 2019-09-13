@@ -86,4 +86,9 @@
     <color name="action_area_purple_light">#F5E7FF</color>
     <color name="action_area_purple_dark">#7627BB</color>
     <color name="action_area_view_background">#FCFCFC</color>
+
+    <color name="app_bar_purple">#6F2EBE</color>
+    <color name="app_bar_red">#D5000A</color>
+    <color name="action_fragment_background">#FFFFFF</color>
+    <color name="action_fragment_title_font_color">#202124</color>
 </resources>

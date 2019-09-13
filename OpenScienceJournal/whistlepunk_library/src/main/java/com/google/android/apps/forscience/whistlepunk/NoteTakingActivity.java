@@ -35,7 +35,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
@@ -79,7 +78,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
   protected AppAccount appAccount;
   private String pictureUUID;
   private String pictureRelativePath;
-  private String activeToolFragmentTag;
+  protected String activeToolFragmentTag;
   private String experimentId;
   private boolean isTwoPane;
   protected Single<Experiment> exp;
@@ -144,10 +143,10 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     updateTitle();
   }
 
-  private void showDefaultFragments() {
+  protected void showDefaultFragments() {
     FragmentManager fragmentManager = getSupportFragmentManager();
     if (isTwoPane) {
-      showFragmentByTagInToolPane(DEFAULT_ADD_MORE_OBSERVATIONS_TAG);
+      showFragmentByTagInToolPane(getDefaultToolFragmentTag());
     } else {
       hideAllFragmentsInToolPane();
     }
@@ -168,6 +167,8 @@ public abstract class NoteTakingActivity extends AppCompatActivity
   }
 
   protected abstract Fragment getDefaultFragment();
+
+  protected abstract String getDefaultToolFragmentTag();
 
   public void closeToolFragment() {
     activeToolFragmentTag = null;
@@ -446,9 +447,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     }
   }
 
-  public Theme getActivityTheme() {
-    return new ContextThemeWrapper(this, R.style.DefaultActionAreaIcon).getTheme();
-  }
+  public abstract Theme getActivityTheme();
 
   public abstract ActionAreaItem[] getActionAreaItems();
 }

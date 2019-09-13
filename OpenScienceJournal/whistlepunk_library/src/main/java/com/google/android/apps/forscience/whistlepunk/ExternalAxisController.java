@@ -431,6 +431,9 @@ public class ExternalAxisController {
     recordingStart = timestamp;
     axisView.setNumberFormat(new RelativeTimeFormat(recordingStart, axisView.getContext()));
     axisView.setRecordingStart(recordingStart);
+    if (Flags.showActionBar()) {
+      axisView.setVisibility(View.VISIBLE);
+    }
   }
 
   public long getRecordingStartTime() {
@@ -441,6 +444,9 @@ public class ExternalAxisController {
     recordingStart = RecordingMetadata.NOT_RECORDING;
     axisView.setNumberFormat(new SecondsAgoFormat(currentTimeClock, axisView.getContext()));
     axisView.setRecordingStart(recordingStart);
+    if (Flags.showActionBar()) {
+      axisView.setVisibility(View.GONE);
+    }
   }
 
   // Returns an elapsed time for RunReview data. Will return the empty string otherwise.

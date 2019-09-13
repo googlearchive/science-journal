@@ -501,6 +501,7 @@ public class RunReviewFragment extends Fragment
             0,
             0,
             getResources().getDimensionPixelOffset(R.dimen.list_bottom_padding_with_action_area));
+        actionArea.updateColor(getContext(), R.style.BlueActionAreaIcon);
         actionArea.setUpScrollListener(pinnedNoteList);
       }
     } else {
@@ -1935,7 +1936,7 @@ public class RunReviewFragment extends Fragment
   public String getTitle() {
     Trial trial = getTrial();
     if (trial == null) {
-      return getString(R.string.run_review_activity_label);
+      return null;
     }
     return trial.getTitle(getContext());
   }

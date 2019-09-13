@@ -19,5 +19,5 @@
     android:id="@+id/grid_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_color"
+    android:background="@color/action_fragment_background"
     android:padding="5dp"/>

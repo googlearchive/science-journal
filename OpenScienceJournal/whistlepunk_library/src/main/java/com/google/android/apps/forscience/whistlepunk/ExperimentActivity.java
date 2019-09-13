@@ -15,14 +15,19 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources.Theme;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import com.google.android.apps.forscience.whistlepunk.MoreObservationsFragment.ObservationOption;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
@@ -35,6 +40,7 @@ import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerPro
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsWithActionAreaFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.google.android.material.snackbar.Snackbar;
+import io.reactivex.Observable;
 import io.reactivex.subjects.SingleSubject;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +66,7 @@ public class ExperimentActivity extends NoteTakingActivity
   private ExperimentDetailsWithActionAreaFragment experimentFragment = null;
   private boolean claimExperimentsMode;
   private RxEvent destroyed = new RxEvent();
+  private boolean isRecording;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -94,8 +101,30 @@ public class ExperimentActivity extends NoteTakingActivity
     exp.takeUntil(destroyed.happensNext())
         .subscribe(activeExperiment::onSuccess, error -> finish());
 
+    subscribeToRecordingStatus();
+
     WhistlePunkApplication.getUsageTracker(this)
         .trackScreenView(TrackerConstants.SCREEN_EXPERIMENT);
+  }
+
+  @SuppressLint("CheckResult")
+  private void subscribeToRecordingStatus() {
+    Observable<RecordingStatus> recordingStatus =
+        AppSingleton.getInstance(this).getRecorderController(appAccount).watchRecordingStatus();
+
+    recordingStatus.subscribe(
+        status -> {
+          ActionBar bar = getSupportActionBar();
+          if (status.state.shouldShowStopButton()) {
+            isRecording = true;
+            bar.setBackgroundDrawable(
+                new ColorDrawable(getResources().getColor(R.color.app_bar_red)));
+          } else {
+            isRecording = false;
+            bar.setBackgroundDrawable(
+                new ColorDrawable(getResources().getColor(R.color.app_bar_purple)));
+          }
+        });
   }
 
   public void onArchivedStateChanged() {
@@ -123,6 +152,15 @@ public class ExperimentActivity extends NoteTakingActivity
   @Override
   protected Fragment getDefaultFragment() {
     return experimentFragment;
+  }
+
+  @Override
+  protected String getDefaultToolFragmentTag() {
+    if (isRecording) {
+      return SENSOR_TAG;
+    } else {
+      return DEFAULT_ADD_MORE_OBSERVATIONS_TAG;
+    }
   }
 
   private ExperimentDetailsWithActionAreaFragment lookupExperimentFragment() {
@@ -235,6 +273,20 @@ public class ExperimentActivity extends NoteTakingActivity
       experimentFragment.onRecordingTrialUpdated(trialId);
     }
     logState(TrackerConstants.ACTION_LABEL_ADDED);
+  }
+
+  @Override
+  public Theme getActivityTheme() {
+    int themeResId = isRecording ? R.style.RedActionAreaIcon : R.style.DefaultActionAreaIcon;
+    return new ContextThemeWrapper(this, themeResId).getTheme();
+  }
+
+  @Override
+  public void closeToolFragment() {
+    if (isRecording && isTwoPane() && activeToolFragmentTag.equals(SENSOR_TAG)) {
+      return;
+    }
+    super.closeToolFragment();
   }
 
   @Override

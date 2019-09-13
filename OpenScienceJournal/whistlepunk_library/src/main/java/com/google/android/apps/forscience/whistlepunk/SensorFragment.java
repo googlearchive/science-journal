@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.transition.Slide;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +70,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
@@ -163,6 +163,7 @@ public class SensorFragment extends Fragment
   private FeatureDiscoveryProvider featureDiscoveryProvider;
 
   private ControlBarController controlBarController;
+  private ActionAreaView actionAreaView;
 
   /**
    * Most recent result from {@link RecorderController#pauseObservingAll()}, which must be passed
@@ -452,10 +453,8 @@ public class SensorFragment extends Fragment
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     final ViewGroup rootView =
         (ViewGroup) inflater.inflate(R.layout.fragment_sensor, container, false);
-    ActionAreaView actionArea = rootView.findViewById(R.id.action_area);
-    ActionAreaItem[] actionAreaItems = {ActionAreaItem.ADD_SENSOR, ActionAreaItem.SNAPSHOT};
-    actionArea.addItems(getContext(), actionAreaItems, this);
-    actionArea.setUpScrollListener(rootView.findViewById(R.id.sensor_card_recycler_view));
+    actionAreaView = rootView.findViewById(R.id.action_area);
+    actionAreaView.setUpScrollListener(rootView.findViewById(R.id.sensor_card_recycler_view));
 
     View resetButton = rootView.findViewById(R.id.btn_reset);
     ExternalAxisView axisView = (ExternalAxisView) rootView.findViewById(R.id.external_x_axis);
@@ -482,14 +481,25 @@ public class SensorFragment extends Fragment
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, getView());
     sensorCardLayoutManager = new LinearLayoutManager(getActivity());
 
-    FloatingActionButton record = rootView.findViewById(R.id.record);
-    controlBarController.attachRecordButton(record, getFragmentManager());
+    setUpTitle(rootView.findViewById(R.id.tool_pane_title_bar));
+
+    androidx.cardview.widget.CardView record = rootView.findViewById(R.id.record);
+    sensorCardRecyclerView = (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    boolean isTwoPane = activity != null && activity.isTwoPane();
+    controlBarController.attachSensorFragmentView(
+        record,
+        getChildFragmentManager(),
+        actionAreaView,
+        this,
+        sensorCardRecyclerView,
+        rootView.findViewById(R.id.tool_pane_title_bar),
+        isTwoPane);
 
     if (savedInstanceState != null) {
       sensorCardLayoutManager.onRestoreInstanceState(
           savedInstanceState.getParcelable(KEY_SAVED_RECYCLER_LAYOUT));
     }
-    setUpTitle(rootView.findViewById(R.id.tool_pane_title_bar));
 
     return rootView;
   }
@@ -502,7 +512,11 @@ public class SensorFragment extends Fragment
             .setText(R.string.action_bar_sensor_note);
         ((ImageView) titleBarView.findViewById(R.id.title_bar_icon))
             .setImageDrawable(
-                getResources().getDrawable(R.drawable.ic_sensor, activity.getActivityTheme()));
+                getResources()
+                    .getDrawable(
+                        R.drawable.ic_sensor,
+                        new ContextThemeWrapper(getActivity(), R.style.DefaultActionAreaIcon)
+                            .getTheme()));
         titleBarView
             .findViewById(R.id.title_bar_close)
             .setOnClickListener(v -> activity.closeToolFragment());
@@ -724,7 +738,6 @@ public class SensorFragment extends Fragment
 
     refreshLabels(status);
 
-    sensorCardRecyclerView = (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);
     sensorCardRecyclerView.setLayoutManager(sensorCardLayoutManager);
     sensorCardRecyclerView.setAdapter(sensorCardAdapter);
     sensorCardRecyclerView.setItemAnimator(
@@ -1286,6 +1299,8 @@ public class SensorFragment extends Fragment
 
   private void updateSensorCount() {
     sensorCardAdapter.setAvailableSensorCount(getAllIncludedSources().size());
+    // TODO(b/134092906): Disable add sensor button when no more sensors are available, then
+    //  remove the check for numAvailableSources != 0
   }
 
   private void scheduleFeatureDiscovery(String sensorId) {
@@ -1425,6 +1440,11 @@ public class SensorFragment extends Fragment
       addNewSensor();
     } else if (item.equals(ActionAreaItem.SNAPSHOT)) {
       takeSnapshot();
+    } else {
+      Activity activity = getActivity();
+      if (activity != null) {
+        ((NoteTakingActivity) activity).onClick(item);
+      }
     }
   }
 

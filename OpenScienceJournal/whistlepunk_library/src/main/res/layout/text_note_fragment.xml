@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_color"
+    android:background="@color/action_fragment_background"
     >
 
     <include layout="@layout/fragment_tool_pane_title"/>

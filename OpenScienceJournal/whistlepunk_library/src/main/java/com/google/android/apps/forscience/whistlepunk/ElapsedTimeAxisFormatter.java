@@ -28,6 +28,7 @@ import android.util.LruCache;
 public class ElapsedTimeAxisFormatter {
 
   private static ElapsedTimeAxisFormatter instance;
+  private final String extraSmallFormat;
   private final String smallFormat;
   private final String largeFormat;
   private final String smallFormatTenths;
@@ -46,6 +47,7 @@ public class ElapsedTimeAxisFormatter {
 
   private ElapsedTimeAxisFormatter(Context context) {
     Resources res = context.getResources();
+    extraSmallFormat = res.getString(R.string.elapsed_time_axis_format_extra_small);
     smallFormat = res.getString(R.string.elapsed_time_axis_format_small);
     largeFormat = res.getString(R.string.elapsed_time_axis_format_large);
     smallFormatTenths = res.getString(R.string.elapsed_time_axis_format_small_tenths);
@@ -99,8 +101,10 @@ public class ElapsedTimeAxisFormatter {
     } else {
       if (hours > 0) {
         formattedString = formatter.format(largeFormat, hours, minutes, seconds).toString();
-      } else {
+      } else if (minutes > 0) {
         formattedString = formatter.format(smallFormat, minutes, seconds).toString();
+      } else {
+        formattedString = formatter.format(extraSmallFormat, seconds).toString();
       }
     }
 
