@@ -1583,6 +1583,13 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
               holder.noteHolder);
         }
       }
+      holder.itemView.setOnClickListener(
+          view -> {
+            NoteTakingActivity activity = (NoteTakingActivity) holder.itemView.getContext();
+            if (activity != null) {
+              activity.openSensorFragment();
+            }
+          });
     }
 
     private void loadLabelIntoHolder(Label label, long trialStartTime, ViewGroup noteHolder) {

@@ -175,6 +175,10 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     showDefaultFragments();
   }
 
+  public void openSensorFragment() {
+    openToolFragment(SENSOR_TAG);
+  }
+
   protected void openToolFragment(String tag) {
     showFragmentByTagInToolPane(tag);
     activeToolFragmentTag = tag;
