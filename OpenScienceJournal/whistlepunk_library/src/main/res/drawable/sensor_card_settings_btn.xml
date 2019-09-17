@@ -15,18 +15,17 @@
   limitations under the License.
  -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
+    <item
+        android:left="4dp"
+        android:right="4dp"
+        android:top="4dp"
+        android:bottom="4dp"
+        >
         <shape android:gravity="center" android:shape="oval">
             <size
-                android:height="40dp"
-                android:width="40dp"/>
-            <solid android:color="@color/graph_line_color_blue"/>
+                android:height="36dp"
+                android:width="36dp"/>
+            <solid android:color="@android:color/white"/>
         </shape>
-    </item>
-    <item>
-        <bitmap android:gravity="center"
-                android:src="@drawable/ic_settings_white_24dp"
-                android:height="24dp"
-                android:width="24dp"/>
     </item>
 </layer-list>

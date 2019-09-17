@@ -59,13 +59,15 @@
 
             </FrameLayout>
 
+            <!-- Set the background separately from the source so the background can be tinted. -->
             <ImageButton
                 android:layout_width="@dimen/accessibility_touch_target_min_size"
                 android:layout_height="@dimen/accessibility_touch_target_min_size"
                 android:layout_weight="0"
                 android:id="@+id/settings_gear"
-                android:src="@drawable/sensor_card_settings_btn"
-                android:background="?android:attr/selectableItemBackground"
+                android:src="@drawable/ic_settings_white_24dp"
+                android:background="@drawable/sensor_card_settings_btn"
+                android:foreground="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/add_sensor"
                 />
         </LinearLayout>
