@@ -49,6 +49,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
@@ -1044,6 +1045,15 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
         // TODO(b/117987511): display a card that explains why we can't show this data
         view = inflater.inflate(R.layout.exp_card_empty, parent, false);
       }
+      CardView cardView = view.findViewById(R.id.card_view);
+      if (cardView != null) {
+        if (Flags.showActionBar()) {
+          cardView.setUseCompatPadding(true);
+          cardView.setCardElevation(0);
+          cardView.setBackground(
+              cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
+        }
+      }
       return new DetailsViewHolder(view, viewType);
     }
 
@@ -2024,13 +2034,19 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     }
 
     public static class RecordingViewHolder extends RecyclerView.ViewHolder {
-      View cardView;
+      CardView cardView;
       ViewGroup noteHolder;
       TextView title;
 
       public RecordingViewHolder(View itemView) {
         super(itemView);
         cardView = itemView.findViewById(R.id.card_view);
+        if (Flags.showActionBar()) {
+          cardView.setUseCompatPadding(true);
+          cardView.setCardElevation(0);
+          cardView.setBackground(
+              cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
+        }
         noteHolder = (ViewGroup) itemView.findViewById(R.id.notes_holder);
         title = (TextView) itemView.findViewById(R.id.title);
       }

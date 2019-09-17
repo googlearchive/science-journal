@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
@@ -61,6 +62,13 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     captionTextView = (TextView) itemView.findViewById(R.id.caption);
     valuesList = (ViewGroup) itemView.findViewById(R.id.snapshot_values_list);
     relativeTimeView = (RelativeTimeTextView) itemView.findViewById(R.id.relative_time_text);
+    CardView cardView = v.findViewById(R.id.card_view);
+    if (Flags.showActionBar()) {
+      cardView.setUseCompatPadding(true);
+      cardView.setCardElevation(0);
+      cardView.setBackground(
+          cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
+    }
   }
 
   public void setNote(
@@ -227,7 +235,6 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
       SensorAppearanceProvider appearanceProvider,
       ViewGroup layout,
       double value) {
-    GoosciIcon.IconPath iconPath = appearance.getLargeIconPath();
     SensorAppearance sa = getSensorAppearance(appearance, appearanceProvider);
     if (sa != null) {
       SensorAnimationBehavior behavior = sa.getSensorAnimationBehavior();
