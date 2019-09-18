@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibra
 import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
@@ -56,7 +57,8 @@ public class ExperimentCreator {
       Context context,
       GoosciExperiment.Experiment proto,
       GoosciUserMetadata.ExperimentOverview overview) {
-    Experiment experiment = Experiment.fromExperiment(proto, overview);
+    Experiment experiment =
+        Experiment.fromExperiment(proto, ExperimentOverviewPojo.fromProto(overview));
     addToManagers(context, experiment);
     return experiment;
   }

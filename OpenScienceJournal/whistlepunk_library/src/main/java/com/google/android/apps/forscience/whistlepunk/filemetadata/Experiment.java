@@ -36,8 +36,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Version.FileVersi
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.ExperimentOverview;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -63,7 +61,7 @@ public class Experiment extends LabelListHolder {
   private static final String TAG = "Experiment";
   public static final String EXPERIMENTS = "experiments/";
 
-  private GoosciUserMetadata.ExperimentOverview experimentOverview;
+  private ExperimentOverviewPojo experimentOverview;
   private List<GoosciSensorLayout.SensorLayout> sensorLayouts;
   private List<ExperimentSensor> experimentSensors;
   private List<SensorTrigger> sensorTriggers;
@@ -82,13 +80,11 @@ public class Experiment extends LabelListHolder {
 
   public static Experiment newExperiment(long creationTime, String experimentId, int colorIndex) {
     GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview experimentOverview =
-        new GoosciUserMetadata.ExperimentOverview();
-    experimentOverview.lastUsedTimeMs = creationTime;
-    experimentOverview.isArchived = false;
-    experimentOverview.experimentId = experimentId;
-    experimentOverview.colorIndex = colorIndex;
+    ExperimentOverviewPojo experimentOverview = new ExperimentOverviewPojo();
+    experimentOverview.setLastUsedTimeMs(creationTime);
+    experimentOverview.setArchived(false);
+    experimentOverview.setExperimentId(experimentId);
+    experimentOverview.setColorIndex(colorIndex);
     proto.creationTimeMs = creationTime;
     proto.totalTrials = 0;
 
@@ -120,8 +116,7 @@ public class Experiment extends LabelListHolder {
 
   /** Populates the Experiment from an existing proto. */
   public static Experiment fromExperiment(
-      GoosciExperiment.Experiment experiment,
-      GoosciUserMetadata.ExperimentOverview experimentOverview) {
+      GoosciExperiment.Experiment experiment, ExperimentOverviewPojo experimentOverview) {
     return new Experiment(experiment, experimentOverview);
   }
 
@@ -129,10 +124,8 @@ public class Experiment extends LabelListHolder {
   // it will not show up as archived on another account. Therefore it is stored outside of the
   // experiment proto.
   private Experiment(
-      GoosciExperiment.Experiment experimentProto,
-      GoosciUserMetadata.ExperimentOverview experimentOverview) {
+      GoosciExperiment.Experiment experimentProto, ExperimentOverviewPojo experimentOverview) {
 
-    ExperimentOverview experimentOverview1 = experimentOverview;
     labels = new ArrayList<>();
     for (GoosciLabel.Label labelProto : experimentProto.labels) {
       labels.add(Label.fromLabel(labelProto));
@@ -159,20 +152,20 @@ public class Experiment extends LabelListHolder {
 
     title = experimentProto.title;
     description = experimentProto.description;
-    lastUsedTimeMs = experimentOverview1.lastUsedTimeMs;
+    lastUsedTimeMs = experimentOverview.getLastUsedTimeMs();
     if (!Strings.isNullOrEmpty(experimentProto.imagePath)) {
       // Relative to the experiment, not the account root.
       imagePath = getPathRelativeToExperiment(experimentProto.imagePath);
     } else {
       // Overview is relative to the account root. Be sure to trim 2 levels
-      imagePath = getPathRelativeToExperiment(experimentOverview1.imagePath);
+      imagePath = getPathRelativeToExperiment(experimentOverview.getImagePath());
     }
-    isArchived = experimentOverview1.isArchived;
+    isArchived = experimentOverview.isArchived();
     totalTrials = experimentProto.totalTrials;
-    trialCount = experimentOverview1.trialCount;
+    trialCount = experimentOverview.getTrialCount();
     creationTimeMs = experimentProto.creationTimeMs;
     fileVersion = experimentProto.fileVersion;
-    this.experimentOverview = experimentOverview1;
+    this.experimentOverview = experimentOverview;
   }
 
   /**
@@ -236,24 +229,23 @@ public class Experiment extends LabelListHolder {
     return proto;
   }
 
-  public GoosciUserMetadata.ExperimentOverview getExperimentOverview() {
-    experimentOverview.trialCount = trials.size();
-    experimentOverview.title = title;
-    experimentOverview.isArchived = isArchived;
+  public ExperimentOverviewPojo getExperimentOverview() {
+    experimentOverview.setTitle(title);
+    experimentOverview.setArchived(isArchived);
     // Relative to the account root. Be sure to add 2 levels.
-    experimentOverview.imagePath = getPathRelativeToAccountRoot(imagePath);
-    experimentOverview.lastUsedTimeMs = lastUsedTimeMs;
-    experimentOverview.trialCount = trialCount;
+    experimentOverview.setImagePath(getPathRelativeToAccountRoot(imagePath));
+    experimentOverview.setLastUsedTimeMs(lastUsedTimeMs);
+    experimentOverview.setTrialCount(trialCount);
     return experimentOverview;
   }
 
   public String getExperimentId() {
-    return experimentOverview.experimentId;
+    return experimentOverview.getExperimentId();
   }
 
   public static String getExperimentId(Experiment experiment) {
     if (experiment != null) {
-      return experiment.getExperimentOverview().experimentId;
+      return experiment.getExperimentOverview().getExperimentId();
     }
     return "";
   }
@@ -426,7 +418,7 @@ public class Experiment extends LabelListHolder {
    */
   public void setTrials(List<Trial> trials) {
     this.trials = Preconditions.checkNotNull(trials);
-    experimentOverview.trialCount = this.trials.size();
+    experimentOverview.setTrialCount(this.trials.size());
     totalTrials = this.trials.size();
 
     // Make sure it isn't any larger than this. That's possible if runs were deleted.
@@ -720,7 +712,7 @@ public class Experiment extends LabelListHolder {
   public boolean isEmpty() {
     return getLabelCount() == 0
         && getTrialCount() == 0
-        && TextUtils.isEmpty(getExperimentOverview().imagePath)
+        && TextUtils.isEmpty(getExperimentOverview().getImagePath())
         && TextUtils.isEmpty(getTitle())
         && !isArchived();
   }

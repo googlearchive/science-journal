@@ -23,7 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ public interface MetaDataManager {
   Experiment importExperimentFromZip(Uri zipUri, ContentResolver resolver) throws IOException;
 
   /** @return the list of all experiments. */
-  List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived);
+  List<ExperimentOverviewPojo> getExperimentOverviews(boolean includeArchived);
 
   /** Gets all the external sensors previously saved. */
   Map<String, ExternalSensorSpec> getExternalSensors(Map<String, SensorProvider> providerMap);

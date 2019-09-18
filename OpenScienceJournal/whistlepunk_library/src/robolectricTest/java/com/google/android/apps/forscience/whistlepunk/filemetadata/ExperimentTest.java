@@ -133,16 +133,15 @@ public class ExperimentTest {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
 
     // No changes on creation
-    Experiment experiment =
-        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
+    Experiment experiment = Experiment.fromExperiment(proto, new ExperimentOverviewPojo());
     assertEquals(0, experiment.getChanges().size());
 
     experiment.addChange(new Change());
     experiment.addChange(new Change());
     assertEquals(2, experiment.getChanges().size());
 
-    Experiment experiment2 = Experiment.fromExperiment(
-        experiment.getExperimentProto(), new GoosciUserMetadata.ExperimentOverview());
+    Experiment experiment2 =
+        Experiment.fromExperiment(experiment.getExperimentProto(), new ExperimentOverviewPojo());
     assertEquals(2, experiment2.getChanges().size());
   }
 
@@ -333,14 +332,14 @@ public class ExperimentTest {
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
     experiment.setImagePath("test.jpg");
-    String overviewImagePath = experiment.getExperimentOverview().imagePath;
+    String overviewImagePath = experiment.getExperimentOverview().getImagePath();
     String experimentImagePath = experiment.getExperimentProto().imagePath;
 
     assertEquals("experiments/experimentId/test.jpg", overviewImagePath);
     assertEquals("test.jpg", experimentImagePath);
 
     experiment.setImagePath("path.jpg");
-    overviewImagePath = experiment.getExperimentOverview().imagePath;
+    overviewImagePath = experiment.getExperimentOverview().getImagePath();
     assertEquals("experiments/experimentId/path.jpg", overviewImagePath);
 
     experimentImagePath = experiment.getExperimentProto().imagePath;
@@ -350,8 +349,9 @@ public class ExperimentTest {
   @Test
   public void testChangesAdded() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
-    Experiment experiment =
-        Experiment.fromExperiment(proto, new GoosciUserMetadata.ExperimentOverview());
+    ExperimentOverviewPojo pojo = new ExperimentOverviewPojo();
+    pojo.setExperimentId("id");
+    Experiment experiment = Experiment.fromExperiment(proto, pojo);
 
     assertEquals(0, experiment.getChanges().size());
     experiment.setTitle("foo");

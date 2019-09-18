@@ -112,11 +112,11 @@ public class UserMetadataManagerTest {
     GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
     overview.experimentId = "expId";
     overview.lastUsedTimeMs = 42;
-    smm.addExperimentOverview(overview);
-    assertEquals(smm.getExperimentOverview("expId").lastUsedTimeMs, 42);
+    smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(overview));
+    assertEquals(smm.getExperimentOverview("expId").getLastUsedTimeMs(), 42);
     overview.lastUsedTimeMs = 84;
-    smm.updateExperimentOverview(overview);
-    assertEquals(smm.getExperimentOverview("expId").lastUsedTimeMs, 84);
+    smm.updateExperimentOverview(ExperimentOverviewPojo.fromProto(overview));
+    assertEquals(smm.getExperimentOverview("expId").getLastUsedTimeMs(), 84);
   }
 
   @Test
@@ -127,24 +127,24 @@ public class UserMetadataManagerTest {
     GoosciUserMetadata.ExperimentOverview first = new GoosciUserMetadata.ExperimentOverview();
     first.experimentId = "exp1";
     first.lastUsedTimeMs = 1;
-    smm.addExperimentOverview(first);
+    smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(first));
     @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview second = new GoosciUserMetadata.ExperimentOverview();
     second.experimentId = "exp2";
     second.lastUsedTimeMs = 2;
-    smm.addExperimentOverview(second);
+    smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(second));
     @MigrateAs(Destination.BUILDER)
     GoosciUserMetadata.ExperimentOverview third = new GoosciUserMetadata.ExperimentOverview();
     third.experimentId = "exp3";
     third.lastUsedTimeMs = 3;
-    smm.addExperimentOverview(third);
+    smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(third));
 
     // All are unarchived
     assertEquals(smm.getExperimentOverviews(false).size(), 3);
 
     // Archive one
     second.isArchived = true;
-    smm.updateExperimentOverview(second);
+    smm.updateExperimentOverview(ExperimentOverviewPojo.fromProto(second));
 
     assertEquals(smm.getExperimentOverviews(false).size(), 2);
 
@@ -161,9 +161,10 @@ public class UserMetadataManagerTest {
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     proto.version = 0;
     proto.minorVersion = 0;
-    smm.upgradeUserMetadataVersionIfNeeded(proto, 1, 1);
-    assertEquals(proto.version, 1);
-    assertEquals(proto.minorVersion, 1);
+    UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
+    smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
+    assertEquals(pojo.getVersion(), 1);
+    assertEquals(pojo.getMinorVersion(), 1);
   }
 
   @Test
@@ -173,9 +174,10 @@ public class UserMetadataManagerTest {
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     proto.version = 1;
     proto.minorVersion = 1;
-    smm.upgradeUserMetadataVersionIfNeeded(proto, 1, 1);
-    assertEquals(proto.version, 1);
-    assertEquals(proto.minorVersion, 1);
+    UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
+    smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
+    assertEquals(pojo.getVersion(), 1);
+    assertEquals(pojo.getMinorVersion(), 1);
   }
 
   @Test
@@ -186,7 +188,8 @@ public class UserMetadataManagerTest {
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     proto.version = 2;
     proto.minorVersion = 0;
-    smm.upgradeUserMetadataVersionIfNeeded(proto, 1, 1);
+    UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
+    smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
     assertEquals(1, failureCount);
   }
 
@@ -197,9 +200,10 @@ public class UserMetadataManagerTest {
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     proto.version = 1;
     proto.minorVersion = 0;
-    smm.upgradeUserMetadataVersionIfNeeded(proto, 1, 1);
-    assertEquals(proto.version, 1);
-    assertEquals(proto.minorVersion, 1);
+    UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
+    smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
+    assertEquals(pojo.getVersion(), 1);
+    assertEquals(pojo.getMinorVersion(), 1);
   }
 
   @Test
@@ -207,7 +211,8 @@ public class UserMetadataManagerTest {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
-    smm.upgradeUserMetadataVersionIfNeeded(proto, 100, 0);
+    UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
+    smm.upgradeUserMetadataVersionIfNeeded(pojo, 100, 0);
     assertEquals(1, failureCount);
   }
 
@@ -215,11 +220,12 @@ public class UserMetadataManagerTest {
   public void testAddAndRemoveMyDevice() {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
-    DeviceSpec device =
+    DeviceSpec deviceProto =
         GoosciDeviceSpec.DeviceSpec.newBuilder()
             .setInfo(GoosciGadgetInfo.GadgetInfo.getDefaultInstance())
             .setName("Name")
             .build();
+    DeviceSpecPojo device = DeviceSpecPojo.fromProto(deviceProto);
     assertEquals(0, smm.getMyDevices().size());
     smm.addMyDevice(device);
     assertEquals(1, smm.getMyDevices().size());

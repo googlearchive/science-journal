@@ -26,10 +26,10 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -102,9 +102,8 @@ public class MemoryMetadataManager implements MetaDataManager {
   }
 
   @Override
-  public List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
-      boolean includeArchived) {
-    List<GoosciUserMetadata.ExperimentOverview> result = new ArrayList<>();
+  public List<ExperimentOverviewPojo> getExperimentOverviews(boolean includeArchived) {
+    List<ExperimentOverviewPojo> result = new ArrayList<>();
     for (Experiment experiment : experiments) {
       result.add(experiment.getExperimentOverview());
     }

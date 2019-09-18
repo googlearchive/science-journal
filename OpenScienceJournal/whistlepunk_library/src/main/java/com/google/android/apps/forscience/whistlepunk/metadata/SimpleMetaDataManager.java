@@ -44,11 +44,12 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.DeviceSpecPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -66,7 +67,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
@@ -225,7 +225,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
       // Assign a color. This is based on the order that experiments are retrieved from
       // the database so it might not be in any particular order.
-      experiment.getExperimentOverview().colorIndex = colorIndex;
+      experiment.getExperimentOverview().setColorIndex(colorIndex);
       colorIndex = (colorIndex + 1) % colorCount;
 
       // This prepares the file system for the new experiment.
@@ -277,7 +277,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
       String sensorId = getExternalSensorId(device, db);
       if (sensorId != null) {
         databaseRemoveMyDevice(sensorId, db);
-        fileMetadataManager.addMyDevice(device.asDeviceSpec());
+        fileMetadataManager.addMyDevice(DeviceSpecPojo.fromProto(device.asDeviceSpec()));
       }
     }
   }
@@ -286,7 +286,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
   private void updateLabelPictureAssets(Experiment experiment, Label label) {
     if (migratePictureAssetsIfNeeded(experiment.getExperimentId(), label)) {
       experiment.updateLabelWithoutSorting(experiment, label);
-      if (TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
+      if (TextUtils.isEmpty(experiment.getExperimentOverview().getImagePath())) {
         String path = label.getPictureLabelValue().getFilePath();
         if (!TextUtils.isEmpty(path)) {
           experiment.setImagePath(path);
@@ -779,15 +779,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   @Override
-  public List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
-      boolean includeArchived) {
+  public List<ExperimentOverviewPojo> getExperimentOverviews(boolean includeArchived) {
     return getFileMetadataManager().getExperimentOverviews(includeArchived);
   }
 
   @VisibleForTesting
-  List<GoosciUserMetadata.ExperimentOverview> getDatabaseExperimentOverviews(
-      boolean includeArchived) {
-    List<GoosciUserMetadata.ExperimentOverview> experiments = new ArrayList<>();
+  List<ExperimentOverviewPojo> getDatabaseExperimentOverviews(boolean includeArchived) {
+    List<ExperimentOverviewPojo> experiments = new ArrayList<>();
     synchronized (lock) {
       final SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -839,21 +837,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
     return Experiment.fromExperiment(expProto, createExperimentOverviewFromCursor(cursor));
   }
 
-  @MigrateAs(Destination.EITHER)
-  private static GoosciUserMetadata.ExperimentOverview createExperimentOverviewFromCursor(
-      Cursor cursor) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview overviewProto =
-        new GoosciUserMetadata.ExperimentOverview();
-    overviewProto.lastUsedTimeMs = cursor.getLong(7);
-    overviewProto.title = cursor.getString(3);
-    overviewProto.isArchived = cursor.getInt(6) != 0;
-    overviewProto.experimentId = cursor.getString(1);
+  private static ExperimentOverviewPojo createExperimentOverviewFromCursor(Cursor cursor) {
+    ExperimentOverviewPojo overview = new ExperimentOverviewPojo();
+    overview.setLastUsedTimeMs(cursor.getLong(7));
+    overview.setTitle(cursor.getString(3));
+    overview.setArchived(cursor.getInt(6) != 0);
+    overview.setExperimentId(cursor.getString(1));
 
-    if (overviewProto.title == null) {
-      overviewProto.title = "";
+    if (overview.getTitle() == null) {
+      overview.setTitle("");
     }
-    return overviewProto;
+    return overview;
   }
 
   @Override
@@ -1908,7 +1902,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   @VisibleForTesting
-  public List<GoosciDeviceSpec.DeviceSpec> fileGetMyDevices() {
+  public List<DeviceSpecPojo> fileGetMyDevices() {
     return fileMetadataManager.getMyDevices();
   }
 

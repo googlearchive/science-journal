@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDevic
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncCollection;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
@@ -39,7 +40,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSenso
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReadingList;
@@ -555,22 +555,20 @@ public class DataControllerImpl implements DataController, RecordingDataControll
 
   @Override
   public void getExperimentOverviews(
-      final boolean includeArchived,
-      final MaybeConsumer<List<GoosciUserMetadata.ExperimentOverview>> onSuccess) {
+      final boolean includeArchived, final MaybeConsumer<List<ExperimentOverviewPojo>> onSuccess) {
     background(
         metaDataThread,
         onSuccess,
-        new Callable<List<GoosciUserMetadata.ExperimentOverview>>() {
+        new Callable<List<ExperimentOverviewPojo>>() {
           @Override
-          public List<GoosciUserMetadata.ExperimentOverview> call() throws Exception {
+          public List<ExperimentOverviewPojo> call() throws Exception {
             return metaDataManager.getExperimentOverviews(includeArchived);
           }
         });
   }
 
   @Override
-  public List<GoosciUserMetadata.ExperimentOverview> blockingGetExperimentOverviews(
-      boolean includeArchived) {
+  public List<ExperimentOverviewPojo> blockingGetExperimentOverviews(boolean includeArchived) {
     return metaDataManager.getExperimentOverviews(includeArchived);
   }
 
@@ -867,10 +865,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
       throws IOException {
     metaDataManager.saveImmediately();
     // Move each experiment, one at a time.
-    List<GoosciUserMetadata.ExperimentOverview> experiments =
+    List<ExperimentOverviewPojo> experiments =
         blockingGetExperimentOverviews(true /* includeArchived */);
-    for (GoosciUserMetadata.ExperimentOverview overview : experiments) {
-      Experiment experiment = getExperimentFromId(overview.experimentId);
+    for (ExperimentOverviewPojo overview : experiments) {
+      Experiment experiment = getExperimentFromId(overview.getExperimentId());
       moveExperimentToAnotherAccountOnDataThread(experiment, targetAccount);
     }
   }
@@ -891,10 +889,10 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   private void deleteAllExperimentsOnDataThread() {
-    List<GoosciUserMetadata.ExperimentOverview> experiments =
+    List<ExperimentOverviewPojo> experiments =
         blockingGetExperimentOverviews(true /* includeArchived */);
-    for (GoosciUserMetadata.ExperimentOverview overview : experiments) {
-      Experiment experiment = getExperimentFromId(overview.experimentId);
+    for (ExperimentOverviewPojo overview : experiments) {
+      Experiment experiment = getExperimentFromId(overview.getExperimentId());
       deleteExperimentOnDataThread(experiment);
     }
   }

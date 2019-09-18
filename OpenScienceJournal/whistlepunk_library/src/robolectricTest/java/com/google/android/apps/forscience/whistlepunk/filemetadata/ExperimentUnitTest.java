@@ -23,7 +23,6 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.Arrays;
@@ -119,9 +118,8 @@ public class ExperimentUnitTest {
         expSensorProto = ExperimentSensor.newBuilder().setSensorId("sensorId");
     proto.experimentSensors = new ExperimentSensor[] {expSensorProto.build()};
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
-    overview.experimentId = "cheese";
+    ExperimentOverviewPojo overview = new ExperimentOverviewPojo();
+    overview.setExperimentId("cheese");
 
     Experiment experiment = Experiment.fromExperiment(proto, overview);
 

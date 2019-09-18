@@ -187,10 +187,10 @@ public class UpdateExperimentFragment extends Fragment {
                     }
                   });
 
-          if (!TextUtils.isEmpty(experiment.getExperimentOverview().imagePath)) {
+          if (!TextUtils.isEmpty(experiment.getExperimentOverview().getImagePath())) {
             // Load the current experiment photo
             PictureUtils.loadExperimentOverviewImage(
-                appAccount, photoPreview, experiment.getExperimentOverview().imagePath);
+                appAccount, photoPreview, experiment.getExperimentOverview().getImagePath());
           }
           chooseButton.setOnClickListener(
               new View.OnClickListener() {

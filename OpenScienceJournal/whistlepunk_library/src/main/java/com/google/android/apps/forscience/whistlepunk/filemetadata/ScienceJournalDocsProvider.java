@@ -31,9 +31,6 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AccountsProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
@@ -120,13 +117,13 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
       // TODO: Use notifyChange to load data off-thread and update only when it is available.
       for (AppAccount appAccount : accounts) {
         if (appAccount.getAccountKey().equals(parentDocumentId)) {
-          List<GoosciUserMetadata.ExperimentOverview> overviews =
+          List<ExperimentOverviewPojo> overviews =
               AppSingleton.getInstance(getContext())
                   .getDataController(appAccount)
                   .blockingGetExperimentOverviews(true);
-          for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
+          for (ExperimentOverviewPojo overview : overviews) {
             MatrixCursor.RowBuilder row = result.newRow();
-            row.add(Document.COLUMN_DOCUMENT_ID, overview.experimentId);
+            row.add(Document.COLUMN_DOCUMENT_ID, overview.getExperimentId());
             addExperimentToRow(row, overview);
           }
         }
@@ -171,12 +168,12 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
     } else if (!documentId.contains("/")) {
       // It is an experiment directory
       // TODO: Use notifyChange to load data off-thread and update only when it is available.
-      List<GoosciUserMetadata.ExperimentOverview> overviews =
+      List<ExperimentOverviewPojo> overviews =
           AppSingleton.getInstance(getContext())
               .getDataController(appAccount)
               .blockingGetExperimentOverviews(true);
-      for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
-        if (TextUtils.equals(overview.experimentId, documentId)) {
+      for (ExperimentOverviewPojo overview : overviews) {
+        if (TextUtils.equals(overview.getExperimentId(), documentId)) {
           addExperimentToRow(row, overview);
           break;
         }
@@ -233,16 +230,16 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
     // Else, let's see if it belongs to an experiment or the associated images.
     Set<AppAccount> accounts = accountsProvider.getAccounts();
     for (AppAccount appAccount : accounts) {
-      List<GoosciUserMetadata.ExperimentOverview> overviews =
+      List<ExperimentOverviewPojo> overviews =
           AppSingleton.getInstance(getContext())
               .getDataController(appAccount)
               .blockingGetExperimentOverviews(true);
-      for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
+      for (ExperimentOverviewPojo overview : overviews) {
         // If the documentId is an experiment overview or starts with the experiment overview id,
         // return the associated app account. The documentId would start with the experiment
         // overview id if the documentId was an image in the experiment's folder.
-        if (overview.experimentId.equals(documentId)
-            || documentId.startsWith(overview.experimentId)) {
+        if (overview.getExperimentId().equals(documentId)
+            || documentId.startsWith(overview.getExperimentId())) {
           return appAccount;
         }
       }
@@ -283,12 +280,12 @@ public class ScienceJournalDocsProvider extends DocumentsProvider {
     row.add(Document.COLUMN_SIZE, null);
   }
 
-  private void addExperimentToRow(
-      MatrixCursor.RowBuilder row,
-      @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview overview) {
-    row.add(Document.COLUMN_DISPLAY_NAME, Experiment.getDisplayTitle(getContext(), overview.title));
+  private void addExperimentToRow(MatrixCursor.RowBuilder row, ExperimentOverviewPojo overview) {
+    row.add(
+        Document.COLUMN_DISPLAY_NAME,
+        Experiment.getDisplayTitle(getContext(), overview.getTitle()));
     row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
-    row.add(Document.COLUMN_LAST_MODIFIED, overview.lastUsedTimeMs);
+    row.add(Document.COLUMN_LAST_MODIFIED, overview.getLastUsedTimeMs());
     row.add(Document.COLUMN_SIZE, null);
   }
 

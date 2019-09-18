@@ -76,20 +76,19 @@ import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvide
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import io.reactivex.disposables.Disposable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -436,10 +435,9 @@ public class ExperimentListFragment extends Fragment
     getDataController()
         .getExperimentOverviews(
             includeArchived,
-            new LoggingConsumer<List<GoosciUserMetadata.ExperimentOverview>>(
-                TAG, "Retrieve experiments") {
+            new LoggingConsumer<List<ExperimentOverviewPojo>>(TAG, "Retrieve experiments") {
               @Override
-              public void success(List<GoosciUserMetadata.ExperimentOverview> experiments) {
+              public void success(List<ExperimentOverviewPojo> experiments) {
                 // This fragment may be gone by the time this code executes.
                 if (isFragmentGone()) {
                   return;
@@ -501,8 +499,7 @@ public class ExperimentListFragment extends Fragment
     return AccountsUtils.getSharedPreferences(applicationContext, appAccount);
   }
 
-  private boolean shouldCreateDefaultExperiment(
-      List<GoosciUserMetadata.ExperimentOverview> experiments) {
+  private boolean shouldCreateDefaultExperiment(List<ExperimentOverviewPojo> experiments) {
     return experiments.isEmpty()
         && !wasDefaultExperimentCreated()
         && !shouldShowClaimExperimentsCard()
@@ -595,7 +592,7 @@ public class ExperimentListFragment extends Fragment
     // TODO: Add a recording item if required by b/64844798.
   }
 
-  private void attachToExperiments(List<GoosciUserMetadata.ExperimentOverview> experiments) {
+  private void attachToExperiments(List<ExperimentOverviewPojo> experiments) {
     final View rootView = getView();
     if (rootView == null) {
       return;
@@ -939,10 +936,10 @@ public class ExperimentListFragment extends Fragment
 
   static class ExperimentListItem {
     public final int viewType;
-    public final GoosciUserMetadata.ExperimentOverview experimentOverview;
+    public final ExperimentOverviewPojo experimentOverview;
     public final String dateString;
 
-    ExperimentListItem(GoosciUserMetadata.ExperimentOverview experimentOverview) {
+    ExperimentListItem(ExperimentOverviewPojo experimentOverview) {
       viewType = ExperimentListAdapter.VIEW_TYPE_EXPERIMENT;
       this.experimentOverview = experimentOverview;
       dateString = null;
@@ -995,8 +992,7 @@ public class ExperimentListFragment extends Fragment
       return parentReference.get() == null;
     }
 
-    void setData(
-        List<GoosciUserMetadata.ExperimentOverview> experimentOverviews, boolean includeArchived) {
+    void setData(List<ExperimentOverviewPojo> experimentOverviews, boolean includeArchived) {
       if (isParentGone()) {
         return;
       }
@@ -1014,11 +1010,11 @@ public class ExperimentListFragment extends Fragment
         // Sort most recent first
         Collections.sort(
             experimentOverviews,
-            (eo1, eo2) -> Long.compare(eo2.lastUsedTimeMs, eo1.lastUsedTimeMs));
+            (eo1, eo2) -> Long.compare(eo2.getLastUsedTimeMs(), eo1.getLastUsedTimeMs()));
         String date = "";
-        for (GoosciUserMetadata.ExperimentOverview overview : experimentOverviews) {
+        for (ExperimentOverviewPojo overview : experimentOverviews) {
           // Only show the year if it is not this year.
-          calendar.setTime(new Date(overview.lastUsedTimeMs));
+          calendar.setTime(new Date(overview.getLastUsedTimeMs()));
           String nextDate =
               DateFormat.format(
                       calendar.get(Calendar.YEAR) == currentYear ? "MMMM" : monthYearFormat,
@@ -1112,16 +1108,15 @@ public class ExperimentListFragment extends Fragment
       }
       Resources res = applicationContext.getResources();
       // First on the UI thread, set what experiment we're trying to load.
-      @MigrateAs(Destination.BUILDER)
-      GoosciUserMetadata.ExperimentOverview overview = item.experimentOverview;
-      holder.experimentId = overview.experimentId;
+      ExperimentOverviewPojo overview = item.experimentOverview;
+      holder.experimentId = overview.getExperimentId();
 
       // Set the data we know about.
-      String experimentText = Experiment.getDisplayTitle(applicationContext, overview.title);
+      String experimentText = Experiment.getDisplayTitle(applicationContext, overview.getTitle());
       holder.experimentTitle.setText(experimentText);
-      holder.archivedIndicator.setVisibility(overview.isArchived ? View.VISIBLE : View.GONE);
+      holder.archivedIndicator.setVisibility(overview.isArchived() ? View.VISIBLE : View.GONE);
 
-      if (overview.isArchived) {
+      if (overview.isArchived()) {
         holder.experimentTitle.setContentDescription(
             res.getString(R.string.archived_content_description, experimentText));
         holder
@@ -1137,7 +1132,7 @@ public class ExperimentListFragment extends Fragment
             .setAlpha(res.getFraction(R.fraction.metadata_card_alpha, 1, 1));
       }
 
-      holder.itemView.setTag(R.id.experiment_title, overview.experimentId);
+      holder.itemView.setTag(R.id.experiment_title, overview.getExperimentId());
 
       holder.cardView.setOnClickListener(
           v -> {
@@ -1151,7 +1146,7 @@ public class ExperimentListFragment extends Fragment
             launchPanesActivity(
                 v.getContext(),
                 parentReference.get().appAccount,
-                overview.experimentId,
+                overview.getExperimentId(),
                 parentReference.get().claimExperimentsMode);
           });
 
@@ -1159,17 +1154,17 @@ public class ExperimentListFragment extends Fragment
       boolean isShareIntentValid =
           FileMetadataUtil.getInstance()
               .validateShareIntent(
-                  applicationContext, parentReference.get().appAccount, overview.experimentId);
+                  applicationContext, parentReference.get().appAccount, overview.getExperimentId());
       if (parentReference.get().claimExperimentsMode) {
         // In claim experiments mode, we don't show the overflow menu, but we do show buttons for
         // saving to drive and sharing/downloading.
         holder.menuButton.setVisibility(View.GONE);
         holder.driveButton.setOnClickListener(
-            v -> promptBeforeClaimExperiment(overview.experimentId));
+            v -> promptBeforeClaimExperiment(overview.getExperimentId()));
         holder.downloadButton.setOnClickListener(
-            v -> requestDownload(parentReference.get().getActivity(), overview.experimentId));
+            v -> requestDownload(parentReference.get().getActivity(), overview.getExperimentId()));
         holder.shareButton.setVisibility(View.GONE);
-        holder.deleteButton.setOnClickListener(v -> deleteExperiment(overview.experimentId));
+        holder.deleteButton.setOnClickListener(v -> deleteExperiment(overview.getExperimentId()));
       } else if (parentReference
           .get()
           .getRecorderController()
@@ -1195,11 +1190,14 @@ public class ExperimentListFragment extends Fragment
               popupMenu
                   .getMenuInflater()
                   .inflate(R.menu.menu_experiment_overview, popupMenu.getMenu());
-              popupMenu.getMenu().findItem(R.id.menu_item_archive).setVisible(!overview.isArchived);
+              popupMenu
+                  .getMenu()
+                  .findItem(R.id.menu_item_archive)
+                  .setVisible(!overview.isArchived());
               popupMenu
                   .getMenu()
                   .findItem(R.id.menu_item_unarchive)
-                  .setVisible(overview.isArchived);
+                  .setVisible(overview.isArchived());
               popupMenu
                   .getMenu()
                   .findItem(R.id.menu_item_export_experiment)
@@ -1221,13 +1219,14 @@ public class ExperimentListFragment extends Fragment
                       setExperimentArchived(overview, position, false);
                       return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_delete) {
-                      deleteExperiment(overview.experimentId);
+                      deleteExperiment(overview.getExperimentId());
                       return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_export_experiment) {
-                      exportOrSaveExperiment(overview.experimentId, false);
+                      exportOrSaveExperiment(overview.getExperimentId(), false);
                       return true;
                     } else if (menuItem.getItemId() == R.id.menu_item_download_experiment) {
-                      requestDownload(parentReference.get().getActivity(), overview.experimentId);
+                      requestDownload(
+                          parentReference.get().getActivity(), overview.getExperimentId());
                       return true;
                     }
                     return false;
@@ -1237,16 +1236,16 @@ public class ExperimentListFragment extends Fragment
             });
       }
 
-      if (!TextUtils.isEmpty(overview.imagePath)) {
+      if (!TextUtils.isEmpty(overview.getImagePath())) {
         PictureUtils.loadExperimentOverviewImage(
-            parentReference.get().appAccount, holder.experimentImage, overview.imagePath);
+            parentReference.get().appAccount, holder.experimentImage, overview.getImagePath());
       } else {
         // Make sure the scale type is correct for the placeholder
         holder.experimentImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
         holder.experimentImage.setImageDrawable(placeHolderImage);
         int[] intArray =
             applicationContext.getResources().getIntArray(R.array.experiment_colors_array);
-        holder.experimentImage.setBackgroundColor(intArray[overview.colorIndex]);
+        holder.experimentImage.setBackgroundColor(intArray[overview.getColorIndex()]);
       }
     }
 
@@ -1260,40 +1259,39 @@ public class ExperimentListFragment extends Fragment
     }
 
     private void setExperimentArchived(
-        @MigrateAs(value = Destination.BUILDER, storedAsSubmessage = true)
-            GoosciUserMetadata.ExperimentOverview overview,
-        final int position,
-        boolean archived) {
+        ExperimentOverviewPojo overview, final int position, boolean archived) {
       if (isParentGone()) {
         return;
       }
-      overview.isArchived = archived;
+      overview.setArchived(archived);
       DataController dataController = parentReference.get().getDataController();
       ExperimentLibraryManager elm = parentReference.get().getExperimentLibraryManager();
-      RxDataController.getExperimentById(dataController, overview.experimentId)
-          .subscribe(
-              fullExperiment -> {
-                fullExperiment.setArchived(
-                    applicationContext, dataController.getAppAccount(), archived);
-                elm.setArchived(fullExperiment.getExperimentId(), archived);
-                dataController.updateExperiment(
-                    overview.experimentId,
-                    new LoggingConsumer<Success>(TAG, "set archived bit") {
-                      @Override
-                      public void success(Success value) {
-                        updateArchivedState(position, archived);
-                        WhistlePunkApplication.getUsageTracker(applicationContext)
-                            .trackEvent(
-                                TrackerConstants.CATEGORY_EXPERIMENTS,
-                                archived
-                                    ? TrackerConstants.ACTION_ARCHIVE
-                                    : TrackerConstants.ACTION_UNARCHIVE,
-                                TrackerConstants.LABEL_EXPERIMENT_LIST,
-                                0);
-                        showArchivedSnackbar(overview, position, archived);
-                      }
-                    });
-              });
+      // This Disposable was added to avoid a lint failure. It is not used.
+      Disposable experimentSingle =
+          RxDataController.getExperimentById(dataController, overview.getExperimentId())
+              .subscribe(
+                  fullExperiment -> {
+                    fullExperiment.setArchived(
+                        applicationContext, dataController.getAppAccount(), archived);
+                    elm.setArchived(fullExperiment.getExperimentId(), archived);
+                    dataController.updateExperiment(
+                        overview.getExperimentId(),
+                        new LoggingConsumer<Success>(TAG, "set archived bit") {
+                          @Override
+                          public void success(Success value) {
+                            updateArchivedState(position, archived);
+                            WhistlePunkApplication.getUsageTracker(applicationContext)
+                                .trackEvent(
+                                    TrackerConstants.CATEGORY_EXPERIMENTS,
+                                    archived
+                                        ? TrackerConstants.ACTION_ARCHIVE
+                                        : TrackerConstants.ACTION_UNARCHIVE,
+                                    TrackerConstants.LABEL_EXPERIMENT_LIST,
+                                    0);
+                            showArchivedSnackbar(overview, position, archived);
+                          }
+                        });
+                  });
     }
 
     private void updateArchivedState(int position, boolean archived) {
@@ -1323,10 +1321,7 @@ public class ExperimentListFragment extends Fragment
     }
 
     private void showArchivedSnackbar(
-        @MigrateAs(value = Destination.BUILDER, storedAsSubmessage = true)
-            GoosciUserMetadata.ExperimentOverview overview,
-        int position,
-        boolean archived) {
+        ExperimentOverviewPojo overview, int position, boolean archived) {
       if (isParentGone()) {
         return;
       }
@@ -1361,7 +1356,7 @@ public class ExperimentListFragment extends Fragment
       for (int i = 0; i < items.size(); i++) {
         ExperimentListItem item = items.get(i);
         if (item.viewType == VIEW_TYPE_EXPERIMENT
-            && TextUtils.equals(item.experimentOverview.experimentId, experimentId)) {
+            && TextUtils.equals(item.experimentOverview.getExperimentId(), experimentId)) {
           index = i;
           break;
         }

@@ -19,17 +19,12 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import android.content.Context;
 import android.os.Handler;
 import androidx.annotation.VisibleForTesting;
-import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,7 +48,7 @@ public class UserMetadataManager {
   private final ExecutorService backgroundWriteThread;
   private final long writeDelayMs;
   private boolean needsWrite = false;
-  private GoosciUserMetadata.UserMetadata userMetadata;
+  private UserMetadataPojo userMetadata;
   private UsageTracker usageTracker;
 
   interface FailureListener {
@@ -109,50 +104,27 @@ public class UserMetadataManager {
   }
 
   /** Gets an experiment overview by experiment ID from the Shared Metadata. */
-  GoosciUserMetadata.ExperimentOverview getExperimentOverview(String experimentId) {
-    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
+  ExperimentOverviewPojo getExperimentOverview(String experimentId) {
+    userMetadata = getUserMetadata();
     if (userMetadata == null) {
       return null;
     }
-    for (GoosciUserMetadata.ExperimentOverview overview : userMetadata.experiments) {
-      if (TextUtils.equals(overview.experimentId, experimentId)) {
-        return overview;
-      }
-    }
-    return null;
+    return userMetadata.getOverview(experimentId);
   }
 
   /** Adds a new experiment overview to the Shared Metadata. */
-  void addExperimentOverview(GoosciUserMetadata.ExperimentOverview overviewToAdd) {
-    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
-    if (userMetadata == null) {
-      return;
-    }
-    GoosciUserMetadata.ExperimentOverview[] newList =
-        Arrays.copyOf(userMetadata.experiments, userMetadata.experiments.length + 1);
-    newList[userMetadata.experiments.length] = overviewToAdd;
-    userMetadata.experiments = newList;
-    startWriteTimer();
+  void addExperimentOverview(ExperimentOverviewPojo overviewToAdd) {
+    updateExperimentOverview(overviewToAdd);
   }
 
   /** Updates an experiment overview in the Shared Metadata. */
-  void updateExperimentOverview(GoosciUserMetadata.ExperimentOverview overviewToUpdate) {
-    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
+  void updateExperimentOverview(ExperimentOverviewPojo overviewToUpdate) {
+    userMetadata = getUserMetadata();
     if (userMetadata == null) {
       return;
     }
-    boolean updated = false;
-    for (int i = 0; i < userMetadata.experiments.length; i++) {
-      if (TextUtils.equals(
-          userMetadata.experiments[i].experimentId, overviewToUpdate.experimentId)) {
-        userMetadata.experiments[i] = overviewToUpdate;
-        updated = true;
-        break;
-      }
-    }
-    if (updated) {
-      startWriteTimer();
-    }
+    userMetadata.insertOverview(overviewToUpdate);
+    startWriteTimer();
   }
 
   /**
@@ -161,36 +133,17 @@ public class UserMetadataManager {
    * @param experimentIdToDelete the ID of the overview to be deleted.
    */
   void deleteExperimentOverview(String experimentIdToDelete) {
-    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
-    if (userMetadata == null || userMetadata.experiments.length == 0) {
-      return;
-    }
-    boolean updated = false;
-    GoosciUserMetadata.ExperimentOverview[] newList =
-        new GoosciUserMetadata.ExperimentOverview[userMetadata.experiments.length - 1];
-    int newIndex = 0;
-    for (int oldIndex = 0; oldIndex < userMetadata.experiments.length; oldIndex++) {
-      // If it's not the one we want to delete, add it to the new list.
-      if (!TextUtils.equals(
-          experimentIdToDelete, userMetadata.experiments[oldIndex].experimentId)) {
-        newList[newIndex] = userMetadata.experiments[oldIndex];
-        newIndex++;
-      } else {
-        updated = true;
-      }
-    }
-    if (updated) {
-      userMetadata.experiments = newList;
-      startWriteTimer();
-    }
+    userMetadata = getUserMetadata();
+    userMetadata.deleteOverview(experimentIdToDelete);
+    startWriteTimer();
   }
 
   void deleteAllExperimentOverviews() {
-    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
-    if (userMetadata == null || userMetadata.experiments.length == 0) {
+    userMetadata = getUserMetadata();
+    if (userMetadata == null) {
       return;
     }
-    userMetadata.experiments = new GoosciUserMetadata.ExperimentOverview[0];
+    userMetadata.clearOverviews();
     startWriteTimer();
   }
 
@@ -199,87 +152,51 @@ public class UserMetadataManager {
    *
    * @param includeArchived Whether to include the archived experiments.
    */
-  List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(boolean includeArchived) {
-    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
+  List<ExperimentOverviewPojo> getExperimentOverviews(boolean includeArchived) {
+    userMetadata = getUserMetadata();
     if (userMetadata == null) {
       return null;
     }
-    if (includeArchived) {
-      return Arrays.asList(userMetadata.experiments);
-    } else {
-      List<GoosciUserMetadata.ExperimentOverview> result = new ArrayList<>();
-      for (GoosciUserMetadata.ExperimentOverview overview : userMetadata.experiments) {
-        if (!overview.isArchived) {
-          result.add(overview);
-        }
-      }
-      return result;
-    }
+    return userMetadata.getOverviews(includeArchived);
   }
 
   /** Adds a device to the user's list of devices if it is not yet added. */
-  public void addMyDevice(GoosciDeviceSpec.DeviceSpec device) {
-    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
+  public void addMyDevice(DeviceSpecPojo device) {
+    UserMetadataPojo userMetadata = getUserMetadata();
 
     if (userMetadata == null) {
       return;
     }
 
-    GoosciDeviceSpec.DeviceSpec[] myDevices = userMetadata.myDevices;
-    for (GoosciDeviceSpec.DeviceSpec myDevice : myDevices) {
-      if (myDevice.equals(device)) {
-        return;
-      }
-    }
-
-    GoosciDeviceSpec.DeviceSpec[] newSpecs = Arrays.copyOf(myDevices, myDevices.length + 1);
-    newSpecs[newSpecs.length - 1] = device;
-    userMetadata.myDevices = newSpecs;
+    userMetadata.addDevice(device);
 
     // TODO: capture this pattern (read, null check, write) in a helper method?
     startWriteTimer();
   }
 
-  public void removeMyDevice(GoosciDeviceSpec.DeviceSpec device) {
-    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
+  public void removeMyDevice(DeviceSpecPojo device) {
+    UserMetadataPojo userMetadata = getUserMetadata();
 
     if (userMetadata == null) {
       return;
     }
 
-    GoosciDeviceSpec.DeviceSpec[] myDevices = userMetadata.myDevices;
-    for (int i = 0; i < myDevices.length; i++) {
-      if (myDevices[i].equals(device)) {
-        removeMyDeviceAtIndex(userMetadata, i);
-        return;
-      }
-    }
-  }
-
-  private void removeMyDeviceAtIndex(GoosciUserMetadata.UserMetadata userMetadata, int i) {
-    GoosciDeviceSpec.DeviceSpec[] myDevices = userMetadata.myDevices;
-    GoosciDeviceSpec.DeviceSpec[] newSpecs = Arrays.copyOf(myDevices, myDevices.length - 1);
-    System.arraycopy(myDevices, 0, newSpecs, 0, i);
-    System.arraycopy(myDevices, i + 1, newSpecs, i, myDevices.length - 1);
-    userMetadata.myDevices = newSpecs;
+    userMetadata.removeDevice(device);
 
     // TODO: capture this pattern (read, null check, write) in a helper method?
     startWriteTimer();
   }
 
-  public List<GoosciDeviceSpec.DeviceSpec> getMyDevices() {
-    GoosciUserMetadata.UserMetadata userMetadata = getUserMetadata();
-    if (userMetadata == null) {
-      return Lists.newArrayList();
-    }
+  public List<DeviceSpecPojo> getMyDevices() {
+    userMetadata = getUserMetadata();
 
-    return Lists.newArrayList(userMetadata.myDevices);
+    return userMetadata.getMyDevices();
   }
 
   /**
    * Reads the shared metadata from the file, and throws an error to the failure listener if needed.
    */
-  private GoosciUserMetadata.UserMetadata getUserMetadata() {
+  private UserMetadataPojo getUserMetadata() {
     if (userMetadata != null) {
       return userMetadata;
     }
@@ -289,23 +206,24 @@ public class UserMetadataManager {
     if (firstTime) {
       // If the file has nothing in it, these version numbers will be the basis of our initial
       // UserMetadata file.
-      userMetadata = new GoosciUserMetadata.UserMetadata();
-      userMetadata.version = VERSION;
-      userMetadata.minorVersion = MINOR_VERSION;
+      userMetadata = new UserMetadataPojo();
+      userMetadata.setVersion(VERSION);
+      userMetadata.setMinorVersion(MINOR_VERSION);
     } else {
-      userMetadata =
+      GoosciUserMetadata.UserMetadata userMetadataProto =
           overviewProtoFileHelper.readFromFile(
               userMetadataFile, GoosciUserMetadata.UserMetadata::parseFrom, usageTracker);
       if (userMetadata == null) {
         failureListener.onReadFailed();
         return null;
       }
+      UserMetadataPojo userMetadata = UserMetadataPojo.fromProto(userMetadataProto);
       upgradeUserMetadataVersionIfNeeded(userMetadata);
     }
     return userMetadata;
   }
 
-  private void upgradeUserMetadataVersionIfNeeded(GoosciUserMetadata.UserMetadata userMetadata) {
+  private void upgradeUserMetadataVersionIfNeeded(UserMetadataPojo userMetadata) {
     upgradeUserMetadataVersionIfNeeded(userMetadata, VERSION, MINOR_VERSION);
   }
 
@@ -318,39 +236,40 @@ public class UserMetadataManager {
    */
   @VisibleForTesting
   void upgradeUserMetadataVersionIfNeeded(
-      GoosciUserMetadata.UserMetadata userMetadata, int newMajorVersion, int newMinorVersion) {
-    if (userMetadata.version == newMajorVersion && userMetadata.minorVersion == newMinorVersion) {
+      UserMetadataPojo userMetadata, int newMajorVersion, int newMinorVersion) {
+    if (userMetadata.getVersion() == newMajorVersion
+        && userMetadata.getMinorVersion() == newMinorVersion) {
       // No upgrade needed, this is running the same version as us.
       return;
     }
-    if (userMetadata.version > newMajorVersion) {
+    if (userMetadata.getVersion() > newMajorVersion) {
       // It is too new for us to read -- the major version is later than ours.
       failureListener.onNewerVersionDetected();
       return;
     }
     // Try to upgrade the major version
-    if (userMetadata.version == 0) {
+    if (userMetadata.getVersion() == 0) {
       // Do any work to increment the minor version.
 
-      if (userMetadata.version < newMajorVersion) {
+      if (userMetadata.getVersion() < newMajorVersion) {
         // Upgrade from 0 to 1, for example: Increment the major version and reset the minor
         // version.
         // Other work could be done here first like populating protos.
         revMajorVersionTo(userMetadata, 1);
       }
     }
-    if (userMetadata.version == 1) {
+    if (userMetadata.getVersion() == 1) {
       // Minor version upgrades are done within the if statement
       // for their major version counterparts.
-      if (userMetadata.minorVersion == 0 && userMetadata.minorVersion < newMinorVersion) {
+      if (userMetadata.getMinorVersion() == 0 && userMetadata.getMinorVersion() < newMinorVersion) {
         // Upgrade minor version from 0 to 1, within in major version 1, for example.
-        userMetadata.minorVersion = 1;
+        userMetadata.setMinorVersion(1);
       }
       // More minor version upgrades for major version 1 could be done here.
 
       // When we are ready for version 2.0, we would do work in the following if statement
       // and then call incrementMajorVersion.
-      if (userMetadata.version < newMajorVersion) {
+      if (userMetadata.getVersion() < newMajorVersion) {
         // Do any work to upgrade version, then increment the version when we are
         // ready to go to 2.0 or above.
         revMajorVersionTo(userMetadata, 2);
@@ -360,20 +279,22 @@ public class UserMetadataManager {
     writeUserMetadata(userMetadata);
   }
 
-  private void revMajorVersionTo(GoosciUserMetadata.UserMetadata userMetadata, int majorVersion) {
-    userMetadata.version = majorVersion;
-    userMetadata.minorVersion = 0;
+  private void revMajorVersionTo(UserMetadataPojo userMetadata, int majorVersion) {
+    userMetadata.setVersion(majorVersion);
+    userMetadata.setMinorVersion(0);
   }
 
   /** Writes the shared metadata object to the file. */
-  private void writeUserMetadata(GoosciUserMetadata.UserMetadata userMetadata) {
-    if (userMetadata.version > VERSION
-        || userMetadata.version == VERSION && userMetadata.minorVersion > MINOR_VERSION) {
+  private void writeUserMetadata(UserMetadataPojo userMetadata) {
+    if (userMetadata.getVersion() > VERSION
+        || (userMetadata.getVersion() == VERSION
+            && userMetadata.getMinorVersion() > MINOR_VERSION)) {
       // If the major version is too new, or the minor version is too new, we can't save this.
       failureListener.onNewerVersionDetected(); // TODO: Or should this throw onWriteFailed?
     }
     createUserMetadataFileIfNeeded();
-    if (!overviewProtoFileHelper.writeToFile(userMetadataFile, userMetadata, usageTracker)) {
+    if (!overviewProtoFileHelper.writeToFile(
+        userMetadataFile, userMetadata.toProto(), usageTracker)) {
       failureListener.onWriteFailed();
     } else {
       needsWrite = false;

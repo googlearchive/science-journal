@@ -30,7 +30,6 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
@@ -38,14 +37,11 @@ import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Single;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -108,14 +104,13 @@ public class FileMetadataManager {
           }
 
           @Override
-          public void onReadFailed(GoosciUserMetadata.ExperimentOverview experimentOverview) {
+          public void onReadFailed(ExperimentOverviewPojo experimentOverview) {
             // TODO: Propagate this up to the user somehow.
             Log.d(TAG, "read failed");
           }
 
           @Override
-          public void onNewerVersionDetected(
-              GoosciUserMetadata.ExperimentOverview experimentOverview) {
+          public void onNewerVersionDetected(ExperimentOverviewPojo experimentOverview) {
             // TODO: Propagate this up to the user somehow.
             Log.d(TAG, "newer proto version detected than we can handle");
           }
@@ -177,9 +172,7 @@ public class FileMetadataManager {
                 throw new IOException("Lost experiment has corrupt or missing experiment proto.");
               }
 
-              @MigrateAs(Destination.BUILDER)
-              GoosciUserMetadata.ExperimentOverview overview =
-                  populateOverview(proto, experimentId);
+              ExperimentOverviewPojo overview = populateOverview(proto, experimentId);
 
               if (Strings.isNullOrEmpty(proto.imagePath)) {
                 // proto.imagePath may be empty, even if the lost experiment had a cover image.
@@ -193,9 +186,9 @@ public class FileMetadataManager {
                     // proto.imagePath is relative to the experiment directory.
                     proto.imagePath = likelyCoverImage;
                     // overview.imagePath is relative to the account files directory.
-                    overview.imagePath =
+                    overview.setImagePath(
                         PictureUtils.getExperimentOverviewRelativeImagePath(
-                            experimentId, proto.imagePath);
+                            experimentId, proto.imagePath));
                   }
                 } catch (Exception e) {
                   if (Log.isLoggable(TAG, Log.WARN)) {
@@ -205,9 +198,9 @@ public class FileMetadataManager {
               } else {
                 // proto.imagePath is relative to the experiment directory.
                 // overview.imagePath is relative to the account files directory.
-                overview.imagePath =
+                overview.setImagePath(
                     PictureUtils.getExperimentOverviewRelativeImagePath(
-                        experimentId, proto.imagePath);
+                        experimentId, proto.imagePath));
               }
 
               Experiment experiment = Experiment.fromExperiment(proto, overview);
@@ -336,8 +329,7 @@ public class FileMetadataManager {
   }
 
   public Experiment getExperimentById(String experimentId) {
-    GoosciUserMetadata.ExperimentOverview overview =
-        userMetadataManager.getExperimentOverview(experimentId);
+    ExperimentOverviewPojo overview = userMetadataManager.getExperimentOverview(experimentId);
     if (overview == null) {
       return null;
     }
@@ -347,11 +339,10 @@ public class FileMetadataManager {
   public Experiment newExperiment() {
     long timestamp = clock.getNow();
     String localExperimentId = UUID.randomUUID().toString();
-    List<GoosciUserMetadata.ExperimentOverview> overviews =
-        userMetadataManager.getExperimentOverviews(true);
+    List<ExperimentOverviewPojo> overviews = userMetadataManager.getExperimentOverviews(true);
     int[] usedColors = new int[overviews.size()];
     for (int i = 0; i < overviews.size(); i++) {
-      usedColors[i] = overviews.get(i).colorIndex;
+      usedColors[i] = overviews.get(i).getColorIndex();
     }
     int colorIndex = colorAllocator.getNextColor(usedColors);
     Experiment experiment = Experiment.newExperiment(timestamp, localExperimentId, colorIndex);
@@ -419,18 +410,17 @@ public class FileMetadataManager {
     userMetadataManager.updateExperimentOverview(experiment.getExperimentOverview());
   }
 
-  public List<GoosciUserMetadata.ExperimentOverview> getExperimentOverviews(
-      boolean includeArchived) {
+  public List<ExperimentOverviewPojo> getExperimentOverviews(boolean includeArchived) {
     return userMetadataManager.getExperimentOverviews(includeArchived);
   }
 
   public Experiment getLastUsedUnarchivedExperiment() {
-    List<GoosciUserMetadata.ExperimentOverview> overviews = getExperimentOverviews(false);
+    List<ExperimentOverviewPojo> overviews = getExperimentOverviews(false);
     long mostRecent = Long.MIN_VALUE;
-    GoosciUserMetadata.ExperimentOverview overviewToGet = null;
-    for (GoosciUserMetadata.ExperimentOverview overview : overviews) {
-      if (overview.lastUsedTimeMs > mostRecent) {
-        mostRecent = overview.lastUsedTimeMs;
+    ExperimentOverviewPojo overviewToGet = null;
+    for (ExperimentOverviewPojo overview : overviews) {
+      if (overview.getLastUsedTimeMs() > mostRecent) {
+        mostRecent = overview.getLastUsedTimeMs();
         overviewToGet = overview;
       }
     }
@@ -493,16 +483,15 @@ public class FileMetadataManager {
       throw new ZipException("Cannot import from file version: " + versionToString(proto));
     }
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview overview = populateOverview(proto, experimentId);
+    ExperimentOverviewPojo overview = populateOverview(proto, experimentId);
     HashMap<String, String> trialIdMap = updateTrials(proto, newExperiment);
 
     updateLabels(proto, newExperiment);
     newExperiment.setTitle(proto.title);
     newExperiment.setLastUsedTime(clock.getNow());
     if (containsExperimentImage) {
-      overview.imagePath = EXPERIMENTS_DIRECTORY + "/" + experimentId + "/" + COVER_IMAGE_FILE;
-      newExperiment.setImagePath(overview.imagePath);
+      overview.setImagePath(EXPERIMENTS_DIRECTORY + "/" + experimentId + "/" + COVER_IMAGE_FILE);
+      newExperiment.setImagePath(overview.getImagePath());
     }
     updateExperiment(Experiment.fromExperiment(proto, overview), true);
     File dataFile = new File(externalPath, "sensorData.proto");
@@ -639,15 +628,13 @@ public class FileMetadataManager {
     return proto;
   }
 
-  @MigrateAs(Destination.EITHER)
-  private GoosciUserMetadata.ExperimentOverview populateOverview(
+  private ExperimentOverviewPojo populateOverview(
       GoosciExperiment.Experiment proto, String experimentId) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
-    overview.title = proto.title;
-    overview.trialCount = proto.totalTrials;
-    overview.lastUsedTimeMs = clock.getNow();
-    overview.experimentId = experimentId;
+    ExperimentOverviewPojo overview = new ExperimentOverviewPojo();
+    overview.setTitle(proto.title);
+    overview.setTrialCount(proto.totalTrials);
+    overview.setLastUsedTimeMs(clock.getNow());
+    overview.setExperimentId(experimentId);
 
     return overview;
   }
@@ -672,15 +659,15 @@ public class FileMetadataManager {
     }
   }
 
-  public void addMyDevice(GoosciDeviceSpec.DeviceSpec device) {
+  public void addMyDevice(DeviceSpecPojo device) {
     userMetadataManager.addMyDevice(device);
   }
 
-  public void removeMyDevice(GoosciDeviceSpec.DeviceSpec device) {
+  public void removeMyDevice(DeviceSpecPojo device) {
     userMetadataManager.removeMyDevice(device);
   }
 
-  public List<GoosciDeviceSpec.DeviceSpec> getMyDevices() {
+  public List<DeviceSpecPojo> getMyDevices() {
     return userMetadataManager.getMyDevices();
   }
 }

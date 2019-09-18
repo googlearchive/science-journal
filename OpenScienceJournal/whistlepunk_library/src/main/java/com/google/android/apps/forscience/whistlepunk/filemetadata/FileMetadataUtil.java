@@ -193,11 +193,11 @@ public class FileMetadataUtil {
                                 getExperimentDirectory(appAccount, experiment.getExperimentId());
                             zipDirectory(experimentDirectory, zos, "");
 
-                            if (!experiment.getExperimentOverview().imagePath.isEmpty()) {
+                            if (!experiment.getExperimentOverview().getImagePath().isEmpty()) {
                               File experimentImage =
                                   new File(
                                       getFilesDir(appAccount),
-                                      experiment.getExperimentOverview().imagePath);
+                                      experiment.getExperimentOverview().getImagePath());
                               zipExperimentImage(experimentImage, zos);
                             }
                           } catch (IOException ioException) {

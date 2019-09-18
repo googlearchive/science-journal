@@ -30,9 +30,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -70,10 +67,10 @@ class ExperimentCache {
     void onWriteFailed(Experiment experimentToWrite);
 
     // When reading an experiment failed
-    void onReadFailed(GoosciUserMetadata.ExperimentOverview localExperimentOverview);
+    void onReadFailed(ExperimentOverviewPojo localExperimentOverview);
 
     // When a newer version is found and we cannot parse it
-    void onNewerVersionDetected(GoosciUserMetadata.ExperimentOverview experimentOverview);
+    void onNewerVersionDetected(ExperimentOverviewPojo experimentOverview);
   }
 
   private final FailureListener failureListener;
@@ -158,7 +155,7 @@ class ExperimentCache {
    * @return whether space was created successfully.
    */
   boolean createNewExperiment(Experiment experiment) {
-    if (!prepareForNewExperiment(experiment.getExperimentOverview().experimentId)) {
+    if (!prepareForNewExperiment(experiment.getExperimentOverview().getExperimentId())) {
       failureListener.onWriteFailed(experiment);
       return false;
     }
@@ -189,13 +186,12 @@ class ExperimentCache {
    * @param experimentOverview the updated experimentOverview to set on the cached experiment if
    *     they have the same ID.
    */
-  void onExperimentOverviewUpdated(
-      @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview experimentOverview) {
+  void onExperimentOverviewUpdated(ExperimentOverviewPojo experimentOverview) {
     synchronized (activeExperimentLock) {
       if (!isDifferentFromActive(experimentOverview)) {
-        activeExperiment.setLastUsedTime(experimentOverview.lastUsedTimeMs);
-        activeExperiment.setArchived(context, appAccount, experimentOverview.isArchived);
-        activeExperiment.getExperimentOverview().imagePath = experimentOverview.imagePath;
+        activeExperiment.setLastUsedTime(experimentOverview.getLastUsedTimeMs());
+        activeExperiment.setArchived(context, appAccount, experimentOverview.isArchived());
+        activeExperiment.getExperimentOverview().setImagePath(experimentOverview.getImagePath());
       }
     }
   }
@@ -207,7 +203,7 @@ class ExperimentCache {
    * @param localExperimentOverview The local ExperimentOverview of the experiment to load. This is
    *     used for lookup.
    */
-  Experiment getExperiment(GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
+  Experiment getExperiment(ExperimentOverviewPojo localExperimentOverview) {
     synchronized (activeExperimentLock) {
       // Write only if the experiment ID is changing. If it's not changing, we just want to
       // reload even if it was dirty.
@@ -235,7 +231,7 @@ class ExperimentCache {
     synchronized (activeExperimentLock) {
       if (activeExperiment != null
           && TextUtils.equals(
-              activeExperiment.getExperimentOverview().experimentId, localExperimentId)) {
+              activeExperiment.getExperimentOverview().getExperimentId(), localExperimentId)) {
         activeExperiment = null;
         cancelWriteTimer();
         activeExperimentNeedsWrite = false;
@@ -271,7 +267,7 @@ class ExperimentCache {
     synchronized (activeExperimentLock) {
       if (activeExperiment != null
           && TextUtils.equals(
-              activeExperiment.getExperimentOverview().experimentId, localExperimentId)) {
+              activeExperiment.getExperimentOverview().getExperimentId(), localExperimentId)) {
         activeExperiment = null;
       }
     }
@@ -326,9 +322,7 @@ class ExperimentCache {
    * Immediately writes the current active experiment to disk if it is different from the given
    * parameter localExperimentId.
    */
-  private void immediateWriteIfActiveChanging(
-      @MigrateAs(Destination.EITHER)
-          GoosciUserMetadata.ExperimentOverview localExperimentOverview) {
+  private void immediateWriteIfActiveChanging(ExperimentOverviewPojo localExperimentOverview) {
     synchronized (activeExperimentLock) {
       if (activeExperiment != null
           && activeExperimentNeedsWrite
@@ -422,7 +416,7 @@ class ExperimentCache {
   }
 
   @VisibleForTesting
-  void loadActiveExperimentFromFile(GoosciUserMetadata.ExperimentOverview experimentOverview) {
+  void loadActiveExperimentFromFile(ExperimentOverviewPojo experimentOverview) {
     File experimentFile = getExperimentFile(experimentOverview);
     GoosciExperiment.Experiment proto;
     synchronized (appAccount.getLockForExperimentProtoFile()) {
@@ -445,7 +439,7 @@ class ExperimentCache {
   }
 
   private void upgradeExperimentVersionIfNeeded(
-      GoosciExperiment.Experiment proto, GoosciUserMetadata.ExperimentOverview experimentOverview) {
+      GoosciExperiment.Experiment proto, ExperimentOverviewPojo experimentOverview) {
     upgradeExperimentVersionIfNeeded(
         proto, experimentOverview, VERSION, MINOR_VERSION, PLATFORM_VERSION);
   }
@@ -461,7 +455,7 @@ class ExperimentCache {
   @VisibleForTesting
   void upgradeExperimentVersionIfNeeded(
       GoosciExperiment.Experiment proto,
-      GoosciUserMetadata.ExperimentOverview experimentOverview,
+      ExperimentOverviewPojo experimentOverview,
       int newMajorVersion,
       int newMinorVersion,
       int newPlatformVersion) {
@@ -577,9 +571,8 @@ class ExperimentCache {
     proto.fileVersion = fileVersion.build();
   }
 
-  private File getExperimentFile(
-      @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview experimentOverview) {
-    return getExperimentFile(experimentOverview.experimentId);
+  private File getExperimentFile(ExperimentOverviewPojo experimentOverview) {
+    return getExperimentFile(experimentOverview.getExperimentId());
   }
 
   private File getExperimentFile(String localExperimentId) {
@@ -594,14 +587,13 @@ class ExperimentCache {
     return new File(experimentDirectory, FileMetadataManager.ASSETS_DIRECTORY);
   }
 
-  private boolean isDifferentFromActive(
-      @MigrateAs(Destination.EITHER) GoosciUserMetadata.ExperimentOverview other) {
+  private boolean isDifferentFromActive(ExperimentOverviewPojo other) {
     synchronized (activeExperimentLock) {
       if (activeExperiment == null) {
         return true;
       }
       return !TextUtils.equals(
-          other.experimentId, activeExperiment.getExperimentOverview().experimentId);
+          other.getExperimentId(), activeExperiment.getExperimentOverview().getExperimentId());
     }
   }
 

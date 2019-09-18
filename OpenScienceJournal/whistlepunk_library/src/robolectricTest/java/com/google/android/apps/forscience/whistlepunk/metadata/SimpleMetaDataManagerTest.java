@@ -39,14 +39,15 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.DeviceSpecPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
@@ -56,7 +57,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.common.collect.Lists;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
@@ -129,11 +129,11 @@ public class SimpleMetaDataManagerTest {
     assertFalse(TextUtils.isEmpty(experiment.getExperimentId()));
     assertTrue(experiment.getCreationTimeMs() > 0);
 
-    List<GoosciUserMetadata.ExperimentOverview> experiments =
+    List<ExperimentOverviewPojo> experiments =
         metaDataManager.getDatabaseExperimentOverviews(false);
     assertEquals(1, experiments.size());
-    assertEquals(experiment.getExperimentId(), experiments.get(0).experimentId);
-    assertFalse(experiments.get(0).isArchived);
+    assertEquals(experiment.getExperimentId(), experiments.get(0).getExperimentId());
+    assertFalse(experiments.get(0).isArchived());
 
     // Test adding a few experiments
     int count = 10;
@@ -639,7 +639,7 @@ public class SimpleMetaDataManagerTest {
     // none left in database
     assertEquals(0, metaDataManager.databaseGetMyDevices().size());
 
-    List<GoosciDeviceSpec.DeviceSpec> myDevices = metaDataManager.fileGetMyDevices();
+    List<DeviceSpecPojo> myDevices = metaDataManager.fileGetMyDevices();
     assertEquals(1, myDevices.size());
     assertEquals("name", myDevices.get(0).getName());
   }

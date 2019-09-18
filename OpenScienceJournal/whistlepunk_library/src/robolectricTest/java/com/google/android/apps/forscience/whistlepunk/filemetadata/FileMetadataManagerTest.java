@@ -131,11 +131,14 @@ public class FileMetadataManagerTest {
 
     // Doesn't re-use colors
     assertTrue(
-        first.getExperimentOverview().colorIndex != second.getExperimentOverview().colorIndex);
+        first.getExperimentOverview().getColorIndex()
+            != second.getExperimentOverview().getColorIndex());
     assertTrue(
-        second.getExperimentOverview().colorIndex != third.getExperimentOverview().colorIndex);
+        second.getExperimentOverview().getColorIndex()
+            != third.getExperimentOverview().getColorIndex());
     assertTrue(
-        first.getExperimentOverview().colorIndex != third.getExperimentOverview().colorIndex);
+        first.getExperimentOverview().getColorIndex()
+            != third.getExperimentOverview().getColorIndex());
 
     // Clean up
     fmm.deleteExperiment(first);
