@@ -18,9 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.UserMetadata;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.UserMetadata;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -77,9 +75,7 @@ public class UserMetadataPojoTest {
 
   @Test
   public void testPartialProto() {
-    @MigrateAs(Destination.BUILDER)
-    UserMetadata proto = new UserMetadata();
-    proto.version = 5;
+    UserMetadata proto = UserMetadata.newBuilder().setVersion(5).build();
 
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     assertThat(pojo.getVersion()).isEqualTo(5);
@@ -87,6 +83,6 @@ public class UserMetadataPojoTest {
     UserMetadataPojo pojo2 = new UserMetadataPojo();
     pojo2.setMinorVersion(10);
     UserMetadata proto2 = pojo2.toProto();
-    assertThat(proto2.minorVersion).isEqualTo(10);
+    assertThat(proto2.getMinorVersion()).isEqualTo(10);
   }
 }

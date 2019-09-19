@@ -23,7 +23,7 @@ import static junit.framework.Assert.fail;
 
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import java.io.File;
 import java.io.IOException;
 import org.junit.After;
@@ -32,9 +32,9 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
-/** Tests for the ProtoFileHelper class. */
+/** Tests for the LiteProtoFileHelper class. */
 @RunWith(RobolectricTestRunner.class)
-public class ProtoFileHelperTest {
+public class LiteProtoFileHelperTest {
   private Context getContext() {
     return RuntimeEnvironment.application.getApplicationContext();
   }
@@ -57,15 +57,15 @@ public class ProtoFileHelperTest {
       fail();
     }
 
-    GoosciUserMetadata.UserMetadata metadata = new GoosciUserMetadata.UserMetadata();
-    metadata.version = 42;
-    ProtoFileHelper<GoosciUserMetadata.UserMetadata> helper = new ProtoFileHelper<>();
-    boolean success = helper.writeToFile(file, metadata, null);
+    GoosciUserMetadata.UserMetadata.Builder metadata = GoosciUserMetadata.UserMetadata.newBuilder();
+    metadata.setVersion(42);
+    LiteProtoFileHelper<GoosciUserMetadata.UserMetadata> helper = new LiteProtoFileHelper<>();
+    boolean success = helper.writeToFile(file, metadata.build(), null);
     assertTrue(success);
 
     GoosciUserMetadata.UserMetadata result =
         helper.readFromFile(file, GoosciUserMetadata.UserMetadata::parseFrom, null);
-    assertEquals(42, result.version);
+    assertEquals(42, result.getVersion());
   }
 
   @Test
@@ -77,20 +77,21 @@ public class ProtoFileHelperTest {
       fail();
     }
 
-    GoosciUserMetadata.UserMetadata metadata = new GoosciUserMetadata.UserMetadata();
-    metadata.version = 42;
-    ProtoFileHelper<GoosciUserMetadata.UserMetadata> helper = new ProtoFileHelper<>();
-    boolean success = helper.writeToFile(file, metadata, null);
+    GoosciUserMetadata.UserMetadata.Builder metadata = GoosciUserMetadata.UserMetadata.newBuilder();
+    metadata.setVersion(42);
+    LiteProtoFileHelper<GoosciUserMetadata.UserMetadata> helper = new LiteProtoFileHelper<>();
+    boolean success = helper.writeToFile(file, metadata.build(), null);
     assertTrue(success);
 
-    metadata.version = 64;
+    GoosciUserMetadata.UserMetadata.Builder metadataUpdated = metadata.clone();
+    metadataUpdated.setVersion(64);
     // Fails to write a proto and the old version is put back
-    success = helper.writeToFile(file, metadata, true, UsageTracker.STUB);
+    success = helper.writeToFile(file, metadataUpdated.build(), true, UsageTracker.STUB);
     assertFalse(success);
 
     // The old version should still be available.
     GoosciUserMetadata.UserMetadata result =
         helper.readFromFile(file, GoosciUserMetadata.UserMetadata::parseFrom, null);
-    assertEquals(42, result.version);
+    assertEquals(42, result.getVersion());
   }
 }

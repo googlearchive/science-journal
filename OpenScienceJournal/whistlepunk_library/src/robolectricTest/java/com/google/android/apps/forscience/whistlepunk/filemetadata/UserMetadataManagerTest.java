@@ -24,8 +24,9 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec.DeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.UserMetadata;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -150,9 +151,8 @@ public class UserMetadataManagerTest {
     // This test is not very interesting but more can be added as upgrades get more complex.
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
-    GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
-    proto.version = 0;
-    proto.minorVersion = 0;
+    UserMetadata proto =
+        GoosciUserMetadata.UserMetadata.newBuilder().setVersion(0).setMinorVersion(0).build();
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
     assertThat(pojo.getVersion()).isEqualTo(1);
@@ -163,9 +163,8 @@ public class UserMetadataManagerTest {
   public void testNoUpgrade() {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
-    GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
-    proto.version = 1;
-    proto.minorVersion = 1;
+    UserMetadata proto =
+        GoosciUserMetadata.UserMetadata.newBuilder().setVersion(1).setMinorVersion(1).build();
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
     assertThat(pojo.getVersion()).isEqualTo(1);
@@ -177,9 +176,8 @@ public class UserMetadataManagerTest {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
 
-    GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
-    proto.version = 2;
-    proto.minorVersion = 0;
+    UserMetadata proto =
+        GoosciUserMetadata.UserMetadata.newBuilder().setVersion(2).setMinorVersion(0).build();
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
     assertThat(failureCount).isEqualTo(1);
@@ -189,9 +187,8 @@ public class UserMetadataManagerTest {
   public void testOnlyUpgradesMinorVersion() {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
-    GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
-    proto.version = 1;
-    proto.minorVersion = 0;
+    UserMetadata proto =
+        GoosciUserMetadata.UserMetadata.newBuilder().setVersion(1).setMinorVersion(0).build();
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
     assertThat(pojo.getVersion()).isEqualTo(1);
@@ -202,7 +199,7 @@ public class UserMetadataManagerTest {
   public void testCantWriteNewerVersion() {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureExpectedListener());
-    GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
+    GoosciUserMetadata.UserMetadata proto = GoosciUserMetadata.UserMetadata.getDefaultInstance();
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 100, 0);
     assertThat(failureCount).isEqualTo(1);

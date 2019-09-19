@@ -22,7 +22,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -63,13 +63,13 @@ public class UserMetadataManager {
   }
 
   private FailureListener failureListener;
-  private ProtoFileHelper<GoosciUserMetadata.UserMetadata> overviewProtoFileHelper;
+  private LiteProtoFileHelper<GoosciUserMetadata.UserMetadata> overviewProtoFileHelper;
   private File userMetadataFile;
 
   public UserMetadataManager(
       Context context, AppAccount appAccount, FailureListener failureListener) {
     this.failureListener = failureListener;
-    overviewProtoFileHelper = new ProtoFileHelper<>();
+    overviewProtoFileHelper = new LiteProtoFileHelper<>();
     userMetadataFile = FileMetadataUtil.getInstance().getUserMetadataFile(appAccount);
     backgroundWriteThread = Executors.newSingleThreadExecutor();
     handler = new Handler();

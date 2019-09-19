@@ -18,7 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec.DeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.UserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.UserMetadata;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,26 +105,26 @@ public class UserMetadataPojo {
   }
 
   public UserMetadata toProto() {
-    UserMetadata proto = new UserMetadata();
+    UserMetadata.Builder proto = UserMetadata.newBuilder();
     if (fileVersion != null) {
-      proto.fileVersion = fileVersion.toProto();
+      proto.setFileVersion(fileVersion.toProto());
     }
-    proto.version = majorVersion;
-    proto.minorVersion = minorVersion;
+    proto.setVersion(majorVersion);
+    proto.setMinorVersion(minorVersion);
 
     ArrayList<DeviceSpec> deviceProtos = new ArrayList<>();
     for (DeviceSpecPojo pojo : myDevices) {
       deviceProtos.add(pojo.toProto());
     }
-    proto.myDevices = deviceProtos.toArray(new DeviceSpec[0]);
+    proto.clearMyDevices().addAllMyDevices(deviceProtos);
 
     List<ExperimentOverview> overviewProtos = new ArrayList<>();
     for (ExperimentOverviewPojo pojo : experiments.values()) {
       overviewProtos.add(pojo.toProto());
     }
-    proto.experiments = overviewProtos.toArray(new ExperimentOverview[0]);
+    proto.clearExperiments().addAllExperiments(overviewProtos);
 
-    return proto;
+    return proto.build();
   }
 
   public static UserMetadataPojo fromProto(UserMetadata proto) {
@@ -132,20 +132,20 @@ public class UserMetadataPojo {
       return null;
     }
     UserMetadataPojo pojo = new UserMetadataPojo();
-    pojo.setVersion(proto.version);
-    pojo.setMinorVersion(proto.minorVersion);
+    pojo.setVersion(proto.getVersion());
+    pojo.setMinorVersion(proto.getMinorVersion());
 
-    for (ExperimentOverview e : proto.experiments) {
+    for (ExperimentOverview e : proto.getExperimentsList()) {
       ExperimentOverviewPojo experimentPojo = ExperimentOverviewPojo.fromProto(e);
       pojo.insertOverview(experimentPojo);
     }
 
-    for (DeviceSpec d : proto.myDevices) {
+    for (DeviceSpec d : proto.getMyDevicesList()) {
       DeviceSpecPojo devicePojo = DeviceSpecPojo.fromProto(d);
       pojo.addDevice(devicePojo);
     }
 
-    pojo.setFileVersion(FileVersionPojo.fromProto(proto.fileVersion));
+    pojo.setFileVersion(FileVersionPojo.fromProto(proto.getFileVersion()));
 
     return pojo;
   }
