@@ -59,10 +59,11 @@ public class FileVersionPojo {
   }
 
   public FileVersion toProto() {
-    FileVersion.Builder proto = FileVersion.newBuilder();
-    proto.setVersion(version);
-    proto.setMinorVersion(minorVersion);
-    proto.setPlatformVersion(platformVersion);
+    FileVersion.Builder proto =
+        FileVersion.newBuilder()
+            .setVersion(version)
+            .setMinorVersion(minorVersion)
+            .setPlatformVersion(platformVersion);
     if (platform != null) {
       proto.setPlatform(platform);
     }

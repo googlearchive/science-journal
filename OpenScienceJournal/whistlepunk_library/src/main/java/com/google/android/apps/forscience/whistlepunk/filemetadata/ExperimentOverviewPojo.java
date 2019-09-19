@@ -16,10 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.ExperimentOverview;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
 import java.util.Objects;
 
 /** Metadata about an experiment, used to render most of the Experiment List view.. */
@@ -90,30 +87,29 @@ public class ExperimentOverviewPojo {
   }
 
   public ExperimentOverview toProto() {
-    @MigrateAs(Destination.BUILDER)
-    ExperimentOverview proto = new ExperimentOverview();
-    proto.colorIndex = colorIndex;
-    proto.experimentId = experimentId;
-    proto.lastUsedTimeMs = lastUsedTimeMs;
-    proto.isArchived = isArchived;
-    proto.imagePath = imagePath;
-    proto.trialCount = trialCount;
-    proto.title = title;
-    return proto;
+    return ExperimentOverview.newBuilder()
+        .setColorIndex(colorIndex)
+        .setExperimentId(experimentId)
+        .setLastUsedTimeMs(lastUsedTimeMs)
+        .setIsArchived(isArchived)
+        .setImagePath(imagePath)
+        .setTrialCount(trialCount)
+        .setTitle(title)
+        .build();
   }
 
-  public static ExperimentOverviewPojo fromProto(GoosciUserMetadata.ExperimentOverview proto) {
+  public static ExperimentOverviewPojo fromProto(ExperimentOverview proto) {
     if (proto == null) {
       return null;
     }
     ExperimentOverviewPojo pojo = new ExperimentOverviewPojo();
-    pojo.setArchived(proto.isArchived);
-    pojo.setColorIndex(proto.colorIndex);
-    pojo.setExperimentId(proto.experimentId);
-    pojo.setImagePath(proto.imagePath);
-    pojo.setTrialCount(proto.trialCount);
-    pojo.setLastUsedTimeMs(proto.lastUsedTimeMs);
-    pojo.setTitle(proto.title);
+    pojo.setArchived(proto.getIsArchived());
+    pojo.setColorIndex(proto.getColorIndex());
+    pojo.setExperimentId(proto.getExperimentId());
+    pojo.setImagePath(proto.getImagePath());
+    pojo.setTrialCount(proto.getTrialCount());
+    pojo.setLastUsedTimeMs(proto.getLastUsedTimeMs());
+    pojo.setTitle(proto.getTitle());
     return pojo;
   }
 

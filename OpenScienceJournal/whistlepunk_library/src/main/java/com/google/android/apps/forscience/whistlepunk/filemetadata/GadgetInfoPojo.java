@@ -83,13 +83,13 @@ public class GadgetInfoPojo {
   }
 
   public GadgetInfo toProto() {
-    GadgetInfo.Builder proto = GadgetInfo.newBuilder();
-    proto.setAddress(address);
-    proto.setHostDescription(hostDescription);
-    proto.setPlatform(platform);
-    proto.setHostId(hostId);
-    proto.setProviderId(providerId);
-    return proto.build();
+    return GadgetInfo.newBuilder()
+        .setAddress(address)
+        .setHostDescription(hostDescription)
+        .setPlatform(platform)
+        .setHostId(hostId)
+        .setProviderId(providerId)
+        .build();
   }
 
   @Override

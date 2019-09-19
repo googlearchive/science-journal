@@ -16,8 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
@@ -25,9 +24,8 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec.DeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +38,6 @@ import org.robolectric.RuntimeEnvironment;
 @RunWith(RobolectricTestRunner.class)
 public class UserMetadataManagerTest {
   private int failureCount = 0;
-  private FileMetadataUtil fileMetadataUtil = new FileMetadataUtil();
 
   private UserMetadataManager.FailureListener getFailureFailsListener() {
     return new UserMetadataManager.FailureListener() {
@@ -100,57 +97,52 @@ public class UserMetadataManagerTest {
   public void testEmpty() {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
-    assertNull(smm.getExperimentOverview("doesNotExist"));
-    assertEquals(0, smm.getExperimentOverviews(true).size());
+    assertThat(smm.getExperimentOverview("doesNotExist")).isNull();
+    assertThat(smm.getExperimentOverviews(true)).isEmpty();
   }
 
   @Test
   public void testReadAndWriteSingle() {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
-    overview.experimentId = "expId";
-    overview.lastUsedTimeMs = 42;
-    smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(overview));
-    assertEquals(smm.getExperimentOverview("expId").getLastUsedTimeMs(), 42);
-    overview.lastUsedTimeMs = 84;
-    smm.updateExperimentOverview(ExperimentOverviewPojo.fromProto(overview));
-    assertEquals(smm.getExperimentOverview("expId").getLastUsedTimeMs(), 84);
+    com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview
+            .Builder
+        overview = ExperimentOverview.newBuilder().setExperimentId("expId").setLastUsedTimeMs(42);
+    smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(overview.build()));
+    assertThat(smm.getExperimentOverview("expId").getLastUsedTimeMs()).isEqualTo(42);
+
+    ExperimentOverview overviewUpdated = overview.clone().setLastUsedTimeMs(84).build();
+    smm.updateExperimentOverview(ExperimentOverviewPojo.fromProto(overviewUpdated));
+    assertThat(smm.getExperimentOverview("expId").getLastUsedTimeMs()).isEqualTo(84);
   }
 
   @Test
   public void testReadAndWriteMultiple() {
     UserMetadataManager smm =
         new UserMetadataManager(getContext(), getAppAccount(), getFailureFailsListener());
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview first = new GoosciUserMetadata.ExperimentOverview();
-    first.experimentId = "exp1";
-    first.lastUsedTimeMs = 1;
+    ExperimentOverview first =
+        ExperimentOverview.newBuilder().setExperimentId("exp1").setLastUsedTimeMs(1).build();
     smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(first));
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview second = new GoosciUserMetadata.ExperimentOverview();
-    second.experimentId = "exp2";
-    second.lastUsedTimeMs = 2;
-    smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(second));
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview third = new GoosciUserMetadata.ExperimentOverview();
-    third.experimentId = "exp3";
-    third.lastUsedTimeMs = 3;
+    com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview
+            .Builder
+        second = ExperimentOverview.newBuilder().setExperimentId("exp2").setLastUsedTimeMs(2);
+    smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(second.build()));
+    ExperimentOverview third =
+        ExperimentOverview.newBuilder().setExperimentId("exp3").setLastUsedTimeMs(3).build();
     smm.addExperimentOverview(ExperimentOverviewPojo.fromProto(third));
 
     // All are unarchived
-    assertEquals(smm.getExperimentOverviews(false).size(), 3);
+    assertThat(smm.getExperimentOverviews(false)).hasSize(3);
 
     // Archive one
-    second.isArchived = true;
-    smm.updateExperimentOverview(ExperimentOverviewPojo.fromProto(second));
+    ExperimentOverview secondUpdated = second.clone().setIsArchived(true).build();
+    smm.updateExperimentOverview(ExperimentOverviewPojo.fromProto(secondUpdated));
 
-    assertEquals(smm.getExperimentOverviews(false).size(), 2);
+    assertThat(smm.getExperimentOverviews(false)).hasSize(2);
 
     // Check delete works properly
-    smm.deleteExperimentOverview(second.experimentId);
-    assertEquals(smm.getExperimentOverviews(true).size(), 2);
+    smm.deleteExperimentOverview(second.getExperimentId());
+    assertThat(smm.getExperimentOverviews(true)).hasSize(2);
   }
 
   @Test
@@ -163,8 +155,8 @@ public class UserMetadataManagerTest {
     proto.minorVersion = 0;
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
-    assertEquals(pojo.getVersion(), 1);
-    assertEquals(pojo.getMinorVersion(), 1);
+    assertThat(pojo.getVersion()).isEqualTo(1);
+    assertThat(pojo.getMinorVersion()).isEqualTo(1);
   }
 
   @Test
@@ -176,8 +168,8 @@ public class UserMetadataManagerTest {
     proto.minorVersion = 1;
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
-    assertEquals(pojo.getVersion(), 1);
-    assertEquals(pojo.getMinorVersion(), 1);
+    assertThat(pojo.getVersion()).isEqualTo(1);
+    assertThat(pojo.getMinorVersion()).isEqualTo(1);
   }
 
   @Test
@@ -190,7 +182,7 @@ public class UserMetadataManagerTest {
     proto.minorVersion = 0;
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
-    assertEquals(1, failureCount);
+    assertThat(failureCount).isEqualTo(1);
   }
 
   @Test
@@ -202,8 +194,8 @@ public class UserMetadataManagerTest {
     proto.minorVersion = 0;
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 1, 1);
-    assertEquals(pojo.getVersion(), 1);
-    assertEquals(pojo.getMinorVersion(), 1);
+    assertThat(pojo.getVersion()).isEqualTo(1);
+    assertThat(pojo.getMinorVersion()).isEqualTo(1);
   }
 
   @Test
@@ -213,7 +205,7 @@ public class UserMetadataManagerTest {
     GoosciUserMetadata.UserMetadata proto = new GoosciUserMetadata.UserMetadata();
     UserMetadataPojo pojo = UserMetadataPojo.fromProto(proto);
     smm.upgradeUserMetadataVersionIfNeeded(pojo, 100, 0);
-    assertEquals(1, failureCount);
+    assertThat(failureCount).isEqualTo(1);
   }
 
   @Test
@@ -226,15 +218,15 @@ public class UserMetadataManagerTest {
             .setName("Name")
             .build();
     DeviceSpecPojo device = DeviceSpecPojo.fromProto(deviceProto);
-    assertEquals(0, smm.getMyDevices().size());
+    assertThat(smm.getMyDevices()).isEmpty();
     smm.addMyDevice(device);
-    assertEquals(1, smm.getMyDevices().size());
+    assertThat(smm.getMyDevices()).hasSize(1);
     smm.addMyDevice(device);
-    assertEquals(1, smm.getMyDevices().size());
+    assertThat(smm.getMyDevices()).hasSize(1);
     smm.removeMyDevice(device);
-    assertEquals(0, smm.getMyDevices().size());
+    assertThat(smm.getMyDevices()).isEmpty();
     smm.removeMyDevice(device);
-    assertEquals(0, smm.getMyDevices().size());
+    assertThat(smm.getMyDevices()).isEmpty();
   }
 
   private Context getContext() {

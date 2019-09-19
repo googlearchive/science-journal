@@ -69,8 +69,7 @@ public class DeviceSpecPojo {
   }
 
   public DeviceSpec toProto() {
-    DeviceSpec.Builder proto = DeviceSpec.newBuilder();
-    proto.setName(name);
+    DeviceSpec.Builder proto = DeviceSpec.newBuilder().setName(name);
     if (gadgetInfo != null) {
       proto.setInfo(gadgetInfo.toProto());
     }

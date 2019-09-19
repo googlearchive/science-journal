@@ -17,8 +17,6 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
@@ -33,14 +31,14 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
 import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,13 +70,14 @@ public class ExperimentTest {
   @Test
   public void testLabels() {
     GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-    GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
+    GoosciUserMetadata.ExperimentOverview overview =
+        GoosciUserMetadata.ExperimentOverview.getDefaultInstance();
 
     // No labels on creation
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
-    assertEquals(0, experiment.getLabelCount());
-    assertEquals(experiment.getLabels(), Collections.emptyList());
+    assertThat(experiment.getLabelCount()).isEqualTo(0);
+    assertThat(experiment.getLabels()).isEmpty();
 
     // Add a label manually, outside of the proto
     GoosciPictureLabelValue.PictureLabelValue labelValueProto =
@@ -88,23 +87,23 @@ public class ExperimentTest {
     labelProto.protoData = labelValueProto.toByteArray();
     labelProto.type = ValueType.PICTURE;
     experiment.getLabels().add(Label.fromLabel(labelProto));
-    assertEquals(1, experiment.getLabelCount());
+    assertThat(experiment.getLabelCount()).isEqualTo(1);
 
     // Make sure the proto gets updated properly
     proto.labels = new GoosciLabel.Label[1];
     proto.labels[0] = labelProto;
-    assertTrue(MessageNano.messageNanoEquals(experiment.getExperimentProto(), proto));
+    assertThat(MessageNano.messageNanoEquals(experiment.getExperimentProto(), proto)).isTrue();
 
     // Try constructing an experiment from a proto that already has these fields.
     Experiment experiment2 =
         ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
-    assertEquals(labelValueProto, experiment2.getLabels().get(0).getPictureLabelValue());
-    assertEquals(1, experiment2.getLabelCount());
+    assertThat(experiment2.getLabels().get(0).getPictureLabelValue()).isEqualTo(labelValueProto);
+    assertThat(experiment2.getLabelCount()).isEqualTo(1);
     List<Label> labels = experiment2.getLabels();
     labels.add(Label.newLabel(20, ValueType.TEXT));
-    assertEquals(2, experiment2.getLabelCount());
+    assertThat(experiment2.getLabelCount()).isEqualTo(2);
 
-    assertEquals(2, experiment2.getExperimentProto().labels.length);
+    assertThat(experiment2.getExperimentProto().labels).hasLength(2);
   }
 
   @Test
@@ -112,20 +111,20 @@ public class ExperimentTest {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {99, 100, 125, 201});
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
 
     com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.Builder range =
         Range.newBuilder().setStartMs(0).setEndMs(10);
-    assertEquals(experiment.getLabelsForRange(range.build()), Collections.<Label>emptyList());
+    assertThat(experiment.getLabelsForRange(range.build())).isEmpty();
 
     range.setEndMs(200);
-    assertEquals(3, experiment.getLabelsForRange(range.build()).size());
+    assertThat(experiment.getLabelsForRange(range.build())).hasSize(3);
 
     range.setEndMs(300);
-    assertEquals(4, experiment.getLabelsForRange(range.build()).size());
+    assertThat(experiment.getLabelsForRange(range.build())).hasSize(4);
 
     range.setStartMs(100);
-    assertEquals(3, experiment.getLabelsForRange(range.build()).size());
+    assertThat(experiment.getLabelsForRange(range.build())).hasSize(3);
   }
 
   @Test
@@ -134,15 +133,15 @@ public class ExperimentTest {
 
     // No changes on creation
     Experiment experiment = Experiment.fromExperiment(proto, new ExperimentOverviewPojo());
-    assertEquals(0, experiment.getChanges().size());
+    assertThat(experiment.getChanges()).isEmpty();
 
     experiment.addChange(new Change());
     experiment.addChange(new Change());
-    assertEquals(2, experiment.getChanges().size());
+    assertThat(experiment.getChanges()).hasSize(2);
 
     Experiment experiment2 =
         Experiment.fromExperiment(experiment.getExperimentProto(), new ExperimentOverviewPojo());
-    assertEquals(2, experiment2.getChanges().size());
+    assertThat(experiment2.getChanges()).hasSize(2);
   }
 
   @Test
@@ -152,9 +151,9 @@ public class ExperimentTest {
     // No trials on creation
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
-    assertEquals(0, experiment.getTrialCount());
-    assertEquals(experiment.getTrials(), Collections.emptyList());
+            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
+    assertThat(experiment.getTrialCount()).isEqualTo(0);
+    assertThat(experiment.getTrials()).isEmpty();
 
     // Trials on creation that overlap with notes should get those notes added properly.
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
@@ -165,8 +164,8 @@ public class ExperimentTest {
 
     Experiment experiment1 =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
-    assertEquals(1, experiment1.getTrialCount());
+            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
+    assertThat(experiment1.getTrialCount()).isEqualTo(1);
 
     // Adding a new trial should work as expected.
     GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
@@ -175,10 +174,10 @@ public class ExperimentTest {
     Trial trial2 = Trial.fromTrial(trialProto2);
     experiment1.getTrials().add(trial2);
 
-    assertEquals(experiment1.getTrialCount(), 2);
+    assertThat(experiment1.getTrialCount()).isEqualTo(2);
 
     // Getting the proto includes trial updates
-    assertEquals(2, experiment1.getExperimentProto().trials.length);
+    assertThat(experiment1.getExperimentProto().trials).hasLength(2);
   }
 
   @Test
@@ -186,17 +185,17 @@ public class ExperimentTest {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
 
     // New trials are invalid -- no end time.
     GoosciSensorLayout.SensorLayout[] noLayouts = new GoosciSensorLayout.SensorLayout[0];
     experiment.addTrial(Trial.newTrial(10, noLayouts, new FakeAppearanceProvider(), getContext()));
     experiment.addTrial(Trial.newTrial(20, noLayouts, new FakeAppearanceProvider(), getContext()));
 
-    assertEquals(2, experiment.getTrials().size());
-    assertEquals(2, experiment.getTrials(true, /* include invalid */ true).size());
-    assertEquals(2, experiment.getTrials(false, true).size());
-    assertEquals(0, experiment.getTrials(true, false).size());
+    assertThat(experiment.getTrials()).hasSize(2);
+    assertThat(experiment.getTrials(true, /* include invalid */ true)).hasSize(2);
+    assertThat(experiment.getTrials(false, true)).hasSize(2);
+    assertThat(experiment.getTrials(true, false)).isEmpty();
 
     GoosciTrial.Trial validProto = new GoosciTrial.Trial();
     validProto.recordingRange = Range.newBuilder().setStartMs(100).setEndMs(200).build();
@@ -204,9 +203,9 @@ public class ExperimentTest {
     Trial valid = Trial.fromTrial(validProto);
     experiment.addTrial(valid);
 
-    assertEquals(3, experiment.getTrials(false, true).size());
-    assertEquals(1, experiment.getTrials(true, false).size());
-    assertEquals(1, experiment.getTrials(false, false).size());
+    assertThat(experiment.getTrials(false, true)).hasSize(3);
+    assertThat(experiment.getTrials(true, false)).hasSize(1);
+    assertThat(experiment.getTrials(false, false)).hasSize(1);
 
     GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
     archivedProto.recordingRange = Range.newBuilder().setStartMs(300).setEndMs(400).build();
@@ -215,10 +214,10 @@ public class ExperimentTest {
     Trial archived = Trial.fromTrial(archivedProto);
     experiment.addTrial(archived);
 
-    assertEquals(4, experiment.getTrials(true, true).size());
-    assertEquals(3, experiment.getTrials(/* include archived */ false, true).size());
-    assertEquals(2, experiment.getTrials(true, false).size());
-    assertEquals(1, experiment.getTrials(false, false).size());
+    assertThat(experiment.getTrials(true, true)).hasSize(4);
+    assertThat(experiment.getTrials(/* include archived */ false, true)).hasSize(3);
+    assertThat(experiment.getTrials(true, false)).hasSize(2);
+    assertThat(experiment.getTrials(false, false)).hasSize(1);
   }
 
   @Test
@@ -226,7 +225,7 @@ public class ExperimentTest {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
 
     // Trials are valid.
     GoosciTrial.Trial validProto = new GoosciTrial.Trial();
@@ -235,20 +234,20 @@ public class ExperimentTest {
     experiment.addTrial(Trial.fromTrial(validProto));
     experiment.addTrial(Trial.fromTrial(validProto));
 
-    assertEquals(2, experiment.getTrials().size());
-    assertEquals(2, experiment.getTrials(true, /* include invalid */ true).size());
-    assertEquals(2, experiment.getTrials(false, true).size());
-    assertEquals(2, experiment.getTrials(true, false).size());
+    assertThat(experiment.getTrials()).hasSize(2);
+    assertThat(experiment.getTrials(true, /* include invalid */ true)).hasSize(2);
+    assertThat(experiment.getTrials(false, true)).hasSize(2);
+    assertThat(experiment.getTrials(true, false)).hasSize(2);
 
     // Trials are invalid -- no end time.
     GoosciSensorLayout.SensorLayout[] noLayouts = new GoosciSensorLayout.SensorLayout[0];
     experiment.addTrial(Trial.newTrial(10, noLayouts, new FakeAppearanceProvider(), getContext()));
     experiment.addTrial(Trial.newTrial(20, noLayouts, new FakeAppearanceProvider(), getContext()));
 
-    assertEquals(4, experiment.getTrials().size());
-    assertEquals(4, experiment.getTrials(true, /* include invalid */ true).size());
-    assertEquals(4, experiment.getTrials(false, true).size());
-    assertEquals(2, experiment.getTrials(true, false).size());
+    assertThat(experiment.getTrials()).hasSize(4);
+    assertThat(experiment.getTrials(true, /* include invalid */ true)).hasSize(4);
+    assertThat(experiment.getTrials(false, true)).hasSize(4);
+    assertThat(experiment.getTrials(true, false)).hasSize(2);
 
     GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
     archivedProto.recordingRange = Range.newBuilder().setStartMs(300).setEndMs(400).build();
@@ -257,19 +256,19 @@ public class ExperimentTest {
     Trial archived = Trial.fromTrial(archivedProto);
     experiment.addTrial(archived);
 
-    assertEquals(5, experiment.getTrials(true, true).size());
-    assertEquals(4, experiment.getTrials(/* include archived */ false, true).size());
-    assertEquals(3, experiment.getTrials(true, false).size());
-    assertEquals(2, experiment.getTrials(false, false).size());
+    assertThat(experiment.getTrials(true, true)).hasSize(5);
+    assertThat(experiment.getTrials(/* include archived */ false, true)).hasSize(4);
+    assertThat(experiment.getTrials(true, false)).hasSize(3);
+    assertThat(experiment.getTrials(false, false)).hasSize(2);
 
     // Deleting the trial with the real delete function causes a crash because of the context
     // class type. All we actually want is to remove the trial from the list.
     experiment.cleanTrialsOnlyForTesting();
 
-    assertEquals(3, experiment.getTrials(true, true).size());
-    assertEquals(2, experiment.getTrials(/* include archived */ false, true).size());
-    assertEquals(3, experiment.getTrials(true, /* include invalid */ false).size());
-    assertEquals(2, experiment.getTrials(false, false).size());
+    assertThat(experiment.getTrials(true, true)).hasSize(3);
+    assertThat(experiment.getTrials(/* include archived */ false, true)).hasSize(2);
+    assertThat(experiment.getTrials(true, /* include invalid */ false)).hasSize(3);
+    assertThat(experiment.getTrials(false, false)).hasSize(2);
   }
 
   @Test
@@ -281,12 +280,12 @@ public class ExperimentTest {
 
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
 
     // Try to get the proto *before* converting the objects into lists.
     GoosciExperiment.Experiment result = experiment.getExperimentProto();
-    assertEquals(4, result.labels.length);
-    assertEquals(1, result.trials.length);
+    assertThat(result.labels).hasLength(4);
+    assertThat(result.trials).hasLength(1);
   }
 
   @Test
@@ -294,7 +293,7 @@ public class ExperimentTest {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, new GoosciUserMetadata.ExperimentOverview());
+            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
     GoosciTrial.Trial trialProto1 = new GoosciTrial.Trial();
     GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
     GoosciTrial.Trial trialProto3 = new GoosciTrial.Trial();
@@ -310,40 +309,39 @@ public class ExperimentTest {
 
     Context context = getContext();
     experiment.addTrial(trial1);
-    assertEquals("Recording 1", experiment.getTrials().get(0).getTitle(context));
+    assertThat(experiment.getTrials().get(0).getTitle(context)).isEqualTo("Recording 1");
     experiment.addTrial(trial2);
-    assertEquals("Recording 1", experiment.getTrial(trial1.getTrialId()).getTitle(context));
-    assertEquals("Recording 2", experiment.getTrial(trial2.getTrialId()).getTitle(context));
+    assertThat(experiment.getTrial(trial1.getTrialId()).getTitle(context)).isEqualTo("Recording 1");
+    assertThat(experiment.getTrial(trial2.getTrialId()).getTitle(context)).isEqualTo("Recording 2");
 
     // Deleting the trial with the real delete function causes a crash because of the context
     // class type. All we actually want is to remove the trial from the list.
     experiment.deleteTrialOnlyForTesting(trial2);
     experiment.addTrial(trial3);
-    assertEquals("Recording 1", experiment.getTrial(trial1.getTrialId()).getTitle(context));
-    assertEquals("Recording 3", experiment.getTrial(trial3.getTrialId()).getTitle(context));
+    assertThat(experiment.getTrial(trial1.getTrialId()).getTitle(context)).isEqualTo("Recording 1");
+    assertThat(experiment.getTrial(trial3.getTrialId()).getTitle(context)).isEqualTo("Recording 3");
   }
 
   @Test
   public void testSetGetImagePath() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
-    @MigrateAs(Destination.BUILDER)
-    GoosciUserMetadata.ExperimentOverview overview = new GoosciUserMetadata.ExperimentOverview();
-    overview.experimentId = "experimentId";
+    ExperimentOverview overview =
+        GoosciUserMetadata.ExperimentOverview.newBuilder().setExperimentId("experimentId").build();
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
     experiment.setImagePath("test.jpg");
     String overviewImagePath = experiment.getExperimentOverview().getImagePath();
     String experimentImagePath = experiment.getExperimentProto().imagePath;
 
-    assertEquals("experiments/experimentId/test.jpg", overviewImagePath);
-    assertEquals("test.jpg", experimentImagePath);
+    assertThat(overviewImagePath).isEqualTo("experiments/experimentId/test.jpg");
+    assertThat(experimentImagePath).isEqualTo("test.jpg");
 
     experiment.setImagePath("path.jpg");
     overviewImagePath = experiment.getExperimentOverview().getImagePath();
-    assertEquals("experiments/experimentId/path.jpg", overviewImagePath);
+    assertThat(overviewImagePath).isEqualTo("experiments/experimentId/path.jpg");
 
     experimentImagePath = experiment.getExperimentProto().imagePath;
-    assertEquals("path.jpg", experimentImagePath);
+    assertThat(experimentImagePath).isEqualTo("path.jpg");
   }
 
   @Test
@@ -353,21 +351,21 @@ public class ExperimentTest {
     pojo.setExperimentId("id");
     Experiment experiment = Experiment.fromExperiment(proto, pojo);
 
-    assertEquals(0, experiment.getChanges().size());
+    assertThat(experiment.getChanges()).isEmpty();
     experiment.setTitle("foo");
-    assertEquals(1, experiment.getChanges().size());
+    assertThat(experiment.getChanges()).hasSize(1);
 
     Label label = Label.newLabel(1000, ValueType.TEXT);
     experiment.addLabel(experiment, label);
-    assertEquals(2, experiment.getChanges().size());
+    assertThat(experiment.getChanges()).hasSize(2);
 
     label.setTimestamp(2000);
     experiment.updateLabel(experiment, label);
-    assertEquals(3, experiment.getChanges().size());
+    assertThat(experiment.getChanges()).hasSize(3);
 
     label.setTimestamp(3000);
     experiment.updateLabelWithoutSorting(experiment, label);
-    assertEquals(4, experiment.getChanges().size());
+    assertThat(experiment.getChanges()).hasSize(4);
 
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.labels = new GoosciLabel.Label[1];
@@ -380,25 +378,25 @@ public class ExperimentTest {
 
     experiment.addTrial(trial);
 
-    assertEquals(trial.getLabelCount(), 1);
-    assertEquals(5, experiment.getChanges().size());
+    assertThat(trial.getLabelCount()).isEqualTo(1);
+    assertThat(experiment.getChanges()).hasSize(5);
 
     trial.setTitle("foo");
     experiment.updateTrial(trial);
 
-    assertEquals(trial.getLabelCount(), 1);
-    assertEquals(6, experiment.getChanges().size());
+    assertThat(trial.getLabelCount()).isEqualTo(1);
+    assertThat(experiment.getChanges()).hasSize(6);
 
     Label label2 = trial.getLabels().get(0);
     label2.setTimestamp(10);
     trial.updateLabel(experiment, label2);
-    assertEquals(10, trial.getLabels().get(0).getTimeStamp());
-    assertEquals(7, experiment.getChanges().size());
+    assertThat(trial.getLabels().get(0).getTimeStamp()).isEqualTo(10);
+    assertThat(experiment.getChanges()).hasSize(7);
 
     label2.setTimestamp(20);
     trial.updateLabelWithoutSorting(experiment, label2);
-    assertEquals(20, trial.getLabels().get(0).getTimeStamp());
-    assertEquals(8, experiment.getChanges().size());
+    assertThat(trial.getLabels().get(0).getTimeStamp()).isEqualTo(20);
+    assertThat(experiment.getChanges()).hasSize(8);
   }
 
   @Test
@@ -413,14 +411,14 @@ public class ExperimentTest {
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(0, sync.getImageDownloads().size());
-    assertEquals(0, sync.getImageUploads().size());
+    assertThat(sync.getImageDownloads()).isEmpty();
+    assertThat(sync.getImageUploads()).isEmpty();
 
-    assertEquals(0, sync.getTrialDownloads().size());
-    assertEquals(0, sync.getTrialUploads().size());
+    assertThat(sync.getTrialDownloads()).isEmpty();
+    assertThat(sync.getTrialUploads()).isEmpty();
 
-    assertEquals("Title", experimentServer.getTitle());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentServer.getTitle()).isEqualTo("Title");
+    assertThat(experimentServer.getChanges()).hasSize(1);
   }
 
   @Test
@@ -436,14 +434,14 @@ public class ExperimentTest {
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(0, sync.getImageDownloads().size());
-    assertEquals(0, sync.getImageUploads().size());
+    assertThat(sync.getImageDownloads()).isEmpty();
+    assertThat(sync.getImageUploads()).isEmpty();
 
-    assertEquals(0, sync.getTrialDownloads().size());
-    assertEquals(0, sync.getTrialUploads().size());
+    assertThat(sync.getTrialDownloads()).isEmpty();
+    assertThat(sync.getTrialUploads()).isEmpty();
 
-    assertEquals("Title2", experimentServer.getTitle());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentServer.getTitle()).isEqualTo("Title2");
+    assertThat(experimentServer.getChanges()).hasSize(2);
   }
 
   @Test
@@ -459,8 +457,8 @@ public class ExperimentTest {
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals("Title2", experimentServer.getTitle());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentServer.getTitle()).isEqualTo("Title2");
+    assertThat(experimentServer.getChanges()).hasSize(2);
   }
 
   @Test
@@ -476,8 +474,8 @@ public class ExperimentTest {
     experimentClient.setTitle("Title3");
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals("Title3", experimentServer.getTitle());
-    assertEquals(3, experimentServer.getChanges().size());
+    assertThat(experimentServer.getTitle()).isEqualTo("Title3");
+    assertThat(experimentServer.getChanges()).hasSize(3);
   }
 
   @Test
@@ -495,8 +493,8 @@ public class ExperimentTest {
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals("Title2 / Title3", experimentServer.getTitle());
-    assertEquals(3, experimentServer.getChanges().size());
+    assertThat(experimentServer.getTitle()).isEqualTo("Title2 / Title3");
+    assertThat(experimentServer.getChanges()).hasSize(3);
   }
 
   @Test
@@ -514,22 +512,22 @@ public class ExperimentTest {
 
     experimentClient.addLabel(experimentClient, label);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(0, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).isEmpty();
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(0, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(0);
 
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(1, sync.getImageDownloads().size());
+    assertThat(sync.getImageDownloads()).hasSize(1);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
   }
 
   @Test
@@ -546,19 +544,19 @@ public class ExperimentTest {
 
     experimentClient.addLabel(experimentClient, label);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(0, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).isEmpty();
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(0, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(0);
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
   }
 
   @Test
@@ -582,23 +580,22 @@ public class ExperimentTest {
     label2.setLabelProtoData(pictureLabelValue2);
     experimentClient.updateLabel(experimentClient, label2);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(1, sync.getImageDownloads().size());
+    assertThat(sync.getImageDownloads()).hasSize(1);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
-    assertEquals(
-        experimentClient.getLabel(label2.getLabelId()).getCaptionText(),
-        experimentServer.getLabel(label2.getLabelId()).getCaptionText());
+    assertThat(experimentClient.getLabel(label2.getLabelId()).getCaptionText())
+        .isEqualTo(experimentServer.getLabel(label2.getLabelId()).getCaptionText());
   }
 
   @Test
@@ -618,23 +615,23 @@ public class ExperimentTest {
 
     experimentClient.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(0, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(0);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(0, sync.getImageDownloads().size());
-    assertEquals(0, sync.getImageUploads().size());
+    assertThat(sync.getImageDownloads()).isEmpty();
+    assertThat(sync.getImageUploads()).isEmpty();
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(0, experimentClient.getLabelCount());
-    assertEquals(0, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(0);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(0);
   }
 
   @Test
@@ -658,28 +655,28 @@ public class ExperimentTest {
     label2.setLabelProtoData(pictureLabelValue2);
     experimentClient.updateLabel(experimentClient, label2);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
     experimentClient.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
 
-    assertEquals(3, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(3);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(0, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(0);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(0, sync.getImageDownloads().size());
-    assertEquals(0, sync.getImageUploads().size());
+    assertThat(sync.getImageDownloads()).isEmpty();
+    assertThat(sync.getImageUploads()).isEmpty();
 
-    assertEquals(3, experimentClient.getChanges().size());
-    assertEquals(3, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(3);
+    assertThat(experimentServer.getChanges()).hasSize(3);
 
-    assertEquals(0, experimentClient.getLabelCount());
-    assertEquals(0, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(0);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(0);
   }
 
   @Test
@@ -694,19 +691,19 @@ public class ExperimentTest {
 
     experimentClient.addTrial(trial);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(0, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).isEmpty();
 
-    assertEquals(1, experimentClient.getTrialCount());
-    assertEquals(0, experimentServer.getTrialCount());
+    assertThat(experimentClient.getTrialCount()).isEqualTo(1);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(0);
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getTrialCount());
-    assertEquals(1, experimentServer.getTrialCount());
+    assertThat(experimentClient.getTrialCount()).isEqualTo(1);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(1);
   }
 
   @Test
@@ -722,34 +719,34 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
     trial.setTitle("Bar");
     experimentClient.updateTrial(trial);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getTrialCount());
-    assertEquals(1, experimentServer.getTrialCount());
+    assertThat(experimentClient.getTrialCount()).isEqualTo(1);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(1);
 
     Trial toDelete = experimentServer.getTrial(trial.getTrialId());
     experimentServer.deleteTrialOnlyForTesting(toDelete);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(1, experimentClient.getTrialCount());
-    assertEquals(0, experimentServer.getTrialCount());
+    assertThat(experimentClient.getTrialCount()).isEqualTo(1);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(0);
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(3, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(3);
 
-    assertEquals(1, experimentClient.getTrialCount());
-    assertEquals(0, experimentServer.getTrialCount());
+    assertThat(experimentClient.getTrialCount()).isEqualTo(1);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(0);
   }
 
   @Test
@@ -773,23 +770,23 @@ public class ExperimentTest {
 
     clientTrial.addLabel(experimentClient, label);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, clientTrial.getLabelCount());
-    assertEquals(0, trial.getLabelCount());
+    assertThat(clientTrial.getLabelCount()).isEqualTo(1);
+    assertThat(trial.getLabelCount()).isEqualTo(0);
 
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(1, sync.getImageDownloads().size());
-    assertEquals(0, sync.getImageUploads().size());
+    assertThat(sync.getImageDownloads()).hasSize(1);
+    assertThat(sync.getImageUploads()).isEmpty();
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(1, clientTrial.getLabelCount());
-    assertEquals(1, trial.getLabelCount());
+    assertThat(clientTrial.getLabelCount()).isEqualTo(1);
+    assertThat(trial.getLabelCount()).isEqualTo(1);
   }
 
   @Test
@@ -813,23 +810,23 @@ public class ExperimentTest {
 
     serverTrial.addLabel(experimentServer, label);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(1, serverTrial.getLabelCount());
-    assertEquals(1, trial.getLabelCount());
+    assertThat(serverTrial.getLabelCount()).isEqualTo(1);
+    assertThat(trial.getLabelCount()).isEqualTo(1);
 
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(0, sync.getImageDownloads().size());
-    assertEquals(1, sync.getImageUploads().size());
+    assertThat(sync.getImageDownloads()).isEmpty();
+    assertThat(sync.getImageUploads()).hasSize(1);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(1, serverTrial.getLabelCount());
-    assertEquals(1, trial.getLabelCount());
+    assertThat(serverTrial.getLabelCount()).isEqualTo(1);
+    assertThat(trial.getLabelCount()).isEqualTo(1);
   }
 
   @Test
@@ -859,27 +856,30 @@ public class ExperimentTest {
 
     clientTrial.updateLabel(experimentClient, label2);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, clientTrial.getLabelCount());
-    assertEquals(1, trial.getLabelCount());
+    assertThat(clientTrial.getLabelCount()).isEqualTo(1);
+    assertThat(trial.getLabelCount()).isEqualTo(1);
 
-    assertEquals("caption", experimentServer.getLabel(label.getLabelId()).getCaptionText());
+    assertThat(experimentServer.getLabel(label.getLabelId()).getCaptionText()).isEqualTo("caption");
 
-    assertEquals("caption2", experimentClient.getLabel(label.getLabelId()).getCaptionText());
+    assertThat(experimentClient.getLabel(label.getLabelId()).getCaptionText())
+        .isEqualTo("caption2");
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(1, clientTrial.getLabelCount());
-    assertEquals(1, trial.getLabelCount());
+    assertThat(clientTrial.getLabelCount()).isEqualTo(1);
+    assertThat(trial.getLabelCount()).isEqualTo(1);
 
-    assertEquals("caption2", experimentServer.getLabel(label.getLabelId()).getCaptionText());
+    assertThat(experimentServer.getLabel(label.getLabelId()).getCaptionText())
+        .isEqualTo("caption2");
 
-    assertEquals("caption2", experimentClient.getLabel(label.getLabelId()).getCaptionText());
+    assertThat(experimentClient.getLabel(label.getLabelId()).getCaptionText())
+        .isEqualTo("caption2");
   }
 
   @Test
@@ -904,19 +904,19 @@ public class ExperimentTest {
 
     clientTrial.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(0, clientTrial.getLabelCount());
-    assertEquals(1, trial.getLabelCount());
+    assertThat(clientTrial.getLabelCount()).isEqualTo(0);
+    assertThat(trial.getLabelCount()).isEqualTo(1);
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(0, clientTrial.getLabelCount());
-    assertEquals(0, trial.getLabelCount());
+    assertThat(clientTrial.getLabelCount()).isEqualTo(0);
+    assertThat(trial.getLabelCount()).isEqualTo(0);
   }
 
   @Test
@@ -936,27 +936,27 @@ public class ExperimentTest {
     label.setCaption(caption);
     trial.addLabel(experimentClient, label);
 
-    assertEquals(1, trial.getLabelCount());
+    assertThat(trial.getLabelCount()).isEqualTo(1);
 
     trial.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
 
-    assertEquals(3, experimentClient.getChanges().size());
-    assertEquals(0, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(3);
+    assertThat(experimentServer.getChanges()).isEmpty();
 
-    assertEquals(1, experimentClient.getTrialCount());
-    assertEquals(0, experimentServer.getTrialCount());
+    assertThat(experimentClient.getTrialCount()).isEqualTo(1);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(0);
 
-    assertEquals(0, trial.getLabelCount());
+    assertThat(trial.getLabelCount()).isEqualTo(0);
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(3, experimentClient.getChanges().size());
-    assertEquals(3, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(3);
+    assertThat(experimentServer.getChanges()).hasSize(3);
 
-    assertEquals(1, experimentClient.getTrialCount());
-    assertEquals(1, experimentServer.getTrialCount());
+    assertThat(experimentClient.getTrialCount()).isEqualTo(1);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(1);
 
-    assertEquals(0, experimentServer.getTrial(trial.getTrialId()).getLabelCount());
+    assertThat(experimentServer.getTrial(trial.getTrialId()).getLabelCount()).isEqualTo(0);
   }
 
   @Test
@@ -973,11 +973,11 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
@@ -993,16 +993,16 @@ public class ExperimentTest {
 
     experimentServer.updateLabel(experimentServer, label3);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(4, experimentServer.getChanges().size());
-    assertEquals(2, experimentServer.getLabelCount());
+    assertThat(experimentServer.getChanges()).hasSize(4);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(2);
   }
 
   @Test
@@ -1019,11 +1019,11 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
     experimentClient.deleteLabelAndReturnAssetDeleter(experimentClient, label, getAppAccount());
 
@@ -1034,16 +1034,16 @@ public class ExperimentTest {
 
     experimentServer.updateLabel(experimentServer, label3);
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(0, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(0);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(3, experimentServer.getChanges().size());
-    assertEquals(0, experimentServer.getLabelCount());
+    assertThat(experimentServer.getChanges()).hasSize(3);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(0);
   }
 
   @Test
@@ -1060,11 +1060,11 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
@@ -1075,16 +1075,16 @@ public class ExperimentTest {
 
     experimentServer.deleteLabelAndReturnAssetDeleter(experimentServer, label, getAppAccount());
 
-    assertEquals(2, experimentClient.getChanges().size());
-    assertEquals(2, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(2);
+    assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(0, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(0);
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(3, experimentServer.getChanges().size());
-    assertEquals(0, experimentServer.getLabelCount());
+    assertThat(experimentServer.getChanges()).hasSize(3);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(0);
   }
 
   @Test
@@ -1098,25 +1098,25 @@ public class ExperimentTest {
         Experiment.fromExperiment(
             experimentServer.getExperimentProto(), experimentServer.getExperimentOverview());
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
     Trial trial2 = Trial.newTrial(1, new SensorLayout[0], null, getContext());
     experimentServer.addTrial(trial2);
 
     experimentServer.deleteTrialOnlyForTesting(trial1);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(3, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(3);
 
-    assertEquals(1, experimentClient.getTrialCount());
-    assertEquals(1, experimentServer.getTrialCount());
+    assertThat(experimentClient.getTrialCount()).isEqualTo(1);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(1);
 
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
-    assertEquals(1, sync.getTrialUploads().size());
-    assertTrue(sync.getTrialUploads().contains(trial2.getTrialId()));
+    assertThat(sync.getTrialUploads()).hasSize(1);
+    assertThat(sync.getTrialUploads().contains(trial2.getTrialId())).isTrue();
   }
 
   @Test
@@ -1137,31 +1137,31 @@ public class ExperimentTest {
 
     experimentClient.addLabel(experimentClient, label);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(0, experimentClient.getTrialCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentClient.getTrialCount()).isEqualTo(0);
 
-    assertEquals(0, experimentServer.getLabelCount());
-    assertEquals(1, experimentServer.getTrialCount());
+    assertThat(experimentServer.getLabelCount()).isEqualTo(0);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(1);
 
     FileSyncCollection sync =
         experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), true);
 
-    assertEquals(1, experimentClient.getChanges().size());
-    assertEquals(1, experimentServer.getChanges().size());
+    assertThat(experimentClient.getChanges()).hasSize(1);
+    assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(0, experimentClient.getTrialCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentClient.getTrialCount()).isEqualTo(0);
 
-    assertEquals(1, experimentServer.getLabelCount());
-    assertEquals(0, experimentServer.getTrialCount());
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getTrialCount()).isEqualTo(0);
 
-    assertEquals(0, sync.getTrialUploads().size());
-    assertEquals(0, sync.getTrialDownloads().size());
-    assertEquals(0, sync.getImageUploads().size());
-    assertEquals(0, sync.getImageDownloads().size());
+    assertThat(sync.getTrialUploads()).isEmpty();
+    assertThat(sync.getTrialDownloads()).isEmpty();
+    assertThat(sync.getImageUploads()).isEmpty();
+    assertThat(sync.getImageDownloads()).isEmpty();
   }
 
   @Test
@@ -1181,8 +1181,8 @@ public class ExperimentTest {
     assertThat(experimentClient.getChanges()).hasSize(1);
     assertThat(experimentServer.getChanges()).hasSize(1);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
     Label label2 =
         Label.fromUuidAndValue(1, label.getLabelId(), ValueType.TEXT, label.getTextLabelValue());
@@ -1196,13 +1196,13 @@ public class ExperimentTest {
     experimentServer.addChange(Change.newModifyTypeChange(ElementType.CAPTION, label.getLabelId()));
     assertThat(experimentServer.getChanges()).hasSize(2);
 
-    assertEquals(1, experimentClient.getLabelCount());
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentClient.getLabelCount()).isEqualTo(1);
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
 
     experimentServer.mergeFrom(experimentClient, getContext(), getAppAccount(), false);
 
     assertThat(experimentServer.getChanges()).hasSize(5);
-    assertEquals(1, experimentServer.getLabelCount());
+    assertThat(experimentServer.getLabelCount()).isEqualTo(1);
   }
 
 }

@@ -24,8 +24,8 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
 import org.robolectric.RuntimeEnvironment;
 
 /**

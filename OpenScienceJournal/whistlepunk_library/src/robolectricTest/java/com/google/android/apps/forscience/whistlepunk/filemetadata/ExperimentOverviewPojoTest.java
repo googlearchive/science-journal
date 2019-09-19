@@ -18,9 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.ExperimentOverview;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -52,15 +50,16 @@ public class ExperimentOverviewPojoTest {
 
   @Test
   public void testProtoRoundTrip() {
-    @MigrateAs(Destination.BUILDER)
-    ExperimentOverview proto = new ExperimentOverview();
-    proto.lastUsedTimeMs = 25L;
-    proto.colorIndex = 10;
-    proto.trialCount = 5;
-    proto.isArchived = true;
-    proto.experimentId = "id";
-    proto.imagePath = "path";
-    proto.title = "title";
+    ExperimentOverview proto =
+        ExperimentOverview.newBuilder()
+            .setLastUsedTimeMs(25L)
+            .setColorIndex(10)
+            .setTrialCount(5)
+            .setIsArchived(true)
+            .setExperimentId("id")
+            .setImagePath("path")
+            .setTitle("title")
+            .build();
     ExperimentOverviewPojo pojo = ExperimentOverviewPojo.fromProto(proto);
     ExperimentOverview proto2 = pojo.toProto();
 
@@ -69,16 +68,13 @@ public class ExperimentOverviewPojoTest {
 
   @Test
   public void testPartialProto() {
-    @MigrateAs(Destination.BUILDER)
-    ExperimentOverview proto = new ExperimentOverview();
-    proto.lastUsedTimeMs = 25;
+    ExperimentOverview proto = ExperimentOverview.newBuilder().setLastUsedTimeMs(25).build();
     ExperimentOverviewPojo pojo = ExperimentOverviewPojo.fromProto(proto);
     assertThat(pojo.getLastUsedTimeMs()).isEqualTo(25);
 
     ExperimentOverviewPojo pojo2 = new ExperimentOverviewPojo();
     pojo2.setTitle("title");
-    @MigrateAs(Destination.BUILDER)
     ExperimentOverview proto2 = pojo2.toProto();
-    assertThat(proto2.title).isEqualTo("title");
+    assertThat(proto2.getTitle()).isEqualTo("title");
   }
 }

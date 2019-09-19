@@ -17,8 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec.DeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.ExperimentOverview;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciUserMetadata.UserMetadata;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,7 +135,7 @@ public class UserMetadataPojo {
     pojo.setVersion(proto.version);
     pojo.setMinorVersion(proto.minorVersion);
 
-    for (GoosciUserMetadata.ExperimentOverview e : proto.experiments) {
+    for (ExperimentOverview e : proto.experiments) {
       ExperimentOverviewPojo experimentPojo = ExperimentOverviewPojo.fromProto(e);
       pojo.insertOverview(experimentPojo);
     }

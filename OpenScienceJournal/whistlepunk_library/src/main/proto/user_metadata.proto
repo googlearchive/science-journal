@@ -17,15 +17,15 @@
 syntax = "proto2";
 
 package goosci;
+
+import "third_party/android/nanoproto/nano_descriptor.proto";
+import "device_spec.proto";
+import "version.proto";
+
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciUserMetadata";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
-
-import "third_party/android/nanoproto/nano_descriptor.proto";
-
-import "device_spec.proto";
-import "version.proto";
 
 /*
  * Represents metadata shared across the whole Science Journal app for one user.
@@ -61,7 +61,7 @@ message UserMetadata {
  * experiment.
  */
 message ExperimentOverview {
-  option (proto2.nano.message_as_lite) = false;
+  option (proto2.nano.message_as_lite) = true;
 
   // Our local lookup Id for this experiment.
   optional string experimentId = 1;
