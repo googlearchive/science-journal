@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 
-import "third_party/android/nanoproto/nano_descriptor.proto";
 import "device_spec.proto";
 import "version.proto";
 
@@ -32,8 +31,6 @@ option optimize_for = LITE_RUNTIME;
  * Added in V2.
  */
 message UserMetadata {
-  option (proto2.nano.message_as_lite) = true;
-
   // Experiment state that is per-user, such as whether the experiment is
   // archived.
   repeated ExperimentOverview experiments = 1;
@@ -61,8 +58,6 @@ message UserMetadata {
  * experiment.
  */
 message ExperimentOverview {
-  option (proto2.nano.message_as_lite) = true;
-
   // Our local lookup Id for this experiment.
   optional string experimentId = 1;
 
