@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 
-import "third_party/android/nanoproto/nano_descriptor.proto";
 import "caption.proto";
 
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
@@ -31,8 +30,6 @@ option optimize_for = LITE_RUNTIME;
  * Added in V2.
  */
 message Label {
-  option (proto2.nano.message_as_lite) = false;
-
   // The ID is unique within an experiment, but cannot be assumed to be unique
   // across experiments, as users may "copy" entire experiments from Drive. This
   // ID should probably be a unique GUID.
@@ -52,8 +49,6 @@ message Label {
   optional Caption caption = 4;
 
   enum ValueType {
-    option (proto2.nano.enum_as_lite) = true;
-
     TEXT = 1;     // A text label.
                   // This ValueType is associated with protoData field of
                   // text_label_value.proto.

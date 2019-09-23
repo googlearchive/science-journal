@@ -30,12 +30,12 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.common.base.Strings;
@@ -249,11 +249,11 @@ public class FileMetadataManager {
     Set<String> usedImagePaths = Sets.newHashSet();
     for (GoosciTrial.Trial trial : experiment.trials) {
       for (GoosciLabel.Label label : trial.labels) {
-        if (label.type == ValueType.PICTURE) {
+        if (label.getType() == ValueType.PICTURE) {
           try {
             GoosciPictureLabelValue.PictureLabelValue labelValue =
                 GoosciPictureLabelValue.PictureLabelValue.parseFrom(
-                    label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+                    label.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
             usedImagePaths.add(labelValue.getFilePath());
           } catch (InvalidProtocolBufferException e) {
             if (Log.isLoggable(TAG, Log.WARN)) {
@@ -264,11 +264,11 @@ public class FileMetadataManager {
       }
     }
     for (GoosciLabel.Label label : experiment.labels) {
-      if (label.type == ValueType.PICTURE) {
+      if (label.getType() == ValueType.PICTURE) {
         try {
           GoosciPictureLabelValue.PictureLabelValue labelValue =
               GoosciPictureLabelValue.PictureLabelValue.parseFrom(
-                  label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+                  label.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
           usedImagePaths.add(labelValue.getFilePath());
         } catch (InvalidProtocolBufferException e) {
           if (Log.isLoggable(TAG, Log.WARN)) {

@@ -109,22 +109,19 @@ public class UserMetadataPojo {
     if (fileVersion != null) {
       proto.setFileVersion(fileVersion.toProto());
     }
-    proto.setVersion(majorVersion);
-    proto.setMinorVersion(minorVersion);
+    proto.setVersion(majorVersion).setMinorVersion(minorVersion);
 
     ArrayList<DeviceSpec> deviceProtos = new ArrayList<>();
     for (DeviceSpecPojo pojo : myDevices) {
       deviceProtos.add(pojo.toProto());
     }
-    proto.clearMyDevices().addAllMyDevices(deviceProtos);
+    proto.addAllMyDevices(deviceProtos);
 
     List<ExperimentOverview> overviewProtos = new ArrayList<>();
     for (ExperimentOverviewPojo pojo : experiments.values()) {
       overviewProtos.add(pojo.toProto());
     }
-    proto.clearExperiments().addAllExperiments(overviewProtos);
-
-    return proto.build();
+    return proto.addAllExperiments(overviewProtos).build();
   }
 
   public static UserMetadataPojo fromProto(UserMetadata proto) {

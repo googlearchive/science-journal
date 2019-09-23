@@ -24,18 +24,16 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
 import java.util.Comparator;
@@ -50,7 +48,8 @@ public class Label implements Parcelable {
       (first, second) -> Long.compare(first.getTimeStamp(), second.getTimeStamp());
 
   private static final String TAG = "label";
-  private GoosciLabel.Label label;
+
+  private GoosciLabel.Label.Builder labelBuilder = GoosciLabel.Label.newBuilder();
 
   /** Loads an existing label from a proto. */
   public static Label fromLabel(GoosciLabel.Label goosciLabel) {
@@ -102,30 +101,27 @@ public class Label implements Parcelable {
     label.writeToParcel(parcel, 0);
     parcel.setDataPosition(0);
     Label result = Label.CREATOR.createFromParcel(parcel);
-    result.getLabelProto().creationTimeMs = System.currentTimeMillis();
-    result.getLabelProto().labelId = java.util.UUID.randomUUID().toString();
-    if (result.getLabelProto().caption != null) {
+    result.labelBuilder.setCreationTimeMs(System.currentTimeMillis());
+    result.labelBuilder.setLabelId(java.util.UUID.randomUUID().toString());
+    if (result.labelBuilder.hasCaption()) {
       Caption newCaption =
-          result.getLabelProto().caption.toBuilder()
+          result.labelBuilder.getCaption().toBuilder()
               .setLastEditedTimestamp(System.currentTimeMillis())
               .build();
-      result.getLabelProto().caption = newCaption;
+      result.labelBuilder.setCaption(newCaption);
     }
     return result;
   }
 
   private Label(GoosciLabel.Label goosciLabel) {
-    label = goosciLabel;
+    initializeFromProto(goosciLabel);
   }
 
   private Label(long creationTimeMs, String labelId, ValueType valueType) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabel.Label label1 = new GoosciLabel.Label();
-    label1.timestampMs = creationTimeMs;
-    label1.creationTimeMs = creationTimeMs;
-    label1.labelId = labelId;
-    label1.type = valueType;
-    label = label1;
+    labelBuilder.setLabelId(labelId);
+    labelBuilder.setTimestampMs(creationTimeMs);
+    labelBuilder.setCreationTimeMs(creationTimeMs);
+    labelBuilder.setType(valueType);
   }
 
   protected Label(Parcel in) {
@@ -136,12 +132,17 @@ public class Label implements Parcelable {
     // in.readByteArray(serialized);
     byte[] serialized = in.createByteArray();
     try {
-      label = GoosciLabel.Label.parseFrom(serialized);
-    } catch (InvalidProtocolBufferNanoException ex) {
+      initializeFromProto(
+          GoosciLabel.Label.parseFrom(serialized, ExtensionRegistryLite.getGeneratedRegistry()));
+    } catch (InvalidProtocolBufferException ex) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Couldn't parse label storage");
       }
     }
+  }
+
+  private void initializeFromProto(GoosciLabel.Label goosciLabel) {
+    labelBuilder = goosciLabel.toBuilder();
   }
 
   @Override
@@ -151,8 +152,9 @@ public class Label implements Parcelable {
 
   @Override
   public void writeToParcel(Parcel parcel, int i) {
-    parcel.writeInt(label.getSerializedSize());
-    parcel.writeByteArray(MessageNano.toByteArray(label));
+    GoosciLabel.Label goosciLabel = getLabelProto();
+    parcel.writeInt(goosciLabel.getSerializedSize());
+    parcel.writeByteArray(goosciLabel.toByteArray());
   }
 
   public static final Parcelable.Creator<Label> CREATOR =
@@ -167,44 +169,52 @@ public class Label implements Parcelable {
         }
       };
 
+  /**
+   * Gets the proto underlying this Label. The resulting proto should *not* be modified outside of
+   * this class because changes to it will not be saved.
+   *
+   * @return The label's underlying protocolbuffer.
+   */
   public GoosciLabel.Label getLabelProto() {
-    return label;
+    return labelBuilder.build();
   }
 
   public String getLabelId() {
-    return label.labelId;
+    return labelBuilder.getLabelId();
   }
 
   public long getTimeStamp() {
-    return label.timestampMs;
+    return labelBuilder.getTimestampMs();
   }
 
   public void setTimestamp(long timestampMs) {
-    label.timestampMs = timestampMs;
+    labelBuilder.setTimestampMs(timestampMs);
   }
 
   public long getCreationTimeMs() {
-    return label.creationTimeMs;
+    return labelBuilder.getCreationTimeMs();
   }
 
   // You cannot edit the timestamp of some labels, like Snapshot and Trigger labels.
   public boolean canEditTimestamp() {
-    return (label.type != ValueType.SNAPSHOT && label.type != ValueType.SENSOR_TRIGGER);
+    return (labelBuilder.getType() != ValueType.SNAPSHOT
+        && labelBuilder.getType() != ValueType.SENSOR_TRIGGER);
   }
 
   public String getCaptionText() {
-    if (label.caption == null) {
-      return "";
-    }
-    return label.caption.getText();
+    return labelBuilder.getCaption().getText();
   }
 
   public void setCaption(GoosciCaption.Caption caption) {
-    label.caption = caption;
+    if (caption == null) {
+      labelBuilder.clearCaption();
+    } else {
+      labelBuilder.setCaption(caption);
+    }
   }
 
   public ValueType getType() {
-    return label.type;
+    return labelBuilder.getType();
   }
 
   /**
@@ -212,17 +222,17 @@ public class Label implements Parcelable {
    * be re-set on the Label for them to be saved.
    */
   public GoosciTextLabelValue.TextLabelValue getTextLabelValue() {
-    if (label.type == ValueType.TEXT) {
+    if (labelBuilder.getType() == ValueType.TEXT) {
       try {
         return GoosciTextLabelValue.TextLabelValue.parseFrom(
-            label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+            labelBuilder.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
       } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
         }
       }
     } else {
-      throwLabelValueException("TextLabelValue", label.type);
+      throwLabelValueException("TextLabelValue", labelBuilder.getType());
     }
     return null;
   }
@@ -232,17 +242,17 @@ public class Label implements Parcelable {
    * Label for them to be saved.
    */
   public GoosciPictureLabelValue.PictureLabelValue getPictureLabelValue() {
-    if (label.type == ValueType.PICTURE) {
+    if (labelBuilder.getType() == ValueType.PICTURE) {
       try {
         return GoosciPictureLabelValue.PictureLabelValue.parseFrom(
-            label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+            labelBuilder.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
       } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
         }
       }
     } else {
-      throwLabelValueException("PictureLabelValue", label.type);
+      throwLabelValueException("PictureLabelValue", labelBuilder.getType());
     }
     return null;
   }
@@ -252,17 +262,17 @@ public class Label implements Parcelable {
    * on the Label for them to be saved.
    */
   public GoosciSensorTriggerLabelValue.SensorTriggerLabelValue getSensorTriggerLabelValue() {
-    if (label.type == ValueType.SENSOR_TRIGGER) {
+    if (labelBuilder.getType() == ValueType.SENSOR_TRIGGER) {
       try {
         return GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.parseFrom(
-            label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+            labelBuilder.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
       } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
         }
       }
     } else {
-      throwLabelValueException("SensorTriggerLabelValue", label.type);
+      throwLabelValueException("SensorTriggerLabelValue", labelBuilder.getType());
     }
     return null;
   }
@@ -272,17 +282,17 @@ public class Label implements Parcelable {
    * Label for them to be saved.
    */
   public GoosciSnapshotValue.SnapshotLabelValue getSnapshotLabelValue() {
-    if (label.type == ValueType.SNAPSHOT) {
+    if (labelBuilder.getType() == ValueType.SNAPSHOT) {
       try {
         return GoosciSnapshotValue.SnapshotLabelValue.parseFrom(
-            label.protoData, ExtensionRegistryLite.getGeneratedRegistry());
+            labelBuilder.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
       } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
         }
       }
     } else {
-      throwLabelValueException("SnapshotLabelValue", label.type);
+      throwLabelValueException("SnapshotLabelValue", labelBuilder.getType());
     }
     return null;
   }
@@ -293,7 +303,7 @@ public class Label implements Parcelable {
    * the label that occur on the protoData field.
    */
   public void setLabelProtoData(MessageNano data) {
-    label.protoData = MessageNano.toByteArray(data);
+    labelBuilder.setProtoData(ByteString.copyFrom(MessageNano.toByteArray(data)));
   }
 
   /**
@@ -301,12 +311,12 @@ public class Label implements Parcelable {
    * the label that occur on the protoData field.
    */
   public void setLabelProtoData(MessageLite data) {
-    label.protoData = data.toByteArray();
+    labelBuilder.setProtoData(ByteString.copyFrom(data.toByteArray()));
   }
 
   /** Deletes any assets associated with this label */
   public void deleteAssets(Context context, AppAccount appAccount, String experimentId) {
-    if (label.type == ValueType.PICTURE) {
+    if (labelBuilder.getType() == ValueType.PICTURE) {
       File file =
           new File(
               PictureUtils.getExperimentImagePath(
@@ -320,9 +330,9 @@ public class Label implements Parcelable {
 
   @Override
   public String toString() {
-    return label.labelId
+    return labelBuilder.getLabelId()
         + ": time: "
-        + label.timestampMs
+        + labelBuilder.getTimestampMs()
         + ", type:"
         + getDebugTypeString()
         + ", data: "
@@ -330,7 +340,7 @@ public class Label implements Parcelable {
   }
 
   private String getDebugTypeString() {
-    switch (label.type) {
+    switch (labelBuilder.getType()) {
       case TEXT:
         return "TEXT";
       case PICTURE:
@@ -345,7 +355,7 @@ public class Label implements Parcelable {
   }
 
   private Object getDebugLabelValue() {
-    switch (label.type) {
+    switch (labelBuilder.getType()) {
       case TEXT:
         return getTextLabelValue();
       case PICTURE:

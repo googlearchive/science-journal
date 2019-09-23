@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotEquals;
 import android.os.Parcel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
@@ -29,9 +30,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -39,15 +37,13 @@ import org.robolectric.RobolectricTestRunner;
 /** Tests for labels. Labels implement Parcelable so they need to be tested in AndroidTest. */
 @RunWith(RobolectricTestRunner.class)
 public class LabelTest {
-  @MigrateAs(Destination.EITHER)
   private GoosciLabel.Label makeGoosciLabel(ValueType type, long timestamp) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
-    goosciLabel.timestampMs = timestamp;
-    goosciLabel.creationTimeMs = timestamp;
-    goosciLabel.type = type;
-    goosciLabel.labelId = "labelId";
-    return goosciLabel;
+    return GoosciLabel.Label.newBuilder()
+        .setTimestampMs(timestamp)
+        .setCreationTimeMs(timestamp)
+        .setType(type)
+        .setLabelId("labelId")
+        .build();
   }
 
   @Test
@@ -116,10 +112,8 @@ public class LabelTest {
 
   @Test
   public void testParcelableBehavior() {
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
-    goosciLabel.timestampMs = 10;
-    goosciLabel.type = ValueType.SENSOR_TRIGGER;
+    GoosciLabel.Label.Builder goosciLabel =
+        GoosciLabel.Label.newBuilder().setTimestampMs(10).setType(ValueType.SENSOR_TRIGGER);
     SensorTrigger trigger =
         SensorTrigger.newNoteTypeTrigger(
             "sensorId",
@@ -130,8 +124,8 @@ public class LabelTest {
         GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.newBuilder()
             .setTriggerInformation(trigger.getTriggerProto().getTriggerInformation())
             .build();
-    goosciLabel.protoData = labelValue.toByteArray();
-    Label label = Label.fromLabel(goosciLabel);
+    goosciLabel.setProtoData(labelValue.toByteString());
+    Label label = Label.fromLabel(goosciLabel.build());
 
     label.setTimestamp(20);
 

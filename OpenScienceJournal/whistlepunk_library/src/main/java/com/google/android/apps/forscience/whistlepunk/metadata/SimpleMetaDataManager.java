@@ -65,7 +65,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Cap
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -1389,11 +1388,11 @@ public class SimpleMetaDataManager implements MetaDataManager {
         } catch (InvalidProtocolBufferException ex) {
           Log.d(TAG, "Unable to parse label value");
         }
-        @MigrateAs(Destination.BUILDER)
-        GoosciLabel.Label goosciLabel = new GoosciLabel.Label();
-        goosciLabel.labelId = labelId;
-        goosciLabel.timestampMs = timestamp;
-        goosciLabel.creationTimeMs = timestamp;
+        GoosciLabel.Label.Builder goosciLabel =
+            GoosciLabel.Label.newBuilder()
+                .setLabelId(labelId)
+                .setTimestampMs(timestamp)
+                .setCreationTimeMs(timestamp);
         if (value != null) {
           // Add new types of labels to this list, upgrading to Captions where appropriate
           if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
@@ -1407,16 +1406,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
                     .setLastEditedTimestamp(timestamp)
                     .setText(PictureLabelValue.getCaption(value))
                     .build();
-            goosciLabel.type = ValueType.PICTURE;
-            goosciLabel.protoData = labelValue.toByteArray();
-            goosciLabel.caption = caption;
+            goosciLabel
+                .setType(ValueType.PICTURE)
+                .setProtoData(labelValue.toByteString())
+                .setCaption(caption);
           } else if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
             GoosciTextLabelValue.TextLabelValue labelValue =
                 GoosciTextLabelValue.TextLabelValue.newBuilder()
                     .setText(TextLabelValue.getText(value))
                     .build();
-            goosciLabel.type = ValueType.TEXT;
-            goosciLabel.protoData = labelValue.toByteArray();
+            goosciLabel.setType(ValueType.TEXT).setProtoData(labelValue.toByteString());
           } else if (TextUtils.equals(type, SENSOR_TRIGGER_LABEL_TAG)) {
             // Convert old sensor triggers into text notes because we don't have enough
             // info to keep them as triggers.
@@ -1436,8 +1435,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                       customText,
                       autoText));
             }
-            goosciLabel.type = ValueType.TEXT;
-            goosciLabel.protoData = labelValue.build().toByteArray();
+            goosciLabel.setType(ValueType.TEXT).setProtoData(labelValue.build().toByteString());
           }
         } else {
           // Old text, picture and application labels were added when label data
@@ -1447,19 +1445,17 @@ public class SimpleMetaDataManager implements MetaDataManager {
           if (TextUtils.equals(type, TEXT_LABEL_TAG)) {
             GoosciTextLabelValue.TextLabelValue labelValue =
                 GoosciTextLabelValue.TextLabelValue.newBuilder().setText(data).build();
-            goosciLabel.type = ValueType.TEXT;
-            goosciLabel.protoData = labelValue.toByteArray();
+            goosciLabel.setType(ValueType.TEXT).setProtoData(labelValue.toByteString());
           } else if (TextUtils.equals(type, PICTURE_LABEL_TAG)) {
             // Early picture labels had no captions.
             GoosciPictureLabelValue.PictureLabelValue labelValue =
                 GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath(data).build();
-            goosciLabel.type = ValueType.PICTURE;
-            goosciLabel.protoData = labelValue.toByteArray();
+            goosciLabel.setType(ValueType.PICTURE).setProtoData(labelValue.toByteString());
           } else {
             throw new IllegalStateException("Unknown label type: " + type);
           }
         }
-        labels.add(Label.fromLabel(goosciLabel));
+        labels.add(Label.fromLabel(goosciLabel.build()));
       }
     } finally {
       if (cursor != null) {

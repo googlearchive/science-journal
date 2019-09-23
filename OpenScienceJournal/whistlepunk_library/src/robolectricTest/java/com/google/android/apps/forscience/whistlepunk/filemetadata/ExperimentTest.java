@@ -27,6 +27,7 @@ import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayo
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
@@ -34,10 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.google.protobuf.nano.MessageNano;
 import java.util.List;
 import org.junit.Test;
@@ -82,16 +80,16 @@ public class ExperimentTest {
     // Add a label manually, outside of the proto
     GoosciPictureLabelValue.PictureLabelValue labelValueProto =
         GoosciPictureLabelValue.PictureLabelValue.getDefaultInstance();
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabel.Label labelProto = new GoosciLabel.Label();
-    labelProto.protoData = labelValueProto.toByteArray();
-    labelProto.type = ValueType.PICTURE;
-    experiment.getLabels().add(Label.fromLabel(labelProto));
+    GoosciLabel.Label.Builder labelProto =
+        GoosciLabel.Label.newBuilder()
+            .setProtoData(labelValueProto.toByteString())
+            .setType(ValueType.PICTURE);
+    experiment.getLabels().add(Label.fromLabel(labelProto.build()));
     assertThat(experiment.getLabelCount()).isEqualTo(1);
 
     // Make sure the proto gets updated properly
     proto.labels = new GoosciLabel.Label[1];
-    proto.labels[0] = labelProto;
+    proto.labels[0] = labelProto.build();
     assertThat(MessageNano.messageNanoEquals(experiment.getExperimentProto(), proto)).isTrue();
 
     // Try constructing an experiment from a proto that already has these fields.
@@ -369,11 +367,9 @@ public class ExperimentTest {
 
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.labels = new GoosciLabel.Label[1];
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabel.Label labelProto = new GoosciLabel.Label();
-    labelProto.labelId = "labelId";
-    labelProto.timestampMs = 1;
-    trialProto.labels[0] = labelProto;
+    GoosciLabel.Label.Builder labelProto =
+        GoosciLabel.Label.newBuilder().setLabelId("labelId").setTimestampMs(1);
+    trialProto.labels[0] = labelProto.build();
     Trial trial = Trial.fromTrial(trialProto);
 
     experiment.addTrial(trial);

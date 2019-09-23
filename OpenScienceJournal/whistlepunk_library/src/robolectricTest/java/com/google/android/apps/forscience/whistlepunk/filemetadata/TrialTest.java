@@ -24,11 +24,9 @@ import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -41,11 +39,9 @@ public class TrialTest {
   public void testTrialWithLabels() throws Exception {
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.labels = new GoosciLabel.Label[1];
-    @MigrateAs(Destination.BUILDER)
-    GoosciLabel.Label labelProto = new GoosciLabel.Label();
-    labelProto.labelId = "labelId";
-    labelProto.timestampMs = 1;
-    trialProto.labels[0] = labelProto;
+    GoosciLabel.Label.Builder labelProto =
+        GoosciLabel.Label.newBuilder().setLabelId("labelId").setTimestampMs(1);
+    trialProto.labels[0] = labelProto.build();
     Experiment experiment = ExperimentCreator.newExperimentForTesting(1, "id", 1);
     Trial trial = Trial.fromTrial(trialProto);
     experiment.addTrial(trial);
