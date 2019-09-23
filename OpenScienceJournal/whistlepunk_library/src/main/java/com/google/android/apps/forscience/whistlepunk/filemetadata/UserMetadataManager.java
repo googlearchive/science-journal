@@ -213,11 +213,11 @@ public class UserMetadataManager {
       GoosciUserMetadata.UserMetadata userMetadataProto =
           overviewProtoFileHelper.readFromFile(
               userMetadataFile, GoosciUserMetadata.UserMetadata::parseFrom, usageTracker);
-      if (userMetadata == null) {
+      if (userMetadataProto == null) {
         failureListener.onReadFailed();
         return null;
       }
-      UserMetadataPojo userMetadata = UserMetadataPojo.fromProto(userMetadataProto);
+      userMetadata = UserMetadataPojo.fromProto(userMetadataProto);
       upgradeUserMetadataVersionIfNeeded(userMetadata);
     }
     return userMetadata;
