@@ -104,7 +104,14 @@ public class ExperimentCacheTest {
     lsm =
         new LocalSyncManager(
             GoosciLocalSyncStatus.LocalSyncStatus.getDefaultInstance(), appAccount);
-    cache = new ExperimentCache(getContext(), appAccount, getFailureFailsListener(), 0, elm, lsm);
+    cache =
+        new ExperimentCache(
+            getContext(),
+            appAccount,
+            getFailureFailsListener(),
+            false /* enableAutoWrite */,
+            elm,
+            lsm);
   }
 
   @After
@@ -244,7 +251,13 @@ public class ExperimentCacheTest {
   @Test
   public void testVersionTooNewThrowsError() {
     cache =
-        new ExperimentCache(getContext(), appAccount, getFailureExpectedListener(), 0, elm, lsm);
+        new ExperimentCache(
+            getContext(),
+            appAccount,
+            getFailureExpectedListener(),
+            false /* enableAutoWrite */,
+            elm,
+            lsm);
     GoosciExperiment.Experiment proto = createExperimentProto();
     proto.fileVersion =
         proto.fileVersion.toBuilder()
@@ -338,7 +351,13 @@ public class ExperimentCacheTest {
   @Test
   public void testCantWriteNewerVersion() {
     cache =
-        new ExperimentCache(getContext(), appAccount, getFailureExpectedListener(), 0, elm, lsm);
+        new ExperimentCache(
+            getContext(),
+            appAccount,
+            getFailureExpectedListener(),
+            false /* enableAutoWrite */,
+            elm,
+            lsm);
     GoosciExperiment.Experiment proto = createExperimentProto();
     proto.fileVersion =
         proto.fileVersion.toBuilder()

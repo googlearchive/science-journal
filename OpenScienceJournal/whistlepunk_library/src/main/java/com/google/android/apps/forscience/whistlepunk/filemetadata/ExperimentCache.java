@@ -79,7 +79,7 @@ class ExperimentCache {
   private final ProtoFileHelper<GoosciExperiment.Experiment> experimentProtoFileHelper;
   private final LocalSyncManager localSyncManager;
   private final ExperimentLibraryManager experimentLibraryManager;
-  private final long writeDelayMs;
+  private final boolean enableAutoWrite;
 
   private final Handler handler;
   private final ExecutorService backgroundWriteThread;
@@ -90,17 +90,20 @@ class ExperimentCache {
   private boolean activeExperimentNeedsWrite;
 
   public ExperimentCache(Context context, AppAccount appAccount, FailureListener failureListener) {
-    this(context, appAccount, failureListener, WRITE_DELAY_MS);
+    this(context, appAccount, failureListener, true);
   }
 
   @VisibleForTesting
   ExperimentCache(
-      Context context, AppAccount appAccount, FailureListener failureListener, long writeDelayMs) {
+      Context context,
+      AppAccount appAccount,
+      FailureListener failureListener,
+      boolean enableAutoWrite) {
     this(
         context,
         appAccount,
         failureListener,
-        writeDelayMs,
+        enableAutoWrite,
         AppSingleton.getInstance(context).getExperimentLibraryManager(appAccount),
         AppSingleton.getInstance(context).getLocalSyncManager(appAccount));
   }
@@ -110,7 +113,7 @@ class ExperimentCache {
       Context context,
       AppAccount appAccount,
       FailureListener failureListener,
-      long writeDelayMs,
+      boolean enableAutoWrite,
       ExperimentLibraryManager elm,
       LocalSyncManager lsm) {
     this.context = context;
@@ -136,7 +139,7 @@ class ExperimentCache {
             }
           }
         };
-    this.writeDelayMs = writeDelayMs;
+    this.enableAutoWrite = enableAutoWrite;
 
     localSyncManager = lsm;
     experimentLibraryManager = elm;
@@ -354,7 +357,10 @@ class ExperimentCache {
       }
 
       activeExperimentNeedsWrite = true;
-      handler.postDelayed(writeRunnable, writeDelayMs);
+
+      if (enableAutoWrite) {
+        handler.postDelayed(writeRunnable, WRITE_DELAY_MS);
+      }
     }
   }
 
@@ -384,30 +390,36 @@ class ExperimentCache {
   /** Writes the given experiment to a file. */
   @VisibleForTesting
   void writeExperimentFile(Experiment experimentToWrite) {
-    GoosciExperiment.Experiment proto = experimentToWrite.getExperimentProto();
-    if ((proto.version > VERSION)
-        || (proto.version == VERSION && proto.minorVersion > MINOR_VERSION)) {
-      // If the major version is too new, or the minor version is too new, we can't save this.
-      // TODO: Or should this throw onWriteFailed?
-      failureListener.onNewerVersionDetected(experimentToWrite.getExperimentOverview());
-      return;
-    }
+    boolean writingActiveExperiment = (activeExperiment == experimentToWrite);
+    // If we are writing the active experiment, hold the activeExperimentLock until after we've set
+    // activeExperimentNeedsWrite to false. Otherwise, if startWriteTimer is called on another
+    // thread after we've got the proto from the experimentToWrite and before we set
+    // activeExperimentNeedsWrite to false, it will see that activeExperimentNeedsWrite is true and
+    // incorrectly decide that it doesn't need to start the timer.
+    synchronized (writingActiveExperiment ? activeExperimentLock : new Object()) {
+      GoosciExperiment.Experiment proto = experimentToWrite.getExperimentProto();
+      if ((proto.version > VERSION)
+          || (proto.version == VERSION && proto.minorVersion > MINOR_VERSION)) {
+        // If the major version is too new, or the minor version is too new, we can't save this.
+        // TODO: Or should this throw onWriteFailed?
+        failureListener.onNewerVersionDetected(experimentToWrite.getExperimentOverview());
+        return;
+      }
 
-    File experimentFile = getExperimentFile(experimentToWrite.getExperimentOverview());
-    boolean success;
-    synchronized (appAccount.getLockForExperimentProtoFile()) {
-      success =
-          experimentProtoFileHelper.writeToFile(
-              experimentFile, experimentToWrite.getExperimentProto(), getUsageTracker());
-    }
-    if (success) {
-      synchronized (activeExperimentLock) {
-        if (activeExperiment == experimentToWrite) {
+      File experimentFile = getExperimentFile(experimentToWrite.getExperimentOverview());
+      boolean success;
+      synchronized (appAccount.getLockForExperimentProtoFile()) {
+        success =
+            experimentProtoFileHelper.writeToFile(
+                experimentFile, experimentToWrite.getExperimentProto(), getUsageTracker());
+      }
+      if (success) {
+        if (writingActiveExperiment) {
           activeExperimentNeedsWrite = false;
         }
+      } else {
+        failureListener.onWriteFailed(experimentToWrite);
       }
-    } else {
-      failureListener.onWriteFailed(experimentToWrite);
     }
   }
 
