@@ -92,4 +92,7 @@
     <color name="status_bar_red">#AA0008</color>
     <color name="action_fragment_background">#FFFFFF</color>
     <color name="action_fragment_title_font_color">#202124</color>
+
+    <color name="google_grey_100">#F1F3F4</color>
+    <color name="google_grey_600">#80868B</color>
 </resources>

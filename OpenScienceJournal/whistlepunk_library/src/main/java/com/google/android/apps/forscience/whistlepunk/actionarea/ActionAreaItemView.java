@@ -74,4 +74,8 @@ public class ActionAreaItemView extends LinearLayout {
           getResources(), R.drawable.action_area_ripple, wrapper.getTheme()));
     }
   }
+
+  protected ActionAreaItem getItem() {
+    return actionAreaItem;
+  }
 }

@@ -86,6 +86,36 @@ public class ActionAreaView extends CardView {
   }
 
   /**
+   * Returns the item view for the passed in item or null if the item isn't in the Action Area
+   *
+   * @param item The item to look for
+   * @return The ActionAreaItemView for that item
+   */
+  private ActionAreaItemView getItemView(ActionAreaItem item) {
+    for (ActionAreaItemView view : actionAreaItemViews) {
+      if (view.getItem().equals(item)) {
+        return view;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Disables or re-enables the Add Sensor ActionAreaItem
+   *
+   * @param context The current context
+   * @param disabled If the button should be disabled
+   */
+  public void disableAddSensorItem(Context context, boolean disabled) {
+    ActionAreaItemView itemView = getItemView(ActionAreaItem.ADD_SENSOR);
+    if (itemView != null && context != null) {
+      int style = disabled ? R.style.DisabledActionAreaIcon : R.style.DefaultActionAreaIcon;
+      itemView.updateView(context, style);
+      itemView.setClickable(!disabled);
+    }
+  }
+
+  /**
    * Changes the color of all the items in the action area.
    *
    * @param context The current context

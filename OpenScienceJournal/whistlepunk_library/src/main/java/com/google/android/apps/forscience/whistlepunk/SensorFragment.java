@@ -796,8 +796,6 @@ public class SensorFragment extends Fragment
   public void addNewSensor() {
     int numAvailableSources = getAvailableSources().size();
     if (numAvailableSources != 0) {
-      // TODO(b/134092906): Disable add sensor button when no more sensors are available, then
-      //  remove the check for numAvailableSources != 0
       RecorderController rc = getRecorderController();
       SensorCardPresenter sensorCardPresenter =
           createSensorCardPresenter(
@@ -990,6 +988,7 @@ public class SensorFragment extends Fragment
       presenter.updateAvailableSensors(availableSensors, allSensors);
     }
 
+    actionAreaView.disableAddSensorItem(getContext(), getAvailableSources().isEmpty());
     updateSensorCount();
   }
 
@@ -1299,8 +1298,6 @@ public class SensorFragment extends Fragment
 
   private void updateSensorCount() {
     sensorCardAdapter.setAvailableSensorCount(getAllIncludedSources().size());
-    // TODO(b/134092906): Disable add sensor button when no more sensors are available, then
-    //  remove the check for numAvailableSources != 0
   }
 
   private void scheduleFeatureDiscovery(String sensorId) {
