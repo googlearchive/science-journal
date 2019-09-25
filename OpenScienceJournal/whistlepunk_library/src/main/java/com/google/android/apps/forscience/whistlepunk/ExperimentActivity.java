@@ -29,6 +29,7 @@ import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.view.Window;
 import com.google.android.apps.forscience.whistlepunk.MoreObservationsFragment.ObservationOption;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
@@ -115,14 +116,17 @@ public class ExperimentActivity extends NoteTakingActivity
     recordingStatus.subscribe(
         status -> {
           ActionBar bar = getSupportActionBar();
+          Window window = getWindow();
           if (status.state.shouldShowStopButton()) {
             isRecording = true;
             bar.setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.app_bar_red)));
+            window.setStatusBarColor(getResources().getColor(R.color.status_bar_red));
           } else {
             isRecording = false;
             bar.setBackgroundDrawable(
                 new ColorDrawable(getResources().getColor(R.color.app_bar_purple)));
+            window.setStatusBarColor(getResources().getColor(R.color.color_primary_dark));
           }
         });
   }

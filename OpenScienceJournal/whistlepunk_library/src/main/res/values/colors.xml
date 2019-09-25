@@ -89,6 +89,7 @@
 
     <color name="app_bar_purple">#6F2EBE</color>
     <color name="app_bar_red">#D5000A</color>
+    <color name="status_bar_red">#AA0008</color>
     <color name="action_fragment_background">#FFFFFF</color>
     <color name="action_fragment_title_font_color">#202124</color>
 </resources>
