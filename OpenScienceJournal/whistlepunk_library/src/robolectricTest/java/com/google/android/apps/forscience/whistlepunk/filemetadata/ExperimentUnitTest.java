@@ -63,10 +63,8 @@ public class ExperimentUnitTest {
     // No layouts on creation
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
     assertThat(experiment.getSensorLayouts()).isEmpty();
-
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
-    sensorLayout.sensorId = "sensorId";
+    SensorLayoutPojo sensorLayout = new SensorLayoutPojo();
+    sensorLayout.setSensorId("sensorId");
     experiment.setSensorLayouts(Arrays.asList(sensorLayout));
 
     assertThat(experiment.getSensorLayouts()).hasSize(1);
@@ -79,9 +77,8 @@ public class ExperimentUnitTest {
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
     assertThat(experiment.getSensorLayouts()).isEmpty();
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
-    sensorLayout.sensorId = "sensorId";
+    SensorLayoutPojo sensorLayout = new SensorLayoutPojo();
+    sensorLayout.setSensorId("sensorId");
     experiment.updateSensorLayout(0, sensorLayout);
 
     assertThat(experiment.getSensorLayouts()).hasSize(1);
@@ -129,10 +126,9 @@ public class ExperimentUnitTest {
     assertThat(result.sensorTriggers).hasLength(1);
     assertThat(result.experimentSensors).hasLength(1);
 
-    List<GoosciSensorLayout.SensorLayout> layouts = experiment.getSensorLayouts();
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout sensorLayout = new GoosciSensorLayout.SensorLayout();
-    sensorLayout.sensorId = "secondSensorId";
+    List<SensorLayoutPojo> layouts = experiment.getSensorLayouts();
+    SensorLayoutPojo sensorLayout = new SensorLayoutPojo();
+    sensorLayout.setSensorId("secondSensorId");
     layouts.add(sensorLayout);
 
     // Now update the layouts and make sure it still works as expected.

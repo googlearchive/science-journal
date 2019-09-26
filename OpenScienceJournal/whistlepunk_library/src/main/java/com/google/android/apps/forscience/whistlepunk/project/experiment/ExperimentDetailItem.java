@@ -16,8 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.project.experiment;
 
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
@@ -92,7 +92,7 @@ public class ExperimentDetailItem {
     return sensorTagIndex;
   }
 
-  GoosciSensorLayout.SensorLayout getSelectedSensorLayout() {
+  SensorLayoutPojo getSelectedSensorLayout() {
     return trial.getSensorLayouts().get(sensorTagIndex);
   }
 

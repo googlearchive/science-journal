@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
@@ -39,8 +40,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +61,7 @@ public class Experiment extends LabelListHolder {
   public static final String EXPERIMENTS = "experiments/";
 
   private ExperimentOverviewPojo experimentOverview;
-  private List<GoosciSensorLayout.SensorLayout> sensorLayouts;
+  private List<SensorLayoutPojo> sensorLayouts;
   private List<ExperimentSensor> experimentSensors;
   private List<SensorTrigger> sensorTriggers;
   private List<Trial> trials;
@@ -145,7 +144,9 @@ public class Experiment extends LabelListHolder {
     }
 
     sensorLayouts = new ArrayList<>();
-    Collections.addAll(sensorLayouts, experimentProto.sensorLayouts);
+    for (SensorLayout layout : experimentProto.sensorLayouts) {
+      sensorLayouts.add(SensorLayoutPojo.fromProto(layout));
+    }
 
     experimentSensors = new ArrayList<>();
     Collections.addAll(experimentSensors, experimentProto.experimentSensors);
@@ -178,8 +179,13 @@ public class Experiment extends LabelListHolder {
     // All local fields that represent experiment state must be merged back into the proto here.
     GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
     if (sensorLayouts != null) {
-      proto.sensorLayouts =
-          sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
+      GoosciSensorLayout.SensorLayout[] protos =
+          new GoosciSensorLayout.SensorLayout[sensorLayouts.size()];
+      int i = 0;
+      for (SensorLayoutPojo pojo : sensorLayouts) {
+        protos[i++] = pojo.toProto();
+      }
+      proto.sensorLayouts = protos;
     }
 
     if (experimentSensors != null) {
@@ -557,15 +563,15 @@ public class Experiment extends LabelListHolder {
     Collections.sort(trials, Trial.COMPARATOR_BY_TIMESTAMP);
   }
 
-  public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
+  public List<SensorLayoutPojo> getSensorLayouts() {
     return sensorLayouts;
   }
 
-  public void setSensorLayouts(List<GoosciSensorLayout.SensorLayout> layouts) {
+  public void setSensorLayouts(List<SensorLayoutPojo> layouts) {
     sensorLayouts = Preconditions.checkNotNull(layouts);
   }
 
-  public void updateSensorLayout(int layoutPosition, GoosciSensorLayout.SensorLayout layout) {
+  public void updateSensorLayout(int layoutPosition, SensorLayoutPojo layout) {
     if (layoutPosition == 0 && sensorLayouts.size() == 0) {
       // First one! RecordFragment calls this function when first observing;
       // make sure to handle the empty state correctly by doing this.
@@ -593,10 +599,9 @@ public class Experiment extends LabelListHolder {
     return sensorTriggers;
   }
 
-  public List<SensorTrigger> getActiveSensorTriggers(
-      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
-    List<SensorTrigger> result = new ArrayList<>(layout.activeSensorTriggerIds.length);
-    for (String triggerId : layout.activeSensorTriggerIds) {
+  public List<SensorTrigger> getActiveSensorTriggers(SensorLayoutPojo layout) {
+    List<SensorTrigger> result = new ArrayList<>(layout.getActiveSensorTriggerIds().size());
+    for (String triggerId : layout.getActiveSensorTriggerIds()) {
       SensorTrigger trigger = getSensorTrigger(triggerId);
       if (trigger != null) {
         result.add(trigger);
@@ -670,10 +675,10 @@ public class Experiment extends LabelListHolder {
   }
 
   public List<String> getSensorIds() {
-    List<GoosciSensorLayout.SensorLayout> sensorLayoutList = getSensorLayouts();
+    List<SensorLayoutPojo> sensorLayoutList = getSensorLayouts();
     List<String> sensorIds = new ArrayList<>();
-    for (GoosciSensorLayout.SensorLayout layout : sensorLayoutList) {
-      sensorIds.add(layout.sensorId);
+    for (SensorLayoutPojo layout : sensorLayoutList) {
+      sensorIds.add(layout.getSensorId());
     }
     return sensorIds;
   }

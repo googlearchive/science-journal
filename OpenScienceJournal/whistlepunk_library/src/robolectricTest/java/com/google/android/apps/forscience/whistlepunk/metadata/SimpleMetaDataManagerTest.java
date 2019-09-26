@@ -53,6 +53,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
@@ -436,8 +437,8 @@ public class SimpleMetaDataManagerTest {
     assertEquals(startLabel.getLabelId(), loaded.getTrialId());
     assertEquals(sensorIds, saved.getSensorIds());
     assertEquals(sensorIds, loaded.getSensorIds());
-    assertEquals(5, saved.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
-    assertEquals(5, loaded.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
+    assertEquals(5, saved.getSensorLayouts().get(0).getMaximumYAxisValue(), 0.1);
+    assertEquals(5, loaded.getSensorLayouts().get(0).getMaximumYAxisValue(), 0.1);
 
     // Test that runs are deleted.
     metaDataManager.deleteDatabaseTrial(startLabel.getLabelId());
@@ -676,10 +677,10 @@ public class SimpleMetaDataManagerTest {
         50, metaDataManager.getExperimentById(experiment.getExperimentId()).getLabelCount());
   }
 
-  private List<String> getIds(List<GoosciSensorLayout.SensorLayout> layouts) {
+  private static List<String> getIds(List<SensorLayoutPojo> layouts) {
     List<String> ids = new ArrayList<>();
-    for (GoosciSensorLayout.SensorLayout layout : layouts) {
-      ids.add(layout.sensorId);
+    for (SensorLayoutPojo layout : layouts) {
+      ids.add(layout.getSensorId());
     }
     return ids;
   }

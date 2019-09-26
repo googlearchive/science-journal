@@ -23,10 +23,10 @@ import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.MetaDataManager;
@@ -35,8 +35,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-import com.google.protobuf.nano.MessageNano;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +45,7 @@ public class MemoryMetadataManager implements MetaDataManager {
   private List<Experiment> experiments = new ArrayList<>();
   private Multimap<String, String> experimentIncluded = HashMultimap.create();
   private Multimap<String, String> experimentExcluded = HashMultimap.create();
-  private Map<String, List<GoosciSensorLayout.SensorLayout>> layouts = new HashMap<>();
+  private final Map<String, List<SensorLayoutPojo>> layouts = new HashMap<>();
   private Map<String, ExternalSensorSpec> externalSensors = new HashMap<>();
 
   @Override
@@ -221,21 +219,6 @@ public class MemoryMetadataManager implements MetaDataManager {
   public void setLastUsedExperiment(Experiment experiment) {
     experiments.remove(experiment);
     experiments.add(0, experiment);
-  }
-
-  private GoosciSensorLayout.SensorLayout[] deepCopy(
-      List<GoosciSensorLayout.SensorLayout> original) {
-    GoosciSensorLayout.SensorLayout[] copy = new GoosciSensorLayout.SensorLayout[original.size()];
-    for (int i = 0; i < original.size(); i++) {
-      GoosciSensorLayout.SensorLayout layout = original.get(i);
-      try {
-        byte[] bytes = MessageNano.toByteArray(layout);
-        copy[i] = (GoosciSensorLayout.SensorLayout.parseFrom(bytes));
-      } catch (InvalidProtocolBufferNanoException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return copy;
   }
 
   @Override

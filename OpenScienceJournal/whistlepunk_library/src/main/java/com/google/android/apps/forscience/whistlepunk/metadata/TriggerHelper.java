@@ -21,20 +21,14 @@ import android.content.res.Resources;
 import android.media.SoundPool;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.text.TextUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /** Utils for triggers. */
 public class TriggerHelper {
@@ -99,32 +93,14 @@ public class TriggerHelper {
   }
 
   /** Adds the trigger ID to the layout's active triggers if it is not already in the list. */
-  public static void addTriggerToLayoutActiveTriggers(
-      @MigrateAs(Destination.BUILDER) GoosciSensorLayout.SensorLayout layout, String triggerId) {
-    int oldSize = layout.activeSensorTriggerIds.length;
-    for (int i = 0; i < oldSize; i++) {
-      if (TextUtils.equals(layout.activeSensorTriggerIds[i], triggerId)) {
-        // Then is it already in the list, no need to add it again.
-        return;
-      }
-    }
-    String[] newTriggerIds = new String[oldSize + 1];
-    System.arraycopy(
-        layout.activeSensorTriggerIds, 0, newTriggerIds, 0, layout.activeSensorTriggerIds.length);
-    newTriggerIds[oldSize] = triggerId;
-    layout.activeSensorTriggerIds = newTriggerIds;
+  public static void addTriggerToLayoutActiveTriggers(SensorLayoutPojo layout, String triggerId) {
+    layout.addActiveTriggerId(triggerId);
   }
 
   /** Removes the trigger ID from the layout's active triggers. */
   public static void removeTriggerFromLayoutActiveTriggers(
-      @MigrateAs(Destination.BUILDER) GoosciSensorLayout.SensorLayout layout, String triggerId) {
-    // Use an ArrayList intermediate for simplicity.
-    List<String> triggersList = new ArrayList<>();
-    triggersList.addAll(Arrays.asList(layout.activeSensorTriggerIds));
-    if (triggersList.contains(triggerId)) {
-      triggersList.remove(triggerId);
-      layout.activeSensorTriggerIds = triggersList.toArray(new String[triggersList.size()]);
-    }
+      SensorLayoutPojo layout, String triggerId) {
+    layout.removeTrigger(triggerId);
   }
 
   public static String buildDescription(

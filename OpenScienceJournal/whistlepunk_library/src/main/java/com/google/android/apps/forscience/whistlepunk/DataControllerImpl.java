@@ -27,12 +27,12 @@ import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentOverviewPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncCollection;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -131,9 +131,9 @@ public class DataControllerImpl implements DataController, RecordingDataControll
   }
 
   private void replaceIdInLayouts(Experiment experiment, String oldSensorId, String newSensorId) {
-    for (GoosciSensorLayout.SensorLayout layout : experiment.getSensorLayouts()) {
-      if (layout.sensorId.equals(oldSensorId)) {
-        layout.sensorId = newSensorId;
+    for (SensorLayoutPojo layout : experiment.getSensorLayouts()) {
+      if (layout.getSensorId().equals(oldSensorId)) {
+        layout.setSensorId(newSensorId);
       }
     }
   }

@@ -33,9 +33,10 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
@@ -60,8 +61,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
@@ -128,7 +127,7 @@ public class RecorderControllerImpl implements RecorderController {
   private BehaviorSubject<RecordingStatus> recordingStatus =
       BehaviorSubject.createDefault(RecordingStatus.INACTIVE);
 
-  private Supplier<List<GoosciSensorLayout.SensorLayout>> layoutSupplier;
+  private Supplier<List<SensorLayoutPojo>> layoutSupplier;
 
   /** The latest recorded value for each sensor */
   private Map<String, BehaviorSubject<ScalarReading>> latestValues = new HashMap<>();
@@ -275,9 +274,9 @@ public class RecorderControllerImpl implements RecorderController {
     }
   }
 
-  private List<GoosciSensorLayout.SensorLayout> buildSensorLayouts() {
+  private List<SensorLayoutPojo> buildSensorLayouts() {
     return layoutSupplier == null
-        ? Collections.<GoosciSensorLayout.SensorLayout>emptyList()
+        ? Collections.<SensorLayoutPojo>emptyList()
         : layoutSupplier.get();
   }
 
@@ -432,7 +431,7 @@ public class RecorderControllerImpl implements RecorderController {
   }
 
   @Override
-  public void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier) {
+  public void setLayoutSupplier(Supplier<List<SensorLayoutPojo>> supplier) {
     layoutSupplier = supplier;
   }
 
@@ -576,14 +575,15 @@ public class RecorderControllerImpl implements RecorderController {
                     final DataController dataController =
                         RecorderControllerImpl.this.dataController;
                     final long creationTimeMs = clock.getNow();
-                    List<GoosciSensorLayout.SensorLayout> layouts = buildSensorLayouts();
+                    List<SensorLayoutPojo> layouts = buildSensorLayouts();
+                    SensorLayout[] layoutProtos = new SensorLayout[layouts.size()];
+                    int i = 0;
+                    for (SensorLayoutPojo pojo : layouts) {
+                      layoutProtos[i] = pojo.toProto();
+                    }
 
                     Trial trial =
-                        Trial.newTrial(
-                            creationTimeMs,
-                            layouts.toArray(new GoosciSensorLayout.SensorLayout[layouts.size()]),
-                            appearanceProvider,
-                            context);
+                        Trial.newTrial(creationTimeMs, layoutProtos, appearanceProvider, context);
                     currentTrialId = trial.getTrialId();
                     getSelectedExperiment().addTrial(trial);
                     dataController.updateExperiment(
@@ -672,8 +672,7 @@ public class RecorderControllerImpl implements RecorderController {
                   @Override
                   public void take(final IRecorderService recorderService) throws RemoteException {
                     final Trial trial = getSelectedExperiment().getTrial(currentTrialId);
-                    final List<GoosciSensorLayout.SensorLayout> sensorLayoutsAtStop =
-                        buildSensorLayouts();
+                    final List<SensorLayoutPojo> sensorLayoutsAtStop = buildSensorLayouts();
                     if (sensorLayoutsAtStop.size() > 0) {
                       trial.setSensorLayouts(sensorLayoutsAtStop);
                     }
@@ -819,7 +818,7 @@ public class RecorderControllerImpl implements RecorderController {
   void trackStopRecording(
       Context context,
       Trial completeTrial,
-      List<GoosciSensorLayout.SensorLayout> sensorLayouts,
+      List<SensorLayoutPojo> sensorLayouts,
       SensorRegistry sensorRegistry) {
     // Record how long this session was.
     WhistlePunkApplication.getUsageTracker(context)
@@ -831,8 +830,8 @@ public class RecorderControllerImpl implements RecorderController {
 
     // Record which sensors were recorded and information about their layouts.
     List<String> sensorLogs = new ArrayList<>();
-    for (GoosciSensorLayout.SensorLayout layout : sensorLayouts) {
-      String loggingId = sensorRegistry.getLoggingId(layout.sensorId);
+    for (SensorLayoutPojo layout : sensorLayouts) {
+      String loggingId = sensorRegistry.getLoggingId(layout.getSensorId());
       sensorLogs.add(getLayoutLoggingString(loggingId, layout));
     }
     WhistlePunkApplication.getUsageTracker(context)
@@ -843,14 +842,13 @@ public class RecorderControllerImpl implements RecorderController {
             0);
   }
 
-  String getLayoutLoggingString(
-      String loggingId, @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
+  String getLayoutLoggingString(String loggingId, SensorLayoutPojo layout) {
     StringBuilder builder = new StringBuilder();
     builder.append(loggingId);
     builder.append("|");
-    builder.append(layout.cardView == CardView.METER ? "meter" : "graph");
+    builder.append(layout.getCardView() == CardView.METER ? "meter" : "graph");
     builder.append("|");
-    builder.append(layout.audioEnabled ? "audioOn" : "audioOff");
+    builder.append(layout.isAudioEnabled() ? "audioOn" : "audioOff");
     return builder.toString();
   }
 

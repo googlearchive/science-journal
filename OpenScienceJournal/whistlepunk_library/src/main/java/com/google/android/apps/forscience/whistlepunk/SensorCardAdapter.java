@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import androidx.cardview.widget.CardView;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -341,10 +341,10 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   }
 
   @NonNull
-  public List<GoosciSensorLayout.SensorLayout> buildLayouts() {
+  public List<SensorLayoutPojo> buildLayouts() {
     List<SensorCardPresenter> presenters = getSensorCardPresenters();
     int size = presenters.size();
-    List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+    List<SensorLayoutPojo> layouts = new ArrayList<>();
     for (int i = 0; i < size; i++) {
       layouts.add(presenters.get(i).buildLayout());
     }

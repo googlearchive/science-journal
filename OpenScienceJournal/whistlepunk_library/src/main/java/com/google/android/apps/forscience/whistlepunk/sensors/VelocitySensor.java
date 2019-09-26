@@ -19,10 +19,9 @@ package com.google.android.apps.forscience.whistlepunk.sensors;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.NonNull;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.Flags;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorEnvironment;
@@ -30,8 +29,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.ar.core.ArCoreApk;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 
 /** Class to mock a velocity sensor. */
 public class VelocitySensor extends ScalarSensor {
@@ -108,12 +105,9 @@ public class VelocitySensor extends ScalarSensor {
     }
   }
 
-  @MigrateAs(Destination.EITHER)
-  @NonNull
-  public GoosciSensorLayout.SensorLayout buildLayout() {
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.sensorId = ID;
+  public SensorLayoutPojo buildLayout() {
+    SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setSensorId(ID);
 
     return layout;
   }

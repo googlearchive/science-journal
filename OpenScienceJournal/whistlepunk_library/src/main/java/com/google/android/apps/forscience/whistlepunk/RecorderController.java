@@ -19,8 +19,8 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Intent;
 import androidx.annotation.IntDef;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
@@ -186,7 +186,7 @@ public interface RecorderController {
    * @param supplier can be called to get the current sensor layouts, for saving or storing with a
    *     trial.
    */
-  void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier);
+  void setLayoutSupplier(Supplier<List<SensorLayoutPojo>> supplier);
 
   /** @return the currently selected experiment */
   Experiment getSelectedExperiment();

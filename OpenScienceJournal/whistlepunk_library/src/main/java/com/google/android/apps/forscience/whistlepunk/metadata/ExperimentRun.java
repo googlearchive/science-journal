@@ -16,7 +16,7 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class ExperimentRun {
     return trial;
   }
 
-  public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
+  public List<SensorLayoutPojo> getSensorLayouts() {
     return trial.getSensorLayouts();
   }
 }

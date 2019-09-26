@@ -20,8 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorObserver;
@@ -124,7 +124,7 @@ class MemoryRecorderController implements RecorderController {
   public void setSelectedExperiment(Experiment experiment) {}
 
   @Override
-  public void setLayoutSupplier(Supplier<List<GoosciSensorLayout.SensorLayout>> supplier) {}
+  public void setLayoutSupplier(Supplier<List<SensorLayoutPojo>> supplier) {}
 
   @Override
   public Experiment getSelectedExperiment() {

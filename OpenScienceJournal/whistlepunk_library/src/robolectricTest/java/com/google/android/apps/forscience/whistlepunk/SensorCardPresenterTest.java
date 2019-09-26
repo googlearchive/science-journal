@@ -27,8 +27,8 @@ import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.DataViewOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
@@ -39,8 +39,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.SystemScheduler;
 import com.google.common.collect.Lists;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +59,7 @@ public class SensorCardPresenterTest {
     String key = Arbitrary.string();
     String value = Arbitrary.string();
     scp.getCardOptions(new DecibelSensor(), getContext()).load(explodingListener()).put(key, value);
-    Map<String, String> extras = scp.buildLayout().getExtrasMap();
+    Map<String, String> extras = scp.buildLayout().getExtras();
     assertThat(extras).hasSize(1);
     assertThat(extras).containsEntry(key, value);
   }
@@ -106,8 +104,7 @@ public class SensorCardPresenterTest {
 
     LocalSensorOptionsStorage localStorage = new LocalSensorOptionsStorage();
     localStorage.load().put(key, "fromCardSettings");
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
+    SensorLayoutPojo layout = new SensorLayoutPojo();
     layout.putAllExtras(localStorage.exportAsLayoutExtras());
 
     SensorCardPresenter scp = createSCP(layout);
@@ -159,11 +156,11 @@ public class SensorCardPresenterTest {
   public void defensiveCopies() {
     SensorCardPresenter scp = createSCP();
     setSensorId(scp, "rightId", "rightName");
-    GoosciSensorLayout.SensorLayout firstLayout = scp.buildLayout();
+    SensorLayoutPojo firstLayout = scp.buildLayout();
     setSensorId(scp, "wrongId", "rightName");
-    GoosciSensorLayout.SensorLayout secondLayout = scp.buildLayout();
-    assertEquals("rightId", firstLayout.sensorId);
-    assertEquals("wrongId", secondLayout.sensorId);
+    SensorLayoutPojo secondLayout = scp.buildLayout();
+    assertEquals("rightId", firstLayout.getSensorId());
+    assertEquals("wrongId", secondLayout.getSensorId());
   }
 
   private void setSensorId(SensorCardPresenter scp, String sensorId, String sensorDisplayName) {
@@ -173,11 +170,11 @@ public class SensorCardPresenterTest {
 
   @NonNull
   private SensorCardPresenter createSCP() {
-    return createSCP(new GoosciSensorLayout.SensorLayout());
+    return createSCP(new SensorLayoutPojo());
   }
 
   @NonNull
-  private SensorCardPresenter createSCP(GoosciSensorLayout.SensorLayout layout) {
+  private SensorCardPresenter createSCP(SensorLayoutPojo layout) {
     return new SensorCardPresenter(
         new DataViewOptions(0, getContext(), new ScalarDisplayOptions()),
         new SensorSettingsControllerImpl(getContext(), getAppAccount()),

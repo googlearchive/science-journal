@@ -22,9 +22,9 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Color;
 import android.view.View;
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.BlankReadableSensorOptions;
@@ -64,8 +64,7 @@ public class SensorCardPresenterUnitTest {
         };
     MemoryRecorderController rc = new MemoryRecorderController();
     SensorCardPresenter scp =
-        new SensorCardPresenter(
-            dataViewOptions, ssc, rc, new GoosciSensorLayout.SensorLayout(), "", null, null);
+        new SensorCardPresenter(dataViewOptions, ssc, rc, new SensorLayoutPojo(), "", null, null);
     SensorPresenter presenter = new MemorySensorPresenter();
     ManualSensor ds = new ManualSensor("sensorId", 100, 100);
     InMemorySensorDatabase db = new InMemorySensorDatabase();

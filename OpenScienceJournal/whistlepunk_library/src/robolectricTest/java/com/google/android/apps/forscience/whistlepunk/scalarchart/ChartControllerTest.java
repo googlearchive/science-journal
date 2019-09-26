@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
@@ -29,8 +29,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,10 +62,9 @@ public class ChartControllerTest {
     MemoryMetadataManager mmm = new MemoryMetadataManager();
     DataController dc = new InMemorySensorDatabase().makeSimpleController(mmm);
     final String runId = "runId";
-    Trial trial = trialBetween(mmm, 0, 50, runId);
-    @MigrateAs(Destination.BUILDER)
-    final GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.sensorId = "foo";
+    Trial trial = trialBetween(0, 50, runId);
+    final SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setSensorId("foo");
     chartController.loadRunData(
         trial, layout, dc, makeStatus(runId, layout), new TrialStats("foo"), null, null);
 
@@ -142,8 +139,7 @@ public class ChartControllerTest {
 
   @NonNull
   private ChartController.ChartLoadingStatus makeStatus(
-      final String runId,
-      @MigrateAs(Destination.EITHER) final GoosciSensorLayout.SensorLayout layout) {
+      final String runId, final SensorLayoutPojo layout) {
     return new ChartController.ChartLoadingStatus() {
       @Override
       public int getGraphLoadStatus() {
@@ -160,7 +156,7 @@ public class ChartControllerTest {
 
       @Override
       public String getSensorId() {
-        return layout.sensorId;
+        return layout.getSensorId();
       }
     };
   }
@@ -176,8 +172,7 @@ public class ChartControllerTest {
         ExplodingFactory.makeListener());
   }
 
-  private Trial trialBetween(
-      MemoryMetadataManager mmm, int startTimestamp, int endTimestamp, String trialId) {
+  private Trial trialBetween(int startTimestamp, int endTimestamp, String trialId) {
     GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
     trialProto.trialId = trialId;
     trialProto.recordingRange =

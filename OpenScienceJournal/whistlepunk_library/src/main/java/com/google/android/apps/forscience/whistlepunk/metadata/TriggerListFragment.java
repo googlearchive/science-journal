@@ -46,8 +46,8 @@ import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -72,7 +72,7 @@ public class TriggerListFragment extends Fragment {
   private static String sensorId;
   private AppAccount appAccount;
   private String experimentId;
-  private GoosciSensorLayout.SensorLayout sensorLayout;
+  private SensorLayoutPojo sensorLayout;
   private TriggerListAdapter triggerAdapter;
   private int layoutPosition;
   private ArrayList<String> triggerOrder;
@@ -197,8 +197,8 @@ public class TriggerListFragment extends Fragment {
               @Override
               public void success(Experiment experiment) {
                 TriggerListFragment.this.experiment = experiment;
-                for (GoosciSensorLayout.SensorLayout layout : experiment.getSensorLayouts()) {
-                  if (TextUtils.equals(layout.sensorId, sensorId)) {
+                for (SensorLayoutPojo layout : experiment.getSensorLayouts()) {
+                  if (TextUtils.equals(layout.getSensorId(), sensorId)) {
                     sensorLayout = layout;
                   }
                 }
@@ -258,7 +258,8 @@ public class TriggerListFragment extends Fragment {
     // completion, and the order in which the triggers are shown so that the order does not
     // change when the user gets back.
     intent.putExtra(
-        EditTriggerActivity.EXTRA_SENSOR_LAYOUT_BLOB, MessageNano.toByteArray(sensorLayout));
+        EditTriggerActivity.EXTRA_SENSOR_LAYOUT_BLOB,
+        MessageNano.toByteArray(sensorLayout.toProto()));
     intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, layoutPosition);
     saveTriggerOrder();
     intent.putExtra(TriggerListActivity.EXTRA_TRIGGER_ORDER, triggerOrder);
@@ -332,12 +333,7 @@ public class TriggerListFragment extends Fragment {
   }
 
   private boolean isTriggerActive(SensorTrigger trigger) {
-    for (int i = 0; i < sensorLayout.activeSensorTriggerIds.length; i++) {
-      if (TextUtils.equals(trigger.getTriggerId(), sensorLayout.activeSensorTriggerIds[i])) {
-        return true;
-      }
-    }
-    return false;
+    return sensorLayout.getActiveSensorTriggerIds().contains(trigger.getTriggerId());
   }
 
   private void setSensorTriggerActive(SensorTrigger trigger, boolean isActive) {

@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProviderIm
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
@@ -40,7 +41,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Trial
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -236,15 +236,30 @@ public class Trial extends LabelListHolder {
     return trial;
   }
 
-  public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
-    return new ArrayList(Arrays.asList(trial.sensorLayouts));
+  // TODO (b/139889447): When Migrating Trial to Pojo, make sure we can modify SensorLayouts
+  //that come from GetSensorLayouts and use SetSensorLayouts properly, particularly for
+  //Sonification changes.
+  public List<SensorLayoutPojo> getSensorLayouts() {
+    List<SensorLayoutPojo> pojos = new ArrayList<>();
+    for (SensorLayout layout : trial.sensorLayouts) {
+      pojos.add(SensorLayoutPojo.fromProto(layout));
+    }
+    return pojos;
   }
 
+  // TODO (b/139889447): When Migrating Trial to Pojo, make sure we can modify SensorLayouts
+  //that come from GetSensorLayouts and use SetSensorLayouts properly, particularly for
+  //Sonification changes.
   @VisibleForTesting
-  public void setSensorLayouts(List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
+  public void setSensorLayouts(List<SensorLayoutPojo> sensorLayouts) {
     Preconditions.checkNotNull(sensorLayouts);
-    trial.sensorLayouts =
-        sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
+    SensorLayout[] protos = new SensorLayout[sensorLayouts.size()];
+
+    int i = 0;
+    for (SensorLayoutPojo pojo : sensorLayouts) {
+      protos[i++] = pojo.toProto();
+    }
+    trial.sensorLayouts = protos;
   }
 
   public boolean getAutoZoomEnabled() {

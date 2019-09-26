@@ -22,10 +22,10 @@ import android.content.Context;
 import com.google.android.apps.forscience.javalib.Delay;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
@@ -86,8 +86,8 @@ public class RecordFragmentTest {
     Experiment exp = cExperiment.getValue();
 
     @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.sensorId = "id";
+    SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setSensorId("id");
     exp.getSensorLayouts().add(layout);
 
     TestObserver<Label> test =

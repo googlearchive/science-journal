@@ -18,12 +18,10 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,10 +52,9 @@ public class LocalSensorOptionsStorage implements NewOptionsStorage {
     };
   }
 
-  public static WriteableSensorOptions loadFromLayoutExtras(
-      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout sensorLayout) {
+  public static WriteableSensorOptions loadFromLayoutExtras(SensorLayoutPojo sensorLayout) {
     LocalSensorOptionsStorage options = new LocalSensorOptionsStorage();
-    options.putAllExtras(sensorLayout.getExtrasMap());
+    options.putAllExtras(sensorLayout.getExtras());
     return options.load(LoggingConsumer.expectSuccess(TAG, "loading sensor options"));
   }
 

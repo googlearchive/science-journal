@@ -19,9 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.res.Resources;
 import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,9 +32,8 @@ public class CommandLineSpecs {
   protected static final String PARAM_BLUE = "BLUE";
 
   @NonNull
-  public static List<GoosciSensorLayout.SensorLayout> buildLayouts(
-      String sensorIds, Resources resources) {
-    List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+  public static List<SensorLayoutPojo> buildLayouts(String sensorIds, Resources resources) {
+    List<SensorLayoutPojo> layouts = new ArrayList<>();
     for (String spec : sensorIds.split(",")) {
       String[] parts = spec.split(":");
 
@@ -44,13 +41,12 @@ public class CommandLineSpecs {
       String id = parts[0];
       String color = parts.length > 1 ? parts[1] : null;
       String side = parts.length > 2 ? parts[2] : null;
-      @MigrateAs(Destination.BUILDER)
-      GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-      layout.sensorId = id;
+      SensorLayoutPojo layout = new SensorLayoutPojo();
+      layout.setSensorId(id);
       if (color != null) {
-        layout.colorIndex = findKioskColor(color);
+        layout.setColorIndex(findKioskColor(color));
       }
-      layout.cardView = findCardView(side);
+      layout.setCardView(findCardView(side));
       layouts.add(layout);
     }
     return layouts;

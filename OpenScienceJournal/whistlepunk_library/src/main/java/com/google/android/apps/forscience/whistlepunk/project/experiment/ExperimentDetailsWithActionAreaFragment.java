@@ -82,12 +82,12 @@ import com.google.android.apps.forscience.whistlepunk.actionarea.TitleProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
@@ -1555,9 +1555,9 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
               }
               item.setSensorTagIndex(item.getSensorTagIndex() + 1);
               loadSensorData(applicationContext, holder, item);
-              GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
+              SensorLayoutPojo layout = item.getSelectedSensorLayout();
               holder.cardView.setOnClickListener(createRunClickListener(item.getSensorTagIndex()));
-              holder.setSensorId(layout.sensorId);
+              holder.setSensorId(layout.getSensorId());
             });
         holder.sensorPrev.setOnClickListener(
             v -> {
@@ -1569,9 +1569,9 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
               }
               item.setSensorTagIndex(item.getSensorTagIndex() - 1);
               loadSensorData(applicationContext, holder, item);
-              GoosciSensorLayout.SensorLayout layout = item.getSelectedSensorLayout();
+              SensorLayoutPojo layout = item.getSelectedSensorLayout();
               holder.cardView.setOnClickListener(createRunClickListener(item.getSensorTagIndex()));
-              holder.setSensorId(layout.sensorId);
+              holder.setSensorId(layout.getSensorId());
             });
       } else {
         removeSensorData(holder);
@@ -1763,10 +1763,10 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
                   .getSensorAppearanceProvider(parentReference.get().appAccount));
       final NumberFormat numberFormat = appearance.getNumberFormat();
       holder.sensorName.setText(Appearances.getSensorDisplayName(appearance, appContext));
-      final GoosciSensorLayout.SensorLayout sensorLayout = item.getSelectedSensorLayout();
+      final SensorLayoutPojo sensorLayout = item.getSelectedSensorLayout();
       int color =
           appContext.getResources()
-              .getIntArray(R.array.graph_colors_array)[sensorLayout.colorIndex];
+              .getIntArray(R.array.graph_colors_array)[sensorLayout.getColorIndex()];
       Appearances.applyDrawableToImageView(
           appearance.getIconDrawable(appContext), holder.sensorImage, color);
 
@@ -1807,7 +1807,7 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
       final ChartController chartController = item.getChartController();
       chartController.setChartView(holder.chartView);
       chartController.setProgressView(holder.progressView);
-      holder.setSensorId(sensorLayout.sensorId);
+      holder.setSensorId(sensorLayout.getSensorId());
       DataController dc =
           AppSingleton.getInstance(appContext).getDataController(parentReference.get().appAccount);
       chartController.loadRunData(

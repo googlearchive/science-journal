@@ -54,6 +54,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
@@ -78,13 +79,12 @@ public class EditTriggerFragment extends Fragment {
   private static final String ARG_SENSOR_LAYOUT = "sensor_layout";
   private static final String ARG_TRIGGER_ID = "trigger_id";
   private static final String ARG_LAYOUT_POSITION = "sensor_layout_position";
-  private static final int PERMISSION_VIBRATE = 1;
 
   private AppAccount appAccount;
   private String sensorId;
   private String experimentId;
   private Experiment experiment;
-  private GoosciSensorLayout.SensorLayout sensorLayout;
+  private SensorLayoutPojo sensorLayout;
   private SensorTrigger triggerToEdit;
   private AppCompatSpinner typeSpinner;
   private AppCompatSpinner whenSpinner;
@@ -133,7 +133,9 @@ public class EditTriggerFragment extends Fragment {
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     try {
       sensorLayout =
-          GoosciSensorLayout.SensorLayout.parseFrom(getArguments().getByteArray(ARG_SENSOR_LAYOUT));
+          SensorLayoutPojo.fromProto(
+              GoosciSensorLayout.SensorLayout.parseFrom(
+                  getArguments().getByteArray(ARG_SENSOR_LAYOUT)));
     } catch (InvalidProtocolBufferNanoException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Error parsing the SensorLayout", e);

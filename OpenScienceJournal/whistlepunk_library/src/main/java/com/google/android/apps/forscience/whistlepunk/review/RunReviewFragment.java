@@ -82,10 +82,10 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
@@ -106,8 +106,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorag
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import java.text.NumberFormat;
@@ -728,13 +726,13 @@ public class RunReviewFragment extends Fragment
     if (getTrial().getAutoZoomEnabled()) {
       chartController.setReviewYAxis(yMin, yMax, /* has buffer */ true);
     } else {
-      GoosciSensorLayout.SensorLayout layout = getSensorLayout();
+      SensorLayoutPojo layout = getSensorLayout();
       // Don't zoom in more than the recorded data.
       // The layout's min/max y value may be too small to show the recorded data when
       // recording happened in the background and was stopped by a trigger.
       chartController.setReviewYAxis(
-          Math.min(layout.minimumYAxisValue, yMin),
-          Math.max(layout.maximumYAxisValue, yMax), /* no buffer */
+          Math.min(layout.getMinimumYAxisValue(), yMin),
+          Math.max(layout.getMaximumYAxisValue(), yMax), /* no buffer */
           false);
     }
 
@@ -829,8 +827,8 @@ public class RunReviewFragment extends Fragment
             String statsRunId = intent.getStringExtra(CropHelper.EXTRA_TRIAL_ID);
             if (TextUtils.equals(statsRunId, getTrial().getTrialId())) {
               String statsSensorId = intent.getStringExtra(CropHelper.EXTRA_SENSOR_ID);
-              GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
-              if (TextUtils.equals(statsSensorId, sensorLayout.sensorId)) {
+              SensorLayoutPojo sensorLayout = getSensorLayout();
+              if (TextUtils.equals(statsSensorId, sensorLayout.getSensorId())) {
                 onStatsRefreshed(sensorLayout);
               }
             }
@@ -1137,9 +1135,9 @@ public class RunReviewFragment extends Fragment
 
   private void loadRunData(final View rootView) {
     audioPlaybackController.stopPlayback();
-    final GoosciSensorLayout.SensorLayout sensorLayout = getSensorLayout();
+    final SensorLayoutPojo sensorLayout = getSensorLayout();
     populateSensorViews(rootView, sensorLayout);
-    updateSwitchSensorArrows(rootView, getTrial().getSensorIds(), sensorLayout.sensorId);
+    updateSwitchSensorArrows(rootView, getTrial().getSensorIds(), sensorLayout.getSensorId());
 
     String sonificationType = getSonificationType(sensorLayout);
     audioPlaybackController.setSonificationType(sonificationType);
@@ -1148,11 +1146,10 @@ public class RunReviewFragment extends Fragment
     loadStatsAndChart(sensorLayout, (StatsList) rootView.findViewById(R.id.stats_drawer));
   }
 
-  private void loadStatsAndChart(
-      final GoosciSensorLayout.SensorLayout sensorLayout, final StatsList statsList) {
+  private void loadStatsAndChart(final SensorLayoutPojo sensorLayout, final StatsList statsList) {
     final DataController dataController = getDataController();
     final ChartController.ChartLoadingStatus fragmentRef = this;
-    TrialStats stats = getTrial().getStatsForSensor(sensorLayout.sensorId);
+    TrialStats stats = getTrial().getStatsForSensor(sensorLayout.getSensorId());
     populateStats(stats, statsList, sensorLayout);
 
     chartController.loadRunData(
@@ -1177,7 +1174,7 @@ public class RunReviewFragment extends Fragment
             runReviewOverlay.updateColor(
                 getActivity()
                     .getResources()
-                    .getIntArray(R.array.graph_colors_array)[getSensorLayout().colorIndex]);
+                    .getIntArray(R.array.graph_colors_array)[getSensorLayout().getColorIndex()]);
             runReviewPlaybackButton.setVisibility(View.INVISIBLE);
             runReviewOverlay.setVisibility(View.INVISIBLE);
           }
@@ -1185,13 +1182,12 @@ public class RunReviewFragment extends Fragment
         getActivity());
   }
 
-  private void populateStats(
-      TrialStats trialStats,
-      StatsList statsList,
-      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
+  private void populateStats(TrialStats trialStats, StatsList statsList, SensorLayoutPojo layout) {
     currentSensorStats = trialStats;
     int color =
-        getActivity().getResources().getIntArray(R.array.graph_colors_array)[layout.colorIndex];
+        getActivity()
+            .getResources()
+            .getIntArray(R.array.graph_colors_array)[layout.getColorIndex()];
     statsList.updateColor(color);
     if (!currentSensorStats.statsAreValid()) {
       statsList.clearStats();
@@ -1199,8 +1195,8 @@ public class RunReviewFragment extends Fragment
     } else {
       NumberFormat numberFormat =
           ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
-                  getTrial().getAppearances().get(layout.sensorId),
-                  layout.sensorId,
+                  getTrial().getAppearances().get(layout.getSensorId()),
+                  layout.getSensorId(),
                   AppSingleton.getInstance(getActivity()).getSensorAppearanceProvider(appAccount))
               .getNumberFormat();
       List<StreamStat> streamStats =
@@ -1210,7 +1206,7 @@ public class RunReviewFragment extends Fragment
     }
   }
 
-  private void onStatsRefreshed(final GoosciSensorLayout.SensorLayout sensorLayout) {
+  private void onStatsRefreshed(final SensorLayoutPojo sensorLayout) {
     if (getView() == null) {
       return;
     }
@@ -1222,8 +1218,7 @@ public class RunReviewFragment extends Fragment
     loadStatsAndChart(sensorLayout, statsList);
   }
 
-  private String getSonificationType(
-      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout sensorLayout) {
+  private static String getSonificationType(SensorLayoutPojo sensorLayout) {
     return LocalSensorOptionsStorage.loadFromLayoutExtras(sensorLayout)
         .getReadOnly()
         .getString(
@@ -1365,25 +1360,25 @@ public class RunReviewFragment extends Fragment
     button.setContentDescription(content);
   }
 
-  private void populateSensorViews(
-      View rootView, @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout sensorLayout) {
+  private void populateSensorViews(View rootView, SensorLayoutPojo sensorLayout) {
     final Context context = rootView.getContext();
     final TextView sensorNameText = (TextView) rootView.findViewById(R.id.run_review_sensor_name);
     // Experiments created with C don't appear to contain sensorLayout information.
     GoosciSensorAppearance.BasicSensorAppearance basicAppearance =
-        getTrial().getAppearances().get(sensorLayout.sensorId);
+        getTrial().getAppearances().get(sensorLayout.getSensorId());
     if (basicAppearance != null) {
       sensorNameText.setText(basicAppearance.getName());
       final ImageView sensorIconImage = (ImageView) rootView.findViewById(R.id.sensor_icon);
       final SensorAppearance appearance =
           ProtoSensorAppearance.getAppearanceFromProtoOrProvider(
-              getTrial().getAppearances().get(sensorLayout.sensorId),
-              sensorLayout.sensorId,
+              getTrial().getAppearances().get(sensorLayout.getSensorId()),
+              sensorLayout.getSensorId(),
               AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount));
       Appearances.applyDrawableToImageView(
           appearance.getIconDrawable(context),
           sensorIconImage,
-          context.getResources().getIntArray(R.array.graph_colors_array)[sensorLayout.colorIndex]);
+          context.getResources()
+              .getIntArray(R.array.graph_colors_array)[sensorLayout.getColorIndex()]);
       runReviewOverlay.setUnits(appearance.getUnits(context));
     }
   }
@@ -1715,13 +1710,13 @@ public class RunReviewFragment extends Fragment
   private void launchAudioSettings() {
     audioPlaybackController.stopPlayback();
 
-    List<GoosciSensorLayout.SensorLayout> sensorLayouts = getTrial().getSensorLayouts();
+    List<SensorLayoutPojo> sensorLayouts = getTrial().getSensorLayouts();
     int size = sensorLayouts.size();
     String[] sensorIds = new String[size];
     String[] sonificationTypes = new String[size];
     for (int i = 0; i < size; i++) {
-      GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(i);
-      sensorIds[i] = layout.sensorId;
+      SensorLayoutPojo layout = sensorLayouts.get(i);
+      sensorIds[i] = layout.getSensorId();
       sonificationTypes[i] = getSonificationType(layout);
     }
     AudioSettingsDialog dialog =
@@ -1867,12 +1862,12 @@ public class RunReviewFragment extends Fragment
     // Save the new sonification types into their respective sensorLayouts.
     // Note that this uses the knowledge that the sensor ordering has not changed since
     // launchAudioSettings.
-    List<GoosciSensorLayout.SensorLayout> layouts = getTrial().getSensorLayouts();
+    List<SensorLayoutPojo> layouts = getTrial().getSensorLayouts();
     int size = layouts.size();
     for (int i = 0; i < size; i++) {
       // Update the sonification setting in the extras for this layout.
       LocalSensorOptionsStorage storage = new LocalSensorOptionsStorage();
-      storage.putAllExtras(layouts.get(i).getExtrasMap());
+      storage.putAllExtras(layouts.get(i).getExtras());
       storage
           .load(LoggingConsumer.expectSuccess(TAG, "loading sensor layout"))
           .put(ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE, newSonificationTypes[i]);
@@ -1918,10 +1913,10 @@ public class RunReviewFragment extends Fragment
 
   @Override
   public String getSensorId() {
-    return getSensorLayout().sensorId;
+    return getSensorLayout().getSensorId();
   }
 
-  protected GoosciSensorLayout.SensorLayout getSensorLayout() {
+  protected SensorLayoutPojo getSensorLayout() {
     return getTrial().getSensorLayouts().get(selectedSensorIndex);
   }
 

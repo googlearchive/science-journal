@@ -27,14 +27,13 @@ import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -70,27 +69,24 @@ public class DataControllerUnitTest {
     dc.createExperiment(cExperiment);
     final Experiment experiment = cExperiment.getValue();
 
-    ArrayList<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.maximumYAxisValue = 5;
+    ArrayList<SensorLayoutPojo> layouts = new ArrayList<>();
+    SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setMaximumYAxisValue(5);
     layouts.add(layout);
 
-    Trial trial =
-        Trial.newTrial(
-            10,
-            layouts.toArray(new GoosciSensorLayout.SensorLayout[1]),
-            new FakeUnitAppearanceProvider(),
-            null);
+    SensorLayout[] protoList = new SensorLayout[1];
+    protoList[0] = layout.toProto();
+
+    Trial trial = Trial.newTrial(10, protoList, new FakeUnitAppearanceProvider(), null);
     experiment.addTrial(trial);
     dc.updateExperiment(experiment.getExperimentId(), TestConsumers.<Success>expectingSuccess());
 
     final Trial runWhileStarted = getOnlyExperimentRun(dc, experiment.getExperimentId());
     assertEquals(trial.getTrialId(), runWhileStarted.getTrialId());
     assertFalse(runWhileStarted.isValid());
-    assertEquals(5, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
+    assertEquals(5, runWhileStarted.getSensorLayouts().get(0).getMaximumYAxisValue(), 0.1);
 
-    layout.maximumYAxisValue = 15;
+    layout.setMaximumYAxisValue(15);
     trial.setSensorLayouts(layouts);
     trial.setRecordingEndTime(40);
     experiment.updateTrial(trial);
@@ -100,7 +96,7 @@ public class DataControllerUnitTest {
     final Trial runWhileStopped = getOnlyExperimentRun(dc, experiment.getExperimentId());
     assertEquals(trial.getTrialId(), runWhileStopped.getTrialId());
     assertTrue(runWhileStopped.isValid());
-    assertEquals(15, runWhileStarted.getSensorLayouts().get(0).maximumYAxisValue, 0.1);
+    assertEquals(15, runWhileStarted.getSensorLayouts().get(0).getMaximumYAxisValue(), 0.1);
   }
 
   @Test

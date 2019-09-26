@@ -34,10 +34,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesActivity;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.TriggerListActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
@@ -62,10 +62,6 @@ import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.collect.Lists;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-import com.google.protobuf.nano.MessageNano;
 import com.jakewharton.rxbinding2.view.RxView;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -214,7 +210,7 @@ public class SensorCardPresenter {
   private SensorSettingsController sensorSettingsController;
   private final RecorderController recorderController;
 
-  private GoosciSensorLayout.SensorLayout layout;
+  private SensorLayoutPojo layout;
 
   private boolean isActive = false;
   private boolean firstObserving = true;
@@ -223,7 +219,7 @@ public class SensorCardPresenter {
       DataViewOptions dataViewOptions,
       SensorSettingsController sensorSettingsController,
       RecorderController recorderController,
-      GoosciSensorLayout.SensorLayout layout,
+      SensorLayoutPojo layout,
       String experimentId,
       ExternalAxisController.InteractionListener interactionListener,
       Fragment fragment) {
@@ -233,7 +229,7 @@ public class SensorCardPresenter {
     this.interactionListener = interactionListener;
     availableSensorIds = new ArrayList<>();
     this.layout = layout;
-    cardOptions.putAllExtras(layout.getExtrasMap());
+    cardOptions.putAllExtras(layout.getExtras());
     this.experimentId = experimentId;
     parentFragment = fragment; // TODO: Should this use a weak reference?
     cardTriggerPresenter =
@@ -336,7 +332,7 @@ public class SensorCardPresenter {
     // Turn off the audio unless it is connected.
     if (sensorPresenter != null) {
       if (cardStatus.isConnected() && currentSource != null) {
-        updateAudio(layout.audioEnabled, getSonificationType(parentFragment.getActivity()));
+        updateAudio(layout.isAudioEnabled(), getSonificationType(parentFragment.getActivity()));
       } else {
         updateAudio(false, SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
       }
@@ -389,7 +385,7 @@ public class SensorCardPresenter {
     currentSource = sensorChoice;
     this.sensorPresenter = sensorPresenter;
     List<SensorTrigger> triggers;
-    if (layout.activeSensorTriggerIds.length == 0) {
+    if (layout.getActiveSensorTriggerIds().isEmpty()) {
       updateCardMenu();
       triggers = Collections.emptyList();
     } else {
@@ -410,16 +406,16 @@ public class SensorCardPresenter {
             AbstractReadableSensorOptions.makeTransportable(nonNullOptions),
             sensorRegistry);
     if (cardStatus.isConnected() && parentFragment != null) {
-      updateAudio(layout.audioEnabled, getSonificationType(parentFragment.getActivity()));
+      updateAudio(layout.isAudioEnabled(), getSonificationType(parentFragment.getActivity()));
     }
-    sensorPresenter.setShowStatsOverlay(layout.showStatsOverlay);
+    sensorPresenter.setShowStatsOverlay(layout.isShowStatsOverlay());
     sensorPresenter.setTriggers(triggers);
     if (firstObserving) {
       // The first time we start observing on a sensor, we can load the minimum and maximum
       // y values from the layout. If the sensor is changed, we don't want to keep loading the
       // old min and max values.
-      if (layout.minimumYAxisValue < layout.maximumYAxisValue) {
-        sensorPresenter.setYAxisRange(layout.minimumYAxisValue, layout.maximumYAxisValue);
+      if (layout.getMinimumYAxisValue() < layout.getMaximumYAxisValue()) {
+        sensorPresenter.setYAxisRange(layout.getMinimumYAxisValue(), layout.getMaximumYAxisValue());
       }
       firstObserving = false;
     }
@@ -486,17 +482,17 @@ public class SensorCardPresenter {
 
     updateLearnMoreButton();
 
-    cardViewHolder.graphStatsList.setTextBold(layout.showStatsOverlay);
+    cardViewHolder.graphStatsList.setTextBold(layout.isShowStatsOverlay());
     cardViewHolder.graphStatsList.setOnClickListener(
         v -> {
           if (sensorPresenter != null) {
-            layout.showStatsOverlay = !layout.showStatsOverlay;
-            sensorPresenter.setShowStatsOverlay(layout.showStatsOverlay);
-            cardViewHolder.graphStatsList.setTextBold(layout.showStatsOverlay);
+            layout.setShowStatsOverlay(!layout.isShowStatsOverlay());
+            sensorPresenter.setShowStatsOverlay(layout.isShowStatsOverlay());
+            cardViewHolder.graphStatsList.setTextBold(layout.isShowStatsOverlay());
           }
         });
     updateStatusUi();
-    updateAudioEnabledUi(layout.audioEnabled);
+    updateAudioEnabledUi(layout.isAudioEnabled());
 
     // The first time a SensorCardPresenter is created, we cannot use the recycled view.
     // Exact reason unknown but this workaround fixes the bug described in b/24611618.
@@ -637,7 +633,7 @@ public class SensorCardPresenter {
     menu.findItem(R.id.btn_sensor_card_audio_toggle)
         .setTitle(
             res.getString(
-                layout.audioEnabled
+                layout.isAudioEnabled()
                     ? R.string.graph_options_audio_feedback_disable
                     : R.string.graph_options_audio_feedback_enable));
 
@@ -677,8 +673,8 @@ public class SensorCardPresenter {
                   new NewOptionsStorage.SnackbarFailureListener(cardViewHolder.menuButton));
               return true;
             } else if (itemId == R.id.btn_sensor_card_audio_toggle) {
-              layout.audioEnabled = !layout.audioEnabled;
-              updateAudio(layout.audioEnabled, getSonificationType(context));
+              layout.setAudioEnabled(!layout.isAudioEnabled());
+              updateAudio(layout.isAudioEnabled(), getSonificationType(context));
               return true;
             } else if (itemId == R.id.btn_sensor_card_audio_settings) {
               String currentSonificationType =
@@ -742,7 +738,7 @@ public class SensorCardPresenter {
     if (parentFragment == null) {
       return false;
     }
-    layout.activeSensorTriggerIds = null;
+    layout.clearActiveTriggerIds();
     if (parentFragment instanceof SensorFragment) {
       ((SensorFragment) parentFragment).disableAllTriggers(layout, this);
     } else if (parentFragment instanceof RecordFragment) {
@@ -810,7 +806,7 @@ public class SensorCardPresenter {
   }
 
   private void updateSonificationType(String sonificationType) {
-    updateAudio(layout.audioEnabled, sonificationType);
+    updateAudio(layout.isAudioEnabled(), sonificationType);
     getCardOptions(currentSource, parentFragment.getActivity())
         .load(LoggingConsumer.expectSuccess(TAG, "loading card options"))
         .put(ScalarDisplayOptions.PREFS_KEY_SONIFICATION_TYPE, sonificationType);
@@ -910,8 +906,8 @@ public class SensorCardPresenter {
     if ((currentSource == null && !cardStatus.hasError())
         || !TextUtils.equals(newSensorId, oldSensorId)) {
       // Clear the active sensor triggers when changing sensors.
-      if (!TextUtils.equals(layout.sensorId, newSensorId)) {
-        layout.activeSensorTriggerIds = new String[] {};
+      if (!TextUtils.equals(layout.getSensorId(), newSensorId)) {
+        layout.clearActiveTriggerIds();
         cardTriggerPresenter.setSensorTriggers(
             Collections.<SensorTrigger>emptyList(), recorderController.getAppAccount());
         updateSensorTriggerUi();
@@ -1294,33 +1290,22 @@ public class SensorCardPresenter {
     }
   }
 
-  @MigrateAs(Destination.EITHER)
   @NonNull
-  GoosciSensorLayout.SensorLayout buildLayout() {
+  SensorLayoutPojo buildLayout() {
     // Get an updated min and max, and return layout.
-    layout.sensorId = getSelectedSensorId();
+    layout.setSensorId(getSelectedSensorId());
     if (sensorPresenter != null) {
-      layout.minimumYAxisValue = sensorPresenter.getMinY();
-      layout.maximumYAxisValue = sensorPresenter.getMaxY();
+      layout.setMinimumYAxisValue(sensorPresenter.getMinY());
+      layout.setMaximumYAxisValue(sensorPresenter.getMaxY());
     }
     layout.putAllExtras(cardOptions.exportAsLayoutExtras());
 
     // Copy layout so that future modifications don't do bad things.
-    return copyLayout(layout);
-  }
-
-  @MigrateAs(Destination.EITHER)
-  private GoosciSensorLayout.SensorLayout copyLayout(
-      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
-    try {
-      return GoosciSensorLayout.SensorLayout.parseFrom(MessageNano.toByteArray(layout));
-    } catch (InvalidProtocolBufferNanoException e) {
-      throw new RuntimeException("Should be impossible", e);
-    }
+    return new SensorLayoutPojo(layout);
   }
 
   int getColorIndex() {
-    return layout.colorIndex;
+    return layout.getColorIndex();
   }
 
   NewOptionsStorage getCardOptions(SensorChoice sensorChoice, Context context) {

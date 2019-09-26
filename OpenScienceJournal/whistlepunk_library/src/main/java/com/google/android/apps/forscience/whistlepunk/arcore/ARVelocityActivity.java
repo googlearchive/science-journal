@@ -39,8 +39,8 @@ import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
 import com.google.android.apps.forscience.whistlepunk.Snapshotter;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.core.AugmentedImage.TrackingMethod;
@@ -332,8 +332,8 @@ public class ARVelocityActivity extends AppCompatActivity {
   }
 
   @NonNull
-  public List<GoosciSensorLayout.SensorLayout> buildLayouts() {
-    List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+  public List<SensorLayoutPojo> buildLayouts() {
+    List<SensorLayoutPojo> layouts = new ArrayList<>();
     layouts.add(velocitySensor.buildLayout());
     return layouts;
   }

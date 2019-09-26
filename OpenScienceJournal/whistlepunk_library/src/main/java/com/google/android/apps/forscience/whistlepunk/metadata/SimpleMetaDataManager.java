@@ -56,6 +56,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TextLabelValue;
@@ -1154,8 +1155,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   /** Retrieve the sensor selection and layout for an experiment. */
   @VisibleForTesting
-  List<GoosciSensorLayout.SensorLayout> getDatabaseExperimentSensorLayouts(String experimentId) {
-    List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+  List<SensorLayoutPojo> getDatabaseExperimentSensorLayouts(String experimentId) {
+    List<SensorLayoutPojo> layouts = new ArrayList<>();
     synchronized (lock) {
       final SQLiteDatabase db = dbHelper.getReadableDatabase();
       layouts = getDatabaseExperimentSensorLayouts(db, experimentId);
@@ -1163,9 +1164,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
     return layouts;
   }
 
-  private static List<GoosciSensorLayout.SensorLayout> getDatabaseExperimentSensorLayouts(
+  private static List<SensorLayoutPojo> getDatabaseExperimentSensorLayouts(
       SQLiteDatabase db, String experimentId) {
-    List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+    List<SensorLayoutPojo> layouts = new ArrayList<>();
     Cursor cursor = null;
     try {
       cursor =
@@ -1183,7 +1184,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
           GoosciSensorLayout.SensorLayout layout =
               GoosciSensorLayout.SensorLayout.parseFrom(cursor.getBlob(0));
           if (!sensorIdsAdded.contains(layout.sensorId)) {
-            layouts.add(layout);
+            layouts.add(SensorLayoutPojo.fromProto(layout));
           }
           sensorIdsAdded.add(layout.sensorId);
         } catch (InvalidProtocolBufferNanoException e) {

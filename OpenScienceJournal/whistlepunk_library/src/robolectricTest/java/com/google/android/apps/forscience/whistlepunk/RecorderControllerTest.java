@@ -31,9 +31,9 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySenso
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
@@ -49,8 +49,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListen
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.ArrayList;
@@ -135,22 +133,21 @@ public class RecorderControllerTest {
             Delay.ZERO,
             new FakeUnitAppearanceProvider());
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.sensorId = "aa:bb:cc:dd";
-    layout.cardView = CardView.GRAPH;
-    layout.audioEnabled = false;
+    SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setSensorId("aa:bb:cc:dd");
+    layout.setCardView(CardView.GRAPH);
+    layout.setAudioEnabled(false);
     String loggingId = BleSensorSpec.TYPE;
 
     assertEquals("bluetooth_le|graph|audioOff", rc.getLayoutLoggingString(loggingId, layout));
 
-    layout.cardView = CardView.METER;
+    layout.setCardView(CardView.METER);
     assertEquals("bluetooth_le|meter|audioOff", rc.getLayoutLoggingString(loggingId, layout));
 
-    layout.audioEnabled = true;
+    layout.setAudioEnabled(true);
     assertEquals("bluetooth_le|meter|audioOn", rc.getLayoutLoggingString(loggingId, layout));
 
-    layout.sensorId = "AmbientLight";
+    layout.setSensorId("AmbientLight");
     assertEquals("AmbientLight|meter|audioOn", rc.getLayoutLoggingString("AmbientLight", layout));
   }
 
@@ -474,9 +471,8 @@ public class RecorderControllerTest {
 
     rc.setLayoutSupplier(
         () -> {
-          @MigrateAs(Destination.BUILDER)
-          GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-          layout.sensorId = this.sensorId;
+          SensorLayoutPojo layout = new SensorLayoutPojo();
+          layout.setSensorId(this.sensorId);
           return Lists.newArrayList(layout);
         });
 

@@ -31,10 +31,10 @@ import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
@@ -59,10 +59,10 @@ public class DataControllerTest {
   public void testLayouts() {
     final DataController dc = makeSimpleController();
 
-    final List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
+    final List<SensorLayoutPojo> layouts = new ArrayList<>();
     @MigrateAs(Destination.BUILDER)
-    final GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.sensorId = Arbitrary.string();
+    final SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setSensorId(Arbitrary.string());
     layouts.add(layout);
 
     StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
@@ -75,9 +75,9 @@ public class DataControllerTest {
         new LoggingConsumer<Experiment>(TAG, "test get experiment") {
           @Override
           public void success(Experiment updated) {
-            List<GoosciSensorLayout.SensorLayout> retrievedLayouts = updated.getSensorLayouts();
+            List<SensorLayoutPojo> retrievedLayouts = updated.getSensorLayouts();
             assertEquals(1, retrievedLayouts.size());
-            assertEquals(layout.sensorId, retrievedLayouts.get(0).sensorId);
+            assertEquals(layout.getSensorId(), retrievedLayouts.get(0).getSensorId());
           }
         });
   }
@@ -166,10 +166,9 @@ public class DataControllerTest {
     StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
     dc.createExperiment(cExperiment);
     Experiment experiment = cExperiment.getValue();
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.sensorId = "oldSensorId";
-    List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);
+    SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setSensorId("oldSensorId");
+    List<SensorLayoutPojo> layouts = new ArrayList<>(1);
     layouts.add(layout);
     experiment.setSensorLayouts(layouts);
     dc.updateExperiment(experiment.getExperimentId(), TestConsumers.expectingSuccess());
@@ -197,7 +196,7 @@ public class DataControllerTest {
           @Override
           public void success(Experiment updated) {
             assertEquals(1, updated.getSensorLayouts().size());
-            assertEquals(newSensorId, updated.getSensorLayouts().get(0).sensorId);
+            assertEquals(newSensorId, updated.getSensorLayouts().get(0).getSensorId());
           }
         });
   }
@@ -212,9 +211,9 @@ public class DataControllerTest {
         experiment.getExperimentId(), "oldSensorId", TestConsumers.expectingSuccess());
 
     @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.sensorId = "oldSensorId";
-    List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>(1);
+    SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setSensorId("oldSensorId");
+    List<SensorLayoutPojo> layouts = new ArrayList<>(1);
     layouts.add(layout);
     experiment.setSensorLayouts(layouts);
     dc.updateExperiment(experiment.getExperimentId(), TestConsumers.expectingSuccess());
@@ -227,7 +226,7 @@ public class DataControllerTest {
           @Override
           public void success(Experiment updated) {
             assertEquals(1, updated.getSensorLayouts().size());
-            assertEquals("", updated.getSensorLayouts().get(0).sensorId);
+            assertEquals("", updated.getSensorLayouts().get(0).getSensorId());
           }
         });
   }

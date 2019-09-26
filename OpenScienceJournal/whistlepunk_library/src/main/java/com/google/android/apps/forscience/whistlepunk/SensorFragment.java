@@ -46,12 +46,11 @@ import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors;
@@ -74,8 +73,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import com.jakewharton.rxbinding2.view.RxView;
 import io.reactivex.subjects.BehaviorSubject;
 import java.text.NumberFormat;
@@ -96,11 +93,6 @@ public class SensorFragment extends Fragment
   private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
   private static final String KEY_ACCOUNT_KEY = "accountKey";
   private static final String KEY_EXPERIMENT_ID = "experimentId";
-
-  private static final CardView DEFAULT_CARD_VIEW = CardView.METER;
-
-  private static final boolean DEFAULT_AUDIO_ENABLED = false;
-  private static final boolean DEFAULT_SHOW_STATS_OVERLAY = false;
 
   private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
   private final SnackbarManager snackbarManager = new SnackbarManager();
@@ -388,13 +380,13 @@ public class SensorFragment extends Fragment
     recordingWasCanceled = false;
   }
 
-  private List<GoosciSensorLayout.SensorLayout> safeSaveCurrentLayouts() {
+  private List<SensorLayoutPojo> safeSaveCurrentLayouts() {
     if (selectedExperiment == null) {
       return Collections.EMPTY_LIST;
     }
 
     // TODO: re-route data to make this impossible
-    List<GoosciSensorLayout.SensorLayout> layouts = saveCurrentExperiment();
+    List<SensorLayoutPojo> layouts = saveCurrentExperiment();
     if (layouts == null) {
       return Collections.EMPTY_LIST;
     } else {
@@ -403,7 +395,7 @@ public class SensorFragment extends Fragment
   }
 
   private void freezeLayouts() {
-    List<GoosciSensorLayout.SensorLayout> layouts = safeSaveCurrentLayouts();
+    List<SensorLayoutPojo> layouts = safeSaveCurrentLayouts();
     // Freeze layouts to be saved if recording finishes
     getRecorderController().setLayoutSupplier(Suppliers.ofInstance(layouts));
   }
@@ -567,7 +559,7 @@ public class SensorFragment extends Fragment
     rc.setSelectedExperiment(this.selectedExperiment);
   }
 
-  private void updateSensorLayout(GoosciSensorLayout.SensorLayout sensorLayout) {
+  private void updateSensorLayout(SensorLayoutPojo sensorLayout) {
     if (selectedExperiment == null) {
       return;
     }
@@ -584,11 +576,11 @@ public class SensorFragment extends Fragment
   }
 
   // TODO: Can we optimize this by calling it less frequently?
-  private List<GoosciSensorLayout.SensorLayout> saveCurrentExperiment() {
+  private List<SensorLayoutPojo> saveCurrentExperiment() {
     if (selectedExperiment == null) {
       return null;
     }
-    final List<GoosciSensorLayout.SensorLayout> layouts = buildCurrentLayouts();
+    final List<SensorLayoutPojo> layouts = buildCurrentLayouts();
 
     if (layouts != null) {
       selectedExperiment.setSensorLayouts(layouts);
@@ -600,7 +592,7 @@ public class SensorFragment extends Fragment
     return layouts;
   }
 
-  private List<GoosciSensorLayout.SensorLayout> buildCurrentLayouts() {
+  private List<SensorLayoutPojo> buildCurrentLayouts() {
     if (sensorCardAdapter == null) {
       return null;
     }
@@ -609,9 +601,7 @@ public class SensorFragment extends Fragment
   }
 
   private void setSensorPresenters(
-      List<GoosciSensorLayout.SensorLayout> layouts,
-      RecorderController rc,
-      RecordingStatus status) {
+      List<SensorLayoutPojo> layouts, RecorderController rc, RecordingStatus status) {
     if (layouts == null || layouts.size() == 0) {
       layouts =
           Lists.newArrayList(
@@ -629,7 +619,7 @@ public class SensorFragment extends Fragment
       // had a bluetooth sensor that was "forgotten".
       int indexToRemove = layouts.size() - 1;
       for (int i = 0; i < layouts.size(); i++) {
-        if (TextUtils.isEmpty(layouts.get(i).sensorId)) {
+        if (TextUtils.isEmpty(layouts.get(i).getSensorId())) {
           indexToRemove = i;
           break;
         }
@@ -652,28 +642,20 @@ public class SensorFragment extends Fragment
     }
   }
 
-  @MigrateAs(Destination.EITHER)
-  static GoosciSensorLayout.SensorLayout defaultLayout(
-      ColorAllocator colorAllocator, int[] usedColors) {
+  static SensorLayoutPojo defaultLayout(ColorAllocator colorAllocator, int[] usedColors) {
     return defaultLayout(colorAllocator.getNextColor(usedColors));
   }
 
-  @MigrateAs(Destination.EITHER)
-  public static GoosciSensorLayout.SensorLayout defaultLayout(int colorIndex) {
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-    layout.sensorId = null;
-    layout.cardView = DEFAULT_CARD_VIEW;
-    layout.audioEnabled = DEFAULT_AUDIO_ENABLED;
-    layout.showStatsOverlay = DEFAULT_SHOW_STATS_OVERLAY;
-    layout.colorIndex = colorIndex;
+  public static SensorLayoutPojo defaultLayout(int colorIndex) {
+    SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setColorIndex(colorIndex);
     return layout;
   }
 
   // TODO: can all of this logic live in a separate, testable class?
   private void createSensorCardPresenters(
       ViewGroup rootView,
-      List<GoosciSensorLayout.SensorLayout> layouts,
+      List<SensorLayoutPojo> layouts,
       final RecorderController rc,
       RecordingStatus status) {
     List<SensorCardPresenter> sensorCardPresenters = new ArrayList<>();
@@ -685,11 +667,11 @@ public class SensorFragment extends Fragment
     // Create a sensorData card for each initial source tag, or at minimum one if no source
     // tags are saved in the bundle.
     for (int i = 0; i < layouts.size(); i++) {
-      GoosciSensorLayout.SensorLayout layout = layouts.get(i);
+      SensorLayoutPojo layout = layouts.get(i);
       final SensorCardPresenter sensorCardPresenter = createSensorCardPresenter(layout, rc);
-      sensorCardPresenter.setInitialSourceTagToSelect(layout.sensorId);
+      sensorCardPresenter.setInitialSourceTagToSelect(layout.getSensorId());
       sensorCardPresenters.add(sensorCardPresenter);
-      tryStartObserving(sensorCardPresenter, layout.sensorId, status);
+      tryStartObserving(sensorCardPresenter, layout.getSensorId(), status);
     }
 
     int activeCardIndex = 0;
@@ -864,10 +846,10 @@ public class SensorFragment extends Fragment
   }
 
   private SensorCardPresenter createSensorCardPresenter(
-      GoosciSensorLayout.SensorLayout layout, final RecorderController rc) {
+      SensorLayoutPojo layout, final RecorderController rc) {
     final SensorCardPresenter sensorCardPresenter =
         new SensorCardPresenter(
-            new DataViewOptions(layout.colorIndex, getActivity(), scalarDisplayOptions),
+            new DataViewOptions(layout.getColorIndex(), getActivity(), scalarDisplayOptions),
             sensorSettingsController,
             rc,
             layout,
@@ -1164,7 +1146,7 @@ public class SensorFragment extends Fragment
   }
 
   public void disableAllTriggers(
-      final GoosciSensorLayout.SensorLayout layout, final SensorCardPresenter presenter) {
+      final SensorLayoutPojo layout, final SensorCardPresenter presenter) {
     if (selectedExperiment == null) {
       return;
     }
@@ -1179,7 +1161,7 @@ public class SensorFragment extends Fragment
             new LoggingConsumer<Success>(TAG, "disable sensor triggers") {
               @Override
               public void success(Success value) {
-                getRecorderController().clearSensorTriggers(layout.sensorId, sensorRegistry);
+                getRecorderController().clearSensorTriggers(layout.getSensorId(), sensorRegistry);
                 presenter.onSensorTriggersCleared();
               }
             });
@@ -1242,9 +1224,7 @@ public class SensorFragment extends Fragment
 
   /** Get list of existing devices. */
   private void loadIncludedSensors(
-      final List<GoosciSensorLayout.SensorLayout> layouts,
-      final RecorderController rc,
-      RecordingStatus status) {
+      final List<SensorLayoutPojo> layouts, final RecorderController rc, RecordingStatus status) {
     if (selectedExperiment != null) {
       getDataController()
           .getExternalSensorsByExperiment(
@@ -1392,14 +1372,13 @@ public class SensorFragment extends Fragment
     presenter.onAudioSettingsCanceled(originalSonificationTypes[0]);
   }
 
-  public int getPositionOfLayout(
-      @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
+  public int getPositionOfLayout(SensorLayoutPojo layout) {
     if (sensorCardAdapter == null) {
       return -1;
     }
     List<SensorCardPresenter> presenters = sensorCardAdapter.getSensorCardPresenters();
     for (int i = 0; i < presenters.size(); i++) {
-      if (TextUtils.equals(presenters.get(i).getSelectedSensorId(), layout.sensorId)) {
+      if (TextUtils.equals(presenters.get(i).getSelectedSensorId(), layout.getSensorId())) {
         return i;
       }
     }

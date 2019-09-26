@@ -31,8 +31,8 @@ import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.GraphPopulator;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
@@ -557,13 +557,13 @@ public class ChartController {
   // this should be revisited to get a range for the original load.
   public void loadRunData(
       Trial trial,
-      GoosciSensorLayout.SensorLayout sensorLayout,
+      SensorLayoutPojo sensorLayout,
       DataController dc,
       ChartLoadingStatus status,
       TrialStats stats,
       ChartDataLoadedCallback fullChartLoadDataCallback,
       Context context) {
-    updateColor(sensorLayout.colorIndex, context);
+    updateColor(sensorLayout.getColorIndex(), context);
     setShowProgress(true);
     clearData();
     final long firstTimestamp = trial.getFirstTimestamp();
@@ -573,7 +573,7 @@ public class ChartController {
         lastTimestamp,
         trial.getOriginalFirstTimestamp(),
         trial.getOriginalLastTimestamp());
-    sensorId = sensorLayout.sensorId;
+    sensorId = sensorLayout.getSensorId();
     trialId = trial.getTrialId();
     tryLoadingChartData(
         trial.getTrialId(),
@@ -590,7 +590,7 @@ public class ChartController {
   // TODO: remove duplication with loadReadings?
   private void tryLoadingChartData(
       final String runId,
-      final GoosciSensorLayout.SensorLayout sensorLayout,
+      final SensorLayoutPojo sensorLayout,
       final DataController dc,
       final long firstTimestamp,
       final long lastTimestamp,
@@ -608,7 +608,7 @@ public class ChartController {
     if (status.getGraphLoadStatus() != ChartLoadingStatus.GRAPH_LOAD_STATUS_IDLE) {
       return;
     }
-    updateColor(sensorLayout.colorIndex, context);
+    updateColor(sensorLayout.getColorIndex(), context);
     status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_LOADING);
     addChartDataLoadedCallback(fullChartLoadDataCallback);
     callChartDataStartLoadingCallbacks(true);
@@ -633,7 +633,7 @@ public class ChartController {
                 status.setGraphLoadStatus(ChartLoadingStatus.GRAPH_LOAD_STATUS_IDLE);
 
                 if (!runId.equals(status.getRunId())
-                    || !sensorLayout.sensorId.equals(status.getSensorId())
+                    || !sensorLayout.getSensorId().equals(status.getSensorId())
                     || !currentLoadIds.contains(requestId)) {
                   // The wrong run or the wrong sensor ID was loaded into this
                   // chartController, or this is the wrong request ID.
