@@ -1922,7 +1922,7 @@ public class RunReviewFragment extends Fragment
 
   private void setTitle(String trialName) {
     Activity activity = getActivity();
-    if (activity != null) {
+    if (activity instanceof NoteTakingActivity) {
       ((NoteTakingActivity) activity).updateTitleByDefaultFragment(trialName);
     }
   }
