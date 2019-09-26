@@ -270,13 +270,15 @@ public class ExperimentActivity extends NoteTakingActivity
   }
 
   private void onNoteSaved() {
-    AccessibilityUtils.makeSnackbar(
-            findViewById(R.id.tool_pane),
-            getResources().getString(R.string.note_saved),
-            Snackbar.LENGTH_LONG,
-            getResources().getString(R.string.note_saved_action),
-            v -> showDefaultFragments())
-        .show();
+    if (!isTwoPane() && SENSOR_TAG.equals(activeToolFragmentTag)) {
+      AccessibilityUtils.makeSnackbar(
+          findViewById(R.id.tool_pane),
+          getResources().getString(R.string.note_saved),
+          Snackbar.LENGTH_LONG,
+          getResources().getString(R.string.note_saved_action),
+          v -> showDefaultFragments())
+          .show();
+    }
   }
 
   @Override
