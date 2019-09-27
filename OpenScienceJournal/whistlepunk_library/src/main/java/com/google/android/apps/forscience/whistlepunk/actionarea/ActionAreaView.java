@@ -22,6 +22,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.whistlepunk.R;
+import java.util.Objects;
 
 /**
  * Reusable custom UI component for the action area in Science Journal.
@@ -93,7 +94,7 @@ public class ActionAreaView extends CardView {
    */
   private ActionAreaItemView getItemView(ActionAreaItem item) {
     for (ActionAreaItemView view : actionAreaItemViews) {
-      if (view.getItem().equals(item)) {
+      if (Objects.equals(item, view.getItem())) {
         return view;
       }
     }
