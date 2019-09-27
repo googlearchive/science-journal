@@ -36,7 +36,7 @@ public final class SensorLayoutPojo {
   private boolean audioEnabled;
   private boolean showStatsOverlay;
   private int color;
-  private Map<String, String> extras = new HashMap<>();
+  private final Map<String, String> extras = new HashMap<>();
   private double minimumYAxisValue;
   private double maximumYAxisValue;
   private Set<String> activeSensorTriggerIds = new HashSet<>();
@@ -102,7 +102,8 @@ public final class SensorLayoutPojo {
   }
 
   public void setExtras(Map<String, String> extras) {
-    this.extras = extras;
+    this.extras.clear();
+    this.extras.putAll(extras);
   }
 
   public void putAllExtras(Map<String, String> extras) {
