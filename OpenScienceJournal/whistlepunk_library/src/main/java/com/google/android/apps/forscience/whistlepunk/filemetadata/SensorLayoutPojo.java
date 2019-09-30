@@ -16,11 +16,8 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.migration.nano2lite.runtime.RepeatedFields;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -195,38 +192,35 @@ public final class SensorLayoutPojo {
       return null;
     }
     SensorLayoutPojo pojo = new SensorLayoutPojo();
-    pojo.setCardView(proto.cardView);
-    pojo.setSensorId(proto.sensorId);
-    pojo.setAudioEnabled(proto.audioEnabled);
-    pojo.setShowStatsOverlay(proto.showStatsOverlay);
-    pojo.setColor(proto.color);
-    pojo.setMinimumYAxisValue(proto.minimumYAxisValue);
-    pojo.setMaximumYAxisValue(proto.maximumYAxisValue);
-    pojo.setColorIndex(proto.colorIndex);
+    pojo.setCardView(proto.getCardView());
+    pojo.setSensorId(proto.getSensorId());
+    pojo.setAudioEnabled(proto.getAudioEnabled());
+    pojo.setShowStatsOverlay(proto.getShowStatsOverlay());
+    pojo.setColor(proto.getColor());
+    pojo.setMinimumYAxisValue(proto.getMinimumYAxisValue());
+    pojo.setMaximumYAxisValue(proto.getMaximumYAxisValue());
+    pojo.setColorIndex(proto.getColorIndex());
     pojo.setExtras(proto.getExtrasMap());
-    if (proto.activeSensorTriggerIds != null) {
-      pojo.setActiveSensorTriggerIds(
-          new HashSet<String>(Arrays.asList(proto.activeSensorTriggerIds)));
+    if (proto.getActiveSensorTriggerIdsCount() != 0) {
+      pojo.setActiveSensorTriggerIds(new HashSet<String>(proto.getActiveSensorTriggerIdsList()));
     }
     return pojo;
   }
 
   public SensorLayout toProto() {
-    @MigrateAs(Destination.BUILDER)
-    SensorLayout proto = new SensorLayout();
-    proto.cardView = cardView;
-    proto.sensorId = sensorId;
-    proto.audioEnabled = audioEnabled;
-    proto.showStatsOverlay = showStatsOverlay;
-    proto.color = color;
-    proto.minimumYAxisValue = minimumYAxisValue;
-    proto.maximumYAxisValue = maximumYAxisValue;
-    proto.colorIndex = colorIndex;
-
-    proto.putAllExtras(extras);
-    proto.activeSensorTriggerIds =
-        RepeatedFields.safeCopy(
-            activeSensorTriggerIds.toArray(new String[activeSensorTriggerIds.size()]));
-    return proto;
+    return SensorLayout.newBuilder()
+        .setCardView(cardView)
+        .setSensorId(sensorId)
+        .setAudioEnabled(audioEnabled)
+        .setShowStatsOverlay(showStatsOverlay)
+        .setColor(color)
+        .setMinimumYAxisValue(minimumYAxisValue)
+        .setMaximumYAxisValue(maximumYAxisValue)
+        .setColorIndex(colorIndex)
+        .putAllExtras(extras)
+        .addAllActiveSensorTriggerIds(
+            Arrays.asList(
+                activeSensorTriggerIds.toArray(new String[activeSensorTriggerIds.size()])))
+        .build();
   }
 }

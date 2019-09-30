@@ -26,16 +26,12 @@ option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 message SensorLayout {
-  option (proto2.nano.message_as_lite) = false;
-
   // id, to be looked up in either the Experiment.availableSensors or
   // Trial.sensorAppearances
   //    field depending on the context.
   optional string sensorId = 1;
 
   enum CardView {
-    option (proto2.nano.enum_as_lite) = true;
-
     METER = 1;  // For scalar sensors: show an icon and current reading as a
                 // large number For all cards: show a description of what's
                 // going on with this sensor, with

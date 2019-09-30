@@ -41,7 +41,8 @@ import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInpu
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.LocalSyncStatus;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.NativeBleDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.DeviceSpecPojo;
@@ -59,8 +60,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Cap
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
 import com.google.common.collect.Lists;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.Observable;
 import java.io.File;
 import java.io.IOException;
@@ -418,13 +417,13 @@ public class SimpleMetaDataManagerTest {
   public void testRunStorage() {
     Experiment experiment = metaDataManager.newDatabaseExperiment();
     final ApplicationLabel startLabel = newStartLabel("startId", 1);
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
-    layout1.sensorId = "sensor1";
-    layout1.maximumYAxisValue = 5;
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
-    layout2.sensorId = "sensor2";
+    SensorLayout layout1 =
+        GoosciSensorLayout.SensorLayout.newBuilder()
+            .setSensorId("sensor1")
+            .setMaximumYAxisValue(5)
+            .build();
+    SensorLayout layout2 =
+        GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("sensor2").build();
     final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
         Lists.newArrayList(layout1, layout2);
     final ArrayList<String> sensorIds = Lists.newArrayList("sensor1", "sensor2");
@@ -450,12 +449,10 @@ public class SimpleMetaDataManagerTest {
   public void testDatabaseExperimentDelete() {
     Experiment experiment = metaDataManager.newDatabaseExperiment();
     final ApplicationLabel startLabel = newStartLabel("startId", 1);
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
-    layout1.sensorId = "sensor1";
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
-    layout2.sensorId = "sensor2";
+    SensorLayout layout1 =
+        GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("sensor1").build();
+    SensorLayout layout2 =
+        GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("sensor2").build();
     final ArrayList<GoosciSensorLayout.SensorLayout> sensorLayouts =
         Lists.newArrayList(layout1, layout2);
     metaDataManager.addDatabaseApplicationLabel(experiment.getExperimentId(), startLabel);
@@ -476,33 +473,30 @@ public class SimpleMetaDataManagerTest {
 
   @Test
   public void testExperimentSensorLayout() {
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout1 = new GoosciSensorLayout.SensorLayout();
-    layout1.sensorId = "sensorId1";
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout2 = new GoosciSensorLayout.SensorLayout();
-    layout2.sensorId = "sensorId2";
+    GoosciSensorLayout.SensorLayout layout1 =
+        GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("sensorId1").build();
+    GoosciSensorLayout.SensorLayout layout2 =
+        GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("sensorId2").build();
     String experimentId = Arbitrary.string();
     metaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout1, layout2));
 
     assertEquals(
-        Lists.newArrayList(layout1.sensorId, layout2.sensorId),
+        Lists.newArrayList(layout1.getSensorId(), layout2.getSensorId()),
         getIds(metaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
 
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout3 = new GoosciSensorLayout.SensorLayout();
-    layout3.sensorId = "sensorId3";
+    GoosciSensorLayout.SensorLayout layout3 =
+        GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("sensorId3").build();
     metaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3));
 
     assertEquals(
-        Lists.newArrayList(layout3.sensorId),
+        Lists.newArrayList(layout3.getSensorId()),
         getIds(metaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
 
     // Try storing duplicate
     metaDataManager.setExperimentSensorLayouts(experimentId, Lists.newArrayList(layout3, layout3));
     // duplicates are removed
     assertEquals(
-        Lists.newArrayList(layout3.sensorId),
+        Lists.newArrayList(layout3.getSensorId()),
         getIds(metaDataManager.getDatabaseExperimentSensorLayouts(experimentId)));
   }
 
@@ -660,9 +654,9 @@ public class SimpleMetaDataManagerTest {
   public void testMigrateExperimentsToFiles() {
     Experiment experiment = metaDataManager.newDatabaseExperiment();
     for (int i = 0; i < 50; i++) {
-      GoosciPictureLabelValue.PictureLabelValue.Builder labelValue =
-          GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("fake/path");
-      Label label = Label.newLabelWithValue(i * 1000, ValueType.PICTURE, labelValue.build(), null);
+      GoosciPictureLabelValue.PictureLabelValue labelValue =
+          GoosciPictureLabelValue.PictureLabelValue.newBuilder().setFilePath("fake/path").build();
+      Label label = Label.newLabelWithValue(i * 1000, ValueType.PICTURE, labelValue, null);
       LabelValue deprecatedValue = PictureLabelValue.fromPicture(labelValue.getFilePath(), "");
       // In the database, labels are stored separately. Add them directly here so that we
       // don't need to re-create methods to update them from the SimpleMetadataManager.

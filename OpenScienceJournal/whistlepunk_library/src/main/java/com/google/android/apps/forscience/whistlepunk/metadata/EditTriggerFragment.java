@@ -52,7 +52,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
@@ -61,7 +61,8 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.protobuf.ExtensionRegistryLite;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -135,8 +136,9 @@ public class EditTriggerFragment extends Fragment {
       sensorLayout =
           SensorLayoutPojo.fromProto(
               GoosciSensorLayout.SensorLayout.parseFrom(
-                  getArguments().getByteArray(ARG_SENSOR_LAYOUT)));
-    } catch (InvalidProtocolBufferNanoException e) {
+                  getArguments().getByteArray(ARG_SENSOR_LAYOUT),
+                  ExtensionRegistryLite.getGeneratedRegistry()));
+    } catch (InvalidProtocolBufferException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Error parsing the SensorLayout", e);
       }

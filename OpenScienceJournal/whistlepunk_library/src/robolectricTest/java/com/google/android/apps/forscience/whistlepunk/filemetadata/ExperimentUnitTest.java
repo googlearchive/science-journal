@@ -19,12 +19,10 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -50,9 +48,9 @@ public class ExperimentUnitTest {
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "localId", 0);
     assertThat(experiment.getSensorTriggersForSensor("sensorId")).isEmpty();
 
-    GoosciSensorTrigger.SensorTrigger.Builder triggerProto =
-        GoosciSensorTrigger.SensorTrigger.newBuilder().setSensorId("sensorId");
-    SensorTrigger trigger = SensorTrigger.fromProto(triggerProto.build());
+    GoosciSensorTrigger.SensorTrigger triggerProto =
+        GoosciSensorTrigger.SensorTrigger.newBuilder().setSensorId("sensorId").build();
+    SensorTrigger trigger = SensorTrigger.fromProto(triggerProto);
     experiment.addSensorTrigger(trigger);
     assertThat(experiment.getSensorTriggersForSensor("sensorId")).hasSize(1);
     assertThat(experiment.getExperimentProto().sensorTriggers).hasLength(1);
@@ -92,9 +90,8 @@ public class ExperimentUnitTest {
     assertThat(experiment.getExperimentSensors()).isEmpty();
 
     com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor
-            .Builder
-        sensor = ExperimentSensor.newBuilder().setSensorId("sensorId");
-    experiment.setExperimentSensors(Arrays.asList(sensor.build()));
+        sensor = ExperimentSensor.newBuilder().setSensorId("sensorId").build();
+    experiment.setExperimentSensors(Arrays.asList(sensor));
 
     assertThat(experiment.getExperimentSensors()).hasSize(1);
     assertThat(experiment.getExperimentProto().experimentSensors).hasLength(1);
@@ -103,17 +100,15 @@ public class ExperimentUnitTest {
   @Test
   public void testUpdatesProtoOnlyWhenNeeded() {
     GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layoutProto = new GoosciSensorLayout.SensorLayout();
-    layoutProto.sensorId = "sensorId";
+    GoosciSensorLayout.SensorLayout layoutProto =
+        GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("sensorId").build();
     proto.sensorLayouts = new GoosciSensorLayout.SensorLayout[] {layoutProto};
-    GoosciSensorTrigger.SensorTrigger.Builder triggerProto =
-        GoosciSensorTrigger.SensorTrigger.newBuilder().setSensorId("sensorId");
-    proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[] {triggerProto.build()};
+    GoosciSensorTrigger.SensorTrigger triggerProto =
+        GoosciSensorTrigger.SensorTrigger.newBuilder().setSensorId("sensorId").build();
+    proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[] {triggerProto};
     com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor
-            .Builder
-        expSensorProto = ExperimentSensor.newBuilder().setSensorId("sensorId");
-    proto.experimentSensors = new ExperimentSensor[] {expSensorProto.build()};
+        expSensorProto = ExperimentSensor.newBuilder().setSensorId("sensorId").build();
+    proto.experimentSensors = new ExperimentSensor[] {expSensorProto};
 
     ExperimentOverviewPojo overview = new ExperimentOverviewPojo();
     overview.setExperimentId("cheese");
@@ -135,6 +130,6 @@ public class ExperimentUnitTest {
     experiment.setSensorLayouts(layouts);
     result = experiment.getExperimentProto();
     assertThat(result.sensorLayouts).hasLength(2);
-    assertThat(result.sensorLayouts[1].sensorId).isEqualTo("secondSensorId");
+    assertThat(result.sensorLayouts[1].getSensorId()).isEqualTo("secondSensorId");
   }
 }

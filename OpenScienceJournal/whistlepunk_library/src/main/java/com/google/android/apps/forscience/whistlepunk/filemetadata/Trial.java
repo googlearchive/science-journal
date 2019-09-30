@@ -29,8 +29,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProviderImpl;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
@@ -96,7 +95,7 @@ public class Trial extends LabelListHolder {
   /** Invoked when recording begins to save the metadata about what's being recorded. */
   public static Trial newTrial(
       long startTimeMs,
-      GoosciSensorLayout.SensorLayout[] sensorLayouts,
+      SensorLayout[] sensorLayouts,
       SensorAppearanceProvider provider,
       Context context) {
     String trialId = java.util.UUID.randomUUID().toString();
@@ -132,7 +131,7 @@ public class Trial extends LabelListHolder {
   // sensor_specs
   private Trial(
       long startTimeMs,
-      GoosciSensorLayout.SensorLayout[] sensorLayouts,
+      SensorLayout[] sensorLayouts,
       String trialId,
       SensorAppearanceProvider provider,
       Context context) {
@@ -146,13 +145,13 @@ public class Trial extends LabelListHolder {
     }
     this.trialId = trialId;
 
-    for (GoosciSensorLayout.SensorLayout layout : sensorLayouts) {
+    for (SensorLayout layout : sensorLayouts) {
       sensorAppearances.add(
           AppearanceEntry.newBuilder()
-              .setSensorId(layout.sensorId)
+              .setSensorId(layout.getSensorId())
               .setRememberedAppearance(
                   SensorAppearanceProviderImpl.appearanceToProto(
-                      provider.getAppearance(layout.sensorId), context))
+                      provider.getAppearance(layout.getSensorId()), context))
               .build());
     }
   }

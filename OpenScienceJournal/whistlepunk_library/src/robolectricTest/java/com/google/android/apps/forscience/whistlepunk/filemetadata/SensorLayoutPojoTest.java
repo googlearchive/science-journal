@@ -18,10 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -96,16 +94,13 @@ public class SensorLayoutPojoTest {
 
   @Test
   public void testPartialProto() {
-    @MigrateAs(Destination.BUILDER)
-    SensorLayout proto = new SensorLayout();
-    proto.maximumYAxisValue = 25;
+    SensorLayout proto = SensorLayout.newBuilder().setMaximumYAxisValue(25).build();
     SensorLayoutPojo pojo = SensorLayoutPojo.fromProto(proto);
     assertThat(pojo.getMaximumYAxisValue()).isEqualTo(25);
 
     SensorLayoutPojo pojo2 = new SensorLayoutPojo();
     pojo2.setSensorId("id");
-    @MigrateAs(Destination.BUILDER)
-    SensorLayout proto2 = pojo2.toProto();
-    assertThat(proto2.sensorId).isEqualTo("id");
+    SensorLayout.Builder proto2 = pojo2.toProto().toBuilder();
+    assertThat(proto2.getSensorId()).isEqualTo("id");
   }
 }

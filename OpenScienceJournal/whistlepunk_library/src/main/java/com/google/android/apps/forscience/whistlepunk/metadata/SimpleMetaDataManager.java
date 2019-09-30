@@ -44,7 +44,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.DeviceSpecPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -72,10 +72,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
-import com.google.protobuf.nano.MessageNano;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -953,10 +949,9 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
   }
 
-  private void fillLayoutValues(
-      ContentValues values, @MigrateAs(Destination.EITHER) GoosciSensorLayout.SensorLayout layout) {
-    values.put(RunSensorsColumns.SENSOR_ID, layout.sensorId);
-    values.put(RunSensorsColumns.LAYOUT, MessageNano.toByteArray(layout));
+  private void fillLayoutValues(ContentValues values, GoosciSensorLayout.SensorLayout layout) {
+    values.put(RunSensorsColumns.SENSOR_ID, layout.getSensorId());
+    values.put(RunSensorsColumns.LAYOUT, layout.toByteArray());
   }
 
   private void updateTrialSensors(
@@ -966,12 +961,12 @@ public class SimpleMetaDataManager implements MetaDataManager {
       final ContentValues values = new ContentValues();
       for (int i = 0; i < sensorLayouts.size(); i++) {
         GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(i);
-        values.put(RunSensorsColumns.LAYOUT, MessageNano.toByteArray(layout));
+        values.put(RunSensorsColumns.LAYOUT, layout.toByteArray());
         db.update(
             Tables.RUN_SENSORS,
             values,
             RunSensorsColumns.RUN_ID + "=? AND " + RunSensorsColumns.SENSOR_ID + "=?",
-            new String[] {runId, layout.sensorId});
+            new String[] {runId, layout.getSensorId()});
       }
     }
   }
@@ -1033,8 +1028,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     // Now get sensor layouts.
-    @MigrateAs(Destination.BUILDER)
-    GoosciSensorLayout.SensorLayout layout;
+    GoosciSensorLayout.SensorLayout.Builder layout;
     try {
       cursor =
           db.query(
@@ -1049,14 +1043,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
         try {
           byte[] blob = cursor.getBlob(0);
           if (blob != null) {
-            layout = GoosciSensorLayout.SensorLayout.parseFrom(blob);
+            layout =
+                GoosciSensorLayout.SensorLayout.newBuilder()
+                    .mergeFrom(blob, ExtensionRegistryLite.getGeneratedRegistry());
           } else {
             // In this case, create a fake sensorLayout since none exists.
-            layout = new GoosciSensorLayout.SensorLayout();
-            layout.sensorId = cursor.getString(1);
+            layout = GoosciSensorLayout.SensorLayout.newBuilder();
+            layout.setSensorId(cursor.getString(1));
           }
-          sensorLayouts.add(layout);
-        } catch (InvalidProtocolBufferNanoException e) {
+          sensorLayouts.add(layout.build());
+        } catch (InvalidProtocolBufferException e) {
           Log.d(TAG, "Couldn't parse layout", e);
         }
       }
@@ -1136,8 +1132,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         ContentValues values = new ContentValues();
         values.put(ExperimentSensorLayoutColumns.EXPERIMENT_ID, experimentId);
         values.put(ExperimentSensorLayoutColumns.POSITION, i);
-        values.put(
-            ExperimentSensorLayoutColumns.LAYOUT, MessageNano.toByteArray(sensorLayouts.get(i)));
+        values.put(ExperimentSensorLayoutColumns.LAYOUT, sensorLayouts.get(i).toByteArray());
         db.insertWithOnConflict(
             Tables.EXPERIMENT_SENSOR_LAYOUT, null, values, SQLiteDatabase.CONFLICT_REPLACE);
       }
@@ -1182,12 +1177,13 @@ public class SimpleMetaDataManager implements MetaDataManager {
       while (cursor.moveToNext()) {
         try {
           GoosciSensorLayout.SensorLayout layout =
-              GoosciSensorLayout.SensorLayout.parseFrom(cursor.getBlob(0));
-          if (!sensorIdsAdded.contains(layout.sensorId)) {
+              GoosciSensorLayout.SensorLayout.parseFrom(
+                  cursor.getBlob(0), ExtensionRegistryLite.getGeneratedRegistry());
+          if (!sensorIdsAdded.contains(layout.getSensorId())) {
             layouts.add(SensorLayoutPojo.fromProto(layout));
           }
-          sensorIdsAdded.add(layout.sensorId);
-        } catch (InvalidProtocolBufferNanoException e) {
+          sensorIdsAdded.add(layout.getSensorId());
+        } catch (InvalidProtocolBufferException e) {
           Log.e(TAG, "Couldn't parse layout", e);
         }
       }

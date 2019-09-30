@@ -25,7 +25,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Pair;
 import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
@@ -369,7 +369,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
       if (range.getEndMs() > range.getStartMs()) {
         TimeRange timeRange = TimeRange.oldest(Range.closed(range.getStartMs(), range.getEndMs()));
         for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
-          String tag = sensor.sensorId;
+          String tag = sensor.getSensorId();
           sensorDataList.add(getScalarReadingSensorProtos(trial.trialId, tag, timeRange));
         }
       }
@@ -469,7 +469,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
       if (range.getEndMs() > range.getStartMs()) {
         TimeRange timeRange = TimeRange.oldest(Range.closed(range.getStartMs(), range.getEndMs()));
         for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
-          String tag = sensor.sensorId;
+          String tag = sensor.getSensorId();
           sensorDataList.add(getScalarReadingSensorProtos(trial.trialId, tag, timeRange));
         }
       }

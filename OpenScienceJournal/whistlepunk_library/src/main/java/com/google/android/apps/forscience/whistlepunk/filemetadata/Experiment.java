@@ -24,8 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
-import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
@@ -179,8 +178,7 @@ public class Experiment extends LabelListHolder {
     // All local fields that represent experiment state must be merged back into the proto here.
     GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
     if (sensorLayouts != null) {
-      GoosciSensorLayout.SensorLayout[] protos =
-          new GoosciSensorLayout.SensorLayout[sensorLayouts.size()];
+      SensorLayout[] protos = new SensorLayout[sensorLayouts.size()];
       int i = 0;
       for (SensorLayoutPojo pojo : sensorLayouts) {
         protos[i++] = pojo.toProto();

@@ -311,7 +311,7 @@ public class Label implements Parcelable {
    * the label that occur on the protoData field.
    */
   public void setLabelProtoData(MessageLite data) {
-    labelBuilder.setProtoData(ByteString.copyFrom(data.toByteArray()));
+    labelBuilder.setProtoData(data.toByteString());
   }
 
   /** Deletes any assets associated with this label */

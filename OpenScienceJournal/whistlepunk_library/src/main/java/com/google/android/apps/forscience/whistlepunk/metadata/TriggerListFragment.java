@@ -51,7 +51,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutP
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.protobuf.nano.MessageNano;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -258,8 +257,7 @@ public class TriggerListFragment extends Fragment {
     // completion, and the order in which the triggers are shown so that the order does not
     // change when the user gets back.
     intent.putExtra(
-        EditTriggerActivity.EXTRA_SENSOR_LAYOUT_BLOB,
-        MessageNano.toByteArray(sensorLayout.toProto()));
+        EditTriggerActivity.EXTRA_SENSOR_LAYOUT_BLOB, sensorLayout.toProto().toByteArray());
     intent.putExtra(TriggerListActivity.EXTRA_LAYOUT_POSITION, layoutPosition);
     saveTriggerOrder();
     intent.putExtra(TriggerListActivity.EXTRA_TRIGGER_ORDER, triggerOrder);
