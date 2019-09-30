@@ -32,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearanc
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.nano.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
@@ -39,7 +40,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Trial.AppearanceEntry;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -65,8 +65,20 @@ public class Trial extends LabelListHolder {
     void beforeDeletingPictureLabel(Label label);
   }
 
-  private GoosciTrial.Trial trial;
-  private Map<String, TrialStats> trialStats;
+  // private GoosciTrial.Trial trial;
+
+  private String trialId;
+  private final long creationTimeMs;
+  private String title;
+  private boolean archived;
+  private Range recordingRange;
+  private Range cropRange;
+  private boolean autoZoomEnabled;
+  private List<SensorLayoutPojo> sensorLayouts = new ArrayList<>();
+  private final List<AppearanceEntry> sensorAppearances = new ArrayList<>();
+  private int trialNumberInExperiment;
+  private Caption caption;
+  private Map<String, TrialStats> trialStats = new HashMap<>();
   private OnLabelChangeListener onLabelChangeListener;
 
   /** Populates the Trial from an existing proto. */
@@ -77,7 +89,7 @@ public class Trial extends LabelListHolder {
   /** Populates the Trial from an existing proto, but changes the TrialId. */
   public static Trial fromTrialWithNewId(GoosciTrial.Trial trial) {
     Trial t = new Trial(trial);
-    t.trial.trialId = java.util.UUID.randomUUID().toString();
+    t.trialId = java.util.UUID.randomUUID().toString();
     return t;
   }
 
@@ -92,12 +104,28 @@ public class Trial extends LabelListHolder {
   }
 
   private Trial(GoosciTrial.Trial trial) {
-    this.trial = trial;
-    trialStats = TrialStats.fromTrial(this.trial);
     labels = new ArrayList<>();
-    for (GoosciLabel.Label proto : this.trial.labels) {
-      labels.add(Label.fromLabel(proto));
+    trialId = trial.trialId;
+    creationTimeMs = trial.creationTimeMs;
+    title = trial.title;
+    archived = trial.archived;
+    recordingRange = trial.recordingRange;
+    cropRange = trial.cropRange;
+    autoZoomEnabled = trial.autoZoomEnabled;
+    trialNumberInExperiment = trial.trialNumberInExperiment;
+    for (SensorLayout layoutProto : trial.sensorLayouts) {
+      sensorLayouts.add(SensorLayoutPojo.fromProto(layoutProto));
     }
+
+    for (GoosciLabel.Label labelProto : trial.labels) {
+      labels.add(Label.fromLabel(labelProto));
+    }
+
+    trialStats = TrialStats.fromTrial(trial);
+  }
+
+  public static Trial fromProto(GoosciTrial.Trial trial) {
+    return new Trial(trial);
   }
 
   // TODO: eventually provider should go away, in favor of a different structure containing
@@ -108,27 +136,25 @@ public class Trial extends LabelListHolder {
       String trialId,
       SensorAppearanceProvider provider,
       Context context) {
-    trial = new GoosciTrial.Trial();
-    trial.creationTimeMs = startTimeMs;
+    labels = new ArrayList<>();
+    creationTimeMs = startTimeMs;
     Range recordingRange = Range.newBuilder().setStartMs(startTimeMs).build();
-    trial.recordingRange = recordingRange;
-    trial.sensorLayouts = sensorLayouts;
-    trial.trialId = trialId;
+    this.recordingRange = recordingRange;
 
-    trial.sensorAppearances = new AppearanceEntry[sensorLayouts.length];
-    for (int i = 0; i < sensorLayouts.length; i++) {
-      GoosciSensorLayout.SensorLayout layout = sensorLayouts[i];
-      trial.sensorAppearances[i] =
+    for (SensorLayout layoutProto : sensorLayouts) {
+      this.sensorLayouts.add(SensorLayoutPojo.fromProto(layoutProto));
+    }
+    this.trialId = trialId;
+
+    for (GoosciSensorLayout.SensorLayout layout : sensorLayouts) {
+      sensorAppearances.add(
           AppearanceEntry.newBuilder()
               .setSensorId(layout.sensorId)
               .setRememberedAppearance(
                   SensorAppearanceProviderImpl.appearanceToProto(
                       provider.getAppearance(layout.sensorId), context))
-              .build();
+              .build());
     }
-
-    labels = new ArrayList<>();
-    trialStats = new HashMap<>();
   }
 
   public GoosciPictureLabelValue.PictureLabelValue getCoverPictureLabelValue() {
@@ -141,48 +167,45 @@ public class Trial extends LabelListHolder {
   }
 
   public long getCreationTimeMs() {
-    return trial.creationTimeMs;
+    return creationTimeMs;
   }
 
   public long getFirstTimestamp() {
-    return trial.cropRange == null
-        ? trial.recordingRange.getStartMs()
-        : trial.cropRange.getStartMs();
+    return cropRange == null ? recordingRange.getStartMs() : cropRange.getStartMs();
   }
 
   public long getLastTimestamp() {
-    return trial.cropRange == null ? trial.recordingRange.getEndMs() : trial.cropRange.getEndMs();
+    return cropRange == null ? recordingRange.getEndMs() : cropRange.getEndMs();
   }
 
   public long getOriginalFirstTimestamp() {
-    return trial.recordingRange.getStartMs();
+    return recordingRange.getStartMs();
   }
 
   public long getOriginalLastTimestamp() {
-    return trial.recordingRange.getEndMs();
+    return recordingRange.getEndMs();
   }
 
   public void setRecordingEndTime(long recordingEndTime) {
-    Range recordingRange = trial.recordingRange.toBuilder().setEndMs(recordingEndTime).build();
-    trial.recordingRange = recordingRange;
+    recordingRange = recordingRange.toBuilder().setEndMs(recordingEndTime).build();
   }
 
   public Range getOriginalRecordingRange() {
-    return trial.recordingRange;
+    return recordingRange;
   }
 
   public Range getCropRange() {
-    return trial.cropRange;
+    return cropRange;
   }
 
   public void setCropRange(Range cropRange) {
-    trial.cropRange = cropRange;
+    this.cropRange = cropRange;
   }
 
   public List<String> getSensorIds() {
     List<String> result = new ArrayList<>();
-    for (GoosciSensorLayout.SensorLayout layout : trial.sensorLayouts) {
-      result.add(layout.sensorId);
+    for (SensorLayoutPojo layout : sensorLayouts) {
+      result.add(layout.getSensorId());
     }
     return result;
   }
@@ -207,72 +230,68 @@ public class Trial extends LabelListHolder {
   }
 
   public String getTitle(Context context) {
-    if (TextUtils.isEmpty(trial.title)) {
-      return context.getString(R.string.default_trial_title, trial.trialNumberInExperiment);
+    if (TextUtils.isEmpty(title)) {
+      return context.getString(R.string.default_trial_title, trialNumberInExperiment);
     } else {
-      return trial.title;
+      return title;
     }
   }
 
   public String getRawTitle() {
-    return trial.title;
+    return title;
   }
 
   public void setTitle(String title) {
-    trial.title = title;
+    this.title = title;
   }
 
   public boolean isArchived() {
-    return trial.archived;
+    return archived;
   }
 
   public void setArchived(boolean isArchived) {
-    trial.archived = isArchived;
+    this.archived = isArchived;
   }
 
   public GoosciTrial.Trial getTrialProto() {
-    updateTrialProtoWithStats();
-    updateTrialProtoWithLabels();
+    GoosciTrial.Trial trial = new GoosciTrial.Trial();
+    updateTrialProtoWithStats(trial);
+    updateTrialProtoWithLabels(trial);
+    trial.trialId = trialId;
+    trial.creationTimeMs = creationTimeMs;
+    trial.title = title;
+    trial.archived = archived;
+    trial.recordingRange = recordingRange;
+    trial.cropRange = cropRange;
+    trial.autoZoomEnabled = autoZoomEnabled;
+    trial.trialNumberInExperiment = trialNumberInExperiment;
+    SensorLayout[] layouts = new SensorLayout[sensorLayouts.size()];
+    int index = 0;
+    for (SensorLayoutPojo layoutPojo : sensorLayouts) {
+      layouts[index] = layoutPojo.toProto();
+    }
     return trial;
   }
 
-  // TODO (b/139889447): When Migrating Trial to Pojo, make sure we can modify SensorLayouts
-  //that come from GetSensorLayouts and use SetSensorLayouts properly, particularly for
-  //Sonification changes.
-  public List<SensorLayoutPojo> getSensorLayouts() {
-    List<SensorLayoutPojo> pojos = new ArrayList<>();
-    for (SensorLayout layout : trial.sensorLayouts) {
-      pojos.add(SensorLayoutPojo.fromProto(layout));
-    }
-    return pojos;
+  public GoosciTrial.Trial toProto() {
+    return getTrialProto();
   }
 
-  // TODO (b/139889447): When Migrating Trial to Pojo, make sure we can modify SensorLayouts
-  //that come from GetSensorLayouts and use SetSensorLayouts properly, particularly for
-  //Sonification changes.
+  public List<SensorLayoutPojo> getSensorLayouts() {
+    return sensorLayouts;
+  }
+
   @VisibleForTesting
   public void setSensorLayouts(List<SensorLayoutPojo> sensorLayouts) {
-    Preconditions.checkNotNull(sensorLayouts);
-    SensorLayout[] protos = new SensorLayout[sensorLayouts.size()];
-
-    int i = 0;
-    for (SensorLayoutPojo pojo : sensorLayouts) {
-      protos[i++] = pojo.toProto();
-    }
-    trial.sensorLayouts = protos;
+    this.sensorLayouts = sensorLayouts;
   }
 
   public boolean getAutoZoomEnabled() {
-    return trial.autoZoomEnabled;
+    return autoZoomEnabled;
   }
 
   public void setAutoZoomEnabled(boolean enableAutoZoom) {
-    trial.autoZoomEnabled = enableAutoZoom;
-  }
-
-  /** Gets a list of the stats for all sensors. */
-  public List<TrialStats> getStats() {
-    return new ArrayList<>(trialStats.values());
+    this.autoZoomEnabled = enableAutoZoom;
   }
 
   /** Gets the stats for a sensor. */
@@ -291,18 +310,18 @@ public class Trial extends LabelListHolder {
 
   // The Trial ID cannot be set after it is created.
   public String getTrialId() {
-    return trial.trialId;
+    return trialId;
   }
 
   public String getCaptionText() {
-    if (trial.caption == null) {
+    if (caption == null) {
       return "";
     }
-    return trial.caption.getText();
+    return caption.getText();
   }
 
   public void setCaption(GoosciCaption.Caption caption) {
-    trial.caption = caption;
+    this.caption = caption;
   }
 
   /**
@@ -330,7 +349,7 @@ public class Trial extends LabelListHolder {
     // from the sensor appearance.
   }
 
-  private void updateTrialProtoWithStats() {
+  private void updateTrialProtoWithStats(GoosciTrial.Trial trial) {
     SensorTrialStats[] result = new SensorTrialStats[trialStats.size()];
     int i = 0;
     for (String key : trialStats.keySet()) {
@@ -339,7 +358,7 @@ public class Trial extends LabelListHolder {
     trial.trialStats = result;
   }
 
-  private void updateTrialProtoWithLabels() {
+  private void updateTrialProtoWithLabels(GoosciTrial.Trial trial) {
     GoosciLabel.Label[] result = new GoosciLabel.Label[labels.size()];
     for (int i = 0; i < labels.size(); i++) {
       result[i] = labels.get(i).getLabelProto();
@@ -372,7 +391,7 @@ public class Trial extends LabelListHolder {
   public Map<String, GoosciSensorAppearance.BasicSensorAppearance> getAppearances() {
     // TODO: need a putAppearance method for changes
     HashMap<String, GoosciSensorAppearance.BasicSensorAppearance> appearances = new HashMap<>();
-    for (AppearanceEntry entry : trial.sensorAppearances) {
+    for (AppearanceEntry entry : sensorAppearances) {
       appearances.put(entry.getSensorId(), entry.getRememberedAppearance());
     }
     return appearances;
@@ -380,15 +399,48 @@ public class Trial extends LabelListHolder {
 
   @Override
   public String toString() {
-    return "Trial{" + "mTrial=" + trial + ", mTrialStats=" + trialStats + '}';
+    return "Trial{"
+        + "trialId='"
+        + trialId
+        + '\''
+        + ", creationTimeMs="
+        + creationTimeMs
+        + ", title='"
+        + title
+        + '\''
+        + ", archived="
+        + archived
+        + ", recordingRange="
+        + recordingRange
+        + ", cropRange="
+        + cropRange
+        + ", autoZoomEnabled="
+        + autoZoomEnabled
+        + ", sensorLayouts="
+        + sensorLayouts
+        + ", labels="
+        + labels
+        + ", sensorAppearances="
+        + sensorAppearances
+        + ", trialNumberInExperiment="
+        + trialNumberInExperiment
+        + ", caption="
+        + caption
+        + ", trialStats="
+        + trialStats
+        + ", onLabelChangeListener="
+        + onLabelChangeListener
+        + ", labels="
+        + labels
+        + '}';
   }
 
   public void setTrialNumberInExperiment(int trialNumberInExperiment) {
-    trial.trialNumberInExperiment = trialNumberInExperiment;
+    this.trialNumberInExperiment = trialNumberInExperiment;
   }
 
   public int getTrialNumberInExperiment() {
-    return trial.trialNumberInExperiment;
+    return trialNumberInExperiment;
   }
 
   public Label getLabel(String labelId) {
