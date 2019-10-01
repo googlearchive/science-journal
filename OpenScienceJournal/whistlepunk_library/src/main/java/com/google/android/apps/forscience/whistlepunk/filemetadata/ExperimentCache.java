@@ -29,7 +29,6 @@ import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -438,8 +437,9 @@ class ExperimentCache {
     }
     synchronized (activeExperimentLock) {
       if (proto != null) {
-        upgradeExperimentVersionIfNeeded(proto, experimentOverview);
-        activeExperiment = Experiment.fromExperiment(proto, experimentOverview);
+        Experiment toLoad = Experiment.fromExperiment(proto, experimentOverview);
+        upgradeExperimentVersionIfNeeded(toLoad);
+        activeExperiment = toLoad;
         localSyncManager.addExperiment(activeExperiment.getExperimentId());
         experimentLibraryManager.addExperiment(activeExperiment.getExperimentId());
       } else {
@@ -450,34 +450,28 @@ class ExperimentCache {
     }
   }
 
-  private void upgradeExperimentVersionIfNeeded(
-      GoosciExperiment.Experiment proto, ExperimentOverviewPojo experimentOverview) {
-    upgradeExperimentVersionIfNeeded(
-        proto, experimentOverview, VERSION, MINOR_VERSION, PLATFORM_VERSION);
+  private void upgradeExperimentVersionIfNeeded(Experiment experiment) {
+    upgradeExperimentVersionIfNeeded(experiment, VERSION, MINOR_VERSION, PLATFORM_VERSION);
   }
 
   /**
    * Upgrades an experiment proto if necessary. Requests a save if the upgrade happened.
    *
-   * @param proto The experiment to upgrade if necessary
+   * @param experiment The experiment to upgrade if necessary
    * @param newMajorVersion The major version to upgrade to, available for testing
    * @param newMinorVersion The minor version to upgrade to, available for testing
    * @param newPlatformVersion The platform version to upgrade to, available for testing
    */
   @VisibleForTesting
   void upgradeExperimentVersionIfNeeded(
-      GoosciExperiment.Experiment proto,
-      ExperimentOverviewPojo experimentOverview,
-      int newMajorVersion,
-      int newMinorVersion,
-      int newPlatformVersion) {
+      Experiment experiment, int newMajorVersion, int newMinorVersion, int newPlatformVersion) {
 
     Version.FileVersion.Builder fileVersion;
-    if (proto.fileVersion == null) {
+    if (experiment.getFileVersion() == null) {
       fileVersion = Version.FileVersion.newBuilder();
       fileVersion.setVersion(0).setMinorVersion(0).setPlatformVersion(0);
     } else {
-      fileVersion = proto.fileVersion.toBuilder();
+      fileVersion = experiment.getFileVersion().toBuilder();
     }
 
     if (fileVersion.getVersion() == newMajorVersion
@@ -488,7 +482,7 @@ class ExperimentCache {
     }
     if (fileVersion.getVersion() > newMajorVersion) {
       // It is too new for us to read -- the major version is later than ours.
-      failureListener.onNewerVersionDetected(experimentOverview);
+      failureListener.onNewerVersionDetected(experiment.getExperimentOverview());
       return;
     }
     // Try to upgrade the major version
@@ -531,10 +525,10 @@ class ExperimentCache {
         // Update trial indexes for each trial in the experiment
         // Since this has never been set, we don't know about deleted trials, so we will
         // just do our best and index over again.
-        proto.totalTrials = proto.trials.length;
+        experiment.setTotalTrials(experiment.getTrials().size());
         int count = 0;
-        for (GoosciTrial.Trial trial : proto.trials) {
-          trial.trialNumberInExperiment = ++count;
+        for (Trial trial : experiment.getTrials()) {
+          trial.setTrialNumberInExperiment(++count);
         }
         setPlatformVersion(fileVersion, 2);
       }
@@ -560,7 +554,7 @@ class ExperimentCache {
         revMajorVersionTo(fileVersion, 2);
       }
     }
-    proto.fileVersion = fileVersion.build();
+    experiment.setFileVersion(fileVersion.build());
 
     // We've made changes we need to save.
     startWriteTimer();

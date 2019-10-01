@@ -67,7 +67,7 @@ public class Experiment extends LabelListHolder {
   private final List<Change> changes;
   private String title;
   private String description;
-  private final FileVersion fileVersion;
+  private FileVersion fileVersion;
   // Relative to the experiment, not the account root.
   private String imagePath;
   private int trialCount;
@@ -168,6 +168,9 @@ public class Experiment extends LabelListHolder {
     this.experimentOverview = experimentOverview;
   }
 
+  public GoosciExperiment.Experiment toProto() {
+    return getExperimentProto();
+  }
   /**
    * Gets the proto underlying this experiment. The resulting proto should *not* be modified outside
    * of this class because changes to it will not be saved.
@@ -254,6 +257,8 @@ public class Experiment extends LabelListHolder {
     return "";
   }
 
+
+
   public long getCreationTimeMs() {
     return creationTimeMs;
   }
@@ -289,6 +294,24 @@ public class Experiment extends LabelListHolder {
 
   public static String getDisplayTitle(Context context, String title) {
     return !TextUtils.isEmpty(title) ? title : context.getString(R.string.default_experiment_name);
+  }
+
+  public FileVersion getFileVersion() {
+    return fileVersion;
+  }
+
+  public void setFileVersion(FileVersion fileVersion) {
+    this.fileVersion = fileVersion;
+  }
+
+  /**
+   * Sets the total trials in the experiment. This should generally not be used, except when reading
+   * older protos from disk.
+   *
+   * @param totalTrials The number of trials in the experiment.
+   */
+  public void setTotalTrials(int totalTrials) {
+    this.totalTrials = totalTrials;
   }
 
   @Deprecated
