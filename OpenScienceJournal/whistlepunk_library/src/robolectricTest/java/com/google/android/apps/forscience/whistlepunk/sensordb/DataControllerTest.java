@@ -40,8 +40,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.ExperimentSensors
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +58,6 @@ public class DataControllerTest {
     final DataController dc = makeSimpleController();
 
     final List<SensorLayoutPojo> layouts = new ArrayList<>();
-    @MigrateAs(Destination.BUILDER)
     final SensorLayoutPojo layout = new SensorLayoutPojo();
     layout.setSensorId(Arbitrary.string());
     layouts.add(layout);
@@ -210,7 +207,6 @@ public class DataControllerTest {
     dc.addSensorToExperiment(
         experiment.getExperimentId(), "oldSensorId", TestConsumers.expectingSuccess());
 
-    @MigrateAs(Destination.BUILDER)
     SensorLayoutPojo layout = new SensorLayoutPojo();
     layout.setSensorId("oldSensorId");
     List<SensorLayoutPojo> layouts = new ArrayList<>(1);

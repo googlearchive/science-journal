@@ -19,7 +19,7 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -82,9 +82,8 @@ public class ExportServiceTest {
   }
 
   private Trial makeTrial(String runTitle) {
-    GoosciTrial.Trial trial = new GoosciTrial.Trial();
-    trial.trialId = "runId";
-    trial.title = runTitle;
+    GoosciTrial.Trial trial =
+        GoosciTrial.Trial.newBuilder().setTrialId("runId").setTitle(runTitle).build();
     return Trial.fromTrial(trial);
   }
 }

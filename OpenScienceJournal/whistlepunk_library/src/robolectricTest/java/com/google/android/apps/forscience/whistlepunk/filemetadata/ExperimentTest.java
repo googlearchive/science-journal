@@ -30,11 +30,11 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.protobuf.nano.MessageNano;
 import java.util.List;
 import org.junit.Test;
@@ -79,16 +79,16 @@ public class ExperimentTest {
     // Add a label manually, outside of the proto
     GoosciPictureLabelValue.PictureLabelValue labelValueProto =
         GoosciPictureLabelValue.PictureLabelValue.getDefaultInstance();
-    GoosciLabel.Label.Builder labelProto =
+    GoosciLabel.Label labelProto =
         GoosciLabel.Label.newBuilder()
             .setProtoData(labelValueProto.toByteString())
-            .setType(ValueType.PICTURE);
-    experiment.getLabels().add(Label.fromLabel(labelProto.build()));
+            .setType(ValueType.PICTURE)
+            .build();
+    experiment.getLabels().add(Label.fromLabel(labelProto));
     assertThat(experiment.getLabelCount()).isEqualTo(1);
 
     // Make sure the proto gets updated properly
-    proto.labels = new GoosciLabel.Label[1];
-    proto.labels[0] = labelProto.build();
+    proto.labels = new GoosciLabel.Label[] {labelProto};
     assertThat(MessageNano.messageNanoEquals(experiment.getExperimentProto(), proto)).isTrue();
 
     // Try constructing an experiment from a proto that already has these fields.
@@ -153,11 +153,12 @@ public class ExperimentTest {
     assertThat(experiment.getTrials()).isEmpty();
 
     // Trials on creation that overlap with notes should get those notes added properly.
-    GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-    trialProto.title = "cats";
-    trialProto.recordingRange = Range.newBuilder().setStartMs(100).setEndMs(200).build();
-    proto.trials = new GoosciTrial.Trial[1];
-    proto.trials[0] = trialProto;
+    GoosciTrial.Trial trialProto =
+        GoosciTrial.Trial.newBuilder()
+            .setTitle("cats")
+            .setRecordingRange(Range.newBuilder().setStartMs(100).setEndMs(200))
+            .build();
+    proto.trials = new GoosciTrial.Trial[] {trialProto};
 
     Experiment experiment1 =
         ExperimentCreator.newExperimentForTesting(
@@ -165,9 +166,11 @@ public class ExperimentTest {
     assertThat(experiment1.getTrialCount()).isEqualTo(1);
 
     // Adding a new trial should work as expected.
-    GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
-    trialProto2.title = "more cats";
-    trialProto2.recordingRange = Range.newBuilder().setStartMs(200).setEndMs(500).build();
+    GoosciTrial.Trial trialProto2 =
+        GoosciTrial.Trial.newBuilder()
+            .setTitle("more cats")
+            .setRecordingRange(Range.newBuilder().setStartMs(200).setEndMs(500))
+            .build();
     Trial trial2 = Trial.fromTrial(trialProto2);
     experiment1.getTrials().add(trial2);
 
@@ -194,9 +197,11 @@ public class ExperimentTest {
     assertThat(experiment.getTrials(false, true)).hasSize(2);
     assertThat(experiment.getTrials(true, false)).isEmpty();
 
-    GoosciTrial.Trial validProto = new GoosciTrial.Trial();
-    validProto.recordingRange = Range.newBuilder().setStartMs(100).setEndMs(200).build();
-    validProto.trialId = "valid";
+    GoosciTrial.Trial validProto =
+        GoosciTrial.Trial.newBuilder()
+            .setRecordingRange(Range.newBuilder().setStartMs(100).setEndMs(200))
+            .setTrialId("valid")
+            .build();
     Trial valid = Trial.fromTrial(validProto);
     experiment.addTrial(valid);
 
@@ -204,10 +209,12 @@ public class ExperimentTest {
     assertThat(experiment.getTrials(true, false)).hasSize(1);
     assertThat(experiment.getTrials(false, false)).hasSize(1);
 
-    GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
-    archivedProto.recordingRange = Range.newBuilder().setStartMs(300).setEndMs(400).build();
-    archivedProto.archived = true;
-    archivedProto.trialId = "archived";
+    GoosciTrial.Trial archivedProto =
+        GoosciTrial.Trial.newBuilder()
+            .setRecordingRange(Range.newBuilder().setStartMs(300).setEndMs(400))
+            .setArchived(true)
+            .setTrialId("archived")
+            .build();
     Trial archived = Trial.fromTrial(archivedProto);
     experiment.addTrial(archived);
 
@@ -225,9 +232,11 @@ public class ExperimentTest {
             getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
 
     // Trials are valid.
-    GoosciTrial.Trial validProto = new GoosciTrial.Trial();
-    validProto.recordingRange = Range.newBuilder().setStartMs(100).setEndMs(200).build();
-    validProto.trialId = "valid";
+    GoosciTrial.Trial validProto =
+        GoosciTrial.Trial.newBuilder()
+            .setRecordingRange(Range.newBuilder().setStartMs(100).setEndMs(200))
+            .setTrialId("valid")
+            .build();
     experiment.addTrial(Trial.fromTrial(validProto));
     experiment.addTrial(Trial.fromTrial(validProto));
 
@@ -246,10 +255,12 @@ public class ExperimentTest {
     assertThat(experiment.getTrials(false, true)).hasSize(4);
     assertThat(experiment.getTrials(true, false)).hasSize(2);
 
-    GoosciTrial.Trial archivedProto = new GoosciTrial.Trial();
-    archivedProto.recordingRange = Range.newBuilder().setStartMs(300).setEndMs(400).build();
-    archivedProto.archived = true;
-    archivedProto.trialId = "archived";
+    GoosciTrial.Trial archivedProto =
+        GoosciTrial.Trial.newBuilder()
+            .setRecordingRange(Range.newBuilder().setStartMs(300).setEndMs(400))
+            .setArchived(true)
+            .setTrialId("archived")
+            .build();
     Trial archived = Trial.fromTrial(archivedProto);
     experiment.addTrial(archived);
 
@@ -271,8 +282,7 @@ public class ExperimentTest {
   @Test
   public void testUpdatesProtoOnlyWhenNeeded() {
     GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {99, 100, 125, 201});
-    GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-    trialProto.title = "title";
+    GoosciTrial.Trial trialProto = GoosciTrial.Trial.newBuilder().setTitle("title").build();
     proto.trials = new GoosciTrial.Trial[] {trialProto};
 
     Experiment experiment =
@@ -291,15 +301,21 @@ public class ExperimentTest {
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
             getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
-    GoosciTrial.Trial trialProto1 = new GoosciTrial.Trial();
-    GoosciTrial.Trial trialProto2 = new GoosciTrial.Trial();
-    GoosciTrial.Trial trialProto3 = new GoosciTrial.Trial();
-    trialProto1.trialId = "trial1";
-    trialProto2.trialId = "trial2";
-    trialProto3.trialId = "trial3";
-    trialProto1.recordingRange = Range.newBuilder().setStartMs(0).build();
-    trialProto2.recordingRange = Range.newBuilder().setStartMs(10).build();
-    trialProto3.recordingRange = Range.newBuilder().setStartMs(20).build();
+    GoosciTrial.Trial trialProto1 =
+        GoosciTrial.Trial.newBuilder()
+            .setTrialId("trial1")
+            .setRecordingRange(Range.newBuilder().setStartMs(0))
+            .build();
+    GoosciTrial.Trial trialProto2 =
+        GoosciTrial.Trial.newBuilder()
+            .setTrialId("trial2")
+            .setRecordingRange(Range.newBuilder().setStartMs(10))
+            .build();
+    GoosciTrial.Trial trialProto3 =
+        GoosciTrial.Trial.newBuilder()
+            .setTrialId("trial3")
+            .setRecordingRange(Range.newBuilder().setStartMs(20))
+            .build();
     Trial trial1 = Trial.fromTrial(trialProto1);
     Trial trial2 = Trial.fromTrial(trialProto2);
     Trial trial3 = Trial.fromTrial(trialProto3);
@@ -364,11 +380,10 @@ public class ExperimentTest {
     experiment.updateLabelWithoutSorting(experiment, label);
     assertThat(experiment.getChanges()).hasSize(4);
 
-    GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-    trialProto.labels = new GoosciLabel.Label[1];
-    GoosciLabel.Label.Builder labelProto =
-        GoosciLabel.Label.newBuilder().setLabelId("labelId").setTimestampMs(1);
-    trialProto.labels[0] = labelProto.build();
+    GoosciTrial.Trial trialProto =
+        GoosciTrial.Trial.newBuilder()
+            .addLabels(GoosciLabel.Label.newBuilder().setLabelId("labelId").setTimestampMs(1))
+            .build();
     Trial trial = Trial.fromTrial(trialProto);
 
     experiment.addTrial(trial);

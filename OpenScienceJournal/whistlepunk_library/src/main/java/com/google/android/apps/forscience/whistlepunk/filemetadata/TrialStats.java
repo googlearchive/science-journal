@@ -16,11 +16,11 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +30,7 @@ public class TrialStats {
 
   public static Map<String, TrialStats> fromTrial(GoosciTrial.Trial trial) {
     Map<String, TrialStats> result = new HashMap<>();
-    for (SensorTrialStats stats : trial.trialStats) {
+    for (SensorTrialStats stats : trial.getTrialStatsList()) {
       result.put(stats.getSensorId(), new TrialStats(stats));
     }
     return result;

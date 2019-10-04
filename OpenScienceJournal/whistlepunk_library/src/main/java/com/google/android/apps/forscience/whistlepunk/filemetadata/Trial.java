@@ -35,10 +35,9 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Cap
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Trial.AppearanceEntry;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -104,19 +103,21 @@ public class Trial extends LabelListHolder {
 
   private Trial(GoosciTrial.Trial trial) {
     labels = new ArrayList<>();
-    trialId = trial.trialId;
-    creationTimeMs = trial.creationTimeMs;
-    title = trial.title;
-    archived = trial.archived;
-    recordingRange = trial.recordingRange;
-    cropRange = trial.cropRange;
-    autoZoomEnabled = trial.autoZoomEnabled;
-    trialNumberInExperiment = trial.trialNumberInExperiment;
-    for (SensorLayout layoutProto : trial.sensorLayouts) {
+    trialId = trial.getTrialId();
+    creationTimeMs = trial.getCreationTimeMs();
+    title = trial.getTitle();
+    archived = trial.getArchived();
+    recordingRange = trial.getRecordingRange();
+    if (trial.hasCropRange()) {
+      cropRange = trial.getCropRange();
+    }
+    autoZoomEnabled = trial.getAutoZoomEnabled();
+    trialNumberInExperiment = trial.getTrialNumberInExperiment();
+    for (SensorLayout layoutProto : trial.getSensorLayoutsList()) {
       sensorLayouts.add(SensorLayoutPojo.fromProto(layoutProto));
     }
 
-    for (GoosciLabel.Label labelProto : trial.labels) {
+    for (GoosciLabel.Label labelProto : trial.getLabelsList()) {
       labels.add(Label.fromLabel(labelProto));
     }
 
@@ -137,8 +138,7 @@ public class Trial extends LabelListHolder {
       Context context) {
     labels = new ArrayList<>();
     creationTimeMs = startTimeMs;
-    Range recordingRange = Range.newBuilder().setStartMs(startTimeMs).build();
-    this.recordingRange = recordingRange;
+    recordingRange = Range.newBuilder().setStartMs(startTimeMs).build();
 
     for (SensorLayout layoutProto : sensorLayouts) {
       this.sensorLayouts.add(SensorLayoutPojo.fromProto(layoutProto));
@@ -253,23 +253,32 @@ public class Trial extends LabelListHolder {
   }
 
   public GoosciTrial.Trial getTrialProto() {
-    GoosciTrial.Trial trial = new GoosciTrial.Trial();
-    updateTrialProtoWithStats(trial);
-    updateTrialProtoWithLabels(trial);
-    trial.trialId = trialId;
-    trial.creationTimeMs = creationTimeMs;
-    trial.title = title;
-    trial.archived = archived;
-    trial.recordingRange = recordingRange;
-    trial.cropRange = cropRange;
-    trial.autoZoomEnabled = autoZoomEnabled;
-    trial.trialNumberInExperiment = trialNumberInExperiment;
+    GoosciTrial.Trial.Builder trial =
+        GoosciTrial.Trial.newBuilder()
+            .setTrialId(trialId)
+            .setCreationTimeMs(creationTimeMs)
+            .setArchived(archived)
+            .setRecordingRange(recordingRange)
+            .setAutoZoomEnabled(autoZoomEnabled)
+            .setTrialNumberInExperiment(trialNumberInExperiment);
+    for (TrialStats stats : trialStats.values()) {
+      trial.addTrialStats(stats.getSensorTrialStatsProto());
+    }
+    for (Label label : labels) {
+      trial.addLabels(label.getLabelProto());
+    }
+    if (title != null) {
+      trial.setTitle(title);
+    }
+    if (cropRange != null) {
+      trial.setCropRange(cropRange);
+    }
     SensorLayout[] layouts = new SensorLayout[sensorLayouts.size()];
     int index = 0;
     for (SensorLayoutPojo layoutPojo : sensorLayouts) {
       layouts[index] = layoutPojo.toProto();
     }
-    return trial;
+    return trial.build();
   }
 
   public GoosciTrial.Trial toProto() {
@@ -346,23 +355,6 @@ public class Trial extends LabelListHolder {
                 }));
     // TODO: Also delete any other assets associated with this trial, including icons, etc
     // from the sensor appearance.
-  }
-
-  private void updateTrialProtoWithStats(GoosciTrial.Trial trial) {
-    SensorTrialStats[] result = new SensorTrialStats[trialStats.size()];
-    int i = 0;
-    for (String key : trialStats.keySet()) {
-      result[i++] = trialStats.get(key).getSensorTrialStatsProto();
-    }
-    trial.trialStats = result;
-  }
-
-  private void updateTrialProtoWithLabels(GoosciTrial.Trial trial) {
-    GoosciLabel.Label[] result = new GoosciLabel.Label[labels.size()];
-    for (int i = 0; i < labels.size(); i++) {
-      result[i] = labels.get(i).getLabelProto();
-    }
-    trial.labels = result;
   }
 
   public void setOnLabelChangeListener(OnLabelChangeListener listener) {

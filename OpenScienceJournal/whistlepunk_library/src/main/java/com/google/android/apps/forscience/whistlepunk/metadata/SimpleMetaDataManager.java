@@ -66,7 +66,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Cap
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
@@ -170,8 +169,8 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   private FileMetadataManager getFileMetadataManager() {
     synchronized (lock) {
-      // Force upgrade if needed
-      final SQLiteDatabase db = dbHelper.getWritableDatabase();
+      // Call getWritableDatabase to force upgrade if needed. We don't need the returned db.
+      dbHelper.getWritableDatabase();
 
       // The first time we are going to use the fileMetadataManager, and while we are holding the
       // lock, try to recover experiments lost due to b/129409993.
@@ -910,14 +909,15 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
     // Can't use Trial.newTrial because runId must be the start label ID for this trial.
     // That method can be used after DB upgrade, however.
-    GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-    trialProto.creationTimeMs = clock.getNow();
-    trialProto.sensorLayouts =
-        sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
-    trialProto.trialId = trialId;
-    trialProto.archived = false;
-    trialProto.autoZoomEnabled = true;
-    trialProto.recordingRange = Range.newBuilder().setStartMs(startTimestamp).build();
+    GoosciTrial.Trial trialProto =
+        GoosciTrial.Trial.newBuilder()
+            .setCreationTimeMs(clock.getNow())
+            .addAllSensorLayouts(sensorLayouts)
+            .setTrialId(trialId)
+            .setArchived(false)
+            .setAutoZoomEnabled(true)
+            .setRecordingRange(Range.newBuilder().setStartMs(startTimestamp))
+            .build();
     return Trial.fromTrial(trialProto);
   }
 
@@ -952,23 +952,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
   private void fillLayoutValues(ContentValues values, GoosciSensorLayout.SensorLayout layout) {
     values.put(RunSensorsColumns.SENSOR_ID, layout.getSensorId());
     values.put(RunSensorsColumns.LAYOUT, layout.toByteArray());
-  }
-
-  private void updateTrialSensors(
-      String runId, List<GoosciSensorLayout.SensorLayout> sensorLayouts) {
-    synchronized (lock) {
-      final SQLiteDatabase db = dbHelper.getWritableDatabase();
-      final ContentValues values = new ContentValues();
-      for (int i = 0; i < sensorLayouts.size(); i++) {
-        GoosciSensorLayout.SensorLayout layout = sensorLayouts.get(i);
-        values.put(RunSensorsColumns.LAYOUT, layout.toByteArray());
-        db.update(
-            Tables.RUN_SENSORS,
-            values,
-            RunSensorsColumns.RUN_ID + "=? AND " + RunSensorsColumns.SENSOR_ID + "=?",
-            new String[] {runId, layout.getSensorId()});
-      }
-    }
   }
 
   @VisibleForTesting
@@ -1063,19 +1046,19 @@ public class SimpleMetaDataManager implements MetaDataManager {
     }
 
     if (runIndex != -1) {
-      GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-      trialProto.trialId = trialId;
-      trialProto.sensorLayouts =
-          sensorLayouts.toArray(new GoosciSensorLayout.SensorLayout[sensorLayouts.size()]);
-      trialProto.title = title;
-      trialProto.autoZoomEnabled = autoZoomEnabled;
-      trialProto.archived = archived;
-      trialProto.creationTimeMs = creationTimeMs;
-      trialProto.trialNumberInExperiment = runIndex + 1;
+      GoosciTrial.Trial.Builder trialProto =
+          GoosciTrial.Trial.newBuilder()
+              .setTrialId(trialId)
+              .addAllSensorLayouts(sensorLayouts)
+              .setTitle(title)
+              .setAutoZoomEnabled(autoZoomEnabled)
+              .setArchived(archived)
+              .setCreationTimeMs(creationTimeMs)
+              .setTrialNumberInExperiment(runIndex + 1);
 
       populateTrialProtoFromLabels(trialProto, applicationLabels, labels);
 
-      Trial result = Trial.fromTrial(trialProto);
+      Trial result = Trial.fromTrial(trialProto.build());
       for (String sensorId : result.getSensorIds()) {
         result.setStats(getDatabaseStats(db, trialId, sensorId));
       }
@@ -1087,14 +1070,16 @@ public class SimpleMetaDataManager implements MetaDataManager {
 
   @VisibleForTesting
   public static void populateTrialProtoFromLabels(
-      GoosciTrial.Trial trialProto, List<ApplicationLabel> applicationLabels, List<Label> labels) {
+      GoosciTrial.Trial.Builder trialProto,
+      List<ApplicationLabel> applicationLabels,
+      List<Label> labels) {
     // Populate the recording and crop ranges from labels.
     Range.Builder recordingRange = Range.newBuilder();
     Range.Builder cropRange;
-    if (trialProto.cropRange == null) {
+    if (!trialProto.hasCropRange()) {
       cropRange = Range.newBuilder();
     } else {
-      cropRange = trialProto.cropRange.toBuilder();
+      cropRange = trialProto.getCropRange().toBuilder();
     }
     boolean cropRangeUpdated = false;
 
@@ -1111,14 +1096,14 @@ public class SimpleMetaDataManager implements MetaDataManager {
         cropRangeUpdated = true;
       }
     }
-    trialProto.recordingRange = recordingRange.build();
+    trialProto.setRecordingRange(recordingRange);
     if (cropRangeUpdated) {
-      trialProto.cropRange = cropRange.build();
+      trialProto.setCropRange(cropRange);
     }
 
-    trialProto.labels = new GoosciLabel.Label[labels.size()];
+    trialProto.clearLabels();
     for (int i = 0; i < labels.size(); i++) {
-      trialProto.labels[i] = labels.get(i).getLabelProto();
+      trialProto.addLabels(labels.get(i).getLabelProto());
     }
   }
 
@@ -1495,7 +1480,6 @@ public class SimpleMetaDataManager implements MetaDataManager {
           db.query(
               Tables.LABELS, LabelQuery.PROJECTION, selection, selectionArgs, null, null, null);
       while (cursor.moveToNext()) {
-        String type = cursor.getString(LabelQuery.TYPE_INDEX);
         ApplicationLabel label;
         // TODO: fix code smell: perhaps make a factory?
         final String labelId = cursor.getString(LabelQuery.LABEL_ID_INDEX);
@@ -1768,7 +1752,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
   @Override
   public void eraseSensorFromExperiment(String databaseTag, String experimentId) {
     synchronized (lock) {
-      final SQLiteDatabase db = dbHelper.getWritableDatabase();
+      dbHelper.getWritableDatabase();
       removeSensorExperimentInclusion(databaseTag, experimentId);
     }
   }
@@ -1979,7 +1963,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         c.moveToNext();
       }
     } catch (InvalidProtocolBufferException e) {
-      e.printStackTrace();
+      Log.e(TAG, "Couldn't parse trigger information", e);
     } finally {
       if (c != null) {
         c.close();

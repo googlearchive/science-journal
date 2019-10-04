@@ -26,7 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -37,28 +37,27 @@ import org.robolectric.RuntimeEnvironment;
 public class TrialTest {
   @Test
   public void testTrialWithLabels() throws Exception {
-    GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-    trialProto.labels = new GoosciLabel.Label[1];
+    GoosciTrial.Trial.Builder trialProto = GoosciTrial.Trial.newBuilder();
     GoosciLabel.Label.Builder labelProto =
         GoosciLabel.Label.newBuilder().setLabelId("labelId").setTimestampMs(1);
-    trialProto.labels[0] = labelProto.build();
+    trialProto.addLabels(labelProto);
     Experiment experiment = ExperimentCreator.newExperimentForTesting(1, "id", 1);
-    Trial trial = Trial.fromTrial(trialProto);
+    Trial trial = Trial.fromTrial(trialProto.build());
     experiment.addTrial(trial);
 
-    assertEquals(trial.getLabelCount(), 1);
+    assertEquals(1, trial.getLabelCount());
 
     Label label = trial.getLabels().get(0);
     label.setTimestamp(10);
     trial.updateLabel(label);
-    assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
+    assertEquals(10, trial.getLabels().get(0).getTimeStamp());
 
     Label second = Label.newLabel(20, ValueType.TEXT);
     trial.addLabel(second);
-    assertEquals(trial.getLabelCount(), 2);
+    assertEquals(2, trial.getLabelCount());
 
     trial.deleteLabelAndReturnAssetDeleter(experiment, label, getAppAccount()).accept(getContext());
-    assertEquals(trial.getLabelCount(), 1);
+    assertEquals(1, trial.getLabelCount());
   }
 
   @Test
@@ -69,10 +68,10 @@ public class TrialTest {
     trial.addLabel(Label.newLabel(20, ValueType.TEXT));
     trial.addLabel(Label.newLabel(30, ValueType.TEXT));
     trial.addLabel(Label.newLabel(10, ValueType.TEXT));
-    assertEquals(trial.getLabels().size(), 3);
-    assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
-    assertEquals(trial.getLabels().get(1).getTimeStamp(), 20);
-    assertEquals(trial.getLabels().get(2).getTimeStamp(), 30);
+    assertEquals(3, trial.getLabels().size());
+    assertEquals(10, trial.getLabels().get(0).getTimeStamp());
+    assertEquals(20, trial.getLabels().get(1).getTimeStamp());
+    assertEquals(30, trial.getLabels().get(2).getTimeStamp());
   }
 
   @Test
@@ -86,7 +85,7 @@ public class TrialTest {
     Label second = trial.getLabels().get(1);
     second.setTimestamp(40);
     trial.updateLabel(second);
-    assertEquals(trial.getLabels().get(2).getTimeStamp(), 40);
+    assertEquals(40, trial.getLabels().get(2).getTimeStamp());
   }
 
   private static Context getContext() {

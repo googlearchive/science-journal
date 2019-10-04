@@ -18,7 +18,6 @@ syntax = "proto2";
 
 package goosci;
 
-import "third_party/android/nanoproto/nano_descriptor.proto";
 import "basic_sensor_appearance.proto";
 import "caption.proto";
 import "label.proto";
@@ -34,8 +33,6 @@ option optimize_for = LITE_RUNTIME;
  * Added in V2.
  */
 message Trial {
-  option (proto2.nano.message_as_lite) = false;
-
   // The ID is unique within an experiment, but cannot be assumed to be unique
   // across experiments. This is also used to reference the file containing
   // trial data, which is stored separately, as users may "copy" entire
@@ -78,8 +75,6 @@ message Trial {
 
   // Version 1.2: Added
   message AppearanceEntry {
-    option (proto2.nano.message_as_lite) = true;
-
     // The sensor ID associated with this within this experiment.
     // This has no global uniqueness or parseable meaning outside this
     // experiment
@@ -106,8 +101,6 @@ message Trial {
  * A time range
  */
 message Range {
-  option (proto2.nano.message_as_lite) = true;
-
   // The start of a range.
   optional int64 startMs = 1;
 
@@ -120,15 +113,11 @@ message Range {
  * stats.
  */
 message SensorTrialStats {
-  option (proto2.nano.message_as_lite) = true;
-
   // The sensor ID associated with this stat (to be looked up in
   // sensorAppearances)
   optional string sensorId = 1;
 
   enum StatStatus {
-    option (proto2.nano.enum_as_lite) = true;
-
     VALID = 1;         // The stats are updated and valid.
     NEEDS_UPDATE = 2;  // The stats need an update and are not currently valid.
   }
@@ -142,11 +131,7 @@ message SensorTrialStats {
  * Represents a single stat, i.e. average = 42 or num_data_points = 17.
  */
 message SensorStat {
-  option (proto2.nano.message_as_lite) = true;
-
   enum StatType {
-    option (proto2.nano.enum_as_lite) = true;
-
     MINIMUM = 1;          // The minimum value.
     MAXIMUM = 2;          // The maximum value.
     AVERAGE = 3;          // The average value.

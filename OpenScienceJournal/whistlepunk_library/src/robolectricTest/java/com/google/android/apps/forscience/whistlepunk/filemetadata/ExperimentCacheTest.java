@@ -28,9 +28,9 @@ import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccoun
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.protobuf.nano.MessageNano;
 import java.io.File;
 import junit.framework.Assert;
@@ -416,8 +416,8 @@ public class ExperimentCacheTest {
             .setMinorVersion(1)
             .build();
     ExperimentOverviewPojo overview = new ExperimentOverviewPojo();
-    GoosciTrial.Trial trial1 = new GoosciTrial.Trial();
-    GoosciTrial.Trial trial2 = new GoosciTrial.Trial();
+    GoosciTrial.Trial trial1 = GoosciTrial.Trial.getDefaultInstance();
+    GoosciTrial.Trial trial2 = GoosciTrial.Trial.getDefaultInstance();
     proto.trials = new GoosciTrial.Trial[] {trial1, trial2};
     Experiment pojo = Experiment.fromExperiment(proto, overview);
     cache.upgradeExperimentVersionIfNeeded(pojo, 1, 1, 2);
@@ -425,8 +425,8 @@ public class ExperimentCacheTest {
     assertEquals(0, mFailureCount);
     assertEquals(2, proto.fileVersion.getPlatformVersion());
     assertEquals(2, proto.totalTrials);
-    assertEquals(1, proto.trials[0].trialNumberInExperiment);
-    assertEquals(2, proto.trials[1].trialNumberInExperiment);
+    assertEquals(1, proto.trials[0].getTrialNumberInExperiment());
+    assertEquals(2, proto.trials[1].getTrialNumberInExperiment());
   }
 
   @NonNull

@@ -27,8 +27,8 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import io.reactivex.Observable;
@@ -322,31 +322,26 @@ public class SensorDatabaseTest {
     double value = Arbitrary.doubleFloat();
 
     GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
-    GoosciTrial.Trial trial = new GoosciTrial.Trial();
+    GoosciTrial.Trial.Builder trial = GoosciTrial.Trial.newBuilder();
     SensorLayout sensorLayout =
         GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("foo").build();
-    trial.recordingRange =
+    trial.setRecordingRange(
         com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.newBuilder()
             .setStartMs(timestamp - 1)
-            .setEndMs(timestamp + 3)
-            .build();
-    GoosciSensorLayout.SensorLayout[] layoutArray = new GoosciSensorLayout.SensorLayout[1];
-    layoutArray[0] = sensorLayout;
-    trial.sensorLayouts = layoutArray;
-    GoosciTrial.Trial[] trialArray = new GoosciTrial.Trial[1];
-    trialArray[0] = trial;
-    experiment.trials = trialArray;
+            .setEndMs(timestamp + 3));
+    trial.addSensorLayouts(sensorLayout);
+    experiment.trials = new GoosciTrial.Trial[] {trial.build()};
 
-    db.addScalarReading(trial.trialId, "foo", 0, timestamp, value);
-    db.addScalarReading(trial.trialId, "foo", 1, timestamp + 1, value);
-    db.addScalarReading(trial.trialId, "foo", 0, timestamp + 2, value);
-    db.addScalarReading(trial.trialId, "bar", 0, timestamp + 2, value);
-    db.addScalarReading(trial.trialId, "foo", 0, timestamp + 4, value);
+    db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp, value);
+    db.addScalarReading(trial.getTrialId(), "foo", 1, timestamp + 1, value);
+    db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp + 2, value);
+    db.addScalarReading(trial.getTrialId(), "bar", 0, timestamp + 2, value);
+    db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp + 4, value);
 
     GoosciScalarSensorData.ScalarSensorData data = db.getScalarReadingProtos(experiment);
     assertEquals("foo", data.getSensors(0).getTag());
     assertEquals(2, data.getSensors(0).getRowsCount());
-    assertEquals(trial.trialId, data.getSensors(0).getTrialId());
+    assertEquals(trial.getTrialId(), data.getSensors(0).getTrialId());
   }
 
   @Test
@@ -357,20 +352,15 @@ public class SensorDatabaseTest {
     double value = Arbitrary.doubleFloat();
 
     GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
-    GoosciTrial.Trial trial = new GoosciTrial.Trial();
+    GoosciTrial.Trial.Builder trial = GoosciTrial.Trial.newBuilder();
     SensorLayout sensorLayout =
         GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("foo").build();
-    trial.recordingRange =
+    trial.setRecordingRange(
         com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.newBuilder()
             .setStartMs(timestamp - 1)
-            .setEndMs(timestamp + 3)
-            .build();
-    GoosciSensorLayout.SensorLayout[] layoutArray = new GoosciSensorLayout.SensorLayout[1];
-    layoutArray[0] = sensorLayout;
-    trial.sensorLayouts = layoutArray;
-    GoosciTrial.Trial[] trialArray = new GoosciTrial.Trial[1];
-    trialArray[0] = trial;
-    experiment.trials = trialArray;
+            .setEndMs(timestamp + 3));
+    trial.addSensorLayouts(sensorLayout);
+    experiment.trials = new GoosciTrial.Trial[] {trial.build()};
 
     db.addScalarReading("0", "foo", 0, timestamp, value);
     db.addScalarReading("0", "foo", 1, timestamp + 1, value);
@@ -427,31 +417,27 @@ public class SensorDatabaseTest {
     double value = Arbitrary.doubleFloat();
 
     GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
-    GoosciTrial.Trial trial = new GoosciTrial.Trial();
+    GoosciTrial.Trial.Builder trial = GoosciTrial.Trial.newBuilder();
     SensorLayout sensorLayout =
         GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("foo").build();
-    trial.recordingRange =
+    trial.setRecordingRange(
         com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.newBuilder()
             .setStartMs(timestamp - 1)
-            .setEndMs(timestamp + 3)
-            .build();
-    GoosciSensorLayout.SensorLayout[] layoutArray = new GoosciSensorLayout.SensorLayout[1];
-    layoutArray[0] = sensorLayout;
-    trial.sensorLayouts = layoutArray;
-    GoosciTrial.Trial[] trialArray = new GoosciTrial.Trial[1];
-    trialArray[0] = trial;
-    experiment.trials = trialArray;
+            .setEndMs(timestamp + 3));
+    trial.addSensorLayouts(sensorLayout);
+    experiment.trials = new GoosciTrial.Trial[] {trial.build()};
+    ;
 
-    db.addScalarReading(trial.trialId, "foo", 0, timestamp, value);
-    db.addScalarReading(trial.trialId, "foo", 1, timestamp + 1, value);
-    db.addScalarReading(trial.trialId, "foo", 0, timestamp + 2, value);
-    db.addScalarReading(trial.trialId, "bar", 0, timestamp + 2, value);
-    db.addScalarReading(trial.trialId, "foo", 0, timestamp + 4, value);
+    db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp, value);
+    db.addScalarReading(trial.getTrialId(), "foo", 1, timestamp + 1, value);
+    db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp + 2, value);
+    db.addScalarReading(trial.getTrialId(), "bar", 0, timestamp + 2, value);
+    db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp + 4, value);
 
     List<ScalarSensorDataDump> data = db.getScalarReadingProtosAsList(experiment);
     assertEquals("foo", data.get(0).getTag());
     assertEquals(2, data.get(0).getRowsCount());
-    assertEquals(trial.trialId, data.get(0).getTrialId());
+    assertEquals(trial.getTrialId(), data.get(0).getTrialId());
   }
 
   @Before

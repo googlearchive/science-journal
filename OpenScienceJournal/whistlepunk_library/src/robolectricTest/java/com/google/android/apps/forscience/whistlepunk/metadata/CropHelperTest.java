@@ -31,11 +31,11 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,19 +92,23 @@ public class CropHelperTest {
   }
 
   private Trial makeCommonTrial() {
-    GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-    trialProto.trialId = "0";
-    trialProto.sensorLayouts = sensorLayouts;
-    trialProto.recordingRange = Range.newBuilder().setStartMs(0).setEndMs(2000).build();
+    GoosciTrial.Trial trialProto =
+        GoosciTrial.Trial.newBuilder()
+            .setTrialId("0")
+            .addAllSensorLayouts(Arrays.asList(sensorLayouts))
+            .setRecordingRange(Range.newBuilder().setStartMs(0).setEndMs(2000))
+            .build();
     return Trial.fromTrial(trialProto);
   }
 
   @Test
   public void testCropRun_failsOutsideBounds() {
-    GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-    trialProto.trialId = "runId";
-    trialProto.creationTimeMs = 42;
-    trialProto.recordingRange = Range.newBuilder().setStartMs(0).setEndMs(10).build();
+    GoosciTrial.Trial trialProto =
+        GoosciTrial.Trial.newBuilder()
+            .setTrialId("runId")
+            .setCreationTimeMs(42)
+            .setRecordingRange(Range.newBuilder().setStartMs(0).setEndMs(10))
+            .build();
     Trial trial = Trial.fromTrial(trialProto);
 
     Experiment experiment = ExperimentCreator.newExperimentForTesting(10, "experimentId", 0);
@@ -139,10 +143,10 @@ public class CropHelperTest {
     CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), dataController);
     cropHelper.cropTrial(null, experiment, trial.getTrialId(), 4, 1006, cropTrialListener);
     assertTrue(cropCompleted);
-    assertEquals(trial.getFirstTimestamp(), 4);
-    assertEquals(trial.getLastTimestamp(), 1006);
-    assertEquals(trial.getOriginalFirstTimestamp(), 0);
-    assertEquals(trial.getOriginalLastTimestamp(), 2000);
+    assertEquals(4, trial.getFirstTimestamp());
+    assertEquals(1006, trial.getLastTimestamp());
+    assertEquals(0, trial.getOriginalFirstTimestamp());
+    assertEquals(2000, trial.getOriginalLastTimestamp());
     assertTrue(
         metadataManager
             .getExperimentById(experiment.getExperimentId())
@@ -169,10 +173,10 @@ public class CropHelperTest {
     CropHelper cropHelper = new CropHelper(MoreExecutors.directExecutor(), dataController);
     cropHelper.cropTrial(null, experiment, trial.getTrialId(), 2, 1008, cropTrialListener);
     assertTrue(cropCompleted);
-    assertEquals(trial.getFirstTimestamp(), 2);
-    assertEquals(trial.getLastTimestamp(), 1008);
-    assertEquals(trial.getOriginalFirstTimestamp(), 0);
-    assertEquals(trial.getOriginalLastTimestamp(), 2000);
+    assertEquals(2, trial.getFirstTimestamp());
+    assertEquals(1008, trial.getLastTimestamp());
+    assertEquals(0, trial.getOriginalFirstTimestamp());
+    assertEquals(2000, trial.getOriginalLastTimestamp());
 
     TrialStats stats =
         metadataManager
@@ -180,10 +184,10 @@ public class CropHelperTest {
             .getTrial(trial.getTrialId())
             .getStatsForSensor("sensor");
     assertTrue(stats.statsAreValid());
-    assertEquals(stats.getStatValue(StatType.MINIMUM, -1), 50.0, DELTA);
-    assertEquals(stats.getStatValue(StatType.AVERAGE, -1), 60.0, DELTA);
-    assertEquals(stats.getStatValue(StatType.MAXIMUM, -1), 70.0, DELTA);
-    assertEquals(stats.getStatValue(StatType.NUM_DATA_POINTS, -1), 3.0, DELTA);
+    assertEquals(50.0, stats.getStatValue(StatType.MINIMUM, -1), DELTA);
+    assertEquals(60.0, stats.getStatValue(StatType.AVERAGE, -1), DELTA);
+    assertEquals(70.0, stats.getStatValue(StatType.MAXIMUM, -1), DELTA);
+    assertEquals(3.0, stats.getStatValue(StatType.NUM_DATA_POINTS, -1), DELTA);
   }
 
   @Test

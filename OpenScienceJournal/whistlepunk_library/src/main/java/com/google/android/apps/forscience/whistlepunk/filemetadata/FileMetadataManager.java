@@ -34,9 +34,9 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -64,7 +64,6 @@ public class FileMetadataManager {
   public static final String EXPERIMENT_LIBRARY_FILE = "experiment_library.proto";
   public static final String SYNC_STATUS_FILE = "sync_status.proto";
   private static final String TAG = "FileMetadataManager";
-  private static final String USER_METADATA_FILE = "user_metadata.proto";
   public static final String DOT_PROTO = ".proto";
 
   private AppAccount appAccount;
@@ -248,7 +247,7 @@ public class FileMetadataManager {
     // Image paths are relative to the experiment directory.
     Set<String> usedImagePaths = Sets.newHashSet();
     for (GoosciTrial.Trial trial : experiment.trials) {
-      for (GoosciLabel.Label label : trial.labels) {
+      for (GoosciLabel.Label label : trial.getLabelsList()) {
         if (label.getType() == ValueType.PICTURE) {
           try {
             GoosciPictureLabelValue.PictureLabelValue labelValue =
@@ -643,11 +642,11 @@ public class FileMetadataManager {
       GoosciExperiment.Experiment proto, Experiment newExperiment) {
     HashMap<String, String> trialIdMap = new HashMap<>();
     for (int i = 0; i < proto.trials.length; i++) {
-      String oldId = proto.trials[i].trialId;
+      String oldId = proto.trials[i].getTrialId();
       Trial t = Trial.fromTrialWithNewId(proto.trials[i]);
       newExperiment.addTrial(t);
       proto.trials[i] = t.getTrialProto();
-      trialIdMap.put(oldId, proto.trials[i].trialId);
+      trialIdMap.put(oldId, proto.trials[i].getTrialId());
     }
     return trialIdMap;
   }

@@ -24,8 +24,8 @@ import com.google.android.apps.forscience.whistlepunk.ExplodingFactory;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MonotonicClock;
@@ -173,10 +173,11 @@ public class ChartControllerTest {
   }
 
   private Trial trialBetween(int startTimestamp, int endTimestamp, String trialId) {
-    GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-    trialProto.trialId = trialId;
-    trialProto.recordingRange =
-        Range.newBuilder().setStartMs(startTimestamp).setEndMs(endTimestamp).build();
+    GoosciTrial.Trial trialProto =
+        GoosciTrial.Trial.newBuilder()
+            .setTrialId(trialId)
+            .setRecordingRange(Range.newBuilder().setStartMs(startTimestamp).setEndMs(endTimestamp))
+            .build();
     return Trial.fromTrial(trialProto);
   }
 

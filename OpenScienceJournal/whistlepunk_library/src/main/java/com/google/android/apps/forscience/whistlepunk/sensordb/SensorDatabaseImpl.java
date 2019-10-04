@@ -29,8 +29,8 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.base.Joiner;
@@ -364,13 +364,13 @@ public class SensorDatabaseImpl implements SensorDatabase {
     ArrayList<ScalarSensorDataDump> sensorDataList = new ArrayList<>();
     for (GoosciTrial.Trial trial : experiment.trials) {
       com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range range =
-          trial.recordingRange;
+          trial.getRecordingRange();
       // This protects against corrupted trials with invalid range end times.
       if (range.getEndMs() > range.getStartMs()) {
         TimeRange timeRange = TimeRange.oldest(Range.closed(range.getStartMs(), range.getEndMs()));
-        for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
+        for (GoosciSensorLayout.SensorLayout sensor : trial.getSensorLayoutsList()) {
           String tag = sensor.getSensorId();
-          sensorDataList.add(getScalarReadingSensorProtos(trial.trialId, tag, timeRange));
+          sensorDataList.add(getScalarReadingSensorProtos(trial.getTrialId(), tag, timeRange));
         }
       }
     }
@@ -460,17 +460,17 @@ public class SensorDatabaseImpl implements SensorDatabase {
       GoosciExperiment.Experiment experiment, String trialId) {
     ArrayList<ScalarSensorDataDump> sensorDataList = new ArrayList<>();
     for (GoosciTrial.Trial trial : experiment.trials) {
-      if (!trial.trialId.equals(trialId)) {
+      if (!trial.getTrialId().equals(trialId)) {
         continue;
       }
       com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range range =
-          trial.recordingRange;
+          trial.getRecordingRange();
       // This protects against corrupted trials with invalid range end times.
       if (range.getEndMs() > range.getStartMs()) {
         TimeRange timeRange = TimeRange.oldest(Range.closed(range.getStartMs(), range.getEndMs()));
-        for (GoosciSensorLayout.SensorLayout sensor : trial.sensorLayouts) {
+        for (GoosciSensorLayout.SensorLayout sensor : trial.getSensorLayoutsList()) {
           String tag = sensor.getSensorId();
-          sensorDataList.add(getScalarReadingSensorProtos(trial.trialId, tag, timeRange));
+          sensorDataList.add(getScalarReadingSensorProtos(trial.getTrialId(), tag, timeRange));
         }
       }
     }
