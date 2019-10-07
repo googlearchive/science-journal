@@ -59,6 +59,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   private static final int TYPE_UNKNOWN = -1;
   private static final int TYPE_ADD_LABEL = 4;
   private static final int TYPE_CAPTION = 5;
+  private static final int FIRST_NOTE_INDEX = 1;
 
   private PopupMenu popupMenu = null;
 
@@ -340,15 +341,18 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     notifyDataSetChanged();
   }
 
-  public void onLabelAdded(Label label) {
+  // TODO (b/134097634): Update this logic once we can fully remove the "add note" button
+  public int onLabelAdded(Label label) {
     if (trial.getLabelCount() == 1) {
-      notifyItemChanged(1); // First label at index 1 (0 is the "add note" button)
+      notifyItemChanged(FIRST_NOTE_INDEX); // First label at index 1 (0 is the "add note" button)
     } else {
       int position = findLabelIndexById(label.getLabelId());
       if (position != -1) {
         notifyItemInserted(position);
+        return position;
       }
     }
+    return FIRST_NOTE_INDEX;
   }
 
   private int findLabelIndexById(String id) {

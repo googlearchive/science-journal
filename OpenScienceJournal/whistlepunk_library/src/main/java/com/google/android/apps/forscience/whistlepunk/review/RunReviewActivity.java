@@ -31,6 +31,7 @@ import com.google.android.apps.forscience.whistlepunk.RecorderService;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
 /** Displays the experiment trial, notes for the trial, and the action bar to add more notes. */
 public class RunReviewActivity extends NoteTakingActivity {
@@ -197,7 +198,9 @@ public class RunReviewActivity extends NoteTakingActivity {
   }
 
   @Override
-  protected void onLabelAdded(String trialId) {}
+  protected void onLabelAdded(String trialId, Label label) {
+    fragment.reloadAndScrollToLabel(label);
+  }
 
   @Override
   protected long getTimestamp(Context context) {

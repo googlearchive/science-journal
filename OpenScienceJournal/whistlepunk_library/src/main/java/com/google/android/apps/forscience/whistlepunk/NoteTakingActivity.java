@@ -119,7 +119,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     AppSingleton.getInstance(this)
         .whenLabelsAdded(appAccount)
         .takeUntil(destroyed.happens())
-        .subscribe(event -> onLabelAdded(event.getTrialId()));
+        .subscribe(event -> onLabelAdded(event.getTrialId(), event.getLabel()));
   }
 
   @VisibleForTesting
@@ -307,7 +307,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
             e.getTrial(trialId).addLabel(e, label);
           }
           RxDataController.updateExperiment(getDataController(), e, true)
-              .subscribe(() -> onLabelAdded(trialId), error -> onAddNewLabelFailed());
+              .subscribe(() -> onLabelAdded(trialId, label), error -> onAddNewLabelFailed());
         });
   }
 
@@ -321,7 +321,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
 
   protected abstract String getTrialIdForLabel();
 
-  protected abstract void onLabelAdded(String trialId);
+  protected abstract void onLabelAdded(String trialId, Label label);
 
   protected DataController getDataController() {
     return AppSingleton.getInstance(this).getDataController(appAccount);

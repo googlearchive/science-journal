@@ -54,6 +54,7 @@ import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
 import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
+import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
@@ -161,6 +162,7 @@ public class RunReviewFragment extends Fragment
   private ExternalAxisController externalAxis;
   private RunReviewOverlay runReviewOverlay;
   private PinnedNoteAdapter pinnedNoteAdapter;
+  private RecyclerView pinnedNoteList;
   private Experiment experiment;
   private ActionMode actionMode;
   private TrialStats currentSensorStats;
@@ -493,7 +495,9 @@ public class RunReviewFragment extends Fragment
       } else {
         actionArea.addItems(
             getContext(), runReviewActivity.getActionAreaItems(), runReviewActivity);
-        RecyclerView pinnedNoteList = rootView.findViewById(R.id.pinned_note_list);
+        if (pinnedNoteList == null) {
+          pinnedNoteList = rootView.findViewById(R.id.pinned_note_list);
+        }
         pinnedNoteList.setPadding(
             0,
             0,
@@ -842,11 +846,15 @@ public class RunReviewFragment extends Fragment
       ((AppCompatActivity) activity).supportStartPostponedEnterTransition();
       return;
     }
-    setTitle(trial.getTitle(rootView.getContext()));
+    if (Flags.showActionBar()) {
+      setTitle(trial.getTitle(rootView.getContext()));
+    }
 
-    final RecyclerView pinnedNoteList = (RecyclerView) rootView.findViewById(R.id.pinned_note_list);
     LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
     layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+    if (pinnedNoteList == null) {
+      pinnedNoteList = rootView.findViewById(R.id.pinned_note_list);
+    }
     pinnedNoteList.setLayoutManager(layoutManager);
 
     pinnedNoteAdapter =
@@ -1918,6 +1926,15 @@ public class RunReviewFragment extends Fragment
 
   protected SensorLayoutPojo getSensorLayout() {
     return getTrial().getSensorLayouts().get(selectedSensorIndex);
+  }
+
+  public void reloadAndScrollToLabel(Label newLabel) {
+    int index = pinnedNoteAdapter.onLabelAdded(newLabel);
+    if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
+      pinnedNoteList.smoothScrollToPosition(index);
+    } else {
+      pinnedNoteList.scrollToPosition(index);
+    }
   }
 
   private void setTitle(String trialName) {

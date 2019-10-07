@@ -37,6 +37,7 @@ import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.arcore.ARVelocityActivity;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsWithActionAreaFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
@@ -304,7 +305,7 @@ public class ExperimentActivity extends NoteTakingActivity
   }
 
   @Override
-  protected void onLabelAdded(String trialId) {
+  protected void onLabelAdded(String trialId, Label label) {
     if (TextUtils.isEmpty(trialId)) {
       // TODO: is this expensive?  Should we trigger a more incremental update?
       experimentFragment.reloadAndScrollToBottom();
