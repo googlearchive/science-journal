@@ -501,7 +501,8 @@ public class SensorCardPresenter {
     LayoutInflater.from(cardViewHolder.getContext())
         .inflate(R.layout.sensor_selector_tab_layout, cardViewHolder.sensorTabHolder, true);
     cardViewHolder.sensorTabLayout = (TabLayout) cardViewHolder.sensorTabHolder.getChildAt(0);
-    cardViewHolder.sensorTabLayout.setOnTabSelectedListener(onTabSelectedListener);
+    cardViewHolder.sensorTabLayout.clearOnTabSelectedListeners();
+    cardViewHolder.sensorTabLayout.addOnTabSelectedListener(onTabSelectedListener);
     if (!TextUtils.isEmpty(sensorId)) {
       initializeSensorTabs(sensorId);
     }
@@ -892,7 +893,8 @@ public class SensorCardPresenter {
           }
         };
     if (cardViewHolder != null && isActive) {
-      cardViewHolder.sensorTabLayout.setOnTabSelectedListener(onTabSelectedListener);
+      cardViewHolder.sensorTabLayout.clearOnTabSelectedListeners();
+      cardViewHolder.sensorTabLayout.addOnTabSelectedListener(onTabSelectedListener);
     }
   }
 
@@ -1057,7 +1059,8 @@ public class SensorCardPresenter {
       if (cardViewHolder != null) {
         int startHeight = isActive ? 0 : expandedHeight;
         int endHeight = isActive ? expandedHeight : 0;
-        cardViewHolder.sensorTabLayout.setOnTabSelectedListener(
+        cardViewHolder.sensorTabLayout.clearOnTabSelectedListeners();
+        cardViewHolder.sensorTabLayout.addOnTabSelectedListener(
             isActive ? onTabSelectedListener : null);
         final ValueAnimator animator =
             new ValueAnimator().ofInt(startHeight, endHeight).setDuration(ANIMATION_TIME_MS);
