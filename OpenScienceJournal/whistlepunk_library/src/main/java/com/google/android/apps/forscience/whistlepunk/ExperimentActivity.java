@@ -52,6 +52,8 @@ public class ExperimentActivity extends NoteTakingActivity
         ExperimentDetailsWithActionAreaFragment.ListenerProvider,
         ActionAreaListener {
 
+  private static final String EXTRA_FROM_SENSOR_FRAGMENT = "fromSensorFragmentKey";
+
   @NonNull
   public static Intent launchIntent(
       Context context, AppAccount appAccount, String experimentId, boolean claimExperimentsMode) {
@@ -68,6 +70,7 @@ public class ExperimentActivity extends NoteTakingActivity
   private boolean claimExperimentsMode;
   private RxEvent destroyed = new RxEvent();
   private boolean isRecording;
+  private boolean toolFragmentOpenedFromSensorFragment;
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,6 +109,16 @@ public class ExperimentActivity extends NoteTakingActivity
 
     WhistlePunkApplication.getUsageTracker(this)
         .trackScreenView(TrackerConstants.SCREEN_EXPERIMENT);
+  }
+
+  @Override
+  public void onClick(ActionAreaItem item) {
+    onClick(item, false);
+  }
+
+  public void onClick(ActionAreaItem item, boolean fromSensorFragment) {
+    toolFragmentOpenedFromSensorFragment = fromSensorFragment;
+    super.onClick(item);
   }
 
   @SuppressLint("CheckResult")
@@ -160,11 +173,7 @@ public class ExperimentActivity extends NoteTakingActivity
 
   @Override
   protected String getDefaultToolFragmentTag() {
-    if (isRecording) {
-      return SENSOR_TAG;
-    } else {
-      return DEFAULT_ADD_MORE_OBSERVATIONS_TAG;
-    }
+    return DEFAULT_ADD_MORE_OBSERVATIONS_TAG;
   }
 
   private ExperimentDetailsWithActionAreaFragment lookupExperimentFragment() {
@@ -219,6 +228,19 @@ public class ExperimentActivity extends NoteTakingActivity
       logState(TrackerConstants.ACTION_PAUSED);
     }
     super.onStop();
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putBoolean(EXTRA_FROM_SENSOR_FRAGMENT, toolFragmentOpenedFromSensorFragment);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+    toolFragmentOpenedFromSensorFragment =
+        savedInstanceState.getBoolean(EXTRA_FROM_SENSOR_FRAGMENT);
   }
 
   private void logState(String action) {
@@ -301,12 +323,10 @@ public class ExperimentActivity extends NoteTakingActivity
 
   @Override
   public void closeToolFragment() {
-    if (isRecording && activeToolFragmentTag.equals(SENSOR_TAG)) {
-      return;
-    }
     super.closeToolFragment();
-    if (isRecording) {
+    if (isRecording && toolFragmentOpenedFromSensorFragment) {
       openToolFragment(SENSOR_TAG);
+      toolFragmentOpenedFromSensorFragment = false;
     }
   }
 

@@ -1419,7 +1419,7 @@ public class SensorFragment extends Fragment
     } else {
       Activity activity = getActivity();
       if (activity != null) {
-        ((NoteTakingActivity) activity).onClick(item);
+        ((ExperimentActivity) activity).onClick(item, true /* fromSensorFragment */);
       }
     }
   }
