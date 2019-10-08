@@ -18,8 +18,6 @@ syntax = "proto2";
 
 package goosci;
 
-import "third_party/android/nanoproto/nano_descriptor.proto";
-
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciSensorLayout";
 option objc_class_prefix = "GSJ";
@@ -60,7 +58,7 @@ message SensorLayout {
   // written at google will begin with "com.google." This map will be made
   // available as-is to SensorChoice implementations, which will interpret them
   // as desired.
-  map<string, string> extras = 6 [(proto2.nano.generate_as) = LITE];
+  map<string, string> extras = 6;
 
   // The minimum value shown on the Y axis.
   optional double minimumYAxisValue = 7;

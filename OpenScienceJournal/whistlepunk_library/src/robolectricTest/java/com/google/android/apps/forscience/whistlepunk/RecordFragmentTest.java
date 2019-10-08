@@ -33,8 +33,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvi
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs;
-import com.google.protobuf.migration.nano2lite.runtime.MigrateAs.Destination;
 import io.reactivex.observers.TestObserver;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -85,7 +83,6 @@ public class RecordFragmentTest {
     dc.createExperiment(cExperiment);
     Experiment exp = cExperiment.getValue();
 
-    @MigrateAs(Destination.BUILDER)
     SensorLayoutPojo layout = new SensorLayoutPojo();
     layout.setSensorId("id");
     exp.getSensorLayouts().add(layout);

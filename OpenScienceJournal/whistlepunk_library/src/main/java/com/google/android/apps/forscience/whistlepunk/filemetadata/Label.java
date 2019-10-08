@@ -30,11 +30,9 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabe
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
-import com.google.protobuf.nano.MessageNano;
 import java.io.File;
 import java.util.Comparator;
 
@@ -61,30 +59,12 @@ public class Label implements Parcelable {
     return new Label(creationTimeMs, java.util.UUID.randomUUID().toString(), valueType);
   }
 
-  // TODO(b/110156716): remove this method.
-  /** Creates a new label with the specified label value. */
-  public static Label newLabelWithValue(
-      long creationTimeMs, ValueType type, MessageNano data, GoosciCaption.Caption caption) {
-    Label result = new Label(creationTimeMs, java.util.UUID.randomUUID().toString(), type);
-    result.setLabelProtoData(data);
-    result.setCaption(caption);
-    return result;
-  }
-
   /** Creates a new label with the specified label value. */
   public static Label newLabelWithValue(
       long creationTimeMs, ValueType type, MessageLite data, GoosciCaption.Caption caption) {
     Label result = new Label(creationTimeMs, java.util.UUID.randomUUID().toString(), type);
     result.setLabelProtoData(data);
     result.setCaption(caption);
-    return result;
-  }
-
-  // TODO(b/110156716): remove this method.
-  public static Label fromUuidAndValue(
-      long creationTimeMs, String uuid, ValueType type, MessageNano data) {
-    Label result = new Label(creationTimeMs, uuid, type);
-    result.setLabelProtoData(data);
     return result;
   }
 
@@ -295,15 +275,6 @@ public class Label implements Parcelable {
       throwLabelValueException("SnapshotLabelValue", labelBuilder.getType());
     }
     return null;
-  }
-
-  // TODO(b/110156716): remove this method.
-  /**
-   * Sets the proto data and type on this label. This must be done in order to save changes back to
-   * the label that occur on the protoData field.
-   */
-  public void setLabelProtoData(MessageNano data) {
-    labelBuilder.setProtoData(ByteString.copyFrom(MessageNano.toByteArray(data)));
   }
 
   /**
