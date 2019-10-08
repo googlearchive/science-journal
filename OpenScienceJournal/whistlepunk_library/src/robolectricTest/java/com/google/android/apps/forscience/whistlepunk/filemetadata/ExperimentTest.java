@@ -35,7 +35,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
 import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
-import com.google.protobuf.nano.MessageNano;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,7 +88,8 @@ public class ExperimentTest {
 
     // Make sure the proto gets updated properly
     proto.labels = new GoosciLabel.Label[] {labelProto};
-    assertThat(MessageNano.messageNanoEquals(experiment.getExperimentProto(), proto)).isTrue();
+    assertThat(experiment.getExperimentProto().labels[0].toString())
+        .isEqualTo(proto.labels[0].toString());
 
     // Try constructing an experiment from a proto that already has these fields.
     Experiment experiment2 =

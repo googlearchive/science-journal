@@ -67,7 +67,7 @@ public class Experiment extends LabelListHolder {
   private final List<Change> changes;
   private String title;
   private String description;
-  private FileVersion fileVersion;
+  private FileVersion.Builder fileVersion;
   // Relative to the experiment, not the account root.
   private String imagePath;
   private int trialCount;
@@ -164,7 +164,12 @@ public class Experiment extends LabelListHolder {
     totalTrials = experimentProto.totalTrials;
     trialCount = experimentOverview.getTrialCount();
     creationTimeMs = experimentProto.creationTimeMs;
-    fileVersion = experimentProto.fileVersion;
+    if (experimentProto.fileVersion != null) {
+      fileVersion = experimentProto.fileVersion.toBuilder();
+    } else {
+      fileVersion = FileVersion.newBuilder();
+    }
+
     this.experimentOverview = experimentOverview;
   }
 
@@ -231,8 +236,10 @@ public class Experiment extends LabelListHolder {
     proto.title = title;
     proto.description = description;
     proto.totalTrials = totalTrials;
-    proto.fileVersion = fileVersion;
+    proto.fileVersion = fileVersion.build();
     proto.creationTimeMs = creationTimeMs;
+    proto.version = fileVersion.getVersion();
+    proto.minorVersion = fileVersion.getMinorVersion();
     return proto;
   }
 
@@ -297,11 +304,15 @@ public class Experiment extends LabelListHolder {
   }
 
   public FileVersion getFileVersion() {
-    return fileVersion;
+    return fileVersion.build();
   }
 
   public void setFileVersion(FileVersion fileVersion) {
-    this.fileVersion = fileVersion;
+    this.fileVersion = fileVersion.toBuilder();
+  }
+
+  public void setPlatformVersion(int version) {
+    this.fileVersion.setPlatformVersion(version);
   }
 
   /**

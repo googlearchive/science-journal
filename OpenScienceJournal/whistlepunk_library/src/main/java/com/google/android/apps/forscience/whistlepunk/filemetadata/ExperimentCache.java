@@ -352,7 +352,7 @@ class ExperimentCache {
       //       this possibility?
       if (activeExperiment != null) {
         // We're going to write a new file, so rev the platform version
-        setPlatformVersion(activeExperiment.getExperimentProto(), PLATFORM_VERSION);
+        activeExperiment.setPlatformVersion(PLATFORM_VERSION);
       }
 
       activeExperimentNeedsWrite = true;
@@ -569,12 +569,6 @@ class ExperimentCache {
     fileVersion
         .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID)
         .setPlatformVersion(platformVersion);
-  }
-
-  private static void setPlatformVersion(GoosciExperiment.Experiment proto, int platformVersion) {
-    Version.FileVersion.Builder fileVersion = proto.fileVersion.toBuilder();
-    setPlatformVersion(fileVersion, platformVersion);
-    proto.fileVersion = fileVersion.build();
   }
 
   private File getExperimentFile(ExperimentOverviewPojo experimentOverview) {
