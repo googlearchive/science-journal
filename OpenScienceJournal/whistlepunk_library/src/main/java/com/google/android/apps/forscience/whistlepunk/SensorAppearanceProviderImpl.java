@@ -44,7 +44,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
   private static final String TAG = "SensorAppearance";
 
   private static final SensorAppearance UNKNOWN_SENSOR_APPEARANCE =
-      new BuiltInSensorAppearance(R.string.unknown_sensor, R.drawable.ic_sensors_white_24dp, null);
+      new BuiltInSensorAppearance(R.string.unknown_sensor, R.drawable.generic_sensor_white, null);
 
   public static final int DEFAULT_POINTS_AFTER_DECIMAL = -1;
 
@@ -281,7 +281,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
         AmbientTemperatureSensor.ID,
         new BuiltInSensorAppearance(
             R.string.ambient_temperature,
-            R.drawable.ic_sensors_white_24dp,
+            R.drawable.generic_sensor_white,
             R.string.temperature_units,
             new ImageViewSensorAnimationBehavior(
                 R.drawable.bluetooth_level_drawable,
@@ -291,7 +291,7 @@ public class SensorAppearanceProviderImpl implements SensorAppearanceProvider {
     putAppearance(
         SineWavePseudoSensor.ID,
         new BuiltInSensorAppearance(
-            R.string.sine_wave, R.drawable.ic_sensors_white_24dp, SineWavePseudoSensor.ID));
+            R.string.sine_wave, R.drawable.generic_sensor_white, SineWavePseudoSensor.ID));
   }
 
   private void putExternalSensorAppearance(String sensorId, ExternalSensorSpec sensor) {

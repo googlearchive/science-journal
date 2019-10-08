@@ -163,7 +163,8 @@ public class ScalarInputSpec extends ExternalSensorSpec {
       @Override
       public SensorAnimationBehavior getSensorAnimationBehavior() {
         return new ImageViewSensorAnimationBehavior(
-            R.drawable.api_level_drawable, ImageViewSensorAnimationBehavior.TYPE_RELATIVE_SCALE);
+            R.drawable.generic_sensor_level_drawable,
+            ImageViewSensorAnimationBehavior.TYPE_RELATIVE_SCALE);
       }
     };
   }
@@ -176,23 +177,23 @@ public class ScalarInputSpec extends ExternalSensorSpec {
     try {
       return context.getPackageManager().getApplicationIcon(getPackageId(serviceId));
     } catch (PackageManager.NameNotFoundException e) {
-      return context.getResources().getDrawable(R.drawable.ic_api_01_white_24dp);
+      return context.getResources().getDrawable(R.drawable.generic_sensor_white_1);
     }
   }
 
   public int getDefaultIconId() {
     switch (config.getOrderInExperimentApiSensors() % 4) {
       case 0:
-        return R.drawable.ic_api_01_white_24dp;
+        return R.drawable.generic_sensor_white_1;
       case 1:
-        return R.drawable.ic_api_02_white_24dp;
+        return R.drawable.generic_sensor_white_2;
       case 2:
-        return R.drawable.ic_api_03_white_24dp;
+        return R.drawable.generic_sensor_white_3;
       case 3:
-        return R.drawable.ic_api_04_white_24dp;
+        return R.drawable.generic_sensor_white_4;
       default:
         // Should never happen, if math works.
-        return R.drawable.ic_api_01_white_24dp;
+        return R.drawable.generic_sensor_white_1;
     }
   }
 

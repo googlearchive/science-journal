@@ -56,7 +56,8 @@ public class ImageViewSensorAnimationBehavior implements SensorAnimationBehavior
   public static ImageViewSensorAnimationBehavior createDefault() {
     // TODO: Replace bluetooth_level_drawable with a default sensor icon from UX.
     return new ImageViewSensorAnimationBehavior(
-        R.drawable.api_level_drawable, ImageViewSensorAnimationBehavior.TYPE_STATIC_ICON);
+        R.drawable.generic_sensor_level_drawable,
+        ImageViewSensorAnimationBehavior.TYPE_STATIC_ICON);
   }
 
   // For now, assume that drawableIds is size 1 for static, size 5 for accelerometer, size 4
@@ -98,11 +99,6 @@ public class ImageViewSensorAnimationBehavior implements SensorAnimationBehavior
       }
       view.setImageLevel(getUpdatedLevel(newValue, yMin, yMax));
     }
-  }
-
-  private void resetImageView(ImageView view) {
-    view.setImageLevel(0);
-    view.setRotation(0.0f);
   }
 
   private int getUpdatedLevel(double newValue, double yMin, double yMax) {

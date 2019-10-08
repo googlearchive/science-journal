@@ -65,7 +65,7 @@ public class ProtoSensorAppearance implements SensorAppearance {
 
   @Override
   public Drawable getIconDrawable(Context context) {
-    return context.getResources().getDrawable(R.drawable.ic_sensors_white_24dp);
+    return context.getResources().getDrawable(R.drawable.generic_sensor_white);
   }
 
   @Override

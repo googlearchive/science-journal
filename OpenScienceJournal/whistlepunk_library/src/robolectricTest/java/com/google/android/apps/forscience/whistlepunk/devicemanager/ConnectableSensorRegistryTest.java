@@ -373,8 +373,8 @@ public class ConnectableSensorRegistryTest {
     registry.addSensorIfNecessary(availableDevices.getKey(1), 1, stored2);
     ScalarInputSpec sensor2 = (ScalarInputSpec) stored2.getValue().getSpec();
 
-    assertEquals(R.drawable.ic_api_01_white_24dp, sensor1.getDefaultIconId());
-    assertEquals(R.drawable.ic_api_02_white_24dp, sensor2.getDefaultIconId());
+    assertEquals(R.drawable.generic_sensor_white_1, sensor1.getDefaultIconId());
+    assertEquals(R.drawable.generic_sensor_white_2, sensor2.getDefaultIconId());
   }
 
   @Test

@@ -152,12 +152,12 @@ public class ScalarInputSpecTest {
     ScalarInputSpec spec6 =
         roundTripConfig(
             new ScalarInputSpec("name", "serviceId", "address", null, null, "devId", 5));
-    assertEquals(R.drawable.ic_api_01_white_24dp, spec1.getDefaultIconId());
-    assertEquals(R.drawable.ic_api_02_white_24dp, spec2.getDefaultIconId());
-    assertEquals(R.drawable.ic_api_03_white_24dp, spec3.getDefaultIconId());
-    assertEquals(R.drawable.ic_api_04_white_24dp, spec4.getDefaultIconId());
-    assertEquals(R.drawable.ic_api_01_white_24dp, spec5.getDefaultIconId());
-    assertEquals(R.drawable.ic_api_02_white_24dp, spec6.getDefaultIconId());
+    assertEquals(R.drawable.generic_sensor_white_1, spec1.getDefaultIconId());
+    assertEquals(R.drawable.generic_sensor_white_2, spec2.getDefaultIconId());
+    assertEquals(R.drawable.generic_sensor_white_3, spec3.getDefaultIconId());
+    assertEquals(R.drawable.generic_sensor_white_4, spec4.getDefaultIconId());
+    assertEquals(R.drawable.generic_sensor_white_1, spec5.getDefaultIconId());
+    assertEquals(R.drawable.generic_sensor_white_2, spec6.getDefaultIconId());
   }
 
   @NonNull
