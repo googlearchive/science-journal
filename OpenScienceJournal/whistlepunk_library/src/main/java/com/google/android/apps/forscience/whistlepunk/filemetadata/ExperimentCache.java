@@ -27,8 +27,8 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -75,7 +75,7 @@ class ExperimentCache {
   private final FailureListener failureListener;
   private final Context context;
   private final AppAccount appAccount;
-  private final ProtoFileHelper<GoosciExperiment.Experiment> experimentProtoFileHelper;
+  private final LiteProtoFileHelper<GoosciExperiment.Experiment> experimentProtoFileHelper;
   private final LocalSyncManager localSyncManager;
   private final ExperimentLibraryManager experimentLibraryManager;
   private final boolean enableAutoWrite;
@@ -118,7 +118,7 @@ class ExperimentCache {
     this.context = context;
     this.appAccount = appAccount;
     this.failureListener = failureListener;
-    experimentProtoFileHelper = new ProtoFileHelper<>();
+    experimentProtoFileHelper = new LiteProtoFileHelper<>();
     if (Looper.myLooper() == null) {
       Looper.prepare();
     }
@@ -397,8 +397,8 @@ class ExperimentCache {
     // incorrectly decide that it doesn't need to start the timer.
     synchronized (writingActiveExperiment ? activeExperimentLock : new Object()) {
       GoosciExperiment.Experiment proto = experimentToWrite.getExperimentProto();
-      if ((proto.version > VERSION)
-          || (proto.version == VERSION && proto.minorVersion > MINOR_VERSION)) {
+      if ((proto.getVersion() > VERSION)
+          || (proto.getVersion() == VERSION && proto.getMinorVersion() > MINOR_VERSION)) {
         // If the major version is too new, or the minor version is too new, we can't save this.
         // TODO: Or should this throw onWriteFailed?
         failureListener.onNewerVersionDetected(experimentToWrite.getExperimentOverview());

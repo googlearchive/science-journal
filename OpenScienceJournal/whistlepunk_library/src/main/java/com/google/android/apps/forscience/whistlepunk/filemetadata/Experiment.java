@@ -26,6 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
@@ -35,7 +36,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version.FileVersion;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -77,25 +77,25 @@ public class Experiment extends LabelListHolder {
   private final long creationTimeMs;
 
   public static Experiment newExperiment(long creationTime, String experimentId, int colorIndex) {
-    GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+    GoosciExperiment.Experiment.Builder proto = GoosciExperiment.Experiment.newBuilder();
     ExperimentOverviewPojo experimentOverview = new ExperimentOverviewPojo();
     experimentOverview.setLastUsedTimeMs(creationTime);
     experimentOverview.setArchived(false);
     experimentOverview.setExperimentId(experimentId);
     experimentOverview.setColorIndex(colorIndex);
-    proto.creationTimeMs = creationTime;
-    proto.totalTrials = 0;
+    proto.setCreationTimeMs(creationTime);
+    proto.setTotalTrials(0);
 
     // This experiment is being created with the latest VERSION available.
-    proto.fileVersion =
+    proto.setFileVersion(
         Version.FileVersion.newBuilder()
             .setVersion(ExperimentCache.VERSION)
             .setMinorVersion(ExperimentCache.MINOR_VERSION)
             .setPlatformVersion(ExperimentCache.PLATFORM_VERSION)
             .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID)
-            .build();
+            .build());
 
-    return new Experiment(proto, experimentOverview);
+    return new Experiment(proto.build(), experimentOverview);
   }
 
   public static Experiment newExperiment(
@@ -125,47 +125,47 @@ public class Experiment extends LabelListHolder {
       GoosciExperiment.Experiment experimentProto, ExperimentOverviewPojo experimentOverview) {
 
     labels = new ArrayList<>();
-    for (GoosciLabel.Label labelProto : experimentProto.labels) {
+    for (GoosciLabel.Label labelProto : experimentProto.getLabelsList()) {
       labels.add(Label.fromLabel(labelProto));
     }
     trials = new ArrayList<>();
-    for (GoosciTrial.Trial trial : experimentProto.trials) {
+    for (GoosciTrial.Trial trial : experimentProto.getTrialsList()) {
       trials.add(Trial.fromTrial(trial));
     }
     sensorTriggers = new ArrayList<>();
-    for (GoosciSensorTrigger.SensorTrigger proto : experimentProto.sensorTriggers) {
+    for (GoosciSensorTrigger.SensorTrigger proto : experimentProto.getSensorTriggersList()) {
       sensorTriggers.add(SensorTrigger.fromProto(proto));
     }
     changes = new ArrayList<>();
     for (com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.Change proto :
-        experimentProto.changes) {
+        experimentProto.getChangesList()) {
       addChange(Change.fromProto(proto));
     }
 
     sensorLayouts = new ArrayList<>();
-    for (SensorLayout layout : experimentProto.sensorLayouts) {
+    for (SensorLayout layout : experimentProto.getSensorLayoutsList()) {
       sensorLayouts.add(SensorLayoutPojo.fromProto(layout));
     }
 
     experimentSensors = new ArrayList<>();
-    Collections.addAll(experimentSensors, experimentProto.experimentSensors);
+    experimentSensors.addAll(experimentProto.getExperimentSensorsList());
 
-    title = experimentProto.title;
-    description = experimentProto.description;
+    title = experimentProto.getTitle();
+    description = experimentProto.getDescription();
     lastUsedTimeMs = experimentOverview.getLastUsedTimeMs();
-    if (!Strings.isNullOrEmpty(experimentProto.imagePath)) {
+    if (!experimentProto.getImagePath().isEmpty()) {
       // Relative to the experiment, not the account root.
-      imagePath = getPathRelativeToExperiment(experimentProto.imagePath);
+      imagePath = getPathRelativeToExperiment(experimentProto.getImagePath());
     } else {
       // Overview is relative to the account root. Be sure to trim 2 levels
       imagePath = getPathRelativeToExperiment(experimentOverview.getImagePath());
     }
     isArchived = experimentOverview.isArchived();
-    totalTrials = experimentProto.totalTrials;
+    totalTrials = experimentProto.getTotalTrials();
     trialCount = experimentOverview.getTrialCount();
-    creationTimeMs = experimentProto.creationTimeMs;
-    if (experimentProto.fileVersion != null) {
-      fileVersion = experimentProto.fileVersion.toBuilder();
+    creationTimeMs = experimentProto.getCreationTimeMs();
+    if (experimentProto.hasFileVersion()) {
+      fileVersion = experimentProto.getFileVersion().toBuilder();
     } else {
       fileVersion = FileVersion.newBuilder();
     }
@@ -184,63 +184,53 @@ public class Experiment extends LabelListHolder {
    */
   public GoosciExperiment.Experiment getExperimentProto() {
     // All local fields that represent experiment state must be merged back into the proto here.
-    GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+    GoosciExperiment.Experiment.Builder proto = GoosciExperiment.Experiment.newBuilder();
     if (sensorLayouts != null) {
-      SensorLayout[] protos = new SensorLayout[sensorLayouts.size()];
-      int i = 0;
       for (SensorLayoutPojo pojo : sensorLayouts) {
-        protos[i++] = pojo.toProto();
+        proto.addSensorLayouts(pojo.toProto());
       }
-      proto.sensorLayouts = protos;
     }
 
     if (experimentSensors != null) {
-      proto.experimentSensors =
-          experimentSensors.toArray(new ExperimentSensor[experimentSensors.size()]);
+      proto.addAllExperimentSensors(experimentSensors);
     }
 
     if (sensorTriggers != null) {
-      proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[sensorTriggers.size()];
-      int index = 0;
       for (SensorTrigger trigger : sensorTriggers) {
-        proto.sensorTriggers[index++] = trigger.getTriggerProto();
+        proto.addSensorTriggers(trigger.getTriggerProto());
       }
     }
 
     if (trials != null) {
-      proto.trials = new GoosciTrial.Trial[trials.size()];
-      int index = 0;
       for (Trial trial : trials) {
-        proto.trials[index++] = trial.getTrialProto();
+        proto.addTrials(trial.getTrialProto());
       }
     }
 
     if (labels != null) {
-      proto.labels = new GoosciLabel.Label[labels.size()];
-      int index = 0;
       for (Label label : labels) {
-        proto.labels[index++] = label.getLabelProto();
+        proto.addLabels(label.getLabelProto());
       }
     }
     if (changes != null) {
-      proto.changes =
-          new com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.Change
-              [changes.size()];
-      int index = 0;
       for (Change change : changes) {
-        proto.changes[index++] = change.getChangeProto();
+        proto.addChanges(change.getChangeProto());
       }
     }
     // Relative to the experiment.
-    proto.imagePath = getPathRelativeToExperiment(imagePath);
-    proto.title = title;
-    proto.description = description;
-    proto.totalTrials = totalTrials;
-    proto.fileVersion = fileVersion.build();
-    proto.creationTimeMs = creationTimeMs;
-    proto.version = fileVersion.getVersion();
-    proto.minorVersion = fileVersion.getMinorVersion();
-    return proto;
+    proto.setImagePath(getPathRelativeToExperiment(imagePath));
+    if (title != null) {
+      proto.setTitle(title);
+    }
+    if (description != null) {
+      proto.setDescription(description);
+    }
+    proto.setTotalTrials(totalTrials);
+    proto.setFileVersion(fileVersion.build());
+    proto.setCreationTimeMs(creationTimeMs);
+    proto.setVersion(fileVersion.getVersion());
+    proto.setMinorVersion(fileVersion.getMinorVersion());
+    return proto.build();
   }
 
   public ExperimentOverviewPojo getExperimentOverview() {

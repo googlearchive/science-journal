@@ -25,10 +25,10 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import io.reactivex.Observable;
@@ -321,16 +321,17 @@ public class SensorDatabaseTest {
     long timestamp = Arbitrary.integer();
     double value = Arbitrary.doubleFloat();
 
-    GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
+    GoosciExperiment.Experiment.Builder experiment = GoosciExperiment.Experiment.newBuilder();
     GoosciTrial.Trial.Builder trial = GoosciTrial.Trial.newBuilder();
     SensorLayout sensorLayout =
         GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("foo").build();
-    trial.setRecordingRange(
-        com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.newBuilder()
-            .setStartMs(timestamp - 1)
-            .setEndMs(timestamp + 3));
-    trial.addSensorLayouts(sensorLayout);
-    experiment.trials = new GoosciTrial.Trial[] {trial.build()};
+    trial
+        .setRecordingRange(
+            com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.newBuilder()
+                .setStartMs(timestamp - 1)
+                .setEndMs(timestamp + 3))
+        .addSensorLayouts(sensorLayout);
+    experiment.addTrials(trial);
 
     db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp, value);
     db.addScalarReading(trial.getTrialId(), "foo", 1, timestamp + 1, value);
@@ -338,7 +339,7 @@ public class SensorDatabaseTest {
     db.addScalarReading(trial.getTrialId(), "bar", 0, timestamp + 2, value);
     db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp + 4, value);
 
-    GoosciScalarSensorData.ScalarSensorData data = db.getScalarReadingProtos(experiment);
+    GoosciScalarSensorData.ScalarSensorData data = db.getScalarReadingProtos(experiment.build());
     assertEquals("foo", data.getSensors(0).getTag());
     assertEquals(2, data.getSensors(0).getRowsCount());
     assertEquals(trial.getTrialId(), data.getSensors(0).getTrialId());
@@ -351,16 +352,17 @@ public class SensorDatabaseTest {
     long timestamp = Arbitrary.integer();
     double value = Arbitrary.doubleFloat();
 
-    GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
+    GoosciExperiment.Experiment.Builder experiment = GoosciExperiment.Experiment.newBuilder();
     GoosciTrial.Trial.Builder trial = GoosciTrial.Trial.newBuilder();
     SensorLayout sensorLayout =
         GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("foo").build();
-    trial.setRecordingRange(
-        com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.newBuilder()
-            .setStartMs(timestamp - 1)
-            .setEndMs(timestamp + 3));
-    trial.addSensorLayouts(sensorLayout);
-    experiment.trials = new GoosciTrial.Trial[] {trial.build()};
+    trial
+        .setRecordingRange(
+            com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.newBuilder()
+                .setStartMs(timestamp - 1)
+                .setEndMs(timestamp + 3))
+        .addSensorLayouts(sensorLayout);
+    experiment.addTrials(trial);
 
     db.addScalarReading("0", "foo", 0, timestamp, value);
     db.addScalarReading("0", "foo", 1, timestamp + 1, value);
@@ -368,7 +370,7 @@ public class SensorDatabaseTest {
     db.addScalarReading("0", "bar", 0, timestamp + 2, value);
     db.addScalarReading("0", "foo", 0, timestamp + 4, value);
 
-    GoosciScalarSensorData.ScalarSensorData data = db.getScalarReadingProtos(experiment);
+    GoosciScalarSensorData.ScalarSensorData data = db.getScalarReadingProtos(experiment.build());
     assertEquals("foo", data.getSensors(0).getTag());
     assertEquals(2, data.getSensors(0).getRowsCount());
   }
@@ -416,16 +418,17 @@ public class SensorDatabaseTest {
     long timestamp = Arbitrary.integer();
     double value = Arbitrary.doubleFloat();
 
-    GoosciExperiment.Experiment experiment = new GoosciExperiment.Experiment();
+    GoosciExperiment.Experiment.Builder experiment = GoosciExperiment.Experiment.newBuilder();
     GoosciTrial.Trial.Builder trial = GoosciTrial.Trial.newBuilder();
     SensorLayout sensorLayout =
         GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("foo").build();
-    trial.setRecordingRange(
-        com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.newBuilder()
-            .setStartMs(timestamp - 1)
-            .setEndMs(timestamp + 3));
-    trial.addSensorLayouts(sensorLayout);
-    experiment.trials = new GoosciTrial.Trial[] {trial.build()};
+    trial
+        .setRecordingRange(
+            com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range.newBuilder()
+                .setStartMs(timestamp - 1)
+                .setEndMs(timestamp + 3))
+        .addSensorLayouts(sensorLayout);
+    experiment.addTrials(trial);
     ;
 
     db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp, value);
@@ -434,7 +437,7 @@ public class SensorDatabaseTest {
     db.addScalarReading(trial.getTrialId(), "bar", 0, timestamp + 2, value);
     db.addScalarReading(trial.getTrialId(), "foo", 0, timestamp + 4, value);
 
-    List<ScalarSensorDataDump> data = db.getScalarReadingProtosAsList(experiment);
+    List<ScalarSensorDataDump> data = db.getScalarReadingProtosAsList(experiment.build());
     assertEquals("foo", data.get(0).getTag());
     assertEquals(2, data.get(0).getRowsCount());
     assertEquals(trial.getTrialId(), data.get(0).getTrialId());

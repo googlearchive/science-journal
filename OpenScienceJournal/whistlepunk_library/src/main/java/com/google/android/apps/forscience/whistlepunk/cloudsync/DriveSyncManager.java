@@ -20,9 +20,9 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncColle
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -619,7 +619,7 @@ public class DriveSyncManager implements CloudSyncManager {
     }
     GoosciExperiment.Experiment remoteExperiment =
         downloadExperimentProto(serverExperimentProtoMetadata.getId());
-    newExperiment.setTitle(remoteExperiment.title);
+    newExperiment.setTitle(remoteExperiment.getTitle());
     RxDataController.addExperiment(dc, newExperiment).blockingAwait();
     Experiment localExperiment = RxDataController.getExperimentById(dc, experimentId).blockingGet();
     localSyncManager.setServerArchived(experimentId, elm.isArchived(experimentId));

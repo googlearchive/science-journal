@@ -20,9 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class ExperimentUnitTest {
     SensorTrigger trigger = SensorTrigger.fromProto(triggerProto);
     experiment.addSensorTrigger(trigger);
     assertThat(experiment.getSensorTriggersForSensor("sensorId")).hasSize(1);
-    assertThat(experiment.getExperimentProto().sensorTriggers).hasLength(1);
+    assertThat(experiment.getExperimentProto().getSensorTriggersList()).hasSize(1);
   }
 
   @Test
@@ -66,7 +66,7 @@ public class ExperimentUnitTest {
     experiment.setSensorLayouts(Arrays.asList(sensorLayout));
 
     assertThat(experiment.getSensorLayouts()).hasSize(1);
-    assertThat(experiment.getExperimentProto().sensorLayouts).hasLength(1);
+    assertThat(experiment.getExperimentProto().getSensorLayoutsList()).hasSize(1);
   }
 
   @Test
@@ -80,7 +80,7 @@ public class ExperimentUnitTest {
     experiment.updateSensorLayout(0, sensorLayout);
 
     assertThat(experiment.getSensorLayouts()).hasSize(1);
-    assertThat(experiment.getExperimentProto().sensorLayouts).hasLength(1);
+    assertThat(experiment.getExperimentProto().getSensorLayoutsList()).hasSize(1);
   }
 
   @Test
@@ -94,32 +94,32 @@ public class ExperimentUnitTest {
     experiment.setExperimentSensors(Arrays.asList(sensor));
 
     assertThat(experiment.getExperimentSensors()).hasSize(1);
-    assertThat(experiment.getExperimentProto().experimentSensors).hasLength(1);
+    assertThat(experiment.getExperimentProto().getExperimentSensorsList()).hasSize(1);
   }
 
   @Test
   public void testUpdatesProtoOnlyWhenNeeded() {
-    GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+    GoosciExperiment.Experiment.Builder proto = GoosciExperiment.Experiment.newBuilder();
     GoosciSensorLayout.SensorLayout layoutProto =
         GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("sensorId").build();
-    proto.sensorLayouts = new GoosciSensorLayout.SensorLayout[] {layoutProto};
+    proto.addSensorLayouts(layoutProto);
     GoosciSensorTrigger.SensorTrigger triggerProto =
         GoosciSensorTrigger.SensorTrigger.newBuilder().setSensorId("sensorId").build();
-    proto.sensorTriggers = new GoosciSensorTrigger.SensorTrigger[] {triggerProto};
+    proto.addSensorTriggers(triggerProto);
     com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ExperimentSensor
         expSensorProto = ExperimentSensor.newBuilder().setSensorId("sensorId").build();
-    proto.experimentSensors = new ExperimentSensor[] {expSensorProto};
+    proto.addExperimentSensors(expSensorProto);
 
     ExperimentOverviewPojo overview = new ExperimentOverviewPojo();
     overview.setExperimentId("cheese");
 
-    Experiment experiment = Experiment.fromExperiment(proto, overview);
+    Experiment experiment = Experiment.fromExperiment(proto.build(), overview);
 
     // Try to get the proto *before* converting the objects into lists.
     GoosciExperiment.Experiment result = experiment.getExperimentProto();
-    assertThat(result.sensorLayouts).hasLength(1);
-    assertThat(result.sensorTriggers).hasLength(1);
-    assertThat(result.experimentSensors).hasLength(1);
+    assertThat(result.getSensorLayoutsList()).hasSize(1);
+    assertThat(result.getSensorTriggersList()).hasSize(1);
+    assertThat(result.getExperimentSensorsList()).hasSize(1);
 
     List<SensorLayoutPojo> layouts = experiment.getSensorLayouts();
     SensorLayoutPojo sensorLayout = new SensorLayoutPojo();
@@ -129,7 +129,7 @@ public class ExperimentUnitTest {
     // Now update the layouts and make sure it still works as expected.
     experiment.setSensorLayouts(layouts);
     result = experiment.getExperimentProto();
-    assertThat(result.sensorLayouts).hasLength(2);
-    assertThat(result.sensorLayouts[1].getSensorId()).isEqualTo("secondSensorId");
+    assertThat(result.getSensorLayoutsList()).hasSize(2);
+    assertThat(result.getSensorLayouts(1).getSensorId()).isEqualTo("secondSensorId");
   }
 }

@@ -19,27 +19,24 @@
 syntax = "proto2";
 
 package goosci;
+
+import "label.proto";
+import "sensor_layout.proto";
+import "sensor_spec.proto";
+import "sensor_trigger.proto";
+import "trial.proto";
+import "version.proto";
+
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciExperiment";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
-
-import "third_party/android/nanoproto/nano_descriptor.proto";
-
-import "label.proto";
-import "trial.proto";
-import "sensor_layout.proto";
-import "sensor_trigger.proto";
-import "sensor_spec.proto";
-import "version.proto";
 
 /*
  * Experiment protobuf definition.
  * Added in V2.
  */
 message Experiment {
-  option (proto2.nano.message_as_lite) = false;
-
   // The timestamp that this experiment was created.
   optional int64 creationTimeMs = 1;
 
@@ -76,8 +73,6 @@ message Experiment {
 
   // Version 1.1: Added
   message SensorEntry {
-    option (proto2.nano.message_as_lite) = true;
-
     // The sensor ID associated with this within this experiment.
     // This has no global uniqueness or parseable meaning outside this
     // experiment
@@ -111,7 +106,7 @@ message Experiment {
 
   // The list of changes that have been made to the experiment over time.
   repeated Change changes = 15;
-};
+}
 
 /*
  * Sensors included or excluded in an experiment.
@@ -120,8 +115,6 @@ message Experiment {
  * sensors.
  */
 message ExperimentSensor {
-  option (proto2.nano.message_as_lite) = true;
-
   // The sensor ID
   optional string sensorId = 1;
 
@@ -135,11 +128,7 @@ message ExperimentSensor {
  * for resoving conflicts between client and server.
  */
 message Change {
-  option (proto2.nano.message_as_lite) = true;
-
   enum ChangeType {
-    option (proto2.nano.enum_as_lite) = true;
-
     // Default. Do not use.
     UNKNOWN = 0;
 
@@ -174,11 +163,7 @@ message Change {
  * An indication of what element was changed by this change.
  */
 message ChangedElement {
-  option (proto2.nano.message_as_lite) = true;
-
   enum ElementType {
-    option (proto2.nano.enum_as_lite) = true;
-
     // Default. Do not use.
     UNKNOWN = 0;
 

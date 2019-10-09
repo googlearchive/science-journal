@@ -609,7 +609,7 @@ public class SimpleMetaDataManagerTest {
     Experiment firstExpResult =
         metaDataManager.getDatabaseExperimentById(firstExp.getExperimentId());
     assertEquals(0, firstExpResult.getLabels().size());
-    assertEquals(1, firstExpResult.getExperimentProto().version);
+    assertEquals(1, firstExpResult.getExperimentProto().getVersion());
     assertTrue(TextUtils.isEmpty(firstExp.getTitle()));
 
     Experiment secondExpResult =

@@ -382,7 +382,8 @@ public class FileMetadataUtil {
       try (FileInputStream fis = new FileInputStream(libraryFile);
           DataInputStream dis = new DataInputStream(fis);) {
         dis.readFully(libraryBytes);
-        library = ExperimentLibrary.parseFrom(libraryBytes);
+        library =
+            ExperimentLibrary.parseFrom(libraryBytes, ExtensionRegistryLite.getGeneratedRegistry());
       } catch (Exception e) {
         Log.e(TAG, "Exception reading Experiment Library file", e);
       }

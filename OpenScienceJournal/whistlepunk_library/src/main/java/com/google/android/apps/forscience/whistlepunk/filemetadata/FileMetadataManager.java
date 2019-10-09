@@ -30,15 +30,14 @@ import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
-import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -165,29 +164,29 @@ public class FileMetadataManager {
                 null,
                 0);
             try {
-              GoosciExperiment.Experiment proto =
+              GoosciExperiment.Experiment.Builder proto =
                   populateExperimentProto(context, experimentDirectory);
               if (proto == null) {
                 throw new IOException("Lost experiment has corrupt or missing experiment proto.");
               }
 
-              ExperimentOverviewPojo overview = populateOverview(proto, experimentId);
+              ExperimentOverviewPojo overview = populateOverview(proto.build(), experimentId);
 
-              if (Strings.isNullOrEmpty(proto.imagePath)) {
+              if (proto.getImagePath().isEmpty()) {
                 // proto.imagePath may be empty, even if the lost experiment had a cover image.
                 // The imagePath field was added to the Experiment proto in order to let it sync.
                 // Before 3.0, imagePath was stored only in the ExperimentOverview.
                 try {
                   String likelyCoverImage =
-                      findLikelyCoverImage(experimentDirectory, experimentId, proto);
+                      findLikelyCoverImage(experimentDirectory, experimentId, proto.build());
                   if (likelyCoverImage != null) {
                     // likelyCoverImage is relative to the experiment directory.
                     // proto.imagePath is relative to the experiment directory.
-                    proto.imagePath = likelyCoverImage;
+                    proto.setImagePath(likelyCoverImage);
                     // overview.imagePath is relative to the account files directory.
                     overview.setImagePath(
                         PictureUtils.getExperimentOverviewRelativeImagePath(
-                            experimentId, proto.imagePath));
+                            experimentId, proto.getImagePath()));
                   }
                 } catch (Exception e) {
                   if (Log.isLoggable(TAG, Log.WARN)) {
@@ -199,10 +198,10 @@ public class FileMetadataManager {
                 // overview.imagePath is relative to the account files directory.
                 overview.setImagePath(
                     PictureUtils.getExperimentOverviewRelativeImagePath(
-                        experimentId, proto.imagePath));
+                        experimentId, proto.getImagePath()));
               }
 
-              Experiment experiment = Experiment.fromExperiment(proto, overview);
+              Experiment experiment = Experiment.fromExperiment(proto.build(), overview);
               afterMovingExperimentFromAnotherAccount(experiment);
 
               localSyncManager.setLastSyncedLibraryVersion(-1);
@@ -246,7 +245,7 @@ public class FileMetadataManager {
     // Gather all the images that are used in the experiment.
     // Image paths are relative to the experiment directory.
     Set<String> usedImagePaths = Sets.newHashSet();
-    for (GoosciTrial.Trial trial : experiment.trials) {
+    for (GoosciTrial.Trial trial : experiment.getTrialsList()) {
       for (GoosciLabel.Label label : trial.getLabelsList()) {
         if (label.getType() == ValueType.PICTURE) {
           try {
@@ -262,7 +261,7 @@ public class FileMetadataManager {
         }
       }
     }
-    for (GoosciLabel.Label label : experiment.labels) {
+    for (GoosciLabel.Label label : experiment.getLabelsList()) {
       if (label.getType() == ValueType.PICTURE) {
         try {
           GoosciPictureLabelValue.PictureLabelValue labelValue =
@@ -471,28 +470,28 @@ public class FileMetadataManager {
       throw e;
     }
 
-    GoosciExperiment.Experiment proto = populateExperimentProto(context, externalPath);
+    GoosciExperiment.Experiment.Builder proto = populateExperimentProto(context, externalPath);
     if (proto == null) {
       deleteExperiment(experimentId);
       throw new ZipException("Corrupt or Missing Experiment Proto");
     }
-    if (!FileMetadataUtil.getInstance().canImportFromVersion(proto.fileVersion)) {
+    if (!FileMetadataUtil.getInstance().canImportFromVersion(proto.getFileVersion())) {
       deleteExperiment(experimentId);
       // TODO: better error message
-      throw new ZipException("Cannot import from file version: " + versionToString(proto));
+      throw new ZipException("Cannot import from file version: " + versionToString(proto.build()));
     }
 
-    ExperimentOverviewPojo overview = populateOverview(proto, experimentId);
+    ExperimentOverviewPojo overview = populateOverview(proto.build(), experimentId);
     HashMap<String, String> trialIdMap = updateTrials(proto, newExperiment);
 
-    updateLabels(proto, newExperiment);
-    newExperiment.setTitle(proto.title);
+    updateLabels(proto.build(), newExperiment);
+    newExperiment.setTitle(proto.getTitle());
     newExperiment.setLastUsedTime(clock.getNow());
     if (containsExperimentImage) {
       overview.setImagePath(EXPERIMENTS_DIRECTORY + "/" + experimentId + "/" + COVER_IMAGE_FILE);
       newExperiment.setImagePath(overview.getImagePath());
     }
-    updateExperiment(Experiment.fromExperiment(proto, overview), true);
+    updateExperiment(Experiment.fromExperiment(proto.build(), overview), true);
     File dataFile = new File(externalPath, "sensorData.proto");
 
     if (dataFile.exists()) {
@@ -518,7 +517,7 @@ public class FileMetadataManager {
   }
 
   private String versionToString(GoosciExperiment.Experiment proto) {
-    Version.FileVersion fileVersion = proto.fileVersion;
+    Version.FileVersion fileVersion = proto.getFileVersion();
     return fileVersion.getVersion()
         + "."
         + fileVersion.getMinorVersion()
@@ -609,29 +608,29 @@ public class FileMetadataManager {
     fos.close();
   }
 
-  private GoosciExperiment.Experiment populateExperimentProto(
+  private GoosciExperiment.Experiment.Builder populateExperimentProto(
       Context context, File experimentPath) {
     File experimentFile = new File(experimentPath, "experiment.proto");
     if (!experimentFile.exists()) {
       return null;
     }
 
-    ProtoFileHelper<GoosciExperiment.Experiment> experimentProtoFileHelper =
-        new ProtoFileHelper<>();
+    LiteProtoFileHelper<GoosciExperiment.Experiment> experimentProtoFileHelper =
+        new LiteProtoFileHelper<>();
     GoosciExperiment.Experiment proto =
         experimentProtoFileHelper.readFromFile(
             experimentFile,
             GoosciExperiment.Experiment::parseFrom,
             WhistlePunkApplication.getUsageTracker(context));
 
-    return proto;
+    return proto.toBuilder();
   }
 
   private ExperimentOverviewPojo populateOverview(
       GoosciExperiment.Experiment proto, String experimentId) {
     ExperimentOverviewPojo overview = new ExperimentOverviewPojo();
-    overview.setTitle(proto.title);
-    overview.setTrialCount(proto.totalTrials);
+    overview.setTitle(proto.getTitle());
+    overview.setTrialCount(proto.getTotalTrials());
     overview.setLastUsedTimeMs(clock.getNow());
     overview.setExperimentId(experimentId);
 
@@ -639,22 +638,21 @@ public class FileMetadataManager {
   }
 
   private HashMap<String, String> updateTrials(
-      GoosciExperiment.Experiment proto, Experiment newExperiment) {
+      GoosciExperiment.Experiment.Builder proto, Experiment newExperiment) {
     HashMap<String, String> trialIdMap = new HashMap<>();
-    for (int i = 0; i < proto.trials.length; i++) {
-      String oldId = proto.trials[i].getTrialId();
-      Trial t = Trial.fromTrialWithNewId(proto.trials[i]);
+    for (int i = 0; i < proto.getTrialsCount(); i++) {
+      String oldId = proto.getTrials(i).getTrialId();
+      Trial t = Trial.fromTrialWithNewId(proto.getTrials(i));
       newExperiment.addTrial(t);
-      proto.trials[i] = t.getTrialProto();
-      trialIdMap.put(oldId, proto.trials[i].getTrialId());
+      proto.setTrials(i, t.getTrialProto());
+      trialIdMap.put(oldId, proto.getTrials(i).getTrialId());
     }
     return trialIdMap;
   }
 
   private void updateLabels(GoosciExperiment.Experiment proto, Experiment newExperiment) {
-    for (int i = 0; i < proto.labels.length; i++) {
-      Label label = Label.fromLabel(proto.labels[i]);
-      newExperiment.addLabel(newExperiment, label);
+    for (GoosciLabel.Label goosciLabel : proto.getLabelsList()) {
+      newExperiment.addLabel(newExperiment, Label.fromLabel(goosciLabel));
     }
   }
 

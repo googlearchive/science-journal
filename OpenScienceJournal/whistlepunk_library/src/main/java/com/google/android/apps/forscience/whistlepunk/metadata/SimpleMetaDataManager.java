@@ -65,7 +65,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
@@ -812,24 +811,18 @@ public class SimpleMetaDataManager implements MetaDataManager {
   }
 
   private static Experiment createExperimentFromCursor(Cursor cursor) {
-    GoosciExperiment.Experiment expProto = new GoosciExperiment.Experiment();
-    expProto.creationTimeMs = cursor.getLong(2);
-    expProto.description = cursor.getString(4);
-    expProto.title = cursor.getString(3);
-
-    if (expProto.description == null) {
-      expProto.description = "";
-    }
-
-    if (expProto.title == null) {
-      expProto.title = "";
-    }
+    GoosciExperiment.Experiment.Builder expProto = GoosciExperiment.Experiment.newBuilder();
+    expProto.setCreationTimeMs(cursor.getLong(2));
+    String description = cursor.getString(4);
+    expProto.setDescription((description != null) ? description : "");
+    String title = cursor.getString(3);
+    expProto.setTitle((title != null) ? title : "");
 
     // Version 1 for starters.
     // TODO: Remove this if we default the proto to 1.
-    expProto.fileVersion = Version.FileVersion.newBuilder().setVersion(1).build();
+    expProto.setFileVersion(Version.FileVersion.newBuilder().setVersion(1).build());
 
-    return Experiment.fromExperiment(expProto, createExperimentOverviewFromCursor(cursor));
+    return Experiment.fromExperiment(expProto.build(), createExperimentOverviewFromCursor(cursor));
   }
 
   private static ExperimentOverviewPojo createExperimentOverviewFromCursor(Cursor cursor) {

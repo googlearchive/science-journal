@@ -25,6 +25,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
@@ -34,7 +35,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,24 +54,23 @@ public class ExperimentTest {
   }
 
   private GoosciExperiment.Experiment makeExperimentWithLabels(long[] labelTimes) {
-    GoosciExperiment.Experiment result = new GoosciExperiment.Experiment();
-    result.labels = new GoosciLabel.Label[labelTimes.length];
+    GoosciExperiment.Experiment.Builder result = GoosciExperiment.Experiment.newBuilder();
     for (int i = 0; i < labelTimes.length; i++) {
       Label label = Label.newLabel(labelTimes[i], ValueType.TEXT);
-      result.labels[i] = label.getLabelProto();
+      result.addLabels(label.getLabelProto());
     }
-    return result;
+    return result.build();
   }
 
   @Test
   public void testLabels() {
-    GoosciExperiment.Experiment proto = new GoosciExperiment.Experiment();
+    GoosciExperiment.Experiment.Builder proto = GoosciExperiment.Experiment.newBuilder();
     GoosciUserMetadata.ExperimentOverview overview =
         GoosciUserMetadata.ExperimentOverview.getDefaultInstance();
 
     // No labels on creation
     Experiment experiment =
-        ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
+        ExperimentCreator.newExperimentForTesting(getContext(), proto.build(), overview);
     assertThat(experiment.getLabelCount()).isEqualTo(0);
     assertThat(experiment.getLabels()).isEmpty();
 
@@ -87,20 +86,21 @@ public class ExperimentTest {
     assertThat(experiment.getLabelCount()).isEqualTo(1);
 
     // Make sure the proto gets updated properly
-    proto.labels = new GoosciLabel.Label[] {labelProto};
-    assertThat(experiment.getExperimentProto().labels[0].toString())
-        .isEqualTo(proto.labels[0].toString());
+    proto.addLabels(labelProto);
+    assertThat(experiment.getExperimentProto().getLabels(0).toString())
+        .isEqualTo(proto.getLabels(0).toString());
 
     // Try constructing an experiment from a proto that already has these fields.
     Experiment experiment2 =
-        ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
+        ExperimentCreator.newExperimentForTesting(getContext(), proto.build(), overview);
     assertThat(experiment2.getLabels().get(0).getPictureLabelValue()).isEqualTo(labelValueProto);
     assertThat(experiment2.getLabelCount()).isEqualTo(1);
     List<Label> labels = experiment2.getLabels();
     labels.add(Label.newLabel(20, ValueType.TEXT));
     assertThat(experiment2.getLabelCount()).isEqualTo(2);
 
-    assertThat(experiment2.getExperimentProto().labels).hasLength(2);
+    assertThat(experiment2.getExperimentProto().getLabelsCount()).isEqualTo(2);
+    assertThat(experiment2.getExperimentProto().getLabelsList()).hasSize(2);
   }
 
   @Test
@@ -143,12 +143,14 @@ public class ExperimentTest {
 
   @Test
   public void testTrials() {
-    GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {});
+    GoosciExperiment.Experiment.Builder proto = makeExperimentWithLabels(new long[] {}).toBuilder();
 
     // No trials on creation
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
+            getContext(),
+            proto.build(),
+            GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
     assertThat(experiment.getTrialCount()).isEqualTo(0);
     assertThat(experiment.getTrials()).isEmpty();
 
@@ -158,11 +160,13 @@ public class ExperimentTest {
             .setTitle("cats")
             .setRecordingRange(Range.newBuilder().setStartMs(100).setEndMs(200))
             .build();
-    proto.trials = new GoosciTrial.Trial[] {trialProto};
+    proto.clearTrials().addTrials(trialProto);
 
     Experiment experiment1 =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
+            getContext(),
+            proto.build(),
+            GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
     assertThat(experiment1.getTrialCount()).isEqualTo(1);
 
     // Adding a new trial should work as expected.
@@ -177,7 +181,7 @@ public class ExperimentTest {
     assertThat(experiment1.getTrialCount()).isEqualTo(2);
 
     // Getting the proto includes trial updates
-    assertThat(experiment1.getExperimentProto().trials).hasLength(2);
+    assertThat(experiment1.getExperimentProto().getTrialsList()).hasSize(2);
   }
 
   @Test
@@ -281,18 +285,23 @@ public class ExperimentTest {
 
   @Test
   public void testUpdatesProtoOnlyWhenNeeded() {
-    GoosciExperiment.Experiment proto = makeExperimentWithLabels(new long[] {99, 100, 125, 201});
+    GoosciExperiment.Experiment.Builder proto =
+        makeExperimentWithLabels(new long[] {99, 100, 125, 201}).toBuilder();
     GoosciTrial.Trial trialProto = GoosciTrial.Trial.newBuilder().setTitle("title").build();
-    proto.trials = new GoosciTrial.Trial[] {trialProto};
+    proto.clearTrials().addTrials(trialProto);
 
     Experiment experiment =
         ExperimentCreator.newExperimentForTesting(
-            getContext(), proto, GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
+            getContext(),
+            proto.build(),
+            GoosciUserMetadata.ExperimentOverview.getDefaultInstance());
 
     // Try to get the proto *before* converting the objects into lists.
     GoosciExperiment.Experiment result = experiment.getExperimentProto();
-    assertThat(result.labels).hasLength(4);
-    assertThat(result.trials).hasLength(1);
+    assertThat(result.getLabelsCount()).isEqualTo(4);
+    assertThat(result.getLabelsList()).hasSize(4);
+    assertThat(result.getTrialsCount()).isEqualTo(1);
+    assertThat(result.getTrialsList()).hasSize(1);
   }
 
   @Test
@@ -344,7 +353,7 @@ public class ExperimentTest {
         ExperimentCreator.newExperimentForTesting(getContext(), proto, overview);
     experiment.setImagePath("test.jpg");
     String overviewImagePath = experiment.getExperimentOverview().getImagePath();
-    String experimentImagePath = experiment.getExperimentProto().imagePath;
+    String experimentImagePath = experiment.getExperimentProto().getImagePath();
 
     assertThat(overviewImagePath).isEqualTo("experiments/experimentId/test.jpg");
     assertThat(experimentImagePath).isEqualTo("test.jpg");
@@ -353,7 +362,7 @@ public class ExperimentTest {
     overviewImagePath = experiment.getExperimentOverview().getImagePath();
     assertThat(overviewImagePath).isEqualTo("experiments/experimentId/path.jpg");
 
-    experimentImagePath = experiment.getExperimentProto().imagePath;
+    experimentImagePath = experiment.getExperimentProto().getImagePath();
     assertThat(experimentImagePath).isEqualTo("path.jpg");
   }
 

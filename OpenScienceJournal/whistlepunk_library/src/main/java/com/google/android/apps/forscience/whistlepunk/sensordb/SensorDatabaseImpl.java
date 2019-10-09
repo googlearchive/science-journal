@@ -26,11 +26,11 @@ import androidx.core.util.Pair;
 import com.google.android.apps.forscience.whistlepunk.BatchInsertScalarReading;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataDump;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData.ScalarSensorDataRow;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 import com.google.common.base.Joiner;
@@ -362,7 +362,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
   public List<ScalarSensorDataDump> getScalarReadingProtosAsList(
       GoosciExperiment.Experiment experiment) {
     ArrayList<ScalarSensorDataDump> sensorDataList = new ArrayList<>();
-    for (GoosciTrial.Trial trial : experiment.trials) {
+    for (GoosciTrial.Trial trial : experiment.getTrialsList()) {
       com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range range =
           trial.getRecordingRange();
       // This protects against corrupted trials with invalid range end times.
@@ -459,7 +459,7 @@ public class SensorDatabaseImpl implements SensorDatabase {
   private List<ScalarSensorDataDump> getScalarReadingProtosForTrialAsList(
       GoosciExperiment.Experiment experiment, String trialId) {
     ArrayList<ScalarSensorDataDump> sensorDataList = new ArrayList<>();
-    for (GoosciTrial.Trial trial : experiment.trials) {
+    for (GoosciTrial.Trial trial : experiment.getTrialsList()) {
       if (!trial.getTrialId().equals(trialId)) {
         continue;
       }

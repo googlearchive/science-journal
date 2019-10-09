@@ -3,7 +3,7 @@ package com.google.android.apps.forscience.whistlepunk.cloudsync;
 import android.content.Context;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary;
-import com.google.android.apps.forscience.whistlepunk.metadata.nano.GoosciExperiment;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import java.io.File;
