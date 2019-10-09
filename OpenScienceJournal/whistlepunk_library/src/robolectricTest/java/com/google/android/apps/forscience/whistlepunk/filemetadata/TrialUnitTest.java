@@ -32,6 +32,7 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppe
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
+import java.util.ArrayList;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -155,5 +156,24 @@ public class TrialUnitTest {
     Trial trial = Trial.newTrial(7, new GoosciSensorLayout.SensorLayout[] {layout}, provider, null);
     Map<String, GoosciSensorAppearance.BasicSensorAppearance> appearances = trial.getAppearances();
     assertEquals("Fun name!", appearances.get("foo").getName());
+  }
+
+  @Test
+  public void testGetTrialProto() {
+    Trial trial = Trial.newTrial(100, NO_LAYOUTS, fakeProvider, null);
+    trial.setArchived(true);
+    trial.setAutoZoomEnabled(false);
+    trial.setTitle("title");
+    ArrayList<SensorLayoutPojo> layouts = new ArrayList<>();
+    layouts.add(new SensorLayoutPojo());
+    layouts.add(new SensorLayoutPojo());
+    trial.setSensorLayouts(layouts);
+
+    GoosciTrial.Trial proto = trial.getTrialProto();
+
+    assertEquals("title", proto.getTitle());
+    assertTrue(proto.getArchived());
+    assertFalse(proto.getAutoZoomEnabled());
+    assertEquals(2, proto.getSensorLayoutsCount());
   }
 }

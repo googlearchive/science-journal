@@ -273,11 +273,11 @@ public class Trial extends LabelListHolder {
     if (cropRange != null) {
       trial.setCropRange(cropRange);
     }
-    SensorLayout[] layouts = new SensorLayout[sensorLayouts.size()];
-    int index = 0;
+    ArrayList<SensorLayout> layouts = new ArrayList<>();
     for (SensorLayoutPojo layoutPojo : sensorLayouts) {
-      layouts[index] = layoutPojo.toProto();
+      layouts.add(layoutPojo.toProto());
     }
+    trial.addAllSensorLayouts(layouts);
     return trial.build();
   }
 
