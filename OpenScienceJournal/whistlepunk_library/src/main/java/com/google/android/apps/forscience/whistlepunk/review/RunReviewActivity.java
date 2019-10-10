@@ -22,23 +22,26 @@ import android.content.res.Resources.Theme;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import android.view.ContextThemeWrapper;
+import com.google.android.apps.forscience.whistlepunk.AddMoreObservationNotesFragment;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.RecorderService;
+import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay.OnTimestampChangeListener;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
 /** Displays the experiment trial, notes for the trial, and the action bar to add more notes. */
-public class RunReviewActivity extends NoteTakingActivity {
+public class RunReviewActivity extends NoteTakingActivity implements OnTimestampChangeListener {
   public static final String EXTRA_FROM_RECORD = "from_record_activity";
   public static final String EXTRA_CREATE_TASK = "create_task";
   private boolean fromRecord;
   private RunReviewFragment fragment;
+  private AddMoreObservationNotesFragment moreObservationNotesFragment;
 
   /**
    * Launches a new recording review activity
@@ -217,5 +220,19 @@ public class RunReviewActivity extends NoteTakingActivity {
       ActionAreaItem.NOTE, ActionAreaItem.CAMERA, ActionAreaItem.GALLERY
     };
     return actionAreaItems;
+  }
+
+  @Override
+  protected Fragment newInstanceAddMoreObservationNotes() {
+    moreObservationNotesFragment =
+        AddMoreObservationNotesFragment.newInstance(true /* isRunReview */);
+    return moreObservationNotesFragment;
+  }
+
+  @Override
+  public void onTimestampChanged(long timestamp) {
+    if (moreObservationNotesFragment != null) {
+      moreObservationNotesFragment.updateTime(timestamp, fragment.getStartTimestamp());
+    }
   }
 }

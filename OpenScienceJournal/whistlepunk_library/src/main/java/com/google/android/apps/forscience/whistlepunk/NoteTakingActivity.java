@@ -389,11 +389,13 @@ public abstract class NoteTakingActivity extends AppCompatActivity
       case MORE_OBSERVATIONS_TAG:
         return MoreObservationsFragment.newInstance();
       case DEFAULT_ADD_MORE_OBSERVATIONS_TAG:
-        return AddMoreObservationNotesFragment.newInstance();
+        return newInstanceAddMoreObservationNotes();
       default:
         throw new IllegalArgumentException("Invalid fragment tag: " + tag);
     }
   }
+
+  protected abstract Fragment newInstanceAddMoreObservationNotes();
 
   @Override
   protected void onSaveInstanceState(Bundle outState) {

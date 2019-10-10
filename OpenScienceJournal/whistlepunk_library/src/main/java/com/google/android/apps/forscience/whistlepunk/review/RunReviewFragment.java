@@ -509,11 +509,20 @@ public class RunReviewFragment extends Fragment
     } else {
       actionArea.setVisibility(View.GONE);
     }
+    if (Flags.showActionBar()) {
+      if (activity instanceof RunReviewActivity) {
+        runReviewOverlay.setOnTimestampChangeListener((RunReviewActivity) activity);
+      }
+    }
     return rootView;
   }
 
   protected long getTimestamp() {
     return runReviewOverlay.getTimestamp();
+  }
+
+  protected long getStartTimestamp() {
+    return getTrial().getFirstTimestamp();
   }
 
   @Override

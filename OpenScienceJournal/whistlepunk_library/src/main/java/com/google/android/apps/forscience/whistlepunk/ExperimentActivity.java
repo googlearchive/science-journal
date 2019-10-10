@@ -401,4 +401,9 @@ public class ExperimentActivity extends NoteTakingActivity
     }
     return actionAreaItems;
   }
+
+  @Override
+  protected Fragment newInstanceAddMoreObservationNotes() {
+    return AddMoreObservationNotesFragment.newInstance(false /* isRunReview */);
+  }
 }
