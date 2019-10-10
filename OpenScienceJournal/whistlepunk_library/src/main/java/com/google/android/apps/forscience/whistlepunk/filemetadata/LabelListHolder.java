@@ -22,6 +22,7 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import io.reactivex.functions.Consumer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public abstract class LabelListHolder {
    * happen using updateLabel, addTrialLabel, removeLabel.
    */
   public List<Label> getLabels() {
-    return labels;
+    return new ArrayList<>(labels);
   }
 
   /** Updates a label in the list. Maintains label sort order. */

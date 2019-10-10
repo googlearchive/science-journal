@@ -35,7 +35,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciUserMetadata.ExperimentOverview;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -82,7 +81,7 @@ public class ExperimentTest {
             .setProtoData(labelValueProto.toByteString())
             .setType(ValueType.PICTURE)
             .build();
-    experiment.getLabels().add(Label.fromLabel(labelProto));
+    experiment.addLabel(experiment, Label.fromLabel(labelProto));
     assertThat(experiment.getLabelCount()).isEqualTo(1);
 
     // Make sure the proto gets updated properly
@@ -95,8 +94,7 @@ public class ExperimentTest {
         ExperimentCreator.newExperimentForTesting(getContext(), proto.build(), overview);
     assertThat(experiment2.getLabels().get(0).getPictureLabelValue()).isEqualTo(labelValueProto);
     assertThat(experiment2.getLabelCount()).isEqualTo(1);
-    List<Label> labels = experiment2.getLabels();
-    labels.add(Label.newLabel(20, ValueType.TEXT));
+    experiment2.addLabel(experiment2, Label.newLabel(20, ValueType.TEXT));
     assertThat(experiment2.getLabelCount()).isEqualTo(2);
 
     assertThat(experiment2.getExperimentProto().getLabelsCount()).isEqualTo(2);

@@ -24,6 +24,7 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibra
 import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -333,7 +334,9 @@ public class ExperimentLibraryManager {
 
   public Set<String> getKnownExperiments() {
     populateExperimentLibraryManager();
-    return experiments.keySet();
+
+    // Returning a local copy of this set will defend against concurrent modification.
+    return new HashSet<>(experiments.keySet());
   }
 
   private void writeExperimentLibrary() {
