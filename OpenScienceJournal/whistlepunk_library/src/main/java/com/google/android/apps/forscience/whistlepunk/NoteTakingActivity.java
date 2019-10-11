@@ -295,20 +295,24 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     return getClock(context).getNow();
   }
 
+  // Lint doesn't like "subscribe" without doing anything with the return value. But that's not how
+  // that works.
+  @SuppressLint("CheckResult")
   protected void addNewLabel(Label label) {
-    // Get the most recent experiment, or wait if none has been loaded yet.
-    exp.subscribe(
-        e -> {
-          // if it is recording, add it to the recorded trial instead!
-          String trialId = getTrialIdForLabel();
-          if (TextUtils.isEmpty(trialId)) {
-            e.addLabel(e, label);
-          } else {
-            e.getTrial(trialId).addLabel(e, label);
-          }
-          RxDataController.updateExperiment(getDataController(), e, true)
-              .subscribe(() -> onLabelAdded(trialId, label), error -> onAddNewLabelFailed());
-        });
+    // Reload the current experiment in case the ActiveExperiment Object has changed beneath us.
+    RxDataController.getExperimentById(getDataController(), experimentId)
+        .subscribe(
+            e -> {
+              // if it is recording, add it to the recorded trial instead!
+              String trialId = getTrialIdForLabel();
+              if (TextUtils.isEmpty(trialId)) {
+                e.addLabel(e, label);
+              } else {
+                e.getTrial(trialId).addLabel(e, label);
+              }
+              RxDataController.updateExperiment(getDataController(), e, true)
+                  .subscribe(() -> onLabelAdded(trialId, label), error -> onAddNewLabelFailed());
+            });
   }
 
   protected void onAddNewLabelFailed() {

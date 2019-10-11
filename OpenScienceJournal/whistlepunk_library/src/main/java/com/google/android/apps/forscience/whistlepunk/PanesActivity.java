@@ -15,6 +15,7 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -83,6 +84,7 @@ public class PanesActivity extends AppCompatActivity
   private RxEvent paused = new RxEvent();
   private AppAccount appAccount;
   private boolean claimExperimentsMode;
+  private String experimentId;
 
   /**
    * Displays the experiment and the tool drawer.
@@ -331,7 +333,7 @@ public class PanesActivity extends AppCompatActivity
     grabber = findViewById(R.id.grabber);
 
     appAccount = WhistlePunkApplication.getAccount(this, getIntent(), EXTRA_ACCOUNT_KEY);
-    String experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
+    experimentId = getIntent().getStringExtra(EXTRA_EXPERIMENT_ID);
 
     selectedTabIndex = 0;
     if (savedInstanceState != null) {
@@ -885,20 +887,24 @@ public class PanesActivity extends AppCompatActivity
     return result -> addNewLabel(result);
   }
 
+  // Lint doesn't like "subscribe" without doing anything with the return value. But that's not how
+  // that works.
+  @SuppressLint("CheckResult")
   private void addNewLabel(Label label) {
-    // Get the most recent experiment, or wait if none has been loaded yet.
-    activeExperiment.subscribe(
-        e -> {
-          // if it is recording, add it to the recorded trial instead!
-          String trialId = experimentFragment.getActiveRecordingId();
-          if (TextUtils.isEmpty(trialId)) {
-            e.addLabel(e, label);
-          } else {
-            e.getTrial(trialId).addLabel(e, label);
-          }
-          RxDataController.updateExperiment(getDataController(), e, true)
-              .subscribe(() -> onLabelAdded(trialId), error -> onAddNewLabelFailed());
-        });
+    // Reload the current experiment in case the ActiveExperiment Object has changed beneath us.
+    RxDataController.getExperimentById(getDataController(), experimentId)
+        .subscribe(
+            e -> {
+              // if it is recording, add it to the recorded trial instead!
+              String trialId = experimentFragment.getActiveRecordingId();
+              if (TextUtils.isEmpty(trialId)) {
+                e.addLabel(e, label);
+              } else {
+                e.getTrial(trialId).addLabel(e, label);
+              }
+              RxDataController.updateExperiment(getDataController(), e, true)
+                  .subscribe(() -> onLabelAdded(trialId), error -> onAddNewLabelFailed());
+            });
   }
 
   private void onAddNewLabelFailed() {
