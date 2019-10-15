@@ -721,19 +721,23 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
       return true;
     }
 
-    if (!claimExperimentsMode && experiment.isEmpty()) {
+    if (!claimExperimentsMode && experiment != null && experiment.isEmpty()) {
       // Experiment is empty. No reason to keep it.
       deleteCurrentExperiment();
       return true;
     }
 
-    if (!claimExperimentsMode && TextUtils.isEmpty(experiment.getTitle()) && canEdit()) {
+    if (!claimExperimentsMode
+        && experiment != null
+        && TextUtils.isEmpty(experiment.getTitle())
+        && canEdit()) {
       displayNamePrompt();
       // We are handling this.
       return true;
     }
 
-    if (getActivity().isTaskRoot()) {
+    Activity activity = getActivity();
+    if (activity != null && activity.isTaskRoot()) {
       goToExperimentList();
       return true;
     }
