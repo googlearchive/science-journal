@@ -33,7 +33,6 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.html.HtmlEscapers;
-import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,8 +112,7 @@ public class InputDeviceSpec extends ExternalSensorSpec {
   @Nullable
   private InputDevice.InputDeviceConfig parse(byte[] config) {
     try {
-      return InputDevice.InputDeviceConfig.parseFrom(
-          config, ExtensionRegistryLite.getGeneratedRegistry());
+      return InputDevice.InputDeviceConfig.parseFrom(config);
     } catch (InvalidProtocolBufferException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "error parsing config", e);

@@ -1,7 +1,6 @@
 package com.google.android.apps.forscience.whistlepunk.cloudsync;
 
 import android.content.Context;
-import android.support.v4.util.Supplier;
 import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
@@ -27,7 +26,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDump
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.common.base.Strings;
-import com.google.protobuf.ExtensionRegistryLite;
+import com.google.common.base.Supplier;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -355,9 +354,7 @@ public class DriveSyncManager implements CloudSyncManager {
     GoosciScalarSensorData.ScalarSensorData dataProto = null;
     if (localFile.canRead()) {
       try (FileInputStream fis = new FileInputStream(localFile)) {
-        dataProto =
-            GoosciScalarSensorData.ScalarSensorData.parseFrom(
-                fis, ExtensionRegistryLite.getGeneratedRegistry());
+        dataProto = GoosciScalarSensorData.ScalarSensorData.parseFrom(fis);
       } catch (Exception e) {
         Log.e(TAG, "Exception reading trial data file", e);
       }

@@ -35,7 +35,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibra
 import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciScalarSensorData;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
-import com.google.protobuf.ExtensionRegistryLite;
 import io.reactivex.Single;
 import java.io.DataInputStream;
 import java.io.File;
@@ -382,8 +381,7 @@ public class FileMetadataUtil {
       try (FileInputStream fis = new FileInputStream(libraryFile);
           DataInputStream dis = new DataInputStream(fis);) {
         dis.readFully(libraryBytes);
-        library =
-            ExperimentLibrary.parseFrom(libraryBytes, ExtensionRegistryLite.getGeneratedRegistry());
+        library = ExperimentLibrary.parseFrom(libraryBytes);
       } catch (Exception e) {
         Log.e(TAG, "Exception reading Experiment Library file", e);
       }
@@ -400,8 +398,7 @@ public class FileMetadataUtil {
     File statusFile = getLocalSyncStatusFile(appAccount);
     if (statusFile.canRead()) {
       try (FileInputStream fis = new FileInputStream(statusFile)) {
-        return GoosciLocalSyncStatus.LocalSyncStatus.parseFrom(
-            fis, ExtensionRegistryLite.getGeneratedRegistry());
+        return GoosciLocalSyncStatus.LocalSyncStatus.parseFrom(fis);
       } catch (Exception e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, "Exception reading Local Sync Status file", e);

@@ -22,7 +22,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Data;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensor.Pin;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayOutputStream;
 
@@ -67,8 +66,7 @@ public class PacketAssembler {
     GoosciSensor.SensorData sensorData;
 
     try {
-      sensorData =
-          GoosciSensor.SensorData.parseFrom(bs, ExtensionRegistryLite.getGeneratedRegistry());
+      sensorData = GoosciSensor.SensorData.parseFrom(bs);
     } catch (InvalidProtocolBufferException e) {
       raiseError(e.getLocalizedMessage());
       if (Log.isLoggable(TAG, Log.DEBUG)) {

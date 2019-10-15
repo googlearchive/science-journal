@@ -30,7 +30,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput.ScalarInputConfig;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public class ScalarInputSpec extends ExternalSensorSpec {
@@ -101,8 +100,7 @@ public class ScalarInputSpec extends ExternalSensorSpec {
   @Nullable
   private GoosciScalarInput.ScalarInputConfig parse(byte[] config) {
     try {
-      return GoosciScalarInput.ScalarInputConfig.parseFrom(
-          config, ExtensionRegistryLite.getGeneratedRegistry());
+      return GoosciScalarInput.ScalarInputConfig.parseFrom(config);
     } catch (InvalidProtocolBufferException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "error parsing config", e);

@@ -26,7 +26,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerAlertType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.Objects;
 import java.util.Set;
@@ -303,8 +302,7 @@ public class SensorTrigger {
   public static SensorTrigger fromBundle(Bundle bundle) {
     try {
       return new SensorTrigger(
-          GoosciSensorTrigger.SensorTrigger.parseFrom(
-              bundle.getByteArray(KEY_TRIGGER), ExtensionRegistryLite.getGeneratedRegistry()));
+          GoosciSensorTrigger.SensorTrigger.parseFrom(bundle.getByteArray(KEY_TRIGGER)));
     } catch (InvalidProtocolBufferException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Error parsing SensorTrigger");

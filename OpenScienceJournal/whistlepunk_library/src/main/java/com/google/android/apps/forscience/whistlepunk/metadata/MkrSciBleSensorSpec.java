@@ -5,7 +5,6 @@ import android.util.Log;
 import com.google.android.apps.forscience.whistlepunk.MkrSciBleSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciMkrSciSensorConfig.MkrSciBleSensorConfig;
-import com.google.protobuf.ExtensionRegistryLite;
 import java.util.Objects;
 
 /** Represents a specification of a MkrSciBle sensor. */
@@ -77,7 +76,7 @@ public class MkrSciBleSensorSpec extends ExternalSensorSpec {
   @VisibleForTesting
   public void loadFromConfig(byte[] data) {
     try {
-      config = MkrSciBleSensorConfig.parseFrom(data, ExtensionRegistryLite.getGeneratedRegistry());
+      config = MkrSciBleSensorConfig.parseFrom(data);
     } catch (Exception e) {
       Log.e(TAG, "Could not deserialize config", e);
       throw new IllegalStateException(e);

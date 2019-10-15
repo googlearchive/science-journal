@@ -39,7 +39,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ScalarSensorDumpReader;
 import com.google.common.collect.Sets;
-import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.reactivex.Single;
 import java.io.File;
@@ -250,8 +249,7 @@ public class FileMetadataManager {
         if (label.getType() == ValueType.PICTURE) {
           try {
             GoosciPictureLabelValue.PictureLabelValue labelValue =
-                GoosciPictureLabelValue.PictureLabelValue.parseFrom(
-                    label.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
+                GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.getProtoData());
             usedImagePaths.add(labelValue.getFilePath());
           } catch (InvalidProtocolBufferException e) {
             if (Log.isLoggable(TAG, Log.WARN)) {
@@ -265,8 +263,7 @@ public class FileMetadataManager {
       if (label.getType() == ValueType.PICTURE) {
         try {
           GoosciPictureLabelValue.PictureLabelValue labelValue =
-              GoosciPictureLabelValue.PictureLabelValue.parseFrom(
-                  label.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
+              GoosciPictureLabelValue.PictureLabelValue.parseFrom(label.getProtoData());
           usedImagePaths.add(labelValue.getFilePath());
         } catch (InvalidProtocolBufferException e) {
           if (Log.isLoggable(TAG, Log.WARN)) {

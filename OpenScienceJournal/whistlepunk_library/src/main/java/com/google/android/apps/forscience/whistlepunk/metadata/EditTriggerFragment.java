@@ -61,7 +61,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTrigg
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -136,8 +135,7 @@ public class EditTriggerFragment extends Fragment {
       sensorLayout =
           SensorLayoutPojo.fromProto(
               GoosciSensorLayout.SensorLayout.parseFrom(
-                  getArguments().getByteArray(ARG_SENSOR_LAYOUT),
-                  ExtensionRegistryLite.getGeneratedRegistry()));
+                  getArguments().getByteArray(ARG_SENSOR_LAYOUT)));
     } catch (InvalidProtocolBufferException e) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Error parsing the SensorLayout", e);

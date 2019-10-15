@@ -68,7 +68,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Range
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -1019,9 +1018,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         try {
           byte[] blob = cursor.getBlob(0);
           if (blob != null) {
-            layout =
-                GoosciSensorLayout.SensorLayout.newBuilder()
-                    .mergeFrom(blob, ExtensionRegistryLite.getGeneratedRegistry());
+            layout = GoosciSensorLayout.SensorLayout.newBuilder().mergeFrom(blob);
           } else {
             // In this case, create a fake sensorLayout since none exists.
             layout = GoosciSensorLayout.SensorLayout.newBuilder();
@@ -1155,8 +1152,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
       while (cursor.moveToNext()) {
         try {
           GoosciSensorLayout.SensorLayout layout =
-              GoosciSensorLayout.SensorLayout.parseFrom(
-                  cursor.getBlob(0), ExtensionRegistryLite.getGeneratedRegistry());
+              GoosciSensorLayout.SensorLayout.parseFrom(cursor.getBlob(0));
           if (!sensorIdsAdded.contains(layout.getSensorId())) {
             layouts.add(SensorLayoutPojo.fromProto(layout));
           }
@@ -1355,10 +1351,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         try {
           byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
           if (blob != null) {
-            value =
-                new LabelValuePojo(
-                    GoosciLabelValue.LabelValue.parseFrom(
-                        blob, ExtensionRegistryLite.getGeneratedRegistry()));
+            value = new LabelValuePojo(GoosciLabelValue.LabelValue.parseFrom(blob));
           }
         } catch (InvalidProtocolBufferException ex) {
           Log.d(TAG, "Unable to parse label value");
@@ -1482,10 +1475,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
         try {
           byte[] blob = cursor.getBlob(LabelQuery.VALUE_INDEX);
           if (blob != null) {
-            value =
-                new LabelValuePojo(
-                    GoosciLabelValue.LabelValue.parseFrom(
-                        blob, ExtensionRegistryLite.getGeneratedRegistry()));
+            value = new LabelValuePojo(GoosciLabelValue.LabelValue.parseFrom(blob));
           }
         } catch (InvalidProtocolBufferException ex) {
           Log.d(TAG, "Unable to parse label value");
@@ -1951,8 +1941,7 @@ public class SimpleMetaDataManager implements MetaDataManager {
                 c.getString(0),
                 c.getString(1),
                 c.getLong(2),
-                GoosciSensorTriggerInformation.TriggerInformation.parseFrom(
-                    c.getBlob(3), ExtensionRegistryLite.getGeneratedRegistry())));
+                GoosciSensorTriggerInformation.TriggerInformation.parseFrom(c.getBlob(3))));
         c.moveToNext();
       }
     } catch (InvalidProtocolBufferException e) {

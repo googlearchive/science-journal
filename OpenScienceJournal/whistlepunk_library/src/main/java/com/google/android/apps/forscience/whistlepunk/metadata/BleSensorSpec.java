@@ -26,7 +26,6 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.Bl
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorConfig.BleSensorConfig.ScaleTransform;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.PinTypeProvider;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
-import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 /** Represents a specification of a BLE sensor which is exposing the Making Science service. */
@@ -83,9 +82,7 @@ public class BleSensorSpec extends ExternalSensorSpec {
   @VisibleForTesting
   public void loadFromConfig(byte[] data) {
     try {
-      config =
-          new BleSensorConfigPojo(
-              BleSensorConfig.parseFrom(data, ExtensionRegistryLite.getGeneratedRegistry()));
+      config = new BleSensorConfigPojo(BleSensorConfig.parseFrom(data));
     } catch (InvalidProtocolBufferException e) {
       Log.e(TAG, "Could not deserialize config", e);
       throw new IllegalStateException(e);

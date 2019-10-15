@@ -30,7 +30,6 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabe
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSnapshotValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
-import com.google.protobuf.ExtensionRegistryLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import java.io.File;
@@ -112,8 +111,7 @@ public class Label implements Parcelable {
     // in.readByteArray(serialized);
     byte[] serialized = in.createByteArray();
     try {
-      initializeFromProto(
-          GoosciLabel.Label.parseFrom(serialized, ExtensionRegistryLite.getGeneratedRegistry()));
+      initializeFromProto(GoosciLabel.Label.parseFrom(serialized));
     } catch (InvalidProtocolBufferException ex) {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Couldn't parse label storage");
@@ -204,8 +202,7 @@ public class Label implements Parcelable {
   public GoosciTextLabelValue.TextLabelValue getTextLabelValue() {
     if (labelBuilder.getType() == ValueType.TEXT) {
       try {
-        return GoosciTextLabelValue.TextLabelValue.parseFrom(
-            labelBuilder.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
+        return GoosciTextLabelValue.TextLabelValue.parseFrom(labelBuilder.getProtoData());
       } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
@@ -224,8 +221,7 @@ public class Label implements Parcelable {
   public GoosciPictureLabelValue.PictureLabelValue getPictureLabelValue() {
     if (labelBuilder.getType() == ValueType.PICTURE) {
       try {
-        return GoosciPictureLabelValue.PictureLabelValue.parseFrom(
-            labelBuilder.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
+        return GoosciPictureLabelValue.PictureLabelValue.parseFrom(labelBuilder.getProtoData());
       } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
@@ -245,7 +241,7 @@ public class Label implements Parcelable {
     if (labelBuilder.getType() == ValueType.SENSOR_TRIGGER) {
       try {
         return GoosciSensorTriggerLabelValue.SensorTriggerLabelValue.parseFrom(
-            labelBuilder.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
+            labelBuilder.getProtoData());
       } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());
@@ -264,8 +260,7 @@ public class Label implements Parcelable {
   public GoosciSnapshotValue.SnapshotLabelValue getSnapshotLabelValue() {
     if (labelBuilder.getType() == ValueType.SNAPSHOT) {
       try {
-        return GoosciSnapshotValue.SnapshotLabelValue.parseFrom(
-            labelBuilder.getProtoData(), ExtensionRegistryLite.getGeneratedRegistry());
+        return GoosciSnapshotValue.SnapshotLabelValue.parseFrom(labelBuilder.getProtoData());
       } catch (InvalidProtocolBufferException e) {
         if (Log.isLoggable(TAG, Log.ERROR)) {
           Log.e(TAG, e.getMessage());

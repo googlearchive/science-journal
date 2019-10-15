@@ -1,13 +1,13 @@
 package com.google.android.apps.forscience.whistlepunk.cloudsync;
 
 import android.content.Context;
-import android.support.v4.util.Supplier;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.common.base.Supplier;
 import java.util.HashMap;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
