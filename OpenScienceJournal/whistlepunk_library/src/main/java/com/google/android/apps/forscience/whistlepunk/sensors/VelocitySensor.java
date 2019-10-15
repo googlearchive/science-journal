@@ -68,33 +68,42 @@ public class VelocitySensor extends ScalarSensor {
 
   public static boolean isVelocitySensorAvailable(Context appContext) {
     if (Flags.showVelocityTrackerOption()) {
-
-      // Calling checkAvailability() will determine if ARCore is supported on this device.
-      ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(appContext);
-
-      // Transient means this state is temporary and we should re-check availability soon.
-      if (availability.isTransient()) {
-        // TODO (b/139126555): update this method to re-query if availability is transient
-        return false;
+      ArCoreApk.Availability availability = null;
+      try {
+        // Calling checkAvailability() will determine if ARCore is supported on this device.
+        availability = ArCoreApk.getInstance().checkAvailability(appContext);
+      } catch (NullPointerException e) {
+        // Unclear why NPE is happening in ArCoreApkImpl.checkInstallActivity
+        // TODO(b/141910242): Investigate why this NPE is happening
+        if (Log.isLoggable(TAG, Log.ERROR)) {
+          Log.e(TAG, "NPE initiating ARCore check", e);
+        }
       }
+      if (availability != null) {
+        // Transient means this state is temporary and we should re-check availability soon.
+        if (availability.isTransient()) {
+          // TODO (b/139126555): update this method to re-query if availability is transient
+          return false;
+        }
 
-      // Check that the device is compatible with Sceneform.
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        Log.e(TAG, "Sceneform requires Android N or later");
-        return false;
+        // Check that the device is compatible with Sceneform.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+          Log.e(TAG, "Sceneform requires Android N or later");
+          return false;
+        }
+
+        // Do a runtime check for the OpenGL level available at runtime.
+        String openGlVersionString =
+            ((ActivityManager) appContext.getSystemService(Context.ACTIVITY_SERVICE))
+                .getDeviceConfigurationInfo()
+                .getGlEsVersion();
+        if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
+          Log.e(TAG, "Sceneform requires OpenGL ES 3.0 or later");
+          return false;
+        }
+
+        return availability.isSupported();
       }
-
-      // Do a runtime check for the OpenGL level available at runtime.
-      String openGlVersionString =
-          ((ActivityManager) appContext.getSystemService(Context.ACTIVITY_SERVICE))
-              .getDeviceConfigurationInfo()
-              .getGlEsVersion();
-      if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
-        Log.e(TAG, "Sceneform requires OpenGL ES 3.0 or later");
-        return false;
-      }
-
-      return availability.isSupported();
     }
     return false;
   }
