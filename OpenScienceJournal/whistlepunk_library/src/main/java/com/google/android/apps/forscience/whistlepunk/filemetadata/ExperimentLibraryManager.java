@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Manages a Science Journal experiment library.
@@ -340,16 +342,24 @@ public class ExperimentLibraryManager {
   }
 
   private void writeExperimentLibrary() {
-    synchronized (account.getLockForExperimentLibraryFile()) {
-      try {
-        FileMetadataUtil.getInstance().writeExperimentLibraryFile(generateProto(), account);
-      } catch (IOException ioe) {
-        // Would like to do something else here, but not sure what else there really is to do.
-        if (Log.isLoggable(TAG, Log.ERROR)) {
-          Log.e(TAG, "ExperimentLibrary Write failed", ioe);
-        }
-      }
-    }
+    Executor thread = Executors.newSingleThreadExecutor();
+    thread.execute(
+        new Runnable() {
+          @Override
+          public void run() {
+            synchronized (account.getLockForExperimentLibraryFile()) {
+              try {
+                FileMetadataUtil.getInstance().writeExperimentLibraryFile(generateProto(), account);
+              } catch (IOException ioe) {
+                // Would like to do something else here, but not sure what else there really is to
+                // do.
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                  Log.e(TAG, "ExperimentLibrary Write failed", ioe);
+                }
+              }
+            }
+          }
+        });
   }
 
   private ExperimentLibrary generateProto() {
