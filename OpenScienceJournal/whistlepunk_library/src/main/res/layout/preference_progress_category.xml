@@ -31,7 +31,7 @@
         android:textStyle="normal"
         android:fontFamily="sans-serif-medium"
         android:background="@null"
-        android:id="@+android:id/title"
+        android:id="@+id/title"
         android:paddingStart="0dp"
         android:paddingTop="6dp"
         android:layout_width="0dp"
