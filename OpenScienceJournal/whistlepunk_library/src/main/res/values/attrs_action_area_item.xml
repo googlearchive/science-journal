@@ -16,7 +16,7 @@
  -->
 <resources>
     <declare-styleable name="ActionAreaItem">
-        <attr name="icon" format="color"/>
+        <attr name="icon_color" format="color"/>
         <attr name="icon_background" format="color"/>
     </declare-styleable>
 </resources>
