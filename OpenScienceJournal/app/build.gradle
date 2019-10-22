@@ -44,15 +44,8 @@ android {
 dependencies {
     annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
 
-    compileOnly "javax.annotation:jsr250-api:$jsr250Version"
-
-    implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
-    implementation "com.android.support:support-annotations:$supportLibraryVersion"
-    implementation "com.android.support:support-v13:$supportLibraryVersion"
-    implementation "com.android.support:support-v4:$supportLibraryVersion"
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation "com.google.dagger:dagger:$daggerVersion"
-
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':whistlepunk_library')
 
