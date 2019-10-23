@@ -23,8 +23,10 @@ import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibra
 import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.SyncExperiment;
 import com.google.common.base.Strings;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -367,7 +369,8 @@ public class ExperimentLibraryManager {
     if (folderId != null) {
       library.setFolderId(folderId);
     }
-    for (LibrarySyncExperiment experiment : experiments.values()) {
+    List<LibrarySyncExperiment> valuesList = new ArrayList<>(experiments.values());
+    for (LibrarySyncExperiment experiment : valuesList) {
       library.addSyncExperiment(experiment.generateProto());
     }
     return library.build();
