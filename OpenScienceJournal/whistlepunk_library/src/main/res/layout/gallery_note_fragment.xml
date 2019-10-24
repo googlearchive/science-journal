@@ -68,10 +68,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:backgroundTint="@android:color/white"
+            app:backgroundTint="?attr/icon_background"
             android:contentDescription="@string/add_experiment_note"
             android:src="@drawable/ic_sending_fab_icon"
-            app:rippleColor="?attr/icon"
+            app:rippleColor="?attr/icon_color"
             android:layout_gravity="bottom|center"/>
 
     </FrameLayout>

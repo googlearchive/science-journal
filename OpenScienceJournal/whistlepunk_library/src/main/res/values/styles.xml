@@ -144,19 +144,19 @@
     </style>
 
     <style name="DefaultActionAreaIcon">
-        <item name="icon">@color/action_area_purple_dark</item>
+        <item name="icon_color">@color/action_area_purple_dark</item>
         <item name="icon_background">@color/action_area_purple_light</item>
     </style>
     <style name="BlueActionAreaIcon" parent="DefaultActionAreaIcon">
-        <item name="icon">@color/action_area_blue_dark</item>
+        <item name="icon_color">@color/action_area_blue_dark</item>
         <item name="icon_background">@color/action_area_blue_light</item>
     </style>
     <style name="RedActionAreaIcon" parent="DefaultActionAreaIcon">
-        <item name="icon">@color/action_area_red_dark</item>
+        <item name="icon_color">@color/action_area_red_dark</item>
         <item name="icon_background">@color/action_area_red_light</item>
     </style>
     <style name="DisabledActionAreaIcon">
-        <item name="icon">@color/google_grey_600</item>
+        <item name="icon_color">@color/google_grey_600</item>
         <item name="icon_background">@color/google_grey_100</item>
     </style>
 

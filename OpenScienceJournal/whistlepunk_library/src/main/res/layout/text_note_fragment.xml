@@ -56,7 +56,7 @@
                 app:backgroundTint="?attr/icon_background"
                 android:contentDescription="@string/add_experiment_note"
                 android:src="@drawable/ic_sending_fab_icon"
-                app:rippleColor="?attr/icon"
+                app:rippleColor="?attr/icon_color"
                 android:layout_gravity="bottom|center"/>
         </FrameLayout>
     </ScrollView>
