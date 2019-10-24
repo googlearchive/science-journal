@@ -413,7 +413,14 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     // getTrialMaybe as workaround to avoid b/122074761
     if (adapter != null) {
       RxDataController.getTrialMaybe(getDataController(), experimentId, trialId)
-          .subscribe(t -> adapter.addActiveRecording(t));
+          .subscribe(
+              t -> adapter.addActiveRecording(t),
+              error -> {
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                  Log.e(TAG, "onStartRecording failed", error);
+                }
+                throw new IllegalStateException("onStartRecording failed", error);
+              });
     }
     if (getActivity() != null) {
       getActivity().invalidateOptionsMenu();
@@ -452,6 +459,12 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
             t -> {
               adapter.updateActiveRecording(t);
               scrollToBottom();
+            },
+            error -> {
+              if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "onRecordingTrialUpdated failed", error);
+              }
+              throw new IllegalStateException("onRecordingTrialUpdated failed", error);
             });
   }
 
@@ -687,6 +700,17 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
                           goToExperimentList();
                         }
                       });
+            },
+            error -> {
+              if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(
+                    TAG,
+                    "Delete current experiment in ExperimentDetailsWithActionAreaFragment failed",
+                    error);
+                throw new IllegalStateException(
+                    "Delete current experiment in ExperimentDetailsWithActionAreaFragment failed",
+                    error);
+              }
             });
   }
 

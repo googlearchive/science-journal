@@ -919,6 +919,13 @@ public class ExperimentListFragment extends Fragment
                       maybeFinishClaimExperimentsMode();
                     }
                   });
+            },
+            error -> {
+              if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Delete current experiment in ExperimentListFragment failed", error);
+              }
+              throw new IllegalStateException(
+                  "Delete current experiment in ExperimentListFragment failed", error);
             });
   }
 
@@ -1291,6 +1298,13 @@ public class ExperimentListFragment extends Fragment
                             showArchivedSnackbar(overview, position, archived);
                           }
                         });
+                  },
+                  error -> {
+                    if (Log.isLoggable(TAG, Log.ERROR)) {
+                      Log.e(TAG, "Archive experiment in ExperimentListFragment failed", error);
+                    }
+                    throw new IllegalStateException(
+                        "Archive experiment in ExperimentListFragment failed", error);
                   });
     }
 

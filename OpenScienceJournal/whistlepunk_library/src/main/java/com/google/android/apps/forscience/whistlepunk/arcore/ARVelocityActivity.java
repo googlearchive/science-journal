@@ -157,6 +157,12 @@ public class ARVelocityActivity extends AppCompatActivity {
               rc.setSelectedExperiment(experiment);
               attachSnapshotButton(snapshotButton);
               cbc.attachRecordButton(recordButton, getSupportFragmentManager());
+            },
+            error -> {
+              if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "setUpRecording in ARVelocityActivity failed", error);
+              }
+              throw new IllegalStateException("ARVelocityActivity setupRecording failed", error);
             });
     rc.setLayoutSupplier(() -> buildLayouts());
   }

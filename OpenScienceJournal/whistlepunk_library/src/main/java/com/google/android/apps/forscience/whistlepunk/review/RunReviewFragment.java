@@ -641,10 +641,24 @@ public class RunReviewFragment extends Fragment
           scalarDisplayOptions, new NewOptionsStorage.SnackbarFailureListener(getView()));
     } else if (id == R.id.action_export) {
       RxDataController.getExperimentById(getDataController(), experimentId)
-          .subscribe(experiment -> exportRun(experiment.getTrial(trialId), false));
+          .subscribe(
+              experiment -> exportRun(experiment.getTrial(trialId), false),
+              error -> {
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                  Log.e(TAG, "Export in RunReviewFragment failed", error);
+                }
+                throw new IllegalStateException("Export in RunReviewFragment failed", error);
+              });
     } else if (id == R.id.action_download) {
       RxDataController.getExperimentById(getDataController(), experimentId)
-          .subscribe(experiment -> exportRun(experiment.getTrial(trialId), true));
+          .subscribe(
+              experiment -> exportRun(experiment.getTrial(trialId), true),
+              error -> {
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                  Log.e(TAG, "Download in RunReviewFragment failed", error);
+                }
+                throw new IllegalStateException("Download in RunReviewFragment failed", error);
+              });
     } else if (id == R.id.action_run_review_crop) {
       if (experiment != null) {
         launchCrop(getView());

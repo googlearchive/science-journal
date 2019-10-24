@@ -23,6 +23,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -84,7 +85,15 @@ abstract class LabelDetailsFragment extends Fragment {
     }
 
     RxDataController.getExperimentById(getDataController(), experimentId)
-        .subscribe(this::attachExperiment);
+        .subscribe(
+            this::attachExperiment,
+            error -> {
+              if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "LabelDetailsFragment attachExperiment failed", error);
+              }
+              throw new IllegalStateException(
+                  "LabelDetailsFragment attachExperiment failed", error);
+            });
     experiment.firstElement().subscribe(experiment -> getActivity().invalidateOptionsMenu());
 
     clock = AppSingleton.getInstance(getActivity()).getSensorEnvironment().getDefaultClock();

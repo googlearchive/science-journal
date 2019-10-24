@@ -904,6 +904,12 @@ public class PanesActivity extends AppCompatActivity
               }
               RxDataController.updateExperiment(getDataController(), e, true)
                   .subscribe(() -> onLabelAdded(trialId), error -> onAddNewLabelFailed());
+            },
+            error -> {
+              if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "addNewLabel failed", error);
+              }
+              onAddNewLabelFailed();
             });
   }
 

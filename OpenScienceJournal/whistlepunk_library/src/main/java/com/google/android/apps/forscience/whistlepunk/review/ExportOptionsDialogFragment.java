@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,7 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
   private static final String KEY_EXPERIMENT_ID = "experiment_id";
   private static final String KEY_TRIAL_ID = "trial_id";
   private static final String KEY_SAVE_LOCALLY = "save_locally";
+  private static final String TAG = "ExportOptionsDialog";
   private String trialId;
   private boolean saveLocally;
   private CheckBox relativeTime;
@@ -190,6 +192,13 @@ public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
               Trial trial = experiment.getTrial(trialId);
               sensorIds = trial.getSensorIds();
               // TODO: fill in UI with these sensors.
+            },
+            error -> {
+              if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Unable to bind DataService in ExportOptionsDialogFragment", error);
+              }
+              throw new IllegalStateException(
+                  "Unable to bind DataService in ExportOptionsDialogFragment", error);
             });
     exportButton = (Button) view.findViewById(R.id.action_export);
     if (saveLocally) {

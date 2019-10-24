@@ -30,6 +30,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -205,6 +206,13 @@ public class AddNoteDialog extends DialogFragment {
                   experiment -> {
                     button.setOnClickListener(view -> addLabel(experiment));
                     updatePositiveButtonEnabled((AlertDialog) getDialog(), true);
+                  },
+                  error -> {
+                    if (Log.isLoggable(TAG, Log.ERROR)) {
+                      Log.e(TAG, "AddNoteDialog setOnShowListener failed", error);
+                    }
+                    throw new IllegalStateException(
+                        "AddNoteDialog setOnShowListener failed", error);
                   });
         });
     return dialog;
@@ -288,6 +296,12 @@ public class AddNoteDialog extends DialogFragment {
                       addLabel(experiment);
                       hideKeyboard(v);
                     });
+              },
+              error -> {
+                if (Log.isLoggable(TAG, Log.ERROR)) {
+                  Log.e(TAG, "AddNoteDialog nativeSaveButton failed", error);
+                }
+                throw new IllegalStateException("AddNoteDialog nativeSaveButton failed", error);
               });
     }
 
