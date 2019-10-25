@@ -1060,10 +1060,11 @@ public class SensorCardPresenter {
         int startHeight = isActive ? 0 : expandedHeight;
         int endHeight = isActive ? expandedHeight : 0;
         cardViewHolder.sensorTabLayout.clearOnTabSelectedListeners();
-        cardViewHolder.sensorTabLayout.addOnTabSelectedListener(
-            isActive ? onTabSelectedListener : null);
+        if (isActive) {
+          cardViewHolder.sensorTabLayout.addOnTabSelectedListener(onTabSelectedListener);
+        }
         final ValueAnimator animator =
-            new ValueAnimator().ofInt(startHeight, endHeight).setDuration(ANIMATION_TIME_MS);
+            ValueAnimator.ofInt(startHeight, endHeight).setDuration(ANIMATION_TIME_MS);
         animator.setTarget(cardViewHolder.sensorSelectionArea);
         animator.addUpdateListener(
             new ValueAnimator.AnimatorUpdateListener() {
