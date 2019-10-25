@@ -1,12 +1,11 @@
 package com.google.android.apps.forscience.whistlepunk.cloudsync;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.Resources;
-import android.graphics.PorterDuff.Mode;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -15,9 +14,7 @@ import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.Nullable;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -26,6 +23,7 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.ExperimentLibraryManager;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LocalSyncManager;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.common.base.Throwables;
 import io.reactivex.Observable;
@@ -357,30 +355,21 @@ public class DriveSyncAndroidService extends Service {
             labelFromStackTrace,
             0);
       }
-      showToast(R.string.sync_failed);
+      makeSnackbar(R.string.sync_failed);
     }
   }
 
-  private void showToast(int stringRes) {
-    new Handler(Looper.getMainLooper())
-        .post(
-            new Runnable() {
-              @Override
-              public void run() {
-                // TODO(b/142135540): Use a snackbar instead of toast.
-                Context baseContext = getBaseContext();
-                if (baseContext != null) {
-                  Resources resources = baseContext.getResources();
-                  Toast toast = Toast.makeText(baseContext, stringRes, Toast.LENGTH_LONG);
-                  View view = toast.getView();
-                  TextView textView = view.findViewById(android.R.id.message);
-                  textView.setTextColor(resources.getColor(R.color.snackbar_text_color));
-                  view.getBackground()
-                      .setColorFilter(
-                          resources.getColor(R.color.snackbar_background_color), Mode.SRC_IN);
-                  toast.show();
-                }
-              }
+  @SuppressLint("CheckResult")
+  private void makeSnackbar(int stringRes) {
+    AppSingleton.getInstance(getApplicationContext())
+        .onNextActivity()
+        .subscribe(
+            activity -> {
+              AccessibilityUtils.makeSnackbar(
+                      activity.findViewById(R.id.drawer_layout),
+                      getResources().getString(stringRes),
+                      Snackbar.LENGTH_SHORT)
+                  .show();
             });
   }
 
