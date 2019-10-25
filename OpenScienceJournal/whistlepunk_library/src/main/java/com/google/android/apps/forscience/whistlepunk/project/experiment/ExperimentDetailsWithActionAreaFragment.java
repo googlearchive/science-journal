@@ -374,6 +374,12 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
           if (context != null) {
             setTitle(experiment.getDisplayTitle(context));
           }
+        },
+        error -> {
+          if (Log.isLoggable(TAG, Log.ERROR)) {
+            Log.e(TAG, "loadedExperiment next failed", error);
+          }
+          throw new IllegalStateException("loadedExperiment next failed", error);
         });
     this.adapter = adapter;
 
