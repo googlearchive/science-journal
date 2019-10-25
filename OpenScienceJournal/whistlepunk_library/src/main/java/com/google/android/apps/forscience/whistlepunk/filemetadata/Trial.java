@@ -117,6 +117,8 @@ public class Trial extends LabelListHolder {
       sensorLayouts.add(SensorLayoutPojo.fromProto(layoutProto));
     }
 
+    sensorAppearances.addAll(trial.getSensorAppearancesList());
+
     for (GoosciLabel.Label labelProto : trial.getLabelsList()) {
       labels.add(Label.fromLabel(labelProto));
     }
