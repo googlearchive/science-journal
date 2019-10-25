@@ -580,6 +580,7 @@ public class RecorderControllerImpl implements RecorderController {
                     int i = 0;
                     for (SensorLayoutPojo pojo : layouts) {
                       layoutProtos[i] = pojo.toProto();
+                      i++;
                     }
 
                     Trial trial =
