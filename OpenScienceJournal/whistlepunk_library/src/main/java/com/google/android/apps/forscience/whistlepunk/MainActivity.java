@@ -16,6 +16,9 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
+import static android.content.Intent.ACTION_VIEW;
+
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -217,7 +220,7 @@ public class MainActivity extends ActivityWithNavigationView {
   public boolean isAttemptingImport() {
     return getIntent() != null
         && getIntent().getAction() != null
-        && getIntent().getAction().equals(Intent.ACTION_VIEW);
+        && getIntent().getAction().equals(ACTION_VIEW);
   }
 
   private void trackMode() {
@@ -410,7 +413,7 @@ public class MainActivity extends ActivityWithNavigationView {
       int itemId = menuItem.getItemId();
 
       if (itemId == R.id.navigation_item_activities) {
-        intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.activities_url)));
+        intent = new Intent(ACTION_VIEW, Uri.parse(getString(R.string.activities_url)));
       } else if (itemId == R.id.navigation_item_settings) {
         // We need currentAccount for the TYPE_SETTINGS version of the SettingsActivity.
         if (currentAccount == null) {
@@ -453,7 +456,15 @@ public class MainActivity extends ActivityWithNavigationView {
             });
       }
       if (intent != null) {
-        startActivity(intent);
+        try {
+          startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+          if (intent.getAction().equals(ACTION_VIEW)) {
+            showError(R.string.browser_not_found, Snackbar.LENGTH_LONG);
+          } else {
+            throw e;
+          }
+        }
       }
     }
 
@@ -511,10 +522,14 @@ public class MainActivity extends ActivityWithNavigationView {
   }
 
   private void showFeedbackError() {
+    showError(R.string.feedback_error_message, Snackbar.LENGTH_SHORT);
+  }
+
+  private void showError(int message, int length) {
     AccessibilityUtils.makeSnackbar(
             findViewById(R.id.drawer_layout),
-            getResources().getString(R.string.feedback_error_message),
-            Snackbar.LENGTH_SHORT)
+            getResources().getString(message),
+            length)
         .show();
   }
 
