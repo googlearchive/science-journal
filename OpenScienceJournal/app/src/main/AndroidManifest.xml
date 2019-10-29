@@ -25,7 +25,7 @@
         android:name=".OpenScienceJournalApplication">
 
         <activity
-            android:name=".LicenseActivity"
+            android:name=".licenses.LicenseActivity"
             android:exported="false"
             android:label="@string/settings_open_source_title"
             android:theme="@style/AppTheme"
