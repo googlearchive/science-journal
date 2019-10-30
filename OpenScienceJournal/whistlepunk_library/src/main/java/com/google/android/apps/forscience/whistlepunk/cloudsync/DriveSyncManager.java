@@ -617,7 +617,13 @@ public class DriveSyncManager implements CloudSyncManager {
     GoosciExperiment.Experiment remoteExperiment =
         downloadExperimentProto(serverExperimentProtoMetadata.getId());
     newExperiment.setTitle(remoteExperiment.getTitle());
-    RxDataController.addExperiment(dc, newExperiment).blockingAwait();
+    try {
+      RxDataController.addExperiment(dc, newExperiment).blockingAwait();
+    } catch (IllegalArgumentException e) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "Experiment already added to data controller", e);
+      }
+    }
     Experiment localExperiment = RxDataController.getExperimentById(dc, experimentId).blockingGet();
     localSyncManager.setServerArchived(experimentId, elm.isArchived(experimentId));
     localExperiment.setArchived(context, appAccount, elm.isArchived(experimentId));
