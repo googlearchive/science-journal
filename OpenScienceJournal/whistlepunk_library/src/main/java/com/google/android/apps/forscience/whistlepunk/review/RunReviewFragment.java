@@ -1405,6 +1405,9 @@ public class RunReviewFragment extends Fragment
               getTrial().getAppearances().get(sensorLayout.getSensorId()),
               sensorLayout.getSensorId(),
               AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount));
+      if (Flags.showActionBar()) {
+        sensorNameText.setText(Appearances.getSensorDisplayName(appearance, context));
+      }
       Appearances.applyDrawableToImageView(
           appearance.getIconDrawable(context),
           sensorIconImage,
