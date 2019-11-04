@@ -1847,10 +1847,10 @@ Permissions notice:
     <string name="ar_not_tracking">Not tracking</string>
 
     <!-- Action bar title for new text note fragment [CHAR_LIMIT=40] -->
-    <string name="action_bar_text_note">Add new text note</string>
+    <string name="action_bar_text_note">Create text note</string>
 
     <!-- Action bar title for new sensor note fragment [CHAR_LIMIT=40] -->
-    <string name="action_bar_sensor_note">Add new sensor note</string>
+    <string name="action_bar_sensor_note">Create sensor recording</string>
 
     <!-- Action bar title for gallery fragment [CHAR_LIMIT=40] -->
     <string name="action_bar_gallery">Select images</string>
