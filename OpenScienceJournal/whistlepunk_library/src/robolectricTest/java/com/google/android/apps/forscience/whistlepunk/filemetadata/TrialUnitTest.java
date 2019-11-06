@@ -160,7 +160,18 @@ public class TrialUnitTest {
 
   @Test
   public void testGetTrialProto() {
-    Trial trial = Trial.newTrial(100, NO_LAYOUTS, fakeProvider, null);
+    SensorLayout layout = GoosciSensorLayout.SensorLayout.newBuilder().setSensorId("foo").build();
+    MemoryAppearanceProvider provider = new MemoryAppearanceProvider();
+    provider.putAppearance(
+        layout.getSensorId(),
+        new EmptySensorAppearance() {
+          @Override
+          public String getName(Context context) {
+            return "Fun name!";
+          }
+        });
+    Trial trial =
+        Trial.newTrial(100, new GoosciSensorLayout.SensorLayout[] {layout}, provider, null);
     trial.setArchived(true);
     trial.setAutoZoomEnabled(false);
     trial.setTitle("title");
@@ -175,5 +186,6 @@ public class TrialUnitTest {
     assertTrue(proto.getArchived());
     assertFalse(proto.getAutoZoomEnabled());
     assertEquals(2, proto.getSensorLayoutsCount());
+    assertEquals(1, proto.getSensorAppearancesCount());
   }
 }
