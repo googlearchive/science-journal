@@ -280,6 +280,8 @@ public class Trial extends LabelListHolder {
       layouts.add(layoutPojo.toProto());
     }
     trial.addAllSensorLayouts(layouts);
+    trial.addAllSensorAppearances(sensorAppearances);
+
     return trial.build();
   }
 
