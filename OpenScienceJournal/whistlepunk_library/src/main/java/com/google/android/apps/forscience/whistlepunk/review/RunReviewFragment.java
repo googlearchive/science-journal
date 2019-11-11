@@ -1956,6 +1956,7 @@ public class RunReviewFragment extends Fragment
 
   public void reloadAndScrollToLabel(Label newLabel) {
     int index = pinnedNoteAdapter.onLabelAdded(newLabel);
+    chartController.setLabels(getTrial().getLabels());
     if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
       pinnedNoteList.smoothScrollToPosition(index);
     } else {
