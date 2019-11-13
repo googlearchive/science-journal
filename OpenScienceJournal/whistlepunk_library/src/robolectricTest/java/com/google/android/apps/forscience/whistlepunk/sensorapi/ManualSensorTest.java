@@ -18,19 +18,16 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ManualSensorTest {
-    @Test public void id() {
-        // silly test just to make sure that we're compiling and running ManualSensor correctly
-        ManualSensor sensor = new ManualSensor("sensorId", 100, 100);
-        assertEquals("sensorId", sensor.getId());
-    }
+  @Test
+  public void id() {
+    // silly test just to make sure that we're compiling and running ManualSensor correctly
+    ManualSensor sensor = new ManualSensor("sensorId", 100, 100);
+    assertEquals("sensorId", sensor.getId());
+  }
 }

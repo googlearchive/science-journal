@@ -29,6 +29,9 @@
     <!-- Menu option for saving an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_save">Save</string>
 
+    <!-- Menu option for discarding an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
+    <string name="action_discard">Discard</string>
+
     <!-- Menu option for editing an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_edit">Edit</string>
 
@@ -39,10 +42,10 @@
     <string name="action_unarchive_experiment">Unarchive experiment</string>
 
     <!-- Menu option for archiving a trial [CHAR_LIMIT=30] -->
-    <string name="action_archive_run">Archive trial</string>
+    <string name="action_archive_run">Archive</string>
 
     <!-- Menu option for unarchiving a trial [CHAR_LIMIT=30] -->
-    <string name="action_unarchive_run">Unarchive trial</string>
+    <string name="action_unarchive_run">Unarchive</string>
 
     <!-- Menu option for deleting an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_delete">Delete</string>
@@ -55,6 +58,9 @@
 
     <!-- Displayed name of a sensor that shows a sine wave [CHAR_LIMIT=25] -->
     <string name="sine_wave">Sine wave</string>
+
+    <!-- Displayed name of a sensor that shows velocity from the AR tracker [CHAR_LIMIT=25] -->
+    <string name="vel">Velocity</string>
 
     <!-- Displayed name of a sensor that shows acceleration along the X axis [CHAR_LIMIT=25] -->
     <string name="acc_x">Accelerometer X</string>
@@ -80,6 +86,9 @@
     <!-- Displayed name of a sensor that records and displays a video stream [CHAR_LIMIT=25] -->
     <string name="video_stream">Video stream</string>
 
+    <!-- Displayed units for a velocity sensor [CHAR_LIMIT=10] -->
+    <string name="vel_units">m/s</string>
+
     <!-- Displayed units for an acceleration sensor [CHAR_LIMIT=10] -->
     <string name="acc_units">m/s\u00B2</string>
 
@@ -91,6 +100,9 @@
 
     <!-- Displayed units for a sound intensity sensor, decibels [CHAR_LIMIT=10] -->
     <string name="decibel_units">dB</string>
+
+    <!-- Displayed units for a pitch sensor, hertz [CHAR_LIMIT=10] -->
+    <string name="hertz_units">Hz</string>
 
     <!-- Displayed units for an RPM sensor [CHAR_LIMIT=10] -->
     <string name="rpm_units">RPM</string>
@@ -108,7 +120,7 @@
     <string name="temperature_units">\u00B0C</string>
 
     <!-- Display of a sensor header name with the units for that sensor [CHAR_LIMIT=10] -->
-    <string name="header_name_and_units"><xliff:g id="sensor_name">%1s</xliff:g> (<xliff:g id="sensor_units">%2s</xliff:g>)</string>
+    <string name="header_name_and_units"><xliff:g id="sensor_name">%1$s</xliff:g> (<xliff:g id="sensor_units">%2$s</xliff:g>)</string>
 
     <!-- Content description for experiment details button [CHAR_LIMIT=none] -->
     <string name="experiment_details">Experiment details</string>
@@ -126,8 +138,8 @@
     <!-- Sound intensity sensor name [CHAR_LIMIT=25] -->
     <string name="decibel">Sound intensity</string>
 
-    <!-- Window title label for the experiment details activity [CHAR_LIMIT=25] -->
-    <string name="title_activity_age_verifier">Birthday</string>
+    <!-- Pitch sensor name [CHAR_LIMIT=25] -->
+    <string name="pitch">Pitch</string>
 
     <!-- The title of the ruler tool activity [CHAR_LIMIT=25] -->
     <string name="title_activity_ruler">Ruler</string>
@@ -173,6 +185,12 @@
     <!-- The description of a button to stop recording [CHAR_LIMIT=NONE] -->
     <string name="btn_stop_description">Stop recording</string>
 
+    <!-- The label of a button to start recording [CHAR_LIMIT=NONE] -->
+    <string name="btn_record_label">Record</string>
+
+    <!-- The label of a button to stop recording [CHAR_LIMIT=NONE] -->
+    <string name="btn_stop_label">Stop</string>
+
     <!-- The name for an unknown sensor [CHAR_LIMIT=25] -->
     <string name="unknown_sensor">Unknown sensor</string>
 
@@ -200,29 +218,35 @@
     <!-- The text on a snackbar displayed when a recording end time could not be saved to the database. -->
     <string name="recording_stop_failed_save">Could not stop recording or save trial. Please try again.</string>
 
+    <!-- The text on a snackbar displayed when a label could not be saved to the database. -->
+    <string name="label_failed_save">Could not save.</string>
+
     <!-- The string formatting string used to display elapsed time less than 60 seconds [CHAR_LIMIT=3] -->
     <string name="elapsed_time_short_format"><xliff:g id="seconds">%1d</xliff:g>s</string>
 
     <!-- The string formatting string used to display elapsed time greater or equal to 60 seconds [CHAR_LIMIT=5] -->
-    <string name="elapsed_time_long_format"><xliff:g id="minutes">%1d</xliff:g>min <xliff:g id="seconds">%2d</xliff:g>s</string>
+    <string name="elapsed_time_long_format"><xliff:g id="minutes">%1$d</xliff:g>min <xliff:g id="seconds">%2$d</xliff:g>s</string>
 
     <!-- The string formatting string used to describe elapsed time views less than 60 seconds [CHAR_LIMIT=NONE] -->
     <string name="accessible_elapsed_time_short_format"><xliff:g id="seconds">%1d</xliff:g> seconds</string>
 
     <!-- The string formatting string used to describe elapsed time views greater or equal to 60 seconds [CHAR_LIMIT=NONE] -->
-    <string name="accessible_elapsed_time_long_format"><xliff:g id="minutes">%1d</xliff:g> minutes <xliff:g id="seconds">%2d</xliff:g> seconds</string>
+    <string name="accessible_elapsed_time_long_format"><xliff:g id="minutes">%1$d</xliff:g> minutes <xliff:g id="seconds">%2$d</xliff:g> seconds</string>
+
+    <!-- The string formatting string used to display elapsed time on the x axis less than 60 seconds [CHAR_LIMIT=3] -->
+    <string name="elapsed_time_axis_format_extra_small"><xliff:g id="seconds">%1$d</xliff:g></string>
 
     <!-- The string formatting string used to display elapsed time on the x axis less than 60 minutes [CHAR_LIMIT=3] -->
-    <string name="elapsed_time_axis_format_small"><xliff:g id="minutes">%1d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g></string>
+    <string name="elapsed_time_axis_format_small"><xliff:g id="minutes">%1$d</xliff:g>:<xliff:g id="seconds">%2$02d</xliff:g></string>
 
     <!-- The string formatting string used to display elapsed time on the x axis for one hour or more [CHAR_LIMIT=3] -->
-    <string name="elapsed_time_axis_format_large"><xliff:g id="hours">%1d</xliff:g>:<xliff:g id="minutes">%02d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g></string>
+    <string name="elapsed_time_axis_format_large"><xliff:g id="hours">%1$d</xliff:g>:<xliff:g id="minutes">%2$02d</xliff:g>:<xliff:g id="seconds">%3$02d</xliff:g></string>
 
     <!-- The string formatting string used to display elapsed time less than 60 minutes down to the tenth of a second, like 12:34.5 for 12 minutes, 34.5 seconds. [CHAR_LIMIT=5] -->
-    <string name="elapsed_time_axis_format_small_tenths"><xliff:g id="minutes">%1d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
+    <string name="elapsed_time_axis_format_small_tenths"><xliff:g id="minutes">%1$d</xliff:g>:<xliff:g id="seconds">%2$02d</xliff:g>.<xliff:g id="tenths">%3$1d</xliff:g></string>
 
     <!-- The string formatting string used to display elapsed time greater than one hour down to the tenth of a second, like 1:23:45.6 for 1 hr, 23 minutes, 45.6 seconds. [CHAR_LIMIT=5] -->
-    <string name="elapsed_time_axis_format_large_tenths"><xliff:g id="hours">%1d</xliff:g>:<xliff:g id="minutes">%02d</xliff:g>:<xliff:g id="seconds">%02d</xliff:g>.<xliff:g id="tenths">%1d</xliff:g></string>
+    <string name="elapsed_time_axis_format_large_tenths"><xliff:g id="hours">%1$d</xliff:g>:<xliff:g id="minutes">%2$02d</xliff:g>:<xliff:g id="seconds">%3$02d</xliff:g>.<xliff:g id="tenths">%4$1d</xliff:g></string>
 
     <!-- String formatting string for the accessibility description of the RunReview slider [CHAR_LIMIT=None] -->
     <string name="graph_exploring_seekbar_content_description"><xliff:g id="time">%1$s</xliff:g>, <xliff:g id="value">%2$s</xliff:g> <xliff:g id="units">%3$s</xliff:g>.</string>
@@ -233,11 +257,17 @@
     <!-- The content description for a picture note picture [CHAR_LIMIT=NONE] -->
     <string name="picture_note_preview_content_description">Picture note preview</string>
 
+    <!-- The content description for the navigation drawer menu button. [CHAR_LIMIT=NONE] -->
+    <string name="navigation_drawer_content_description">Show navigation drawer</string>
+
     <!-- Title of the navigation item to go to making science activities [CHAR_LIMIT=25] -->
     <string name="navigation_item_activities">Activities</string>
 
     <!-- URL to go to when navigation to the activities. DO NOT TRANSLATE -->
     <string name="activities_url" translatable="false">https://makingscience.withgoogle.com/science-journal/activities?utm_source=android</string>
+
+    <!-- Snackbar action message when unable to open ACTION_VIEW intent [CHAR_LIMIT=100] -->
+    <string name="browser_not_found">Install a web browser on your device to view this link.</string>
 
     <!-- Title of the navigation item to show settings [CHAR_LIMIT=25] -->
     <string name="navigation_item_settings">Settings</string>
@@ -347,8 +377,36 @@
     <!-- Name of the menu item to data from graphs [CHAR_LIMIT=25] -->
     <string name="export_action">Share</string>
 
+    <!-- Name of the menu item to export an experiment file [CHAR_LIMIT=25] -->
+    <string name="send_copy_action">Send a copy</string>
+
     <!-- Dialog title for the chooser that pops up after exporting a run [CHAR_LIMIT=50]-->
     <string name="export_run_chooser_title">Save to\u2026</string>
+
+    <!-- Dialog title for the chooser that pops up after exporting an experiment [CHAR_LIMIT=50]-->
+    <string name="export_experiment_chooser_title">Send Experiment</string>
+
+    <!-- Dialog title for the chooser that pops up after exporting a photo [CHAR_LIMIT=50]-->
+    <string name="export_photo_chooser_title">Share photo to\u2026</string>
+
+    <!-- The alert confirm button title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=20] -->
+    <string name="experiment_not_finished_downloading_confirm_button">Share anyway</string>
+
+    <!-- The alert confirm button title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=20] -->
+    <string name="experiment_not_finished_downloading_confirm_download_button">Download anyway</string>
+
+    <!-- The alert cancel button title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=20] -->
+    <string name="experiment_not_finished_downloading_cancel_button">Cancel</string>
+
+    <!-- The alert message when sharing an experiment that has not finished downloading. [CHAR_LIMIT=120] -->
+    <string name="experiment_not_finished_downloading_message">This experiment has not finished downloading all data. If you share a copy now, it will also be missing this data</string>
+
+    <!-- The alert message when downloading an experiment that has not finished downloading from Google Drive. [CHAR_LIMIT=120] -->
+    <string name="experiment_missing_data_message">This experiment has unsynced data. If you download a copy now, it will be missing this data</string>
+
+    <!-- The alert title when sharing an experiment that has not finished downloading. [CHAR_LIMIT=30] -->
+    <string name="experiment_not_finished_downloading_title">Missing Data</string>
+
 
     <!-- Settings strings -->
     <skip/>
@@ -471,6 +529,18 @@
     <!-- Summary of developer option to enable memory leak detection [CHAR_LIMIT=none] -->
     <string name="dev_tools_leak_detection_summary">Changes to this setting only take effect after closing the application.</string>
 
+    <!-- Title of developer option to enable smooth scroll on experiment refresh [CHAR_LIMIT=35] -->
+    <string name="enable_smooth_scrolling_on_refresh" translatable="false">Enable smooth scroll on refresh</string>
+
+    <!-- Summary of developer option to enable memory leak detection [CHAR_LIMIT=none] -->
+    <string name="enable_smooth_scrolling_on_refresh_summary" translatable="false">Disable to reduce likelihood of crash with large experiment</string>
+
+    <!-- Title of developer option for require google account [CHAR_LIMIT=35] -->
+    <string name="require_google_account" translatable="false">Require Google account</string>
+
+    <!-- Summary of developer option for require google account [CHAR_LIMIT=none] -->
+    <string name="require_google_account_summary" translatable="false">Click to require signing in to a Google account.</string>
+
     <!-- Default sonification type name [CHAR_LIMIT=30] -->
     <string name="default_sonification">Default</string>
 
@@ -511,7 +581,7 @@
     <string name="device_options_sensor_label_text">Sensor</string>
 
     <!-- Sensor name set for external devices. For example "Temperature - Device 1234" [CHAR_LIMIT=10]-->
-    <string name="external_sensor_appearance_name"><xliff:g id="sensor_name">%s</xliff:g> - <xliff:g id="device_name">%s</xliff:g></string>
+    <string name="external_sensor_appearance_name"><xliff:g id="sensor_name">%1$s</xliff:g> - <xliff:g id="device_name">%2$s</xliff:g></string>
 
     <!-- Device options dropdown item for preconfigured sensor with value in rotations per minute
         [CHAR_LIMIT=40] -->
@@ -553,7 +623,10 @@
     <!-- One-sentence description of the Decibel sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_decibel">The intensity of the sound, measured in decibels (dB), reaching the sound sensor or microphone.</string>
 
-    <!-- One-sentence description of the accelerometer X sensor [CHAR_LIMIT=100] -->
+    <!-- One-sentence description of the pitch sensor [CHAR_LIMIT=100] -->
+    <string name="sensor_desc_short_pitch">The pitch of the sound, measured in hertz (Hz), reaching the sound sensor or microphone.</string>
+
+    <!-- One-sentence description of the light sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_light">The amount of light, measured in lux, reaching the ambient light sensor.</string>
 
     <!-- One-sentence description of the magnetic strength sensor [CHAR_LIMIT=100] -->
@@ -571,13 +644,13 @@
     <!-- One-sentence description of the raw sensor [CHAR_LIMIT=100] -->
     <string name="sensor_desc_short_barometer">The atmospheric pressure measured in hectopascals (hPa).</string>
 
-    <!-- Long description of a light sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a light sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_light">The ambient light sensor measures light in lux, a measure of illumination that depends on the amount of incoming light and the area over which it is spread.
         \n\nA full moon provides about 1 lux of illumination, a typical lamp-lit living room about 50 lux, classroom lighting and sunrise and sunset about 400 lux, daylight (indirect sun) over 10,000 lux, and direct sun over 30,000 lux.
         \n\nLux is an unfamiliar unit for most of us. When we buy lightbulbs, we often shop by watts—but the wattage of a bulb doesn\'t tell you how bright a bulb is, only how much energy it uses. Lumens are a better measure for light shopping; they tell you how much light a bulb will actually produce. Lux, meanwhile, tells you how much of that light arrives at a particular area.
     </string>
 
-    <!-- Long description of a light sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a light sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_light">Since light spreads out as it travels, the number of lux dwindles as you back away from a light source, even though the source is still emitting the same amount of light in lumens. An area that is tilted away from a light sources also receives less illumination—which happens to be why the equatorial regions here on Earth are so much warmer than the chilly poles.
         \n\nBy the way, the purpose of the light sensor in your phone is to control the light level of the screen, adjusting accordingly to dim and bright environments. Inside the light sensor, a tiny semiconductor responds to incoming light by producing a small but measurable electrical current—a phenomenon known as the photoelectric effect. Similar sensors are used in some streetlights to turn them on when it gets dark outside.
     </string>
@@ -590,21 +663,23 @@
     <!-- Long description of a magnetic rotation sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_magnetic_strength">Magnets, electric currents, and metal objects will easily steer your phone\'s magnetometer this way and that. But even in the middle of an empty field, the magnetometer in your phone always shows a low, non-zero reading: this is the Earth\'s magnetic field!</string>
 
-    <!-- Long description of a accelerometer sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a accelerometer sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_acc">Objects have a tendency to stay put, or to keep moving if they\'re moving—we call this tendency inertia. Newton\'s First Law expresses this idea formally: An object continues in its state of motion or rest unless acted on by an unbalanced force.
         \n\nWhen an unbalanced force does cause an object to budge, we say the object accelerates: its velocity, or speed, changes—either by speeding up, slowing down, or changing direction. Acceleration is measured as a change of velocity (meters per second) in time, or meters per second squared (m/s\u00B2).
         \n\nYour phone has a device to measure these changes in motion—an accelerometer. Inside an accelerometer, small suspended masses are free to move. Changes in motion cause these masses to shift, much as your own head tends to flop forward when you\'re in a car that stops suddenly. Measuring these subtle inertial shifts, an accelerometer in a phone can detect changes in motion and orientation, useful for switching the screen from landscape to portrait mode, for playing games on your phone, and more.</string>
 
-    <!-- Long description of a accelerometer sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a accelerometer sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_acc">You probably noticed a persistent acceleration in the Z axis, even with the phone sitting still on a table. This is the acceleration we experience here at the Earth\'s surface due to the pull of gravity, approximately 9.8 m/s\u00B2.</string>
 
-    <!-- Long description of a decibel sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a decibel sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_decibel">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal cords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
 
-    <!-- Long description of a decibel sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a decibel sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_decibel">All sounds can be described in terms of their frequency and intensity.
-        \n\nIntensity is what you measure here with the Science Journal, in units of decibels (dB). Intensity, or loudness, depends on the distance that a vibrating object moves each time it vibrates; we hear greater intensity as increased loudness.
-        \n\nThe frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound. The Science Journal does not measure frequency—only loudness.
+        \n\nIntensity is what you measure here with the Science Journal sound intensity sensor, in units of decibels (dB). Intensity, or loudness, depends on the distance that a vibrating object moves each time it vibrates; we hear greater intensity as increased loudness.
+        \n\nThe frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound. The Science Journal sound intensity sensor does not measure frequency—only loudness.
+        \n\nOne important thing to know is that the microphone in your device is designed to be very sensitive to differences in sound waves over time, but not the absolute size of each wave.  We have tried to choose code that is likely to produce numbers similar to the reference numbers shown below, but each device may give consistently higher or lower numbers.  Scientists will usually calibrate a sensor like this to a known measurement.  For now, Science Journal can tell you whether your next train ride is louder than your next rock concert, but only if you bring the same phone to both events.
+        \n\nAnother thing to know is that there are important differences between “sound intensity”, “sound intensity level”, and “sound pressure”.  We are treating them here as the same thing, but if you want to dig deeper, there’s many online resources about the differences.
         \n\nThe quietest sound that the average human ear can detect is defined as 0 dB. Ordinary conversation corresponds to about 60 dB, and sounds above about 140 dB are painful to the human ear. But sounds don\'t have to be painful to be harmful. Continued exposure to sounds of 90 dB—about the loudness of a vacuum cleaner—can eventually cause hearing loss.
         \n\nThe decibel scale is logarithmic, which makes for some trickiness: A sound source of 40 dB isn\'t twice as intense as one with 20 dB—it\'s 100 times more intense. Meanwhile, if one ringing alarm clock produces 70 dB, two ringing alarm clocks produce not 140 dB, but 73 dB. Like we said, it\'s a strange scale.
         \n\n10 dB rustling leaves
@@ -620,38 +695,76 @@
         \n140 dB airplane taking off
     </string>
 
-    <!-- Long description of a rotation sensor that is displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a pitch sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <string name="sensor_desc_first_paragraph_pitch">Sounds are made by vibration. Your voice, for example, comes from vibrations in your throat\'s vocal cords. These vibrations create alternating zones of high and low air pressure that travel outward—much like the expanding circular ripple made by a pebble thrown into a pond.</string>
+
+    <!-- Long description of a pitch sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <string name="sensor_desc_second_paragraph_pitch">All sounds can be described in terms of their frequency and intensity. The frequency (also, pitch or tone) of a sound wave is equivalent to its rate of vibration. The faster an object vibrates, the higher the pitch of the resulting sound. We measure these vibrations in Hertz (Hz) where 1 Hertz = 1 vibration/second.
+        \n\nHumans can hear sounds in the range of 20 to 20,000 Hz. The lowest key on a piano produces a sound with a frequency of 27.5 Hz and the highest key produces a sound with a frequency of 4186.01 Hz.
+        \n\nThe red dot indicates how close the detected pitch is to the nearest musical note. If the pitch is lower or “flatter”, the dot will appear to the left. If the pitch is higher or “sharper”, then the red dot will appear to the right.</string>
+
+    <!-- Content description for low pitch [CHAR_LIMIT=NONE] -->
+    <string name="pitch_low_content_description">low pitch</string>
+
+    <!-- Content description for a pitch that is flatter than a natural musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_flatter_than_natural_note_content_description"><xliff:g id="half_steps_flatter">%3$s</xliff:g> half steps flatter than <xliff:g id="musical_note">%1$s</xliff:g>, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is flatter than a flat musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_flatter_than_flat_note_content_description"><xliff:g id="half_steps_flatter">%3$s</xliff:g> half steps flatter than <xliff:g id="musical_note">%1$s</xliff:g> flat, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is flatter than a sharp musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_flatter_than_sharp_note_content_description"><xliff:g id="half_steps_flatter">%3$s</xliff:g> half steps flatter than <xliff:g id="musical_note">%1$s</xliff:g> sharp, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is equal to a natural musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_natural_note_content_description"><xliff:g id="musical_note">%1$s</xliff:g>, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is equal to a flat musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_flat_note_content_description"><xliff:g id="musical_note">%1$s</xliff:g> flat, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is equal to a sharp musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_sharp_note_content_description"><xliff:g id="musical_note">%1$s</xliff:g> sharp, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is sharper than a natural musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_sharper_than_natural_note_content_description"><xliff:g id="half_steps_sharper">%3$s</xliff:g> half steps sharper than <xliff:g id="musical_note">%1$s</xliff:g>, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is sharper than a flat musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_sharper_than_flat_note_content_description"><xliff:g id="half_steps_sharper">%3$s</xliff:g> half steps sharper than <xliff:g id="musical_note">%1$s</xliff:g> flat, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for a pitch that is sharper than a sharp musical note [CHAR_LIMIT=NONE] -->
+    <string name="pitch_sharper_than_sharp_note_content_description"><xliff:g id="half_steps_sharper">%3$s</xliff:g> half steps sharper than <xliff:g id="musical_note">%1$s</xliff:g> sharp, octave <xliff:g id="octave_number">%2$s</xliff:g></string>
+
+    <!-- Content description for high pitch [CHAR_LIMIT=NONE] -->
+    <string name="pitch_high_content_description">high pitch</string>
+
+    <!-- Long description of a rotation sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_rotation">Rotations per minute (RPM) is a measure of the frequency of rotation around a fixed axis in one minute.
         \n\nAs your wind spinner turns, it rotates the encoder disc:
     </string>
 
-    <!-- Long description of a rotation sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a rotation sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_rotation">This creates periods of light and dark on the sensor that register in the Science Journal as a rotation.</string>
 
     <!-- Long description of a raw sensor that is displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_raw">The data displayed here is coming from an external sensor communication with your phone via Bluetooth.
         \n\nThe value shows the percentage of the raw reading directly from your microcontroller. This is usually the percentage of a voltage drop across a sensor.</string>
 
-    <!-- Long description of a raw bluetooth sensor that is displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of a raw bluetooth sensor that is displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_raw">Bluetooth is a wireless technology standard using radio waves to exchange data over short distances from fixed and mobile devices.</string>
 
-    <!-- Long description of an unknown bluetooth sensor displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of an unknown bluetooth sensor displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_unknown_bluetooth">The data displayed here is coming from an external sensor communication with your phone via Bluetooth.</string>
 
-    <!-- Long description of an unknown bluetooth sensor displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of an unknown bluetooth sensor displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_unknown_bluetooth">Bluetooth is a wireless technology standard using radio waves to exchange data over short distances from fixed and mobile devices.</string>
 
-    <!-- Long description of an barometer sensor displayed above a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of an barometer sensor displayed above a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_first_paragraph_barometer">Though we rarely notice it, all of us live at the bottom of a deep ocean of air: Earth\'s atmosphere, which extends upwards of 40 kilometers (130,000 feet) high. The weight of all that air pushing down on us from above us creates what\'s called atmospheric pressure.
         \n\nAt sea level, atmospheric pressure applies 14 pounds of force on every square inch—that\'s the equivalent of about 1,300 pounds on an area the size of a standard sheet of paper.</string>
 
-    <!-- Long description of an barometer sensor displayed below a representitive image on the Learn More page [CHAR_LIMIT=NONE] -->
+    <!-- Long description of an barometer sensor displayed below a representative image on the Learn More page [CHAR_LIMIT=NONE] -->
     <string name="sensor_desc_second_paragraph_barometer">We don\'t notice this crushing pressure because we\'re used to it—that is, until it changes, even slightly, as it does when we visit high altitudes or ride in airplanes. Atmospheric pressure also varies with weather conditions, dropping in the presence of stormy, unstable air, and rising when air stabilizes and skies clear.
         \n\nThe digital barometer in your phone measures atmospheric pressure in hectopascals. (A hectopascal is 100 pascals, where a pascal is one newton of force applied over a square meter of area.) You\'ve probably heard weather forecasters give atmospheric pressure in millibars—this friendlier-sounding unit is equivalent to hectopascals.
         \n\nYou might be wondering: Why would a phone measure pressure? Atmospheric pressure changes measurably with even slight changes in elevation, say, when you climb a flight of stairs. So a digital barometer in a phone can help detect location changes, for example, telling you what floor of a building you are on, or whether you are driving on the upper or lower deck of a bridge.</string>
-
-    <!-- The label for the duration of the experiment run [CHAR_LIMIT=20] -->
-    <string name="run_review_duration">Duration</string>
 
     <!-- The title for the run review activity [CHAR_LIMIT=25] -->
     <string name="run_review_activity_label">Review</string>
@@ -720,6 +833,9 @@
     <!-- Text for snackbar shown when a run note is deleted [CHAR_LIMIT=100] -->
     <string name="snackbar_note_deleted">Note deleted</string>
 
+    <!-- Text for snackbar shown when a recording is deleted [CHAR_LIMIT=100] -->
+    <string name="snackbar_recording_deleted">Recording deleted</string>
+
     <!-- Text for a snackbar action to undo something [CHAR_LIMIT=20] -->
     <string name="snackbar_undo">Undo</string>
 
@@ -755,18 +871,6 @@
 
     <!-- Content description for a generic menu button [CHAR_LIMIT=NONE] -->
     <string name="menu_btn_content_description">menu</string>
-
-    <!-- Age verifier strings -->
-    <skip/>
-
-    <!-- Header on age verifier screen tells the user what this screen is doing [CHAR_LIMIT=30]-->
-    <string name="age_verifier_header">Verify your age</string>
-
-    <!-- Header on age verifier screen which labels the date picker as asking for a birthday [CHAR_LIMIT=40]-->
-    <string name="age_verifier_birthday">Birthday:</string>
-
-    <!-- Button on age verifier screen which launches the app [CHAR_LIMIT=20]-->
-    <string name="age_verifier_get_started">Get started</string>
 
     <!-- Message to display to the user when a sensor card failed to load data [CHAR_LIMIT=100] -->
     <string name="sensor_card_error_text">Failed to load sensor data</string>
@@ -825,12 +929,30 @@
     <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
     <string name="listing_changelog">
 New features and improvements:
-\n\u2022 Brand-new interface for taking notes and documenting science experiments.
-\n\u2022 New snapshot feature for capturing individual data points.
-\n\u2022 New sensors: linear accelerometer, magnetometer, and compass
-\n\u2022 Redesigned gallery for browsing experiments
-\n\u2022 Now available on iOS devices!
+\n\u2022 Download experiments, photos, and sensor recordings to your device.
+\n\u2022 Added support for connecting to Arduino MKR WiFi 1010 boards.
     </string>
+
+    <!-- Note: following here are partial strings for stitching together changelogs: our changelog
+         extraction script is responsible for concatenating the right features for each release. -->
+
+    <!-- Reusable partial string for changelog introducing new features [CHAR LIMIT=50] -->
+    <string name="listing_changelog_features">New features:</string>
+
+    <!-- Reusable partial string for changelog mentioning that we fixed bugs.  This should start with two newlines to give it space  [CHAR LIMIT=75] -->
+    <string name="listing_changelog_bug_fixes">Performance improvements and bug fixes.</string>
+
+    <!-- Separator between features and bugs in release notes when both are present.  Should be two newlines  [CHAR LIMIT=5] -->
+    <string name="listing_changelog_separator">\n\n</string>
+
+    <!-- Feature 1 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=80] -->
+    <string name="listing_h_feature_1">\n\u2022 Sound pitch sensor.</string>
+
+    <!-- Feature 2 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=120] -->
+    <string name="listing_h_feature_2">\n\u2022 Export experiments to a file, and import them to other devices.</string>
+
+    <!-- Feature 3 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=100] -->
+    <string name="listing_h_feature_3">\n\u2022 Export photos from an experiment.</string>
 
     <!-- Description text shown in the Play Store for this app. Ensure a space
          remains before and after urls. [CHAR LIMIT=4000]-->
@@ -843,6 +965,7 @@ Science Journal is the free digital science notebook brought to you by Google.
 \n\u2022 Measure light, sound, acceleration, air pressure, and more using your phone\'s built-in sensors.
 \n\u2022 Take notes and photos to document your science experiments. More note types coming soon!
 \n\u2022 Connect to external sensors using select Bluetooth-enabled Arduino and Vernier devices.
+\n\u2022 Access your experiments across your devices using Google Drive.
 \n\u2022 Export recorded sensor data as CSV files.
 \n\u2022 Create automated triggers for recording data and taking notes.
 \n\u2022 Use sonification to hear the movement of your graphs.
@@ -863,13 +986,11 @@ Permissions notice:
 
     <!-- The title for the option to enable third-party sensors [CHAR_LIMIT=35] -->
     <string name="third_party_sensors_option_title">Scan for third-party sensors</string>
-    -
     <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
     <string name="third_party_sensors_option_summary">Look for apps that support the third-party sensor API, and enable adding those sensors to experiments.</string>
 
     <!-- The title for the option to enable third-party sensors [CHAR_LIMIT=35] -->
     <string name="use_new_manage_devices_ux_option_title" translatable="false">Use new manage devices screen</string>
-    -
     <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
     <string name="use_new_manage_devices_ux_option_summary" translatable="false">Temporary until fully ready.</string>
 
@@ -1213,7 +1334,7 @@ Permissions notice:
     <string name="dev_tools_strict_mode_summary" translatable="false">Changes to this setting only take effect after closing the application.</string>
 
     <!-- Experiment title prefixed by project title, i.e. if the project is named "Airplanes" and the experiment is "Takeoff", this would be "Airplanes: Takeoff". CHAR_LIMIT=NONE]-->
-    <string name="project_experiment_title"><xliff:g id="project_name">%1s</xliff:g>: <xliff:g id="experiment_name">%1s</xliff:g></string>
+    <string name="project_experiment_title"><xliff:g id="project_name">%1$s</xliff:g>: <xliff:g id="experiment_name">%2$s</xliff:g></string>
 
     <string name="snapshot_button_text">snapshot</string>
 
@@ -1226,7 +1347,7 @@ Permissions notice:
     <string name="old_trigger_note_format">Triggered note: <xliff:g id="auto_text">%1s</xliff:g></string>
 
     <!-- Text format for old trigger notes. This includes the type of note (Trigger note), as well as the auto-genererated and user-generated strings [CHAR_LIMIT=NONE] -->
-    <string name="old_trigger_note_format_custom">Triggered note: <xliff:g id="user_text">%1s</xliff:g>; <xliff:g id="auto_text">%2s</xliff:g></string>
+    <string name="old_trigger_note_format_custom">Triggered note: <xliff:g id="user_text">%1$s</xliff:g>; <xliff:g id="auto_text">%2$s</xliff:g></string>
 
     <!-- Title of developer option to display a compass sensor [CHAR_LIMIT=35]-->
     <string name="enable_compass_sensor_title" translatable="false">Enable compass</string>
@@ -1295,6 +1416,9 @@ Permissions notice:
     <!-- Text button to add a note to the trial [CHAR_LIMIT=50] -->
     <string name="add_note_button_text">Add note to timeline</string>
 
+    <!-- Text description to add a note to the trial at a specified time [CHAR_LIMIT=50] -->
+    <string name="add_note_to_time_text">Add note to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
+
     <!-- Hint text in a trial caption textfield [CHAR_LIMIT=50] -->
     <string name="trial_caption_hint_text">Add description of recording here</string>
 
@@ -1359,19 +1483,28 @@ Permissions notice:
     <string name="experiment_cover_description">Choose an experiment photo</string>
 
     <!-- Content description for button to take a picture to use as the experiment image [CHAR_LIMIT=NONE] -->
-    <string name="btn_take_picture_content_description">Shutter</string>
+    <string name="btn_take_picture_content_description">Take picture</string>
 
     <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
     <string name="tab_description_gallery">Choose picture</string>
 
     <!-- Content description for an image in the gallery view that could be selected for a photo note [CHAR_LIMIT=NONE] -->
-    <string name="gallery_image_content_description">Image taken on <xliff:g id="date">%s</xliff:g></string>
+    <string name="gallery_image_content_description">Image taken on <xliff:g id="date" example="July 8th 7:45 PM">%s</xliff:g></string>
+
+    <!-- Content description for an image in the gallery view that is selected for a photo note [CHAR_LIMIT=NONE] -->
+    <string name="gallery_image_content_description_selected">Selected image number <xliff:g id="selected_number" example="6">%1$d</xliff:g>. Image taken on <xliff:g id="date" example="July 8th 7:45 PM">%2$s</xliff:g></string>
 
     <!-- Content description for an icon showing a gallery image is selected [CHAR_LIMIT="none"] -->
     <string name="content_description_selected">selected</string>
 
+    <!-- Content description for an icon showing a gallery image is not selected [CHAR_LIMIT="none"] -->
+    <string name="content_description_not_selected">not selected</string>
+
+    <!-- Title for note taking activity when gallery is active and has a non-zero number of images selected [CHAR_LIMIT=50] -->
+    <string name="gallery_selected_title"><xliff:g id="selected_number" example="6">%1$d</xliff:g> Selected</string>
+
     <!-- Title for a chooser to open a photo editing app [CHAR_LIMIT=50] -->
-    <string name="photo_editor_dialog_title">Edit photo with...</string>
+    <string name="photo_editor_dialog_title">Edit photo with&#8230;</string>
 
     <!-- Title for the Primes debug screen preference [CHAR_LIMIT=50] -->
     <string name="perf_tracker_debug_pref_title" translatable="false">Show Perf Tracker Debug Screen</string>
@@ -1398,12 +1531,339 @@ Permissions notice:
     <string name="input_camera_permission_denied">The camera cannot be used because Science Journal does not have permission to access it.</string>
 
     <!-- Error message for gallery view when permissions are denied [CHAR_LIMIT=NONE] -->
-    <string name="input_photo_library_permission_denied">Your photo library cannot be used because Science Journal does not have permission to access it.</string>
+    <string name="input_photo_library_permission_denied">Your photo gallery cannot be used because Science Journal does not have permission to access it.</string>
 
     <!-- Button text to open phone settings [CHAR_LIMIT=30] -->
     <string name="input_blocked_open_settings_button">Open Settings</string>
 
+    <!-- Menu item label for viewing all experiments, including the archived ones [CHAR_LIMIT=50]-->
+    <string name="action_show_archived_experiments">Show archived experiments</string>
+
+    <!-- Menu item label to hide archived experiments from the list [CHAR_LIMIT=50]-->
+    <string name="action_hide_archived_experiments">Hide archived experiments</string>
+
+    <!-- Menu option to hide archived recordings when viewing a list of recordings in an experiment [CHAR_LIMIT=30] -->
+    <string name="action_hide_archived_trials">Hide archived recordings</string>
+
+    <!-- Description of a button that records the current value of one or more sensors [CHAR_LIMIT=50] -->
+    <string name="snapshot_button_description">Sensor snapshot</string>
+
+    <!-- Title for the notification channel in Oreo [CHAR_LIMIT=25] -->
+    <string name="notification_channel_name">Recordings</string>
+
+    <!-- Description for the notification channel in Oreo [CHAR_LIMIT=50] -->
+    <string name="notification_channel_description">Recording status</string>
+
+    <!-- Headline for import error dialogs [CHAR_LIMIT=50] -->
+    <string name="open_experiment_failed">Cannot open experiment</string>
+
+    <!-- Headline for import error dialogs [CHAR_LIMIT=50] -->
+    <string name="open_file_failed">Cannot open file</string>
+
+    <!-- Body for import error dialogs [CHAR_LIMIT=NONE] -->
+    <string name="open_file_failed_body">Experiments must be a Science Journal file format (.sj)</string>
+
+    <!-- Error for attempting to import while recording [CHAR_LIMIT=NONE] -->
+    <string name="import_failed_recording">Science Journal is currently in use. Please stop recording and try again.</string>
+
+    <!-- Error for attempting to import a corrupted file [CHAR_LIMIT=NONE] -->
+    <string name="import_failed_file">Import failed. Something\'s wrong with this experiment.</string>
+
+    <!-- Headline for insufficient storage dialog [CHAR_LIMIT=50] -->
+    <string name="import_storage_limit">Not enough storage space</string>
+
+    <!-- Body for insufficient storage dialog [CHAR_LIMIT=NONE] -->
+    <string name="import_storage_limit_body">You can manage your storage in settings.</string>
+
+    <!-- Button to dismiss [CHAR_LIMIT=25] -->
+    <string name="action_dismiss">Dismiss</string>
+
+    <!-- Button to report an issue [CHAR_LIMIT=25] -->
+    <string name="action_report">Report</string>
+
+    <!-- Generic Error for attempting to import [CHAR_LIMIT=NONE] -->
+    <string name="import_failed">Unfortunately, an unknown error has occurred.</string>
+
+    <!-- Title for Add To Library confirmation dialog [CHAR_LIMIT=25] -->
+    <string name="save_experiment">Save experiment</string>
+
+    <!-- Text for Add To Library confirmation dialog [CHAR_LIMIT=NONE] -->
+    <string name="save_experiment_text">Would you like to add this experiment to your library?</string>
+
+    <!-- Title for not signed in fragment [CHAR_LIMIT=NONE] -->
+    <string name="explore_your_world">Explore your world</string>
+
+    <!-- Text for not signed in fragment [CHAR_LIMIT=NONE] -->
+    <string name="use_science_journal">Use Science Journal to conduct\nexperiments on the world around you</string>
+
+    <!-- Button text for not signed in fragment [CHAR_LIMIT=NONE] -->
+    <string name="get_started">Get started</string>
+
+    <!-- Text for sign in fragment [CHAR_LIMIT=450] -->
+    <string name="sign_in_text">Experiment data for Science Journal is saved and made available across devices using Google Drive and requires signing in with a Google account.\n\nIf you have existing data on this device, once signed in, you can save your existing experiments to Google Drive. Your experiments are stored in a \u201CScience Journal\u201D folder in Google Drive.</string>
+
+    <!-- Text for toast that device settings have been applied [CHAR_LIMIT=NONE] -->
+    <string name="device_settings_applied">Existing device settings have been applied to this account</string>
+
+    <!-- Button text for sign in button on sign in fragment [CHAR_LIMIT=25] -->
+    <string name="sign_in_button">Sign in</string>
+
+    <!-- Button text for learn more button on sign in fragment [CHAR_LIMIT=25] -->
+    <string name="sign_in_learn_more_button">Learn more</string>
+
+    <!-- URL to go to when learn more button on sign in fragment is clicked. DO NOT TRANSLATE -->
+    <string name="sign_in_learn_more_url" translatable="false">https://support.google.com/sciencejournal/answer/9176370</string>
+
+    <!-- Button text for continue without signing in button on sign in fragment [CHAR_LIMIT=25] -->
+    <string name="sign_in_continue_without_signing_in_button">Continue without signing in</string>
+
+    <!-- Title for Science Journal is disabled alert. [CHAR_LIMIT=40] -->
+    <string name="science_journal_disabled_title">Science Journal is disabled</string>
+
+    <!-- Message for Science Journal is disabled alert. [CHAR_LIMIT=NONE] -->
+    <string name="science_journal_disabled_message">Science Journal needs to be turned on in the Google Admin console by your domain administrator.</string>
+
+    <!-- Yes button for alert saying that Science Journal is not enabled for GSuite domain. [CHAR_LIMIT=40] -->
+    <string name="science_journal_disabled_yes">Switch accounts</string>
+
+    <!-- Headline for old user option prompt activity [CHAR_LIMIT=50] -->
+    <string name="old_user_option_prompt_headline">Back up to Google Drive</string>
+
+    <!-- Text for old user option prompt activity when there are unclaimed experiments [CHAR_LIMIT=140] -->
+    <plurals name="old_user_option_prompt_text"
+             translation_description="Plural form for text of old user option prompt activity when there are unclaimed experiments">
+      <item quantity="one">Welcome back, you currently have <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> experiment stored on this device.\n\nTo continue select an option:</item>
+      <item quantity="other">Welcome back, you currently have <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> experiments stored on this device.\n\nTo continue select an option:</item>
+    </plurals>
+
+    <!-- Headline for Drive choice [CHAR_LIMIT=30] -->
+    <string name="drive_choice_headline">Save all your experiments</string>
+
+    <!-- Text for Drive choice [CHAR_LIMIT=60] -->
+    <string name="drive_choice_text">All your experiments will be added to Google Drive</string>
+
+    <!-- Headline for Delete choice [CHAR_LIMIT=30] -->
+    <string name="delete_choice_headline">Delete all your experiments</string>
+
+    <!-- Text for Delete choice [CHAR_LIMIT=60] -->
+    <string name="delete_choice_text">None of your experiments will be added to Google Drive</string>
+
+    <!-- Headline for Select choice [CHAR_LIMIT=30] -->
+    <string name="select_choice_headline">Select experiments to save</string>
+
+    <!-- Text for Select choice [CHAR_LIMIT=60] -->
+    <string name="select_choice_text">Choose which experiments to save to Google Drive</string>
+
+    <!-- Headline for Delete All Prompt [CHAR_LIMIT=30] -->
+    <string name="delete_all_prompt_headline">Delete all your experiments?</string>
+
+    <!-- Text for Delete All Prompt [CHAR_LIMIT=150] -->
+    <string name="delete_all_prompt_text">All experiments on this device, including archived experiments, will be deleted. You cannot undo this action.</string>
+
+    <!-- Yes button for Delete All Prompt [CHAR_LIMIT=20] -->
+    <string name="delete_all_prompt_yes">Delete all</string>
+
+    <!-- Headline for Claim experiments card [CHAR_LIMIT=30] -->
+    <string name="claim_experiments_card_headline">Claim past experiments</string>
+
+    <!-- Text for Claim experiments card when there are unclaimed experiments [CHAR_LIMIT=80] -->
+    <plurals name="claim_experiments_card_text" translation_description="Plural form for Text for Claim experiments card when there are unclaimed experiments">
+      <item quantity="one">There is <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> unclaimed experiment on this device.</item>
+      <item quantity="other">There are <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> unclaimed experiments on this device.</item>
+    </plurals>
+
+    <!-- Text for claim experiments card button [CHAR_LIMIT=30] -->
+    <string name="claim_experiments_card_button_text">Claim experiments</string>
+
+    <!-- Claim experiments activity title [CHAR_LIMIT=30] -->
+    <string name="title_activity_claim_experiments">Claim experiments</string>
+
+    <!-- Description for unclaimed experiments-->
+    <string name="unclaimed_experiments">Unclaimed Experiments</string>
+
+    <!-- Text for claim failure toast [CHAR_LIMIT=50] -->
+    <string name="claim_failed">Claim failed, submit feedback in the menu.</string>
+
+    <!-- Text for not enough space to claim message [CHAR_LIMIT=50] -->
+    <string name="claim_failed_disk_space">Not enough disk space to claim experiments.</string>
+
+    <!-- Text for sync failure toast [CHAR_LIMIT=50] -->
+    <string name="sync_failed">Sync failed, try again or submit feedback.</string>
+
+    <!-- Headline for Add experiments to Drive card [CHAR_LIMIT=50] -->
+    <string name="add_experiments_to_drive_card_headline">Add experiments to Google Drive</string>
+
+    <!-- Text for Add experiments to Drive card [CHAR_LIMIT=130] -->
+    <string name="add_experiments_to_drive_card_text">Experiments cannot be edited and will remain on the device until they are either claimed or deleted</string>
+
+    <!-- Context description for button which adds an experiment to drive [CHAR_LIMIT=50]-->
+    <string name="drive_btn_content_description">Add experiment to Google Drive</string>
+
+    <!-- Text for add experiment to drive confirmation dialog [CHAR_LIMIT=50] -->
+    <string name="drive_confirmation_text">Add to Google Drive?</string>
+
+    <!-- Yes button add experiment to drive confirmation dialog [CHAR_LIMIT=50] -->
+    <string name="drive_confirmation_yes">Add to Google Drive</string>
+
+    <!-- Text for experiment added message [CHAR_LIMIT=50] -->
+    <string name="experiment_added_text">Experiment added to <xliff:g id="account_name">%1$s</xliff:g></string>
+
+    <!-- Context description for button which shares an experiment [CHAR_LIMIT=50]-->
+    <string name="share_btn_content_description">Share experiment</string>
+
+    <!-- Context description for button which downloads an experiment [CHAR_LIMIT=50]-->
+    <string name="download_btn_content_description">Download experiment</string>
+
+    <!-- Context description for button which deletes an experiment [CHAR_LIMIT=50]-->
+    <string name="delete_btn_content_description">Delete experiment</string>
+
+    <!-- Menu item label to claim all remaining unclaimed experiments [CHAR_LIMIT=50]-->
+    <string name="action_claim_unclaimed_experiments">Claim all</string>
+
+    <!-- Text for claim all remaining unclaimed experiments confirmation dialog [CHAR_LIMIT=80] -->
+    <plurals name="claim_all_confirmation_text" translation_description="Plural form for text for claim all remaining unclaimed experiments confirmation dialog">
+      <item quantity="one">Your experiment will be added to Google Drive</item>
+      <item quantity="other">All <xliff:g id="count_of_unclaimed_experiments">%1$d</xliff:g> experiments will be added to Google Drive</item>
+    </plurals>
+
+    <!-- Yes button for claim all remaining unclaimed experiments confirmation dialog [CHAR_LIMIT=20] -->
+    <string name="claim_all_confirmation_yes">Claim</string>
+
+    <!-- Menu item label to delete all remaining unclaimed experiments [CHAR_LIMIT=50]-->
+    <string name="action_delete_unclaimed_experiments">Delete all</string>
+
+    <!-- Menu item label to use Science Journal without an account [CHAR_LIMIT=50]-->
+    <string name="action_use_without_an_account">Use without an account</string>
+
+    <!-- Menu item label to sync now [CHAR_LIMIT=50]-->
+    <string name="action_sync">Sync</string>
+
+    <!-- Accessibility announcement at beginning of sync [CHAR_LIMIT=NONE]-->
+    <string name="action_sync_start">Syncing library to Google Drive.</string>
+
+    <!-- Accessibility announcement at end of sync [CHAR_LIMIT=NONE]-->
+    <string name="action_sync_end">Syncing library to Google Drive complete.</string>
+
+    <!-- Menu option for removing the cover image of an experiment [CHAR_LIMIT=50] -->
+    <string name="action_remove_cover_image">Remove cover image</string>
+
+    <!-- Title for alert asking for confirmation to remove the cover image of an experiment [CHAR_LIMIT=40] -->
+    <string name="remove_cover_image_dialog_title">Remove the cover image?</string>
+
+    <!-- Alert content to confirm that the cover image of an experiment should really be deleted and that this action is final [CHAR_LIMIT=NONE] -->
+    <string name="remove_cover_image_confirm">Are you sure you want to remove the cover image? This action cannot be undone.</string>
+
+    <!-- message when Google Drive cannot be reached due to potential network issue. [CHAR_LIMIT=100] -->
+    <string name="drive_sync_cannot_reach_google_drive">Can\'t reach Google Drive. Check your connection.</string>
+
+    <!-- String format used to concatenate two titles that have been edited in conflict. [CHAR_LIMIT=5] -->
+    <string name="experiment_title_concatenator"><xliff:g id="first_title">%1$s</xliff:g> / <xliff:g id="second_title">%2$s</xliff:g></string>
+
+    <!-- Title for New Experiment feature discovery -->
+    <string name="create_experiment_feature_discovery_title">Create a new experiment</string>
+
+    <!-- Body text for New Experiment feature discovery -->
+    <string name="create_experiment_feature_discovery_body">Organize your thoughts and observations by taking notes, recording data, or taking pictures</string>
+
+    <!-- Name of the menu item to download an experiment file [CHAR_LIMIT=25] -->
+    <string name="download_copy_action">Download</string>
+
+    <!-- Name of the menu item to download a csv file [CHAR_LIMIT=25] -->
+    <string name="download_copy_csv_action">Download (.csv)</string>
+
+    <!-- Name of the menu item to share a csv file [CHAR_LIMIT=25] -->
+    <string name="share_copy_csv_action">Send a copy (.csv)</string>
+
+    <!-- The body content for the saved to device notification, indicating that the file is in Downloads [CHAR_LIMIT=50] -->
+    <string name="saved_to_device_text">Saved to Downloads folder.</string>
+
+    <!-- Dialog title shown when saving the data to the download folder [CHAR_LIMIT=100]-->
+    <string name="download_options_title">Download…</string>
+
+    <!-- Error message for save to device failures [CHAR_LIMIT=100] -->
+    <string name="saved_to_device_error">Download failed</string>
+
+    <!-- The snackbar when a user denies storage permissions when attempting a download [CHAR_LIMIT=70] -->
+    <string name="storage_permission_needed">Storage permissions are needed to download</string>
+
+    <!-- The snackbar when a user begins a download [CHAR_LIMIT=100] -->
+    <string name="download_started">Your download has started. File details will be in the download completion notification</string>
+
+    <!-- The notification channel title for downloads [CHAR_LIMIT=25] -->
+    <string name="save_to_device_channel_title">Downloads</string>
+
+    <!-- The notification channel description for completed downloads [CHAR_LIMIT=25] -->
+    <string name="save_to_device_channel_description">Saved</string>
+
+    <!-- Title for action area button to add a new text note [CHAR_LIMIT=25] -->
+    <string name="text_note">Text</string>
+
+    <!-- Title for action area button to add a new sensor note [CHAR_LIMIT=25] -->
+    <string name="sensor_note">Sensors</string>
+
+    <!-- Title for action area button to add a new camera note [CHAR_LIMIT=25] -->
+    <string name="camera_note">Camera</string>
+
+    <!-- Title for action area button to add a new gallery note [CHAR_LIMIT=25] -->
+    <string name="gallery_note">Gallery</string>
+
+    <!-- Title for action area button to add take a snapshot [CHAR_LIMIT=25] -->
+    <string name="snapshot">Snapshot</string>
+
+    <!-- Title for action area button to navigate to additional note types [CHAR_LIMIT=25] -->
+    <string name="more">More</string>
+
+    <!-- Title for action area button which adds a new sensor card to the view [CHAR_LIMIT=25] -->
+    <string name="add_sensor_card">Add sensor</string>
+
+    <!-- Description of empty tool area with action bar at the bottom [CHAR_LIMIT=100]-->
+    <string name="add_notes">Add more observation notes</string>
+
+    <!-- Title for gallery option in more observations fragment [CHAR_LIMIT=25] -->
+    <string name="more_observations_gallery_title">Gallery</string>
+
+    <!-- Description for gallery option in more observations fragment [CHAR_LIMIT=80] -->
+    <string name="more_observations_gallery_description">Add photos from your library</string>
+
+    <!-- Title for draw option in more observations fragment [CHAR_LIMIT=25] -->
+    <string name="more_observations_draw_title">Draw</string>
+
+    <!-- Description for draw option in more observations fragment [CHAR_LIMIT=80] -->
+    <string name="more_observations_draw_description">Add drawing notes</string>
+
+    <!-- Title for velocity tracker option in more observations fragment [CHAR_LIMIT=25] -->
+    <string name="more_observations_velocity_tracker_title">Velocity Tracker</string>
+
+    <!-- Description for velocity tracker option in more observations fragment [CHAR_LIMIT=80] -->
+    <string name="more_observations_velocity_tracker_description">Using augmented reality, track and measure objects</string>
+
+    <!-- Prompt for a user to fit an ARCore image to track [CHAR_LIMIT=40] -->
+    <string name="fit_image_to_scan">Fit image to scan</string>
+
+    <!-- Prompt when velocity tracker recognizes an image but is not tracking it [CHAR_LIMIT=80] -->
+    <string name="ar_detecting_image">Detecting Image</string>
+
+    <!-- Prompt when velocity tracker stops tracking an image [CHAR_LIMIT=80] -->
+    <string name="ar_not_tracking">Not tracking</string>
+
+    <!-- Action bar title for new text note fragment [CHAR_LIMIT=40] -->
+    <string name="action_bar_text_note">Create text note</string>
+
+    <!-- Action bar title for new sensor note fragment [CHAR_LIMIT=40] -->
+    <string name="action_bar_sensor_note">Create sensor recording</string>
+
+    <!-- Action bar title for gallery fragment [CHAR_LIMIT=40] -->
+    <string name="action_bar_gallery">Select images</string>
+
+    <!-- Action bar title for more observations fragment [CHAR_LIMIT=40] -->
+    <string name="action_bar_more">More observations</string>
+
+    <!-- Snackbar message after saving a note [CHAR_LIMIT=100]-->
+    <string name="note_saved">Your note has been saved</string>
+
+    <!-- Snackbar action message after saving a note [CHAR_LIMIT=50] -->
+    <string name="note_saved_action">View</string>
+
     <!-- NOTE! newly-added strings should have char limits and context comments
          (see the first elements in this file for examples) -->
-
 </resources>

@@ -19,4 +19,30 @@
 
     <!-- Maximum number of lines to show when editing a text label or note. -->
     <integer name="label_edit_max_lines">5</integer>
+
+    <!-- Margins for placement on getting started screen -->
+    <dimen name="get_started_explore_your_world_margin_top">70dp</dimen>
+    <dimen name="get_started_use_science_journal_margin_top">15dp</dimen>
+    <dimen name="get_started_btn_get_started_margin_top">32dp</dimen>
+    <dimen name="get_started_image_margin_top">180dp</dimen>
+
+    <!-- Font sizing for getting started screen -->
+    <dimen name="get_started_explore_your_world_font_size">24sp</dimen>
+    <dimen name="get_started_use_science_journal_font_size">16sp</dimen>
+    <dimen name="get_started_btn_get_started_font_size">14sp</dimen>
+
+    <!-- Margins for placement on sign in screen -->
+    <dimen name="sign_in_image_margin_top">180dp</dimen>
+    <dimen name="sign_in_text_top_margin">31dp</dimen>
+    <dimen name="sign_in_text_side_margin">113dp</dimen>
+
+    <!-- Font sizing for sign in screen -->
+    <dimen name="sign_in_text_font_size">14sp</dimen>
+
+    <!-- Columns of images in gallery -->
+    <integer name="gallery_column_count">7</integer>
+
+    <!-- Columns in More Observations fragment grid -->
+    <integer name="more_observations_column_count">4</integer>
+
 </resources>

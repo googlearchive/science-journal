@@ -17,43 +17,38 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ExportStreamConsumerTest {
-    @Test
-    public void dontStartAtZero() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        OutputStreamWriter writer = new OutputStreamWriter(baos);
-        ExportStreamConsumer consumer = new ExportStreamConsumer(writer, false, TestConsumers.expectingSuccess()
+  @Test
+  public void dontStartAtZero() throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    OutputStreamWriter writer = new OutputStreamWriter(baos);
+    ExportStreamConsumer consumer =
+        new ExportStreamConsumer(writer, false, TestConsumers.expectingSuccess());
 
-        );
-        consumer.addData(1000, 10);
-        consumer.addData(2000, 20);
-        writer.close();
-        assertEquals("1000,10.0\n2000,20.0\n", baos.toString());
-    }
+    consumer.addData(1000, 10);
+    consumer.addData(2000, 20);
+    writer.close();
+    assertEquals("1000,10.0\n2000,20.0\n", baos.toString());
+  }
 
-    @Test
-    public void startAtZero() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        OutputStreamWriter writer = new OutputStreamWriter(baos);
-        ExportStreamConsumer consumer = new ExportStreamConsumer(writer, true, TestConsumers.expectingSuccess()
-        );
-        consumer.addData(1000, 10);
-        consumer.addData(2000, 20);
-        writer.close();
-        assertEquals("0,10.0\n1000,20.0\n", baos.toString());
-    }
+  @Test
+  public void startAtZero() throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    OutputStreamWriter writer = new OutputStreamWriter(baos);
+    ExportStreamConsumer consumer =
+        new ExportStreamConsumer(writer, true, TestConsumers.expectingSuccess());
+    consumer.addData(1000, 10);
+    consumer.addData(2000, 20);
+    writer.close();
+    assertEquals("0,10.0\n1000,20.0\n", baos.toString());
+  }
 }

@@ -23,25 +23,26 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.BlankReadableSen
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StubStatusListener;
 import com.google.common.collect.Lists;
-
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.Collections;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class MemoryRecorderControllerTest {
-    @Test public void basicMemoryRecorderControllerTest() {
-        MemoryRecorderController rc = new MemoryRecorderController();
-        String observerId = rc.startObserving("sensorId", Collections.<SensorTrigger>emptyList(),
-                new RecordingSensorObserver(), new StubStatusListener(),
-                AbstractReadableSensorOptions.makeTransportable(new BlankReadableSensorOptions()),
-                null);
-        assertEquals(Lists.newArrayList("sensorId"), rc.getCurrentObservedIds());
-        rc.stopObserving("sensorId", observerId);
-        assertEquals(Lists.newArrayList(), rc.getCurrentObservedIds());
-    }
+  @Test
+  public void basicMemoryRecorderControllerTest() {
+    MemoryRecorderController rc = new MemoryRecorderController();
+    String observerId =
+        rc.startObserving(
+            "sensorId",
+            Collections.<SensorTrigger>emptyList(),
+            new RecordingSensorObserver(),
+            new StubStatusListener(),
+            AbstractReadableSensorOptions.makeTransportable(new BlankReadableSensorOptions()),
+            null);
+    assertEquals(Lists.newArrayList("sensorId"), rc.getCurrentObservedIds());
+    rc.stopObserving("sensorId", observerId);
+    assertEquals(Lists.newArrayList(), rc.getCurrentObservedIds());
+  }
 }

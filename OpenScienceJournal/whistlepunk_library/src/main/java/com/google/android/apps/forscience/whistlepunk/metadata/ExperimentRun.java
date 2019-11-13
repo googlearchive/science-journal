@@ -16,53 +16,49 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.content.Context;
-
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-
-
 import java.util.List;
 
 @Deprecated
 public class ExperimentRun {
-    private Trial mTrial;
-    private String mExperimentId;
+  private Trial trial;
+  private String experimentId;
 
-    private ExperimentRun(Trial trial, String experimentId, CropHelper.CropLabels unused) {
-        mTrial = trial;
-        mExperimentId = experimentId;
-    }
+  private ExperimentRun(Trial trial, String experimentId, CropHelper.CropLabels unused) {
+    this.trial = trial;
+    this.experimentId = experimentId;
+  }
 
-    public String getExperimentId() {
-        return mExperimentId;
-    }
+  public String getExperimentId() {
+    return experimentId;
+  }
 
-    public long getFirstTimestamp() {
-        return mTrial.getFirstTimestamp();
-    }
+  public long getFirstTimestamp() {
+    return trial.getFirstTimestamp();
+  }
 
-    public List<String> getSensorIds() {
-        return mTrial.getSensorIds();
-    }
+  public List<String> getSensorIds() {
+    return trial.getSensorIds();
+  }
 
-    public String getTrialId() {
-        return mTrial.getTrialId();
-    }
+  public String getTrialId() {
+    return trial.getTrialId();
+  }
 
-    public boolean isArchived() {
-        return mTrial.isArchived();
-    }
+  public boolean isArchived() {
+    return trial.isArchived();
+  }
 
-    public void setArchived(boolean isArchived) {
-        mTrial.setArchived(isArchived);
-    }
+  public void setArchived(boolean isArchived) {
+    trial.setArchived(isArchived);
+  }
 
-    public Trial getTrial() {
-        return mTrial;
-    }
+  public Trial getTrial() {
+    return trial;
+  }
 
-    public List<GoosciSensorLayout.SensorLayout> getSensorLayouts() {
-        return mTrial.getSensorLayouts();
-    }
+  public List<SensorLayoutPojo> getSensorLayouts() {
+    return trial.getSensorLayouts();
+  }
 }

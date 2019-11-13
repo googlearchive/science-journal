@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.google.android.apps.forscience.sciencejournal.api">
 
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="27" />
+
     <application android:allowBackup="true"
                  android:label="@string/app_name"
                  android:supportsRtl="true"

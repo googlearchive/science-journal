@@ -15,55 +15,54 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.ViewGroup;
-
 import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
 import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
 import com.google.common.base.Supplier;
-
 import java.util.List;
 
-public abstract class CompositeSensitiveExpandableAdapter<PVH extends OffsetParentViewHolder, CVH
-        extends ChildViewHolder> extends ExpandableRecyclerAdapter<PVH, CVH> implements
-        CompositeRecyclerAdapter.CompositeSensitiveAdapter {
-    private final int mTypeOffset;
-    private int mGlobalAdapterStartPosition = 0;
+public abstract class CompositeSensitiveExpandableAdapter<
+        PVH extends OffsetParentViewHolder, CVH extends ChildViewHolder>
+    extends ExpandableRecyclerAdapter<PVH, CVH>
+    implements CompositeRecyclerAdapter.CompositeSensitiveAdapter {
+  private final int typeOffset;
+  private int globalAdapterStartPosition = 0;
 
-    /**
-     * @param uniqueId Each instance of this class that is in the same composite needs a distinct
-     *                 uniqueId (this is used to make sure that each instance gets a distinct range
-     *                 of view types).
-     */
-    public CompositeSensitiveExpandableAdapter(
-            @NonNull List<? extends ParentListItem> parentItemList, int uniqueId) {
-        super(parentItemList);
-        mTypeOffset = uniqueId * 2;
-    }
+  /**
+   * @param uniqueId Each instance of this class that is in the same composite needs a distinct
+   *     uniqueId (this is used to make sure that each instance gets a distinct range of view
+   *     types).
+   */
+  public CompositeSensitiveExpandableAdapter(
+      @NonNull List<? extends ParentListItem> parentItemList, int uniqueId) {
+    super(parentItemList);
+    typeOffset = uniqueId * 2;
+  }
 
-    @Override
-    public int getItemViewType(int position) {
-        return super.getItemViewType(position) + mTypeOffset;
-    }
+  @Override
+  public int getItemViewType(int position) {
+    return super.getItemViewType(position) + typeOffset;
+  }
 
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        return super.onCreateViewHolder(viewGroup, viewType - mTypeOffset);
-    }
+  @Override
+  public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    return super.onCreateViewHolder(viewGroup, viewType - typeOffset);
+  }
 
-    protected Supplier<Integer> offsetSupplier() {
-        return new Supplier<Integer>() {
-            @Override
-            public Integer get() {
-                return mGlobalAdapterStartPosition;
-            }
-        };
-    }
+  protected Supplier<Integer> offsetSupplier() {
+    return new Supplier<Integer>() {
+      @Override
+      public Integer get() {
+        return globalAdapterStartPosition;
+      }
+    };
+  }
 
-    @Override
-    public void informGlobalAdapterStartPosition(int startPosition) {
-        mGlobalAdapterStartPosition = startPosition;
-    }
+  @Override
+  public void informGlobalAdapterStartPosition(int startPosition) {
+    globalAdapterStartPosition = startPosition;
+  }
 }

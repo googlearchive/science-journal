@@ -17,6 +17,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/root_layout"
     android:background="@color/background_color"
     >
 
@@ -39,6 +40,7 @@
         android:id="@+id/caption"
         android:hint="@string/note_caption_hint"
         android:layout_margin="8dp"
+        android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
         />
 
 </RelativeLayout>

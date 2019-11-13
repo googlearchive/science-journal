@@ -16,50 +16,45 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 class TestDevicesPresenter implements DevicesPresenter {
-    public String experimentId;
-    public String sensorId;
-    private MemorySensorGroup mAvailableDevices;
-    private SensorGroup mPairedDevices;
+  public String experimentId;
+  public String sensorId;
+  private MemorySensorGroup availableDevices;
+  private SensorGroup pairedDevices;
 
-    public TestDevicesPresenter(MemorySensorGroup availableDevices,
-            MemorySensorGroup pairedDevices) {
-        this.mAvailableDevices = availableDevices;
-        this.mPairedDevices = pairedDevices;
-    }
+  public TestDevicesPresenter(MemorySensorGroup availableDevices, MemorySensorGroup pairedDevices) {
+    this.availableDevices = availableDevices;
+    this.pairedDevices = pairedDevices;
+  }
 
-    @Override
-    public void refreshScanningUI() {
+  @Override
+  public void refreshScanningUI() {}
 
-    }
+  @Override
+  public void showSensorOptions(
+      String experimentId, String sensorId, SensorDiscoverer.SettingsInterface settings) {
+    this.experimentId = experimentId;
+    this.sensorId = sensorId;
+  }
 
-    @Override
-    public void showSensorOptions(String experimentId, String sensorId,
-            SensorDiscoverer.SettingsInterface settings) {
-        this.experimentId = experimentId;
-        this.sensorId = sensorId;
-    }
+  @Override
+  public SensorGroup getPairedSensorGroup() {
+    return pairedDevices;
+  }
 
-    @Override
-    public SensorGroup getPairedSensorGroup() {
-        return mPairedDevices;
-    }
+  @Override
+  public SensorGroup getAvailableSensorGroup() {
+    return availableDevices;
+  }
 
-    @Override
-    public SensorGroup getAvailableSensorGroup() {
-        return mAvailableDevices;
-    }
+  @Override
+  public void unpair(String experimentId, String sensorId) {}
 
-    @Override
-    public void unpair(String experimentId, String sensorId) {
+  @Override
+  public boolean isDestroyed() {
+    return false;
+  }
 
-    }
-
-    @Override
-    public boolean isDestroyed() {
-        return false;
-    }
-
-    public void setPairedDevices(SensorGroup pairedDevices) {
-        mPairedDevices = pairedDevices;
-    }
+  public void setPairedDevices(SensorGroup pairedDevices) {
+    this.pairedDevices = pairedDevices;
+  }
 }

@@ -19,231 +19,252 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.util.Log;
-
+import com.google.android.apps.forscience.whistlepunk.ImageViewSensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAnimationBehavior;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciScalarInput.ScalarInputConfig;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.nano.InvalidProtocolBufferNanoException;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 public class ScalarInputSpec extends ExternalSensorSpec {
-    public static final String TYPE = "ScalarInput";
-    private static final String TAG = "ScalarInputSpec";
+  public static final String TYPE = "ScalarInput";
+  private static final String TAG = "ScalarInputSpec";
 
-    private String mName;
-    private GoosciScalarInput.ScalarInputConfig mConfig;
+  private String name;
+  private GoosciScalarInput.ScalarInputConfig config;
 
-    public ScalarInputSpec(String sensorName, String serviceId, String address,
-            SensorBehavior behavior, SensorAppearanceResources ids, String deviceId,
-            int orderInExperimentApiSensors) {
-        mName = sensorName;
-        mConfig = new GoosciScalarInput.ScalarInputConfig();
-        mConfig.serviceId = Preconditions.checkNotNull(serviceId);
-        mConfig.address = address;
-        mConfig.orderInExperimentApiSensors = orderInExperimentApiSensors;
-        mConfig.deviceId = deviceId;
+  public ScalarInputSpec(
+      String sensorName,
+      String serviceId,
+      String address,
+      SensorBehavior behavior,
+      SensorAppearanceResources ids,
+      String deviceId,
+      int orderInExperimentApiSensors) {
+    name = sensorName;
+    ScalarInputConfig.Builder scalarInputConfig =
+        GoosciScalarInput.ScalarInputConfig.newBuilder()
+            .setServiceId(Preconditions.checkNotNull(serviceId))
+            .setAddress(address)
+            .setOrderInExperimentApiSensors(orderInExperimentApiSensors)
+            .setDeviceId(deviceId);
 
-        if (behavior != null) {
-            if (behavior.loggingId != null) {
-                mConfig.loggingId = behavior.loggingId;
-            }
-            mConfig.shouldShowOptionsOnConnect = behavior.shouldShowSettingsOnConnect;
-            mConfig.expectedSamplesPerSecond = behavior.expectedSamplesPerSecond;
+    if (behavior != null) {
+      if (behavior.loggingId != null) {
+        scalarInputConfig.setLoggingId(behavior.loggingId);
+      }
+      scalarInputConfig
+          .setShouldShowOptionsOnConnect(behavior.shouldShowSettingsOnConnect)
+          .setExpectedSamplesPerSecond(behavior.expectedSamplesPerSecond);
+    }
+
+    writeResourceIds(scalarInputConfig, ids);
+    config = scalarInputConfig.build();
+  }
+
+  public ScalarInputSpec(
+      String sensorName,
+      String serviceId,
+      String address,
+      SensorBehavior behavior,
+      SensorAppearanceResources ids,
+      String deviceId) {
+    // TODO: inline?
+    this(sensorName, serviceId, address, behavior, ids, deviceId, 0);
+  }
+
+  private void writeResourceIds(ScalarInputConfig.Builder config, SensorAppearanceResources ids) {
+    if (ids != null) {
+      config
+          .setIconId(ids.iconId)
+          .setUnits(emptyIfNull(ids.units))
+          .setShortDescription(emptyIfNull(ids.shortDescription));
+    }
+  }
+
+  private String emptyIfNull(String s) {
+    return s == null ? "" : s;
+  }
+
+  public ScalarInputSpec(String sensorName, byte[] config) {
+    name = sensorName;
+    this.config = parse(config);
+  }
+
+  @Nullable
+  private GoosciScalarInput.ScalarInputConfig parse(byte[] config) {
+    try {
+      return GoosciScalarInput.ScalarInputConfig.parseFrom(config);
+    } catch (InvalidProtocolBufferException e) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "error parsing config", e);
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public SensorAppearance getSensorAppearance() {
+    // TODO: better icon?
+    return new EmptySensorAppearance() {
+      @Override
+      public String getName(Context context) {
+        return name;
+      }
+
+      @Override
+      public Drawable getIconDrawable(Context context) {
+        if (config.getIconId() <= 0) {
+          return getDefaultIcon(context);
         }
-
-        writeResourceIds(mConfig, ids);
-    }
-
-    public ScalarInputSpec(String sensorName, String serviceId, String address,
-            SensorBehavior behavior, SensorAppearanceResources ids, String deviceId) {
-        // TODO: inline?
-        this(sensorName, serviceId, address, behavior, ids, deviceId, 0);
-    }
-
-    private void writeResourceIds(GoosciScalarInput.ScalarInputConfig config,
-            SensorAppearanceResources ids) {
-        if (ids != null) {
-            config.iconId = ids.iconId;
-            config.units = emptyIfNull(ids.units);
-            config.shortDescription = emptyIfNull(ids.shortDescription);
-        }
-    }
-
-    private String emptyIfNull(String s) {
-        return s == null ? "" : s;
-    }
-
-    public ScalarInputSpec(String sensorName, byte[] config) {
-        mName = sensorName;
-        mConfig = parse(config);
-    }
-
-    @Nullable
-    private GoosciScalarInput.ScalarInputConfig parse(byte[] config) {
         try {
-            return GoosciScalarInput.ScalarInputConfig.parseFrom(config);
-        } catch (InvalidProtocolBufferNanoException e) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "error parsing config", e);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public SensorAppearance getSensorAppearance() {
-        // TODO: better icon?
-        return new EmptySensorAppearance() {
-            @Override
-            public String getName(Context context) {
-                return mName;
-            }
-
-            @Override
-            public Drawable getIconDrawable(Context context) {
-                if (mConfig.iconId <= 0) {
-                    return getDefaultIcon(context);
-                }
-                try {
-                    // TODO: test this?
-                    return getApiAppResources(context).getDrawable(mConfig.iconId);
-                } catch (PackageManager.NameNotFoundException e) {
-                    if (Log.isLoggable(TAG, Log.ERROR)) {
-                        Log.e(TAG, "Package has gone missing: " + getPackageId());
-                    }
-                    return getDefaultIcon(context);
-                } catch (Resources.NotFoundException e) {
-                    if (Log.isLoggable(TAG, Log.ERROR)) {
-                        Log.e(TAG, "Didn't find icon", e);
-                    }
-                    return getDefaultIcon(context);
-                }
-            }
-
-            private Drawable getDefaultIcon(Context context) {
-                return context.getResources().getDrawable(getDefaultIconId());
-            }
-
-            @Override
-            public String getUnits(Context context) {
-                return mConfig.units;
-            }
-
-            @Override
-            public String getShortDescription(Context context) {
-                return mConfig.shortDescription;
-            }
-
-            private Resources getApiAppResources(Context context)
-                    throws PackageManager.NameNotFoundException {
-                return context.getPackageManager().getResourcesForApplication(getPackageId());
-            }
-
-            @Override
-            public SensorAnimationBehavior getSensorAnimationBehavior() {
-                return new SensorAnimationBehavior(R.drawable.api_level_drawable,
-                        SensorAnimationBehavior.TYPE_RELATIVE_SCALE);
-            }
-        };
-    }
-
-    private String getPackageId() {
-        return getPackageId(ScalarInputSpec.this.getServiceId());
-    }
-
-    public static Drawable getServiceDrawable(String serviceId, Context context) {
-        try {
-            return context.getPackageManager().getApplicationIcon(getPackageId(serviceId));
+          // TODO: test this?
+          return getApiAppResources(context).getDrawable(config.getIconId());
         } catch (PackageManager.NameNotFoundException e) {
-            return context.getResources().getDrawable(R.drawable.ic_api_01_white_24dp);
+          if (Log.isLoggable(TAG, Log.ERROR)) {
+            Log.e(TAG, "Package has gone missing: " + getPackageId());
+          }
+          return getDefaultIcon(context);
+        } catch (Resources.NotFoundException e) {
+          if (Log.isLoggable(TAG, Log.ERROR)) {
+            Log.e(TAG, "Didn't find icon", e);
+          }
+          return getDefaultIcon(context);
         }
-    }
+      }
 
-    public int getDefaultIconId() {
-        switch (mConfig.orderInExperimentApiSensors % 4) {
-            case 0: return R.drawable.ic_api_01_white_24dp;
-            case 1: return R.drawable.ic_api_02_white_24dp;
-            case 2: return R.drawable.ic_api_03_white_24dp;
-            case 3: return R.drawable.ic_api_04_white_24dp;
-            default:
-                // Should never happen, if math works.
-                return R.drawable.ic_api_01_white_24dp;
-        }
-    }
+      private Drawable getDefaultIcon(Context context) {
+        return context.getResources().getDrawable(getDefaultIconId());
+      }
 
-    @Override
-    public String getName() {
-        return mName;
-    }
+      @Override
+      public String getUnits(Context context) {
+        return config.getUnits();
+      }
 
-    @Override
-    public String getType() {
-        return TYPE;
-    }
+      @Override
+      public String getShortDescription(Context context) {
+        return config.getShortDescription();
+      }
 
-    @Override
-    public String getAddress() {
-        return InputDeviceSpec.joinAddresses(getServiceId(), getSensorAddressInService());
-    }
+      private Resources getApiAppResources(Context context)
+          throws PackageManager.NameNotFoundException {
+        return context.getPackageManager().getResourcesForApplication(getPackageId());
+      }
 
-    public String getSensorAddressInService() {
-        return mConfig.address;
-    }
+      @Override
+      public SensorAnimationBehavior getSensorAnimationBehavior() {
+        return new ImageViewSensorAnimationBehavior(
+            R.drawable.generic_sensor_level_drawable,
+            ImageViewSensorAnimationBehavior.TYPE_RELATIVE_SCALE);
+      }
+    };
+  }
 
-    @Override
-    public byte[] getConfig() {
-        return getBytes(mConfig);
-    }
+  private String getPackageId() {
+    return getPackageId(ScalarInputSpec.this.getServiceId());
+  }
 
-    @Override
-    public boolean shouldShowOptionsOnConnect() {
-        return mConfig.shouldShowOptionsOnConnect;
+  public static Drawable getServiceDrawable(String serviceId, Context context) {
+    try {
+      return context.getPackageManager().getApplicationIcon(getPackageId(serviceId));
+    } catch (PackageManager.NameNotFoundException e) {
+      return context.getResources().getDrawable(R.drawable.generic_sensor_white_1);
     }
+  }
 
-    @Override
-    public String getDeviceAddress() {
-        return makeApiDeviceAddress(getServiceId(), getDeviceId());
+  public int getDefaultIconId() {
+    switch (config.getOrderInExperimentApiSensors() % 4) {
+      case 0:
+        return R.drawable.generic_sensor_white_1;
+      case 1:
+        return R.drawable.generic_sensor_white_2;
+      case 2:
+        return R.drawable.generic_sensor_white_3;
+      case 3:
+        return R.drawable.generic_sensor_white_4;
+      default:
+        // Should never happen, if math works.
+        return R.drawable.generic_sensor_white_1;
     }
+  }
 
-    @NonNull
-    public static String makeApiDeviceAddress(String serviceId, String deviceId) {
-        return InputDeviceSpec.joinAddresses(serviceId, deviceId);
-    }
+  @Override
+  public String getName() {
+    return name;
+  }
 
-    public String getDeviceId() {
-        return mConfig.deviceId;
-    }
+  @Override
+  public String getType() {
+    return TYPE;
+  }
 
-    public String getServiceId() {
-        return mConfig.serviceId;
-    }
+  @Override
+  public String getAddress() {
+    return InputDeviceSpec.joinAddresses(getServiceId(), getSensorAddressInService());
+  }
 
-    private static String getPackageId(String serviceId) {
-        // TODO: write test!
-        return serviceId.split("/")[0];
-    }
+  public String getSensorAddressInService() {
+    return config.getAddress();
+  }
 
-    @Override
-    public String getLoggingId() {
-        return InputDeviceSpec.joinAddresses(getServiceId(), mConfig.loggingId);
-    }
+  @Override
+  public byte[] getConfig() {
+    return config.toByteArray();
+  }
 
-    public float getExpectedSamplesPerSecond() {
-        return mConfig.expectedSamplesPerSecond;
-    }
+  @Override
+  public boolean shouldShowOptionsOnConnect() {
+    return config.getShouldShowOptionsOnConnect();
+  }
 
-    @Override
-    public ExternalSensorSpec maybeAdjustBeforePairing(int numPairedBeforeAdded) {
-        if (numPairedBeforeAdded == mConfig.orderInExperimentApiSensors) {
-            return this;
-        }
-        GoosciScalarInput.ScalarInputConfig copyConfig = parse(getBytes(mConfig));
-        copyConfig.orderInExperimentApiSensors = numPairedBeforeAdded;
-        return new ScalarInputSpec(mName, getBytes(copyConfig));
+  @Override
+  public String getDeviceAddress() {
+    return makeApiDeviceAddress(getServiceId(), getDeviceId());
+  }
+
+  @NonNull
+  public static String makeApiDeviceAddress(String serviceId, String deviceId) {
+    return InputDeviceSpec.joinAddresses(serviceId, deviceId);
+  }
+
+  public String getDeviceId() {
+    return config.getDeviceId();
+  }
+
+  public String getServiceId() {
+    return config.getServiceId();
+  }
+
+  private static String getPackageId(String serviceId) {
+    // TODO: write test!
+    return serviceId.split("/")[0];
+  }
+
+  @Override
+  public String getLoggingId() {
+    return InputDeviceSpec.joinAddresses(getServiceId(), config.getLoggingId());
+  }
+
+  public float getExpectedSamplesPerSecond() {
+    return config.getExpectedSamplesPerSecond();
+  }
+
+  @Override
+  public ExternalSensorSpec maybeAdjustBeforePairing(int numPairedBeforeAdded) {
+    if (numPairedBeforeAdded == config.getOrderInExperimentApiSensors()) {
+      return this;
     }
+    ScalarInputConfig copyConfig =
+        parse(config.toByteArray()).toBuilder()
+            .setOrderInExperimentApiSensors(numPairedBeforeAdded)
+            .build();
+    return new ScalarInputSpec(name, copyConfig.toByteArray());
+  }
 }

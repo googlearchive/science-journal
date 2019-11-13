@@ -16,7 +16,7 @@ Pobierz kod źródłowy, przejdź do katalogu OpenScienceJournal i uruchom:
 
 Lub, importuj kod źródłowy OpenScienceJournal do Android Studio (File, Import Project).
 
-Uwaga: Aby skompilować projekt będziesz potrzebować Android SDKw wersji 23, build tools 23.0.3, oraz Android Support Library.
+Uwaga: Aby skompilować projekt będziesz potrzebować Android SDKw wersji 27, build tools 23.0.3, oraz Android Support Library.
 Jeśli nie jesteś pewien użuj Android Studio i zaznacz odpowiednie opcje w Managerze SDK.
 
 Plik [OpenScienceJournal README](https://github.com/google/science-journal/tree/master/OpenScienceJournal)
@@ -37,6 +37,6 @@ oficjalnym  produktem Google.
 
 [play-store]: https://play.google.com/store/apps/details?id=com.google.android.apps.forscience.whistlepunk
 [firmware-github]:https://github.com/google/science-journal-arduino
-[współpraca]: https://github.com/google/science-journal/blob/master/CONTRIBUTING
+[współpraca]: https://github.com/google/science-journal/blob/master/CONTRIBUTING.md
 [licencja]: https://github.com/google/science-journal/blob/master/LICENSE
 [making-science]: https://makingscience.withgoogle.com

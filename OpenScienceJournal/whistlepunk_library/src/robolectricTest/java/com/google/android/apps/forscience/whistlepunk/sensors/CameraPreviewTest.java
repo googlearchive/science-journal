@@ -15,36 +15,38 @@
  */
 package com.google.android.apps.forscience.whistlepunk.sensors;
 
-import android.support.annotation.NonNull;
-
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 
+import androidx.annotation.NonNull;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+
+@RunWith(RobolectricTestRunner.class)
 public class CameraPreviewTest {
-    @Test
-    public void highResolutionAboveGoodRatio() {
-        CameraPreview.PreviewSize bestSize =
-                CameraPreview.getBestSize(0.5, false, size(2, 1), size(200, 110));
-        assertEquals("200,110", bestSize.toString());
-    }
+  @Test
+  public void highResolutionAboveGoodRatio() {
+    CameraPreview.PreviewSize bestSize =
+        CameraPreview.getBestSize(0.5, false, size(2, 1), size(200, 110));
+    assertEquals("200,110", bestSize.toString());
+  }
 
-    @Test
-    public void sameResolutionTiebreaksWithRatioMatch() {
-        CameraPreview.PreviewSize bestSize =
-                CameraPreview.getBestSize(0.5, false, size(2, 1), size(200, 110), size(110, 200));
-        assertEquals("200,110", bestSize.toString());
-    }
+  @Test
+  public void sameResolutionTiebreaksWithRatioMatch() {
+    CameraPreview.PreviewSize bestSize =
+        CameraPreview.getBestSize(0.5, false, size(2, 1), size(200, 110), size(110, 200));
+    assertEquals("200,110", bestSize.toString());
+  }
 
-    @Test
-    public void flipped() {
-        CameraPreview.PreviewSize bestSize =
-                CameraPreview.getBestSize(0.5, true, size(1, 2), size(200, 110), size(110, 200));
-        assertEquals("110,200", bestSize.toString());
-    }
+  @Test
+  public void flipped() {
+    CameraPreview.PreviewSize bestSize =
+        CameraPreview.getBestSize(0.5, true, size(1, 2), size(200, 110), size(110, 200));
+    assertEquals("110,200", bestSize.toString());
+  }
 
-    @NonNull
-    public CameraPreview.PreviewSize size(int width, int height) {
-        return new CameraPreview.PreviewSize(width, height);
-    }
+  @NonNull
+  public CameraPreview.PreviewSize size(int width, int height) {
+    return new CameraPreview.PreviewSize(width, height);
+  }
 }

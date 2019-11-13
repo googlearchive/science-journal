@@ -20,73 +20,77 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class RecordingMetadata implements Parcelable {
-    /**
-     * "Timestamp" that indicates that recording has not started.
-     */
-    public static final int NOT_RECORDING = -1;
+  /** "Timestamp" that indicates that recording has not started. */
+  public static final int NOT_RECORDING = -1;
 
-    protected RecordingMetadata(Parcel in) {
-        mStartTime = in.readLong();
-        mRunId = in.readString();
-        mExperimentName = in.readString();
-    }
+  protected RecordingMetadata(Parcel in) {
+    startTime = in.readLong();
+    runId = in.readString();
+    experimentName = in.readString();
+  }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(mStartTime);
-        dest.writeString(mRunId);
-        dest.writeString(mExperimentName);
-    }
+  @Override
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeLong(startTime);
+    dest.writeString(runId);
+    dest.writeString(experimentName);
+  }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+  @Override
+  public int describeContents() {
+    return 0;
+  }
 
-    public static final Creator<RecordingMetadata> CREATOR = new Creator<RecordingMetadata>() {
+  public static final Creator<RecordingMetadata> CREATOR =
+      new Creator<RecordingMetadata>() {
         @Override
         public RecordingMetadata createFromParcel(Parcel in) {
-            return new RecordingMetadata(in);
+          return new RecordingMetadata(in);
         }
 
         @Override
         public RecordingMetadata[] newArray(int size) {
-            return new RecordingMetadata[size];
+          return new RecordingMetadata[size];
         }
-    };
+      };
 
-    public static long getStartTime(RecordingMetadata recording) {
-        return recording != null ? recording.getStartTime() : NOT_RECORDING;
-    }
+  public static long getStartTime(RecordingMetadata recording) {
+    return recording != null ? recording.getStartTime() : NOT_RECORDING;
+  }
 
-    private long mStartTime;
-    private String mRunId;
-    private String mExperimentName;
+  private long startTime;
+  private String runId;
+  private String experimentName;
 
-    public RecordingMetadata(long startTime, String runId, String experimentName) {
-        mStartTime = startTime;
-        mRunId = runId;
-        mExperimentName = experimentName;
-    }
+  public RecordingMetadata(long startTime, String runId, String experimentName) {
+    this.startTime = startTime;
+    this.runId = runId;
+    this.experimentName = experimentName;
+  }
 
-    public long getStartTime() {
-        return mStartTime;
-    }
+  public long getStartTime() {
+    return startTime;
+  }
 
-    public String getRunId() {
-        return mRunId;
-    }
+  public String getRunId() {
+    return runId;
+  }
 
-    public String getExperimentName() {
-        return mExperimentName;
-    }
+  public String getExperimentName() {
+    return experimentName;
+  }
 
-    @Override
-    public String toString() {
-        return "RecordingMetadata{" +
-                "mStartTime=" + mStartTime +
-                ", mRunId='" + mRunId + '\'' +
-                ", mExperimentName='" + mExperimentName + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "RecordingMetadata{"
+        + "mStartTime="
+        + startTime
+        + ", mRunId='"
+        + runId
+        + '\''
+        + ", mExperimentName='"
+        + experimentName
+        + '\''
+        + '}';
+  }
 }

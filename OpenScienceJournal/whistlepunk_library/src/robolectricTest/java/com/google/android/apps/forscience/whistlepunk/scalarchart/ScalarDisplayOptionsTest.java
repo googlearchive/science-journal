@@ -19,32 +19,27 @@ package com.google.android.apps.forscience.whistlepunk.scalarchart;
 import static org.junit.Assert.assertEquals;
 
 import android.os.Bundle;
-
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ScalarDisplayOptionsTest {
-    @Test
-    public void testAsBundle() {
-        final ScalarDisplayOptions options = new ScalarDisplayOptions();
-        float smoothness = Arbitrary.singleFloat();
-        int window = Arbitrary.integer();
-        int blurType = ScalarDisplayOptions.BLUR_TYPE_AVERAGE;
-        float sigma = Arbitrary.singleFloat();
+  @Test
+  public void testAsBundle() {
+    final ScalarDisplayOptions options = new ScalarDisplayOptions();
+    float smoothness = Arbitrary.singleFloat();
+    int window = Arbitrary.integer();
+    int blurType = ScalarDisplayOptions.BLUR_TYPE_AVERAGE;
+    float sigma = Arbitrary.singleFloat();
 
-        options.updateLineSettings(smoothness, window, blurType, sigma);
-        final Bundle bundle = options.asBundle();
+    options.updateLineSettings(smoothness, window, blurType, sigma);
+    final Bundle bundle = options.asBundle();
 
-        assertEquals(smoothness, bundle.getFloat(ScalarDisplayOptions.PREFS_KEY_SMOOTHNESS), 0.1f);
-        assertEquals(window, bundle.getInt(ScalarDisplayOptions.PREFS_KEY_WINDOW));
-        assertEquals(blurType, bundle.getInt(ScalarDisplayOptions.PREFS_KEY_BLUR_TYPE));
-        assertEquals(sigma, bundle.getFloat(ScalarDisplayOptions.PREFS_KEY_GAUSSIAN_SIGMA), 0.1f);
-    }
+    assertEquals(smoothness, bundle.getFloat(ScalarDisplayOptions.PREFS_KEY_SMOOTHNESS), 0.1f);
+    assertEquals(window, bundle.getInt(ScalarDisplayOptions.PREFS_KEY_WINDOW));
+    assertEquals(blurType, bundle.getInt(ScalarDisplayOptions.PREFS_KEY_BLUR_TYPE));
+    assertEquals(sigma, bundle.getFloat(ScalarDisplayOptions.PREFS_KEY_GAUSSIAN_SIGMA), 0.1f);
+  }
 }

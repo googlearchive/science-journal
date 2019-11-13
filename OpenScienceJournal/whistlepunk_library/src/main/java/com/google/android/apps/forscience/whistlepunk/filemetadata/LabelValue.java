@@ -15,35 +15,29 @@
  */
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.LabelValuePojo;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * Interprets a label
- */
-// TODO: This will be deprecated. Rename to LegacyLabelValue, and rename classes that inherit
-// from it as well.
+/** Interprets a label */
+// TODO(b/139426335): Rename to LegacyLabelValue, and rename classes that inherit from it as well.
 @Deprecated
 public abstract class LabelValue {
-    GoosciLabelValue.LabelValue mValue;
+  LabelValuePojo value;
 
-    public LabelValue(GoosciLabelValue.LabelValue value) {
-        mValue = value;
-    }
+  public LabelValue(LabelValuePojo value) {
+    this.value = value;
+  }
 
-    public LabelValue() {
-        mValue = new GoosciLabelValue.LabelValue();
-    }
+  public LabelValue() {
+    value = new LabelValuePojo();
+  }
 
-    public GoosciLabelValue.LabelValue getValue() {
-        return mValue;
-    }
+  public LabelValuePojo getValue() {
+    return value;
+  }
 
-    protected void setValue(GoosciLabelValue.LabelValue value) {
-        mValue = value;
-    }
+  protected void setValue(LabelValuePojo value) {
+    this.value = value;
+  }
 
-    public abstract boolean canEditTimestamp();
+  public abstract boolean canEditTimestamp();
 }

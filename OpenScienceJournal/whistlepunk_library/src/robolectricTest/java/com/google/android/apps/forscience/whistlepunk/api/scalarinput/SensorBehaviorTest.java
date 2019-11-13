@@ -18,32 +18,27 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import static org.junit.Assert.assertEquals;
 
 import android.os.Parcel;
-
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class SensorBehaviorTest {
-    @Test
-    public void testRoundTripWithFrequency() {
-        SensorBehavior sb = new SensorBehavior();
+  @Test
+  public void testRoundTripWithFrequency() {
+    SensorBehavior sb = new SensorBehavior();
 
-        sb.shouldShowSettingsOnConnect = Arbitrary.bool();
-        sb.loggingId = Arbitrary.string();
-        sb.expectedSamplesPerSecond = Arbitrary.singleFloat();
+    sb.shouldShowSettingsOnConnect = Arbitrary.bool();
+    sb.loggingId = Arbitrary.string();
+    sb.expectedSamplesPerSecond = Arbitrary.singleFloat();
 
-        Parcel parcel = Parcel.obtain();
-        sb.writeToParcel(parcel, 0);
-        parcel.setDataPosition(0);
-        SensorBehavior clone = SensorBehavior.CREATOR.createFromParcel(parcel);
-        assertEquals(sb.shouldShowSettingsOnConnect, clone.shouldShowSettingsOnConnect);
-        assertEquals(sb.loggingId, clone.loggingId);
-        assertEquals(sb.expectedSamplesPerSecond, clone.expectedSamplesPerSecond, 0.001);
-    }
+    Parcel parcel = Parcel.obtain();
+    sb.writeToParcel(parcel, 0);
+    parcel.setDataPosition(0);
+    SensorBehavior clone = SensorBehavior.CREATOR.createFromParcel(parcel);
+    assertEquals(sb.shouldShowSettingsOnConnect, clone.shouldShowSettingsOnConnect);
+    assertEquals(sb.loggingId, clone.loggingId);
+    assertEquals(sb.expectedSamplesPerSecond, clone.expectedSamplesPerSecond, 0.001);
+  }
 }

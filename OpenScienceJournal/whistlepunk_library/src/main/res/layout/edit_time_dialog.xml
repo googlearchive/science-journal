@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<android.support.v7.widget.CardView
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -57,13 +57,12 @@
             android:id="@+id/submit_button"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_check_white_24dp"
             android:scaleType="center"
             android:elevation="2dp"
             android:contentDescription="@android:string/ok"
-            android:background="@drawable/select_button_background"
+            android:background="@drawable/blue_circle_with_checkmark"
             />
 
     </RelativeLayout>
 
-</android.support.v7.widget.CardView>
+</androidx.cardview.widget.CardView>

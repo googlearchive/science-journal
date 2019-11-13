@@ -16,40 +16,38 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.common.base.Preconditions;
 
 public class DelegatingSensorRecorder implements SensorRecorder {
-    private final SensorRecorder mDelegate;
+  private final SensorRecorder delegate;
 
-    public DelegatingSensorRecorder(SensorRecorder delegate) {
-        mDelegate = Preconditions.checkNotNull(delegate);
-    }
+  public DelegatingSensorRecorder(SensorRecorder delegate) {
+    this.delegate = Preconditions.checkNotNull(delegate);
+  }
 
-    public void startObserving() {
-        mDelegate.startObserving();
-    }
+  public void startObserving() {
+    delegate.startObserving();
+  }
 
-    public void startRecording(String runId) {
-        mDelegate.startRecording(runId);
-    }
+  public void startRecording(String runId) {
+    delegate.startRecording(runId);
+  }
 
-    public void applyOptions(ReadableSensorOptions settings) {
-        mDelegate.applyOptions(settings);
-    }
+  public void applyOptions(ReadableSensorOptions settings) {
+    delegate.applyOptions(settings);
+  }
 
-    public void stopRecording(Trial trialToUpdate) {
-        mDelegate.stopRecording(trialToUpdate);
-    }
+  public void stopRecording(Trial trialToUpdate) {
+    delegate.stopRecording(trialToUpdate);
+  }
 
-    public void stopObserving() {
-        mDelegate.stopObserving();
-    }
+  public void stopObserving() {
+    delegate.stopObserving();
+  }
 
-    @Override
-    public boolean hasRecordedData() {
-        return mDelegate.hasRecordedData();
-    }
+  @Override
+  public boolean hasRecordedData() {
+    return delegate.hasRecordedData();
+  }
 }

@@ -21,7 +21,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
@@ -31,56 +30,54 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
-/**
- * Class to get sensor data from the Ambient Temperature sensor.
- */
+/** Class to get sensor data from the Ambient Temperature sensor. */
 public class AmbientTemperatureSensor extends ScalarSensor {
-    public static final String ID = "AmbientTemperatureSensor";
-    private SensorEventListener mSensorEventListener;
+  public static final String ID = "AmbientTemperatureSensor";
+  private SensorEventListener sensorEventListener;
 
-    public AmbientTemperatureSensor() {
-        super(ID);
-    }
+  public AmbientTemperatureSensor() {
+    super(ID);
+  }
 
-    @Override
-    protected SensorRecorder makeScalarControl(final StreamConsumer c,
-            final SensorEnvironment environment, final Context context,
-            final SensorStatusListener listener) {
-        return new AbstractSensorRecorder() {
-            @Override
-            public void startObserving() {
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
-                SensorManager sensorManager = getSensorManager(context);
-                Sensor sensor = sensorManager.getDefaultSensor(
-                        Sensor.TYPE_AMBIENT_TEMPERATURE);
-                if (mSensorEventListener != null) {
-                    getSensorManager(context).unregisterListener(mSensorEventListener);
-                }
-                final Clock clock = environment.getDefaultClock();
-                mSensorEventListener = new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        c.addData(clock.getNow(), event.values[0]);
-                    }
+  @Override
+  protected SensorRecorder makeScalarControl(
+      final StreamConsumer c,
+      final SensorEnvironment environment,
+      final Context context,
+      final SensorStatusListener listener) {
+    return new AbstractSensorRecorder() {
+      @Override
+      public void startObserving() {
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+        SensorManager sensorManager = getSensorManager(context);
+        Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
+        }
+        final Clock clock = environment.getDefaultClock();
+        sensorEventListener =
+            new SensorEventListener() {
+              @Override
+              public void onSensorChanged(SensorEvent event) {
+                c.addData(clock.getNow(), event.values[0]);
+              }
 
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+              @Override
+              public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+            };
+        sensorManager.registerListener(
+            sensorEventListener, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+      }
 
-                    }
-                };
-                sensorManager.registerListener(mSensorEventListener, sensor,
-                        SensorManager.SENSOR_DELAY_NORMAL);
-            }
+      @Override
+      public void stopObserving() {
+        getSensorManager(context).unregisterListener(sensorEventListener);
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
+      }
+    };
+  }
 
-            @Override
-            public void stopObserving() {
-                getSensorManager(context).unregisterListener(mSensorEventListener);
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
-            }
-        };
-    }
-
-    public static boolean isAmbientTemperatureSensorAvailable(AvailableSensors availableSensors) {
-        return availableSensors.isSensorAvailable(Sensor.TYPE_AMBIENT_TEMPERATURE);
-    }
+  public static boolean isAmbientTemperatureSensorAvailable(AvailableSensors availableSensors) {
+    return availableSensors.isSensorAvailable(Sensor.TYPE_AMBIENT_TEMPERATURE);
+  }
 }

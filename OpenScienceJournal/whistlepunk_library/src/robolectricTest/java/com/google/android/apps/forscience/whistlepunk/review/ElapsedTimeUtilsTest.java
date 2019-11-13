@@ -18,84 +18,79 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeUtils;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-/**
- * Test for the elapsed time utils class.
- */
+/** Test for the elapsed time utils class. */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ElapsedTimeUtilsTest {
-    private static final long MS_IN_HOUR = ElapsedTimeUtils.SEC_IN_MIN *
-            ElapsedTimeUtils.MIN_IN_HOUR * ElapsedTimeUtils.MS_IN_SEC;
-    @Test
-    public void testGetHours() {
-        int hours = 3;
-        long ms = hours * MS_IN_HOUR;
-        assertEquals(hours, ElapsedTimeUtils.getHours(ms));
+  private static final long MS_IN_HOUR =
+      ElapsedTimeUtils.SEC_IN_MIN * ElapsedTimeUtils.MIN_IN_HOUR * ElapsedTimeUtils.MS_IN_SEC;
 
-        // Three hours, 1 ms
-        ms += 1;
-        assertEquals(hours, ElapsedTimeUtils.getHours(ms));
+  @Test
+  public void testGetHours() {
+    int hours = 3;
+    long ms = hours * MS_IN_HOUR;
+    assertEquals(hours, ElapsedTimeUtils.getHours(ms));
 
-        // Three hours, 1 second, 1 ms
-        ms += ElapsedTimeUtils.MS_IN_SEC;
-        assertEquals(hours, ElapsedTimeUtils.getHours(ms));
+    // Three hours, 1 ms
+    ms += 1;
+    assertEquals(hours, ElapsedTimeUtils.getHours(ms));
 
-        // Three hours, 1 minute, 1 second, 1 ms
-        ms += ElapsedTimeUtils.MS_IN_SEC * 60;
-        assertEquals(hours, ElapsedTimeUtils.getHours(ms));
-    }
+    // Three hours, 1 second, 1 ms
+    ms += ElapsedTimeUtils.MS_IN_SEC;
+    assertEquals(hours, ElapsedTimeUtils.getHours(ms));
 
-    @Test
-    public void testGetMinutes() {
-        int hours = 3;
-        long ms = hours * MS_IN_HOUR;
-        assertEquals(0, ElapsedTimeUtils.getMins(ms, hours));
+    // Three hours, 1 minute, 1 second, 1 ms
+    ms += ElapsedTimeUtils.MS_IN_SEC * 60;
+    assertEquals(hours, ElapsedTimeUtils.getHours(ms));
+  }
 
-        // Three hours, 1 ms
-        ms += 1;
-        assertEquals(hours, ElapsedTimeUtils.getHours(ms));
-        assertEquals(0, ElapsedTimeUtils.getMins(ms, hours));
+  @Test
+  public void testGetMinutes() {
+    int hours = 3;
+    long ms = hours * MS_IN_HOUR;
+    assertEquals(0, ElapsedTimeUtils.getMins(ms, hours));
 
-        // Three hours, 1 second, 1 ms
-        ms += ElapsedTimeUtils.MS_IN_SEC;
-        assertEquals(0, ElapsedTimeUtils.getMins(ms, hours));
+    // Three hours, 1 ms
+    ms += 1;
+    assertEquals(hours, ElapsedTimeUtils.getHours(ms));
+    assertEquals(0, ElapsedTimeUtils.getMins(ms, hours));
 
-        // Three hours, 1 minute, 1 second, 1 ms
-        ms += ElapsedTimeUtils.MS_IN_SEC * 60;
-        assertEquals(1, ElapsedTimeUtils.getMins(ms, hours));
+    // Three hours, 1 second, 1 ms
+    ms += ElapsedTimeUtils.MS_IN_SEC;
+    assertEquals(0, ElapsedTimeUtils.getMins(ms, hours));
 
-        // Three hours, 2 minutes, 1 second, 1 ms
-        ms += ElapsedTimeUtils.MS_IN_SEC * 60;
-        assertEquals(2, ElapsedTimeUtils.getMins(ms, hours));
-    }
+    // Three hours, 1 minute, 1 second, 1 ms
+    ms += ElapsedTimeUtils.MS_IN_SEC * 60;
+    assertEquals(1, ElapsedTimeUtils.getMins(ms, hours));
 
-    @Test
-    public void testGetSecs() {
-        int hours = 3;
-        long ms = hours * MS_IN_HOUR;
-        assertEquals(0, ElapsedTimeUtils.getSecs(ms, hours, 0));
+    // Three hours, 2 minutes, 1 second, 1 ms
+    ms += ElapsedTimeUtils.MS_IN_SEC * 60;
+    assertEquals(2, ElapsedTimeUtils.getMins(ms, hours));
+  }
 
-        // Three hours, 1 ms
-        ms += 1;
-        assertEquals(hours, ElapsedTimeUtils.getHours(ms));
-        assertEquals(0, ElapsedTimeUtils.getSecs(ms, hours, 0));
+  @Test
+  public void testGetSecs() {
+    int hours = 3;
+    long ms = hours * MS_IN_HOUR;
+    assertEquals(0, ElapsedTimeUtils.getSecs(ms, hours, 0));
 
-        // Three hours, 1 second, 1 ms
-        ms += ElapsedTimeUtils.MS_IN_SEC;
-        assertEquals(1, ElapsedTimeUtils.getSecs(ms, hours, 0));
+    // Three hours, 1 ms
+    ms += 1;
+    assertEquals(hours, ElapsedTimeUtils.getHours(ms));
+    assertEquals(0, ElapsedTimeUtils.getSecs(ms, hours, 0));
 
-        // Three hours, 1 minute, 1 second, 1 ms
-        ms += ElapsedTimeUtils.MS_IN_SEC * 60;
-        assertEquals(1, ElapsedTimeUtils.getSecs(ms, hours, 1));
+    // Three hours, 1 second, 1 ms
+    ms += ElapsedTimeUtils.MS_IN_SEC;
+    assertEquals(1, ElapsedTimeUtils.getSecs(ms, hours, 0));
 
-        assertEquals(4, ElapsedTimeUtils.getSecs(4200, 0, 0));
-    }
+    // Three hours, 1 minute, 1 second, 1 ms
+    ms += ElapsedTimeUtils.MS_IN_SEC * 60;
+    assertEquals(1, ElapsedTimeUtils.getSecs(ms, hours, 1));
+
+    assertEquals(4, ElapsedTimeUtils.getSecs(4200, 0, 0));
+  }
 }

@@ -18,64 +18,58 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
 
 public class RecordingStatus {
-    public static final RecordingStatus UNCONNECTED =
-            new RecordingStatus(RecordingState.UNCONNECTED, null);
-    public static final RecordingStatus INACTIVE =
-            new RecordingStatus(RecordingState.INACTIVE, null);
-    public static RecordingStatus active(RecordingMetadata recording) {
-        return new RecordingStatus(RecordingState.ACTIVE, recording);
-    }
+  public static final RecordingStatus UNCONNECTED =
+      new RecordingStatus(RecordingState.UNCONNECTED, null);
+  public static final RecordingStatus INACTIVE = new RecordingStatus(RecordingState.INACTIVE, null);
 
-    public final RecordingState state;
-    public final RecordingMetadata currentRecording;
-    public final boolean userInitiated;
+  public static RecordingStatus active(RecordingMetadata recording) {
+    return new RecordingStatus(RecordingState.ACTIVE, recording);
+  }
 
-    private RecordingStatus(RecordingState state, RecordingMetadata metadata) {
-        this(state, metadata, true);
-    }
+  public final RecordingState state;
+  public final RecordingMetadata currentRecording;
+  public final boolean userInitiated;
 
-    private RecordingStatus(RecordingState state, RecordingMetadata metadata,
-            boolean userInitiated) {
-        this.state = state;
-        this.currentRecording = metadata;
-        this.userInitiated = userInitiated;
-    }
+  private RecordingStatus(RecordingState state, RecordingMetadata metadata) {
+    this(state, metadata, true);
+  }
 
-    public boolean isRecording() {
-        return currentRecording != null;
-    }
+  private RecordingStatus(RecordingState state, RecordingMetadata metadata, boolean userInitiated) {
+    this.state = state;
+    this.currentRecording = metadata;
+    this.userInitiated = userInitiated;
+  }
 
-    public String getCurrentRunId() {
-        return isRecording() ? currentRecording.getRunId() : RecorderController
-                .NOT_RECORDING_RUN_ID;
-    }
+  public boolean isRecording() {
+    return currentRecording != null;
+  }
 
-    public RecordingStatus withState(RecordingState newState) {
-        return new RecordingStatus(newState, currentRecording);
-    }
+  public String getCurrentRunId() {
+    return isRecording() ? currentRecording.getRunId() : RecorderController.NOT_RECORDING_RUN_ID;
+  }
 
-    public RecordingStatus withState(RecordingState newState, boolean userInitiated) {
-        return new RecordingStatus(newState, currentRecording, userInitiated);
-    }
+  public RecordingStatus withState(RecordingState newState) {
+    return new RecordingStatus(newState, currentRecording);
+  }
 
-    public RecordingStatus inStableRecordingState() {
-        return isRecording() ? withState(RecordingState.ACTIVE) : withState(
-                RecordingState.INACTIVE);
-    }
+  public RecordingStatus withState(RecordingState newState, boolean userInitiated) {
+    return new RecordingStatus(newState, currentRecording, userInitiated);
+  }
 
-    public long getRecordingStartTime() {
-        return RecordingMetadata.getStartTime(currentRecording);
-    }
+  public RecordingStatus inStableRecordingState() {
+    return isRecording() ? withState(RecordingState.ACTIVE) : withState(RecordingState.INACTIVE);
+  }
 
-    @Override
-    public String toString() {
-        return "RecordingStatus{" +
-               "state=" + state +
-               ", currentRecording=" + currentRecording +
-               '}';
-    }
+  public long getRecordingStartTime() {
+    return RecordingMetadata.getStartTime(currentRecording);
+  }
 
-    public String getTrialId() {
-        return currentRecording != null ? currentRecording.getRunId() : null;
-    }
+  @Override
+  public String toString() {
+    return "RecordingStatus{" + "state=" + state + ", currentRecording=" + currentRecording + '}';
+  }
+
+  public String getTrialId() {
+    return currentRecording != null ? currentRecording.getRunId() : null;
+  }
 }

@@ -17,51 +17,63 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon.IconPath.PathType;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorTypeProvider;
-import com.google.common.base.Preconditions;
 
-/**
- * Subclass of {@link BuiltInSensorAppearance} which includes the external device name.
- */
+/** Subclass of {@link BuiltInSensorAppearance} which includes the external device name. */
 public class ExternalSensorAppearance extends BuiltInSensorAppearance {
 
-    private String mDeviceName;
-    private final int mKind;
+  private String deviceName;
+  private final int kind;
 
+  public ExternalSensorAppearance(
+      int nameStringId,
+      int drawableId,
+      int unitsStringId,
+      int shortDescriptionId,
+      int firstParagraphStringId,
+      int secondParagraphStringId,
+      int infoDrawableId,
+      SensorAnimationBehavior sensorAnimationBehavior,
+      String deviceName,
+      @SensorTypeProvider.SensorKind int kind) {
+    // TODO: handle icons for external sensors better
+    super(
+        nameStringId,
+        drawableId,
+        unitsStringId,
+        shortDescriptionId,
+        firstParagraphStringId,
+        secondParagraphStringId,
+        infoDrawableId,
+        sensorAnimationBehavior,
+        BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL,
+        null);
+    this.deviceName = deviceName;
+    this.kind = kind;
+  }
 
-    public ExternalSensorAppearance(int nameStringId, int drawableId, int unitsStringId,
-            int shortDescriptionId, int firstParagraphStringId, int secondParagraphStringId,
-            int infoDrawableId, SensorAnimationBehavior sensorAnimationBehavior,
-            String deviceName, @SensorTypeProvider.SensorKind int kind) {
-        // TODO: handle icons for external sensors better
-        super(nameStringId, drawableId, unitsStringId, shortDescriptionId, firstParagraphStringId,
-                secondParagraphStringId, infoDrawableId, sensorAnimationBehavior,
-                BuiltInSensorAppearance.DEFAULT_POINTS_AFTER_DECIMAL, null);
-        mDeviceName = deviceName;
-        mKind = kind;
-    }
+  @Override
+  public String getName(Context context) {
+    return context
+        .getResources()
+        .getString(R.string.external_sensor_appearance_name, super.getName(context), deviceName);
+  }
 
-    @Override
-    public String getName(Context context) {
-        return context.getResources().getString(R.string.external_sensor_appearance_name,
-                super.getName(context), mDeviceName);
-    }
+  @Override
+  public GoosciIcon.IconPath getSmallIconPath() {
+    return GoosciIcon.IconPath.newBuilder()
+        .setType(PathType.LEGACY_ANDROID_BLE)
+        .setPathString(String.valueOf(kind))
+        .build();
+  }
 
-    @Override
-    public GoosciIcon.IconPath getSmallIconPath() {
-        GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-        path.type = GoosciIcon.IconPath.LEGACY_ANDROID_BLE;
-        path.pathString = String.valueOf(mKind);
-        return path;
-    }
-
-    @Override
-    public GoosciIcon.IconPath getLargeIconPath() {
-        GoosciIcon.IconPath path = new GoosciIcon.IconPath();
-        path.type = GoosciIcon.IconPath.LEGACY_ANDROID_BLE;
-        path.pathString = String.valueOf(mKind);
-        return path;
-    }
+  @Override
+  public GoosciIcon.IconPath getLargeIconPath() {
+    return GoosciIcon.IconPath.newBuilder()
+        .setType(PathType.LEGACY_ANDROID_BLE)
+        .setPathString(String.valueOf(kind))
+        .build();
+  }
 }

@@ -16,35 +16,33 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import org.junit.rules.ExternalResource;
 import org.robolectric.RuntimeEnvironment;
 
-public class DevOptionsResource extends ExternalResource{
-    private boolean mRememberedPref;
+public class DevOptionsResource extends ExternalResource {
+  private boolean rememberedPref;
 
-    @Override
-    public void before() throws Exception {
-        mRememberedPref = getPrefs().getBoolean(getRememberedPrefKey(), false);
-    }
+  @Override
+  public void before() throws Exception {
+    rememberedPref = getPrefs().getBoolean(getRememberedPrefKey(), false);
+  }
 
-    @NonNull
-    protected String getRememberedPrefKey() {
-        return DevOptionsFragment.KEY_SINE_WAVE_SENSOR;
-    }
+  @NonNull
+  protected String getRememberedPrefKey() {
+    return DevOptionsFragment.KEY_SINE_WAVE_SENSOR;
+  }
 
-    @Override
-    public void after() {
-        setPrefValue(mRememberedPref);
-    }
+  @Override
+  public void after() {
+    setPrefValue(rememberedPref);
+  }
 
-    protected void setPrefValue(boolean value) {
-        getPrefs().edit().putBoolean(getRememberedPrefKey(), value).apply();
-    }
+  protected void setPrefValue(boolean value) {
+    getPrefs().edit().putBoolean(getRememberedPrefKey(), value).apply();
+  }
 
-    private SharedPreferences getPrefs() {
-        return DevOptionsFragment.getPrefs(RuntimeEnvironment.application.getApplicationContext());
-    }
-
+  private SharedPreferences getPrefs() {
+    return DevOptionsFragment.getPrefs(RuntimeEnvironment.application.getApplicationContext());
+  }
 }

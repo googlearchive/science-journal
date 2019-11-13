@@ -16,32 +16,30 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
-/**
- * Static util class for working with SensorAppearance instances
- */
+/** Static util class for working with SensorAppearance instances */
 public final class Appearances {
-    private Appearances() {
-        // prevent construction
-    }
+  private Appearances() {
+    // prevent construction
+  }
 
-    /**
-     * Not thread-safe: only call from main thread!
-     */
-    public static void applyDrawableToImageView(Drawable drawable, ImageView view, int color) {
-        drawable.mutate().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
-        view.setImageDrawable(drawable);
-    }
+  /** Not thread-safe: only call from main thread! */
+  public static void applyDrawableToImageView(Drawable drawable, ImageView view, int color) {
+    drawable.mutate().setColorFilter(color, PorterDuff.Mode.MULTIPLY);
+    view.setImageDrawable(drawable);
+  }
 
-    public static String getSensorDisplayName(SensorAppearance appearance, Context context) {
-        String units = appearance.getUnits(context);
-        return TextUtils.isEmpty(units) ?
-                appearance.getName(context) : String.format(context.getResources().getString(
-                R.string.header_name_and_units), appearance.getName(context), units);
-    }
+  public static String getSensorDisplayName(SensorAppearance appearance, Context context) {
+    String units = appearance.getUnits(context);
+    return TextUtils.isEmpty(units)
+        ? appearance.getName(context)
+        : String.format(
+            context.getResources().getString(R.string.header_name_and_units),
+            appearance.getName(context),
+            units);
+  }
 }

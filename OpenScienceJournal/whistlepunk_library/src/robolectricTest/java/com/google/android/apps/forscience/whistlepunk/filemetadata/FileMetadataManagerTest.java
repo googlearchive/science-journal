@@ -17,132 +17,203 @@
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciExperimentLibrary.ExperimentLibrary;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciLocalSyncStatus.LocalSyncStatus;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.metadata.Version;
 import com.google.android.apps.forscience.whistlepunk.sensordb.IncrementableMonotonicClock;
-
+import java.io.File;
+import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
-import java.io.File;
-
-/**
- * Tests for the FileMetadataManager class.
- */
+/** Tests for the FileMetadataManager class. */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class FileMetadataManagerTest {
 
-    @Before
-    public void setUp() {
-        cleanUp();
-    }
+  private final FileMetadataUtil fileMetadataUtil = FileMetadataUtil.getInstance();
 
-    @After
-    public void tearDown() {
-        cleanUp();
-    }
+  @Before
+  public void setUp() {
+    cleanUp();
+  }
 
-    private void cleanUp() {
-        File sharedMetadataFile = FileMetadataManager.getUserMetadataFile(
-                getContext());
-        sharedMetadataFile.delete();
-    }
+  @After
+  public void tearDown() {
+    cleanUp();
+  }
 
-    @Test
-    public void testSingleExperiment() {
-        IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
-        FileMetadataManager fmm = new FileMetadataManager(getContext(), clock);
-        Experiment experiment = fmm.newExperiment();
-        assertEquals(experiment.getCreationTimeMs(), clock.getNow());
-        assertEquals(fmm.getExperimentById(experiment.getExperimentId()).getLastUsedTime(),
-                clock.getNow());
+  private void cleanUp() {
+    File sharedMetadataFile = fileMetadataUtil.getUserMetadataFile(getAppAccount());
+    sharedMetadataFile.delete();
+  }
 
-        clock.increment();
-        fmm.setLastUsedExperiment(experiment);
-        assertEquals(fmm.getExperimentById(experiment.getExperimentId()).getLastUsedTime(),
-                clock.getNow());
+  @Test
+  public void testSingleExperiment() {
+    IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
+    FileMetadataManager fmm = new FileMetadataManager(getContext(), getAppAccount(), clock);
+    LocalSyncManager lsm =
+        AppSingleton.getInstance(getContext()).getLocalSyncManager(getAppAccount());
+    lsm.setLocalSyncStatus(LocalSyncStatus.getDefaultInstance());
+    ExperimentLibraryManager elm =
+        AppSingleton.getInstance(getContext()).getExperimentLibraryManager(getAppAccount());
+    elm.setLibrary(ExperimentLibrary.getDefaultInstance());
+    Experiment experiment = fmm.newExperiment();
+    assertEquals(experiment.getCreationTimeMs(), clock.getNow());
+    assertEquals(
+        fmm.getExperimentById(experiment.getExperimentId()).getLastUsedTime(), clock.getNow());
 
-        clock.increment();
-        experiment.setTitle("Title");
-        experiment.addLabel(Label.newLabelWithValue(clock.getNow(), GoosciLabel.Label.TEXT,
-                new GoosciTextLabelValue.TextLabelValue(), null));
-        fmm.updateExperiment(experiment);
+    clock.increment();
+    fmm.setLastUsedExperiment(experiment);
+    assertEquals(
+        fmm.getExperimentById(experiment.getExperimentId()).getLastUsedTime(), clock.getNow());
 
-        Experiment saved = fmm.getLastUsedUnarchivedExperiment();
-        assertEquals("Title", saved.getTitle());
-        assertEquals(1, saved.getLabelCount());
+    clock.increment();
+    experiment.setTitle("Title");
+    experiment.addLabel(
+        Label.newLabelWithValue(
+            clock.getNow(),
+            GoosciLabel.Label.ValueType.TEXT,
+            GoosciTextLabelValue.TextLabelValue.getDefaultInstance(),
+            null));
+    fmm.updateExperiment(experiment, true);
 
-        // Clean up
-        fmm.deleteExperiment(experiment);
-        assertNull(fmm.getExperimentById(experiment.getExperimentId()));
-    }
+    Experiment saved = fmm.getLastUsedUnarchivedExperiment();
+    assertEquals("Title", saved.getTitle());
+    assertEquals(1, saved.getLabelCount());
 
-    @Test
-    public void testMultipleExperiments() {
-        IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
-        FileMetadataManager fmm = new FileMetadataManager(getContext(), clock);
-        Experiment first = fmm.newExperiment();
-        clock.increment();
-        Experiment second = fmm.newExperiment();
-        clock.increment();
-        Experiment third = fmm.newExperiment();
-        clock.increment();
+    // Clean up
+    fmm.deleteExperiment(experiment);
+    assertNull(fmm.getExperimentById(experiment.getExperimentId()));
+  }
 
-        assertEquals(third.getExperimentId(),
-                fmm.getLastUsedUnarchivedExperiment().getExperimentId());
-        assertEquals(3, fmm.getExperimentOverviews(false).size());
+  @Test
+  public void testMultipleExperiments() {
+    IncrementableMonotonicClock clock = new IncrementableMonotonicClock();
+    FileMetadataManager fmm = new FileMetadataManager(getContext(), getAppAccount(), clock);
+    LocalSyncManager lsm =
+        AppSingleton.getInstance(getContext()).getLocalSyncManager(getAppAccount());
+    lsm.setLocalSyncStatus(LocalSyncStatus.getDefaultInstance());
+    ExperimentLibraryManager elm =
+        AppSingleton.getInstance(getContext()).getExperimentLibraryManager(getAppAccount());
+    elm.setLibrary(ExperimentLibrary.getDefaultInstance());
+    Experiment first = fmm.newExperiment();
+    clock.increment();
+    Experiment second = fmm.newExperiment();
+    clock.increment();
+    Experiment third = fmm.newExperiment();
+    clock.increment();
 
-        third.setArchived(true);
-        fmm.updateExperiment(third);
-        assertEquals(second.getExperimentId(),
-                fmm.getLastUsedUnarchivedExperiment().getExperimentId());
-        assertEquals(2, fmm.getExperimentOverviews(false).size());
+    assertEquals(third.getExperimentId(), fmm.getLastUsedUnarchivedExperiment().getExperimentId());
+    assertEquals(3, fmm.getExperimentOverviews(false).size());
 
-        // Doesn't re-use colors
-        assertTrue(first.getExperimentOverview().colorIndex !=
-                second.getExperimentOverview().colorIndex);
-        assertTrue(second.getExperimentOverview().colorIndex !=
-                third.getExperimentOverview().colorIndex);
-        assertTrue(first.getExperimentOverview().colorIndex !=
-                third.getExperimentOverview().colorIndex);
+    third.setArchived(getContext(), getAppAccount(), true);
+    elm.setArchived(third.getExperimentId(), true);
+    assertTrue(elm.isArchived(third.getExperimentId()));
+    fmm.updateExperiment(third, true);
+    assertEquals(second.getExperimentId(), fmm.getLastUsedUnarchivedExperiment().getExperimentId());
+    assertEquals(2, fmm.getExperimentOverviews(false).size());
+    assertTrue(elm.isArchived(third.getExperimentId()));
 
-        // Clean up
-        fmm.deleteExperiment(first);
-        fmm.deleteExperiment(second);
-        fmm.deleteExperiment(third);
-    }
+    // Doesn't re-use colors
+    assertTrue(
+        first.getExperimentOverview().getColorIndex()
+            != second.getExperimentOverview().getColorIndex());
+    assertTrue(
+        second.getExperimentOverview().getColorIndex()
+            != third.getExperimentOverview().getColorIndex());
+    assertTrue(
+        first.getExperimentOverview().getColorIndex()
+            != third.getExperimentOverview().getColorIndex());
 
-    @Test
-    public void testRelativePathFunctions() {
-        File file = new File(getContext().getFilesDir() +
-                "/experiments/experiment182/assets/cats.png");
-        assertEquals("assets/cats.png",
-                FileMetadataManager.getRelativePathInExperiment("experiment182", file));
+    // Clean up
+    fmm.deleteExperiment(first);
+    fmm.deleteExperiment(second);
+    fmm.deleteExperiment(third);
+  }
 
-        // No match should return an empty string.
-        assertEquals("", FileMetadataManager.getRelativePathInExperiment("experiment42", file));
+  @Test
+  public void testRelativePathFunctions() throws IOException {
+    File file =
+        new File(getAppAccount().getFilesDir() + "/experiments/experiment182/assets/cats.png");
+    assertEquals(
+        "assets/cats.png", fileMetadataUtil.getRelativePathInExperiment("experiment182", file));
 
-        File result = FileMetadataManager.getExperimentFile(getContext(),
-                "experiment182", "assets/cats.png");
-        assertEquals(file.getAbsolutePath(), result.getAbsolutePath());
+    // No match should return an empty string.
+    assertEquals("", fileMetadataUtil.getRelativePathInExperiment("experiment42", file));
 
-        assertEquals("experiments/experiment182/assets/cats.png",
-                FileMetadataManager.getRelativePathInFilesDir("experiment182", "assets/cats.png"));
-    }
+    File result =
+        fileMetadataUtil.getExperimentFile(getAppAccount(), "experiment182", "assets/cats.png");
+    assertEquals(file.getAbsolutePath(), result.getAbsolutePath());
 
-    private Context getContext() {
-        return RuntimeEnvironment.application.getApplicationContext();
-    }
+    assertEquals(
+        "experiments/experiment182/assets/cats.png",
+        fileMetadataUtil.getRelativePathInFilesDir("experiment182", "assets/cats.png").toString());
+
+    File exportDir = new File(getAppAccount().getFilesDir().toString(), "/exported_experiments");
+    assertEquals(
+        exportDir.getAbsolutePath().toString(),
+        fileMetadataUtil.getExperimentExportDirectory(getAppAccount()));
+  }
+
+  @Test
+  public void versionChecks() {
+    Version.FileVersion.Builder fileVersion =
+        Version.FileVersion.newBuilder()
+            .setVersion(1)
+            .setMinorVersion(1)
+            .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.ANDROID)
+            .setPlatformVersion(1);
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
+
+    fileVersion.setMinorVersion(2);
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
+
+    fileVersion.setMinorVersion(3);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
+
+    fileVersion.setVersion(2).setMinorVersion(1);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
+
+    fileVersion
+        .setPlatform(GoosciGadgetInfo.GadgetInfo.Platform.IOS)
+        .setVersion(1)
+        .setMinorVersion(1)
+        .setPlatformVersion(1);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
+
+    fileVersion.setPlatformVersion(2);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
+
+    fileVersion.setPlatformVersion(3);
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
+
+    fileVersion.setMinorVersion(2);
+    assertTrue(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
+
+    fileVersion.setMinorVersion(3);
+    assertFalse(fileMetadataUtil.canImportFromVersion(fileVersion.build()));
+  }
+
+  private static Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
+  }
 }

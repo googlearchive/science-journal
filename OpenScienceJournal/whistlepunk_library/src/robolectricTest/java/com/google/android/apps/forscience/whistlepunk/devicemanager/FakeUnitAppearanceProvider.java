@@ -22,13 +22,11 @@ import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.EmptySensorAppearance;
 
 public class FakeUnitAppearanceProvider implements SensorAppearanceProvider {
-    @Override
-    public void loadAppearances(MaybeConsumer<Success> onSuccess) {
+  @Override
+  public void loadAppearances(MaybeConsumer<Success> onSuccess) {}
 
-    }
-
-    @Override
-    public SensorAppearance getAppearance(String sensorId) {
-        return new EmptySensorAppearance();
-    }
+  @Override
+  public SensorAppearance getAppearance(String sensorId) {
+    return new EmptySensorAppearance();
+  }
 }

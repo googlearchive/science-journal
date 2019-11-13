@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Google Inc. All Rights Reserved.
+ *  Copyright 2019 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,22 +22,25 @@ option java_outer_classname = "GoosciDeviceSpec";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
+
 import "gadget_info.proto";
 
 // Proto containing information about a device that hosts sensors.  This may be
 // (a) the host device itself (phone or tablet) with internal sensors
 // (b) an Arduino running the Science Journal firmware
-// (c) an external piece of hardware (like Vernier sensor) discovered by a third-party app
+// (c) an external piece of hardware (like Vernier sensor) discovered by a
+// third-party app
 //     implementing the scalar API.
 //
-// Devices that host sensors that have been connected to are remembered as "My Devices", which
-// puts them in a special section of the Manage Sensors page to be easily found again later.
+// Devices that host sensors that have been connected to are remembered as "My
+// Devices", which puts them in a special section of the Manage Sensors page to
+// be easily found again later.
 //
 // Added in V2.
 message DeviceSpec {
-    // Provider, address, hostid, etc.
-    optional GadgetInfo info = 1;
+  // Provider, address, hostid, etc.
+  optional GadgetInfo info = 1;
 
-    // Display name
-    optional string name = 2;
+  // Display name
+  optional string name = 2;
 };

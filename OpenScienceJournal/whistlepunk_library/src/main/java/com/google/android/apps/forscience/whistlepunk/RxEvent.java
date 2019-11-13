@@ -22,7 +22,7 @@ import io.reactivex.subjects.PublishSubject;
 /**
  * Little class to allow listening to events, usually to trigger unsubscriptions to Rx streams.
  *
- * For example, if you want to observe a stream until your activity pauses, use:
+ * <p>For example, if you want to observe a stream until your activity pauses, use:
  *
  * <pre>
  * RxEvent mPause = new RxEvent();
@@ -33,26 +33,23 @@ import io.reactivex.subjects.PublishSubject;
  *     mPause.onHappened();
  * }
  * </pre>
- *
- *
- *
  */
 public class RxEvent {
-    private PublishSubject<Object> mHappenings = PublishSubject.create();
+  private PublishSubject<Object> happenings = PublishSubject.create();
 
-    public Observable<Object> happens() {
-        return mHappenings;
-    }
+  public Observable<Object> happens() {
+    return happenings;
+  }
 
-    public void onHappened() {
-        mHappenings.onNext(true);
-    }
+  public void onHappened() {
+    happenings.onNext(true);
+  }
 
-    public void onDoneHappening() {
-        mHappenings.onComplete();
-    }
+  public void onDoneHappening() {
+    happenings.onComplete();
+  }
 
-    public Completable happensNext() {
-        return happens().firstOrError().toCompletable();
-    }
+  public Completable happensNext() {
+    return happens().firstOrError().toCompletable();
+  }
 }

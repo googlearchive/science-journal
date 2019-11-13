@@ -18,15 +18,14 @@ package com.google.android.apps.forscience.whistlepunk.feedback;
 
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 
-/**
- * An object which can build up feedback to be sent for collection.
- */
+/** An object which can build up feedback to be sent for collection. */
 public interface FeedbackProvider {
+  FeedbackProvider STUB = onSuccess -> onSuccess.success(true);
 
-    /**
-     * Called when user is requesting a feedback report get created.
-     *
-     * @param onSuccess  {@code true} if feedback was successfully sent,
-     */
-    void sendFeedback(MaybeConsumer<Boolean> onSuccess);
+  /**
+   * Called when user is requesting a feedback report get created.
+   *
+   * @param onSuccess {@code true} if feedback was successfully sent,
+   */
+  void sendFeedback(MaybeConsumer<Boolean> onSuccess);
 }

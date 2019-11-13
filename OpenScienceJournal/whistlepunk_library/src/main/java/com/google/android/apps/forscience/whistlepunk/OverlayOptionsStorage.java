@@ -21,52 +21,49 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorag
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ReadableSensorOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorOptions;
 import com.google.common.collect.Sets;
-
 import java.util.Collection;
 import java.util.HashSet;
 
-/**
- * Combines two different options storage: the one provided first overrides the second one.
- */
+/** Combines two different options storage: the one provided first overrides the second one. */
 public class OverlayOptionsStorage implements NewOptionsStorage {
-    private final NewOptionsStorage mTopStorage;
-    private final NewOptionsStorage mBackingStorage;
+  private final NewOptionsStorage topStorage;
+  private final NewOptionsStorage backingStorage;
 
-    public OverlayOptionsStorage(NewOptionsStorage topStorage, NewOptionsStorage backingStorage) {
-        mTopStorage = topStorage;
-        mBackingStorage = backingStorage;
-    }
+  public OverlayOptionsStorage(NewOptionsStorage topStorage, NewOptionsStorage backingStorage) {
+    this.topStorage = topStorage;
+    this.backingStorage = backingStorage;
+  }
 
-    @Override
-    public WriteableSensorOptions load(FailureListener onFailures) {
-        final WriteableSensorOptions top = mTopStorage.load(onFailures);
-        final WriteableSensorOptions backing = mBackingStorage.load(onFailures);
+  @Override
+  public WriteableSensorOptions load(FailureListener onFailures) {
+    final WriteableSensorOptions top = topStorage.load(onFailures);
+    final WriteableSensorOptions backing = backingStorage.load(onFailures);
 
-        return new WriteableSensorOptions() {
-            @Override
-            public ReadableSensorOptions getReadOnly() {
-                final ReadableSensorOptions topRead = top.getReadOnly();
-                final ReadableSensorOptions backingRead = backing.getReadOnly();
+    return new WriteableSensorOptions() {
+      @Override
+      public ReadableSensorOptions getReadOnly() {
+        final ReadableSensorOptions topRead = top.getReadOnly();
+        final ReadableSensorOptions backingRead = backing.getReadOnly();
 
-                return new AbstractReadableSensorOptions() {
-                    @Override
-                    public String getString(String key, String defaultValue) {
-                        return topRead.getString(key, backingRead.getString(key, defaultValue));
-                    }
+        return new AbstractReadableSensorOptions() {
+          @Override
+          public String getString(String key, String defaultValue) {
+            return topRead.getString(key, backingRead.getString(key, defaultValue));
+          }
 
-                    @Override
-                    public Collection<String> getWrittenKeys() {
-                        HashSet<String> keys = Sets.newHashSet(topRead.getWrittenKeys());
-                        keys.addAll(backingRead.getWrittenKeys());
-                        return keys;
-                    }
-                };
-            }
-
-            @Override
-            public void put(String key, String value) {
-                top.put(key, value);
-            }
+          @Override
+          public Collection<String> getWrittenKeys() {
+            HashSet<String> keys = Sets.newHashSet(topRead.getWrittenKeys());
+            keys.addAll(backingRead.getWrittenKeys());
+            return keys;
+          }
         };
-    }
+      }
+
+      @Override
+      public void put(String key, String value) {
+        top.put(key, value);
+      }
+    };
+  }
 }

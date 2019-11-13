@@ -16,29 +16,28 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.v4.util.ArrayMap;
-
+import androidx.collection.ArrayMap;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance.BasicSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
-
 import java.util.Map;
 
 class ManualSensorRegistry extends SensorRegistry {
-    private Map<String, String> sensorNames = new ArrayMap<>();
+  private Map<String, String> sensorNames = new ArrayMap<>();
 
-    public ManualSensor addSensor(String id, String name) {
-        ManualSensor sensor = new ManualSensor(id, 100, 100);
-        addBuiltInSensor(sensor);
-        sensorNames.put(id, name);
-        return sensor;
-    }
+  public ManualSensor addSensor(String id, String name) {
+    ManualSensor sensor = new ManualSensor(id, 100, 100);
+    addBuiltInSensor(sensor);
+    sensorNames.put(id, name);
+    return sensor;
+  }
 
-    @Override
-    public GoosciSensorSpec.SensorSpec getSpecForId(String sensorId,
-            SensorAppearanceProvider appearanceProvider, Context context) {
-        GoosciSensorSpec.SensorSpec result =
-                super.getSpecForId(sensorId, appearanceProvider, context);
-        result.rememberedAppearance.name = sensorNames.get(sensorId);
-        return result;
-    }
+  @Override
+  public GoosciSensorSpec.SensorSpec getSpecForId(
+      String sensorId, SensorAppearanceProvider appearanceProvider, Context context) {
+    GoosciSensorSpec.SensorSpec result = super.getSpecForId(sensorId, appearanceProvider, context);
+    BasicSensorAppearance newRememberedAppearance =
+        result.getRememberedAppearance().toBuilder().setName(sensorNames.get(sensorId)).build();
+    return result.toBuilder().setRememberedAppearance(newRememberedAppearance).build();
+  }
 }

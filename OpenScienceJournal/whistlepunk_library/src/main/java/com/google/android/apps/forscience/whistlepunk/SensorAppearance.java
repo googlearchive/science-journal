@@ -17,91 +17,61 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-
-import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
-
+import io.reactivex.Single;
 import java.text.NumberFormat;
 
-import io.reactivex.Single;
-
-/**
- * How a sensor appears in the app
- */
+/** How a sensor appears in the app */
 public interface SensorAppearance {
 
-    /**
-     * The contents of the LEARN MORE screen
-     */
-    public interface LearnMoreContents {
-        /**
-         * @return the text that appears above the image
-         */
-        String getFirstParagraph();
+  /** The contents of the LEARN MORE screen */
+  public interface LearnMoreContents {
+    /** @return the text that appears above the image */
+    String getFirstParagraph();
 
-        /**
-         * @return an optional image resource that goes in the middle
-         */
-        int getDrawableResourceId();
+    /** @return an optional image resource that goes in the middle */
+    int getDrawableResourceId();
 
-        /**
-         * @return optionally, text that comes after the image in LEARN MORE
-         */
-        String getSecondParagraph();
-    }
+    /** @return optionally, text that comes after the image in LEARN MORE */
+    String getSecondParagraph();
+  }
 
-    /**
-     * @return the user-meaningful name of the sensor (localized)
-     */
-    String getName(Context context);
+  /** @return the user-meaningful name of the sensor (localized) */
+  String getName(Context context);
 
-    /**
-     * @return the units of the measurement
-     */
-    String getUnits(Context context);
+  /** @return the units of the measurement */
+  String getUnits(Context context);
 
-    /**
-     * @return the icon to be displayed in the tab drawer
-     */
-    Drawable getIconDrawable(Context context);
+  /** @return the icon to be displayed in the tab drawer */
+  Drawable getIconDrawable(Context context);
 
-    /**
-     * @return short text shown beneath the sensor in meter mode
-     */
-    String getShortDescription(Context context);
+  /** @return short text shown beneath the sensor in meter mode */
+  String getShortDescription(Context context);
 
-    /**
-     * @return the behavior that the big icon should display in meter mode
-     */
-    SensorAnimationBehavior getSensorAnimationBehavior();
+  /** @return the behavior that the big icon should display in meter mode */
+  SensorAnimationBehavior getSensorAnimationBehavior();
 
-    /**
-     * @return how should numbers be formatted for on-screen display?
-     */
-    NumberFormat getNumberFormat();
+  /** @return how should numbers be formatted for on-screen display? */
+  NumberFormat getNumberFormat();
 
-    /**
-     * Get the raw number of recommended points to be displayed after the decimal.
-     */
-    int getPointsAfterDecimal();
+  /** Get the raw number of recommended points to be displayed after the decimal. */
+  int getPointsAfterDecimal();
 
-    boolean hasLearnMore();
+  boolean hasLearnMore();
 
-    Single<LearnMoreContents> loadLearnMore(Context context);
+  Single<LearnMoreContents> loadLearnMore(Context context);
 
-    /**
-     * @return the tab-sized icon path proto to store for runs, snapshots, and trigger notes
-     * containing this sensor.
-     *
-     * See icon_path.proto for the semantics of the returned proto.
-     */
-    GoosciIcon.IconPath getSmallIconPath();
+  /**
+   * @return the tab-sized icon path proto to store for runs, snapshots, and trigger notes
+   *     containing this sensor.
+   *     <p>See icon_path.proto for the semantics of the returned proto.
+   */
+  GoosciIcon.IconPath getSmallIconPath();
 
-    /**
-     * @return the large detail-view icon path proto to store for runs, snapshots, and trigger
-     * notes containing this sensor.
-     *
-     * See icon_path.proto for the semantics of the returned proto.
-     */
-    GoosciIcon.IconPath getLargeIconPath();
+  /**
+   * @return the large detail-view icon path proto to store for runs, snapshots, and trigger notes
+   *     containing this sensor.
+   *     <p>See icon_path.proto for the semantics of the returned proto.
+   */
+  GoosciIcon.IconPath getLargeIconPath();
 }

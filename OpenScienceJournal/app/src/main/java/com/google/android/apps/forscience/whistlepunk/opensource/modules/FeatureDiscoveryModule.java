@@ -17,30 +17,26 @@
 package com.google.android.apps.forscience.whistlepunk.opensource.modules;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
-
+import androidx.fragment.app.FragmentActivity;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.featurediscovery.FeatureDiscoveryProvider;
-
 import dagger.Module;
 import dagger.Provides;
 
-/**
- * Stub feature discovery module which does nothing.
- */
+/** Stub feature discovery module which does nothing. */
 @Module
 public class FeatureDiscoveryModule {
-    @Provides
-    public FeatureDiscoveryProvider provideFeatureDiscoveryProvider() {
-        return new FeatureDiscoveryProvider() {
-            @Override
-            public boolean isEnabled(Context context, String feature) {
-                return false;
-            }
+  @Provides
+  public FeatureDiscoveryProvider provideFeatureDiscoveryProvider() {
+    return new FeatureDiscoveryProvider() {
+      @Override
+      public boolean isEnabled(Context context, AppAccount appAccount, String feature) {
+        return false;
+      }
 
-            @Override
-            public void show(FragmentActivity activity, String feature, String tag) {
-
-            }
-        };
-    }
+      @Override
+      public void show(
+          FragmentActivity activity, AppAccount appAccount, String feature, String tag) {}
+    };
+  }
 }

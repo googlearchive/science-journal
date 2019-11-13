@@ -16,83 +16,91 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
-
+import androidx.loader.content.AsyncTaskLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Asynchronous photo loader tool to get photos from the gallery.
- * Inspired by https://github.com/rexstjohn/UltimateAndroidCameraGuide/
+ * Asynchronous photo loader tool to get photos from the gallery. Inspired by
+ * https://github.com/rexstjohn/UltimateAndroidCameraGuide/
  */
 class PhotoAsyncLoader extends AsyncTaskLoader<List<PhotoAsyncLoader.Image>> {
 
-    public class Image {
-        public String path;
-        public long timestampTaken;
+  public class Image {
+    public String path;
+    public long timestampTaken;
 
-        public Image(String path, long timestampTaken) {
-            this.path = path;
-            this.timestampTaken = timestampTaken;
-        }
+    public Image(String path, long timestampTaken) {
+      this.path = path;
+      this.timestampTaken = timestampTaken;
     }
+  }
 
-    private List<Image> mItems;
+  private List<Image> items;
 
-    public PhotoAsyncLoader(Context context) {
-        super(context);
+  public PhotoAsyncLoader(Context context) {
+    super(context);
+  }
+
+  @Override
+  protected void onStartLoading() {
+    // Don't reload if we already have the result.
+    if (items != null && items.size() > 0) {
+      deliverResult(items);
+    } else {
+      forceLoad();
     }
+  }
 
-    @Override
-    protected void onStartLoading() {
-        // Don't reload if we already have the result.
-        if (mItems != null && mItems.size() > 0) {
-            deliverResult(mItems);
-        } else {
-            forceLoad();
-        }
+  @Override
+  public List<Image> loadInBackground() {
+    // TODO: Maybe add date taken to results for content description
+    try (Cursor cursor = getCursor()) {
+      // Cursor can return as null in some situations
+      if (cursor == null) {
+        return Collections.emptyList();
+      }
+
+      items = new ArrayList<>(cursor.getCount());
+
+      if (cursor.moveToFirst()) {
+        do {
+          items.add(new Image(uriToFullImage(cursor), timestampCreated(cursor)));
+        } while (cursor.moveToNext());
+      }
     }
+    return items;
+  }
 
-    @Override
-    public List<Image> loadInBackground() {
-        // TODO: Maybe add date taken to results for content description
-        final String[] projection = {MediaStore.Images.Media.DATA,
-                MediaStore.Images.Media._ID, MediaStore.Images.ImageColumns.DATE_TAKEN};
-        String sortOrder = MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC";
+  private Cursor getCursor() {
+    final String[] projection = {
+      MediaStore.Images.Media.DATA,
+      MediaStore.Images.Media._ID,
+      MediaStore.Images.ImageColumns.DATE_TAKEN
+    };
+    String sortOrder = MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC";
+    return getContext()
+        .getContentResolver()
+        .query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection, // Which columns to return
+            null, // Return all rows
+            null,
+            sortOrder); // In order of date taken
+  }
 
-        Cursor cursor = getContext().getContentResolver().query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projection, // Which columns to return
-                null,       // Return all rows
-                null,
-                sortOrder); // In order of date taken
+  /** Get the path to the full image for a given thumbnail. */
+  private static String uriToFullImage(Cursor mediaCursor) {
+    String filePath = "file://" + mediaCursor.getString(0);
+    return filePath;
+  }
 
-        mItems = new ArrayList<>(cursor.getCount());
-
-        if (cursor.moveToFirst()) {
-            do {
-                mItems.add(new Image(uriToFullImage(cursor), timestampCreated(cursor)));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return mItems;
-    }
-
-    /**
-     * Get the path to the full image for a given thumbnail.
-     */
-    private static String uriToFullImage(Cursor mediaCursor) {
-        String filePath = "file://" + mediaCursor.getString(0);
-        return filePath;
-    }
-
-    /**
-     * Gets the timestamp created for a given thumbnail.
-     */
-    private static long timestampCreated(Cursor mediaCursor) {
-        return mediaCursor.getLong(2);
-    }
+  /** Gets the timestamp created for a given thumbnail. */
+  private static long timestampCreated(Cursor mediaCursor) {
+    return mediaCursor.getLong(2);
+  }
 }

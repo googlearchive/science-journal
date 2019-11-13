@@ -16,43 +16,29 @@
 
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 
-/**
- * SensorRecorder with stub methods
- */
+/** SensorRecorder with stub methods */
 public class AbstractSensorRecorder implements SensorRecorder {
-    // TODO: most sensors need to prune observation data
+  // TODO: most sensors need to prune observation data
 
-    @Override
-    public void startObserving() {
+  @Override
+  public void startObserving() {}
 
-    }
+  @Override
+  public void startRecording(String runId) {}
 
-    @Override
-    public void startRecording(String runId) {
+  @Override
+  public void stopRecording(Trial trialToUpdate) {}
 
-    }
+  @Override
+  public void stopObserving() {}
 
-    @Override
-    public void stopRecording(Trial trialToUpdate) {
+  @Override
+  public boolean hasRecordedData() {
+    return false;
+  }
 
-    }
-
-    @Override
-    public void stopObserving() {
-
-    }
-
-    @Override
-    public boolean hasRecordedData() {
-        return false;
-    }
-
-    @Override
-    public void applyOptions(ReadableSensorOptions settings) {
-
-    }
+  @Override
+  public void applyOptions(ReadableSensorOptions settings) {}
 }

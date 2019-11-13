@@ -17,9 +17,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/title_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -27,8 +28,16 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         android:minHeight="@dimen/accessibility_touch_target_min_size"
-        android:hint="@string/experiment_title_hint"
-        android:id="@+id/title"
-        />
+        app:errorEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/experiment_title_hint"
+            android:id="@+id/title"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </FrameLayout>
+

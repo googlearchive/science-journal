@@ -21,7 +21,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
 import com.google.android.apps.forscience.javalib.DataRefresher;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
@@ -33,72 +32,71 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
 /**
- * Class to get sensor data from the Ambient Light sensor.
- * This uses a DataRefresher to send the data to deal with low frequency of SensorEvent.
- * This sensor does not send onSensorChanged events very frequently, leading to the graph being
- * updated infrequently and then jumping when it does get an update without a refresher.
+ * Class to get sensor data from the Ambient Light sensor. This uses a DataRefresher to send the
+ * data to deal with low frequency of SensorEvent. This sensor does not send onSensorChanged events
+ * very frequently, leading to the graph being updated infrequently and then jumping when it does
+ * get an update without a refresher.
  */
 public class AmbientLightSensor extends ScalarSensor {
-    public static final String ID = "AmbientLightSensor";
-    private final SystemScheduler mScheduler = new SystemScheduler();
-    private SensorEventListener mSensorEventListener;
-    private DataRefresher mDataRefresher;
+  public static final String ID = "AmbientLightSensor";
+  private final SystemScheduler scheduler = new SystemScheduler();
+  private SensorEventListener sensorEventListener;
+  private DataRefresher dataRefresher;
 
-    public AmbientLightSensor() {
-        super(ID);
-    }
+  public AmbientLightSensor() {
+    super(ID);
+  }
 
-    @Override
-    protected SensorRecorder makeScalarControl(final StreamConsumer c,
-            final SensorEnvironment environment, final Context context,
-            final SensorStatusListener listener) {
-        return new AbstractSensorRecorder() {
-            @Override
-            public void startObserving() {
-                mDataRefresher = new DataRefresher(mScheduler, environment.getDefaultClock());
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
-                SensorManager sensorManager = getSensorManager(context);
-                Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-                if (mSensorEventListener != null) {
-                    getSensorManager(context).unregisterListener(mSensorEventListener);
-                }
-                mSensorEventListener = new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        // values[0] is the ambient light level in SI lux units.
-                        mDataRefresher.setValue(event.values[0]);
-                        mDataRefresher.startStreaming();
-                    }
+  @Override
+  protected SensorRecorder makeScalarControl(
+      final StreamConsumer c,
+      final SensorEnvironment environment,
+      final Context context,
+      final SensorStatusListener listener) {
+    return new AbstractSensorRecorder() {
+      @Override
+      public void startObserving() {
+        dataRefresher = new DataRefresher(scheduler, environment.getDefaultClock());
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+        SensorManager sensorManager = getSensorManager(context);
+        Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
+        }
+        sensorEventListener =
+            new SensorEventListener() {
+              @Override
+              public void onSensorChanged(SensorEvent event) {
+                // values[0] is the ambient light level in SI lux units.
+                dataRefresher.setValue(event.values[0]);
+                dataRefresher.startStreaming();
+              }
 
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+              @Override
+              public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+            };
+        sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_UI);
+        dataRefresher.setStreamConsumer(c);
+      }
 
-                    }
-                };
-                sensorManager.registerListener(mSensorEventListener, sensor,
-                        SensorManager.SENSOR_DELAY_UI);
-                mDataRefresher.setStreamConsumer(c);
+      @Override
+      public void stopObserving() {
+        getSensorManager(context).unregisterListener(sensorEventListener);
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
+        if (dataRefresher != null) {
+          dataRefresher.stopStreaming();
+          dataRefresher = null;
+        }
+      }
 
-            }
+      @Override
+      public void applyOptions(ReadableSensorOptions settings) {
+        // do nothing, no settings apply to collection
+      }
+    };
+  }
 
-            @Override
-            public void stopObserving() {
-                getSensorManager(context).unregisterListener(mSensorEventListener);
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
-                if (mDataRefresher != null) {
-                    mDataRefresher.stopStreaming();
-                    mDataRefresher = null;
-                }
-            }
-
-            @Override
-            public void applyOptions(ReadableSensorOptions settings) {
-                // do nothing, no settings apply to collection
-            }
-        };
-    }
-
-    public static boolean isAmbientLightAvailable(AvailableSensors availableSensors) {
-        return availableSensors.isSensorAvailable(Sensor.TYPE_LIGHT);
-    }
+  public static boolean isAmbientLightAvailable(AvailableSensors availableSensors) {
+    return availableSensors.isSensorAvailable(Sensor.TYPE_LIGHT);
+  }
 }

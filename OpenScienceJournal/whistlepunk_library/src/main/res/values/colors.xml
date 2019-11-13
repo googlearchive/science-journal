@@ -30,11 +30,6 @@
     <color name="chart_margins_color">#FFFFFF</color>
     <color name="card_background_color">#FFFFFF</color>
     <color name="chart_grid_color">#CCCCCC</color>
-    <color name="level_background_color">#8BC34A</color>
-    <color name="level_mark_color">#7CB342</color>
-    <color name="level_edge_color">#AED581</color>
-    <color name="level_bubble_color">#FFC107</color>
-    <color name="level_bubble_color_centered">#FFA000</color>
     <color name="capture_bottom_panel">#F2424242</color>
     <color name="control_panel">#424242</color>
     <color name="observe_external_axis_color">#CCFFFFFF</color>
@@ -65,12 +60,39 @@
     <color name="recording_toolbar_color">#d9453d</color>
     <color name="recording_status_bar_color">#b73328</color>
     <color name="add_note_image_button_tint">#727272</color>
-    <color name="age_verifier_header_background">#bbdefb</color>
     <color name="thumb_color_transparent">#57000000</color>
     <color name="snackbar_action_color">#f8f081</color>
+    <color name="snackbar_background_color">#202124</color>
+    <color name="snackbar_text_color">#dadce0</color>
     <color name="picture_background_color">#262626</color>
+    <color name="status_bar_background_gray">#4a4a4a</color>
+    <color name="get_started_background_color">#311B92</color>
+    <color name="old_user_option_prompt_hairlines">#d1d1d1</color>
+    <color name="claim_experiments_status_bar">#818181</color>
+    <color name="claim_experiments_action_bar">#f2f2f2</color>
+    <color name="claim_experiments_action_bar_text">#5d5d5d</color>
+    <color name="preview_experiment_details_status_bar">#4b4b4b</color>
+    <color name="preview_experiment_details_action_bar">#898989</color>
+    <color name="preview_experiment_details_action_bar_text">#ffffff</color>
 
     <integer name="trigger_drawable_alpha">192</integer>
     <integer name="home_disabled_drawable_alpha">127</integer>
     <integer name="home_enabled_drawable_alpha">255</integer>
+
+    <color name="action_area_red_light">#FFE7E5</color>
+    <color name="action_area_red_dark">#E84335</color>
+    <color name="action_area_blue_light">#E8F0FE</color>
+    <color name="action_area_blue_dark">#2A84FC</color>
+    <color name="action_area_purple_light">#F5E7FF</color>
+    <color name="action_area_purple_dark">#7627BB</color>
+    <color name="action_area_view_background">#FCFCFC</color>
+
+    <color name="app_bar_purple">#6F2EBE</color>
+    <color name="app_bar_red">#D5000A</color>
+    <color name="status_bar_red">#AA0008</color>
+    <color name="action_fragment_background">#FFFFFF</color>
+    <color name="action_fragment_title_font_color">#202124</color>
+
+    <color name="google_grey_100">#F1F3F4</color>
+    <color name="google_grey_600">#80868B</color>
 </resources>

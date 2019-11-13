@@ -21,7 +21,7 @@ import com.bumptech.glide.module.AppGlideModule;
 
 @GlideModule
 public final class WhistlepunkGlideModule extends AppGlideModule {
-    // Intentionally left empty.
-    // Required to use GlideApp apis.
-    // See http://bumptech.github.io/glide/doc/generatedapi.html#getting-started
+  // Intentionally left empty.
+  // Required to use GlideApp apis.
+  // See http://bumptech.github.io/glide/doc/generatedapi.html#getting-started
 }

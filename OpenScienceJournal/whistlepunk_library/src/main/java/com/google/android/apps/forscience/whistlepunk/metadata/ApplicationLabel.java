@@ -16,150 +16,133 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.support.annotation.IntDef;
-
+import androidx.annotation.IntDef;
+import com.google.android.apps.forscience.whistlepunk.LabelValuePojo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * A label which represents a note made by the application.
- * This can be used for recording start/stop events or any background
- * events controlled by the app.
+ * A label which represents a note made by the application. This can be used for recording
+ * start/stop events or any background events controlled by the app.
  */
 public class ApplicationLabel {
 
-    // Types of ApplicationLabel. Add more types here as needed.
-    @IntDef({TYPE_RECORDING_START, TYPE_RECORDING_STOP, TYPE_CROP_START, TYPE_CROP_END})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface Type {}
+  // Types of ApplicationLabel. Add more types here as needed.
+  @IntDef({TYPE_RECORDING_START, TYPE_RECORDING_STOP, TYPE_CROP_START, TYPE_CROP_END})
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface Type {}
 
-    public static final int TYPE_RECORDING_START = 1;
-    public static final int TYPE_RECORDING_STOP = 2;
-    public static final int TYPE_CROP_START = 3;
-    public static final int TYPE_CROP_END = 4;
+  public static final int TYPE_RECORDING_START = 1;
+  public static final int TYPE_RECORDING_STOP = 2;
+  public static final int TYPE_CROP_START = 3;
+  public static final int TYPE_CROP_END = 4;
 
-    public static final String TAG = "application";
-    public static final String VALUE_PREFIX = "application_type_";
+  public static final String TAG = "application";
+  public static final String VALUE_PREFIX = "application_type_";
 
-    private static final int NUM_FIELDS = 1;
-    private static final int INDEX_VALUE_TYPE = 0;
-    private static final String KEY_VALUE_TYPE = "value_type";
+  private static final String KEY_VALUE_TYPE = "value_type";
 
-    /**
-     * Experiment ID this label belongs to.
-     */
-    private String mExperimentId;
+  /** Experiment ID this label belongs to. */
+  private String experimentId;
 
-    /**
-     * Time in ms since the epoch which represents this label.
-     */
-    private long mTimestamp;
+  /** Time in ms since the epoch which represents this label. */
+  private long timestamp;
 
-    /**
-     * The unique ID of the label.
-     */
-    private String mLabelId;
+  /** The unique ID of the label. */
+  private String labelId;
 
-    /**
-     * Associates a label with a trial.
-     * When recording starts, a START ApplicationLabel is generated with a particular ID. This ID
-     * is used as the startLabelId for all other labels associated with that run.
-     */
-    private String mTrialId;
+  /**
+   * Associates a label with a trial. When recording starts, a START ApplicationLabel is generated
+   * with a particular ID. This ID is used as the startLabelId for all other labels associated with
+   * that run.
+   */
+  private String trialId;
 
-    /**
-     * The value of this label.
-     */
-    private GoosciLabelValue.LabelValue mValue;
+  /** The value of this label. */
+  private LabelValuePojo value;
 
-    public ApplicationLabel(String id, String startLabelId, long timestamp,
-            GoosciLabelValue.LabelValue value) {
-        this(id, startLabelId, timestamp);
-        mValue = value;
-    }
+  public ApplicationLabel(String id, String startLabelId, long timestamp, LabelValuePojo value) {
+    this(id, startLabelId, timestamp);
+    this.value = value;
+  }
 
-    protected ApplicationLabel(String id, String startLabelId, long timestamp) {
-        mTimestamp = timestamp;
-        mLabelId = id;
-        mTrialId = startLabelId;
-    }
+  protected ApplicationLabel(String id, String startLabelId, long timestamp) {
+    this.timestamp = timestamp;
+    labelId = id;
+    trialId = startLabelId;
+  }
 
-    // TODO: use a clock to build labels.
-    public ApplicationLabel(@Type int type, String labelId, String startLabelId,
-            long timestampMillis) {
-        this(labelId, startLabelId, timestampMillis, createStorageValue(type));
-    }
+  // TODO: use a clock to build labels.
+  public ApplicationLabel(
+      @Type int type, String labelId, String startLabelId, long timestampMillis) {
+    this(labelId, startLabelId, timestampMillis, createStorageValue(type));
+  }
 
-    ApplicationLabel(String value, String labelId, String startLabelId, long timestampMillis) {
-        this(valueToType(value), labelId, startLabelId, timestampMillis);
-    }
+  ApplicationLabel(String value, String labelId, String startLabelId, long timestampMillis) {
+    this(valueToType(value), labelId, startLabelId, timestampMillis);
+  }
 
-    private ApplicationLabel() {
-        super();
-    }
+  private ApplicationLabel() {
+    super();
+  }
 
-    private static GoosciLabelValue.LabelValue createStorageValue(@Type int type) {
-        GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-        value.data = new GoosciLabelValue.LabelValue.DataEntry[NUM_FIELDS];
-        value.data[INDEX_VALUE_TYPE] = new GoosciLabelValue.LabelValue.DataEntry();
-        value.data[INDEX_VALUE_TYPE].key = KEY_VALUE_TYPE;
-        value.data[INDEX_VALUE_TYPE].value = String.valueOf(type);
-        return value;
-    }
+  private static LabelValuePojo createStorageValue(@Type int type) {
+    LabelValuePojo value = new LabelValuePojo();
+    value.putData(KEY_VALUE_TYPE, String.valueOf(type));
+    return value;
+  }
 
-    public String getLabelId() {
-        return mLabelId;
-    }
+  public String getLabelId() {
+    return labelId;
+  }
 
-    public String getTrialId() {
-        return mTrialId;
-    }
+  public String getTrialId() {
+    return trialId;
+  }
 
-    public long getTimeStamp() {
-        return mTimestamp;
-    }
+  public long getTimeStamp() {
+    return timestamp;
+  }
 
-    /**
-     * @return Bundle value of this label's contents.
-     */
-    public GoosciLabelValue.LabelValue getValue() {
-        return mValue;
-    };
+  /** @return Bundle value of this label's contents. */
+  public LabelValuePojo getValue() {
+    return value;
+  };
 
-    public @Type int getType() {
-        return Integer.parseInt(getValue().data[INDEX_VALUE_TYPE].value);
-    }
+  public @Type int getType() {
+    return Integer.parseInt(getValue().getDataOrThrow(KEY_VALUE_TYPE));
+  }
 
-    public String getTag() {
-        return TAG;
-    }
+  public String getTag() {
+    return TAG;
+  }
 
-    public boolean canEditTimestamp() {
-        // Autogenerated label has uneditable timestamp by humans.
-        return false;
-    }
+  public boolean canEditTimestamp() {
+    // Autogenerated label has uneditable timestamp by humans.
+    return false;
+  }
 
-    public void setTimestamp(long timestamp) {
-        mTimestamp = timestamp;
-    }
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+  }
 
-    public String getExperimentId() {
-        return mExperimentId;
-    }
+  public String getExperimentId() {
+    return experimentId;
+  }
 
-    public void setExperimentId(String experimentId) {
-        mExperimentId = experimentId;
-    }
+  public void setExperimentId(String experimentId) {
+    this.experimentId = experimentId;
+  }
 
-    // This function is only used when parsing a deprecated version of ApplicationLabel,
-    // for users who created labels on a database version earlier than 15.
-    static public @Type int valueToType(String value) {
-        String suffix = value.substring(VALUE_PREFIX.length(), value.length());
-        @Type int result = Integer.parseInt(suffix);
-        return result;
-    }
+  // This function is only used when parsing a deprecated version of ApplicationLabel,
+  // for users who created labels on a database version earlier than 15.
+  public static @Type int valueToType(String value) {
+    String suffix = value.substring(VALUE_PREFIX.length(), value.length());
+    @Type int result = Integer.parseInt(suffix);
+    return result;
+  }
 
-    static boolean isTag(String tag) {
-        return TAG.equalsIgnoreCase(tag);
-    }
+  static boolean isTag(String tag) {
+    return TAG.equalsIgnoreCase(tag);
+  }
 }

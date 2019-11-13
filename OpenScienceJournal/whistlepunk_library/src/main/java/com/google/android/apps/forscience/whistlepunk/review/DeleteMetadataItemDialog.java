@@ -16,79 +16,85 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-
+import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AlertDialog;
 import com.google.android.apps.forscience.whistlepunk.R;
 
-/**
- * DialogFragment for deleting a metadata item.
- */
+/** DialogFragment for deleting a metadata item. */
 public class DeleteMetadataItemDialog extends DialogFragment {
-    public static final String TAG = "delete_item_dialog";
+  public static final String TAG = "delete_item_dialog";
 
-    private static final String ARG_TITLE_ID = "title_id";
-    private static final String ARG_MESSAGE_ID = "message_id";
-    private static final String ARG_EXTRAS = "extras";
+  private static final String ARG_TITLE_ID = "title_id";
+  private static final String ARG_MESSAGE_ID = "message_id";
+  private static final String ARG_EXTRAS = "extras";
 
-    public static final String KEY_ITEM_ID = "item_id";
+  public static final String KEY_ITEM_ID = "item_id";
+  public static final String KEY_REMOVE_COVER_IMAGE = "remove_cover_image";
 
-    public interface DeleteDialogListener {
+  public interface DeleteDialogListener {
 
-        /**
-         * Called when the user has confirmed they would like to delete.
-         *
-         * @param extras  Extras bundle passed in to {@link #newInstance(int, int, Bundle)}.
-         */
-        void requestDelete(Bundle extras);
-    }
+    /**
+     * Called when the user has confirmed they would like to delete.
+     *
+     * @param extras Extras bundle passed in to {@link #newInstance(int, int, Bundle)}.
+     */
+    void requestDelete(Bundle extras);
+  }
 
-    public static DeleteMetadataItemDialog newInstance(int titleId, int messageId) {
-        return newInstance(titleId, messageId, new Bundle());
-    }
+  public static DeleteMetadataItemDialog newInstance(int titleId, int messageId) {
+    return newInstance(titleId, messageId, new Bundle());
+  }
 
-    public static DeleteMetadataItemDialog newInstance(int titleId, int messageId, String itemId) {
-        Bundle extras = new Bundle();
-        extras.putString(KEY_ITEM_ID, itemId);
-        return newInstance(titleId, messageId, extras);
-    }
+  public static DeleteMetadataItemDialog newInstance(int titleId, int messageId, String itemId) {
+    Bundle extras = new Bundle();
+    extras.putString(KEY_ITEM_ID, itemId);
+    return newInstance(titleId, messageId, extras);
+  }
 
-    public static DeleteMetadataItemDialog newInstance(int titleId, int messageId, Bundle extras) {
-        DeleteMetadataItemDialog dialog = new DeleteMetadataItemDialog();
-        Bundle args = new Bundle();
-        args.putInt(ARG_TITLE_ID, titleId);
-        args.putInt(ARG_MESSAGE_ID, messageId);
-        args.putBundle(ARG_EXTRAS, extras);
-        dialog.setArguments(args);
-        return dialog;
-    }
+  public static DeleteMetadataItemDialog newInstance(
+      int titleId, int messageId, boolean removeCoverImage) {
+    Bundle extras = new Bundle();
+    extras.putBoolean(KEY_REMOVE_COVER_IMAGE, removeCoverImage);
+    return newInstance(titleId, messageId, extras);
+  }
 
-    public DeleteMetadataItemDialog() {
-    }
+  public static DeleteMetadataItemDialog newInstance(int titleId, int messageId, Bundle extras) {
+    DeleteMetadataItemDialog dialog = new DeleteMetadataItemDialog();
+    Bundle args = new Bundle();
+    args.putInt(ARG_TITLE_ID, titleId);
+    args.putInt(ARG_MESSAGE_ID, messageId);
+    args.putBundle(ARG_EXTRAS, extras);
+    dialog.setArguments(args);
+    return dialog;
+  }
 
-    public AlertDialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
-        alertDialog.setTitle(getArguments().getInt(ARG_TITLE_ID));
-        alertDialog.setMessage(getArguments().getInt(ARG_MESSAGE_ID));
+  public DeleteMetadataItemDialog() {}
 
-        alertDialog.setPositiveButton(R.string.action_delete,
-                new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                ((DeleteDialogListener) getParentFragment()).requestDelete(
-                        getArguments().getBundle(ARG_EXTRAS));
-            }
+  public AlertDialog onCreateDialog(Bundle savedInstanceState) {
+    AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+    alertDialog.setTitle(getArguments().getInt(ARG_TITLE_ID));
+    alertDialog.setMessage(getArguments().getInt(ARG_MESSAGE_ID));
+
+    alertDialog.setPositiveButton(
+        R.string.action_delete,
+        new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            ((DeleteDialogListener) getParentFragment())
+                .requestDelete(getArguments().getBundle(ARG_EXTRAS));
+          }
         });
-        alertDialog.setNegativeButton(android.R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        alertDialog.setCancelable(true);
-        return alertDialog.create();
-    }
+    alertDialog.setNegativeButton(
+        android.R.string.cancel,
+        new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            dialog.cancel();
+          }
+        });
+    alertDialog.setCancelable(true);
+    return alertDialog.create();
+  }
 }

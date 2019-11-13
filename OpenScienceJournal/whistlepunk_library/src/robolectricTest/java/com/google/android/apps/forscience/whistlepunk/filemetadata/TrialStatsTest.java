@@ -20,57 +20,56 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorStat.StatType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.SensorTrialStats.StatStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-/**
- * Tests for the TrialStats class.
- */
+/** Tests for the TrialStats class. */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class TrialStatsTest {
-    @Test
-    public void testGetAndSet() {
-        TrialStats stats = new TrialStats("sensorId");
-        stats.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
-        stats.putStat(GoosciTrial.SensorStat.AVERAGE, 42);
-        stats.putStat(GoosciTrial.SensorStat.MINIMUM, 10);
+  @Test
+  public void testGetAndSet() {
+    TrialStats stats = new TrialStats("sensorId");
+    stats.setStatStatus(StatStatus.VALID);
+    stats.putStat(StatType.AVERAGE, 42);
+    stats.putStat(StatType.MINIMUM, 10);
 
-        assertTrue(stats.hasStat(GoosciTrial.SensorStat.AVERAGE));
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, 0), 42.0);
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, 0), 10.0);
+    assertTrue(stats.hasStat(StatType.AVERAGE));
+    assertEquals(stats.getStatValue(StatType.AVERAGE, 0), 42.0);
+    assertEquals(stats.getStatValue(StatType.MINIMUM, 0), 10.0);
 
-        // New values overwrite old values
-        stats.putStat(GoosciTrial.SensorStat.AVERAGE, 41);
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, 0), 41.0);
+    // New values overwrite old values
+    stats.putStat(StatType.AVERAGE, 41);
+    assertEquals(stats.getStatValue(StatType.AVERAGE, 0), 41.0);
 
-        // Check that missing information works properly.
-        assertFalse(stats.hasStat(GoosciTrial.SensorStat.MAXIMUM));
-        // Test default too
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 52.0), 52.0);
+    // Check that missing information works properly.
+    assertFalse(stats.hasStat(StatType.MAXIMUM));
+    // Test default too
+    assertEquals(stats.getStatValue(StatType.MAXIMUM, 52.0), 52.0);
 
-        // Put another one, just for fun.
-        stats.putStat(GoosciTrial.SensorStat.MAXIMUM, 52);
-        assertEquals(stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, 0), 52.0);
-    }
+    // Put another one, just for fun.
+    stats.putStat(StatType.MAXIMUM, 52);
+    assertEquals(stats.getStatValue(StatType.MAXIMUM, 0), 52.0);
+  }
 
-    @Test
-    public void testCopy() {
-        GoosciTrial.SensorTrialStats sensorTrialStats = new GoosciTrial.SensorTrialStats();
-        sensorTrialStats.sensorId = "sensorId";
-        sensorTrialStats.statStatus = GoosciTrial.SensorTrialStats.NEEDS_UPDATE;
-        TrialStats initial = new TrialStats(sensorTrialStats);
+  @Test
+  public void testCopy() {
+    SensorTrialStats sensorTrialStats =
+        GoosciTrial.SensorTrialStats.newBuilder()
+            .setSensorId("sensorId")
+            .setStatStatus(StatStatus.NEEDS_UPDATE)
+            .build();
+    TrialStats initial = new TrialStats(sensorTrialStats);
 
-        TrialStats other = new TrialStats("sensorId");
-        other.setStatStatus(GoosciTrial.SensorTrialStats.VALID);
+    TrialStats other = new TrialStats("sensorId");
+    other.setStatStatus(StatStatus.VALID);
 
-        assertFalse(initial.statsAreValid());
-        initial.copyFrom(other);
-        assertTrue(initial.statsAreValid());
-    }
+    assertFalse(initial.statsAreValid());
+    initial.copyFrom(other);
+    assertTrue(initial.statsAreValid());
+  }
 }

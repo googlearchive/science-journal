@@ -31,7 +31,7 @@
         <ImageView
             android:id="@+id/note_image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="300dp"
             android:contentDescription="@string/picture_note_preview_content_description"
             android:visibility="gone"
             />

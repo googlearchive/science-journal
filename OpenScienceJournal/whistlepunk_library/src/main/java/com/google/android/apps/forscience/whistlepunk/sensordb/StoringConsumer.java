@@ -20,25 +20,25 @@ import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumer;
 
 public class StoringConsumer<T> implements MaybeConsumer<T> {
-    public static <T> T retrieve(Consumer<MaybeConsumer<T>> c) {
-        final StoringConsumer<T> t = new StoringConsumer<>();
-        c.take(t);
-        return t.getValue();
-    }
+  public static <T> T retrieve(Consumer<MaybeConsumer<T>> c) {
+    final StoringConsumer<T> t = new StoringConsumer<>();
+    c.take(t);
+    return t.getValue();
+  }
 
-    private T mValue;
+  private T value;
 
-    @Override
-    public void success(T value) {
-        mValue = value;
-    }
+  @Override
+  public void success(T value) {
+    this.value = value;
+  }
 
-    public T getValue() {
-        return mValue;
-    }
+  public T getValue() {
+    return value;
+  }
 
-    @Override
-    public void fail(Exception e) {
-        throw new RuntimeException(e);
-    }
+  @Override
+  public void fail(Exception e) {
+    throw new RuntimeException(e);
+  }
 }

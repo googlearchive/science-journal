@@ -18,19 +18,28 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28" />
+
     <!-- Necessary to scan for BLE devices. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- Necessary to connect to BLE devices. -->
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+  <!-- Necessary to download files pre-O and show our own notification -->
+    <uses-permission
+        android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
     <!-- Necessary to do decibel sensor. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- Necessary to do camera source. -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <!-- Necessary to write out data. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- Necessary to read some files shared from other apps. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- Vibrate option available for triggers. -->
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- foreground service for recording data -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -60,32 +69,61 @@
             android:name=".DataService"
             android:enabled="true"
             android:exported="false"/>
-        <service
-            android:name=".PublicRecorderService"
-            android:enabled="true"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="com.google.android.apps.forscience.whistlepunk.OBSERVER" />
-            </intent-filter>
-        </service>
 
         <activity
             android:name=".MainActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/NoBarTheme.MainActivity"
-            android:launchMode = "singleTop"
+            android:launchMode = "singleTask"
+            tools:ignore="AppLinkUrlError"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="*"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <data android:mimeType="*/*"/>
+                <!-- Match all file or content URIs ending in .sj-->
+                <!-- Why? We expect files passed to have an extension although for Content URIs this
+                may not always be correct-->
+                <data android:pathPattern=".*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.sj"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.sj"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:host="*"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <!-- Match all file or content URIs with a MIME type 'x-zip'-->
+                <!-- Why? This appears to be the MIME type Android assigns to us as a ZIP file with
+                a renamed extension-->
+                <data android:mimeType="application/x-zip"/>
+                <!-- Match all file or content URIs with a MIME type 'octet-steam'-->
+                <!-- Why? This SHOULD BE the default, and is seen on some Samsung devices-->
+                <data android:mimeType="application/octet-stream"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".PanesActivity"
+            android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.Panes"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
             >
             <meta-data
@@ -93,21 +131,13 @@
                 android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
         </activity>
         <activity
-            android:name=".RulerActivity"
+            android:name=".ExperimentActivity"
             android:exported="false"
-            android:label="@string/title_activity_ruler"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.Experiment"
+            android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
-        </activity>
-        <activity
-            android:name=".LevelActivity"
-            android:exported="false"
-            android:label="@string/title_activity_level"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait">
+            >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
@@ -122,7 +152,7 @@
                 android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
         </activity>
         <activity
-            android:name=".review.RunReviewActivity"
+            android:name=".review.RunReviewDeprecatedActivity"
             android:exported="false"
             android:label="@string/run_review_activity_label"
             android:theme="@style/AppTheme.RunReview"
@@ -131,6 +161,17 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
+        </activity>
+        <activity
+            android:name=".review.RunReviewActivity"
+            android:exported="false"
+            android:label="@string/run_review_activity_label"
+            android:theme="@style/AppTheme.RunReview"
+            android:parentActivityName=".PanesActivity"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.ExperimentActivity"/>
         </activity>
         <activity
             android:name=".review.labels.LabelDetailsActivity"
@@ -188,35 +229,48 @@
             android:name=".review.UpdateRunActivity"
             android:exported="false"
             android:label="@string/title_edit_trial_activity"
-            android:parentActivityName=".review.RunReviewActivity"
+            android:parentActivityName=".review.RunReviewDeprecatedActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateVisible|adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity"/>
-        </activity>
-        <activity
-            android:name=".intro.AgeVerifier"
-            android:exported="false"
-            android:label="@string/title_activity_age_verifier"
-            android:theme="@style/AppTheme.AgeVerifier">
+                android:value="com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity"/>
         </activity>
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
             android:label="@string/navigation_item_settings"/>
         <activity
-            android:name=".LicenseActivity"
+            android:name=".arcore.ARVelocityActivity"
+            android:screenOrientation="locked"
+            android:exported="false"/>
+        <activity
+            android:name=".accounts.GetStartedActivity"
+            android:theme="@style/AppTheme.GetStarted"
             android:exported="false"
-            android:label="@string/settings_open_source_title"
-            android:theme="@style/AppTheme"
-            >
+            />
+        <activity
+            android:name=".accounts.SignInActivity"
+            android:theme="@style/AppTheme.SignIn"
+            android:exported="false"
+            />
+        <activity
+            android:name=".accounts.OldUserOptionPromptActivity"
+            android:theme="@style/AppTheme.OldUserOptionPrompt"
+            android:exported="false"
+            />
+        <activity
+            android:name=".project.ClaimExperimentsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_claim_experiments"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.ClaimExperiments">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.SettingsActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.project.MainActivity"/>
         </activity>
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}"
             android:exported="false"
             android:grantUriPermissions="true"
@@ -239,6 +293,17 @@
         <service
             android:name=".ExportService"
             android:exported="false"></service>
+        <!-- Indicates that app supports, but does not require ARCore ("AR Optional") -->
+        <meta-data android:name="com.google.ar.core" android:value="optional" />
+        <!-- Broadcast receiver that will be notified of account changes. -->
+        <receiver
+           android:name="com.google.android.apps.forscience.whistlepunk.accounts.AccountsChangedReceiver"
+           android:exported="true">
+           <intent-filter>
+             <action android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
+          </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

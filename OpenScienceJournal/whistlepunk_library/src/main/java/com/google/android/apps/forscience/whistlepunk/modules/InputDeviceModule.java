@@ -17,10 +17,8 @@
 package com.google.android.apps.forscience.whistlepunk.modules;
 
 import android.content.Context;
-
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
-
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoMap;
@@ -28,10 +26,10 @@ import dagger.multibindings.StringKey;
 
 @Module
 public class InputDeviceModule {
-    @Provides
-    @IntoMap
-    @StringKey(InputDeviceSpec.TYPE)
-    public SensorDiscoverer providesDeviceDiscoverer(Context context) {
-        return InputDeviceSpec.DISCOVERER;
-    }
+  @Provides
+  @IntoMap
+  @StringKey(InputDeviceSpec.TYPE)
+  public SensorDiscoverer providesDeviceDiscoverer(Context context) {
+    return InputDeviceSpec.DISCOVERER;
+  }
 }

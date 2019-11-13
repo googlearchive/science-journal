@@ -17,39 +17,34 @@ package com.google.android.apps.forscience.ble;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.common.collect.Lists;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class MyBleServiceTest {
-    @Test
-    public void testDontAskForSameServiceTwice() {
-        TestBleService mbs = new TestBleService();
+  @Test
+  public void testDontAskForSameServiceTwice() {
+    TestBleService mbs = new TestBleService();
 
-        mbs.discoverServices("address");
-        // make sure this doesn't actually deliver
-        mbs.discoverServices("address");
+    mbs.discoverServices("address");
+    // make sure this doesn't actually deliver
+    mbs.discoverServices("address");
 
-        // Should be only one discovery call
-        assertEquals(Lists.newArrayList("address"), mbs.addressesDiscovered);
+    // Should be only one discovery call
+    assertEquals(Lists.newArrayList("address"), mbs.addressesDiscovered);
+  }
+
+  private static class TestBleService extends MyBleService {
+    public List<String> addressesDiscovered = new ArrayList<>();
+
+    @Override
+    protected boolean internalDiscoverServices(String address) {
+      addressesDiscovered.add(address);
+      return true;
     }
-
-    private static class TestBleService extends MyBleService {
-        public List<String> addressesDiscovered = new ArrayList<>();
-
-        @Override
-        protected boolean internalDiscoverServices(String address) {
-            addressesDiscovered.add(address);
-            return true;
-        }
-    }
+  }
 }

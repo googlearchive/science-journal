@@ -36,25 +36,11 @@
                 android:id="@+id/light_archived_indicator"
                 />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/run_title_text"
-                android:textSize="@dimen/run_review_run_name_text_size"
-                android:textColor="@color/text_color_black"
-                android:singleLine="true"
-                android:layout_below="@id/light_archived_indicator"
-                android:layout_alignWithParentIfMissing="true"
-                android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/run_review_duration_label"
-                android:layout_marginEnd="48dp"
-                />
-
             <com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/run_details_text"
-                android:layout_below="@id/run_title_text"
+                android:layout_below="@id/light_archived_indicator"
                 android:textSize="@dimen/run_review_label_text_size"
                 android:layout_marginTop="@dimen/run_review_header_text_margin_top"
                 android:textColor="@color/text_color_dark_grey"
@@ -64,25 +50,12 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/run_review_duration_text_height"
-                android:textColor="@color/text_color_dark_grey"
-                android:text="@string/run_review_duration"
-                android:id="@id/run_review_duration_label"
-                android:textSize="@dimen/run_review_label_text_size"
-                android:gravity="end"
-                android:layout_alignParentEnd="true"
-                android:layout_alignTop="@id/run_title_text"
-                android:layout_marginTop="4dp"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/run_review_run_name_text_size"
+                android:textSize="@dimen/run_review_label_text_size"
                 android:textColor="@color/color_accent"
                 android:id="@+id/run_review_duration"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/run_review_duration_label"
+                android:layout_below="@id/light_archived_indicator"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:gravity="end"

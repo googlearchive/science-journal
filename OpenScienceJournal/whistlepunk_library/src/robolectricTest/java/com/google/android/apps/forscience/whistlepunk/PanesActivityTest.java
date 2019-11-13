@@ -18,24 +18,19 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.MemoryMetadataManager;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class PanesActivityTest {
-    @Test
-    public void selectedExperimentGiven() {
-        MemoryMetadataManager mmm = new MemoryMetadataManager();
-        DataController dc =
-                new InMemorySensorDatabase().makeSimpleController(mmm);
-        Experiment expected = mmm.newExperiment();
-        PanesActivity.whenSelectedExperiment(expected.getExperimentId(), dc)
-                     .test()
-                     .assertValue(
-                             actual -> actual.getExperimentId().equals(expected.getExperimentId()));
-    }
+  @Test
+  public void selectedExperimentGiven() {
+    MemoryMetadataManager mmm = new MemoryMetadataManager();
+    DataController dc = new InMemorySensorDatabase().makeSimpleController(mmm);
+    Experiment expected = mmm.newExperiment();
+    PanesActivity.whenSelectedExperiment(expected.getExperimentId(), dc)
+        .test()
+        .assertValue(actual -> actual.getExperimentId().equals(expected.getExperimentId()));
+  }
 }

@@ -15,98 +15,91 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.FailureListener;
 import com.google.android.apps.forscience.whistlepunk.SensorProvider;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-
-import org.junit.Assert;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Assert;
 
 /**
- * For testing, an {@link SensorDiscoverer} that knows exactly which specs it knows how to
- * return.
+ * For testing, an {@link SensorDiscoverer} that knows exactly which specs it knows how to return.
  */
 public class EnumeratedDiscoverer extends StubSensorDiscoverer {
-    private final List<ExternalSensorSpec> mSpecs = new ArrayList<>();
+  private final List<ExternalSensorSpec> specs = new ArrayList<>();
 
-    public EnumeratedDiscoverer(ExternalSensorSpec... specs) {
-        mSpecs.addAll(Arrays.asList(specs));
+  public EnumeratedDiscoverer(ExternalSensorSpec... specs) {
+    this.specs.addAll(Arrays.asList(specs));
+  }
+
+  public void addSpec(ExternalSensorSpec spec) {
+    specs.add(spec);
+  }
+
+  @Override
+  public boolean startScanning(ScanListener listener, FailureListener onScanError) {
+    for (ExternalSensorSpec spec : specs) {
+      listener.onSensorFound(getDiscovered(spec));
     }
+    return true;
+  }
 
-    public void addSpec(ExternalSensorSpec spec) {
-        mSpecs.add(spec);
-    }
+  @NonNull
+  private SensorDiscoverer.DiscoveredSensor getDiscovered(final ExternalSensorSpec spec) {
+    return new SensorDiscoverer.DiscoveredSensor() {
 
-    @Override
-    public boolean startScanning(ScanListener listener, FailureListener onScanError) {
-        for (ExternalSensorSpec spec : mSpecs) {
-            listener.onSensorFound(getDiscovered(spec));
-        }
-        return true;
-    }
+      @Override
+      public GoosciSensorSpec.SensorSpec getSensorSpec() {
+        return spec.asGoosciSpec();
+      }
 
-    @NonNull
-    private SensorDiscoverer.DiscoveredSensor getDiscovered(final ExternalSensorSpec spec) {
-        return new SensorDiscoverer.DiscoveredSensor() {
-
-            @Override
-            public GoosciSensorSpec.SensorSpec getSensorSpec() {
-                return spec.asGoosciSpec();
-            }
-
-            @Override
-            public SettingsInterface getSettingsInterface() {
-                return null;
-            }
-
-            @Override
-            public boolean shouldReplaceStoredSensor(ConnectableSensor oldSensor) {
-                return false;
-            }
-        };
-    }
-
-    /**
-     * For testing, generate a provider map that has providers that know how to generate exactly
-     * the given set of specs.
-     */
-    public static Map<String, SensorProvider> buildProviderMap(
-            ExternalSensorSpec... specs) {
-        EnumeratedDiscoverer discoverer = new EnumeratedDiscoverer(specs);
-        Map<String, SensorProvider> providers = new HashMap<>();
-        for (ExternalSensorSpec spec : specs) {
-            providers.put(spec.getType(), discoverer.getProvider());
-        }
-        return providers;
-    }
-
-    public static Map<String, SensorDiscoverer> buildDiscovererMap(
-            ExternalSensorSpec... specs) {
-        EnumeratedDiscoverer discoverer = new EnumeratedDiscoverer(specs);
-        Map<String, SensorDiscoverer> discoverers = new HashMap<>();
-        for (ExternalSensorSpec spec : specs) {
-            discoverers.put(spec.getType(), discoverer);
-        }
-        return discoverers;
-    }
-
-    @Override
-    protected ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
-        for (ExternalSensorSpec spec : mSpecs) {
-            if (spec.getName().equals(name)) {
-                return spec;
-            }
-        }
-        Assert.fail("Can't find " + name + " in " + Arrays.asList(mSpecs));
+      @Override
+      public SettingsInterface getSettingsInterface() {
         return null;
-    }
+      }
 
+      @Override
+      public boolean shouldReplaceStoredSensor(ConnectableSensor oldSensor) {
+        return false;
+      }
+    };
+  }
+
+  /**
+   * For testing, generate a provider map that has providers that know how to generate exactly the
+   * given set of specs.
+   */
+  public static Map<String, SensorProvider> buildProviderMap(ExternalSensorSpec... specs) {
+    EnumeratedDiscoverer discoverer = new EnumeratedDiscoverer(specs);
+    Map<String, SensorProvider> providers = new HashMap<>();
+    for (ExternalSensorSpec spec : specs) {
+      providers.put(spec.getType(), discoverer.getProvider());
+    }
+    return providers;
+  }
+
+  public static Map<String, SensorDiscoverer> buildDiscovererMap(ExternalSensorSpec... specs) {
+    EnumeratedDiscoverer discoverer = new EnumeratedDiscoverer(specs);
+    Map<String, SensorDiscoverer> discoverers = new HashMap<>();
+    for (ExternalSensorSpec spec : specs) {
+      discoverers.put(spec.getType(), discoverer);
+    }
+    return discoverers;
+  }
+
+  @Override
+  protected ExternalSensorSpec buildSensorSpec(String name, byte[] config) {
+    for (ExternalSensorSpec spec : specs) {
+      if (spec.getName().equals(name)) {
+        return spec;
+      }
+    }
+    Assert.fail("Can't find " + name + " in " + Arrays.asList(specs));
+    return null;
+  }
 }

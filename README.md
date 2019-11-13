@@ -16,7 +16,7 @@ Download the source, go into the OpenScienceJournal directory and run:
 
 Alternatively, import the source code in OpenScienceJournal into Android Studio (File, Import Project).
 
-Note: You'll need Android SDK version 23, build tools 23.0.3, and the Android Support Library to
+Note: You'll need Android SDK version 27, build tools 23.0.3, and the Android Support Library to
 compile the project. If you're unsure about this, use Android Studio and tick the appropriate boxes
 in the SDK Manager.
 
@@ -42,7 +42,7 @@ Science Journal is brought to you by [Making & Science][making-science], an init
 
 [play-store]: https://play.google.com/store/apps/details?id=com.google.android.apps.forscience.whistlepunk
 [firmware-github]:https://github.com/google/science-journal-arduino
-[contributing]: https://github.com/google/science-journal/blob/master/CONTRIBUTING
+[contributing]: https://github.com/google/science-journal/blob/master/CONTRIBUTING.md
 [releasenames]: https://github.com/google/science-journal/blob/master/RELEASES.md
 [license]: https://github.com/google/science-journal/blob/master/LICENSE
 [making-science]: https://makingscience.withgoogle.com

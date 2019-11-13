@@ -15,33 +15,30 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subjects.BehaviorSubject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
-import io.reactivex.observers.TestObserver;
-import io.reactivex.subjects.BehaviorSubject;
 
 /**
- * RxJava can have sometimes confusing documentation.  We can put tests here to make sure that we
- * get what we expect.
+ * RxJava can have sometimes confusing documentation. We can put tests here to make sure that we get
+ * what we expect.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class RxJavaCharacterizationTests {
-    @Test
-    public void firstElementAsBehaviorSubjectChanges() {
-        BehaviorSubject<String> subject = BehaviorSubject.create();
-        TestObserver<String> beforeTest = subject.firstElement().test();
+  @Test
+  public void firstElementAsBehaviorSubjectChanges() {
+    BehaviorSubject<String> subject = BehaviorSubject.create();
+    TestObserver<String> beforeTest = subject.firstElement().test();
 
-        subject.onNext("A");
-        TestObserver<String> firstTest = subject.firstElement().test();
-        firstTest.assertValue("A").assertComplete();
-        beforeTest.assertValue("A").assertComplete();
+    subject.onNext("A");
+    TestObserver<String> firstTest = subject.firstElement().test();
+    firstTest.assertValue("A").assertComplete();
+    beforeTest.assertValue("A").assertComplete();
 
-        subject.onNext("B");
-        TestObserver<String> secondTest = subject.firstElement().test();
-        secondTest.assertValue("B").assertComplete();
-    }
+    subject.onNext("B");
+    TestObserver<String> secondTest = subject.firstElement().test();
+    secondTest.assertValue("B").assertComplete();
+  }
 }

@@ -23,49 +23,46 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class StatefulRecorderTest {
-    private final ManualSensor mSensor = new ManualSensor("sensorId", 100, 100);
-    private final RecordingDataController mDataController =
-            new InMemorySensorDatabase().makeSimpleRecordingController();
-    private final RecordingSensorObserver mObserver = new RecordingSensorObserver();
-    private final SensorRecorder mRecorder =
-            mSensor.createRecorder(null, mDataController, mObserver);
+  private final ManualSensor sensor = new ManualSensor("sensorId", 100, 100);
+  private final RecordingDataController dataController =
+      new InMemorySensorDatabase().makeSimpleRecordingController();
+  private final RecordingSensorObserver observer = new RecordingSensorObserver();
+  private final SensorRecorder recorder = sensor.createRecorder(null, dataController, observer);
 
-    @Test
-    public void doStartWhileStillRecording() {
-        StatefulRecorder sr = new StatefulRecorder(mRecorder, null, null);
+  @Test
+  public void doStartWhileStillRecording() {
+    StatefulRecorder sr = new StatefulRecorder(recorder, null, null);
 
-        sr.startObserving();
-        sr.startRecording("runId");
+    sr.startObserving();
+    sr.startRecording("runId");
 
-        // Something goes wrong
-        mSensor.simulateExternalEventPreventingObservation();
+    // Something goes wrong
+    sensor.simulateExternalEventPreventingObservation();
 
-        // Try to reset
-        sr.reboot();
+    // Try to reset
+    sr.reboot();
 
-        // New value comes in.
-        mSensor.pushValue(0, 0);
+    // New value comes in.
+    sensor.pushValue(0, 0);
 
-        new TestData().addPoint(0, 0).checkObserver(mObserver);
-    }
+    new TestData().addPoint(0, 0).checkObserver(observer);
+  }
 
-    @Test
-    public void stopObservingAfterStopRecording() {
-        StatefulRecorder sr = new StatefulRecorder(mRecorder, null, null);
-        sr.startObserving();
-        sr.startRecording("runId");
-        sr.stopObserving();
-        sr.stopRecording(Trial.newTrial(100, new GoosciSensorLayout.SensorLayout[0],
-                new FakeAppearanceProvider(), null));
-        assertFalse(mSensor.isObserving());
-    }
+  @Test
+  public void stopObservingAfterStopRecording() {
+    StatefulRecorder sr = new StatefulRecorder(recorder, null, null);
+    sr.startObserving();
+    sr.startRecording("runId");
+    sr.stopObserving();
+    sr.stopRecording(
+        Trial.newTrial(
+            100, new GoosciSensorLayout.SensorLayout[0], new FakeAppearanceProvider(), null));
+    assertFalse(sensor.isObserving());
+  }
 }

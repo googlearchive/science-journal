@@ -34,12 +34,29 @@
                 android:title="@string/action_edit_photo"
                 android:icon="@drawable/ic_mode_edit_white_24dp"
                 app:showAsAction="ifRoom"
+                android:orderInCategory="101"
+                />
+            <item
+                android:title="@string/export_action"
+                android:id="@+id/btn_share_photo"
+                android:visible="false"
+                android:icon="@drawable/ic_share_black_24dp"
+                app:showAsAction="ifRoom"
+                android:orderInCategory="102"
+                />
+            <item
+                android:title="@string/download_copy_action"
+                android:id="@+id/btn_download_photo"
+                android:icon="@drawable/ic_file_download_black_24dp"
+                app:showAsAction="ifRoom"
+                android:orderInCategory="103"
                 />
             <item
                 android:id="@+id/action_delete"
                 android:title="@string/action_delete"
                 android:icon="@drawable/ic_delete_black_24dp"
                 app:showAsAction="ifRoom"
+                android:orderInCategory="104"
                 />
         </menu>
     </item>

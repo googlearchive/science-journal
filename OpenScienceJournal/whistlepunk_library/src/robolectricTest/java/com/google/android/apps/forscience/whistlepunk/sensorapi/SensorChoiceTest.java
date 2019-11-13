@@ -17,25 +17,22 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.TestConsumers;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class SensorChoiceTest {
-    @Test
-    public void testIdWithSlash() {
-        WriteableSensorOptions writeable = new ManualSensor("a/b", 1000,
-                10).getStorageForSensorDefaultOptions(
-                        RuntimeEnvironment.application.getApplicationContext()).load(
-                TestConsumers.expectingSuccess());
-        writeable.put("key", "value");
-        assertEquals("value", writeable.getReadOnly().getString("key", "default"));
-    }
+  @Test
+  public void testIdWithSlash() {
+    WriteableSensorOptions writeable =
+        new ManualSensor("a/b", 1000, 10)
+            .getStorageForSensorDefaultOptions(
+                RuntimeEnvironment.application.getApplicationContext())
+            .load(TestConsumers.expectingSuccess());
+    writeable.put("key", "value");
+    assertEquals("value", writeable.getReadOnly().getString("key", "default"));
+  }
 }

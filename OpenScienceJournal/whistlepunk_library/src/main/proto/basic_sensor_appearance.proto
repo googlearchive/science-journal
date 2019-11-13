@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Google Inc. All Rights Reserved.
+ *  Copyright 2019 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,32 +22,33 @@ option java_outer_classname = "GoosciSensorAppearance";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
+
 import "icon_path.proto";
 
 message BasicSensorAppearance {
-    // An experiment may be recorded in one locale and displayed in another locale.
-    // We will not attempt to store all possible translations of a sensor’s name just in case
-    // it is displayed in a different locale.
-    // However, we may wish at some point to have a UI element change
-    // if we know we’re showing a foreign language.
-    // The format is a BCP 47 language tag, like "en-US"
-    optional string locale = 1;
+  // An experiment may be recorded in one locale and displayed in another
+  // locale. We will not attempt to store all possible translations of a
+  // sensor’s name just in case it is displayed in a different locale. However,
+  // we may wish at some point to have a UI element change if we know we’re
+  // showing a foreign language. The format is a BCP 47 language tag, like
+  // "en-US"
+  optional string locale = 1;
 
-    // Display name
-    optional string name = 2;
+  // Display name
+  optional string name = 2;
 
-    // Displayed string representing the units of the value
-    optional string units = 3;
+  // Displayed string representing the units of the value
+  optional string units = 3;
 
-    // Asset path to the small icon (for tab display)
-    optional IconPath icon_path = 4;
+  // Asset path to the small icon (for tab display)
+  optional IconPath icon_path = 4;
 
-    // Short description that is shown on meter-mode card
-    optional string short_description = 5;
+  // Short description that is shown on meter-mode card
+  optional string short_description = 5;
 
-    // Allows a sensor to specify that it should be rounded in a particular way
-    optional int32 pointsAfterDecimal = 6 [default = -1];
+  // Allows a sensor to specify that it should be rounded in a particular way
+  optional int32 pointsAfterDecimal = 6 [default = -1];
 
-    // Asset path to the large icon (for display in snapshots)
-    optional IconPath large_icon_path = 7;
+  // Asset path to the large icon (for display in snapshots)
+  optional IconPath large_icon_path = 7;
 };

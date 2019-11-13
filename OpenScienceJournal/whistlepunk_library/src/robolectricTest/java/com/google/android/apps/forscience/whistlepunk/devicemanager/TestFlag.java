@@ -17,22 +17,20 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * Little utility class for when you want to be sure a callback was called.
- */
+/** Little utility class for when you want to be sure a callback was called. */
 public class TestFlag {
-    private boolean mSet = false;
-    private String mTitle;
+  private boolean set = false;
+  private String title;
 
-    public TestFlag(String title) {
-        mTitle = title;
-    }
+  public TestFlag(String title) {
+    this.title = title;
+  }
 
-    public void set() {
-        mSet = true;
-    }
+  public void set() {
+    set = true;
+  }
 
-    public void assertSet() {
-        assertTrue(mTitle, mSet);
-    }
+  public void assertSet() {
+    assertTrue(title, set);
+  }
 }

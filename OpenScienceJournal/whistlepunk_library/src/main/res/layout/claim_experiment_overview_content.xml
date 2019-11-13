@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2016 Google Inc. All Rights Reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="204dp"
+            android:id="@+id/content"
+            >
+
+            <ImageView
+                android:id="@+id/experiment_image"
+                android:layout_centerVertical="true"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:scaleType="centerCrop"
+                android:layout_alignParentTop="true"
+                android:contentDescription="@null"
+                android:layout_above="@+id/experiment_title"
+                />
+
+            <TextView
+                android:id="@id/experiment_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="72sp"
+                android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:layout_marginEnd="-12dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:layout_alignParentBottom="true"
+                android:layout_toStartOf="@+id/menu_button"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="normal"
+                android:textColor="@color/text_color_dark_grey"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:lines="2"
+                />
+
+            <!-- Pushes the icon towards the edge to match spec with paddingStart while maintaining
+                 the touch target size -->
+            <ImageButton
+                android:layout_width="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:id="@id/menu_button"
+                android:src="@drawable/ic_menu_moreoverflow_mtrl_alpha"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="center"
+                android:tint="@color/text_color_dark_grey"
+                android:contentDescription="@string/menu_btn_content_description"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@id/experiment_title"
+                android:paddingStart="24dp"
+                />
+
+            <include layout="@layout/archived_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="@dimen/cardview_content_margin"
+                android:layout_marginEnd="@dimen/cardview_content_margin"
+                />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            >
+
+            <View
+                android:id="@+id/gray_line"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentTop="true"
+                android:background="#E2E2E2"
+                />
+
+            <ImageButton
+                android:layout_width="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:id="@+id/drive_button"
+                android:src="@drawable/ic_add_to_drive_grey600_24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/drive_btn_content_description"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="15dp"
+                android:layout_alignParentBottom="true"
+                />
+
+            <ImageButton
+                android:layout_width="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:id="@+id/share_button"
+                android:src="@drawable/ic_share_black_24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="#757575"
+                android:tintMode="src_in"
+                android:contentDescription="@string/share_btn_content_description"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                />
+
+            <ImageButton
+                android:layout_width="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:id="@+id/download_button"
+                android:src="@drawable/ic_file_download_black_24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="#757575"
+                android:tintMode="src_in"
+                android:contentDescription="@string/download_btn_content_description"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentBottom="true"
+                />
+
+            <ImageButton
+                android:layout_width="@dimen/accessibility_touch_target_min_size"
+                android:layout_height="@dimen/accessibility_touch_target_min_size"
+                android:id="@+id/delete_button"
+                android:src="@drawable/ic_delete_grey600_24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="#757575"
+                android:tintMode="src_in"
+                android:contentDescription="@string/delete_btn_content_description"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="15dp"
+                android:layout_alignParentBottom="true"
+                />
+
+        </RelativeLayout>
+    </LinearLayout>
+</merge>

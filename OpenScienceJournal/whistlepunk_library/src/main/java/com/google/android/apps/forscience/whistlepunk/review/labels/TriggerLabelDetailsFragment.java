@@ -19,71 +19,69 @@ package com.google.android.apps.forscience.whistlepunk.review.labels;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
-/**
- * Details view controller for a TriggerLabel.
- */
+/** Details view controller for a TriggerLabel. */
 public class TriggerLabelDetailsFragment extends LabelDetailsFragment {
 
-    public static TriggerLabelDetailsFragment newInstance(String experimentId,
-            String trialId, Label originalLabel) {
-        TriggerLabelDetailsFragment result = new TriggerLabelDetailsFragment();
-        Bundle args = new Bundle();
-        args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
-        args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
-        args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
-        result.setArguments(args);
-        return result;
-    }
+  public static TriggerLabelDetailsFragment newInstance(
+      AppAccount appAccount, String experimentId, String trialId, Label originalLabel) {
+    TriggerLabelDetailsFragment result = new TriggerLabelDetailsFragment();
+    Bundle args = new Bundle();
+    args.putString(LabelDetailsActivity.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
+    args.putString(LabelDetailsActivity.ARG_EXPERIMENT_ID, experimentId);
+    args.putString(LabelDetailsActivity.ARG_TRIAL_ID, trialId);
+    args.putParcelable(LabelDetailsActivity.ARG_LABEL, originalLabel);
+    result.setArguments(args);
+    return result;
+  }
 
-    public TriggerLabelDetailsFragment() {
-        // Required empty public constructor
-    }
+  public TriggerLabelDetailsFragment() {
+    // Required empty public constructor
+  }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            final Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        View rootView = inflater.inflate(R.layout.sensor_readings_label_details_fragment, container,
-                false);
+  @Override
+  public View onCreateView(
+      LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
+    setHasOptionsMenu(true);
+    View rootView =
+        inflater.inflate(R.layout.sensor_readings_label_details_fragment, container, false);
 
-        NoteViewHolder.loadTriggerIntoList(
-                (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), mOriginalLabel);
+    NoteViewHolder.loadTriggerIntoList(
+        (ViewGroup) rootView.findViewById(R.id.snapshot_values_list), originalLabel, appAccount);
 
-        setupCaption(rootView);
-        setupDetails(rootView);
+    setupCaption(rootView);
+    setupDetails(rootView);
 
-        return rootView;
-    }
+    return rootView;
+  }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_sensor_item_label_details, menu);
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    inflater.inflate(R.menu.menu_sensor_item_label_details, menu);
 
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        actionBar.setTitle(getActivity().getResources().getString(
-                R.string.trigger_label_details_title));
+    ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+    actionBar.setTitle(
+        getActivity().getResources().getString(R.string.trigger_label_details_title));
 
-        super.onCreateOptionsMenu(menu, inflater);
-    }
+    super.onCreateOptionsMenu(menu, inflater);
+  }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.action_delete);
-        item.getIcon().mutate().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-        super.onPrepareOptionsMenu(menu);
-    }
+  @Override
+  public void onPrepareOptionsMenu(Menu menu) {
+    MenuItem item = menu.findItem(R.id.action_delete);
+    item.getIcon().mutate().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+    super.onPrepareOptionsMenu(menu);
+  }
 }

@@ -17,9 +17,9 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import androidx.viewpager.widget.ViewPager;
 
 /**
  * ViewPager which doesn't allow swiping between views.
@@ -27,21 +27,21 @@ import android.view.MotionEvent;
  */
 public class UnswipableViewPager extends ViewPager {
 
-    public UnswipableViewPager(Context context) {
-        super(context);
-    }
+  public UnswipableViewPager(Context context) {
+    super(context);
+  }
 
-    public UnswipableViewPager(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+  public UnswipableViewPager(Context context, AttributeSet attrs) {
+    super(context, attrs);
+  }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return false;
-    }
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    return false;
+  }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent event) {
-        return false;
-    }
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent event) {
+    return false;
+  }
 }

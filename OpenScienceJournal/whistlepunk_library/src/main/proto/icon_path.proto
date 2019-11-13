@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Google Inc. All Rights Reserved.
+ *  Copyright 2019 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 syntax = "proto2";
 
 package goosci;
+
+
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "GoosciIcon";
 option objc_class_prefix = "GSJ";
@@ -24,22 +26,28 @@ option optimize_for = LITE_RUNTIME;
 
 // the path to an image that is used to represent a sensor
 message IconPath {
-    enum PathType {
-        // The path string is the sensor id used by the Android implementation for the built-in
-        // sensor.  Internal code should look up the appropriate icon and display it.
-        BUILTIN = 0;
+  enum PathType {
+    // The path string is the sensor id used by the Android implementation for
+    // the built-in sensor.  Internal code should look up the appropriate icon
+    // and display it.
+    BUILTIN = 0;
 
+    // Legacy type from Android.  The path string is the string representation
+    // of an integer representing SensorTypeProvider#SensorKind
+    // TODO: replace with better system
+    LEGACY_ANDROID_BLE = 1;
 
-        // Legacy type from Android.  The path string is the string representation of an integer
-        // representing SensorTypeProvider#SensorKind
-        // TODO: replace with better system
-        LEGACY_ANDROID_BLE = 1;
+    // Used to signify sensors whose appearances are loaded from the appearance
+    // proto. path_string will be empty for these sensors.
+    // TODO: populate path_string and load image from there.
+    PROTO = 2;
 
-        // TODO: When we have local storage of custom sensor icons, add another type here.
-    }
+    // Arduino MkrSci path type. The path string is sensor_id:handler_id.
+    MKRSCI_ANDROID_BLE = 3;
+  }
 
-    optional PathType type = 1;
+  optional PathType type = 1;
 
-    // The format and interpretation of this string depends on PathType
-    optional string path_string = 2;
-};
+  // The format and interpretation of this string depends on PathType
+  optional string path_string = 2;
+}

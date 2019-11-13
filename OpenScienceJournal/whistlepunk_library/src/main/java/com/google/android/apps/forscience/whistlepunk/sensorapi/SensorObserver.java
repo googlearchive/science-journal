@@ -17,56 +17,54 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import android.os.Bundle;
-
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 
 /**
  * Observes changes to a sensor, potentially serialized between processes.
  *
- * Assume all calls are on the main thread
+ * <p>Assume all calls are on the main thread
  */
 public interface SensorObserver {
-    /**
-     * Called when new data arrives.  Extender must copy or extract any values from {@code data}
-     * that it wishes to use after returning; caller can re-use the same reference to reduce
-     * allocations.
-     */
-    void onNewData(long timestamp, Data data);
+  /**
+   * Called when new data arrives. Extender must copy or extract any values from {@code data} that
+   * it wishes to use after returning; caller can re-use the same reference to reduce allocations.
+   */
+  void onNewData(long timestamp, Data data);
 
-    class Data {
-        private double mValue;
-        private boolean mHasValidValue;
+  class Data {
+    private double value;
+    private boolean hasValidValue;
 
-        // stats
-        public double min;
-        public double max;
-        public double average;
+    // stats
+    public double min;
+    public double max;
+    public double average;
 
-        public void clear() {
-            mHasValidValue = false;
-        }
-
-        public boolean hasValidValue() {
-            return mHasValidValue;
-        }
-
-        public void setValue(double newValue) {
-            mValue = newValue;
-            mHasValidValue = true;
-        }
-
-        public double getValue() {
-            return mValue;
-        }
-
-        public Bundle asBundle() {
-            // TODO: test, and optimize
-            Bundle bundle = new Bundle();
-            bundle.putDouble(ScalarSensor.BUNDLE_KEY_SENSOR_VALUE, mValue);
-            bundle.putDouble(StatsAccumulator.KEY_MAX, max);
-            bundle.putDouble(StatsAccumulator.KEY_MIN, min);
-            bundle.putDouble(StatsAccumulator.KEY_AVERAGE, average);
-            return bundle;
-        }
+    public void clear() {
+      hasValidValue = false;
     }
+
+    public boolean hasValidValue() {
+      return hasValidValue;
+    }
+
+    public void setValue(double newValue) {
+      value = newValue;
+      hasValidValue = true;
+    }
+
+    public double getValue() {
+      return value;
+    }
+
+    public Bundle asBundle() {
+      // TODO: test, and optimize
+      Bundle bundle = new Bundle();
+      bundle.putDouble(ScalarSensor.BUNDLE_KEY_SENSOR_VALUE, value);
+      bundle.putDouble(StatsAccumulator.KEY_MAX, max);
+      bundle.putDouble(StatsAccumulator.KEY_MIN, min);
+      bundle.putDouble(StatsAccumulator.KEY_AVERAGE, average);
+      return bundle;
+    }
+  }
 }

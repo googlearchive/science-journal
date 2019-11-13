@@ -15,73 +15,67 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.ArrayMap;
-
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.ExternalSensorSpec;
-
 import java.util.Map;
 
-/**
- * Keeps track of devices found by all ExternalSensorProviders.
- */
+/** Keeps track of devices found by all ExternalSensorProviders. */
 public class DeviceRegistry {
-    private Map<String, InputDeviceSpec> mDevices = new ArrayMap<>();
-    private InputDeviceSpec mBuiltInDevice;
+  private Map<String, InputDeviceSpec> devices = new ArrayMap<>();
+  private InputDeviceSpec builtInDevice;
 
-    public DeviceRegistry(InputDeviceSpec builtInDevice) {
-        mBuiltInDevice = builtInDevice;
-    }
+  public DeviceRegistry(InputDeviceSpec builtInDevice) {
+    this.builtInDevice = builtInDevice;
+  }
 
-    // TODO: store and retrieve "My Devices" from database
-    public void addDevice(InputDeviceSpec spec) {
-        mDevices.put(spec.getGlobalDeviceAddress(), spec);
-    }
+  // TODO: store and retrieve "My Devices" from database
+  public void addDevice(InputDeviceSpec spec) {
+    devices.put(spec.getGlobalDeviceAddress(), spec);
+  }
 
-    public InputDeviceSpec getDevice(String type, String deviceAddress) {
-        String key = InputDeviceSpec.joinAddresses(type, deviceAddress);
-        InputDeviceSpec spec = getDevice(key);
-        if (spec == null) {
-            throw new IllegalArgumentException(key + " not found in " + mDevices.keySet());
-        }
-        return spec;
+  public InputDeviceSpec getDevice(String type, String deviceAddress) {
+    String key = InputDeviceSpec.joinAddresses(type, deviceAddress);
+    InputDeviceSpec spec = getDevice(key);
+    if (spec == null) {
+      throw new IllegalArgumentException(key + " not found in " + devices.keySet());
     }
+    return spec;
+  }
 
-    @NonNull
-    private InputDeviceSpec getDevice(String deviceGlobalAddress) {
-        return mDevices.get(deviceGlobalAddress);
-    }
+  @NonNull
+  private InputDeviceSpec getDevice(String deviceGlobalAddress) {
+    return devices.get(deviceGlobalAddress);
+  }
 
-    @Override
-    public String toString() {
-        return "DeviceRegistry{" +
-                "mDevices=" + mDevices +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "DeviceRegistry{" + "mDevices=" + devices + '}';
+  }
 
-    InputDeviceSpec getDevice(ExternalSensorSpec spec) {
-        if (spec == null) {
-            return mBuiltInDevice;
-        }
-        InputDeviceSpec device = getDevice(spec.getGlobalDeviceAddress());
-        if (device == null) {
-            // generate imaginary device to hold the sensor
-            return createHoldingDevice(spec);
-        }
-        return device;
+  InputDeviceSpec getDevice(ExternalSensorSpec spec) {
+    if (spec == null) {
+      return builtInDevice;
     }
+    InputDeviceSpec device = getDevice(spec.getGlobalDeviceAddress());
+    if (device == null) {
+      // generate imaginary device to hold the sensor
+      return createHoldingDevice(spec);
+    }
+    return device;
+  }
 
-    @NonNull
-    public static InputDeviceSpec createHoldingDevice(ExternalSensorSpec spec) {
-        return new InputDeviceSpec(spec.getType(), spec.getDeviceAddress(), spec.getName());
-    }
+  @NonNull
+  public static InputDeviceSpec createHoldingDevice(ExternalSensorSpec spec) {
+    return new InputDeviceSpec(spec.getType(), spec.getDeviceAddress(), spec.getName());
+  }
 
-    public int getDeviceCount() {
-        return mDevices.size();
-    }
+  public int getDeviceCount() {
+    return devices.size();
+  }
 
-    public InputDeviceSpec getBuiltInDevice() {
-        return mBuiltInDevice;
-    }
+  public InputDeviceSpec getBuiltInDevice() {
+    return builtInDevice;
+  }
 }

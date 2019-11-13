@@ -63,6 +63,29 @@
         <item name="android:windowActionBar">false</item>
     </style>
 
+    <style name="AppTheme.Experiment">
+        <item name="android:windowActionBar">false</item>
+    </style>
+
+    <style name="AppTheme.GetStarted">
+        <item name="colorButtonNormal">@android:color/white</item>
+        <item name="android:statusBarColor">@color/status_bar_background_gray</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.SignIn">
+        <item name="colorButtonNormal">@color/color_accent</item>
+        <item name="android:statusBarColor">@color/status_bar_background_gray</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.OldUserOptionPrompt">
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <!-- Subtitle style -->
     <style name="NoBarTheme.ActionBar.SubtitleTextStyle"
         parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle">
@@ -78,13 +101,6 @@
         <item name="tabPaddingBottom">@dimen/sensor_tab_padding_bottom</item>
         <item name="tabMaxWidth">@dimen/sensor_tab_width</item>
         <item name="tabMinWidth">@dimen/sensor_tab_width</item>
-    </style>
-
-    <!-- Age verifier -->
-    <style name="AppTheme.AgeVerifier" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimaryDark">@color/color_accent_dark</item>
-        <item name="colorPrimary">@color/color_accent</item>
-        <item name="colorButtonNormal">@color/color_accent</item>
     </style>
 
     <style name="NavigationView" parent="NoBarTheme">
@@ -114,4 +130,45 @@
         <item name="android:maxHeight">26dip</item>
     </style>
 
+    <style name="AppTheme.ClaimExperiments" parent="Theme.AppCompat.Light">
+        <item name="colorPrimaryDark">@color/claim_experiments_status_bar</item>
+        <item name="colorPrimary">@color/claim_experiments_action_bar</item>
+        <item name="titleTextColor">@color/claim_experiments_action_bar_text</item>
+        <item name="subtitleTextColor">@color/claim_experiments_action_bar_text</item>
+    </style>
+
+    <style name="preview_experiment_details" parent="Theme.AppCompat.Light">
+        <item name="colorPrimaryDark">@color/preview_experiment_details_status_bar</item>
+        <item name="colorPrimary">@color/preview_experiment_details_action_bar</item>
+        <item name="titleTextColor">@color/preview_experiment_details_action_bar_text</item>
+    </style>
+
+    <style name="DefaultActionAreaIcon">
+        <item name="icon_color">@color/action_area_purple_dark</item>
+        <item name="icon_background">@color/action_area_purple_light</item>
+    </style>
+    <style name="BlueActionAreaIcon" parent="DefaultActionAreaIcon">
+        <item name="icon_color">@color/action_area_blue_dark</item>
+        <item name="icon_background">@color/action_area_blue_light</item>
+    </style>
+    <style name="RedActionAreaIcon" parent="DefaultActionAreaIcon">
+        <item name="icon_color">@color/action_area_red_dark</item>
+        <item name="icon_background">@color/action_area_red_light</item>
+    </style>
+    <style name="DisabledActionAreaIcon">
+        <item name="icon_color">@color/google_grey_600</item>
+        <item name="icon_background">@color/google_grey_100</item>
+    </style>
+
+    <style name="DefaultActionArea">
+        <item name="android:layout_marginStart">@dimen/action_area_side_margin</item>
+        <item name="android:layout_marginEnd">@dimen/action_area_side_margin</item>
+        <item name="android:layout_marginBottom">@dimen/action_area_bottom_margin</item>
+        <item name="android:stateListAnimator">@animator/action_area_elevation</item>
+        <item name="cardCornerRadius">15dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/action_area_height</item>
+    </style>
 </resources>

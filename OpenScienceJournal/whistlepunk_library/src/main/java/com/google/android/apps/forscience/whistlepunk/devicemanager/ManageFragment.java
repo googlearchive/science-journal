@@ -16,5 +16,5 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 public interface ManageFragment {
-    void refreshAfterLoad();
+  void refreshAfterLoad();
 }

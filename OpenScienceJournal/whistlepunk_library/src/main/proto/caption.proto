@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Google Inc. All Rights Reserved.
+ *  Copyright 2019 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 syntax = "proto2";
 
 package goosci;
+
 option java_package = "com.google.android.apps.forscience.whistlepunk.metadata";
 option java_outer_classname = "GoosciCaption";
 option objc_class_prefix = "GSJ";
@@ -24,7 +25,7 @@ option optimize_for = LITE_RUNTIME;
 
 // A user-added caption. This can be applied to trials and labels.
 message Caption {
-    optional string text = 1;
+  optional string text = 1;
 
-    optional int64 lastEditedTimestamp = 2;
+  optional int64 lastEditedTimestamp = 2;
 }

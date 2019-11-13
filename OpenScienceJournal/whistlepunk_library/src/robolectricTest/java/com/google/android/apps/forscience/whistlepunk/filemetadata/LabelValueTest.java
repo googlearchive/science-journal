@@ -17,53 +17,52 @@ package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
 import static junit.framework.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue;
+import com.google.android.apps.forscience.whistlepunk.LabelValuePojo;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Tests for deprecated LabelValue classes. These are used to make sure we can parse old LabelValues
  * correctly when pulling them out of the DB for upgrade.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class LabelValueTest {
-    @Test
-    public void testTextLabelValue() {
-        TextLabelValue textLabelValue = TextLabelValue.fromText("potato");
-        assertEquals("potato", textLabelValue.getText());
+  @Test
+  public void testTextLabelValue() {
+    TextLabelValue textLabelValue = TextLabelValue.fromText("potato");
+    assertEquals("potato", textLabelValue.getText());
 
-        textLabelValue.setText("tomato");
-        assertEquals("tomato", textLabelValue.getText());
-    }
+    textLabelValue.setText("tomato");
+    assertEquals("tomato", textLabelValue.getText());
+  }
 
-    @Test
-    public void testPictureLabelValue() {
-        GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-        PictureLabelValue.populateLabelValue(value, "path/to/photo", "cheese!");
+  @Test
+  public void testPictureLabelValue() {
+    LabelValuePojo value = new LabelValuePojo();
+    PictureLabelValue.populateLabelValue(value, "path/to/photo", "cheese!");
 
-        assertEquals("path/to/photo", PictureLabelValue.getFilePath(value));
-        assertEquals("cheese!", PictureLabelValue.getCaption(value));
+    assertEquals("path/to/photo", PictureLabelValue.getFilePath(value));
+    assertEquals("cheese!", PictureLabelValue.getCaption(value));
 
-        PictureLabelValue labelValue = PictureLabelValue.fromPicture("path/to/photo", "cheese!");
-        assertEquals("path/to/photo", labelValue.getFilePath());
-        assertEquals("cheese!", labelValue.getCaption());
-    }
+    PictureLabelValue labelValue = PictureLabelValue.fromPicture("path/to/photo", "cheese!");
+    assertEquals("path/to/photo", labelValue.getFilePath());
+    assertEquals("cheese!", labelValue.getCaption());
+  }
 
-    @Test
-    public void testSnapshotLabelValue() {
-        SensorTrigger trigger = SensorTrigger.newNoteTypeTrigger("sensorId",
-                GoosciSensorTriggerInformation.TriggerInformation.TRIGGER_WHEN_DROPS_BELOW, "note",
-                7.5);
-        GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-        SensorTriggerLabelValue.populateLabelValue(value, trigger, "note");
+  @Test
+  public void testSnapshotLabelValue() {
+    SensorTrigger trigger =
+        SensorTrigger.newNoteTypeTrigger(
+            "sensorId",
+            GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen.TRIGGER_WHEN_DROPS_BELOW,
+            "note",
+            7.5);
+    LabelValuePojo value = new LabelValuePojo();
+    SensorTriggerLabelValue.populateLabelValue(value, trigger, "note");
 
-        assertEquals("note", SensorTriggerLabelValue.getCustomText(value));
-        assertEquals("sensorId", SensorTriggerLabelValue.getSensorId(value));
-    }
+    assertEquals("note", SensorTriggerLabelValue.getCustomText(value));
+    assertEquals("sensorId", SensorTriggerLabelValue.getSensorId(value));
+  }
 }

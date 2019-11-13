@@ -24,7 +24,7 @@
               android:paddingTop="@dimen/update_metadata_vertical_padding"
               tools:context="com.google.android.apps.forscience.whistlepunk.review.UpdateRunActivity">
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/edit_trial_title_hint"
@@ -35,12 +35,12 @@
             android:layout_height="wrap_content"
             android:minHeight="@dimen/accessibility_touch_target_min_size"
             android:singleLine="true"
-            android:inputType="textCapSentences"
+            android:inputType="textCapSentences|textAutoCorrect"
             android:contentDescription="@string/edit_trial_title_hint"
             android:imeOptions="actionDone"
             >
             <requestFocus />
         </EditText>
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 </LinearLayout>

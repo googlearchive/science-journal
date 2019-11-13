@@ -20,74 +20,76 @@ import android.annotation.TargetApi;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.ParcelUuid;
-
-import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
-import com.google.android.apps.forscience.whistlepunk.sensors.BleServiceSpec;
-import com.google.android.apps.forscience.whistlepunk.sensors.BluetoothSensor;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Discovers LE devices using API level 21+ methods.
- */
+/** Discovers LE devices using API level 21+ methods. */
 @TargetApi(21)
 /* package */ class DeviceDiscovererV21 extends DeviceDiscoverer {
 
-    private BluetoothLeScanner mScanner;
+  private BluetoothLeScanner scanner;
 
-    private ScanCallback mCallback = new ScanCallback() {
+  private final ScanCallback callback =
+      new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            addOrUpdateDevice(getDevice(result), result.getRssi());
-        }
-
-        private WhistlepunkBleDevice getDevice(ScanResult result) {
-            return new NativeDevice(result.getDevice());
+          manageScanResult(result);
         }
 
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
-            for (ScanResult result : results) {
-                addOrUpdateDevice(getDevice(result), result.getRssi());
-            }
+          for (ScanResult result : results) {
+            manageScanResult(result);
+          }
         }
 
         @Override
         public void onScanFailed(int errorCode) {
-            // TODO: surface errors.
+          // TODO: surface errors.
         }
-    };
 
-    DeviceDiscovererV21(Context context) {
-        super(context);
-    }
-
-    @Override
-    public void onStartScanning() {
-        mScanner = getBluetoothAdapter().getBluetoothLeScanner();
-        List<ScanFilter> filters = new ArrayList<>();
-        for (BleServiceSpec spec : BluetoothSensor.SUPPORTED_SERVICES) {
-            filters.add(new ScanFilter.Builder()
-                    .setServiceUuid(ParcelUuid.fromString(spec.getServiceId().toString()))
-                    .build());
-        }
-        ScanSettings settings = new ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
-                .build();
-        mScanner.startScan(filters, settings, mCallback);
-    }
-
-    @Override
-    public void onStopScanning() {
-        if (mScanner != null) {
-            if (isBluetoothEnabled()) {
-                mScanner.stopScan(mCallback);
+        private void manageScanResult(ScanResult result) {
+          List<String> serviceUuids = new ArrayList<>();
+          ScanRecord record = result.getScanRecord();
+          if (record != null) {
+            List<ParcelUuid> parcelUuids = record.getServiceUuids();
+            if (parcelUuids != null) {
+              for (ParcelUuid uuid : parcelUuids) {
+                serviceUuids.add(uuid.toString());
+              }
             }
+          }
+          addOrUpdateDevice(new NativeDevice(result.getDevice(), serviceUuids), result.getRssi());
         }
+      };
+
+  DeviceDiscovererV21(Context context) {
+    super(context);
+  }
+
+  @Override
+  public void onStartScanning(ParcelUuid[] serviceUuids) {
+    scanner = getBluetoothAdapter().getBluetoothLeScanner();
+    List<ScanFilter> filters = new ArrayList<>();
+    for (ParcelUuid uuid : serviceUuids) {
+      filters.add(new ScanFilter.Builder().setServiceUuid(uuid).build());
     }
+    ScanSettings settings =
+        new ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_BALANCED).build();
+    scanner.startScan(filters, settings, callback);
+  }
+
+  @Override
+  public void onStopScanning() {
+    if (scanner != null) {
+      if (isBluetoothEnabled()) {
+        scanner.stopScan(callback);
+      }
+    }
+  }
 }

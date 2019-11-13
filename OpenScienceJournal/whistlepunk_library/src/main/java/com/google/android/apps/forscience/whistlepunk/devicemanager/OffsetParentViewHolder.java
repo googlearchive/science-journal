@@ -16,36 +16,36 @@
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import android.view.View;
-
 import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
 import com.google.common.base.Supplier;
 
 public class OffsetParentViewHolder extends ParentViewHolder {
-    private final Supplier<Integer> mGlobalPositionOffset;
+  private final Supplier<Integer> globalPositionOffset;
 
-    /**
-     * Default constructor.
-     *
-     * @param itemView The {@link View} being hosted in this ViewHolder
-     */
-    public OffsetParentViewHolder(View itemView, Supplier<Integer> globalPositionOffset) {
-        super(itemView);
-        mGlobalPositionOffset = globalPositionOffset;
-    }
+  /**
+   * Default constructor.
+   *
+   * @param itemView The {@link View} being hosted in this ViewHolder
+   */
+  public OffsetParentViewHolder(View itemView, Supplier<Integer> globalPositionOffset) {
+    super(itemView);
+    this.globalPositionOffset = globalPositionOffset;
+  }
 
-    @Override
-    public void setParentListItemExpandCollapseListener(
-            final ParentListItemExpandCollapseListener superListener) {
-        super.setParentListItemExpandCollapseListener(new ParentListItemExpandCollapseListener() {
-            @Override
-            public void onParentListItemExpanded(int position) {
-                superListener.onParentListItemExpanded(position - mGlobalPositionOffset.get());
-            }
+  @Override
+  public void setParentListItemExpandCollapseListener(
+      final ParentListItemExpandCollapseListener superListener) {
+    super.setParentListItemExpandCollapseListener(
+        new ParentListItemExpandCollapseListener() {
+          @Override
+          public void onParentListItemExpanded(int position) {
+            superListener.onParentListItemExpanded(position - globalPositionOffset.get());
+          }
 
-            @Override
-            public void onParentListItemCollapsed(int position) {
-                superListener.onParentListItemCollapsed(position - mGlobalPositionOffset.get());
-            }
+          @Override
+          public void onParentListItemCollapsed(int position) {
+            superListener.onParentListItemCollapsed(position - globalPositionOffset.get());
+          }
         });
-    }
+  }
 }

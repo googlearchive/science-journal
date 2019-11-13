@@ -21,7 +21,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
@@ -36,55 +35,56 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
  * in all three axis. The force of gravity is excluded.
  */
 public class LinearAccelerometerSensor extends ScalarSensor {
-    public static final String ID = "LinearAccelerometerSensor";
-    private SensorEventListener mSensorEventListener;
+  public static final String ID = "LinearAccelerometerSensor";
+  private SensorEventListener sensorEventListener;
 
-    public LinearAccelerometerSensor() {
-        super(ID);
-    }
+  public LinearAccelerometerSensor() {
+    super(ID);
+  }
 
-    @Override
-    protected SensorRecorder makeScalarControl(final StreamConsumer c,
-            final SensorEnvironment environment, final Context context,
-            final SensorStatusListener listener) {
-        return new AbstractSensorRecorder() {
-            @Override
-            public void startObserving() {
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
-                SensorManager sensorManager = getSensorManager(context);
-                Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-                if (mSensorEventListener != null) {
-                    getSensorManager(context).unregisterListener(mSensorEventListener);
-                }
-                final Clock clock = environment.getDefaultClock();
-                mSensorEventListener = new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        c.addData(clock.getNow(), Math.sqrt(
-                                        event.values[0] * event.values[0] +
-                                        event.values[1] * event.values[1] +
-                                        event.values[2] * event.values[2]));
-                    }
+  @Override
+  protected SensorRecorder makeScalarControl(
+      final StreamConsumer c,
+      final SensorEnvironment environment,
+      final Context context,
+      final SensorStatusListener listener) {
+    return new AbstractSensorRecorder() {
+      @Override
+      public void startObserving() {
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+        SensorManager sensorManager = getSensorManager(context);
+        Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
+        }
+        final Clock clock = environment.getDefaultClock();
+        sensorEventListener =
+            new SensorEventListener() {
+              @Override
+              public void onSensorChanged(SensorEvent event) {
+                c.addData(
+                    clock.getNow(),
+                    Math.sqrt(
+                        event.values[0] * event.values[0]
+                            + event.values[1] * event.values[1]
+                            + event.values[2] * event.values[2]));
+              }
 
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+              @Override
+              public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+            };
+        sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_UI);
+      }
 
-                    }
-                };
-                sensorManager.registerListener(mSensorEventListener, sensor,
-                        SensorManager.SENSOR_DELAY_UI);
+      @Override
+      public void stopObserving() {
+        getSensorManager(context).unregisterListener(sensorEventListener);
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
+      }
+    };
+  }
 
-            }
-
-            @Override
-            public void stopObserving() {
-                getSensorManager(context).unregisterListener(mSensorEventListener);
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
-            }
-        };
-    }
-
-    public static boolean isLinearAccelerometerAvailable(AvailableSensors availableSensors) {
-        return availableSensors.isSensorAvailable(Sensor.TYPE_LINEAR_ACCELERATION);
-    }
+  public static boolean isLinearAccelerometerAvailable(AvailableSensors availableSensors) {
+    return availableSensors.isSensorAvailable(Sensor.TYPE_LINEAR_ACCELERATION);
+  }
 }

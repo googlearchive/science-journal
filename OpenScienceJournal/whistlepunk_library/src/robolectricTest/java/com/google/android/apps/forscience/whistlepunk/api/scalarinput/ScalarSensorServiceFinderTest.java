@@ -22,89 +22,83 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
+import java.util.HashMap;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.util.HashMap;
-import java.util.List;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ScalarSensorServiceFinderTest {
-    @Test
-    public void testUseFlattenedComponentName() {
-        RecordingCallbacks callbacks = new RecordingCallbacks();
-        ComponentName name = new ComponentName("packageName", "packageName.MyClass");
-        ServiceConnection connection = ScalarSensorServiceFinder.makeServiceConnection(
-                new HashMap<String, ServiceConnection>(), name, callbacks, null);
-        connection.onServiceConnected(name, new TestSensorDiscoverer("serviceName"));
-        assertEquals("packageName/.MyClass", callbacks.serviceId);
-    }
+  @Test
+  public void testUseFlattenedComponentName() {
+    RecordingCallbacks callbacks = new RecordingCallbacks();
+    ComponentName name = new ComponentName("packageName", "packageName.MyClass");
+    ServiceConnection connection =
+        ScalarSensorServiceFinder.makeServiceConnection(
+            new HashMap<String, ServiceConnection>(), name, callbacks, null);
+    connection.onServiceConnected(name, new TestSensorDiscoverer("serviceName"));
+    assertEquals("packageName/.MyClass", callbacks.serviceId);
+  }
 
-    @Test
-    public void testMetadataOverride() {
-        RecordingCallbacks callbacks = new RecordingCallbacks();
-        Bundle metaData = new Bundle();
-        metaData.putString(ScalarSensorServiceFinder.METADATA_KEY_CLASS_NAME_OVERRIDE, "YourClass");
-        ComponentName name = new ComponentName("packageName", "packageName.MyClass");
-        ServiceConnection connection = ScalarSensorServiceFinder.makeServiceConnection(
-                new HashMap<String, ServiceConnection>(), name, callbacks, metaData);
-        connection.onServiceConnected(name, new TestSensorDiscoverer("serviceName"));
-        assertEquals("packageName/YourClass", callbacks.serviceId);
-    }
+  @Test
+  public void testMetadataOverride() {
+    RecordingCallbacks callbacks = new RecordingCallbacks();
+    Bundle metaData = new Bundle();
+    metaData.putString(ScalarSensorServiceFinder.METADATA_KEY_CLASS_NAME_OVERRIDE, "YourClass");
+    ComponentName name = new ComponentName("packageName", "packageName.MyClass");
+    ServiceConnection connection =
+        ScalarSensorServiceFinder.makeServiceConnection(
+            new HashMap<String, ServiceConnection>(), name, callbacks, metaData);
+    connection.onServiceConnected(name, new TestSensorDiscoverer("serviceName"));
+    assertEquals("packageName/YourClass", callbacks.serviceId);
+  }
 
-    @Test
-    public void testDontGarbageCollectSecondServiceInSamePackage() {
-        RecordingCallbacks callbacks = new RecordingCallbacks();
-        HashMap<String, ServiceConnection> connections = new HashMap<>();
+  @Test
+  public void testDontGarbageCollectSecondServiceInSamePackage() {
+    RecordingCallbacks callbacks = new RecordingCallbacks();
+    HashMap<String, ServiceConnection> connections = new HashMap<>();
 
-        ComponentName name1 = new ComponentName("packageName", "packageName.Class1");
-        ServiceConnection connection1 = ScalarSensorServiceFinder.makeServiceConnection(connections,
-                name1, callbacks, null);
-        assertEquals(1, connections.size());
+    ComponentName name1 = new ComponentName("packageName", "packageName.Class1");
+    ServiceConnection connection1 =
+        ScalarSensorServiceFinder.makeServiceConnection(connections, name1, callbacks, null);
+    assertEquals(1, connections.size());
 
-        ComponentName name2 = new ComponentName("packageName", "packageName.Class2");
-        ServiceConnection connection2 = ScalarSensorServiceFinder.makeServiceConnection(connections,
-                name2, callbacks, null);
-        assertEquals(2, connections.size());
+    ComponentName name2 = new ComponentName("packageName", "packageName.Class2");
+    ServiceConnection connection2 =
+        ScalarSensorServiceFinder.makeServiceConnection(connections, name2, callbacks, null);
+    assertEquals(2, connections.size());
 
-        connection1.onServiceDisconnected(name1);
-        assertEquals(1, connections.size());
+    connection1.onServiceDisconnected(name1);
+    assertEquals(1, connections.size());
 
-        connection2.onServiceDisconnected(name2);
-        assertEquals(0, connections.size());
-    }
+    connection2.onServiceDisconnected(name2);
+    assertEquals(0, connections.size());
+  }
 
-    @Test
-    public void testNullCheck() {
-        ScalarSensorServiceFinder finder = new ScalarSensorServiceFinder(
-                RuntimeEnvironment.application.getApplicationContext()) {
-            @Override
-            protected List<ResolveInfo> getResolveInfos() {
-                return null;
-            }
+  @Test
+  public void testNullCheck() {
+    ScalarSensorServiceFinder finder =
+        new ScalarSensorServiceFinder(RuntimeEnvironment.application.getApplicationContext()) {
+          @Override
+          protected List<ResolveInfo> getResolveInfos() {
+            return null;
+          }
         };
-        // Just don't crash
-        finder.take(new RecordingCallbacks());
+    // Just don't crash
+    finder.take(new RecordingCallbacks());
+  }
+
+  private static class RecordingCallbacks implements AppDiscoveryCallbacks {
+    public String serviceId;
+
+    @Override
+    public void onServiceFound(String serviceId, ISensorDiscoverer service) {
+      this.serviceId = serviceId;
     }
 
-    private static class RecordingCallbacks implements AppDiscoveryCallbacks {
-        public String serviceId;
-
-        @Override
-        public void onServiceFound(String serviceId, ISensorDiscoverer service) {
-            this.serviceId = serviceId;
-        }
-
-        @Override
-        public void onDiscoveryDone() {
-
-        }
-    }
+    @Override
+    public void onDiscoveryDone() {}
+  }
 }

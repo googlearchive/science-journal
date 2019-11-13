@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 apply from: project(':whistlepunk_library').projectDir.absolutePath + '/version.gradle'
+apply from: project(':whistlepunk_library').projectDir.absolutePath + '/dependencyVersions.gradle'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.1'
+    compileSdkVersion 28
 
     defaultConfig {
         applicationId "com.google.android.apps.forscience.whistlepunk.opensource"
         minSdkVersion 19
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode buildVersionCode()
         versionName buildVersionName()
         multiDexEnabled true
@@ -31,25 +31,23 @@ android {
 
         // Due to b/36261865, don't try to check icon shape when linting.
         disable 'IconLauncherShape'
-        
+
         // b/64679950
         warning "InvalidPackage"
     }
     compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
+    annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
+
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation "com.google.dagger:dagger:$daggerVersion"
+
     implementation project(':whistlepunk_library')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:support-annotations:25.3.1'
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:support-v13:25.3.1'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.11'
-    compile 'com.google.dagger:dagger:2.11'
-    provided 'javax.annotation:jsr250-api:1.0'
+
+    testImplementation "junit:junit:$junitVersion"
 }

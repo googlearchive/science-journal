@@ -33,53 +33,69 @@
                 android:icon="@drawable/ic_crop_black_24dp"
                 android:title="@string/crop_run"
                 app:showAsAction="ifRoom"
+                android:orderInCategory="101"
                 />
             <item
                 android:id="@+id/action_export"
                 android:icon="@drawable/ic_share_black_24dp"
                 android:title="@string/export_action"
                 app:showAsAction="never"
+                android:orderInCategory="102"
+                />
+            <item
+                android:id="@+id/action_download"
+                android:icon="@drawable/ic_file_download_black_24dp"
+                android:title="@string/download_copy_action"
+                app:showAsAction="never"
+                android:orderInCategory="103"
                 />
             <item
                 android:id="@+id/action_run_review_audio_settings"
                 android:icon="@drawable/ic_settings_audio_24dp"
                 android:title="@string/menu_item_audio_settings"
                 app:showAsAction="never"
+                android:orderInCategory="104"
                 />
             <item
                 android:id="@+id/action_enable_auto_zoom"
                 android:icon="@drawable/ic_enable_auto_scale_24dp"
                 android:title="@string/enable_auto_zoom"
                 app:showAsAction="never"
+                android:orderInCategory="104"
                 />
             <item
                 android:id="@+id/action_disable_auto_zoom"
                 android:icon="@drawable/ic_disable_auto_scale_24dp"
                 android:title="@string/disable_auto_zoom"
                 app:showAsAction="never"
+                android:orderInCategory="104"
                 />
             <item
                 android:id="@+id/action_graph_options"
                 android:title="@string/graph_options"
                 app:showAsAction="never"
+                android:orderInCategory="104"
                 />
             <item
                 android:id="@+id/action_run_review_archive"
                 android:icon="@drawable/ic_archive_black_24dp"
                 android:title="@string/action_archive_run"
                 app:showAsAction="never"
+                android:orderInCategory="105"
                 />
             <item
                 android:id="@+id/action_run_review_unarchive"
                 android:icon="@drawable/ic_unarchive_black_24dp"
                 android:title="@string/action_unarchive_run"
                 app:showAsAction="never"
+                android:orderInCategory="105"
                 />
             <item
                 android:id="@+id/action_run_review_delete"
                 android:icon="@drawable/menu_delete"
                 android:title="@string/delete_run"
                 app:showAsAction="never"
+                android:orderInCategory="106"
                 />
         </menu>
     </item>

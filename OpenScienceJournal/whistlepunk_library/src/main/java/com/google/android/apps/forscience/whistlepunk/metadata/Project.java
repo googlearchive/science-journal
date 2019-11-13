@@ -16,94 +16,90 @@
 
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
-import android.content.Context;
+import androidx.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
-import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.common.annotations.VisibleForTesting;
-
-/**
- * Represents a project, which is a collection of experiments.
- */
+/** Represents a project, which is a collection of experiments. */
 public class Project {
 
-    private long mId;
-    private String mProjectId;
-    private String mTitle;
-    private String mDescription;
-    private String mCoverPhoto;
-    private boolean mArchived;
-    private long mLastUsedTime;
+  private long id;
+  private String projectId;
+  private String title;
+  private String description;
+  private String coverPhoto;
+  private boolean archived;
+  private long lastUsedTime;
 
-    @VisibleForTesting
-    public Project(long id) {
-        mId = id;
-    }
+  @VisibleForTesting
+  public Project(long id) {
+    this.id = id;
+  }
 
-    /* package */ long getId() {
-        return mId;
-    }
+  /* package */ long getId() {
+    return id;
+  }
 
-    /* package */ void setProjectId(String projectId) {
-        mProjectId = projectId;
-    }
+  /* package */ void setProjectId(String projectId) {
+    this.projectId = projectId;
+  }
 
-    public void setTitle(String title) {
-        this.mTitle = title;
-    }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public void setDescription(String description) {
-        mDescription = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setCoverPhoto(String coverPhoto) {
-        this.mCoverPhoto = coverPhoto;
-    }
+  public void setCoverPhoto(String coverPhoto) {
+    this.coverPhoto = coverPhoto;
+  }
 
-    public void setArchived(boolean archived) {
-        this.mArchived = archived;
-    }
+  public void setArchived(boolean archived) {
+    this.archived = archived;
+  }
 
-    public String getProjectId() {
-        return mProjectId;
-    }
+  public String getProjectId() {
+    return projectId;
+  }
 
-    public String getTitle() {
-        return mTitle;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public String getDescription() {
-        return mDescription;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public String getCoverPhoto() {
-        return mCoverPhoto;
-    }
+  public String getCoverPhoto() {
+    return coverPhoto;
+  }
 
-    public boolean isArchived() {
-        return mArchived;
-    }
+  public boolean isArchived() {
+    return archived;
+  }
 
-    public void setLastUsedTime(long lastUsedTime) {
-        mLastUsedTime = lastUsedTime;
-    }
+  public void setLastUsedTime(long lastUsedTime) {
+    this.lastUsedTime = lastUsedTime;
+  }
 
-    public long getLastUsedTime() {
-        return mLastUsedTime;
-    }
+  public long getLastUsedTime() {
+    return lastUsedTime;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        Project other = (Project) o;
-        if (other == null) {
-            return false;
-        }
-        boolean returnValue = mId == other.mId
-                && TextUtils.equals(mTitle, other.mTitle)
-                && mArchived == other.mArchived
-                && TextUtils.equals(mDescription, other.mDescription)
-                && TextUtils.equals(mCoverPhoto, other.mCoverPhoto)
-                && mLastUsedTime == other.mLastUsedTime;
-        return returnValue;
+  @Override
+  public boolean equals(Object o) {
+    Project other = (Project) o;
+    if (other == null) {
+      return false;
     }
+    boolean returnValue =
+        id == other.id
+            && TextUtils.equals(title, other.title)
+            && archived == other.archived
+            && TextUtils.equals(description, other.description)
+            && TextUtils.equals(coverPhoto, other.coverPhoto)
+            && lastUsedTime == other.lastUsedTime;
+    return returnValue;
+  }
 }

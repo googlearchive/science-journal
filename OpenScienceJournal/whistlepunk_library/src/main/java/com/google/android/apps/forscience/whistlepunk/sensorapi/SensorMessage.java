@@ -16,14 +16,13 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import com.google.android.apps.forscience.javalib.Consumer;
-
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Handles all the information that needs to be passed from a background sensor thread to the
  * foreground UI thread for store and display.
  *
- * SensorMessages are mutable, and are pooled to reduce allocations.  The use pattern is:
+ * <p>SensorMessages are mutable, and are pooled to reduce allocations. The use pattern is:
  *
  * <pre>
  *     SensorObserver observer = [observer that will receive data on foreground thread]
@@ -47,79 +46,75 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * </pre>
  */
 public class SensorMessage {
-    private final Runnable mRunnable;
-    private long mTimestamp = -1;
+  private final Runnable runnable;
+  private long timestamp = -1;
 
-    private SensorObserver.Data mData = new SensorObserver.Data();
+  private SensorObserver.Data data = new SensorObserver.Data();
 
-    private SensorMessage(final Consumer<SensorMessage> onNewData) {
-        mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                onNewData.take(SensorMessage.this);
-            }
+  private SensorMessage(final Consumer<SensorMessage> onNewData) {
+    runnable =
+        new Runnable() {
+          @Override
+          public void run() {
+            onNewData.take(SensorMessage.this);
+          }
         };
-    }
+  }
 
-    public void setTimestamp(long timestamp) {
-        mTimestamp = timestamp;
-    }
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+  }
 
-    public long getTimestamp() {
-        return mTimestamp;
-    }
+  public long getTimestamp() {
+    return timestamp;
+  }
 
-    /**
-     * The bundle returned here is mutable.  Add data to it to be delivered to the observer.
-     * When getRunnable() is run, the data will be delivered, and then cleared out for reuse.
-     */
-    public SensorObserver.Data getData() {
-        return mData;
-    }
+  /**
+   * The bundle returned here is mutable. Add data to it to be delivered to the observer. When
+   * getRunnable() is run, the data will be delivered, and then cleared out for reuse.
+   */
+  public SensorObserver.Data getData() {
+    return data;
+  }
 
-    /**
-     * @return a runnable that will deliver this data to the observer, and then release this message
-     * for reuse.
-     */
-    public Runnable getRunnable() {
-        return mRunnable;
-    }
+  /**
+   * @return a runnable that will deliver this data to the observer, and then release this message
+   *     for reuse.
+   */
+  public Runnable getRunnable() {
+    return runnable;
+  }
 
-    /**
-     * A pool of reusable SensorMessages.
-     */
-    public static class Pool {
-        private final Consumer<SensorMessage> mOnNewData;
-        private ConcurrentLinkedQueue<SensorMessage> mQueue = new ConcurrentLinkedQueue<>();
+  /** A pool of reusable SensorMessages. */
+  public static class Pool {
+    private final Consumer<SensorMessage> onNewData;
+    private ConcurrentLinkedQueue<SensorMessage> queue = new ConcurrentLinkedQueue<>();
 
-        /**
-         * Creates a pool of messages that will deliver data to {@code observer}
-         */
-        public Pool(final SensorObserver observer) {
-            mOnNewData = new Consumer<SensorMessage>() {
-                @Override
-                public void take(SensorMessage sensorMessage) {
-                    observer.onNewData(sensorMessage.getTimestamp(), sensorMessage.getData());
-                    release(sensorMessage);
-                }
-            };
-        }
-
-        /**
-         * @return a reused message if any are available, or a new one if necessary.
-         */
-        public SensorMessage obtain() {
-            SensorMessage obtained = mQueue.poll();
-            if (obtained == null) {
-                return new SensorMessage(mOnNewData);
+    /** Creates a pool of messages that will deliver data to {@code observer} */
+    public Pool(final SensorObserver observer) {
+      onNewData =
+          new Consumer<SensorMessage>() {
+            @Override
+            public void take(SensorMessage sensorMessage) {
+              observer.onNewData(sensorMessage.getTimestamp(), sensorMessage.getData());
+              release(sensorMessage);
             }
-            return obtained;
-        }
-
-        private void release(SensorMessage released) {
-            released.mData.clear();
-            released.mTimestamp = -1;
-            mQueue.add(released);
-        }
+          };
     }
+
+    /** @return a reused message if any are available, or a new one if necessary. */
+    public SensorMessage obtain() {
+      SensorMessage obtained = queue.poll();
+      if (obtained == null) {
+        return new SensorMessage(onNewData);
+      }
+      return obtained;
+    }
+
+    private void release(SensorMessage released) {
+      released.data.clear();
+      released.timestamp = -1;
+      queue.add(released);
+    }
+  }
 }

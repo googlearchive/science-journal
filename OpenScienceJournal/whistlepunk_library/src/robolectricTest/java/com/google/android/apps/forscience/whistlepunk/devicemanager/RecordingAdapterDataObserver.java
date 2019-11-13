@@ -17,49 +17,46 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
 import static org.junit.Assert.assertEquals;
 
-import android.support.v7.widget.RecyclerView;
-
+import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
 class RecordingAdapterDataObserver extends RecyclerView.AdapterDataObserver {
-    private List<String> mostRecentNotifications = new ArrayList<>();
+  private List<String> mostRecentNotifications = new ArrayList<>();
 
-    @Override
-    public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-        mostRecentNotifications.add(0,
-                String.format("Moved %s from %s to %s", itemCount, fromPosition, toPosition));
-    }
+  @Override
+  public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+    mostRecentNotifications.add(
+        0, String.format("Moved %s from %s to %s", itemCount, fromPosition, toPosition));
+  }
 
-    @Override
-    public void onChanged() {
-        mostRecentNotifications.add(0, String.format("Changed"));
-    }
+  @Override
+  public void onChanged() {
+    mostRecentNotifications.add(0, String.format("Changed"));
+  }
 
-    @Override
-    public void onItemRangeChanged(int positionStart, int itemCount) {
-        mostRecentNotifications.add(0, String.format("Changed %s at %s", itemCount, positionStart));
-    }
+  @Override
+  public void onItemRangeChanged(int positionStart, int itemCount) {
+    mostRecentNotifications.add(0, String.format("Changed %s at %s", itemCount, positionStart));
+  }
 
-    @Override
-    public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
-        mostRecentNotifications.add(0,
-                String.format("Changed %s at %s [%s]", itemCount, positionStart, payload));
-    }
+  @Override
+  public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+    mostRecentNotifications.add(
+        0, String.format("Changed %s at %s [%s]", itemCount, positionStart, payload));
+  }
 
-    @Override
-    public void onItemRangeInserted(int positionStart, int itemCount) {
-        mostRecentNotifications.add(0,
-                String.format("Inserted %s at %s", itemCount, positionStart));
-    }
+  @Override
+  public void onItemRangeInserted(int positionStart, int itemCount) {
+    mostRecentNotifications.add(0, String.format("Inserted %s at %s", itemCount, positionStart));
+  }
 
-    @Override
-    public void onItemRangeRemoved(int positionStart, int itemCount) {
-        mostRecentNotifications.add(0,
-                String.format("Removed %s from %s", itemCount, positionStart));
-    }
+  @Override
+  public void onItemRangeRemoved(int positionStart, int itemCount) {
+    mostRecentNotifications.add(0, String.format("Removed %s from %s", itemCount, positionStart));
+  }
 
-    void assertMostRecentNotification(String string) {
-        assertEquals(mostRecentNotifications.toString(), string, mostRecentNotifications.get(0));
-    }
+  void assertMostRecentNotification(String string) {
+    assertEquals(mostRecentNotifications.toString(), string, mostRecentNotifications.get(0));
+  }
 }

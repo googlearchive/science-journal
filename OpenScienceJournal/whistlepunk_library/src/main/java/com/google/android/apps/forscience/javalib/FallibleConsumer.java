@@ -21,5 +21,5 @@ package com.google.android.apps.forscience.javalib;
  * exception.
  */
 public interface FallibleConsumer<T> {
-    void take(T t) throws Exception;
+  void take(T t) throws Exception;
 }

@@ -17,99 +17,95 @@ package com.google.android.apps.forscience.whistlepunk.sensors;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class BleProtocolVersionTest {
-    @Test
-    public void testVersionDecodeMajor() {
-        BleProtocolVersion versionDecoder;
+  @Test
+  public void testVersionDecodeMajor() {
+    BleProtocolVersion versionDecoder;
 
-        byte[] version_1_0_0 = {0x00, 0x08};
-        versionDecoder = new BleProtocolVersion(version_1_0_0);
-        assertEquals(1, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
+    byte[] version_1_0_0 = {0x00, 0x08};
+    versionDecoder = new BleProtocolVersion(version_1_0_0);
+    assertEquals(1, versionDecoder.getMajorVersion());
+    assertEquals(0, versionDecoder.getMinorVersion());
+    assertEquals(0, versionDecoder.getPatchVersion());
 
-        byte[] version_2_0_0 = {0x00, 0x10};
-        versionDecoder = new BleProtocolVersion(version_2_0_0);
-        assertEquals(2, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
+    byte[] version_2_0_0 = {0x00, 0x10};
+    versionDecoder = new BleProtocolVersion(version_2_0_0);
+    assertEquals(2, versionDecoder.getMajorVersion());
+    assertEquals(0, versionDecoder.getMinorVersion());
+    assertEquals(0, versionDecoder.getPatchVersion());
 
-        byte[] version_MAX_0_0 = {0x00, -0x08};
-        versionDecoder = new BleProtocolVersion(version_MAX_0_0);
-        assertEquals(versionDecoder.getMaxMajorVersion(), versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
-    }
+    byte[] version_MAX_0_0 = {0x00, -0x08};
+    versionDecoder = new BleProtocolVersion(version_MAX_0_0);
+    assertEquals(versionDecoder.getMaxMajorVersion(), versionDecoder.getMajorVersion());
+    assertEquals(0, versionDecoder.getMinorVersion());
+    assertEquals(0, versionDecoder.getPatchVersion());
+  }
 
-    @Test
-    public void testVersionDecodeMinor() {
-        BleProtocolVersion versionDecoder;
+  @Test
+  public void testVersionDecodeMinor() {
+    BleProtocolVersion versionDecoder;
 
-        byte[] version_0_1_0 = {0x40, 0x00};
-        versionDecoder = new BleProtocolVersion(version_0_1_0);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(1, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
+    byte[] version_0_1_0 = {0x40, 0x00};
+    versionDecoder = new BleProtocolVersion(version_0_1_0);
+    assertEquals(0, versionDecoder.getMajorVersion());
+    assertEquals(1, versionDecoder.getMinorVersion());
+    assertEquals(0, versionDecoder.getPatchVersion());
 
-        byte[] version_0_2_0 = {-0x80, 0x00};
-        versionDecoder = new BleProtocolVersion(version_0_2_0);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(2, versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
+    byte[] version_0_2_0 = {-0x80, 0x00};
+    versionDecoder = new BleProtocolVersion(version_0_2_0);
+    assertEquals(0, versionDecoder.getMajorVersion());
+    assertEquals(2, versionDecoder.getMinorVersion());
+    assertEquals(0, versionDecoder.getPatchVersion());
 
-        byte[] version_0_MAX_0 = {-0x40, 0x07};
-        versionDecoder = new BleProtocolVersion(version_0_MAX_0);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(versionDecoder.getMaxMinorVersion(), versionDecoder.getMinorVersion());
-        assertEquals(0, versionDecoder.getPatchVersion());
-    }
+    byte[] version_0_MAX_0 = {-0x40, 0x07};
+    versionDecoder = new BleProtocolVersion(version_0_MAX_0);
+    assertEquals(0, versionDecoder.getMajorVersion());
+    assertEquals(versionDecoder.getMaxMinorVersion(), versionDecoder.getMinorVersion());
+    assertEquals(0, versionDecoder.getPatchVersion());
+  }
 
-    @Test
-    public void testVersionDecodePatch() {
-        BleProtocolVersion versionDecoder;
+  @Test
+  public void testVersionDecodePatch() {
+    BleProtocolVersion versionDecoder;
 
-        byte[] version_0_0_1 = {0x01, 0x00};
-        versionDecoder = new BleProtocolVersion(version_0_0_1);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(1, versionDecoder.getPatchVersion());
+    byte[] version_0_0_1 = {0x01, 0x00};
+    versionDecoder = new BleProtocolVersion(version_0_0_1);
+    assertEquals(0, versionDecoder.getMajorVersion());
+    assertEquals(0, versionDecoder.getMinorVersion());
+    assertEquals(1, versionDecoder.getPatchVersion());
 
-        byte[] version_0_0_2 = {0x02, 0x00};
-        versionDecoder = new BleProtocolVersion(version_0_0_2);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(2, versionDecoder.getPatchVersion());
+    byte[] version_0_0_2 = {0x02, 0x00};
+    versionDecoder = new BleProtocolVersion(version_0_0_2);
+    assertEquals(0, versionDecoder.getMajorVersion());
+    assertEquals(0, versionDecoder.getMinorVersion());
+    assertEquals(2, versionDecoder.getPatchVersion());
 
-        byte[] version_0_0_MAX = {0x3F, 0x00};
-        versionDecoder = new BleProtocolVersion(version_0_0_MAX);
-        assertEquals(0, versionDecoder.getMajorVersion());
-        assertEquals(0, versionDecoder.getMinorVersion());
-        assertEquals(versionDecoder.getMaxPatchVersion(), versionDecoder.getPatchVersion());
-    }
+    byte[] version_0_0_MAX = {0x3F, 0x00};
+    versionDecoder = new BleProtocolVersion(version_0_0_MAX);
+    assertEquals(0, versionDecoder.getMajorVersion());
+    assertEquals(0, versionDecoder.getMinorVersion());
+    assertEquals(versionDecoder.getMaxPatchVersion(), versionDecoder.getPatchVersion());
+  }
 
-    @Test
-    public void testVersionDecodeAll() {
-        BleProtocolVersion versionDecoder;
+  @Test
+  public void testVersionDecodeAll() {
+    BleProtocolVersion versionDecoder;
 
-        byte[] version_1_1_1 = {0x41, 0x08};
-        versionDecoder = new BleProtocolVersion(version_1_1_1);
-        assertEquals(1, versionDecoder.getMajorVersion());
-        assertEquals(1, versionDecoder.getMinorVersion());
-        assertEquals(1, versionDecoder.getPatchVersion());
+    byte[] version_1_1_1 = {0x41, 0x08};
+    versionDecoder = new BleProtocolVersion(version_1_1_1);
+    assertEquals(1, versionDecoder.getMajorVersion());
+    assertEquals(1, versionDecoder.getMinorVersion());
+    assertEquals(1, versionDecoder.getPatchVersion());
 
-        byte[] version_MAX_MAX_MAX = {-0x01, -0x01};
-        versionDecoder = new BleProtocolVersion(version_MAX_MAX_MAX);
-        assertEquals(versionDecoder.getMaxMajorVersion(), versionDecoder.getMajorVersion());
-        assertEquals(versionDecoder.getMaxMinorVersion(), versionDecoder.getMinorVersion());
-        assertEquals(versionDecoder.getMaxPatchVersion(), versionDecoder.getPatchVersion());
-    }
+    byte[] version_MAX_MAX_MAX = {-0x01, -0x01};
+    versionDecoder = new BleProtocolVersion(version_MAX_MAX_MAX);
+    assertEquals(versionDecoder.getMaxMajorVersion(), versionDecoder.getMajorVersion());
+    assertEquals(versionDecoder.getMaxMinorVersion(), versionDecoder.getMinorVersion());
+    assertEquals(versionDecoder.getMaxPatchVersion(), versionDecoder.getPatchVersion());
+  }
 }

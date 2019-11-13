@@ -1,5 +1,5 @@
 ext.majorVersionNumber = 2
-ext.minorVersionNumber = 0
+ext.minorVersionNumber = 1
 // Continuous integration sets this variable to the current build number
 // Otherwise for developer builds, this is 0.
 ext.buildNumber = System.getenv("BUILD_NUMBER") ?: 0
@@ -16,4 +16,8 @@ ext.buildVersionCode = {
 
 ext.buildVersionName = {
     return "$majorVersionNumber.$minorVersionNumber.$buildNumber"
+}
+
+ext.getReleaseVersionNumber = {
+    return "$releaseVersionNumber"
 }

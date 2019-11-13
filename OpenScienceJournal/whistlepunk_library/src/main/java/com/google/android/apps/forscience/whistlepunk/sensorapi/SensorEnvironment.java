@@ -20,26 +20,26 @@ import com.google.android.apps.forscience.ble.BleClient;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.RecordingDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorHistoryStorage;
-
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.audio.AudioSource;
 import io.reactivex.Single;
 
-/**
- * Encapsulates services that sensors need to do their jobs
- */
+/** Encapsulates services that sensors need to do their jobs */
 public interface SensorEnvironment {
-    RecordingDataController getDataController();
+  RecordingDataController getDataController(AppAccount appAccount);
 
-    /**
-     * @return a Single that publishes once there is a connected BLE client
-     */
-    Single<BleClient> getConnectedBleClient();
+  /** @return a Single that publishes once there is a connected BLE client */
+  Single<BleClient> getConnectedBleClient();
 
-    /**
-     * @return report values using this clock, _unless_ the sensor has a better built-in
-     * timestamp to use (for example, given skew, it's better to believe the
-     * timestamps in the BLE packets than the clock value)
-     */
-    Clock getDefaultClock();
+  /**
+   * @return report values using this clock, _unless_ the sensor has a better built-in timestamp to
+   *     use (for example, given skew, it's better to believe the timestamps in the BLE packets than
+   *     the clock value)
+   */
+  Clock getDefaultClock();
 
-    SensorHistoryStorage getSensorHistoryStorage();
+  /** @return the common audio source that can be used by multiple sensors simultaneously. */
+  AudioSource getAudioSource();
+
+  SensorHistoryStorage getSensorHistoryStorage();
 }

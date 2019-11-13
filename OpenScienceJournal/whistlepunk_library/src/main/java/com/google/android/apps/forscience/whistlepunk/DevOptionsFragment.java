@@ -24,110 +24,108 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
-/**
- * Holder for Developer Testing Options
- */
+/** Holder for Developer Testing Options */
 public class DevOptionsFragment extends PreferenceFragment {
-    private static final String TAG = "DevOptionsFragment";
+  private static final String TAG = "DevOptionsFragment";
 
-    @VisibleForTesting
-    public static final String KEY_SINE_WAVE_SENSOR = "enable_sine_wave_sensor";
+  @VisibleForTesting public static final String KEY_SINE_WAVE_SENSOR = "enable_sine_wave_sensor";
 
-    private static final String KEY_DEV_TOOLS = "dev_tools";
-    private static final String KEY_LEAK_CANARY = "leak_canary";
-    private static final String KEY_STRICT_MODE = "strict_mode";
-    public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
-    public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
-    private static final String KEY_PERF_DEBUG_SCREEN = "show_perf_tracker_debug";
+  private static final String KEY_DEV_TOOLS = "dev_tools";
+  private static final String KEY_LEAK_CANARY = "leak_canary";
+  private static final String KEY_STRICT_MODE = "strict_mode";
+  public static final String KEY_DEV_SONIFICATION_TYPES = "enable_dev_sonification_types";
+  public static final String KEY_AMBIENT_TEMPERATURE_SENSOR = "enable_ambient_temp_sensor";
+  private static final String KEY_PERF_DEBUG_SCREEN = "show_perf_tracker_debug";
+  public static final String KEY_SMOOTH_SCROLL = "enable_smooth_scrolling_to_bottom";
 
-    public static DevOptionsFragment newInstance() {
-        return new DevOptionsFragment();
+  public static DevOptionsFragment newInstance() {
+    return new DevOptionsFragment();
+  }
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    Context context = getActivity();
+
+    addPreferencesFromResource(R.xml.dev_options);
+
+    CheckBoxPreference leakPref = (CheckBoxPreference) findPreference(KEY_LEAK_CANARY);
+    if (isDebugVersion()) {
+      leakPref.setChecked(isLeakCanaryEnabled(context));
+      leakPref.setOnPreferenceChangeListener(
+          (preference, newValue) -> {
+            final SharedPreferences prefs = getPrefs(preference.getContext());
+            prefs.edit().putBoolean(KEY_LEAK_CANARY, (Boolean) newValue).apply();
+            return true;
+          });
+    } else {
+      getPreferenceScreen().removePreference(leakPref);
     }
 
-    static boolean shouldHideTestingOptions(Context context) {
-        if (!isDebugVersion()) {
-            return true;
-        }
-        return Build.TYPE.equals("user") && !BuildConfig.DEBUG && !BuildConfig.BUILD_TYPE.equals(
-                "debug");
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        addPreferencesFromResource(R.xml.dev_options);
-
-        CheckBoxPreference leakPref = (CheckBoxPreference) findPreference(KEY_LEAK_CANARY);
-        if (isDebugVersion()) {
-            leakPref.setChecked(isLeakCanaryEnabled(getActivity()));
-            leakPref.setOnPreferenceChangeListener((preference, newValue) -> {
-                final SharedPreferences prefs = getPrefs(preference.getContext());
-                prefs.edit().putBoolean(KEY_LEAK_CANARY, (Boolean) newValue).apply();
-                return true;
-            });
-        } else {
-            getPreferenceScreen().removePreference(leakPref);
-        }
-
-        Preference prefTrackerPref = findPreference(KEY_PERF_DEBUG_SCREEN);
-        prefTrackerPref.setOnPreferenceClickListener(preference -> {
-            WhistlePunkApplication.getPerfTrackerProvider(getContext())
-                    .startPerfTrackerEventDebugActivity(getContext());
-            return true;
+    Preference prefTrackerPref = findPreference(KEY_PERF_DEBUG_SCREEN);
+    prefTrackerPref.setOnPreferenceClickListener(
+        preference -> {
+          WhistlePunkApplication.getPerfTrackerProvider(context)
+              .startPerfTrackerEventDebugActivity(context);
+          return true;
         });
-    }
+  }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
+  @Override
+  public void onResume() {
+    super.onResume();
+  }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
+  @Override
+  public void onPause() {
+    super.onPause();
+  }
 
-    @VisibleForTesting
-    public static SharedPreferences getPrefs(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context);
-    }
+  @VisibleForTesting
+  public static SharedPreferences getPrefs(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context);
+  }
 
-    public static boolean isSineWaveEnabled(Context context) {
-        return getBoolean(KEY_SINE_WAVE_SENSOR, false, context);
-    }
+  public static boolean isSineWaveEnabled(Context context) {
+    return getBoolean(KEY_SINE_WAVE_SENSOR, false, context);
+  }
 
-    public static boolean isDevToolsEnabled(Context context) {
-        return getBoolean(KEY_DEV_TOOLS, false, context);
-    }
+  public static boolean isDevToolsEnabled(Context context) {
+    return getBoolean(KEY_DEV_TOOLS, false, context);
+  }
 
-    public static boolean isLeakCanaryEnabled(Context context) {
-        // Enable by default for non user builds, otherwise respect the preference.
-        return getBoolean(KEY_LEAK_CANARY, !Build.TYPE.equals("user"), context);
-    }
+  public static boolean isLeakCanaryEnabled(Context context) {
+    // Enable by default for non user builds, otherwise respect the preference.
+    return getBoolean(KEY_LEAK_CANARY, !Build.TYPE.equals("user"), context);
+  }
 
-    public static boolean isStrictModeEnabled(Context context) {
-        return getBoolean(KEY_STRICT_MODE, false, context);
-    }
+  public static boolean isStrictModeEnabled(Context context) {
+    return getBoolean(KEY_STRICT_MODE, false, context);
+  }
 
-    public static boolean isDebugVersion() {
-        return BuildConfig.DEBUG;
-    }
+  public static boolean isDebugVersion() {
+    return BuildConfig.DEBUG;
+  }
 
-    public static boolean getEnableAdditionalSonificationTypes(Context context) {
-        return getBoolean(KEY_DEV_SONIFICATION_TYPES, false, context);
-    }
+  public static boolean getEnableAdditionalSonificationTypes(Context context) {
+    return getBoolean(KEY_DEV_SONIFICATION_TYPES, false, context);
+  }
 
-    public static boolean isAmbientTemperatureSensorEnabled(Context context) {
-        return getBoolean(KEY_AMBIENT_TEMPERATURE_SENSOR, false, context);
-    }
+  public static boolean isAmbientTemperatureSensorEnabled(Context context) {
+    return getBoolean(KEY_AMBIENT_TEMPERATURE_SENSOR, false, context);
+  }
 
-    private static boolean getBoolean(String key, boolean defaultBool, Context context) {
-        if (!isDebugVersion()) {
-            return defaultBool;
-        }
-        return getPrefs(context).getBoolean(key, defaultBool);
+  public static boolean isSmoothScrollingToBottomEnabled(Context context) {
+    return getBoolean(KEY_SMOOTH_SCROLL, true, context);
+  }
+
+  private static boolean getBoolean(String key, boolean defaultBool, Context context) {
+    if (!isDebugVersion()) {
+      return defaultBool;
     }
+    return getPrefs(context).getBoolean(key, defaultBool);
+  }
 }

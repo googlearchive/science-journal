@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Google Inc. All Rights Reserved.
+ *  Copyright 2019 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,16 +29,17 @@ import "sensor_trigger_information.proto";
  * Added in V2.
  */
 message SensorTrigger {
-    // The sensor ID associated with this trigger. This is not mutable.
-    optional string sensorId = 1;
+  // The sensor ID associated with this trigger. This is not mutable.
+  optional string sensorId = 1;
 
-    // The timestamp of when this trigger was last used. This is updated with any setters to the
-    // trigger, but it is the responsibility of the client to update the database.
-    optional int64 lastUsedMs = 2;
+  // The timestamp of when this trigger was last used. This is updated with any
+  // setters to the trigger, but it is the responsibility of the client to
+  // update the database.
+  optional int64 lastUsedMs = 2;
 
-    // The Trigger Information describing this trigger.
-    optional TriggerInformation triggerInformation = 3;
+  // The Trigger Information describing this trigger.
+  optional TriggerInformation triggerInformation = 3;
 
-    // The unique ID of this trigger.
-    optional string triggerId = 4;
+  // The unique ID of this trigger.
+  optional string triggerId = 4;
 }

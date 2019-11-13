@@ -21,7 +21,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
@@ -31,83 +30,83 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
-/**
- * Class to create a compass sensor from the magnetic field and accelerometer.
- */
+/** Class to create a compass sensor from the magnetic field and accelerometer. */
 public class CompassSensor extends ScalarSensor {
-    public static final String ID = "CompassSensor";
-    private SensorEventListener mSensorEventListener;
+  public static final String ID = "CompassSensor";
+  private SensorEventListener sensorEventListener;
 
-    public CompassSensor() {
-        super(ID);
-    }
+  public CompassSensor() {
+    super(ID);
+  }
 
-    @Override
-    protected SensorRecorder makeScalarControl(StreamConsumer c, SensorEnvironment environment,
-            Context context, SensorStatusListener listener) {
-        return new AbstractSensorRecorder() {
-            @Override
-            public void startObserving() {
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
-                SensorManager sensorManager = getSensorManager(context);
-                Sensor magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-                Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                if (mSensorEventListener != null) {
-                    getSensorManager(context).unregisterListener(mSensorEventListener);
+  @Override
+  protected SensorRecorder makeScalarControl(
+      StreamConsumer c,
+      SensorEnvironment environment,
+      Context context,
+      SensorStatusListener listener) {
+    return new AbstractSensorRecorder() {
+      @Override
+      public void startObserving() {
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+        SensorManager sensorManager = getSensorManager(context);
+        Sensor magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
+        }
+        final Clock clock = environment.getDefaultClock();
+        sensorEventListener =
+            new SensorEventListener() {
+              private float[] orientation = new float[3];
+              private float[] magneticRotation;
+              private float[] acceleration;
+              private float[] rotation = new float[9];
+              private float[] inclination = new float[9];
+
+              @Override
+              public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                  acceleration = event.values;
+                } else {
+                  magneticRotation = event.values;
                 }
-                final Clock clock = environment.getDefaultClock();
-                mSensorEventListener = new SensorEventListener() {
-                    private float[] orientation = new float[3];
-                    private float[] magneticRotation;
-                    private float[] acceleration;
-                    private float[] rotation = new float[9];
-                    private float[] inclination = new float[9];
+                // Update data as long as we have a value for both. This is the highest
+                // rate of update.
+                // If we want a slower rate, we can update when *both* values have changed,
+                // or only when magneticRotation changes, for example.
+                if (acceleration == null || magneticRotation == null) {
+                  return;
+                }
+                boolean hasRotation =
+                    SensorManager.getRotationMatrix(
+                        rotation, inclination, acceleration, magneticRotation);
+                if (hasRotation) {
+                  SensorManager.getOrientation(rotation, orientation);
+                  // Use a positive angle in degrees between 0 and 360.
+                  c.addData(clock.getNow(), 360 - (360 - (Math.toDegrees(orientation[0]))) % 360);
+                }
+              }
 
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                            acceleration = event.values;
-                        } else {
-                            magneticRotation = event.values;
-                        }
-                        // Update data as long as we have a value for both. This is the highest
-                        // rate of update.
-                        // If we want a slower rate, we can update when *both* values have changed,
-                        // or only when magneticRotation changes, for example.
-                        if (acceleration == null || magneticRotation == null) {
-                            return;
-                        }
-                        boolean hasRotation = SensorManager.getRotationMatrix(rotation, inclination,
-                                acceleration, magneticRotation);
-                        if (hasRotation) {
-                            SensorManager.getOrientation(rotation, orientation);
-                            // Use a positive angle in degrees between 0 and 360.
-                            c.addData(clock.getNow(), 360 - (360 - (Math.toDegrees(orientation[0])))
-                                    % 360);
-                        }
-                    }
+              @Override
+              public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+            };
+        sensorManager.registerListener(
+            sensorEventListener, magnetometer, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(
+            sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
+      }
 
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+      @Override
+      public void stopObserving() {
+        getSensorManager(context).unregisterListener(sensorEventListener);
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
+      }
+    };
+  }
 
-                    }
-                };
-                sensorManager.registerListener(mSensorEventListener, magnetometer,
-                        SensorManager.SENSOR_DELAY_UI);
-                sensorManager.registerListener(mSensorEventListener, accelerometer,
-                        SensorManager.SENSOR_DELAY_UI);
-            }
-
-            @Override
-            public void stopObserving() {
-                getSensorManager(context).unregisterListener(mSensorEventListener);
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
-            }
-        };
-    }
-
-    public static boolean isCompassSensorAvailable(AvailableSensors availableSensors) {
-        return availableSensors.isSensorAvailable(Sensor.TYPE_ACCELEROMETER) &&
-                availableSensors.isSensorAvailable(Sensor.TYPE_MAGNETIC_FIELD);
-    }
+  public static boolean isCompassSensorAvailable(AvailableSensors availableSensors) {
+    return availableSensors.isSensorAvailable(Sensor.TYPE_ACCELEROMETER)
+        && availableSensors.isSensorAvailable(Sensor.TYPE_MAGNETIC_FIELD);
+  }
 }

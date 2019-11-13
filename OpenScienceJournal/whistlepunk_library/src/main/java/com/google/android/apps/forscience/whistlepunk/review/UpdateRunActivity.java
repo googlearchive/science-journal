@@ -18,36 +18,47 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 
 public class UpdateRunActivity extends AppCompatActivity {
 
-    private static final String FRAGMENT_TAG = "fragment";
+  private static final String FRAGMENT_TAG = "fragment";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_run);
-
-        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
-            String runId = getIntent().getExtras().getString(
-                    UpdateRunFragment.ARG_RUN_ID);
-            String experimentId = getIntent().getExtras().getString(UpdateRunFragment.ARG_EXP_ID);
-            UpdateRunFragment fragment = UpdateRunFragment.newInstance(runId, experimentId);
-            fragment.setRetainInstance(true);
-
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment,
-                    FRAGMENT_TAG).commit();
-        }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_update_run);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    public static void launch(Context context, String runId, String experimentId) {
-        final Intent intent = new Intent(context, UpdateRunActivity.class);
-        intent.putExtra(UpdateRunFragment.ARG_RUN_ID, runId);
-        intent.putExtra(UpdateRunFragment.ARG_EXP_ID, experimentId);
-        context.startActivity(intent);
+    if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
+      AppAccount appAccount =
+          WhistlePunkApplication.getAccount(this, getIntent(), UpdateRunFragment.ARG_ACCOUNT_KEY);
+      String runId = getIntent().getExtras().getString(UpdateRunFragment.ARG_RUN_ID);
+      String experimentId = getIntent().getExtras().getString(UpdateRunFragment.ARG_EXP_ID);
+      UpdateRunFragment fragment = UpdateRunFragment.newInstance(appAccount, runId, experimentId);
+      fragment.setRetainInstance(true);
+
+      getSupportFragmentManager()
+          .beginTransaction()
+          .add(R.id.container, fragment, FRAGMENT_TAG)
+          .commit();
     }
+  }
+
+  public static void launch(
+      Context context, AppAccount appAccount, String runId, String experimentId) {
+    final Intent intent = new Intent(context, UpdateRunActivity.class);
+    intent.putExtra(UpdateRunFragment.ARG_ACCOUNT_KEY, appAccount.getAccountKey());
+    intent.putExtra(UpdateRunFragment.ARG_RUN_ID, runId);
+    intent.putExtra(UpdateRunFragment.ARG_EXP_ID, experimentId);
+    context.startActivity(intent);
+  }
 }

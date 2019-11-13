@@ -39,7 +39,7 @@
             android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
             />
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="216dp"
@@ -63,7 +63,7 @@
             android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
             />
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="216dp"
@@ -150,7 +150,7 @@
                     android:layout_centerVertical="true"
                     />
 
-                <android.support.v7.widget.SwitchCompat
+                <androidx.appcompat.widget.SwitchCompat
                     android:layout_width="@dimen/accessibility_touch_target_min_size"
                     android:layout_height="@dimen/accessibility_touch_target_min_size"
                     android:id="@id/trigger_only_when_recording"
@@ -199,6 +199,7 @@
                 android:hint="@string/trigger_note_text_hint"
                 android:layout_marginStart="@dimen/edit_trigger_horizontal_margin"
                 android:layout_marginEnd="@dimen/edit_trigger_horizontal_margin"
+                android:inputType="textCapSentences|textAutoCorrect"
                 />
 
         </LinearLayout>
@@ -250,7 +251,7 @@
                     android:layout_centerVertical="true"
                     />
 
-                <android.support.v7.widget.SwitchCompat
+                <androidx.appcompat.widget.SwitchCompat
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/accessibility_touch_target_min_size"
                     android:id="@id/alert_type_audio_selector"
@@ -278,7 +279,7 @@
                     android:layout_centerVertical="true"
                     />
 
-                <android.support.v7.widget.SwitchCompat
+                <androidx.appcompat.widget.SwitchCompat
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/accessibility_touch_target_min_size"
                     android:id="@id/alert_type_haptic_selector"
@@ -306,7 +307,7 @@
                     android:layout_centerVertical="true"
                     />
 
-                <android.support.v7.widget.SwitchCompat
+                <androidx.appcompat.widget.SwitchCompat
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/accessibility_touch_target_min_size"
                     android:id="@+id/alert_type_visual_selector"

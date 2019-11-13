@@ -22,13 +22,18 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorChoice;
 import com.google.common.util.concurrent.MoreExecutors;
 
 class AllSensorsRegistry extends SensorRegistry {
-    @Override
-    public void withSensorChoice(String tag, String id, Consumer<SensorChoice> consumer) {
-        consumer.take(new ManualSensor(id, 100, 100, MoreExecutors.directExecutor(),
-                shouldAutomaticallyConnectWhenObserving()));
-    }
+  @Override
+  public void withSensorChoice(String tag, String id, Consumer<SensorChoice> consumer) {
+    consumer.take(
+        new ManualSensor(
+            id,
+            100,
+            100,
+            MoreExecutors.directExecutor(),
+            shouldAutomaticallyConnectWhenObserving()));
+  }
 
-    protected boolean shouldAutomaticallyConnectWhenObserving() {
-        return true;
-    }
+  protected boolean shouldAutomaticallyConnectWhenObserving() {
+    return true;
+  }
 }

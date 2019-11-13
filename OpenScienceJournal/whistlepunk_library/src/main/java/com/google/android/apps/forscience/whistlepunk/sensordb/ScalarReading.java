@@ -18,106 +18,104 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import com.google.android.apps.forscience.whistlepunk.TimedEvent;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * A reading from the database.  Comparable based on timestamp only, to find a given timestamp
- * in a list of readings.
+ * A reading from the database. Comparable based on timestamp only, to find a given timestamp in a
+ * list of readings.
  */
 public class ScalarReading implements TimedEvent, Comparable<ScalarReading> {
-    public static final String SENSOR_TAG_UNDEFINED = "undefined";
+  public static final String SENSOR_TAG_UNDEFINED = "undefined";
 
-    private final long mTimestampMillis;
-    private final double mValue;
-    private final String mSensorTag;
+  private final long timestampMillis;
+  private final double value;
+  private final String sensorTag;
 
-    public ScalarReading(long timestampMillis, double value, String sensorTag) {
-        mTimestampMillis = timestampMillis;
-        mValue = value;
-        mSensorTag = sensorTag;
-    }
+  public ScalarReading(long timestampMillis, double value, String sensorTag) {
+    this.timestampMillis = timestampMillis;
+    this.value = value;
+    this.sensorTag = sensorTag;
+  }
 
-    public ScalarReading(long timestampMillis, double value) {
-        this(timestampMillis, value, SENSOR_TAG_UNDEFINED);
-    }
+  public ScalarReading(long timestampMillis, double value) {
+    this(timestampMillis, value, SENSOR_TAG_UNDEFINED);
+  }
 
-    /**
-     * Warning: this can use a lot of memory.  Prefer to maintain the ScalarReadingList
-     */
-    public static List<ScalarReading> slurp(ScalarReadingList list) {
-        final List<ScalarReading> readings = new ArrayList<>();
-        list.deliver(new StreamConsumer() {
-            @Override
-            public boolean addData(long timestampMillis, double value) {
-                readings.add(new ScalarReading(timestampMillis, value));
-                return true;
-            }
-        });
-        return readings;
-    }
-
-    /**
-     * Only use this for testing.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+  /** Warning: this can use a lot of memory. Prefer to maintain the ScalarReadingList */
+  public static List<ScalarReading> slurp(ScalarReadingList list) {
+    final List<ScalarReading> readings = new ArrayList<>();
+    list.deliver(
+        new StreamConsumer() {
+          @Override
+          public boolean addData(long timestampMillis, double value) {
+            readings.add(new ScalarReading(timestampMillis, value));
             return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+          }
+        });
+    return readings;
+  }
 
-        final ScalarReading that = (ScalarReading) o;
-
-        if (mTimestampMillis != that.mTimestampMillis) {
-            return false;
-        }
-        if (!Objects.equals(mSensorTag, that.mSensorTag)) {
-            return false;
-        }
-        return Double.compare(that.mValue, mValue) == 0;
-
+  /** Only use this for testing. */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
 
-    @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        result = (int) (mTimestampMillis ^ (mTimestampMillis >>> 32));
-        temp = Double.doubleToLongBits(mValue);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + mSensorTag.hashCode();
-        return result;
-    }
+    final ScalarReading that = (ScalarReading) o;
 
-    @Override
-    public String toString() {
-        return "ScalarReading{" +
-                "mTimestampMillis=" + mTimestampMillis +
-                ", mValue=" + mValue +
-                ", mSensorTag=" + mSensorTag +
-                '}';
+    if (timestampMillis != that.timestampMillis) {
+      return false;
     }
+    if (!Objects.equals(sensorTag, that.sensorTag)) {
+      return false;
+    }
+    return Double.compare(that.value, value) == 0;
+  }
 
-    @Override
-    public long getCollectedTimeMillis() {
-        return mTimestampMillis;
-    }
+  @Override
+  public int hashCode() {
+    int result;
+    long temp;
+    result = (int) (timestampMillis ^ (timestampMillis >>> 32));
+    temp = Double.doubleToLongBits(value);
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    result = 31 * result + sensorTag.hashCode();
+    return result;
+  }
 
-    public double getValue() {
-        return mValue;
-    }
+  @Override
+  public String toString() {
+    return "ScalarReading{"
+        + "mTimestampMillis="
+        + timestampMillis
+        + ", mValue="
+        + value
+        + ", mSensorTag="
+        + sensorTag
+        + '}';
+  }
 
-    public String getSensorTag() {
-        return mSensorTag;
-    }
+  @Override
+  public long getCollectedTimeMillis() {
+    return timestampMillis;
+  }
 
-    @Override
-    public int compareTo(ScalarReading another) {
-        return Long.compare(mTimestampMillis, another.mTimestampMillis);
-    }
+  public double getValue() {
+    return value;
+  }
+
+  public String getSensorTag() {
+    return sensorTag;
+  }
+
+  @Override
+  public int compareTo(ScalarReading another) {
+    return Long.compare(timestampMillis, another.timestampMillis);
+  }
 }

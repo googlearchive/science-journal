@@ -17,20 +17,33 @@
 package com.google.android.apps.forscience.whistlepunk.opensource.components;
 
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.modules.CloudSyncModule;
 import com.google.android.apps.forscience.whistlepunk.modules.ContextModule;
 import com.google.android.apps.forscience.whistlepunk.modules.InputDeviceModule;
 import com.google.android.apps.forscience.whistlepunk.modules.NativeBleDiscovererModule;
+import com.google.android.apps.forscience.whistlepunk.modules.NonSignedInAccountsModule;
 import com.google.android.apps.forscience.whistlepunk.modules.ScalarInputDiscoveryModule;
+import com.google.android.apps.forscience.whistlepunk.opensource.licenses.LicenseModule;
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.FeatureDiscoveryModule;
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.FeedbackModule;
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.PerfTrackerModule;
 import com.google.android.apps.forscience.whistlepunk.opensource.modules.UsageTrackerModule;
-
 import dagger.Component;
 
-@Component(modules = {FeatureDiscoveryModule.class, FeedbackModule.class, UsageTrackerModule.class,
-        NativeBleDiscovererModule.class, InputDeviceModule.class, ScalarInputDiscoveryModule.class,
-        ContextModule.class, PerfTrackerModule.class})
+@Component(
+    modules = {
+      FeatureDiscoveryModule.class,
+      FeedbackModule.class,
+      UsageTrackerModule.class,
+      NativeBleDiscovererModule.class,
+      InputDeviceModule.class,
+      ScalarInputDiscoveryModule.class,
+      ContextModule.class,
+      PerfTrackerModule.class,
+      NonSignedInAccountsModule.class,
+      LicenseModule.class,
+      CloudSyncModule.class
+    })
 public interface OpenSourceComponent {
-    void inject(WhistlePunkApplication app);
+  void inject(WhistlePunkApplication app);
 }

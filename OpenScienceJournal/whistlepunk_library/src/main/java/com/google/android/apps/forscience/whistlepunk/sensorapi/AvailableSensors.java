@@ -16,5 +16,5 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 public interface AvailableSensors {
-    boolean isSensorAvailable(int sensorType);
+  boolean isSensorAvailable(int sensorType);
 }

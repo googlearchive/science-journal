@@ -16,23 +16,16 @@
 
 package com.google.android.apps.forscience.whistlepunk.opensource;
 
-import android.support.annotation.VisibleForTesting;
-
+import androidx.annotation.VisibleForTesting;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.modules.ContextModule;
-import com.google.android.apps.forscience.whistlepunk.opensource.components
-        .DaggerOpenSourceComponent;
+import com.google.android.apps.forscience.whistlepunk.opensource.components.DaggerOpenSourceComponent;
 
-/**
- * Subclass of WhistlePunkApplication which installs stub / default components.
- */
+/** Subclass of WhistlePunkApplication which installs stub / default components. */
 public class OpenScienceJournalApplication extends WhistlePunkApplication {
-    @VisibleForTesting
-    @Override
-    public void onCreateInjector() {
-        DaggerOpenSourceComponent.builder()
-                .contextModule(new ContextModule(this))
-                .build()
-                .inject(this);
-    }
+  @VisibleForTesting
+  @Override
+  public void onCreateInjector() {
+    DaggerOpenSourceComponent.builder().contextModule(new ContextModule(this)).build().inject(this);
+  }
 }

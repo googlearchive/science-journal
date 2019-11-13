@@ -18,23 +18,23 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 
 public class AddedLabelEvent {
-    private final Label mLabel;
-    private final RecordingStatus mStatus;
+  private final Label label;
+  private final RecordingStatus status;
 
-    public AddedLabelEvent(Label label, RecordingStatus status) {
-        mLabel = label;
-        mStatus = status;
-    }
+  public AddedLabelEvent(Label label, RecordingStatus status) {
+    this.label = label;
+    this.status = status;
+  }
 
-    public Label getLabel() {
-        return mLabel;
-    }
+  public Label getLabel() {
+    return label;
+  }
 
-    public RecordingStatus getStatus() {
-        return mStatus;
-    }
+  public RecordingStatus getStatus() {
+    return status;
+  }
 
-    String getTrialId() {
-        return getStatus().getTrialId();
-    }
+  String getTrialId() {
+    return getStatus().getTrialId();
+  }
 }

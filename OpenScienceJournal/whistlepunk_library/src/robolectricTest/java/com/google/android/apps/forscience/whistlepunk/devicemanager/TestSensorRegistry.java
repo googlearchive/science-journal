@@ -19,7 +19,7 @@ import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
 
 class TestSensorRegistry extends SensorRegistry {
-    public void addManualBuiltInSensor(String id) {
-        addBuiltInSensor(new ManualSensor(id, 0, 0));
-    }
+  public void addManualBuiltInSensor(String id) {
+    addBuiltInSensor(new ManualSensor(id, 0, 0));
+  }
 }

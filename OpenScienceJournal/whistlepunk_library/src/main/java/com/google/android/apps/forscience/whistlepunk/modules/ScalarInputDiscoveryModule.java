@@ -16,13 +16,11 @@
 package com.google.android.apps.forscience.whistlepunk.modules;
 
 import android.content.Context;
-
 import com.google.android.apps.forscience.whistlepunk.analytics.UsageTracker;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputDiscoverer;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarInputSpec;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.ScalarSensorServiceFinder;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
-
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoMap;
@@ -30,12 +28,11 @@ import dagger.multibindings.StringKey;
 
 @Module
 public class ScalarInputDiscoveryModule {
-    @Provides
-    @IntoMap
-    @StringKey(ScalarInputSpec.TYPE)
-    public SensorDiscoverer providesScalarInputDiscoverer(Context context,
-            UsageTracker usageTracker) {
-        return new ScalarInputDiscoverer(new ScalarSensorServiceFinder(context), context,
-                usageTracker);
-    }
+  @Provides
+  @IntoMap
+  @StringKey(ScalarInputSpec.TYPE)
+  public SensorDiscoverer providesScalarInputDiscoverer(
+      Context context, UsageTracker usageTracker) {
+    return new ScalarInputDiscoverer(new ScalarSensorServiceFinder(context), context, usageTracker);
+  }
 }

@@ -15,53 +15,86 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.annotation.VisibleForTesting;
-
+import android.content.Context;
+import androidx.annotation.VisibleForTesting;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
-
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
+import java.util.List;
 
 public class Snapshotter {
-    private final RecorderController mRecorderController;
-    private final DataController mDataController;
-    private final SensorRegistry mSensorRegistry;
+  private final RecorderController recorderController;
+  private final DataController dataController;
+  private final SensorRegistry sensorRegistry;
 
-    public Snapshotter(RecorderController recorderController, DataController dataController,
-            SensorRegistry sensorRegistry) {
-        mRecorderController = recorderController;
-        mDataController = dataController;
-        mSensorRegistry = sensorRegistry;
-    }
+  public Snapshotter(
+      RecorderController recorderController,
+      DataController dataController,
+      SensorRegistry sensorRegistry) {
+    this.recorderController = recorderController;
+    this.dataController = dataController;
+    this.sensorRegistry = sensorRegistry;
+  }
 
-    public Single<Label> addSnapshotLabel(String experimentId, RecordingStatus status) {
-        // When experiment is loaded, add label
-        return RxDataController.getExperimentById(mDataController, experimentId).flatMap(e -> {
-            LabelListHolder holder =
+  public static Snapshotter createFromContext(Context context, AppAccount appAccount) {
+    AppSingleton singleton = AppSingleton.getInstance(context);
+    return new Snapshotter(
+        singleton.getRecorderController(appAccount),
+        singleton.getDataController(appAccount),
+        singleton.getSensorRegistry());
+  }
+
+  public Single<Label> addSnapshotLabel(String experimentId, RecordingStatus status) {
+    // When experiment is loaded, add label
+    return RxDataController.getExperimentById(dataController, experimentId)
+        .flatMap(
+            e -> {
+              LabelListHolder holder =
+                  status.isRecording() ? e.getTrial(status.getCurrentRunId()) : e;
+              return addSnapshotLabelToHolder(e, holder, e.getSensorIds());
+            });
+  }
+
+  public Single<Label> addSnapshotLabel(String experimentId, RecordingStatus status,
+      List<String> ids) {
+    // When experiment is loaded, add label
+    return RxDataController.getExperimentById(dataController, experimentId)
+        .<Label>flatMap(
+            new Function<Experiment, SingleSource<? extends Label>>() {
+              @Override
+              public SingleSource<? extends Label> apply(Experiment e) throws Exception {
+                LabelListHolder holder =
                     status.isRecording() ? e.getTrial(status.getCurrentRunId()) : e;
-            return addSnapshotLabelToHolder(e, holder);
-        });
-    }
+                return Snapshotter.this.addSnapshotLabelToHolder(e, holder, ids);
+              }
+            });
+  }
 
-    @VisibleForTesting
-    public Single<Label> addSnapshotLabelToHolder(final Experiment selectedExperiment,
-            final LabelListHolder labelListHolder) {
-        RecorderController rc = mRecorderController;
+  @VisibleForTesting
+  public Single<Label> addSnapshotLabelToHolder(final Experiment selectedExperiment,
+      final LabelListHolder labelListHolder, List<String> ids) {
+    RecorderController rc = recorderController;
 
-        // get proto
-        return rc.generateSnapshotLabelValue(selectedExperiment.getSensorIds(), mSensorRegistry)
+    // get proto
+    return rc.generateSnapshotLabelValue(ids, sensorRegistry)
 
-                 // Make it into a label
-                 .map(snapshotValue -> Label.newLabelWithValue(rc.getNow(),
-                         GoosciLabel.Label.SNAPSHOT, snapshotValue, null))
+        // Make it into a label
+        .map(
+            snapshotValue ->
+                Label.newLabelWithValue(
+                    rc.getNow(), GoosciLabel.Label.ValueType.SNAPSHOT, snapshotValue, null))
 
-                 // Make sure it's successfully added
-                 .flatMap(label -> {
-                     labelListHolder.addLabel(label);
-                     return RxDataController.updateExperiment(mDataController, selectedExperiment)
-                                            .andThen(Single.just(label));
-                 });
-    }
+        // Make sure it's successfully added
+        .flatMap(
+            label -> {
+              labelListHolder.addLabel(selectedExperiment, label);
+              return RxDataController.updateExperiment(dataController, selectedExperiment, true)
+                  .andThen(Single.just(label));
+            });
+  }
 }

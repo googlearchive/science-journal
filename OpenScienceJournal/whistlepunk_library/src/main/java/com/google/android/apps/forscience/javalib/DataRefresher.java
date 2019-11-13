@@ -19,58 +19,56 @@ package com.google.android.apps.forscience.javalib;
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
-/**
- * A data refresher which publishes the last known data value when streaming.
- */
+/** A data refresher which publishes the last known data value when streaming. */
 public class DataRefresher extends Refresher {
-    private static final int SENSOR_REFRESH_RATE = 100;  // Refresh rate in ms.
+  private static final int SENSOR_REFRESH_RATE = 100; // Refresh rate in ms.
 
-    protected StreamConsumer streamConsumer;
-    protected boolean streaming = false;
-    private double mValue;
-    private Clock mClock;
+  protected StreamConsumer streamConsumer;
+  protected boolean streaming = false;
+  private double value;
+  private Clock clock;
 
-    public DataRefresher(Scheduler scheduler, Clock clock) {
-        this(scheduler, clock, SENSOR_REFRESH_RATE);
+  public DataRefresher(Scheduler scheduler, Clock clock) {
+    this(scheduler, clock, SENSOR_REFRESH_RATE);
+  }
+
+  public DataRefresher(Scheduler scheduler, Clock clock, int sensorRefreshRateMillis) {
+    super(scheduler, Delay.millis(sensorRefreshRateMillis));
+    this.clock = clock;
+  }
+
+  public void setStreamConsumer(StreamConsumer consumer) {
+    this.streamConsumer = consumer;
+  }
+
+  public void startStreaming() {
+    if (!streaming) {
+      streaming = true;
+      refresh();
     }
+  }
 
-    public DataRefresher(Scheduler scheduler, Clock clock, int sensorRefreshRateMillis) {
-        super(scheduler, Delay.millis(sensorRefreshRateMillis));
-        mClock = clock;
-    }
+  public void stopStreaming() {
+    streaming = false;
+  }
 
-    public void setStreamConsumer(StreamConsumer consumer) {
-        this.streamConsumer = consumer;
+  public void setValue(double value) {
+    if (value != this.value) {
+      this.value = value;
+      refresh();
     }
+  }
 
-    public void startStreaming() {
-        if (!streaming) {
-            streaming = true;
-            refresh();
-        }
-    }
+  public double getValue(long now) {
+    return value;
+  }
 
-    public void stopStreaming() {
-        streaming = false;
+  @Override
+  protected boolean doRefresh() {
+    if (streaming && streamConsumer != null) {
+      long now = clock.getNow();
+      streamConsumer.addData(now, getValue(now));
     }
-
-    public void setValue(double value) {
-        if (value != mValue) {
-            mValue = value;
-            refresh();
-        }
-    }
-
-    public double getValue(long now) {
-        return mValue;
-    }
-
-    @Override
-    protected boolean doRefresh() {
-        if (streaming && streamConsumer != null) {
-            long now = mClock.getNow();
-            streamConsumer.addData(now, getValue(now));
-        }
-        return streaming;
-    }
+    return streaming;
+  }
 }

@@ -20,65 +20,70 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-/**
- * Tests for {@link ExportService}.
- */
+/** Tests for {@link ExportService}. */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ExportServiceTest {
-    @Test
-    public void testSanitizeFileName_normal() {
-        String experimentName = "Untitled Experiment";
-        String runName = "Run 1";
+  @Test
+  public void testSanitizeFileName_normal() {
+    String experimentName = "Untitled Experiment";
+    String runName = "Run 1";
 
-        assertEquals("Untitled Experiment Run 1", ExportService.sanitizeFilename(
-                experimentName + " " + runName));
-    }
+    assertEquals(
+        "Untitled Experiment Run 1",
+        ExportService.sanitizeFilename(experimentName + " " + runName));
+  }
 
-    @Test
-    public void testSanitizeFileName_evil() {
-        String experimentName = "//Untitled Experiment";
-        String runName = "Run 1";
+  @Test
+  public void testSanitizeFileName_evil() {
+    String experimentName = "//Untitled Experiment";
+    String runName = "Run 1";
 
-        assertEquals("__Untitled Experiment Run 1", ExportService.sanitizeFilename(
-                experimentName + " " + runName));
+    assertEquals(
+        "__Untitled Experiment Run 1",
+        ExportService.sanitizeFilename(experimentName + " " + runName));
 
-        experimentName = "U.nti\tled Ex. periment";
-        runName = "Run 10";
+    experimentName = "U.nti\tled Ex. periment";
+    runName = "Run 10";
 
-        assertEquals("U.nti_led Ex. periment Run 10", ExportService.sanitizeFilename(
-                experimentName + " " + runName));
-    }
+    assertEquals(
+        "U.nti_led Ex. periment Run 10",
+        ExportService.sanitizeFilename(experimentName + " " + runName));
+  }
 
-    @Test public void makeFilenameWhenShort() {
-        Trial trial = makeTrial("runTitle");
-        String filename = ExportService.makeExportFilename("experiment", trial.getRawTitle());
-        assertEquals("experiment runTitle.csv", filename);
-    }
+  @Test
+  public void makeCSVFilenameWhenShort() {
+    Trial trial = makeTrial("runTitle");
+    String filename = ExportService.makeCSVExportFilename("experiment", trial.getRawTitle());
+    assertEquals("experiment runTitle.csv", filename);
+  }
 
-    @Test
-    public void makeFilenameWhenTooLong() {
-        String veryLongString = "012345678901234567890123456789012345678901234567890123456789";
-        Trial trial = makeTrial("runTitle" + veryLongString);
+  @Test
+  public void makeCSVFilenameWhenTooLong() {
+    String veryLongString = "012345678901234567890123456789012345678901234567890123456789";
+    Trial trial = makeTrial("runTitle" + veryLongString);
 
-        String filename = ExportService.makeExportFilename("experiment" +
-                veryLongString,trial.getRawTitle());
-        assertEquals(80, filename.length());
-        assertEquals(
-                "experiment01234567890123456789018953cd53 runTitle0123456789012345678a7c9ddcd.csv",
-                filename);
-    }
+    String filename =
+        ExportService.makeCSVExportFilename("experiment" + veryLongString, trial.getRawTitle());
+    assertEquals(80, filename.length());
+    assertEquals(
+        "experiment01234567890123456789018953cd53 runTitle0123456789012345678a7c9ddcd.csv",
+        filename);
+  }
 
-    private Trial makeTrial(String runTitle) {
-        GoosciTrial.Trial trial = new GoosciTrial.Trial();
-        trial.trialId ="runId";
-        trial.title = runTitle;
-        return Trial.fromTrial(trial);
-    }
+  @Test
+  public void makeSJFilenameWhenUnsanitized() {
+    String experimentName = "/Untitled_Experiment/0/";
+    String filename = ExportService.makeSJExportFilename(experimentName);
+    assertEquals("_Untitled_Experiment_0_.sj", filename);
+  }
+
+  private Trial makeTrial(String runTitle) {
+    GoosciTrial.Trial trial =
+        GoosciTrial.Trial.newBuilder().setTrialId("runId").setTitle(runTitle).build();
+    return Trial.fromTrial(trial);
+  }
 }

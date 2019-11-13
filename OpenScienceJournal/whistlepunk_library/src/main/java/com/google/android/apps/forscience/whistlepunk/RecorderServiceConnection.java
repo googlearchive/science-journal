@@ -18,5 +18,5 @@ package com.google.android.apps.forscience.whistlepunk;
 import com.google.android.apps.forscience.javalib.FallibleConsumer;
 
 public interface RecorderServiceConnection {
-    void runWithService(FallibleConsumer<IRecorderService> c);
+  void runWithService(FallibleConsumer<IRecorderService> c);
 }

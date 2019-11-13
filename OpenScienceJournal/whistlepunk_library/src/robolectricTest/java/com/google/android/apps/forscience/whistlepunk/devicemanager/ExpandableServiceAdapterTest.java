@@ -20,66 +20,61 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.api.scalarinput.InputDeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.metadata.BleSensorSpec;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ExpandableServiceAdapterTest {
-    @Test
-    public void hasSensorKeyIsCorrect() {
-        final BleSensorSpec spec = new BleSensorSpec("address", "name");
-        ExpandableServiceAdapter adapter = ExpandableServiceAdapter.createEmpty(null, null, 0,
-                new DeviceRegistry(null), null, null);
-        SensorDiscoverer.DiscoveredService service =
-                new SensorDiscoverer.DiscoveredService() {
-                    @Override
-                    public String getServiceId() {
-                        return "serviceId";
-                    }
+  @Test
+  public void hasSensorKeyIsCorrect() {
+    final BleSensorSpec spec = new BleSensorSpec("address", "name");
+    ExpandableServiceAdapter adapter =
+        ExpandableServiceAdapter.createEmpty(null, null, 0, new DeviceRegistry(null), null, null);
+    SensorDiscoverer.DiscoveredService service =
+        new SensorDiscoverer.DiscoveredService() {
+          @Override
+          public String getServiceId() {
+            return "serviceId";
+          }
 
-                    @Override
-                    public String getName() {
-                        return "serviceName";
-                    }
+          @Override
+          public String getName() {
+            return "serviceName";
+          }
 
-                    @Override
-                    public Drawable getIconDrawable(Context context) {
-                        return null;
-                    }
+          @Override
+          public Drawable getIconDrawable(Context context) {
+            return null;
+          }
 
-                    @Override
-                    public SensorDiscoverer.ServiceConnectionError
-                    getConnectionErrorIfAny() {
-                        return null;
-                    }
-                };
-        adapter.addAvailableService("providerId", service, false);
-        final InputDeviceSpec deviceSpec = DeviceRegistry.createHoldingDevice(spec);
-        adapter.addAvailableDevice(new SensorDiscoverer.DiscoveredDevice() {
-            @Override
-            public String getServiceId() {
-                return "serviceId";
-            }
+          @Override
+          public SensorDiscoverer.ServiceConnectionError getConnectionErrorIfAny() {
+            return null;
+          }
+        };
+    adapter.addAvailableService("providerId", service, false);
+    final InputDeviceSpec deviceSpec = DeviceRegistry.createHoldingDevice(spec);
+    adapter.addAvailableDevice(
+        new SensorDiscoverer.DiscoveredDevice() {
+          @Override
+          public String getServiceId() {
+            return "serviceId";
+          }
 
-            @Override
-            public InputDeviceSpec getSpec() {
-                return deviceSpec;
-            }
+          @Override
+          public InputDeviceSpec getSpec() {
+            return deviceSpec;
+          }
         });
 
-        assertFalse(adapter.hasSensorKey("sensorKey"));
-        adapter.addAvailableSensor("sensorKey",
-                new ConnectableSensor.Connector(
-                        EnumeratedDiscoverer.buildProviderMap(spec)).disconnected(
-                        spec.asGoosciSpec()));
-        assertTrue(adapter.hasSensorKey("sensorKey"));
-    }
+    assertFalse(adapter.hasSensorKey("sensorKey"));
+    adapter.addAvailableSensor(
+        "sensorKey",
+        new ConnectableSensor.Connector(EnumeratedDiscoverer.buildProviderMap(spec))
+            .disconnected(spec.asGoosciSpec()));
+    assertTrue(adapter.hasSensorKey("sensorKey"));
+  }
 }

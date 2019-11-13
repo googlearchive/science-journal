@@ -19,99 +19,102 @@ package com.google.android.apps.forscience.whistlepunk.devicemanager;
 import android.util.Log;
 
 public class PinTypeProvider {
-    public static final PinType DEFAULT_PIN = new PinType(PinSignalType.ANALOG, 0);
+  public static final PinType DEFAULT_PIN = new PinType(PinSignalType.ANALOG, 0);
 
-    private PinType[] mPins;
+  private PinType[] pins;
 
-    public PinTypeProvider() {
-        mPins = new PinType[]{
-                DEFAULT_PIN,
-                new PinType(PinSignalType.ANALOG, 1),
-                new PinType(PinSignalType.ANALOG, 2),
-                new PinType(PinSignalType.ANALOG, 3),
-                new PinType(PinSignalType.ANALOG, 4),
-                new PinType(PinSignalType.ANALOG, 5),
-                new PinType(PinSignalType.ANALOG, 6),
-                new PinType(PinSignalType.ANALOG, 7),
-                new PinType(PinSignalType.ANALOG, 8),
-                new PinType(PinSignalType.ANALOG, 9),
-                new PinType(PinSignalType.ANALOG, 10),
-                new PinType(PinSignalType.ANALOG, 11),
-                new PinType(PinSignalType.DIGITAL, 2),
-                new PinType(PinSignalType.DIGITAL, 3),
-                new PinType(PinSignalType.DIGITAL, 4),
-                new PinType(PinSignalType.DIGITAL, 5),
-                new PinType(PinSignalType.DIGITAL, 6),
-                new PinType(PinSignalType.DIGITAL, 7),
-                new PinType(PinSignalType.DIGITAL, 8),
-                new PinType(PinSignalType.DIGITAL, 9),
-                new PinType(PinSignalType.DIGITAL, 10),
-                new PinType(PinSignalType.DIGITAL, 11),
-                new PinType(PinSignalType.DIGITAL, 12),
-                new PinType(PinSignalType.DIGITAL, 13),
+  public PinTypeProvider() {
+    pins =
+        new PinType[] {
+          DEFAULT_PIN,
+          new PinType(PinSignalType.ANALOG, 1),
+          new PinType(PinSignalType.ANALOG, 2),
+          new PinType(PinSignalType.ANALOG, 3),
+          new PinType(PinSignalType.ANALOG, 4),
+          new PinType(PinSignalType.ANALOG, 5),
+          new PinType(PinSignalType.ANALOG, 6),
+          new PinType(PinSignalType.ANALOG, 7),
+          new PinType(PinSignalType.ANALOG, 8),
+          new PinType(PinSignalType.ANALOG, 9),
+          new PinType(PinSignalType.ANALOG, 10),
+          new PinType(PinSignalType.ANALOG, 11),
+          new PinType(PinSignalType.DIGITAL, 2),
+          new PinType(PinSignalType.DIGITAL, 3),
+          new PinType(PinSignalType.DIGITAL, 4),
+          new PinType(PinSignalType.DIGITAL, 5),
+          new PinType(PinSignalType.DIGITAL, 6),
+          new PinType(PinSignalType.DIGITAL, 7),
+          new PinType(PinSignalType.DIGITAL, 8),
+          new PinType(PinSignalType.DIGITAL, 9),
+          new PinType(PinSignalType.DIGITAL, 10),
+          new PinType(PinSignalType.DIGITAL, 11),
+          new PinType(PinSignalType.DIGITAL, 12),
+          new PinType(PinSignalType.DIGITAL, 13),
         };
+  }
+
+  public enum PinSignalType {
+    ANALOG,
+    DIGITAL,
+    VIRTUAL,
+  }
+
+  public static class PinType {
+    private String TAG = "PinType";
+    private PinSignalType pinSignalType;
+    private int pinNumber;
+
+    PinType(PinSignalType pinSignalType, int pinNumber) {
+      this.pinSignalType = pinSignalType;
+      this.pinNumber = pinNumber;
     }
 
-    public enum PinSignalType {
-        ANALOG,
-        DIGITAL,
-        VIRTUAL,
+    public PinSignalType getPinSignalType() {
+      return pinSignalType;
     }
 
-    public static class PinType {
-        private String TAG = "PinType";
-        private PinSignalType mPinSignalType;
-        private int mPinNumber;
-
-        PinType(PinSignalType pinSignalType, int pinNumber) {
-            mPinSignalType = pinSignalType;
-            mPinNumber = pinNumber;
-        }
-
-        public PinSignalType getPinSignalType() {
-            return mPinSignalType;
-        }
-
-        public int getPinNumber() {
-            return mPinNumber;
-        }
-
-        @Override
-        public String toString() {
-            String prefix;
-            switch (mPinSignalType) {
-                case ANALOG:
-                    prefix = "A";
-                    break;
-                case DIGITAL:
-                    prefix = "D";
-                    break;
-                case VIRTUAL:
-                    prefix = "V";
-                    break;
-                default:
-                    Log.wtf(TAG, "Unexpected enum value: " + mPinSignalType);
-                    prefix = "X";
-            }
-            return prefix + mPinNumber;
-        }
+    public int getPinNumber() {
+      return pinNumber;
     }
 
-    public PinType[] getPins() { return mPins; }
-
-    /* Parse a pin in the format "A0", "D1", or "V10".  Returns null on parse failure. */
-    public PinType parsePinName(String pinName) {
-        if (pinName.isEmpty()) {
-            // default
-            return new PinType(PinSignalType.ANALOG, 0);
-        } else if (pinName.startsWith("A")) {
-            return new PinType(PinSignalType.ANALOG, Integer.valueOf(pinName.substring(1)));
-        } else if (pinName.startsWith("D")) {
-            return new PinType(PinSignalType.DIGITAL, Integer.valueOf(pinName.substring(1)));
-        } else if (pinName.startsWith("V")) {
-            return new PinType(PinSignalType.VIRTUAL, Integer.valueOf(pinName.substring(1)));
-        } else {
-            return null;
-        }
+    @Override
+    public String toString() {
+      String prefix;
+      switch (pinSignalType) {
+        case ANALOG:
+          prefix = "A";
+          break;
+        case DIGITAL:
+          prefix = "D";
+          break;
+        case VIRTUAL:
+          prefix = "V";
+          break;
+        default:
+          Log.wtf(TAG, "Unexpected enum value: " + pinSignalType);
+          prefix = "X";
+      }
+      return prefix + pinNumber;
     }
+  }
+
+  public PinType[] getPins() {
+    return pins;
+  }
+
+  /* Parse a pin in the format "A0", "D1", or "V10".  Returns null on parse failure. */
+  public PinType parsePinName(String pinName) {
+    if (pinName.isEmpty()) {
+      // default
+      return new PinType(PinSignalType.ANALOG, 0);
+    } else if (pinName.startsWith("A")) {
+      return new PinType(PinSignalType.ANALOG, Integer.valueOf(pinName.substring(1)));
+    } else if (pinName.startsWith("D")) {
+      return new PinType(PinSignalType.DIGITAL, Integer.valueOf(pinName.substring(1)));
+    } else if (pinName.startsWith("V")) {
+      return new PinType(PinSignalType.VIRTUAL, Integer.valueOf(pinName.substring(1)));
+    } else {
+      return null;
+    }
+  }
 }

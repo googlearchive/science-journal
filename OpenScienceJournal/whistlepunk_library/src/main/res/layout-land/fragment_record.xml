@@ -21,7 +21,7 @@
                 android:layout_height="match_parent"
                 >
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sensor_card_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -42,7 +42,7 @@
         android:visibility="invisible"
         >
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:contentDescription="@string/btn_reset_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -82,3 +82,4 @@
     </RelativeLayout>
 
 </RelativeLayout>
+

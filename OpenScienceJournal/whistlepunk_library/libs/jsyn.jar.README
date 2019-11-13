@@ -1,9 +1,0 @@
-Version: b006311f7290fd63a789bed8a7867121aa8096f6
-
-jsyn.jar is a build artefact produced by the following commands:
-$ git clone https://github.com/philburk/jsyn.git
-$ cd jsyn
-$ export PATH=/usr/local/buildtools/java/jdk7-64/bin:$PATH
-$ ant clean
-$ ant dist
-$ cp dist/lib/jsyn*jar $HOME/goosci/android/WhistlePunk/app/libs

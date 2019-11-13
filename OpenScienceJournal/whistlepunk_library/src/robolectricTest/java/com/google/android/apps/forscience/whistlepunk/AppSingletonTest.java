@@ -19,26 +19,22 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
-
+import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class AppSingletonTest {
-    @Test
-    public void testHistoryStorage() {
-        SensorHistoryStorage storage = AppSingleton
-                .getInstance(RuntimeEnvironment.application.getApplicationContext())
-                .getSensorEnvironment()
-                .getSensorHistoryStorage();
-        ArrayList<String> ids = Lists.newArrayList(Arbitrary.string());
-        storage.setMostRecentSensorIds(ids);
-        assertEquals(ids, storage.getMostRecentSensorIds());
-    }
+  @Test
+  public void testHistoryStorage() {
+    SensorHistoryStorage storage =
+        AppSingleton.getInstance(RuntimeEnvironment.application.getApplicationContext())
+            .getSensorEnvironment()
+            .getSensorHistoryStorage();
+    ArrayList<String> ids = Lists.newArrayList(Arbitrary.string());
+    storage.setMostRecentSensorIds(ids);
+    assertEquals(ids, storage.getMostRecentSensorIds());
+  }
 }

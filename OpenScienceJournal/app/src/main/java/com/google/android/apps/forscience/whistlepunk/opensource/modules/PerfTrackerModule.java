@@ -16,93 +16,14 @@
 
 package com.google.android.apps.forscience.whistlepunk.opensource.modules;
 
-import android.app.Application;
-import android.content.Context;
-
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
-
 import dagger.Module;
 import dagger.Provides;
 
 @Module
 public class PerfTrackerModule {
-    @Provides
-    public PerfTrackerProvider providesPerfTracker() {
-        return new PerfTrackerProvider() {
-            @Override
-            public TimerToken startTimer() {
-                return null;
-            }
-
-            @Override
-            public void stopTimer(TimerToken token, String eventName) {
-
-            }
-
-            @Override
-            public void startGlobalTimer(String eventName) {
-
-            }
-
-            @Override
-            public void stopGlobalTimer(String eventName) {
-
-            }
-
-            @Override
-            public void stopGlobalTimer(String eventName, String newEventName) {
-
-            }
-
-            @Override
-            public boolean startPerfTrackerEventDebugActivity(Context context) {
-                return false;
-            }
-
-            @Override
-            public void startJankRecorder(String eventName) {
-
-            }
-
-            @Override
-            public void stopJankRecorder(String eventName) {
-
-            }
-
-            @Override
-            public void watchForMemoryLeak(Object object) {
-
-            }
-
-            @Override
-            public void recordBatterySnapshotOnForegroundServiceStart() {
-
-            }
-
-            @Override
-            public void recordBatterySnapshotOnForegroundServiceStop() {
-
-            }
-
-            @Override
-            public void recordBatterySnapshot(String eventName) {
-
-            }
-
-            @Override
-            public void onAppCreate(Application app) {
-
-            }
-
-            @Override
-            public void onActivityInit() {
-
-            }
-
-            @Override
-            public void onAppInteractive() {
-
-            }
-        };
-    }
+  @Provides
+  public PerfTrackerProvider providesPerfTracker() {
+    return PerfTrackerProvider.STUB;
+  }
 }

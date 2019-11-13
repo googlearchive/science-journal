@@ -23,9 +23,9 @@ import com.softsynth.shared.time.TimeStamp;
 
 public abstract class SimpleJsynUnitVoiceBase extends Circuit implements UnitVoice {
 
-    public abstract void noteOn(double frequency, double amplitude, TimeStamp timeStamp);
+  public abstract void noteOn(double frequency, double amplitude, TimeStamp timeStamp);
 
-    public abstract void noteOff(TimeStamp timeStamp);
+  public abstract void noteOff(TimeStamp timeStamp);
 
-    public abstract UnitOutputPort getOutput();
+  public abstract UnitOutputPort getOutput();
 }

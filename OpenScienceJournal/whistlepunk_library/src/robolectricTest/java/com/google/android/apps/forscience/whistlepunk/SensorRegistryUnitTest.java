@@ -24,41 +24,42 @@ import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableS
 import com.google.android.apps.forscience.whistlepunk.devicemanager.EnumeratedDiscoverer;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class SensorRegistryUnitTest {
-    @Test
-    public void addApiSensorsOnlyOnce() {
-        SensorRegistry registry = new SensorRegistry();
+  @Test
+  public void addApiSensorsOnlyOnce() {
+    SensorRegistry registry = new SensorRegistry();
 
-        ScalarInputSpec spec =
-                new ScalarInputSpec("name", "serviceId", "address", null, null, "devId");
-        ConnectableSensor.Connector connector =
-                new ConnectableSensor.Connector(EnumeratedDiscoverer.buildProviderMap(spec));
-        List<ConnectableSensor> sensors =
-                Lists.newArrayList(connector.connected(spec.asGoosciSpec(), "id"));
+    ScalarInputSpec spec = new ScalarInputSpec("name", "serviceId", "address", null, null, "devId");
+    ConnectableSensor.Connector connector =
+        new ConnectableSensor.Connector(EnumeratedDiscoverer.buildProviderMap(spec));
+    List<ConnectableSensor> sensors =
+        Lists.newArrayList(connector.connected(spec.asGoosciSpec(), "id"));
 
-        assertEquals(Lists.newArrayList("id"),
-                registry.updateExternalSensors(sensors, getProviders()));
-        assertEquals(Lists.newArrayList(), registry.updateExternalSensors(sensors, getProviders()));
-    }
+    assertEquals(Lists.newArrayList("id"), registry.updateExternalSensors(sensors, getProviders()));
+    assertEquals(Lists.newArrayList(), registry.updateExternalSensors(sensors, getProviders()));
+  }
 
-    private Map<String, SensorProvider> getProviders() {
-        Map<String, SensorProvider> providers = new HashMap<>();
+  private Map<String, SensorProvider> getProviders() {
+    Map<String, SensorProvider> providers = new HashMap<>();
 
-        providers.put(ScalarInputSpec.TYPE,
-                new ScalarInputDiscoverer(null, null, MoreExecutors.directExecutor(),
-                        new MockScheduler(), 100, new RecordingUsageTracker()).getProvider());
-        return providers;
-    }
+    providers.put(
+        ScalarInputSpec.TYPE,
+        new ScalarInputDiscoverer(
+                null,
+                null,
+                MoreExecutors.directExecutor(),
+                new MockScheduler(),
+                100,
+                new RecordingUsageTracker())
+            .getProvider());
+    return providers;
+  }
 }

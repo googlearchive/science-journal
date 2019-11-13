@@ -15,71 +15,60 @@
  */
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import android.content.Context;
+import androidx.annotation.VisibleForTesting;
+import com.google.android.apps.forscience.whistlepunk.LabelValuePojo;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabelValue.LabelValue.ValueType;
 
-import com.google.android.apps.forscience.whistlepunk.metadata.*;
-import com.google.common.annotations.VisibleForTesting;
-
-/**
- * A label value which represents a piece of text.
- */
+/** A label value which represents a piece of text. */
 @Deprecated
 public class TextLabelValue extends LabelValue {
-    private static final int NUM_FIELDS = 1;
-    private static final int INDEX_LABEL_TEXT = 0;
-    private static final String KEY_LABEL_TEXT = "label_text";
+  private static final String KEY_LABEL_TEXT = "label_text";
 
-    public TextLabelValue(GoosciLabelValue.LabelValue value) {
-        super(value);
-        mValue.type = GoosciLabelValue.LabelValue.TEXT;
-    }
+  public TextLabelValue(LabelValuePojo value) {
+    super(value);
+    this.value.setType(ValueType.TEXT);
+  }
 
-    public static TextLabelValue fromText(String text) {
-        return new TextLabelValue(createLabelValue(text));
-    }
+  @VisibleForTesting
+  TextLabelValue() {
+    super();
+    value.setType(ValueType.TEXT);
+  }
 
-    @VisibleForTesting
-    TextLabelValue() {
-        super();
-        mValue.type = GoosciLabelValue.LabelValue.TEXT;
-    }
+  public static TextLabelValue fromText(String text) {
+    return new TextLabelValue(createLabelValue(text));
+  }
 
-    @Override
-    public boolean canEditTimestamp() {
-        return true;
-    }
+  @Override
+  public boolean canEditTimestamp() {
+    return true;
+  }
 
-    public void setText(String text) {
-        populateLabelValue(getValue(), text);
-    }
+  public void setText(String text) {
+    populateLabelValue(getValue(), text);
+  }
 
-    public String getText() {
-        return getText(getValue());
-    }
+  public String getText() {
+    return getText(getValue());
+  }
 
-    public static String getText(GoosciLabelValue.LabelValue value) {
-        // Assume text only has one element in the label storage data map.
-        return value.data[INDEX_LABEL_TEXT].value;
-    }
+  public static String getText(LabelValuePojo value) {
+    return value.getDataOrThrow(KEY_LABEL_TEXT);
+  }
 
-    public static void populateLabelValue(GoosciLabelValue.LabelValue value, String text) {
-        value.type = GoosciLabelValue.LabelValue.TEXT;
-        if (value.data == null || value.data.length == 0) {
-            value.data = new GoosciLabelValue.LabelValue.DataEntry[NUM_FIELDS];
-            value.data[INDEX_LABEL_TEXT] = new GoosciLabelValue.LabelValue.DataEntry();
-        }
-        value.data[INDEX_LABEL_TEXT].key = KEY_LABEL_TEXT;
-        value.data[INDEX_LABEL_TEXT].value = text;
-    }
+  public static void populateLabelValue(LabelValuePojo value, String text) {
+    value.setType(ValueType.TEXT);
+    value.putData(KEY_LABEL_TEXT, text);
+  }
 
-    private static GoosciLabelValue.LabelValue createLabelValue(String text) {
-        GoosciLabelValue.LabelValue value = new GoosciLabelValue.LabelValue();
-        populateLabelValue(value, text);
-        return value;
-    }
+  private static LabelValuePojo createLabelValue(String text) {
+    LabelValuePojo value = new LabelValuePojo();
+    populateLabelValue(value, text);
+    return value;
+  }
 
-    @Override
-    public String toString() {
-        return getText();
-    }
+  @Override
+  public String toString() {
+    return getText();
+  }
 }

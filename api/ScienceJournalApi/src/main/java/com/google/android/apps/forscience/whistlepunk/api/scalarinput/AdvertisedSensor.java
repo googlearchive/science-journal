@@ -22,130 +22,125 @@ import android.util.Log;
 /**
  * Sensor that is advertised through the API and connectable.
  *
- * A sensor may be connected to multiple times, sometimes quickly cycling between
- * {@link #disconnect()} and {@link #connect()}, if the user is switching between multiple sensors.
+ * <p>A sensor may be connected to multiple times, sometimes quickly cycling between {@link
+ * #disconnect()} and {@link #connect()}, if the user is switching between multiple sensors.
  */
 public abstract class AdvertisedSensor {
-    private static final String TAG = "AdvertisedSensor";
-    private final String mAddress;
-    private final String mName;
-    private ISensorStatusListener mListener = null;
+  private static final String TAG = "AdvertisedSensor";
+  private final String address;
+  private final String name;
+  private ISensorStatusListener listener = null;
 
-    protected AdvertisedSensor(String address, String name) {
-        mAddress = address;
-        mName = name;
-    }
+  protected AdvertisedSensor(String address, String name) {
+    this.address = address;
+    this.name = name;
+  }
 
-    /**
-     * Override to provide non-default behavior
-     */
-    protected SensorBehavior getBehavior() {
-        return new SensorBehavior();
-    }
+  /** Override to provide non-default behavior */
+  protected SensorBehavior getBehavior() {
+    return new SensorBehavior();
+  }
 
-    /**
-     * Override to specify sensor appearance
-     */
-    protected SensorAppearanceResources getAppearance() {
-        return new SensorAppearanceResources();
-    }
+  /** Override to specify sensor appearance */
+  protected SensorAppearanceResources getAppearance() {
+    return new SensorAppearanceResources();
+  }
 
-    /**
-     * Connect to the sensor (for example, establish a BLE connection).  Do _not_ start streaming
-     * data yet.
-     *
-     * @return true if connection successful
-     * @throws Exception if something goes wrong during connection that can be reported
-     */
-    protected boolean connect() throws Exception {
-        return true;
-    }
+  /**
+   * Connect to the sensor (for example, establish a BLE connection). Do _not_ start streaming data
+   * yet.
+   *
+   * @return true if connection successful
+   * @throws Exception if something goes wrong during connection that can be reported
+   */
+  protected boolean connect() throws Exception {
+    return true;
+  }
 
-    public static interface DataConsumer {
-        /**
-         * @return true iff there is anyone still interested in this data
-         */
-        public boolean isReceiving();
-
-        /**
-         * @param timestamp a timestamp (if none provided by an external device, use
-         * {@link System#currentTimeMillis()}.
-         * @param value the sensor's current value
-         */
-        public void onNewData(long timestamp, double value);
-    }
+  public static interface DataConsumer {
+    /** @return true iff there is anyone still interested in this data */
+    public boolean isReceiving();
 
     /**
-     * Stream data by calling {@link DataConsumer#onNewData(long, double)} as often as new data is
-     * available, until {@link DataConsumer#isReceiving()} returns false.
+     * @param timestamp a timestamp (if none provided by an external device, use {@link
+     *     System#currentTimeMillis()}.
+     * @param value the sensor's current value
      */
-    protected abstract void streamData(DataConsumer c);
+    public void onNewData(long timestamp, double value);
+  }
 
-    /**
-     * Stop streaming and clean up resources.  When done, it should still be possible to call {@link
-     * #connect()} again and reconnect.
-     */
-    protected abstract void disconnect();
+  /**
+   * Stream data by calling {@link DataConsumer#onNewData(long, double)} as often as new data is
+   * available, until {@link DataConsumer#isReceiving()} returns false.
+   */
+  protected abstract void streamData(DataConsumer c);
 
-    final void startObserving(final ISensorObserver observer,
-            final ISensorStatusListener listener) throws RemoteException {
-        listener.onSensorConnecting();
-        try {
-            if (!connect()) {
-                listener.onSensorError("Could not connect");
-                return;
+  /**
+   * Stop streaming and clean up resources. When done, it should still be possible to call {@link
+   * #connect()} again and reconnect.
+   */
+  protected abstract void disconnect();
+
+  final void startObserving(final ISensorObserver observer, final ISensorStatusListener listener)
+      throws RemoteException {
+    listener.onSensorConnecting();
+    try {
+      if (!connect()) {
+        listener.onSensorError("Could not connect");
+        return;
+      }
+    } catch (Exception e) {
+      if (Log.isLoggable(TAG, Log.ERROR)) {
+        Log.e(TAG, "Connection error", e);
+      }
+      listener.onSensorError(e.getMessage());
+      return;
+    }
+    listener.onSensorConnected();
+    this.listener = listener;
+
+    streamData(
+        new DataConsumer() {
+          @Override
+          public boolean isReceiving() {
+            return AdvertisedSensor.this.listener != null;
+          }
+
+          @Override
+          public void onNewData(long timestamp, double value) {
+            try {
+              try {
+                observer.onNewData(timestamp, value);
+              } catch (DeadObjectException e) {
+                reportError(e);
+                stopObserving();
+              }
+            } catch (RemoteException e) {
+              reportError(e);
             }
-        } catch (Exception e) {
-            if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "Connection error", e);
-            }
-            listener.onSensorError(e.getMessage());
-            return;
-        }
-        listener.onSensorConnected();
-        mListener = listener;
-
-        streamData(new DataConsumer() {
-            @Override
-            public boolean isReceiving() {
-                return mListener != null;
-            }
-
-            @Override
-            public void onNewData(long timestamp, double value) {
-                try {
-                    try {
-                        observer.onNewData(timestamp, value);
-                    } catch (DeadObjectException e) {
-                        reportError(e);
-                        stopObserving();
-                    }
-                } catch (RemoteException e) {
-                    reportError(e);
-                }
-            }
+          }
         });
-    }
+  }
 
-    final void stopObserving() throws RemoteException {
-        disconnect();
-        if (mListener != null) {
-            mListener.onSensorDisconnected();
-            mListener = null;
-        }
+  final void stopObserving() throws RemoteException {
+    disconnect();
+    if (listener != null) {
+      listener.onSensorDisconnected();
+      listener = null;
     }
+  }
 
-    String getAddress() {
-        return mAddress;
-    }
+  String getAddress() {
+    return address;
+  }
 
-    public String getName() {
-        return mName;
-    }
+  public String getName() {
+    return name;
+  }
 
-    private void reportError(RemoteException e) {
-        if (Log.isLoggable(TAG, Log.ERROR)) {
-            Log.e(TAG, "error sending data", e);
-        }
+  private void reportError(RemoteException e) {
+    if (Log.isLoggable(TAG, Log.ERROR)) {
+      Log.e(TAG, "error sending data", e);
     }
+  }
 }

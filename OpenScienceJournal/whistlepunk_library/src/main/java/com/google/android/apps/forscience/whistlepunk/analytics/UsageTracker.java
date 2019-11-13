@@ -18,62 +18,59 @@ package com.google.android.apps.forscience.whistlepunk.analytics;
 
 import android.util.SparseArray;
 
-/**
- * Tracks usage for aggregate statistics.
- */
+/** Tracks usage for aggregate statistics. */
 public interface UsageTracker {
 
-    UsageTracker STUB = new UsageTracker() {
+  UsageTracker STUB =
+      new UsageTracker() {
         @Override
         public void setOptOut(boolean optOut) {
-            // do nothing
+          // do nothing
         }
 
         @Override
         public void trackScreenView(String screenName) {
-            // do nothing
+          // do nothing
         }
 
         @Override
         public void trackEvent(String category, String action, String label, long value) {
-            // do nothing
+          // do nothing
         }
 
         @Override
-        public void trackDimensionEvent(String category, String action,
-                SparseArray<String> dimensions) {
-            // do nothing
+        public void trackDimensionEvent(
+            String category, String action, SparseArray<String> dimensions) {
+          // do nothing
         }
-    };
+      };
 
-    /**
-     * If {@code true}, disables the tracker. If {@code false}, enables the tracker.
-     */
-    public void setOptOut(boolean optOut);
+  /** If {@code true}, disables the tracker. If {@code false}, enables the tracker. */
+  public void setOptOut(boolean optOut);
 
-    /**
-     * Tracks that the user has visited a certain screen.
-     *
-     * @param screenName Name of the screen viewed
-     */
-    public void trackScreenView(String screenName);
+  /**
+   * Tracks that the user has visited a certain screen.
+   *
+   * @param screenName Name of the screen viewed
+   */
+  public void trackScreenView(String screenName);
 
-    /**
-     * Tracks a user event.
-     *
-     * @param category Category of the event
-     * @param action   Action tag of the event
-     * @param label    Optional label
-     * @param value    Optional value
-     */
-    public void trackEvent(String category, String action, String label, long value);
+  /**
+   * Tracks a user event.
+   *
+   * @param category Category of the event
+   * @param action Action tag of the event
+   * @param label Optional label
+   * @param value Optional value
+   */
+  public void trackEvent(String category, String action, String label, long value);
 
-    /**
-     * Tracks a dimension only event
-     *
-     * @param category Category of the event
-     * @param action   Action tag of the event
-     * @param dimensions Map of custom dimensions for the event
-     */
-    public void trackDimensionEvent(String category, String action, SparseArray<String> dimensions);
+  /**
+   * Tracks a dimension only event
+   *
+   * @param category Category of the event
+   * @param action Action tag of the event
+   * @param dimensions Map of custom dimensions for the event
+   */
+  public void trackDimensionEvent(String category, String action, SparseArray<String> dimensions);
 }

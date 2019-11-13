@@ -21,24 +21,21 @@ import com.softsynth.math.AudioMath;
 
 /**
  * Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator using pentatonic scale.
- * <p>
- * Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator.
- * This implementation maps the data from the range (min-max) linearly pitches in the pentatonic C
- * major scale covering a wide range of frequencies.
  *
- * </p>
+ * <p>Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator. This implementation maps the
+ * data from the range (min-max) linearly pitches in the pentatonic C major scale covering a wide
+ * range of frequencies.
  */
-public class ScaleVoice extends
-        DataToScalePitchSimpleJsynUnitVoiceAdapter {
-    public static final String TAG = "DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter";
+public class ScaleVoice extends DataToScalePitchSimpleJsynUnitVoiceAdapter {
+  public static final String TAG = "DataToScalePitchEnvelopeSimpleJsynUnitVoiceAdapter";
 
-    private static final int scale[] = {
-            0 /* C */, 2 /* D */, 4 /* E */, 7 /* G */, 9 /* A */ }; // pentatonic scale
-    private static final int PITCH_MIN = (int) Math.floor(AudioMath.frequencyToPitch(FREQ_MIN));
-    private static final int PITCH_MAX = (int) Math.floor(AudioMath.frequencyToPitch(FREQ_MAX));
+  private static final int scale[] = {
+    0 /* C */, 2 /* D */, 4 /* E */, 7 /* G */, 9 /* A */
+  }; // pentatonic scale
+  private static final int PITCH_MIN = (int) Math.floor(AudioMath.frequencyToPitch(FREQ_MIN));
+  private static final int PITCH_MAX = (int) Math.floor(AudioMath.frequencyToPitch(FREQ_MAX));
 
-    public ScaleVoice(Synthesizer synth) {
-        super(synth, scale, PITCH_MIN, PITCH_MAX);
-    }
-
+  public ScaleVoice(Synthesizer synth) {
+    super(synth, scale, PITCH_MIN, PITCH_MAX);
+  }
 }

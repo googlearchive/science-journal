@@ -15,11 +15,17 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import android.content.Context;
 import com.google.android.apps.forscience.javalib.Delay;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.FakeUnitAppearanceProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.FakeBleClient;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.ManualSensor;
@@ -27,60 +33,83 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvi
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.android.apps.forscience.whistlepunk.sensordb.StoringConsumer;
-
+import io.reactivex.observers.TestObserver;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
-
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.observers.TestObserver;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class RecordFragmentTest {
-    @Test
-    public void addSnapshotLabel() throws InterruptedException {
-        InMemorySensorDatabase db = new InMemorySensorDatabase();
-        ManualSensorRegistry reg = new ManualSensorRegistry();
-        DataControllerImpl dc = db.makeSimpleController();
-        ManualSensor sensor = reg.addSensor("id", "name");
-        final long now = Math.abs(Arbitrary.longInteger());
+  @Test
+  public void addSnapshotLabel() throws InterruptedException {
+    InMemorySensorDatabase db = new InMemorySensorDatabase();
+    ManualSensorRegistry reg = new ManualSensorRegistry();
+    DataControllerImpl dc = db.makeSimpleController();
+    ManualSensor sensor = reg.addSensor("id", "name");
+    final long now = Math.abs(Arbitrary.longInteger());
 
-        MemorySensorEnvironment env =
-                new MemorySensorEnvironment(db.makeSimpleRecordingController(),
-                        new FakeBleClient(null), new MemorySensorHistoryStorage(), () -> now);
+    MemorySensorEnvironment env =
+        new MemorySensorEnvironment(
+            db.makeSimpleRecordingController(),
+            new FakeBleClient(null),
+            new MemorySensorHistoryStorage(),
+            () -> now);
 
-        final RecorderControllerImpl rc =
-                new RecorderControllerImpl(RuntimeEnvironment.application.getApplicationContext(),
-                        env, new RecorderListenerRegistry(), null, dc, null,
-                        Delay.ZERO, new FakeUnitAppearanceProvider());
+    final RecorderControllerImpl rc =
+        new RecorderControllerImpl(
+            getContext(),
+            getAppAccount(),
+            env,
+            new RecorderListenerRegistry(),
+            null,
+            dc,
+            null,
+            Delay.ZERO,
+            new FakeUnitAppearanceProvider());
 
-        rc.startObserving("id", new ArrayList<SensorTrigger>(), new RecordingSensorObserver(),
-                new RecordingStatusListener(), null, reg);
-        sensor.pushValue(now - 10, 55);
+    rc.startObserving(
+        "id",
+        new ArrayList<SensorTrigger>(),
+        new RecordingSensorObserver(),
+        new RecordingStatusListener(),
+        null,
+        reg);
+    sensor.pushValue(now - 10, 55);
 
-        StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
-        dc.createExperiment(cExperiment);
-        Experiment exp = cExperiment.getValue();
+    StoringConsumer<Experiment> cExperiment = new StoringConsumer<>();
+    dc.createExperiment(cExperiment);
+    Experiment exp = cExperiment.getValue();
 
-        GoosciSensorLayout.SensorLayout layout = new GoosciSensorLayout.SensorLayout();
-        layout.sensorId = "id";
-        exp.getSensorLayouts().add(layout);
+    SensorLayoutPojo layout = new SensorLayoutPojo();
+    layout.setSensorId("id");
+    exp.getSensorLayouts().add(layout);
 
-        TestObserver<Label> test =
-                new Snapshotter(rc, dc, reg).addSnapshotLabelToHolder(exp, exp).test();
-        assertTrue(test.await(2, TimeUnit.SECONDS));
-        test.assertComplete();
+    TestObserver<Label> test =
+        new Snapshotter(rc, dc, reg).addSnapshotLabelToHolder(exp, exp, exp.getSensorIds()).test();
+    assertTrue(test.await(2, TimeUnit.SECONDS));
+    test.assertComplete();
 
-        assertEquals(55, exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0].value, .00001);
-        assertEquals("name", exp.getLabels().get(0).getSnapshotLabelValue().snapshots[0]
-                .sensor.rememberedAppearance.name);
-    }
+    assertEquals(
+        55, exp.getLabels().get(0).getSnapshotLabelValue().getSnapshots(0).getValue(), .00001);
+    assertEquals(
+        "name",
+        exp.getLabels()
+            .get(0)
+            .getSnapshotLabelValue()
+            .getSnapshots(0)
+            .getSensor()
+            .getRememberedAppearance()
+            .getName());
+  }
+
+  private static Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
+  }
 }

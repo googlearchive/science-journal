@@ -19,80 +19,76 @@ package com.google.android.apps.forscience.whistlepunk.review;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeUtils;
-
+import java.util.Locale;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-import java.util.Locale;
-
-/**
- * Tests for the TimestampPickerController class.
- */
+/** Tests for the TimestampPickerController class. */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class TimestampPickerControllerTest {
 
-    TimestampPickerController.OnTimestampErrorListener mErrorListener =
-            new TimestampPickerController.OnTimestampErrorListener() {
-                @Override
-                public void onTimestampError(int errorId) {
-                    // unused
-                }
-            };
+  TimestampPickerController.OnTimestampErrorListener errorListener =
+      new TimestampPickerController.OnTimestampErrorListener() {
+        @Override
+        public void onTimestampError(int errorId) {
+          // unused
+        }
+      };
 
-    @Test
-    public void testGetTimeString() {
-        TimestampPickerController tpc = new TimestampPickerController(Locale.US, true, "-",
-                ":", ":", mErrorListener);
-        tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 0);
-        assertEquals("0:00:00.000", tpc.getTimeString());
+  @Test
+  public void testGetTimeString() {
+    TimestampPickerController tpc =
+        new TimestampPickerController(Locale.US, true, "-", ":", ":", errorListener);
+    tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 0);
+    assertEquals("0:00:00.000", tpc.getTimeString());
 
-        tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, ElapsedTimeUtils.MS_IN_SEC);
-        assertEquals("0:00:01.000", tpc.getTimeString());
+    tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, ElapsedTimeUtils.MS_IN_SEC);
+    assertEquals("0:00:01.000", tpc.getTimeString());
 
-        tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 1);
-        assertEquals("0:00:00.001", tpc.getTimeString());
+    tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 1);
+    assertEquals("0:00:00.001", tpc.getTimeString());
 
-        // Negative 1 second -- cropping wider
-        tpc.setTimestampRange(ElapsedTimeUtils.MS_IN_SEC, 10 * ElapsedTimeUtils.MS_IN_SEC,
-                0, -1 * ElapsedTimeUtils.MS_IN_SEC);
-        assertEquals("-0:00:01.000", tpc.getTimeString());
-    }
+    // Negative 1 second -- cropping wider
+    tpc.setTimestampRange(
+        ElapsedTimeUtils.MS_IN_SEC,
+        10 * ElapsedTimeUtils.MS_IN_SEC,
+        0,
+        -1 * ElapsedTimeUtils.MS_IN_SEC);
+    assertEquals("-0:00:01.000", tpc.getTimeString());
+  }
 
-    @Test
-    public void testParseTimeString() {
-        TimestampPickerController tpc = new TimestampPickerController(Locale.getDefault(), true,
-                "-", ":", ":", mErrorListener);
-        tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 0);
-        tpc.updateSelectedTime("0:00:03.141");
-        assertEquals(3141, tpc.getSelectedTime());
+  @Test
+  public void testParseTimeString() {
+    TimestampPickerController tpc =
+        new TimestampPickerController(Locale.getDefault(), true, "-", ":", ":", errorListener);
+    tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 0);
+    tpc.updateSelectedTime("0:00:03.141");
+    assertEquals(3141, tpc.getSelectedTime());
 
-        tpc.updateSelectedTime("0:00:03.14");
-        assertEquals(3140, tpc.getSelectedTime());
+    tpc.updateSelectedTime("0:00:03.14");
+    assertEquals(3140, tpc.getSelectedTime());
 
-        // Zero time moves forward a second
-        tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, ElapsedTimeUtils.MS_IN_SEC, 0);
-        tpc.updateSelectedTime("0:00:03.141");
-        assertEquals(4141, tpc.getSelectedTime());
+    // Zero time moves forward a second
+    tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, ElapsedTimeUtils.MS_IN_SEC, 0);
+    tpc.updateSelectedTime("0:00:03.141");
+    assertEquals(4141, tpc.getSelectedTime());
 
-        // Try negative one second (should be 0 timestamp)
-        tpc.updateSelectedTime("-0:00:01.000");
-        assertEquals(0, tpc.getSelectedTime());
-    }
+    // Try negative one second (should be 0 timestamp)
+    tpc.updateSelectedTime("-0:00:01.000");
+    assertEquals(0, tpc.getSelectedTime());
+  }
 
-    @Test
-    public void testParseTimeStringOutsideRange() {
-        TimestampPickerController tpc = new TimestampPickerController(Locale.getDefault(), true,
-                "-", ":", ":", mErrorListener);
-        tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 0);
-        int error = tpc.updateSelectedTime("1:00:00.000");
-        assertNotEquals(error, TimestampPickerController.NO_ERROR);
+  @Test
+  public void testParseTimeStringOutsideRange() {
+    TimestampPickerController tpc =
+        new TimestampPickerController(Locale.getDefault(), true, "-", ":", ":", errorListener);
+    tpc.setTimestampRange(0, 10 * ElapsedTimeUtils.MS_IN_SEC, 0, 0);
+    int error = tpc.updateSelectedTime("1:00:00.000");
+    assertNotEquals(error, TimestampPickerController.NO_ERROR);
 
-        error = tpc.updateSelectedTime("-1:00:00.000");
-        assertNotEquals(error, TimestampPickerController.NO_ERROR);
-    }
+    error = tpc.updateSelectedTime("-1:00:00.000");
+    assertNotEquals(error, TimestampPickerController.NO_ERROR);
+  }
 }

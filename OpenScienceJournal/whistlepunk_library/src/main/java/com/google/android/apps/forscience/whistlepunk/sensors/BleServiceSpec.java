@@ -19,31 +19,31 @@ package com.google.android.apps.forscience.whistlepunk.sensors;
 import java.util.UUID;
 
 public class BleServiceSpec {
-    private final UUID mServiceId;
-    private final UUID mValueId;
-    private final UUID mSettingId;
-    private final UUID mVersionId;
+  private final UUID serviceId;
+  private final UUID valueId;
+  private final UUID settingId;
+  private final UUID versionId;
 
-    public BleServiceSpec(UUID serviceId, UUID valueId, UUID settingId, UUID versionId) {
-        mServiceId = serviceId;
-        mValueId = valueId;
-        mSettingId = settingId;
-        mVersionId = versionId;
-    }
+  public BleServiceSpec(UUID serviceId, UUID valueId, UUID settingId, UUID versionId) {
+    this.serviceId = serviceId;
+    this.valueId = valueId;
+    this.settingId = settingId;
+    this.versionId = versionId;
+  }
 
-    public UUID getServiceId() {
-        return mServiceId;
-    }
+  public UUID getServiceId() {
+    return serviceId;
+  }
 
-    public UUID getValueId() {
-        return mValueId;
-    }
+  public UUID getValueId() {
+    return valueId;
+  }
 
-    public UUID getSettingId() {
-        return mSettingId;
-    }
+  public UUID getSettingId() {
+    return settingId;
+  }
 
-    public UUID getVersionId() {
-        return mVersionId;
-    }
+  public UUID getVersionId() {
+    return versionId;
+  }
 }

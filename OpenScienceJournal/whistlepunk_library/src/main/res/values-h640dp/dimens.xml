@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- On larger screens, allow half-height drawer in landscape mode -->
+    <bool name="allow_half_height_drawer_in_landscape">true</bool>
+</resources>

@@ -15,43 +15,57 @@
  */
 package com.google.android.apps.forscience.whistlepunk.metadata;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.R;
-
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import java.util.ArrayList;
 
-/**
- * Activity for adding and editing triggers.
- */
+/** Activity for adding and editing triggers. */
 public class EditTriggerActivity extends AppCompatActivity {
-    public static final String EXTRA_SENSOR_ID = "sensor_id";
-    public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
-    public static final String EXTRA_SENSOR_LAYOUT_BLOB = "sensor_layout_blob";
-    public static final String EXTRA_TRIGGER_ID = "trigger_id";
-    private static final String FRAGMENT_TAG = "fragment";
+  public static final String EXTRA_SENSOR_ID = "sensor_id";
+  public static final String EXTRA_ACCOUNT_KEY = "account_key";
+  public static final String EXTRA_EXPERIMENT_ID = "experiment_id";
+  public static final String EXTRA_SENSOR_LAYOUT_BLOB = "sensor_layout_blob";
+  public static final String EXTRA_TRIGGER_ID = "trigger_id";
+  private static final String FRAGMENT_TAG = "fragment";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_trigger);
-
-        Bundle extras = getIntent().getExtras();
-
-        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null && extras != null) {
-            String sensorId = extras.getString(EXTRA_SENSOR_ID, "");
-            String experimentId = extras.getString(EXTRA_EXPERIMENT_ID, "");
-            String triggerId = extras.getString(EXTRA_TRIGGER_ID, "");
-            byte[] sensorLayoutBlob = extras.getByteArray(EXTRA_SENSOR_LAYOUT_BLOB);
-            int position = extras.getInt(TriggerListActivity.EXTRA_LAYOUT_POSITION);
-            ArrayList<String> triggerOrder = extras.getStringArrayList(
-                    TriggerListActivity.EXTRA_TRIGGER_ORDER);
-            EditTriggerFragment fragment = EditTriggerFragment.newInstance(sensorId, experimentId,
-                    triggerId, sensorLayoutBlob, position, triggerOrder);
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragment,
-                    FRAGMENT_TAG).commit();
-        }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_edit_trigger);
+    boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
+    if (!isTablet) {
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
+
+    Bundle extras = getIntent().getExtras();
+
+    if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null && extras != null) {
+      String sensorId = extras.getString(EXTRA_SENSOR_ID, "");
+      // TODO(lizlooney): figure out if extras is ever null or if EXTRA_ACCOUNT_KEY is ever not set?
+      AppAccount appAccount = WhistlePunkApplication.getAccount(this, extras, EXTRA_ACCOUNT_KEY);
+      String experimentId = extras.getString(EXTRA_EXPERIMENT_ID, "");
+      String triggerId = extras.getString(EXTRA_TRIGGER_ID, "");
+      byte[] sensorLayoutBlob = extras.getByteArray(EXTRA_SENSOR_LAYOUT_BLOB);
+      int position = extras.getInt(TriggerListActivity.EXTRA_LAYOUT_POSITION);
+      ArrayList<String> triggerOrder =
+          extras.getStringArrayList(TriggerListActivity.EXTRA_TRIGGER_ORDER);
+      EditTriggerFragment fragment =
+          EditTriggerFragment.newInstance(
+              appAccount,
+              sensorId,
+              experimentId,
+              triggerId,
+              sensorLayoutBlob,
+              position,
+              triggerOrder);
+      getSupportFragmentManager()
+          .beginTransaction()
+          .add(R.id.container, fragment, FRAGMENT_TAG)
+          .commit();
+    }
+  }
 }

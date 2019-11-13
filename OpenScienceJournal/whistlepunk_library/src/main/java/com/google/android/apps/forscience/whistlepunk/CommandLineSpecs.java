@@ -17,64 +17,61 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.res.Resources;
-import android.support.annotation.NonNull;
-
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
-
+import androidx.annotation.NonNull;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class CommandLineSpecs {
-    private static final String PARAM_METER = "METER";
-    private static final String PARAM_RED = "RED";
-    protected static final String PARAM_YELLOW = "YELLOW";
-    protected static final String PARAM_GREEN = "GREEN";
-    protected static final String PARAM_BLUE = "BLUE";
+  private static final String PARAM_METER = "METER";
+  private static final String PARAM_RED = "RED";
+  protected static final String PARAM_YELLOW = "YELLOW";
+  protected static final String PARAM_GREEN = "GREEN";
+  protected static final String PARAM_BLUE = "BLUE";
 
-    @NonNull
-    public static List<GoosciSensorLayout.SensorLayout> buildLayouts(String sensorIds,
-            Resources resources) {
-        List<GoosciSensorLayout.SensorLayout> layouts = new ArrayList<>();
-        for (String spec : sensorIds.split(",")) {
-            String[] parts = spec.split(":");
+  @NonNull
+  public static List<SensorLayoutPojo> buildLayouts(String sensorIds, Resources resources) {
+    List<SensorLayoutPojo> layouts = new ArrayList<>();
+    for (String spec : sensorIds.split(",")) {
+      String[] parts = spec.split(":");
 
-            // Spec is sensorId:color:side, but can be just sensorId:color or just sensorId
-            String id = parts[0];
-            String color = parts.length > 1 ? parts[1] : null;
-            String side = parts.length > 2 ? parts[2] : null;
-            GoosciSensorLayout.SensorLayout layout =
-                    new GoosciSensorLayout.SensorLayout();
-            layout.sensorId = id;
-            if (color != null) {
-                layout.colorIndex = findKioskColor(color);
-            }
-            layout.cardView = findCardView(side);
-            layouts.add(layout);
-        }
-        return layouts;
+      // Spec is sensorId:color:side, but can be just sensorId:color or just sensorId
+      String id = parts[0];
+      String color = parts.length > 1 ? parts[1] : null;
+      String side = parts.length > 2 ? parts[2] : null;
+      SensorLayoutPojo layout = new SensorLayoutPojo();
+      layout.setSensorId(id);
+      if (color != null) {
+        layout.setColorIndex(findKioskColor(color));
+      }
+      layout.setCardView(findCardView(side));
+      layouts.add(layout);
     }
+    return layouts;
+  }
 
-    private static int findCardView(String side) {
-        if (Objects.equals(PARAM_METER, side)) {
-            return GoosciSensorLayout.SensorLayout.METER;
-        } else {
-            return GoosciSensorLayout.SensorLayout.GRAPH;
-        }
+  private static CardView findCardView(String side) {
+    if (Objects.equals(PARAM_METER, side)) {
+      return CardView.METER;
+    } else {
+      return CardView.GRAPH;
     }
+  }
 
-    // Returns an index into the graph_colors.xml array.
-    private static int findKioskColor(String color) {
-        switch (color) {
-            case PARAM_RED:
-                return 3;
-            case PARAM_YELLOW:
-                return 2;
-            case PARAM_GREEN:
-                return 1;
-            case PARAM_BLUE:
-            default:
-                return 0;
-        }
+  // Returns an index into the graph_colors.xml array.
+  private static int findKioskColor(String color) {
+    switch (color) {
+      case PARAM_RED:
+        return 3;
+      case PARAM_YELLOW:
+        return 2;
+      case PARAM_GREEN:
+        return 1;
+      case PARAM_BLUE:
+      default:
+        return 0;
     }
+  }
 }

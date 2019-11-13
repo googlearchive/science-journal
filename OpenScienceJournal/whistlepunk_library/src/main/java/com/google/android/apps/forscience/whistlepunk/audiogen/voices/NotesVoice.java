@@ -17,58 +17,56 @@
 package com.google.android.apps.forscience.whistlepunk.audiogen.voices;
 
 import com.google.android.apps.forscience.whistlepunk.audiogen.JsynUnitVoiceAdapter;
-
 import com.jsyn.Synthesizer;
 import com.softsynth.shared.time.TimeStamp;
 
 /**
  * Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator using pitch variation with envelope
- * <p>
- * Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator.
- * This implementation maps the data from the range (min-max) linearly to the pitch range
- * FREQ_MIN-FREQ_MAX and converts the pitches to notes by modulating them through an envelope.
- * </p>
+ *
+ * <p>Adapt the SimpleJsynUnitVoice to the SimpleJsynAudioGenerator. This implementation maps the
+ * data from the range (min-max) linearly to the pitch range FREQ_MIN-FREQ_MAX and converts the
+ * pitches to notes by modulating them through an envelope.
  */
 public class NotesVoice extends JsynUnitVoiceAdapter {
-    private static final double MIN_VALUE_PERCENT_CHANGE = 10.; // min value percent delta trigger
-    private static final long MIN_TIME_VALUE_CHANGE_MS = 125; // min time delta to trigger new audio
-    private static final long MIN_TIME_CHANGE_MS = 1000; // min time change to trigger new audio
+  private static final double MIN_VALUE_PERCENT_CHANGE = 10.; // min value percent delta trigger
+  private static final long MIN_TIME_VALUE_CHANGE_MS = 125; // min time delta to trigger new audio
+  private static final long MIN_TIME_CHANGE_MS = 1000; // min time change to trigger new audio
 
-    private long mOldTime = System.currentTimeMillis();
-    private double mOldValue = Double.MIN_VALUE;
+  private long oldTime = System.currentTimeMillis();
+  private double oldValue = Double.MIN_VALUE;
 
-    public NotesVoice(Synthesizer synth) {
-        mVoice = new SineEnvelope();
-        synth.add(mVoice);
+  public NotesVoice(Synthesizer synth) {
+    voice = new SineEnvelope();
+    synth.add(voice);
+  }
+
+  public void noteOn(double newValue, double min, double max, TimeStamp timeStamp) {
+    if (oldValue == Double.MIN_VALUE) {
+      oldValue = newValue;
+      return;
     }
+    // Range checking, in case min or max is higher or lower than value (respectively).
+    if (newValue < min) newValue = min;
+    if (newValue > max) newValue = max;
 
-    public void noteOn(double newValue, double min, double max, TimeStamp timeStamp) {
-        if (mOldValue == Double.MIN_VALUE) {
-            mOldValue = newValue;
-            return;
-        }
-        // Range checking, in case min or max is higher or lower than value (respectively).
-        if (newValue < min) newValue = min;
-        if (newValue > max) newValue = max;
+    // Compute percent change of value within Y axis range.
+    double dv = newValue - oldValue;
+    double range = max - min;
+    double change = Math.abs(dv / range * 100.);
 
-        // Compute percent change of value within Y axis range.
-        double dv = newValue - mOldValue;
-        double range = max - min;
-        double change = Math.abs(dv / range*100.);
+    long newTime = System.currentTimeMillis();
+    long dt = newTime - oldTime;
 
-        long newTime = System.currentTimeMillis();
-        long dt = newTime - mOldTime;
-
-        // If the value hasn't changed more than MIN_VALUE_CHANGED, suppress new notes for up to
-        // MIN_TIME_CHANGE_MS.  If value has changed more than MIN_VALUE_CHANGED, suppress new
-        // notes for MIN_TIME_VALUE_CHANGE_MS.
-        if ((change >= MIN_VALUE_PERCENT_CHANGE && dt > MIN_TIME_VALUE_CHANGE_MS) ||
-                (change < MIN_VALUE_PERCENT_CHANGE && dt > MIN_TIME_CHANGE_MS)) {
-            mOldTime = newTime;
-            mOldValue = newValue;
-            double freq = (newValue - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
-            mVoice.noteOn(freq, AMP_VALUE, timeStamp);
-            mVoice.noteOff(timeStamp.makeRelative(MIN_TIME_VALUE_CHANGE_MS / 1000.));
-        }
+    // If the value hasn't changed more than MIN_VALUE_CHANGED, suppress new notes for up to
+    // MIN_TIME_CHANGE_MS.  If value has changed more than MIN_VALUE_CHANGED, suppress new
+    // notes for MIN_TIME_VALUE_CHANGE_MS.
+    if ((change >= MIN_VALUE_PERCENT_CHANGE && dt > MIN_TIME_VALUE_CHANGE_MS)
+        || (change < MIN_VALUE_PERCENT_CHANGE && dt > MIN_TIME_CHANGE_MS)) {
+      oldTime = newTime;
+      oldValue = newValue;
+      double freq = (newValue - min) / (max - min) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN;
+      voice.noteOn(freq, AMP_VALUE, timeStamp);
+      voice.noteOff(timeStamp.makeRelative(MIN_TIME_VALUE_CHANGE_MS / 1000.));
     }
+  }
 }

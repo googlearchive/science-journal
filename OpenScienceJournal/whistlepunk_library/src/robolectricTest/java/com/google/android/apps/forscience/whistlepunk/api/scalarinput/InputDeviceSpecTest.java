@@ -17,38 +17,36 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec;
+import com.google.android.apps.forscience.whistlepunk.data.GoosciDeviceSpec.DeviceSpec;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciGadgetInfo;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class InputDeviceSpecTest {
-    @Test
-    public void getAddress() {
-        InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId",
-                "Device Name");
-        assertEquals("DEVICE&serviceId_deviceId", spec.getAddress());
-    }
+  @Test
+  public void getAddress() {
+    InputDeviceSpec spec =
+        new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId", "Device Name");
+    assertEquals("DEVICE&serviceId_deviceId", spec.getAddress());
+  }
 
-    @Test
-    public void getName() {
-        InputDeviceSpec spec = new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId",
-                "Device Name");
-        assertEquals("Device Name", spec.getSensorAppearance().getName(null));
-    }
+  @Test
+  public void getName() {
+    InputDeviceSpec spec =
+        new InputDeviceSpec(ScalarInputSpec.TYPE, "serviceId_deviceId", "Device Name");
+    assertEquals("Device Name", spec.getSensorAppearance().getName(null));
+  }
 
-
-    @Test public void providerIdFromProto() {
-        GoosciDeviceSpec.DeviceSpec proto = new GoosciDeviceSpec.DeviceSpec();
-        proto.info = new GoosciGadgetInfo.GadgetInfo();
-        proto.info.providerId = "providerId";
-        InputDeviceSpec spec = InputDeviceSpec.fromProto(proto);
-        assertEquals("providerId", spec.getProviderType());
-    }
+  @Test
+  public void providerIdFromProto() {
+    DeviceSpec proto =
+        GoosciDeviceSpec.DeviceSpec.newBuilder()
+            .setInfo(GoosciGadgetInfo.GadgetInfo.newBuilder().setProviderId("providerId"))
+            .build();
+    InputDeviceSpec spec = InputDeviceSpec.fromProto(proto);
+    assertEquals("providerId", spec.getProviderType());
+  }
 }

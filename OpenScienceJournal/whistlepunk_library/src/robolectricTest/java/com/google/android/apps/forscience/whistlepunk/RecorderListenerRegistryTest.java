@@ -22,38 +22,33 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 // TODO: these could be unit tests.
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class RecorderListenerRegistryTest {
-    @Test
-    public void testImmediatelyUpdateStatus() {
-        RecorderListenerRegistry r = new RecorderListenerRegistry();
-        RecordingStatusListener beforeListener = new RecordingStatusListener();
-        r.putListeners("sensorId", new RecordingSensorObserver(), beforeListener);
-        assertFalse(beforeListener.mostRecentStatuses.containsKey("sensorId"));
+  @Test
+  public void testImmediatelyUpdateStatus() {
+    RecorderListenerRegistry r = new RecorderListenerRegistry();
+    RecordingStatusListener beforeListener = new RecordingStatusListener();
+    r.putListeners("sensorId", new RecordingSensorObserver(), beforeListener);
+    assertFalse(beforeListener.mostRecentStatuses.containsKey("sensorId"));
 
-        int status = Arbitrary.integer();
-        r.onSourceStatus("sensorId", status);
-        RecordingStatusListener afterListener = new RecordingStatusListener();
-        r.putListeners("sensorId", new RecordingSensorObserver(), afterListener);
-        assertEquals((Integer) status, afterListener.mostRecentStatuses.get("sensorId"));
-    }
+    int status = Arbitrary.integer();
+    r.onSourceStatus("sensorId", status);
+    RecordingStatusListener afterListener = new RecordingStatusListener();
+    r.putListeners("sensorId", new RecordingSensorObserver(), afterListener);
+    assertEquals((Integer) status, afterListener.mostRecentStatuses.get("sensorId"));
+  }
 
-    @Test
-    public void testConnectedClearsError() {
-        RecorderListenerRegistry r = new RecorderListenerRegistry();
-        r.onSourceError("sensorId", SensorStatusListener.ERROR_FAILED_TO_CONNECT,
-                "Failed to connect!");
-        assertTrue(r.getSourceHasError("sensorId"));
-        r.onSourceStatus("sensorId", SensorStatusListener.STATUS_CONNECTED);
-        assertFalse(r.getSourceHasError("sensorId"));
-    }
-
+  @Test
+  public void testConnectedClearsError() {
+    RecorderListenerRegistry r = new RecorderListenerRegistry();
+    r.onSourceError("sensorId", SensorStatusListener.ERROR_FAILED_TO_CONNECT, "Failed to connect!");
+    assertTrue(r.getSourceHasError("sensorId"));
+    r.onSourceStatus("sensorId", SensorStatusListener.STATUS_CONNECTED);
+    assertFalse(r.getSourceHasError("sensorId"));
+  }
 }

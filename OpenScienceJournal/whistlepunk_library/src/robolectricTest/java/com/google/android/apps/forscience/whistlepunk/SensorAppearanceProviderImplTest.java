@@ -18,10 +18,8 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
-
 import com.google.android.apps.forscience.whistlepunk.data.GoosciIcon;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -29,23 +27,23 @@ import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
 public class SensorAppearanceProviderImplTest {
-    @Test
-    public void includeIcons() {
-        Context context = RuntimeEnvironment.application.getApplicationContext();
-        int placeholderStringId = android.R.string.ok;
-        BuiltInSensorAppearance appearance =
-                new BuiltInSensorAppearance(placeholderStringId, placeholderStringId, "sensorId");
+  @Test
+  public void includeIcons() {
+    Context context = RuntimeEnvironment.application.getApplicationContext();
+    int placeholderStringId = android.R.string.ok;
+    BuiltInSensorAppearance appearance =
+        new BuiltInSensorAppearance(placeholderStringId, placeholderStringId, "sensorId");
 
-        GoosciSensorAppearance.BasicSensorAppearance proto =
-                SensorAppearanceProviderImpl.toProto(appearance, context);
-        assertEquals(GoosciIcon.IconPath.BUILTIN, proto.iconPath.type);
-        assertEquals(GoosciIcon.IconPath.BUILTIN, proto.largeIconPath.type);
-        assertEquals("sensorId", proto.iconPath.pathString);
-        assertEquals("sensorId", proto.largeIconPath.pathString);
+    GoosciSensorAppearance.BasicSensorAppearance proto =
+        SensorAppearanceProviderImpl.toProto(appearance, context);
+    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.getIconPath().getType());
+    assertEquals(GoosciIcon.IconPath.PathType.BUILTIN, proto.getLargeIconPath().getType());
+    assertEquals("sensorId", proto.getIconPath().getPathString());
+    assertEquals("sensorId", proto.getLargeIconPath().getPathString());
 
-        // TODO: re-enable once we have this implemented for all SDKs (b/63933068)
-        // This should be a BCP 47 language tag, like "en-US"
-        // String expected = context.getResources().getConfiguration().locale.toLanguageTag();
-        // assertEquals(expected, proto.locale);
-    }
+    // TODO: re-enable once we have this implemented for all SDKs (b/63933068)
+    // This should be a BCP 47 language tag, like "en-US"
+    // String expected = context.getResources().getConfiguration().locale.toLanguageTag();
+    // assertEquals(expected, proto.locale);
+  }
 }

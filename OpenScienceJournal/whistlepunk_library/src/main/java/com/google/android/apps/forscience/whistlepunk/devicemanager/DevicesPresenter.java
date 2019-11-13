@@ -15,29 +15,21 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-/**
- * interface for presenting options for a given sensor within a given experiment
- */
+/** interface for presenting options for a given sensor within a given experiment */
 public interface DevicesPresenter {
-    void refreshScanningUI();
+  void refreshScanningUI();
 
-    void showSensorOptions(String experimentId, String sensorId,
-            SensorDiscoverer.SettingsInterface settings);
+  void showSensorOptions(
+      String experimentId, String sensorId, SensorDiscoverer.SettingsInterface settings);
 
-    /**
-     * @return a display that shows "My Devices"
-     */
-    SensorGroup getPairedSensorGroup();
+  /** @return a display that shows "My Devices" */
+  SensorGroup getPairedSensorGroup();
 
-    /**
-     * @return a display that shows discovered devices that aren't in "My Devices"
-     */
-    SensorGroup getAvailableSensorGroup();
+  /** @return a display that shows discovered devices that aren't in "My Devices" */
+  SensorGroup getAvailableSensorGroup();
 
-    void unpair(String experimentId, String sensorId);
+  void unpair(String experimentId, String sensorId);
 
-    /**
-     * @return true if this presenter is destroyed and no longer useful for updates
-     */
-    boolean isDestroyed();
+  /** @return true if this presenter is destroyed and no longer useful for updates */
+  boolean isDestroyed();
 }

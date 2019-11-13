@@ -17,28 +17,30 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import com.google.android.apps.forscience.javalib.FailureListener;
-import com.google.android.apps.forscience.javalib.MaybeConsumer;
-import com.google.android.apps.forscience.javalib.Success;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
+import java.util.List;
 
-/**
- * Data interface for sensor recorders
- */
+/** Data interface for sensor recorders */
 public interface RecordingDataController {
-    /**
-     * @see com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase#addScalarReading(String, int, long, double)
-     */
-    void addScalarReading(String sensorId, final int resolutionTier, long timestampMillis,
-            double value);
+  /**
+   * @see
+   *     com.google.android.apps.forscience.whistlepunk.sensordb.SensorDatabase#addScalarReading(String,
+   *     String, int, long, double)
+   */
+  void addScalarReading(
+      String trialId,
+      String sensorId,
+      final int resolutionTier,
+      long timestampMillis,
+      double value);
 
-    /**
-     * If an error is encountered storing data or stats for {@code sensorId}, notify {@code
-     * listener}
-     */
-    void setDataErrorListenerForSensor(String sensorId, FailureListener listener);
+  /** Add all of the scalar readings in the list. */
+  void addScalarReadings(List<BatchInsertScalarReading> readings);
 
-    /**
-     * Clear listener set by earlier call to {@code setDataErrorListener}
-     */
-    void clearDataErrorListenerForSensor(String sensorId);
+  /**
+   * If an error is encountered storing data or stats for {@code sensorId}, notify {@code listener}
+   */
+  void setDataErrorListenerForSensor(String sensorId, FailureListener listener);
+
+  /** Clear listener set by earlier call to {@code setDataErrorListener} */
+  void clearDataErrorListenerForSensor(String sensorId);
 }

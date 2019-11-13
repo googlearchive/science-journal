@@ -17,66 +17,61 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.os.IBinder;
 import android.os.RemoteException;
-
 import com.google.android.apps.forscience.javalib.Consumer;
 
 class TestFinder extends Consumer<AppDiscoveryCallbacks> {
-    private final String mServiceId;
-    public ISensorObserver observer;
-    public ISensorStatusListener listener;
+  private final String serviceId;
+  public ISensorObserver observer;
+  public ISensorStatusListener listener;
 
-    public TestFinder(String serviceId) {
-        mServiceId = serviceId;
-    }
+  public TestFinder(String serviceId) {
+    this.serviceId = serviceId;
+  }
 
-    @Override
-    public void take(AppDiscoveryCallbacks adc) {
-        adc.onServiceFound(mServiceId, new ISensorDiscoverer.Stub() {
-            @Override
-            public String getName() throws RemoteException {
+  @Override
+  public void take(AppDiscoveryCallbacks adc) {
+    adc.onServiceFound(
+        serviceId,
+        new ISensorDiscoverer.Stub() {
+          @Override
+          public String getName() throws RemoteException {
+            return null;
+          }
+
+          @Override
+          public void scanDevices(IDeviceConsumer c) throws RemoteException {}
+
+          @Override
+          public void scanSensors(String deviceId, ISensorConsumer c) throws RemoteException {}
+
+          @Override
+          public ISensorConnector getConnector() throws RemoteException {
+            return new ISensorConnector() {
+              @Override
+              public void startObserving(
+                  String sensorAddress,
+                  ISensorObserver observer,
+                  ISensorStatusListener listener,
+                  String settingsKey)
+                  throws RemoteException {
+                TestFinder.this.listener = listener;
+                TestFinder.this.observer = observer;
+                signalConnected(listener);
+              }
+
+              @Override
+              public void stopObserving(String sensorAddress) throws RemoteException {}
+
+              @Override
+              public IBinder asBinder() {
                 return null;
-            }
-
-            @Override
-            public void scanDevices(IDeviceConsumer c) throws RemoteException {
-
-            }
-
-            @Override
-            public void scanSensors(String deviceId, ISensorConsumer c)
-                    throws RemoteException {
-
-            }
-
-            @Override
-            public ISensorConnector getConnector() throws RemoteException {
-                return new ISensorConnector() {
-                    @Override
-                    public void startObserving(String sensorAddress,
-                            ISensorObserver observer,
-                            ISensorStatusListener listener, String settingsKey)
-                            throws RemoteException {
-                        TestFinder.this.listener = listener;
-                        TestFinder.this.observer = observer;
-                        signalConnected(listener);
-                    }
-
-                    @Override
-                    public void stopObserving(String sensorAddress)
-                            throws RemoteException {
-
-                    }
-
-                    @Override
-                    public IBinder asBinder() {
-                        return null;
-                    }
-                };
-            }
+              }
+            };
+          }
         });
-    }
+  }
 
-    protected void signalConnected(ISensorStatusListener listener) throws RemoteException {
-        listener.onSensorConnected();
-    }
+  protected void signalConnected(ISensorStatusListener listener) throws RemoteException {
+    listener.onSensorConnected();
+  }
 }

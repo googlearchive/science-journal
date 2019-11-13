@@ -16,29 +16,41 @@
 
 package com.google.android.apps.forscience.whistlepunk.project;
 
-import android.support.v7.app.AppCompatActivity;
-
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity;
 
 /**
  * Activity which should not be usable if we are currently recording.
+ *
+ * @deprecated Only used by {@link RunReviewDeprecatedActivity} Logic is duplicated in {@link
+ *     RunReviewActivity}
  */
-public class MetadataActivity extends AppCompatActivity {
-    private static final String TAG = "MetadataActivity";
+@Deprecated
+public abstract class MetadataActivity extends AppCompatActivity {
+  private static final String TAG = "MetadataActivity";
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+  protected abstract AppAccount getAppAccount();
 
-        final RecorderController recorderController =
-                AppSingleton.getInstance(this).getRecorderController();
+  @Override
+  protected void onResume() {
+    super.onResume();
 
-        recorderController.watchRecordingStatus().firstElement().subscribe(status -> {
-            boolean recording = status.isRecording();
-            if (recording) {
+    final RecorderController recorderController =
+        AppSingleton.getInstance(this).getRecorderController(getAppAccount());
+
+    recorderController
+        .watchRecordingStatus()
+        .firstElement()
+        .subscribe(
+            status -> {
+              boolean recording = status.isRecording();
+              if (recording) {
                 finish();
-            }
-        });
-    }
+              }
+            });
+  }
 }

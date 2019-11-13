@@ -18,42 +18,34 @@ package com.google.android.apps.forscience.whistlepunk.audiogen.voices;
 
 import static org.junit.Assert.assertArrayEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-/**
- * Tests for PitchGenerator
- */
+/** Tests for PitchGenerator */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class PitchGeneratorTest {
-    @Test
-    public void testPitchGenerator_testPitchExtrema() {
-        int scale[] = {
-                0 /* C */, 2 /* D */, 4 /* E */, 7 /* G */, 9 /* A */ }; // pentatonic scale
+  @Test
+  public void testPitchGenerator_testPitchExtrema() {
+    int scale[] = {0 /* C */, 2 /* D */, 4 /* E */, 7 /* G */, 9 /* A */}; // pentatonic scale
 
-        int pitchMin = 71; // C5
-        int pitchMax = 92; // A6
-        int[] pitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
+    int pitchMin = 71; // C5
+    int pitchMax = 92; // A6
+    int[] pitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
 
-        int[] expected = {71, 73, 75, 78, 80, 83, 85, 87, 90, 92};
-        assertArrayEquals(expected, pitches);
-    }
+    int[] expected = {71, 73, 75, 78, 80, 83, 85, 87, 90, 92};
+    assertArrayEquals(expected, pitches);
+  }
 
-    @Test
-    public void testPitchGenerator_testPitchMaxNotInScale() {
-        int scale[] = {
-                0 /* C */, 2 /* D */, 4 /* E */, 7 /* G */, 9 /* A */ }; // pentatonic scale
+  @Test
+  public void testPitchGenerator_testPitchMaxNotInScale() {
+    int scale[] = {0 /* C */, 2 /* D */, 4 /* E */, 7 /* G */, 9 /* A */}; // pentatonic scale
 
-        int pitchMin = 71; // C5
-        int pitchMax = 93; // A#6, note is not in scale.
-        int[] pitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
+    int pitchMin = 71; // C5
+    int pitchMax = 93; // A#6, note is not in scale.
+    int[] pitches = PitchGenerator.generatePitches(scale, pitchMin, pitchMax);
 
-        int[] expected = {71, 73, 75, 78, 80, 83, 85, 87, 90, 92};
-        assertArrayEquals(expected, pitches);
-    }
+    int[] expected = {71, 73, 75, 78, 80, 83, 85, 87, 90, 92};
+    assertArrayEquals(expected, pitches);
+  }
 }

@@ -71,6 +71,22 @@
         android:summary="@string/use_new_manage_devices_ux_option_summary"
     />
 
+    <CheckBoxPreference
+        android:key="enable_smooth_scrolling_to_bottom"
+        android:defaultValue="true"
+        android:title="@string/enable_smooth_scrolling_on_refresh"
+        android:summary="@string/enable_smooth_scrolling_on_refresh_summary"
+        />
+
+    <Preference
+        android:key="require_google_account"
+        android:persistent="true"
+        android:defaultValue="false"
+        android:shouldDisableView="true"
+        android:title="@string/require_google_account"
+        android:summary="@string/require_google_account_summary"
+        />
+
     <Preference
         android:key="show_perf_tracker_debug"
         android:title="@string/perf_tracker_debug_pref_title"

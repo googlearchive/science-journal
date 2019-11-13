@@ -18,160 +18,124 @@ package com.google.android.apps.forscience.whistlepunk.metadata;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.text.TextUtils;
-import android.widget.TextView;
-
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.ColorUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerActionType;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciSensorTriggerInformation.TriggerInformation.TriggerWhen;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Utils for triggers.
- */
+/** Utils for triggers. */
 public class TriggerHelper {
 
-    private static final String TAG = "TriggerHelper";
-    private static final long TRIGGER_VIBRATION_DURATION_MS = 200;
-    private static final long THROTTLE_LIMIT_MS = 200;
+  private static final String TAG = "TriggerHelper";
+  private static final long TRIGGER_VIBRATION_DURATION_MS = 200;
+  private static final long THROTTLE_LIMIT_MS = 200;
 
-    private static int sSoundId = -1;
-    private static SoundPool sSoundPool;
+  private static int soundId = -1;
+  private static SoundPool soundPool;
 
-    private Vibrator mVibrator;
-    private long mLastVibrationMs;
-    private long mLastAudioMs;
+  private Vibrator vibrator;
+  private long lastVibrationMs;
+  private long lastAudioMs;
 
-    public TriggerHelper() {
+  public TriggerHelper() {}
+
+  public void doAudioAlert(Context context) {
+    // Use a throttler to keep this from interrupting itself too much.
+    if (SystemClock.elapsedRealtime() - lastAudioMs < THROTTLE_LIMIT_MS) {
+      return;
     }
-
-    public void doAudioAlert(Context context) {
-        // Use a throttler to keep this from interrupting itself too much.
-        if (SystemClock.elapsedRealtime() - mLastAudioMs < THROTTLE_LIMIT_MS) {
-            return;
-        }
-        SoundPool soundPool = getSoundPool(context);
-        if (sSoundId != -1) {
-            mLastAudioMs = SystemClock.elapsedRealtime();
-            soundPool.play(sSoundId, .8f, .8f, 0, 0, 1.0f);
-        }
+    SoundPool soundPool = getSoundPool(context);
+    if (soundId != -1) {
+      lastAudioMs = SystemClock.elapsedRealtime();
+      soundPool.play(soundId, .8f, .8f, 0, 0, 1.0f);
     }
+  }
 
-    private SoundPool getSoundPool(Context context) {
-        if (sSoundPool == null) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                sSoundPool = new SoundPool.Builder().build();
-            } else {
-                sSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+  private SoundPool getSoundPool(Context context) {
+    if (TriggerHelper.soundPool == null) {
+      TriggerHelper.soundPool = new SoundPool.Builder().build();
+      TriggerHelper.soundPool.load(context, R.raw.trigger_sound1, 0);
+      TriggerHelper.soundPool.setOnLoadCompleteListener(
+          new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+              soundId = sampleId;
+              // Always play once directly after load, because only trying to do an
+              // audio alert triggers a play.
+              TriggerHelper.soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);
             }
-            sSoundPool.load(context, R.raw.trigger_sound1, 0);
-            sSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-                @Override
-                public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-                    sSoundId = sampleId;
-                    // Always play once directly after load, because only trying to do an
-                    // audio alert triggers a play.
-                    sSoundPool.play(sSoundId, 1.0f, 1.0f, 0, 0, 1.0f);
-                }
-            });
-        }
-        return sSoundPool;
+          });
     }
+    return TriggerHelper.soundPool;
+  }
 
-    public void doVibrateAlert(Context context) {
-        // Use a throttler to keep this from interrupting itself too much.
-        if (System.currentTimeMillis() - mLastVibrationMs < THROTTLE_LIMIT_MS) {
-            return;
-        }
-        mLastVibrationMs = System.currentTimeMillis();
-        if (mVibrator == null) {
-            mVibrator = ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE));
-        }
-        mVibrator.vibrate(TRIGGER_VIBRATION_DURATION_MS);
+  public void doVibrateAlert(Context context) {
+    // Use a throttler to keep this from interrupting itself too much.
+    if (System.currentTimeMillis() - lastVibrationMs < THROTTLE_LIMIT_MS) {
+      return;
     }
+    lastVibrationMs = System.currentTimeMillis();
+    if (vibrator == null) {
+      vibrator = ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE));
+    }
+    vibrator.vibrate(TRIGGER_VIBRATION_DURATION_MS);
+  }
 
-    public static boolean hasVibrator(Context context) {
-        return ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE)).hasVibrator();
-    }
+  public static boolean hasVibrator(Context context) {
+    return ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE)).hasVibrator();
+  }
 
-    /**
-     * Adds the trigger ID to the layout's active triggers if it is not already in the list.
-     */
-    public static void addTriggerToLayoutActiveTriggers(GoosciSensorLayout.SensorLayout layout,
-            String triggerId) {
-        int oldSize = layout.activeSensorTriggerIds.length;
-        for (int i = 0; i < oldSize; i++) {
-            if (TextUtils.equals(layout.activeSensorTriggerIds[i], triggerId)) {
-                // Then is it already in the list, no need to add it again.
-                return;
-            }
-        }
-        String[] newTriggerIds = new String[oldSize + 1];
-        System.arraycopy(layout.activeSensorTriggerIds, 0, newTriggerIds, 0,
-                layout.activeSensorTriggerIds.length);
-        newTriggerIds[oldSize] = triggerId;
-        layout.activeSensorTriggerIds = newTriggerIds;
-    }
+  /** Adds the trigger ID to the layout's active triggers if it is not already in the list. */
+  public static void addTriggerToLayoutActiveTriggers(SensorLayoutPojo layout, String triggerId) {
+    layout.addActiveTriggerId(triggerId);
+  }
 
-    /**
-     * Removes the trigger ID from the layout's active triggers.
-     */
-    public static void removeTriggerFromLayoutActiveTriggers(GoosciSensorLayout.SensorLayout layout,
-            String triggerId) {
-        // Use an ArrayList intermediate for simplicity.
-        List<String> triggersList = new ArrayList<>();
-        triggersList.addAll(Arrays.asList(layout.activeSensorTriggerIds));
-        if (triggersList.contains(triggerId)) {
-            triggersList.remove(triggerId);
-            layout.activeSensorTriggerIds = triggersList.toArray(new String[triggersList.size()]);
-        }
-    }
+  /** Removes the trigger ID from the layout's active triggers. */
+  public static void removeTriggerFromLayoutActiveTriggers(
+      SensorLayoutPojo layout, String triggerId) {
+    layout.removeTrigger(triggerId);
+  }
 
-    public static String buildDescription(SensorTrigger trigger, Activity activity) {
-        Resources res = activity.getResources();
-        int actionType = trigger.getActionType();
-        String action = "";
-        if (actionType == TriggerInformation.TRIGGER_ACTION_START_RECORDING) {
-            action = res.getString(R.string.trigger_type_start_recording);
-        } else if (actionType == TriggerInformation.TRIGGER_ACTION_STOP_RECORDING) {
-            action = res.getString(R.string.trigger_type_stop_recording);
-        } else if (actionType == TriggerInformation.TRIGGER_ACTION_NOTE) {
-            action = res.getString(R.string.trigger_type_note);
-        } else if (actionType == TriggerInformation.TRIGGER_ACTION_ALERT) {
-            action = res.getString(R.string.trigger_type_alert);
-        }
-        SensorAppearance appearance = AppSingleton.getInstance(activity)
-                .getSensorAppearanceProvider().getAppearance(trigger.getSensorId());
-        String units = appearance.getUnits(activity);
-        String value = appearance.getNumberFormat().format(trigger.getValueToTrigger());
-        String result = "";
-        int when = trigger.getTriggerWhen();
-        if (when == TriggerInformation.TRIGGER_WHEN_AT) {
-            result = res.getString(R.string.trigger_when_at_description, action, value, units);
-        } else if (when == TriggerInformation.TRIGGER_WHEN_RISES_ABOVE) {
-            result = res.getString(R.string.trigger_when_rises_above_description, action, value,
-                    units);
-        } else if (when == TriggerInformation.TRIGGER_WHEN_DROPS_BELOW) {
-            result = res.getString(R.string.trigger_when_drops_below_description, action, value,
-                    units);
-        } else if (when == TriggerInformation.TRIGGER_WHEN_ABOVE) {
-            result = res.getString(R.string.trigger_when_above_description, action, value, units);
-        } else if (when == TriggerInformation.TRIGGER_WHEN_BELOW) {
-            result = res.getString(R.string.trigger_when_below_description, action, value, units);
-        }
-        return result;
+  public static String buildDescription(
+      SensorTrigger trigger, Activity activity, AppAccount appAccount) {
+    Resources res = activity.getResources();
+    TriggerActionType actionType = trigger.getActionType();
+    String action = "";
+    if (actionType == TriggerActionType.TRIGGER_ACTION_START_RECORDING) {
+      action = res.getString(R.string.trigger_type_start_recording);
+    } else if (actionType == TriggerActionType.TRIGGER_ACTION_STOP_RECORDING) {
+      action = res.getString(R.string.trigger_type_stop_recording);
+    } else if (actionType == TriggerActionType.TRIGGER_ACTION_NOTE) {
+      action = res.getString(R.string.trigger_type_note);
+    } else if (actionType == TriggerActionType.TRIGGER_ACTION_ALERT) {
+      action = res.getString(R.string.trigger_type_alert);
     }
+    SensorAppearance appearance =
+        AppSingleton.getInstance(activity)
+            .getSensorAppearanceProvider(appAccount)
+            .getAppearance(trigger.getSensorId());
+    String units = appearance.getUnits(activity);
+    String value = appearance.getNumberFormat().format(trigger.getValueToTrigger());
+    String result = "";
+    TriggerWhen when = trigger.getTriggerWhen();
+    if (when == TriggerWhen.TRIGGER_WHEN_AT) {
+      result = res.getString(R.string.trigger_when_at_description, action, value, units);
+    } else if (when == TriggerWhen.TRIGGER_WHEN_RISES_ABOVE) {
+      result = res.getString(R.string.trigger_when_rises_above_description, action, value, units);
+    } else if (when == TriggerWhen.TRIGGER_WHEN_DROPS_BELOW) {
+      result = res.getString(R.string.trigger_when_drops_below_description, action, value, units);
+    } else if (when == TriggerWhen.TRIGGER_WHEN_ABOVE) {
+      result = res.getString(R.string.trigger_when_above_description, action, value, units);
+    } else if (when == TriggerWhen.TRIGGER_WHEN_BELOW) {
+      result = res.getString(R.string.trigger_when_below_description, action, value, units);
+    }
+    return result;
+  }
 }

@@ -21,50 +21,42 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
 import android.content.IntentFilter;
-
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-/**
- * Tests for {@link BleEvents}
- */
+/** Tests for {@link BleEvents} */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class BleEventsTest {
 
-    private IntentFilter intentFilter;
-    private final String TEST_ACTION = BleEvents.GATT_CONNECT;
-    private final String FILTER_ADDRESS = "AA:BB:CC:DD:EE:FF";
+  private IntentFilter intentFilter;
+  private final String TEST_ACTION = BleEvents.GATT_CONNECT;
+  private final String FILTER_ADDRESS = "AA:BB:CC:DD:EE:FF";
 
-    @Before
-    public void setUp() {
-        intentFilter = BleEvents.createIntentFilter(FILTER_ADDRESS);
-    }
+  @Before
+  public void setUp() {
+    intentFilter = BleEvents.createIntentFilter(FILTER_ADDRESS);
+  }
 
-    @Test
-    public void testIntentFilterMismatchAddress() {
-        Intent mismatchAddressIntent = BleEvents.createIntent(TEST_ACTION, "FF:EE:DD:CC:BB:AA");
-        assertTrue(intentFilter.hasAction(mismatchAddressIntent.getAction()));
-        assertFalse(intentFilter.hasDataAuthority(mismatchAddressIntent.getData()));
-    }
+  @Test
+  public void testIntentFilterMismatchAddress() {
+    Intent mismatchAddressIntent = BleEvents.createIntent(TEST_ACTION, "FF:EE:DD:CC:BB:AA");
+    assertTrue(intentFilter.hasAction(mismatchAddressIntent.getAction()));
+    assertFalse(intentFilter.hasDataAuthority(mismatchAddressIntent.getData()));
+  }
 
-    @Test
-    public void testIntentFilterMismatchAction() {
-        Intent mismatchActionIntent = BleEvents.createIntent("UNKNOWN", FILTER_ADDRESS);
-        assertFalse(intentFilter.hasAction(mismatchActionIntent.getAction()));
-        assertTrue(intentFilter.hasDataAuthority(mismatchActionIntent.getData()));
+  @Test
+  public void testIntentFilterMismatchAction() {
+    Intent mismatchActionIntent = BleEvents.createIntent("UNKNOWN", FILTER_ADDRESS);
+    assertFalse(intentFilter.hasAction(mismatchActionIntent.getAction()));
+    assertTrue(intentFilter.hasDataAuthority(mismatchActionIntent.getData()));
+  }
 
-    }
-
-    @Test
-    public void testIntentFilterMatchAll() {
-        Intent matchIntent = BleEvents.createIntent(TEST_ACTION, FILTER_ADDRESS);
-        assertTrue(intentFilter.hasAction(matchIntent.getAction()));
-        assertTrue(intentFilter.hasDataAuthority(matchIntent.getData()));
-    }
+  @Test
+  public void testIntentFilterMatchAll() {
+    Intent matchIntent = BleEvents.createIntent(TEST_ACTION, FILTER_ADDRESS);
+    assertTrue(intentFilter.hasAction(matchIntent.getAction()));
+    assertTrue(intentFilter.hasDataAuthority(matchIntent.getData()));
+  }
 }

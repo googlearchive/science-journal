@@ -29,18 +29,29 @@
         android:background="@color/background_color"
         android:contentDescription="@string/gallery_image_content_description"
         android:foreground="?attr/selectableItemBackgroundBorderless"
-        android:scaleType="centerCrop"
-        />
+        android:scaleType="centerCrop" />
 
-    <ImageView
-        android:id="@+id/selected_indicator"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_alignParentEnd="true"
+    <FrameLayout
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_margin="4dp"
-        android:src="@drawable/select_button_background"
-        android:contentDescription="@string/content_description_selected"
-        />
+        android:layout_margin="3dp" >
+
+        <ImageView
+            android:id="@+id/selected_indicator"
+            android:src="@drawable/selected_or_not_gallery_image"
+            android:contentDescription="@string/content_description_selected"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <TextView
+            android:id="@+id/selected_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:lines="1"
+            android:textColor="@android:color/white"/>
+
+    </FrameLayout>
 
 </com.google.android.apps.forscience.whistlepunk.SquareLayoutMaxWidth>

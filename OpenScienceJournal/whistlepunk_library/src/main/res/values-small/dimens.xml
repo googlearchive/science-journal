@@ -16,5 +16,5 @@
 <resources>
     <!-- Maximum number of lines to show when editing a text label or note. -->
     <integer name="label_edit_max_lines">2</integer>
-    <integer name="gallery_column_count">2</integer>
+    <integer name="gallery_column_count">3</integer>
 </resources>

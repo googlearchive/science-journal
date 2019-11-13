@@ -21,46 +21,42 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-/**
- * Tests for {@link ColorAllocator}.
- */
+/** Tests for {@link ColorAllocator}. */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ColorAllocatorTest {
 
-    @Test
-    public void testColor_simple() {
-        ColorAllocator allocator = new ColorAllocator(3);
+  @Test
+  public void testColor_simple() {
+    ColorAllocator allocator = new ColorAllocator(3);
 
-        assertEquals(0, allocator.getNextColor(new int[] {}));
-        assertEquals(1, allocator.getNextColor(new int[] {0}));
-        assertEquals(2, allocator.getNextColor(new int[] {0, 1}));
-    }
+    assertEquals(0, allocator.getNextColor(new int[] {}));
+    assertEquals(1, allocator.getNextColor(new int[] {0}));
+    assertEquals(2, allocator.getNextColor(new int[] {0, 1}));
+  }
 
-    @Test
-    public void testColor_startingPoint() {
-        ColorAllocator allocator = new ColorAllocator(3);
+  @Test
+  public void testColor_startingPoint() {
+    ColorAllocator allocator = new ColorAllocator(3);
 
-        assertEquals(2, allocator.getNextColor(new int[] {1, 0}));
-        assertEquals(0, allocator.getNextColor(new int[] {1, 2, 0}));
-    }
+    assertEquals(2, allocator.getNextColor(new int[] {1, 0}));
+    assertEquals(0, allocator.getNextColor(new int[] {1, 2, 0}));
+  }
 
-    @Test
-    public void testColor_full() {
-        ColorAllocator allocator = new ColorAllocator(3);
+  @Test
+  public void testColor_full() {
+    ColorAllocator allocator = new ColorAllocator(3);
 
-        assertEquals(0, allocator.getNextColor(new int[] {0, 1, 2}));
-        assertEquals(1, allocator.getNextColor(new int[] {0, 1, 2, 0}));
-        assertEquals(2, allocator.getNextColor(new int[] {0, 1, 2, 0, 1}));
-        assertEquals(0, allocator.getNextColor(new int[] {0, 1, 2, 0, 1, 2}));
-    }
+    assertEquals(0, allocator.getNextColor(new int[] {0, 1, 2}));
+    assertEquals(1, allocator.getNextColor(new int[] {0, 1, 2, 0}));
+    assertEquals(2, allocator.getNextColor(new int[] {0, 1, 2, 0, 1}));
+    assertEquals(0, allocator.getNextColor(new int[] {0, 1, 2, 0, 1, 2}));
+  }
 
-    @Test
-    public void testColor_nullInput() {
-        ColorAllocator allocator = new ColorAllocator(3);
+  @Test
+  public void testColor_nullInput() {
+    ColorAllocator allocator = new ColorAllocator(3);
 
-        assertEquals(0, allocator.getNextColor(null));
-    }
+    assertEquals(0, allocator.getNextColor(null));
+  }
 }

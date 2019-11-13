@@ -17,14 +17,14 @@
 package com.google.android.apps.forscience.javalib;
 
 import android.util.SparseBooleanArray;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Easy way to wait for multiple asynchronous processes to complete before moving on.
  *
- * Example:
+ * <p>Example:
+ *
  * <pre>
  *   ParallelTask task = new ParallelTask();
  *   doSomeTask(task.addStep());
@@ -41,54 +41,54 @@ import java.util.List;
  * All calls to {@see addStep} should come before the single call to {@see whenAllDone}.
  */
 public class ParallelTask {
-    private MaybeConsumer<Success> mWhenDone = null;
-    private final SparseBooleanArray mStepsDone = new SparseBooleanArray();
-    private final List<Exception> mFailures = new ArrayList<>();
+  private MaybeConsumer<Success> whenDone = null;
+  private final SparseBooleanArray stepsDone = new SparseBooleanArray();
+  private final List<Exception> failures = new ArrayList<>();
 
-    public MaybeConsumer<Success> addStep() {
-        final int index = mStepsDone.size();
-        mStepsDone.put(index, false);
-        return new MaybeConsumer<Success>() {
-            @Override
-            public void success(Success value) {
-                done();
-            }
+  public MaybeConsumer<Success> addStep() {
+    final int index = stepsDone.size();
+    stepsDone.put(index, false);
+    return new MaybeConsumer<Success>() {
+      @Override
+      public void success(Success value) {
+        done();
+      }
 
-            @Override
-            public void fail(Exception e) {
-                mFailures.add(e);
-                done();
-            }
+      @Override
+      public void fail(Exception e) {
+        failures.add(e);
+        done();
+      }
 
-            protected void done() {
-                mStepsDone.put(index, true);
-                checkForAllDone();
-            }
-        };
-    }
-
-    public void whenAllDone(MaybeConsumer<Success> whenDone) {
-        mWhenDone = whenDone;
+      protected void done() {
+        stepsDone.put(index, true);
         checkForAllDone();
-    }
+      }
+    };
+  }
 
-    private void checkForAllDone() {
-        if (mWhenDone == null) {
-            return;
-        }
-        int numSteps = mStepsDone.size();
-        for (int i = 0; i < numSteps; i++) {
-            if (! mStepsDone.get(i)) {
-                return;
-            }
-        }
-        if (mFailures.isEmpty()) {
-            mWhenDone.success(Success.SUCCESS);
-        } else {
-            for (Exception failure : mFailures) {
-                mWhenDone.fail(failure);
-            }
-        }
-        mWhenDone = null;
+  public void whenAllDone(MaybeConsumer<Success> whenDone) {
+    this.whenDone = whenDone;
+    checkForAllDone();
+  }
+
+  private void checkForAllDone() {
+    if (whenDone == null) {
+      return;
     }
+    int numSteps = stepsDone.size();
+    for (int i = 0; i < numSteps; i++) {
+      if (!stepsDone.get(i)) {
+        return;
+      }
+    }
+    if (failures.isEmpty()) {
+      whenDone.success(Success.SUCCESS);
+    } else {
+      for (Exception failure : failures) {
+        whenDone.fail(failure);
+      }
+    }
+    whenDone = null;
+  }
 }

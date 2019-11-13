@@ -19,30 +19,30 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Keep track of a set of remaining tasks, using unique string id's.  When all tasks are completed,
+ * Keep track of a set of remaining tasks, using unique string id's. When all tasks are completed,
  * call a final Runnable.
  */
 public class TaskPool {
-    private final Set<String> mTaskIds = new HashSet<>();
-    private Runnable mOnDone;
+  private final Set<String> taskIds = new HashSet<>();
+  private Runnable onDone;
 
-    public TaskPool(Runnable onDone, String... moreTaskIds) {
-        mOnDone = onDone;
-        for (String taskId : moreTaskIds) {
-            addTask(taskId);
-        }
+  public TaskPool(Runnable onDone, String... moreTaskIds) {
+    this.onDone = onDone;
+    for (String taskId : moreTaskIds) {
+      addTask(taskId);
     }
+  }
 
-    public void addTask(String taskId) {
-        mTaskIds.add(taskId);
-    }
+  public void addTask(String taskId) {
+    taskIds.add(taskId);
+  }
 
-    public boolean taskDone(String taskId) {
-        boolean wasRemoved = mTaskIds.remove(taskId);
-        if (mTaskIds.isEmpty() && mOnDone != null) {
-            mOnDone.run();
-            mOnDone = null;
-        }
-        return wasRemoved;
+  public boolean taskDone(String taskId) {
+    boolean wasRemoved = taskIds.remove(taskId);
+    if (taskIds.isEmpty() && onDone != null) {
+      onDone.run();
+      onDone = null;
     }
+    return wasRemoved;
+  }
 }

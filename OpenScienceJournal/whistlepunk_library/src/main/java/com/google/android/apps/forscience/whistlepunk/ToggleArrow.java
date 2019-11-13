@@ -18,98 +18,99 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.AppCompatImageButton;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.TouchDelegate;
 
 public class ToggleArrow extends AppCompatImageButton {
-    private int mStringToBecomeActive;
-    private int mStringToBecomeInactive;
-    private String mName;
-    private boolean mIsFocusable = true;
+  private int stringToBecomeActive;
+  private int stringToBecomeInactive;
+  private String name;
+  private boolean isFocusable = true;
 
-    public ToggleArrow(Context context) {
-        super(context);
-        init();
-    }
+  public ToggleArrow(Context context) {
+    super(context);
+    init();
+  }
 
-    public ToggleArrow(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
+  public ToggleArrow(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    init();
+  }
 
-    public ToggleArrow(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
+  public ToggleArrow(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+    init();
+  }
 
-     private void init() {
-        setImageDrawable(getResources().getDrawable(R.drawable.ic_expand_more_white_24dp));
-    }
+  private void init() {
+    setImageDrawable(getResources().getDrawable(R.drawable.ic_expand_more_white_24dp));
+  }
 
-    @Nullable
-    public TouchDelegate makeTouchDelegate() {
-        Resources resources = getResources();
-        Rect delegateArea = new Rect();
-        getHitRect(delegateArea);
-        delegateArea.left += resources.getDimensionPixelSize(R.dimen.toggle_btn_delegate_add);
-        delegateArea.right += resources.getDimensionPixelOffset(R.dimen.toggle_btn_delegate_add);
-        return new TouchDelegate(delegateArea, this);
-    }
+  @Nullable
+  public TouchDelegate makeTouchDelegate() {
+    Resources resources = getResources();
+    Rect delegateArea = new Rect();
+    getHitRect(delegateArea);
+    delegateArea.left += resources.getDimensionPixelSize(R.dimen.toggle_btn_delegate_add);
+    delegateArea.right += resources.getDimensionPixelOffset(R.dimen.toggle_btn_delegate_add);
+    return new TouchDelegate(delegateArea, this);
+  }
 
-    public void setIsFocusable(boolean focusable) {
-        mIsFocusable = focusable;
-    }
+  public void setIsFocusable(boolean focusable) {
+    isFocusable = focusable;
+  }
 
-    /**
-     * Sets the action strings for the toggle arrow.
-     * @param stringToBecomeActive The ID of the string to use when user action activates us.
-     * @param stringToBecomeInactive The ID of the string to use when user action deactivates us.
-     */
-    public void setActionStrings(int stringToBecomeActive, int stringToBecomeInactive) {
-        mStringToBecomeActive = stringToBecomeActive;
-        mStringToBecomeInactive = stringToBecomeInactive;
-    }
+  /**
+   * Sets the action strings for the toggle arrow.
+   *
+   * @param stringToBecomeActive The ID of the string to use when user action activates us.
+   * @param stringToBecomeInactive The ID of the string to use when user action deactivates us.
+   */
+  public void setActionStrings(int stringToBecomeActive, int stringToBecomeInactive) {
+    this.stringToBecomeActive = stringToBecomeActive;
+    this.stringToBecomeInactive = stringToBecomeInactive;
+  }
 
-    /**
-     * Sets the action strings of the toggle arrow and a name string which is used to format those
-     * action strings.
-     * @param stringToBecomeActive The ID of the string to use when user action activates us,
-     *                             and which contains a string formatting param for our name.
-     * @param stringToBecomeInactive The ID of the string to use when user action deactivates us,
-     *                               and which contains a string formatting param for our name.
-     * @param name The name of the thing to activate / deactivate with this toggle arrow.
-     */
-    public void setActionStrings(int stringToBecomeActive, int stringToBecomeInactive,
-            String name) {
-        setActionStrings(stringToBecomeActive, stringToBecomeInactive);
-        mName = name;
-    }
+  /**
+   * Sets the action strings of the toggle arrow and a name string which is used to format those
+   * action strings.
+   *
+   * @param stringToBecomeActive The ID of the string to use when user action activates us, and
+   *     which contains a string formatting param for our name.
+   * @param stringToBecomeInactive The ID of the string to use when user action deactivates us, and
+   *     which contains a string formatting param for our name.
+   * @param name The name of the thing to activate / deactivate with this toggle arrow.
+   */
+  public void setActionStrings(int stringToBecomeActive, int stringToBecomeInactive, String name) {
+    setActionStrings(stringToBecomeActive, stringToBecomeInactive);
+    this.name = name;
+  }
 
-    public void setActive(boolean isBecomingActive, boolean animate) {
-        if (mIsFocusable) {
-            Resources resources = getResources();
-            int stringId = isBecomingActive ? mStringToBecomeInactive : mStringToBecomeActive;
-            // If it has a name field, then setActionStrings was called with the name param, and we
-            // can expect those strings to be string-formatting strings that take the name.
-            if (!TextUtils.isEmpty(mName)) {
-                setContentDescription(resources.getString(stringId, mName));
-            } else {
-                setContentDescription(resources.getString(stringId));
-            }
-        } else {
-            setContentDescription("");
-        }
-        float desiredRotation = isBecomingActive ? 0 : -180;
-        if (animate) {
-            animate()
-                    .rotation(desiredRotation)
-                    .setDuration(SensorCardPresenter.ANIMATION_TIME_MS)
-                    .start();
-        } else {
-            setRotation(desiredRotation);
-        }
+  public void setActive(boolean isBecomingActive, boolean animate) {
+    if (isFocusable) {
+      Resources resources = getResources();
+      int stringId = isBecomingActive ? stringToBecomeInactive : stringToBecomeActive;
+      // If it has a name field, then setActionStrings was called with the name param, and we
+      // can expect those strings to be string-formatting strings that take the name.
+      if (!TextUtils.isEmpty(name)) {
+        setContentDescription(resources.getString(stringId, name));
+      } else {
+        setContentDescription(resources.getString(stringId));
+      }
+    } else {
+      setContentDescription("");
     }
+    float desiredRotation = isBecomingActive ? -180 : 0;
+    if (animate) {
+      animate()
+          .rotation(desiredRotation)
+          .setDuration(SensorCardPresenter.ANIMATION_TIME_MS)
+          .start();
+    } else {
+      setRotation(desiredRotation);
+    }
+  }
 }

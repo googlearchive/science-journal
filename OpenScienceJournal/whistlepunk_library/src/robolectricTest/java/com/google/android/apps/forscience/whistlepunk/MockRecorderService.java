@@ -17,28 +17,30 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.content.Intent;
-import android.test.mock.MockContext;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import org.robolectric.RuntimeEnvironment;
 
-/**
- * Stubb of RecorderService for tests.
- */
+/** Stub of RecorderService for tests. */
 public class MockRecorderService extends RecorderService {
-    MockRecorderService() {
-    }
+  MockRecorderService() {}
 
-    @Override
-    public Context getApplicationContext() {
-        return new MockContext();
-    }
+  @Override
+  public Context getApplicationContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
 
-    @Override
-    public void beginServiceRecording(String experimentName, Intent launchIntent) {
-        // Do nothing.
-    }
+  @Override
+  public void beginServiceRecording(String experimentName, Intent launchIntent) {
+    // Do nothing.
+  }
 
-    @Override
-    public void endServiceRecording(boolean notifyRecordingEnded, String runId, String experimentId,
-            String experimentTitle) {
-        // Do nothing.
-    }
+  @Override
+  public void endServiceRecording(
+      AppAccount appAccount,
+      boolean notifyRecordingEnded,
+      String runId,
+      String experimentId,
+      String experimentTitle) {
+    // Do nothing.
+  }
 }

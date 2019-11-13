@@ -18,50 +18,47 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 
-/**
- * Formats elapsed time (in seconds) to a Xmin Ys format, like 5min 11s.
- */
+/** Formats elapsed time (in seconds) to a Xmin Ys format, like 5min 11s. */
 public class ElapsedTimeFormatter {
 
-    private static final long SECS_IN_A_MIN = 60;
-    private static ElapsedTimeFormatter sInstance;
-    private final String mShortFormat;
-    private final String mLongFormat;
-    private final String mAccessibleShortFormat;
-    private final String mAccessibleLongFormat;
+  private static final long SECS_IN_A_MIN = 60;
+  private static ElapsedTimeFormatter instance;
+  private final String shortFormat;
+  private final String longFormat;
+  private final String accessibleShortFormat;
+  private final String accessibleLongFormat;
 
-    public static ElapsedTimeFormatter getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new ElapsedTimeFormatter(context.getApplicationContext());
-        }
-        return sInstance;
+  public static ElapsedTimeFormatter getInstance(Context context) {
+    if (instance == null) {
+      instance = new ElapsedTimeFormatter(context.getApplicationContext());
     }
+    return instance;
+  }
 
-    private ElapsedTimeFormatter(Context context) {
-        mShortFormat = context.getResources().getString(R.string.elapsed_time_short_format);
-        mLongFormat = context.getResources().getString(R.string.elapsed_time_long_format);
-        mAccessibleShortFormat = context.getResources().getString(
-                R.string.accessible_elapsed_time_short_format);
-        mAccessibleLongFormat = context.getResources().getString(
-                R.string.accessible_elapsed_time_long_format);
+  private ElapsedTimeFormatter(Context context) {
+    shortFormat = context.getResources().getString(R.string.elapsed_time_short_format);
+    longFormat = context.getResources().getString(R.string.elapsed_time_long_format);
+    accessibleShortFormat =
+        context.getResources().getString(R.string.accessible_elapsed_time_short_format);
+    accessibleLongFormat =
+        context.getResources().getString(R.string.accessible_elapsed_time_long_format);
+  }
+
+  public String format(long elapsedTime) {
+    if (Math.abs(elapsedTime) >= SECS_IN_A_MIN) {
+      return String.format(
+          longFormat, elapsedTime / SECS_IN_A_MIN, Math.abs(elapsedTime % SECS_IN_A_MIN));
+    } else {
+      return String.format(shortFormat, elapsedTime);
     }
+  }
 
-    public String format(long elapsedTime) {
-        if (Math.abs(elapsedTime) >= SECS_IN_A_MIN) {
-            return String.format(mLongFormat, elapsedTime / SECS_IN_A_MIN,
-                    Math.abs(elapsedTime % SECS_IN_A_MIN));
-        } else {
-            return String.format(mShortFormat, elapsedTime);
-        }
+  public String formatForAccessibility(long elapsedTime) {
+    if (Math.abs(elapsedTime) >= SECS_IN_A_MIN) {
+      return String.format(
+          accessibleLongFormat, elapsedTime / SECS_IN_A_MIN, Math.abs(elapsedTime % SECS_IN_A_MIN));
+    } else {
+      return String.format(accessibleShortFormat, elapsedTime);
     }
-
-    public String formatForAccessibility(long elapsedTime) {
-        if (Math.abs(elapsedTime) >= SECS_IN_A_MIN) {
-            return String.format(mAccessibleLongFormat, elapsedTime / SECS_IN_A_MIN,
-                    Math.abs(elapsedTime % SECS_IN_A_MIN));
-        } else {
-            return String.format(mAccessibleShortFormat, elapsedTime);
-        }
-    }
-
+  }
 }

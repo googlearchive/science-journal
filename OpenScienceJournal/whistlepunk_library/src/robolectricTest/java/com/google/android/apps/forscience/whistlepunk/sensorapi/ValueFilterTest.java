@@ -19,20 +19,16 @@ package com.google.android.apps.forscience.whistlepunk.sensorapi;
 import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.Arbitrary;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ValueFilterTest {
-    @Test
-    public void testIdentity() {
-        double value = Arbitrary.doubleFloat();
-        long now = Arbitrary.longInteger();
-        assertEquals(value, ValueFilter.IDENTITY.filterValue(now, value), 0.01);
-    }
+  @Test
+  public void testIdentity() {
+    double value = Arbitrary.doubleFloat();
+    long now = Arbitrary.longInteger();
+    assertEquals(value, ValueFilter.IDENTITY.filterValue(now, value), 0.01);
+  }
 }

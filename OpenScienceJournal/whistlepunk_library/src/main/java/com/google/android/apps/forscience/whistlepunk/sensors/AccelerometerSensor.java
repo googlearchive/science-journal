@@ -21,7 +21,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
@@ -32,76 +31,75 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusList
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
 public class AccelerometerSensor extends ScalarSensor {
-    private Axis mAxis;
+  private Axis axis;
 
-    public enum Axis {
-        X(0, "AccX"),
-        Y(1, "AccY"),
-        Z(2, "AccZ");
+  public enum Axis {
+    X(0, "AccX"),
+    Y(1, "AccY"),
+    Z(2, "AccZ");
 
-        private final int mValueIndex;
-        private String mDatabaseTag;
+    private final int valueIndex;
+    private String databaseTag;
 
-        Axis(int valueIndex, String databaseTag) {
-            mValueIndex = valueIndex;
-            mDatabaseTag = databaseTag;
+    Axis(int valueIndex, String databaseTag) {
+      this.valueIndex = valueIndex;
+      this.databaseTag = databaseTag;
+    }
+
+    public float getValue(SensorEvent event) {
+      return event.values[valueIndex];
+    }
+
+    public String getSensorId() {
+      return databaseTag;
+    }
+  }
+
+  private SensorEventListener sensorEventListener;
+
+  public AccelerometerSensor(Axis axis) {
+    super(axis.getSensorId());
+    this.axis = axis;
+  }
+
+  @Override
+  protected SensorRecorder makeScalarControl(
+      final StreamConsumer c,
+      final SensorEnvironment environment,
+      final Context context,
+      final SensorStatusListener listener) {
+    return new AbstractSensorRecorder() {
+      @Override
+      public void startObserving() {
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+        SensorManager sensorManager = getSensorManager(context);
+        Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
         }
+        final Clock clock = environment.getDefaultClock();
+        sensorEventListener =
+            new SensorEventListener() {
+              @Override
+              public void onSensorChanged(SensorEvent event) {
+                c.addData(clock.getNow(), axis.getValue(event));
+              }
 
-        public float getValue(SensorEvent event) {
-            return event.values[mValueIndex];
-        }
+              @Override
+              public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+            };
+        sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_UI);
+      }
 
-        public String getSensorId() {
-            return mDatabaseTag;
-        }
-    }
+      @Override
+      public void stopObserving() {
+        getSensorManager(context).unregisterListener(sensorEventListener);
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
+      }
+    };
+  }
 
-    private SensorEventListener mSensorEventListener;
-
-    public AccelerometerSensor(Axis axis) {
-        super(axis.getSensorId());
-        mAxis = axis;
-    }
-
-    @Override
-    protected SensorRecorder makeScalarControl(final StreamConsumer c,
-            final SensorEnvironment environment, final Context context,
-            final SensorStatusListener listener) {
-        return new AbstractSensorRecorder() {
-            @Override
-            public void startObserving() {
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
-                SensorManager sensorManager = getSensorManager(context);
-                Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-                if (mSensorEventListener != null) {
-                    getSensorManager(context).unregisterListener(mSensorEventListener);
-                }
-                final Clock clock = environment.getDefaultClock();
-                mSensorEventListener = new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        c.addData(clock.getNow(), mAxis.getValue(event));
-                    }
-
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-                    }
-                };
-                sensorManager.registerListener(mSensorEventListener, sensor,
-                        SensorManager.SENSOR_DELAY_UI);
-
-            }
-
-            @Override
-            public void stopObserving() {
-                getSensorManager(context).unregisterListener(mSensorEventListener);
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
-            }
-        };
-    }
-
-    public static boolean isAccelerometerAvailable(AvailableSensors availableSensors) {
-        return availableSensors.isSensorAvailable(Sensor.TYPE_ACCELEROMETER);
-    }
+  public static boolean isAccelerometerAvailable(AvailableSensors availableSensors) {
+    return availableSensors.isSensorAvailable(Sensor.TYPE_ACCELEROMETER);
+  }
 }

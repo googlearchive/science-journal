@@ -18,107 +18,108 @@ package com.google.android.apps.forscience.whistlepunk.audiogen;
 
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
 import com.jsyn.devices.android.AndroidAudioForJSyn;
 import com.jsyn.unitgen.LineOut;
 
-/**
- * Generates audio by mapping the input data to a range of frequencies.
- */
+/** Generates audio by mapping the input data to a range of frequencies. */
 public class SimpleJsynAudioGenerator implements AudioGenerator {
-    // Logging tag is truncated because it cannot be more than 24 characters long.
-    private static final String TAG = "SimpleJsynAudioGenerato";
-    private static final int SAMPLE_RATE = 44100;
+  // Logging tag is truncated because it cannot be more than 24 characters long.
+  private static final String TAG = "SimpleJsynAudioGenerato";
+  private static final int SAMPLE_RATE = 44100;
 
-    private final AndroidAudioForJSyn mAudioManager;
-    private final Synthesizer mSynth;
-    private JsynUnitVoiceAdapterInterface mAdapter = null;
-    private LineOut mLineOut;
-    private String mSonificationType = "";
+  private final AndroidAudioForJSyn audioManager;
+  private final Synthesizer synth;
+  private JsynUnitVoiceAdapterInterface adapter = null;
+  private LineOut lineOut;
+  private String sonificationType = "";
 
-    public SimpleJsynAudioGenerator() {
-        this(SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
+  public SimpleJsynAudioGenerator() {
+    this(SonificationTypeAdapterFactory.DEFAULT_SONIFICATION_TYPE);
+  }
+
+  public SimpleJsynAudioGenerator(String sonificationType) {
+    audioManager = new AndroidAudioForJSyn();
+    synth = JSyn.createSynthesizer(audioManager);
+    // Add an output mixer.
+    synth.add(lineOut = new LineOut());
+    setSonificationType(sonificationType);
+  }
+
+  @Override
+  public void startPlaying() {
+    // No input, dual channel (stereo) output.
+    synth.start(
+        SAMPLE_RATE,
+        audioManager.getDefaultInputDeviceID(),
+        0,
+        audioManager.getDefaultOutputDeviceID(),
+        2);
+    lineOut.start();
+  }
+
+  @Override
+  public void stopPlaying() {
+    if (lineOut != null) {
+      lineOut.stop();
     }
-
-    public SimpleJsynAudioGenerator(String sonificationType) {
-        mAudioManager = new AndroidAudioForJSyn();
-        mSynth = JSyn.createSynthesizer(mAudioManager);
-        // Add an output mixer.
-        mSynth.add(mLineOut = new LineOut());
-        setSonificationType(sonificationType);
+    if (synth != null) {
+      synth.stop();
     }
+  }
 
-    @Override
-    public void startPlaying() {
-        // No input, dual channel (stereo) output.
-        mSynth.start(SAMPLE_RATE, mAudioManager.getDefaultInputDeviceID(), 0,
-                mAudioManager.getDefaultOutputDeviceID(), 2);
-        mLineOut.start();
-    }
+  @Override
+  public void destroy() {
+    reset();
+    adapter = null;
+    lineOut = null;
+  }
 
-    @Override
-    public void stopPlaying() {
-        if (mLineOut != null) {
-            mLineOut.stop();
-        }
-        if (mSynth != null) {
-            mSynth.stop();
-        }
-    }
+  @Override
+  public void reset() {
+    stopPlaying();
+    disconnect();
+  }
 
-    @Override
-    public void destroy() {
-        reset();
-        mAdapter = null;
-        mLineOut = null;
+  @Override
+  public void addData(long unusedTimestamp, double value, double min, double max) {
+    // Assume data is only added near now, and in order.
+    // TODO: use Jsyn scheduling to play data in timestamp order.
+    if (adapter == null) {
+      return;
     }
+    if (min >= max) {
+      return;
+    }
+    adapter.noteOn(value, min, max, synth.createTimeStamp());
+  }
 
-    @Override
-    public void reset() {
-        stopPlaying();
-        disconnect();
+  @Override
+  public void setSonificationType(String sonificationType) {
+    if (TextUtils.equals(sonificationType, this.sonificationType)) {
+      return;
     }
+    this.sonificationType = sonificationType;
+    if (adapter != null) {
+      disconnect();
+    }
+    ;
+    adapter = SonificationTypeAdapterFactory.getSonificationTypeAdapter(synth, sonificationType);
+    if (adapter != null) {
+      // Connect the oscillator to the output (both stereo channels).
+      adapter.getVoice().getOutput().connect(0, lineOut.input, 0);
+      adapter.getVoice().getOutput().connect(0, lineOut.input, 1);
+    } else {
+      Log.wtf(TAG, "Unexpected sonfication type: " + sonificationType);
+    }
+  }
 
-    @Override
-    public void addData(long unusedTimestamp, double value, double min, double max) {
-        // Assume data is only added near now, and in order.
-        // TODO: use Jsyn scheduling to play data in timestamp order.
-        if (mAdapter == null) {
-            return;
-        }
-        if (min >= max) {
-            return;
-        }
-        mAdapter.noteOn(value, min, max, mSynth.createTimeStamp());
+  private void disconnect() {
+    if (adapter != null) {
+      adapter.getVoice().getOutput().disconnect(0, lineOut.input, 0);
+      adapter.getVoice().getOutput().disconnect(0, lineOut.input, 1);
+      adapter = null;
     }
-
-    @Override
-    public void setSonificationType(String sonificationType) {
-        if (TextUtils.equals(sonificationType, mSonificationType)) {
-            return;
-        }
-        mSonificationType = sonificationType;
-        if (mAdapter != null) {
-            disconnect();
-        };
-        mAdapter = SonificationTypeAdapterFactory.getSonificationTypeAdapter(mSynth,
-                sonificationType);
-        if (mAdapter != null) {
-            // Connect the oscillator to the output (both stereo channels).
-            mAdapter.getVoice().getOutput().connect(0, mLineOut.input, 0);
-            mAdapter.getVoice().getOutput().connect(0, mLineOut.input, 1);
-        } else {
-            Log.wtf(TAG, "Unexpected sonfication type: " + sonificationType);
-        }
-    }
-
-    private void disconnect() {
-        if (mAdapter != null) {
-            mAdapter.getVoice().getOutput().disconnect(0, mLineOut.input, 0);
-            mAdapter.getVoice().getOutput().disconnect(0, mLineOut.input, 1);
-            mAdapter = null;
-        }
-    }
+  }
 }

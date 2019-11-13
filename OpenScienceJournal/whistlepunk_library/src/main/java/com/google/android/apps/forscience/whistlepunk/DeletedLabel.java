@@ -16,77 +16,84 @@
 package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
-import android.support.design.widget.Snackbar;
 import android.view.View;
-
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
-
-import java.util.concurrent.TimeUnit;
-
+import com.google.android.material.snackbar.Snackbar;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import java.util.concurrent.TimeUnit;
 
 public class DeletedLabel {
-    private static final String TAG = "DeletedLabel";
-    private Label mLabel;
-    private Consumer<Context> mAssetDeleter;
+  private static final String TAG = "DeletedLabel";
+  private Label label;
+  private Consumer<Context> assetDeleter;
 
-    // This is a little longer than the value of SnackbarManager#LONG_DURATION_MS.  We set it
-    // custom so we can try to be sure when it has disappeared.
-    private static final int UNDO_DELAY_MS = 3000;
+  // This is a little longer than the value of SnackbarManager#LONG_DURATION_MS.  We set it
+  // custom so we can try to be sure when it has disappeared.
+  private static final int UNDO_DELAY_MS = 3000;
 
+  public DeletedLabel(Label label, Consumer<Context> assetDeleter) {
+    this.label = label;
+    this.assetDeleter = assetDeleter;
+  }
 
-    public DeletedLabel(Label label, Consumer<Context> assetDeleter) {
-        mLabel = label;
-        mAssetDeleter = assetDeleter;
-    }
+  public Label getLabel() {
+    return label;
+  }
 
-    public Label getLabel() {
-        return mLabel;
-    }
+  public void deleteAndDisplayUndoBar(
+      View view,
+      AppAccount appAccount,
+      final Experiment experiment,
+      LabelListHolder labelHolder,
+      Runnable uiChangeOnUndo) {
+    Context context = view.getContext();
+    final DataController dc = AppSingleton.getInstance(context).getDataController(appAccount);
+    Snackbar bar =
+        AccessibilityUtils.makeSnackbar(
+            view, context.getResources().getString(R.string.snackbar_note_deleted), UNDO_DELAY_MS);
 
-    public void deleteAndDisplayUndoBar(View view, final String experimentId,
-            LabelListHolder labelHolder, Runnable uiChangeOnUndo) {
-        Context context = view.getContext();
-        final DataController dc = AppSingleton.getInstance(context).getDataController();
-        Snackbar bar = AccessibilityUtils.makeSnackbar(view,
-                context.getResources().getString(R.string.snackbar_note_deleted), UNDO_DELAY_MS);
+    RxEvent undoneEvent = new RxEvent();
 
-        RxEvent undone = new RxEvent();
+    // On undo, re-add the item to the database and the pinned note list.
+    bar.setAction(
+        R.string.snackbar_undo,
+        new View.OnClickListener() {
+          boolean undone = false;
 
-        // On undo, re-add the item to the database and the pinned note list.
-        bar.setAction(R.string.snackbar_undo, new View.OnClickListener() {
-            boolean mUndone = false;
-            @Override
-            public void onClick(View v) {
-                if (mUndone) {
-                    return;
-                }
-                undone.onHappened();
-                mUndone = true;
-                labelHolder.addLabel(mLabel);
-                dc.updateExperiment(experimentId, new LoggingConsumer<Success>(TAG,
-                        "re-add deleted label") {
-                    @Override
-                    public void success(Success value) {
-                        uiChangeOnUndo.run();
-                    }
-                });
+          @Override
+          public void onClick(View v) {
+            if (this.undone) {
+              return;
             }
+            undoneEvent.onHappened();
+            this.undone = true;
+            labelHolder.addLabel(experiment, label);
+
+            dc.updateExperiment(
+                experiment.getExperimentId(),
+                new LoggingConsumer<Success>(TAG, "re-add deleted label") {
+                  @Override
+                  public void success(Success value) {
+                    uiChangeOnUndo.run();
+                  }
+                });
+          }
         });
-        bar.show();
+    bar.show();
 
-        // Add just a bit of extra time to be sure
-        long delayWithBuffer = (long) (bar.getDuration() * 1.1);
+    // Add just a bit of extra time to be sure
+    long delayWithBuffer = (long) (bar.getDuration() * 1.1);
 
-        Context appContext = view.getContext().getApplicationContext();
-        Observable.timer(delayWithBuffer, TimeUnit.MILLISECONDS)
-                  .takeUntil(undone.happens())
-                  .observeOn(AndroidSchedulers.mainThread())
-                  .subscribe(o -> mAssetDeleter.accept(appContext));
-    }
-
+    Context appContext = view.getContext().getApplicationContext();
+    Observable.timer(delayWithBuffer, TimeUnit.MILLISECONDS)
+        .takeUntil(undoneEvent.happens())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(o -> assetDeleter.accept(appContext));
+  }
 }

@@ -15,61 +15,115 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
+import android.util.Log;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
+import com.google.android.apps.forscience.whistlepunk.filemetadata.FileSyncCollection;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.LabelListHolder;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.io.File;
 
-/**
- * Utility methods for bridging DataController calls with code that uses Rx
- */
+/** Utility methods for bridging DataController calls with code that uses Rx */
 public class RxDataController {
-    /**
-     * @return a {@link Completable} that completes when updateExperiment is successful.  Caller
-     *         <em>must</em> subscribe to this completeable to deal with errors and force execution.
-     */
-    public static Completable updateExperiment(DataController dc, Experiment e) {
-        return MaybeConsumers.buildCompleteable(mc -> dc.updateExperiment(e.getExperimentId(), mc));
-    }
+  private static final String TAG = "RxDataController";
 
-    public static Completable updateLabel(DataController dc, LabelListHolder h, Label l,
-            Experiment e) {
-        h.updateLabel(l);
-        return updateExperiment(dc, e);
-    }
+  public static Completable updateExperiment(
+      DataController dc, Experiment e, long lastUsedTime, boolean shouldMarkDirty) {
+    return MaybeConsumers.buildCompleteable(
+        mc -> dc.updateExperiment(e.getExperimentId(), lastUsedTime, shouldMarkDirty, mc));
+  }
 
-    public static Single<Experiment> getExperimentById(DataController dc, String experimentId) {
-        return MaybeConsumers.buildSingle(mc -> dc.getExperimentById(experimentId, mc));
-    }
+  public static Completable updateExperimentEvenIfNotActive(
+      DataController dc, Experiment e, long lastUsedTime, boolean shouldMarkDirty) {
+    return MaybeConsumers.buildCompleteable(
+        mc -> dc.updateExperimentEvenIfNotActive(e, lastUsedTime, shouldMarkDirty, mc));
+  }
 
-    public static Single<Experiment> createExperiment(DataController dc) {
-        return MaybeConsumers.buildSingle(mc -> dc.createExperiment(mc));
-    }
+  public static Completable updateExperiment(
+      DataController dc, Experiment e, boolean shouldMarkDirty) {
+    return MaybeConsumers.buildCompleteable(
+        mc -> dc.updateExperiment(e.getExperimentId(), shouldMarkDirty, mc));
+  }
 
-    public static Single<Trial> getTrial(DataController dc, String experimentId, String trialId) {
-        return getExperimentById(dc, experimentId).map(experiment -> experiment.getTrial(trialId));
-    }
+  public static Completable deleteExperiment(DataController dc, Experiment e) {
+    return MaybeConsumers.buildCompleteable(mc -> dc.deleteExperiment(e, mc));
+  }
 
-    public static Maybe<Trial> getTrialMaybe(DataController dc, String experimentId,
-            String trialId) {
-        return getExperimentById(dc, experimentId).flatMapMaybe(experiment -> {
-            Trial trial = experiment.getTrial(trialId);
-            if (trial != null) {
+  public static Completable deleteExperiment(DataController dc, String experimentId) {
+    return MaybeConsumers.buildCompleteable(mc -> dc.deleteExperiment(experimentId, mc));
+  }
+
+  public static Single<FileSyncCollection> mergeExperiment(
+      DataController dc, String id, Experiment toMerge, boolean overwrite) {
+    return MaybeConsumers.buildSingle(mc -> dc.mergeExperiment(id, toMerge, overwrite, mc));
+  }
+
+  public static Completable addExperiment(DataController dc, Experiment e) {
+    return MaybeConsumers.buildCompleteable(mc -> dc.addExperiment(e, mc));
+  }
+
+  public static Completable updateLabel(
+      DataController dc, LabelListHolder h, Label l, Experiment e, Change c) {
+    h.updateLabel(e, l, c);
+    return updateExperiment(dc, e, true);
+  }
+
+  public static Single<Experiment> getExperimentById(DataController dc, String experimentId) {
+    Exception justInCase = new Exception("getExperimentById failed");
+    return MaybeConsumers.<Experiment>buildSingle(mc -> dc.getExperimentById(experimentId, mc))
+        .doOnError(
+            throwable -> {
+              if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "getExperimentById failed", justInCase);
+              }
+            });
+  }
+
+  public static Single<Boolean> experimentExists(DataController dc, String experimentId) {
+    Exception justInCase = new Exception("getExperimentById failed");
+    return MaybeConsumers.<Boolean>buildSingle(mc -> dc.experimentExists(experimentId, mc))
+        .doOnError(
+            throwable -> {
+              if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "getExperimentById failed", justInCase);
+              }
+            });
+  }
+
+  public static Single<Experiment> createExperiment(DataController dc) {
+    return MaybeConsumers.buildSingle(mc -> dc.createExperiment(mc));
+  }
+
+  public static Single<Trial> getTrial(DataController dc, String experimentId, String trialId) {
+    return getExperimentById(dc, experimentId).map(experiment -> experiment.getTrial(trialId));
+  }
+
+  public static Maybe<Trial> getTrialMaybe(DataController dc, String experimentId, String trialId) {
+    return getExperimentById(dc, experimentId)
+        .flatMapMaybe(
+            experiment -> {
+              Trial trial = experiment.getTrial(trialId);
+              if (trial != null) {
                 return Maybe.just(trial);
-            } else {
+              } else {
                 return Maybe.empty();
-            }
-        });
-    }
+              }
+            });
+  }
 
-    public static Completable addTrialLabel(Label label, DataController dc, Experiment experiment,
-            String trialId) {
-        experiment.getTrial(trialId).addLabel(label);
-        return updateExperiment(dc, experiment);
-    }
+  public static Completable addTrialLabel(
+      Label label, DataController dc, Experiment experiment, String trialId) {
+    experiment.getTrial(trialId).addLabel(experiment, label);
+    return updateExperiment(dc, experiment, true);
+  }
+
+  public static Single<File> writeTrialProtoToFile(
+      DataController dc, String experimentId, String trialId) {
+    return MaybeConsumers.buildSingle(mc -> dc.writeTrialProtoToFile(experimentId, trialId, mc));
+  }
 }

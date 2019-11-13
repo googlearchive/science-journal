@@ -21,11 +21,27 @@
     <item
         android:title="@string/edit_note_time_menu_item"
         android:id="@+id/btn_edit_note_time"
+        android:orderInCategory="101"
+        />
+
+    <item
+        android:title="@string/export_action"
+        android:id="@+id/btn_share_photo"
+        android:visible="false"
+        android:orderInCategory="102"
+        />
+
+    <item
+        android:title="@string/download_copy_action"
+        android:id="@+id/btn_download_photo"
+        android:visible="false"
+        android:orderInCategory="103"
         />
 
     <item
         android:title="@string/delete_note_menu_item"
         android:id="@+id/btn_delete_note"
+        android:orderInCategory="104"
         />
 
 </menu>

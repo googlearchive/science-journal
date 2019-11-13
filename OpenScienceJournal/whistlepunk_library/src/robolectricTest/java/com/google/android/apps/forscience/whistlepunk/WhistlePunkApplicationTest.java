@@ -18,21 +18,20 @@ package com.google.android.apps.forscience.whistlepunk;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class WhistlePunkApplicationTest {
-    @Test
-    public void usageTrackerForNullContext() {
-        WhistlePunkApplication app = new WhistlePunkApplication() {
-            @Override
-            protected void onCreateInjector() {
-                // do nothing
-            }
+  @Test
+  public void usageTrackerForNullContext() {
+    WhistlePunkApplication app =
+        new WhistlePunkApplication() {
+          @Override
+          protected void onCreateInjector() {
+            // do nothing
+          }
         };
 
-        // Make sure this doesn't throw.
-        app.getUsageTracker(null).trackScreenView("screen");
-    }
+    // Make sure this doesn't throw.
+    app.getUsageTracker(null).trackScreenView("screen");
+  }
 }

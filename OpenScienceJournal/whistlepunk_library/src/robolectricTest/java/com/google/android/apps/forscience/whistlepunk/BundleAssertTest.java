@@ -19,39 +19,36 @@ package com.google.android.apps.forscience.whistlepunk;
 import static org.junit.Assert.fail;
 
 import android.os.Bundle;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class BundleAssertTest {
-    @Test
-    public void testAssertBundlesEqualMissingKey() {
-        try {
-            final Bundle hasKey = new Bundle();
-            hasKey.putString("key", "value");
-            final Bundle noKey = new Bundle();
-            BundleAssert.assertBundlesEqual(hasKey, noKey);
-        } catch (AssertionError expected) {
-            return;
-        }
-        fail("Should have failed!");
+  @Test
+  public void testAssertBundlesEqualMissingKey() {
+    try {
+      final Bundle hasKey = new Bundle();
+      hasKey.putString("key", "value");
+      final Bundle noKey = new Bundle();
+      BundleAssert.assertBundlesEqual(hasKey, noKey);
+    } catch (AssertionError expected) {
+      return;
     }
+    fail("Should have failed!");
+  }
 
-    @Test
-    public void testAssertBundlesEqualDifferentValues() {
-        try {
-            final Bundle a = new Bundle();
-            a.putString("key", "a");
-            final Bundle b = new Bundle();
-            b.putString("key", "b");
-            BundleAssert.assertBundlesEqual(a, b);
-        } catch (AssertionError expected) {
-            return;
-        }
-        fail("Should have failed!");
+  @Test
+  public void testAssertBundlesEqualDifferentValues() {
+    try {
+      final Bundle a = new Bundle();
+      a.putString("key", "a");
+      final Bundle b = new Bundle();
+      b.putString("key", "b");
+      BundleAssert.assertBundlesEqual(a, b);
+    } catch (AssertionError expected) {
+      return;
     }
+    fail("Should have failed!");
+  }
 }

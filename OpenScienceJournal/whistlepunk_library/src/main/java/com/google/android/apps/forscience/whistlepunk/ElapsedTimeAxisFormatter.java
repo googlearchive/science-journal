@@ -18,107 +18,107 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 import android.util.LruCache;
 
-import java.util.HashMap;
-
 /**
- * Formats elapsed time (in ms) to a short m:ss or h:mm:ss format.
- * Can also format to tenths of a second using formatToTenths.
+ * Formats elapsed time (in ms) to a short m:ss or h:mm:ss format. Can also format to tenths of a
+ * second using formatToTenths.
  */
 // TODO: Switch to using JodaTime library or DateUtils.formatElapsedTime.
 public class ElapsedTimeAxisFormatter {
 
-    private static ElapsedTimeAxisFormatter sInstance;
-    private final String mSmallFormat;
-    private final String mLargeFormat;
-    private final String mSmallFormatTenths;
-    private final String mLargeFormatTenths;
-    private LruCache<Long, String> mCacheWithTenths;
-    private LruCache<Long, String> mCacheWithoutTenths;
+  private static ElapsedTimeAxisFormatter instance;
+  private final String extraSmallFormat;
+  private final String smallFormat;
+  private final String largeFormat;
+  private final String smallFormatTenths;
+  private final String largeFormatTenths;
+  private LruCache<Long, String> cacheWithTenths;
+  private LruCache<Long, String> cacheWithoutTenths;
 
-    private final ReusableFormatter mFormatter;
+  private final ReusableFormatter formatter;
 
-    public static ElapsedTimeAxisFormatter getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new ElapsedTimeAxisFormatter(context);
-        }
-        return sInstance;
+  public static ElapsedTimeAxisFormatter getInstance(Context context) {
+    if (instance == null) {
+      instance = new ElapsedTimeAxisFormatter(context);
+    }
+    return instance;
+  }
+
+  private ElapsedTimeAxisFormatter(Context context) {
+    Resources res = context.getResources();
+    extraSmallFormat = res.getString(R.string.elapsed_time_axis_format_extra_small);
+    smallFormat = res.getString(R.string.elapsed_time_axis_format_small);
+    largeFormat = res.getString(R.string.elapsed_time_axis_format_large);
+    smallFormatTenths = res.getString(R.string.elapsed_time_axis_format_small_tenths);
+    largeFormatTenths = res.getString(R.string.elapsed_time_axis_format_large_tenths);
+
+    formatter = new ReusableFormatter();
+
+    cacheWithTenths = new LruCache<>(128 /* entries */);
+    cacheWithoutTenths = new LruCache<>(128 /* entries */);
+  }
+
+  /**
+   * Returns a formatted string for elapsedTimeMs using a cache, if a miss occurs, then compute the
+   * formatted string and add it to the cache
+   *
+   * @param elapsedTimeMs Timestamp to be formatted
+   * @param includeTenths Whether to include the tenths place in the formatted string
+   * @return The formatted string in HH:MM:SS or HH:MM:SS.T
+   */
+  public String format(long elapsedTimeMs, boolean includeTenths) {
+    long absoluteElapsedTimeMs = Math.abs(elapsedTimeMs);
+    // Key into the cache based on timestamp with
+    // reduced precision to increase hit likelihood
+    long timeIndex;
+    String formattedString;
+    if (includeTenths) {
+      timeIndex = elapsedTimeMs / 100;
+      formattedString = cacheWithTenths.get(timeIndex);
+    } else {
+      timeIndex = elapsedTimeMs / 1000;
+      formattedString = cacheWithoutTenths.get(timeIndex);
     }
 
-    private ElapsedTimeAxisFormatter(Context context) {
-        Resources res = context.getResources();
-        mSmallFormat = res.getString(R.string.elapsed_time_axis_format_small);
-        mLargeFormat = res.getString(R.string.elapsed_time_axis_format_large);
-        mSmallFormatTenths = res.getString(R.string.elapsed_time_axis_format_small_tenths);
-        mLargeFormatTenths = res.getString(R.string.elapsed_time_axis_format_large_tenths);
-
-        mFormatter = new ReusableFormatter();
-
-        mCacheWithTenths = new LruCache<>(128 /* entries */);
-        mCacheWithoutTenths = new LruCache<>(128 /* entries */);
+    // Cache hit
+    if (formattedString != null) {
+      return formattedString;
     }
 
-    /**
-     * Returns a formatted string for elapsedTimeMs using a cache, if a miss occurs, then compute
-     * the formatted string and add it to the cache
-     * @param elapsedTimeMs Timestamp to be formatted
-     * @param includeTenths Whether to include the tenths place in the formatted string
-     * @return The formatted string in HH:MM:SS or HH:MM:SS.T
-     */
-    public String format(long elapsedTimeMs, boolean includeTenths) {
-        long absoluteElapsedTimeMs = Math.abs(elapsedTimeMs);
-        // Key into the cache based on timestamp with
-        // reduced precision to increase hit likelihood
-        long timeIndex;
-        String formattedString;
-        if (includeTenths) {
-            timeIndex = elapsedTimeMs/100;
-            formattedString = mCacheWithTenths.get(timeIndex);
-        } else {
-            timeIndex = elapsedTimeMs/1000;
-            formattedString = mCacheWithoutTenths.get(timeIndex);
-        }
-
-        // Cache hit
-        if (formattedString != null) {
-            return formattedString;
-        }
-
-        long hours = ElapsedTimeUtils.getHours(absoluteElapsedTimeMs);
-        long minutes = ElapsedTimeUtils.getMins(absoluteElapsedTimeMs, hours);
-        long seconds = ElapsedTimeUtils.getSecs(absoluteElapsedTimeMs, hours, minutes);
-        if (includeTenths) {
-            long tenths = ElapsedTimeUtils.getTenthsOfSecs(absoluteElapsedTimeMs, hours, minutes,
-                    seconds);
-            if (hours > 0) {
-                formattedString = mFormatter.format(mLargeFormatTenths, hours, minutes, seconds,
-                        tenths).toString();
-            } else {
-                formattedString = mFormatter.format(mSmallFormatTenths, minutes, seconds, tenths)
-                        .toString();
-            }
-        } else {
-            if (hours > 0) {
-                formattedString = mFormatter.format(mLargeFormat, hours, minutes, seconds)
-                        .toString();
-            } else {
-                formattedString = mFormatter.format(mSmallFormat, minutes, seconds).toString();
-            }
-        }
-
-        boolean isNegative = elapsedTimeMs < 0;
-        if (isNegative) {
-            formattedString = mFormatter.format("-%s", formattedString).toString();
-        }
-
-        if (includeTenths) {
-            mCacheWithTenths.put(timeIndex, formattedString);
-        } else {
-            mCacheWithoutTenths.put(timeIndex, formattedString);
-        }
-
-        return formattedString;
+    long hours = ElapsedTimeUtils.getHours(absoluteElapsedTimeMs);
+    long minutes = ElapsedTimeUtils.getMins(absoluteElapsedTimeMs, hours);
+    long seconds = ElapsedTimeUtils.getSecs(absoluteElapsedTimeMs, hours, minutes);
+    if (includeTenths) {
+      long tenths =
+          ElapsedTimeUtils.getTenthsOfSecs(absoluteElapsedTimeMs, hours, minutes, seconds);
+      if (hours > 0) {
+        formattedString =
+            formatter.format(largeFormatTenths, hours, minutes, seconds, tenths).toString();
+      } else {
+        formattedString = formatter.format(smallFormatTenths, minutes, seconds, tenths).toString();
+      }
+    } else {
+      if (hours > 0) {
+        formattedString = formatter.format(largeFormat, hours, minutes, seconds).toString();
+      } else if (minutes > 0) {
+        formattedString = formatter.format(smallFormat, minutes, seconds).toString();
+      } else {
+        formattedString = formatter.format(extraSmallFormat, seconds).toString();
+      }
     }
+
+    boolean isNegative = elapsedTimeMs < 0;
+    if (isNegative) {
+      formattedString = formatter.format("-%s", formattedString).toString();
+    }
+
+    if (includeTenths) {
+      cacheWithTenths.put(timeIndex, formattedString);
+    } else {
+      cacheWithoutTenths.put(timeIndex, formattedString);
+    }
+
+    return formattedString;
+  }
 }

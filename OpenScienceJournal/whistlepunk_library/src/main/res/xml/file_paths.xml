@@ -18,4 +18,7 @@
     <files-path name="exported_runs" path="exported_run_files"/>
     <external-path name="pictures" path="Pictures/ScienceJournal" />
     <files-path name="experiments" path="experiments"/>
+    <files-path name="exported_experiments" path="exported_experiments"/>
+    <files-path name="accounts" path="accounts"/>
+    <external-path name="Download" path="Download/"/>
 </paths>

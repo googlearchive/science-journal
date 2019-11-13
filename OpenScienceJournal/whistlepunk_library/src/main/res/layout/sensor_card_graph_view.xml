@@ -35,11 +35,11 @@
         android:layout_marginEnd="4dp"
         >
 
-        <ImageView
+        <RelativeLayout
             android:layout_width="@dimen/sensor_card_back_icon_size"
             android:layout_height="@dimen/sensor_card_back_icon_size"
             android:scaleType="fitCenter"
-            android:id="@+id/card_meter_sensor_icon"
+            android:id="@+id/card_meter_sensor_icon_container"
             android:contentDescription="@null"
             android:background="@android:color/transparent"
             android:layout_gravity="center"
@@ -61,7 +61,7 @@
             android:layout_centerVertical="true"
             android:focusable="true"
             android:layout_toStartOf="@+id/btn_info"
-            android:layout_toEndOf="@id/card_meter_sensor_icon"
+            android:layout_toEndOf="@id/card_meter_sensor_icon_container"
             />
 
         <ImageButton

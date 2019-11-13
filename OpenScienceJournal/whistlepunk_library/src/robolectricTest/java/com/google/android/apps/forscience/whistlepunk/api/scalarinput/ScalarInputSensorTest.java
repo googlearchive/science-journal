@@ -18,190 +18,233 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.javalib.Delay;
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
 import com.google.android.apps.forscience.whistlepunk.MockScheduler;
 import com.google.android.apps.forscience.whistlepunk.RecordingStatusListener;
 import com.google.android.apps.forscience.whistlepunk.TestData;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.MemorySensorEnvironment;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensordb.InMemorySensorDatabase;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import org.robolectric.RuntimeEnvironment;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ScalarInputSensorTest {
-    private final MockScheduler mScheduler = new MockScheduler();
-    private final SensorBehavior mBehavior = new SensorBehavior();
-    private final RecordingSensorObserver mObserver = new RecordingSensorObserver();
-    private final RecordingStatusListener mListener = new RecordingStatusListener();
+  private final MockScheduler scheduler = new MockScheduler();
+  private final SensorBehavior behavior = new SensorBehavior();
+  private final RecordingSensorObserver observer = new RecordingSensorObserver();
+  private final RecordingStatusListener listener = new RecordingStatusListener();
 
-    @Test
-    public void useRefresherWhenRight() throws RemoteException {
-        final TestFinder serviceFinder = new TestFinder("serviceId");
-        mBehavior.expectedSamplesPerSecond = 0.1f;
-        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
-                null, "devId");
-        ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
-                serviceFinder, new TestStringSource(), spec, mScheduler);
-        SensorRecorder recorder = makeRecorder(sis);
-        recorder.startObserving();
-        serviceFinder.observer.onNewData(0, 0.0);
-        mScheduler.schedule(Delay.millis(2500), new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    serviceFinder.observer.onNewData(2500, 2.5);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
+  @Test
+  public void useRefresherWhenRight() throws RemoteException {
+    final TestFinder serviceFinder = new TestFinder("serviceId");
+    behavior.expectedSamplesPerSecond = 0.1f;
+    ScalarInputSpec spec =
+        new ScalarInputSpec("sensorName", "serviceId", "address", behavior, null, "devId");
+    ScalarInputSensor sis =
+        new ScalarInputSensor(
+            "sensorId",
+            MoreExecutors.directExecutor(),
+            serviceFinder,
+            new TestStringSource(),
+            spec,
+            scheduler);
+    SensorRecorder recorder = makeRecorder(sis);
+    recorder.startObserving();
+    serviceFinder.observer.onNewData(0, 0.0);
+    scheduler.schedule(
+        Delay.millis(2500),
+        new Runnable() {
+          @Override
+          public void run() {
+            try {
+              serviceFinder.observer.onNewData(2500, 2.5);
+            } catch (RemoteException e) {
+              throw new RuntimeException(e);
             }
+          }
         });
-        mScheduler.incrementTime(6000);
+    scheduler.incrementTime(6000);
 
-        TestData testData = new TestData();
-        testData.addPoint(0, 0.0);
-        testData.addPoint(1000, 0.0);
-        testData.addPoint(2000, 0.0);
-        testData.addPoint(2500, 2.5);
-        testData.addPoint(3500, 2.5);
-        testData.addPoint(4500, 2.5);
-        testData.addPoint(5500, 2.5);
-        testData.checkObserver(mObserver);
-        assertEquals(9, mScheduler.getScheduleCount());
+    TestData testData = new TestData();
+    testData.addPoint(0, 0.0);
+    testData.addPoint(1000, 0.0);
+    testData.addPoint(2000, 0.0);
+    testData.addPoint(2500, 2.5);
+    testData.addPoint(3500, 2.5);
+    testData.addPoint(4500, 2.5);
+    testData.addPoint(5500, 2.5);
+    testData.checkObserver(observer);
+    assertEquals(9, scheduler.getScheduleCount());
 
-        recorder.stopObserving();
-        mScheduler.incrementTime(6000);
-        assertEquals(9, mScheduler.getScheduleCount());
-    }
+    recorder.stopObserving();
+    scheduler.incrementTime(6000);
+    assertEquals(9, scheduler.getScheduleCount());
+  }
 
-    @Test
-    public void backwardCompatibleServiceId() throws RemoteException {
-        final TestFinder serviceFinder = new TestFinder("serviceId/ServiceClassName");
-        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
-                null, "devId");
-        ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
-                serviceFinder, new TestStringSource(), spec, mScheduler);
-        SensorRecorder recorder = makeRecorder(sis);
-        recorder.startObserving();
-        serviceFinder.observer.onNewData(0, 0.0);
+  @Test
+  public void backwardCompatibleServiceId() throws RemoteException {
+    final TestFinder serviceFinder = new TestFinder("serviceId/ServiceClassName");
+    ScalarInputSpec spec =
+        new ScalarInputSpec("sensorName", "serviceId", "address", behavior, null, "devId");
+    ScalarInputSensor sis =
+        new ScalarInputSensor(
+            "sensorId",
+            MoreExecutors.directExecutor(),
+            serviceFinder,
+            new TestStringSource(),
+            spec,
+            scheduler);
+    SensorRecorder recorder = makeRecorder(sis);
+    recorder.startObserving();
+    serviceFinder.observer.onNewData(0, 0.0);
 
-        TestData testData = new TestData();
-        testData.addPoint(0, 0.0);
-        testData.checkObserver(mObserver);
-    }
+    TestData testData = new TestData();
+    testData.addPoint(0, 0.0);
+    testData.checkObserver(observer);
+  }
 
-    @Test
-    public void connectedOnDataPoint() throws RemoteException {
-        final TestFinder serviceFinder = neverConnectFinder();
-        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
-                null, "devId");
-        ExplicitExecutor uiThread = new ExplicitExecutor();
-        ScalarInputSensor sis = new ScalarInputSensor("sensorId", uiThread, serviceFinder,
-                new TestStringSource(), spec, mScheduler);
-        SensorRecorder recorder = makeRecorder(sis);
-        recorder.startObserving();
-        uiThread.drain();
-        serviceFinder.observer.onNewData(0, 0.0);
+  @Test
+  public void connectedOnDataPoint() throws RemoteException {
+    final TestFinder serviceFinder = neverConnectFinder();
+    ScalarInputSpec spec =
+        new ScalarInputSpec("sensorName", "serviceId", "address", behavior, null, "devId");
+    ExplicitExecutor uiThread = new ExplicitExecutor();
+    ScalarInputSensor sis =
+        new ScalarInputSensor(
+            "sensorId", uiThread, serviceFinder, new TestStringSource(), spec, scheduler);
+    SensorRecorder recorder = makeRecorder(sis);
+    recorder.startObserving();
+    uiThread.drain();
+    serviceFinder.observer.onNewData(0, 0.0);
 
-        // Make sure we aren't updated until the UI thread fires
-        assertTrue(mListener.mostRecentStatuses.isEmpty());
-        uiThread.drain();
+    // Make sure we aren't updated until the UI thread fires
+    assertTrue(listener.mostRecentStatuses.isEmpty());
+    uiThread.drain();
 
-        assertEquals(SensorStatusListener.STATUS_CONNECTED,
-                (int) mListener.mostRecentStatuses.get("sensorId"));
-    }
+    assertEquals(
+        SensorStatusListener.STATUS_CONNECTED, (int) listener.mostRecentStatuses.get("sensorId"));
+  }
 
-    @Test
-    public void stopObservingAndListening() throws RemoteException {
-        final TestFinder serviceFinder = new TestFinder("serviceId");
-        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
-                null, "devId");
-        ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
-                serviceFinder, new TestStringSource(), spec, mScheduler);
-        SensorRecorder recorder = makeRecorder(sis);
-        recorder.startObserving();
-        serviceFinder.observer.onNewData(0, 0.0);
-        recorder.stopObserving();
+  @Test
+  public void stopObservingAndListening() throws RemoteException {
+    final TestFinder serviceFinder = new TestFinder("serviceId");
+    ScalarInputSpec spec =
+        new ScalarInputSpec("sensorName", "serviceId", "address", behavior, null, "devId");
+    ScalarInputSensor sis =
+        new ScalarInputSensor(
+            "sensorId",
+            MoreExecutors.directExecutor(),
+            serviceFinder,
+            new TestStringSource(),
+            spec,
+            scheduler);
+    SensorRecorder recorder = makeRecorder(sis);
+    recorder.startObserving();
+    serviceFinder.observer.onNewData(0, 0.0);
+    recorder.stopObserving();
 
-        // More stuff after we stop observing
-        serviceFinder.observer.onNewData(1, 1.0);
-        serviceFinder.listener.onSensorError("Error after disconnect!");
+    // More stuff after we stop observing
+    serviceFinder.observer.onNewData(1, 1.0);
+    serviceFinder.listener.onSensorError("Error after disconnect!");
 
-        TestData testData = new TestData();
-        testData.addPoint(0, 0.0);
-        testData.checkObserver(mObserver);
+    TestData testData = new TestData();
+    testData.addPoint(0, 0.0);
+    testData.checkObserver(observer);
 
-        mListener.assertNoErrors();
+    listener.assertNoErrors();
 
-        recorder.startObserving();
-        serviceFinder.observer.onNewData(2, 2.0);
-        serviceFinder.listener.onSensorError("Error after reconnect!");
+    recorder.startObserving();
+    serviceFinder.observer.onNewData(2, 2.0);
+    serviceFinder.listener.onSensorError("Error after reconnect!");
 
-        TestData data2 = new TestData();
-        data2.addPoint(0, 0.0);
-        data2.addPoint(2, 2.0);
-        data2.checkObserver(mObserver);
+    TestData data2 = new TestData();
+    data2.addPoint(0, 0.0);
+    data2.addPoint(2, 2.0);
+    data2.checkObserver(observer);
 
-        mListener.assertErrors("Error after reconnect!");
-    }
+    listener.assertErrors("Error after reconnect!");
+  }
 
-    @Test
-    public void sensorTimeout() {
-        final TestFinder serviceFinder = neverConnectFinder();
-        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
-                null, "devId");
-        TestStringSource stringSource = new TestStringSource();
-        ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
-                serviceFinder, stringSource, spec, mScheduler);
-        SensorRecorder recorder = makeRecorder(sis);
-        recorder.startObserving();
-        mListener.assertNoErrors();
-        mScheduler.incrementTime(ScalarInputSensor.CONNECTION_TIME_OUT.asMillis() + 10);
-        mListener.assertErrors(stringSource.generateConnectionTimeoutMessage());
-    }
+  @Test
+  public void sensorTimeout() {
+    final TestFinder serviceFinder = neverConnectFinder();
+    ScalarInputSpec spec =
+        new ScalarInputSpec("sensorName", "serviceId", "address", behavior, null, "devId");
+    TestStringSource stringSource = new TestStringSource();
+    ScalarInputSensor sis =
+        new ScalarInputSensor(
+            "sensorId",
+            MoreExecutors.directExecutor(),
+            serviceFinder,
+            stringSource,
+            spec,
+            scheduler);
+    SensorRecorder recorder = makeRecorder(sis);
+    recorder.startObserving();
+    listener.assertNoErrors();
+    scheduler.incrementTime(ScalarInputSensor.CONNECTION_TIME_OUT.asMillis() + 10);
+    listener.assertErrors(stringSource.generateConnectionTimeoutMessage());
+  }
 
-    @NonNull
-    private TestFinder neverConnectFinder() {
-        return new TestFinder("serviceId") {
-            @Override
-            protected void signalConnected(ISensorStatusListener listener) throws RemoteException {
-                // Override (correct) superclass definition of signalConnected, to simulate
-                // a sensor that (incorrectly) never reports a connection.
-            }
-        };
-    }
+  @NonNull
+  private TestFinder neverConnectFinder() {
+    return new TestFinder("serviceId") {
+      @Override
+      protected void signalConnected(ISensorStatusListener listener) throws RemoteException {
+        // Override (correct) superclass definition of signalConnected, to simulate
+        // a sensor that (incorrectly) never reports a connection.
+      }
+    };
+  }
 
-    @Test
-    public void dontTimeoutIfDisconnectedAndReconnected() {
-        final TestFinder serviceFinder = neverConnectFinder();
-        ScalarInputSpec spec = new ScalarInputSpec("sensorName", "serviceId", "address", mBehavior,
-                null, "devId");
-        ScalarInputSensor sis = new ScalarInputSensor("sensorId", MoreExecutors.directExecutor(),
-                serviceFinder, new TestStringSource(), spec, mScheduler);
-        SensorRecorder recorder = makeRecorder(sis);
-        recorder.startObserving();
-        recorder.stopObserving();
-        mScheduler.incrementTime(ScalarInputSensor.CONNECTION_TIME_OUT.asMillis() - 100);
-        recorder.startObserving();
-        mScheduler.incrementTime(200);
-        mListener.assertNoErrors();
-    }
+  @Test
+  public void dontTimeoutIfDisconnectedAndReconnected() {
+    final TestFinder serviceFinder = neverConnectFinder();
+    ScalarInputSpec spec =
+        new ScalarInputSpec("sensorName", "serviceId", "address", behavior, null, "devId");
+    ScalarInputSensor sis =
+        new ScalarInputSensor(
+            "sensorId",
+            MoreExecutors.directExecutor(),
+            serviceFinder,
+            new TestStringSource(),
+            spec,
+            scheduler);
+    SensorRecorder recorder = makeRecorder(sis);
+    recorder.startObserving();
+    recorder.stopObserving();
+    scheduler.incrementTime(ScalarInputSensor.CONNECTION_TIME_OUT.asMillis() - 100);
+    recorder.startObserving();
+    scheduler.incrementTime(200);
+    listener.assertNoErrors();
+  }
 
+  private SensorRecorder makeRecorder(ScalarInputSensor sis) {
+    return sis.createRecorder(
+        null,
+        getAppAccount(),
+        observer,
+        listener,
+        new MemorySensorEnvironment(
+            new InMemorySensorDatabase().makeSimpleRecordingController(),
+            null,
+            null,
+            scheduler.getClock()));
+  }
 
-    private SensorRecorder makeRecorder(ScalarInputSensor sis) {
-        return sis.createRecorder(null, mObserver, mListener, new MemorySensorEnvironment(
-                new InMemorySensorDatabase().makeSimpleRecordingController(), null, null,
-                mScheduler.getClock()));
-    }
+  private static AppAccount getAppAccount() {
+    Context context = RuntimeEnvironment.application.getApplicationContext();
+    return NonSignedInAccount.getInstance(context);
+  }
 }

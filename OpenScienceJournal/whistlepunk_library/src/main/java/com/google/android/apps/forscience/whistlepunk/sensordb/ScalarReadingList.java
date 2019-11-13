@@ -18,24 +18,22 @@ package com.google.android.apps.forscience.whistlepunk.sensordb;
 
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
-
 import java.util.List;
 
 public interface ScalarReadingList {
-    /**
-     * Delivers all of the readings in this list, in order, to the given consumer, on the calling
-     * thread.
-     */
-    void deliver(StreamConsumer c);
+  /**
+   * Delivers all of the readings in this list, in order, to the given consumer, on the calling
+   * thread.
+   */
+  void deliver(StreamConsumer c);
 
-    /**
-     * Returns the size of the ScalarReadingList.
-     */
-    int size();
+  /** Returns the size of the ScalarReadingList. */
+  int size();
 
-    /**
-     * Converts the ScalarReadingList into a list of data points.
-     * @return The scalar reading list as a list of data points.
-     */
-    List<ChartData.DataPoint> asDataPoints();
+  /**
+   * Converts the ScalarReadingList into a list of data points.
+   *
+   * @return The scalar reading list as a list of data points.
+   */
+  List<ChartData.DataPoint> asDataPoints();
 }

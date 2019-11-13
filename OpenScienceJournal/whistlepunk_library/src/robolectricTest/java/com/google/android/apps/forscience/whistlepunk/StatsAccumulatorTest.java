@@ -20,26 +20,25 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class StatsAccumulatorTest {
-    @Test
-    public void testAllStats() {
-        StatsAccumulator acc = new StatsAccumulator("sensorId");
-        acc.updateRecordingStreamStats(0, 0);
-        acc.updateRecordingStreamStats(1, 1);
-        acc.updateRecordingStreamStats(2, 2);
-        TrialStats stats = acc.makeSaveableStats();
-        assertEquals(0.0, stats.getStatValue(GoosciTrial.SensorStat.MINIMUM, -1), 0.001);
-        assertEquals(1.0, stats.getStatValue(GoosciTrial.SensorStat.AVERAGE, -1), 0.001);
-        assertEquals(2.0, stats.getStatValue(GoosciTrial.SensorStat.MAXIMUM, -1), 0.001);
-        assertEquals(3.0, stats.getStatValue(GoosciTrial.SensorStat.NUM_DATA_POINTS, -1), 0.001);
-        assertEquals(2.0, stats.getStatValue(GoosciTrial.SensorStat.TOTAL_DURATION, -1), 0.001);
-    }
+  @Test
+  public void testAllStats() {
+    StatsAccumulator acc = new StatsAccumulator("sensorId");
+    acc.updateRecordingStreamStats(0, 0);
+    acc.updateRecordingStreamStats(1, 1);
+    acc.updateRecordingStreamStats(2, 2);
+    TrialStats stats = acc.makeSaveableStats();
+    assertEquals(0.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.MINIMUM, -1), 0.001);
+    assertEquals(1.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.AVERAGE, -1), 0.001);
+    assertEquals(2.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.MAXIMUM, -1), 0.001);
+    assertEquals(
+        3.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.NUM_DATA_POINTS, -1), 0.001);
+    assertEquals(
+        2.0, stats.getStatValue(GoosciTrial.SensorStat.StatType.TOTAL_DURATION, -1), 0.001);
+  }
 }

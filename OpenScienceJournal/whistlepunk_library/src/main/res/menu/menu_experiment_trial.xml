@@ -19,20 +19,38 @@
     >
 
     <item
+        android:title="@string/export_action"
+        android:id="@+id/menu_item_export"
+        android:visible="true"
+        android:orderInCategory="101"
+        />
+
+    <item
+        android:title="@string/download_copy_action"
+        android:id="@+id/menu_item_download"
+        android:visible="true"
+        android:orderInCategory="102"
+        />
+
+    <item
         android:title="@string/action_archive_run"
         android:id="@+id/menu_item_archive"
         android:visible="true"
+        android:orderInCategory="103"
         />
 
     <item
         android:title="@string/action_unarchive_run"
         android:id="@+id/menu_item_unarchive"
         android:visible="false"
+        android:orderInCategory="103"
         />
 
     <item
         android:title="@string/action_delete"
         android:id="@+id/menu_item_delete"
+        android:enabled="true"
+        android:orderInCategory="104"
         />
 
 </menu>

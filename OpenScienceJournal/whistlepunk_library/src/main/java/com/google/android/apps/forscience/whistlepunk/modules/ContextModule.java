@@ -16,28 +16,22 @@
 package com.google.android.apps.forscience.whistlepunk.modules;
 
 import android.content.Context;
-
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
-
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
 
-/**
- * Provides a safe context for other modules.
- */
+/** Provides a safe context for other modules. */
 @Module
 public class ContextModule {
 
-    WhistlePunkApplication mApplication;
+  WhistlePunkApplication application;
 
-    public ContextModule(WhistlePunkApplication application) {
-        mApplication = application;
-    }
+  public ContextModule(WhistlePunkApplication application) {
+    this.application = application;
+  }
 
-    @Provides
-    Context providesContext() {
-        return mApplication;
-    }
+  @Provides
+  Context providesContext() {
+    return application;
+  }
 }

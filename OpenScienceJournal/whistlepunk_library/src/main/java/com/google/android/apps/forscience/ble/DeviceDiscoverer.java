@@ -19,123 +19,98 @@ package com.google.android.apps.forscience.ble;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
-import android.os.Build;
+import android.os.ParcelUuid;
 import android.os.SystemClock;
-import android.support.v4.util.ArrayMap;
-
+import androidx.collection.ArrayMap;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.WhistlepunkBleDevice;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-/**
- * Discovers BLE devices and tracks when they come and go.
- */
+/** Discovers BLE devices and tracks when they come and go. */
 public abstract class DeviceDiscoverer {
-    public static boolean isBluetoothEnabled() {
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        return adapter != null && adapter.isEnabled();
+  public static boolean isBluetoothEnabled() {
+    BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+    return adapter != null && adapter.isEnabled();
+  }
+
+  /** Receives notification of devices being discovered or errors. */
+  public static class Callback {
+    public void onDeviceFound(DeviceRecord record) {}
+
+    public void onError(int error) {
+      // TODO: define error codes
+    }
+  }
+
+  /** Describes a Bluetooth device which was discovered. */
+  public static class DeviceRecord {
+
+    /** Device that was found. */
+    public WhistlepunkBleDevice device;
+
+    /** Last time this device was seen, in uptimeMillis. */
+    public long lastSeenTimestampMs;
+
+    /** Last RSSI value seen. */
+    public int lastRssi;
+  }
+
+  private final BluetoothAdapter bluetoothAdapter;
+  private final ArrayMap<String, DeviceRecord> devices;
+  private Callback callback;
+
+  public static DeviceDiscoverer getNewInstance(Context context) {
+    return new DeviceDiscovererV21(context);
+  }
+
+  protected DeviceDiscoverer(Context context) {
+    BluetoothManager manager =
+        (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+    bluetoothAdapter = manager == null ? null : manager.getAdapter();
+    devices = new ArrayMap<>();
+  }
+
+  BluetoothAdapter getBluetoothAdapter() {
+    return bluetoothAdapter;
+  }
+
+  public void startScanning(ParcelUuid[] serviceUuids, Callback callback) {
+    if (callback == null) {
+      throw new IllegalArgumentException("Callback must not be null");
     }
 
-    /**
-     * Receives notification of devices being discovered or errors.
-     */
-    public static class Callback {
-        public void onDeviceFound(DeviceRecord record) {}
+    this.callback = callback;
+    // Clear out the older devices so we don't think they're still there.
+    devices.clear();
+    onStartScanning(serviceUuids);
+  }
 
-        public void onError(int error) {
-            // TODO: define error codes
-        }
+  public abstract void onStartScanning(ParcelUuid[] serviceUuids);
+
+  public void stopScanning() {
+    onStopScanning();
+    callback = null;
+  }
+
+  public abstract void onStopScanning();
+
+  public boolean canScan() {
+    // It may only be possible for bluetoothAdapter to be null in emulators
+    return bluetoothAdapter != null && bluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
+  }
+
+  protected void addOrUpdateDevice(WhistlepunkBleDevice device, int rssi) {
+    DeviceRecord deviceRecord = devices.get(device.getAddress());
+    boolean previouslyFound = deviceRecord != null;
+    if (!previouslyFound) {
+      deviceRecord = new DeviceRecord();
+      deviceRecord.device = device;
+      devices.put(device.getAddress(), deviceRecord);
     }
+    // Update the last RSSI and last seen
+    deviceRecord.lastRssi = rssi;
+    deviceRecord.lastSeenTimestampMs = SystemClock.uptimeMillis();
 
-    /**
-     * Describes a Bluetooth device which was discovered.
-     */
-    public static class DeviceRecord {
-
-        /**
-         * Device that was found.
-         */
-        public WhistlepunkBleDevice device;
-
-        /**
-         * Last time this device was seen, in uptimeMillis.
-         */
-        public long lastSeenTimestampMs;
-
-        /**
-         * Last RSSI value seen.
-         */
-        public int lastRssi;
+    if (!previouslyFound && callback != null) {
+      callback.onDeviceFound(deviceRecord);
     }
-
-    private final Context mContext;
-    private final BluetoothAdapter mBluetoothAdapter;
-    private final ArrayMap<String, DeviceRecord> mDevices;
-    private Callback mCallback;
-
-    public static DeviceDiscoverer getNewInstance(Context context) {
-        DeviceDiscoverer discoverer;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            discoverer = new DeviceDiscovererV21(context);
-        } else {
-            discoverer = new DeviceDiscovererLegacy(context);
-        }
-        return discoverer;
-    }
-
-    protected DeviceDiscoverer(Context context) {
-        mContext = context.getApplicationContext();
-        BluetoothManager manager = (BluetoothManager) mContext.getSystemService(
-                Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = manager.getAdapter();
-        mDevices = new ArrayMap<>();
-    }
-
-    public BluetoothAdapter getBluetoothAdapter() {
-        return mBluetoothAdapter;
-    }
-
-    public void startScanning(Callback callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException("Callback must not be null");
-        }
-
-        mCallback = callback;
-        // Clear out the older devices so we don't think they're still there.
-        mDevices.clear();
-        onStartScanning();
-    }
-
-    public abstract void onStartScanning();
-
-    public void stopScanning() {
-        onStopScanning();
-        mCallback = null;
-    }
-
-    public abstract void onStopScanning();
-
-    public boolean canScan() {
-        return mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON;
-    }
-
-    protected void addOrUpdateDevice(WhistlepunkBleDevice device, int rssi) {
-        DeviceRecord deviceRecord = mDevices.get(device.getAddress());
-        boolean previouslyFound = deviceRecord != null;
-        if (!previouslyFound) {
-            deviceRecord = new DeviceRecord();
-            deviceRecord.device = device;
-            mDevices.put(device.getAddress(), deviceRecord);
-        }
-        // Update the last RSSI and last seen
-        deviceRecord.lastRssi = rssi;
-        deviceRecord.lastSeenTimestampMs = SystemClock.uptimeMillis();
-
-        if (!previouslyFound && mCallback != null) {
-            mCallback.onDeviceFound(deviceRecord);
-        }
-    }
+  }
 }

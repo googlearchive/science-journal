@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 Google Inc. All Rights Reserved.
+ *  Copyright 2019 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,24 +25,24 @@ option optimize_for = LITE_RUNTIME;
 import "sensor_spec.proto";
 
 /*
- * A value that can be stored in the proto_data field of label.proto, to store a set of
- * snapshotted values from one or more sensors.
- * Added in V2.
+ * A value that can be stored in the proto_data field of label.proto, to store a
+ * set of snapshotted values from one or more sensors. Added in V2.
  */
 message SnapshotLabelValue {
-    message SensorSnapshot {
-        // The sensor that recorded the value
-        optional SensorSpec sensor = 1;
+  message SensorSnapshot {
+    // The sensor that recorded the value
+    optional SensorSpec sensor = 1;
 
-        // The time in ms since the epoch at which this datapoint was recorded.
-        // This may not match the timestamp at which the snapshot button was pressed, because
-        //   the data point grabbed may be slightly before or after
-        optional int64 timestampMs = 2;
+    // The time in ms since the epoch at which this datapoint was recorded.
+    // This may not match the timestamp at which the snapshot button was
+    // pressed, because
+    //   the data point grabbed may be slightly before or after
+    optional int64 timestampMs = 2;
 
-        // The sensor value recorded
-        optional double value = 3;
-    };
+    // The sensor value recorded
+    optional double value = 3;
+  };
 
-    // All of the snapshots
-    repeated SensorSnapshot snapshots = 1;
+  // All of the snapshots
+  repeated SensorSnapshot snapshots = 1;
 };

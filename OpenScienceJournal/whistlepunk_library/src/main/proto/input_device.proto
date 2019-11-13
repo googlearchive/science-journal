@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016 Google Inc. All Rights Reserved.
+ *  Copyright 2019 Google Inc. All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,15 +17,17 @@
 syntax = "proto2";
 
 package goosci;
+
 option java_package = "com.google.android.apps.forscience.whistlepunk.data";
 option java_outer_classname = "InputDevice";
 option objc_class_prefix = "GSJ";
 option optimize_for = LITE_RUNTIME;
 
 message InputDeviceConfig {
-    // id of the provider that found this device (see SensorProvider#getProviderId)
-    optional string provider_id = 1;
+  // id of the provider that found this device (see
+  // SensorProvider#getProviderId)
+  optional string provider_id = 1;
 
-    // provider-specific "address" identifying the device
-    optional string device_address = 2;
+  // provider-specific "address" identifying the device
+  optional string device_address = 2;
 }

@@ -17,35 +17,36 @@
 package com.google.android.apps.forscience.javalib;
 
 public abstract class Refresher {
-    private final Scheduler mScheduler;
+  private final Scheduler scheduler;
 
-    private boolean mRefreshScheduled = false;
-    private Runnable mRefreshRunnable = new Runnable() {
+  private boolean refreshScheduled = false;
+  private Runnable refreshRunnable =
+      new Runnable() {
         @Override
         public void run() {
-            mRefreshScheduled = false;
-            refresh();
+          refreshScheduled = false;
+          refresh();
         }
-    };
-    private Delay mDelay;
+      };
+  private Delay delay;
 
-    public Refresher(Scheduler scheduler, Delay delay) {
-        mScheduler = scheduler;
-        mDelay = delay;
+  public Refresher(Scheduler scheduler, Delay delay) {
+    this.scheduler = scheduler;
+    this.delay = delay;
+  }
+
+  public void refresh() {
+    final boolean rescheduleWouldBeUseful = doRefresh();
+    if (rescheduleWouldBeUseful && !refreshScheduled) {
+      refreshScheduled = true;
+      scheduler.schedule(delay, refreshRunnable);
     }
+  }
 
-    public void refresh() {
-        final boolean rescheduleWouldBeUseful = doRefresh();
-        if (rescheduleWouldBeUseful && !mRefreshScheduled) {
-            mRefreshScheduled = true;
-            mScheduler.schedule(mDelay, mRefreshRunnable);
-        }
-    }
-
-    /**
-     * Does the scheduler-specific work of refreshing
-     *
-     * @return true iff another refresh should be scheduled.
-     */
-    protected abstract boolean doRefresh();
+  /**
+   * Does the scheduler-specific work of refreshing
+   *
+   * @return true iff another refresh should be scheduled.
+   */
+  protected abstract boolean doRefresh();
 }

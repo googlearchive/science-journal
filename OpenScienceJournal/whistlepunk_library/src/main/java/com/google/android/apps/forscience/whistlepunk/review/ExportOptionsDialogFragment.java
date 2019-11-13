@@ -16,12 +16,11 @@
 
 package com.google.android.apps.forscience.whistlepunk.review;
 
-import android.app.Fragment;
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialogFragment;
-import android.support.design.widget.Snackbar;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,132 +28,196 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
-
+import android.widget.TextView;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
-import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataService;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExportService.ExportProgress;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
-
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.snackbar.Snackbar;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import java.util.List;
 import java.util.Objects;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-
-
-/**
- * Shows options for exporting.
- */
+/** Shows options for exporting. */
 public class ExportOptionsDialogFragment extends BottomSheetDialogFragment {
 
-    private static final String KEY_EXPERIMENT_ID = "experiment_id";
-    private static final String KEY_TRIAL_ID = "trial_id";
-    private String mTrialId;
-    private CheckBox mRelativeTime;
-    private List<String> mSensorIds;
-    private ProgressBar mProgressBar;
-    private Button mExportButton;
-    private Disposable mUntilStop;
+  private static final String KEY_ACCOUNT_KEY = "account_key";
+  private static final String KEY_EXPERIMENT_ID = "experiment_id";
+  private static final String KEY_TRIAL_ID = "trial_id";
+  private static final String KEY_SAVE_LOCALLY = "save_locally";
+  private static final String TAG = "ExportOptionsDialog";
+  private String trialId;
+  private boolean saveLocally;
+  private CheckBox relativeTime;
+  private List<String> sensorIds;
+  private ProgressBar progressBar;
+  private Button exportButton;
+  private Disposable untilStop;
 
-    public static ExportOptionsDialogFragment createOptionsDialog(String experimentId,
-            String trialId) {
-        Bundle args = new Bundle();
-        args.putString(KEY_EXPERIMENT_ID, experimentId);
-        args.putString(KEY_TRIAL_ID, trialId);
-        ExportOptionsDialogFragment fragment = new ExportOptionsDialogFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
+  public static ExportOptionsDialogFragment createOptionsDialog(
+      AppAccount appAccount, String experimentId, String trialId, boolean saveLocally) {
+    Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
+    args.putString(KEY_EXPERIMENT_ID, experimentId);
+    args.putString(KEY_TRIAL_ID, trialId);
+    args.putBoolean(KEY_SAVE_LOCALLY, saveLocally);
+    ExportOptionsDialogFragment fragment = new ExportOptionsDialogFragment();
+    fragment.setArguments(args);
+    return fragment;
+  }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mTrialId = getArguments().getString(KEY_TRIAL_ID);
-        mUntilStop = ExportService.bind(getActivity())
-                // Only look at events for this trial or the default value
-                .filter(progress -> Objects.equals(progress.getTrialId(), mTrialId)
-                        || progress.getTrialId().equals(""))
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(progress -> {
-                    if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
-                        // Reset the progress only after the UI has consumed this.
-                        ExportService.resetProgress(mTrialId);
-                    }
+  @Override
+  public void onStart() {
+    super.onStart();
+    trialId = getArguments().getString(KEY_TRIAL_ID);
+    saveLocally = getArguments().getBoolean(KEY_SAVE_LOCALLY);
+    untilStop =
+        ExportService.bind(getActivity())
+            // Only look at events for this trial or the default value
+            .filter(
+                progress ->
+                    Objects.equals(progress.getId(), trialId) || progress.getId().equals(""))
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext(
+                progress -> {
+                  if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
+                    // Reset the progress only after the UI has consumed this.
+                    ExportService.resetProgress(trialId);
+                  }
                 })
-                .subscribe(this::updateProgress);
-    }
+            .subscribe(this::updateProgress);
+  }
 
-    private void updateProgress(ExportProgress progress) {
-        mProgressBar.setVisibility(progress.getState() == ExportProgress.EXPORTING ?
-                View.VISIBLE : View.INVISIBLE);
-        mExportButton.setEnabled(progress.getState() != ExportProgress.EXPORTING);
-        if (progress.getState() == ExportProgress.EXPORTING) {
-            mProgressBar.setProgress(progress.getProgress());
-        } else if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
-            // Finish dialog and send the filename.
-            if (getActivity() != null) {
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("application/octet-stream");
-                intent.putExtra(Intent.EXTRA_STREAM, progress.getFileUri());
-                if (getActivity().getPackageManager().queryIntentActivities(intent, 0)
-                        .size() > 0) {
-                    getActivity().startActivity(Intent.createChooser(intent, getString(
-                            R.string.export_run_chooser_title)));
-                    dismiss();
-                } else {
-                    Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                            getString(R.string.no_app_found_for_csv), Snackbar.LENGTH_LONG);
-                    bar.show();
-                }
-            }
-        } else if (progress.getState() == ExportProgress.ERROR) {
-            if (getActivity() != null) {
-                Snackbar bar = AccessibilityUtils.makeSnackbar(getView(),
-                        getString(R.string.export_error), Snackbar.LENGTH_LONG);
-                bar.show();
-            }
+  private void updateProgress(ExportProgress progress) {
+    progressBar.setVisibility(
+        progress.getState() == ExportProgress.EXPORTING ? View.VISIBLE : View.INVISIBLE);
+    exportButton.setEnabled(progress.getState() != ExportProgress.EXPORTING);
+    if (progress.getState() == ExportProgress.EXPORTING) {
+      progressBar.setProgress(progress.getProgress());
+    } else if (progress.getState() == ExportProgress.EXPORT_COMPLETE) {
+      // Finish dialog and send the filename.
+      if (getActivity() != null) {
+        if (saveLocally) {
+          requestDownload(progress);
+        } else {
+          requestExport(progress);
         }
+      }
+    } else if (progress.getState() == ExportProgress.ERROR) {
+      if (getActivity() != null) {
+        Snackbar bar =
+            AccessibilityUtils.makeSnackbar(
+                getView(), getString(R.string.export_error), Snackbar.LENGTH_LONG);
+        bar.show();
+      }
     }
+  }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mUntilStop != null) {
-            mUntilStop.dispose();
-        }
+  private void requestExport(ExportProgress progress) {
+    Intent intent = new Intent(Intent.ACTION_SEND);
+    intent.setType("application/octet-stream");
+    intent.putExtra(Intent.EXTRA_STREAM, progress.getFileUri());
+    if (!getActivity().getPackageManager().queryIntentActivities(intent, 0).isEmpty()) {
+      getActivity()
+          .startActivity(
+              Intent.createChooser(intent, getString(R.string.export_run_chooser_title)));
+      dismiss();
+    } else {
+      Snackbar bar =
+          AccessibilityUtils.makeSnackbar(
+              getView(), getString(R.string.no_app_found_for_csv), Snackbar.LENGTH_LONG);
+      bar.show();
     }
+  }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_export_options, container, false);
-        mRelativeTime = (CheckBox) view.findViewById(R.id.export_relative_time);
-        mProgressBar = (ProgressBar) view.findViewById(R.id.progress);
-        mProgressBar.setMax(100);
-        view.findViewById(R.id.action_cancel).setOnClickListener(v -> {
-            // TODO: could cancel the export action here: requires saving references in
-            // ExportService.
-            dismiss();
-        });
-        final String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
-        final String trialId = getArguments().getString(KEY_TRIAL_ID);
-        DataService.bind(getActivity()).map(AppSingleton::getDataController)
-                .flatMap(dc -> RxDataController.getExperimentById(dc, experimentId))
-                .subscribe(experiment -> {
-                    Trial trial = experiment.getTrial(trialId);
-                    mSensorIds = trial.getSensorIds();
-                    // TODO: fill in UI with these sensors.
-                });
-        mExportButton = (Button) view.findViewById(R.id.action_export);
-        mExportButton.setOnClickListener(v -> {
-            ExportService.exportTrial(getActivity(), experimentId, trialId,
-                    mRelativeTime.isChecked(), mSensorIds.toArray(new String[]{}));
-        });
-        return view;
+  private void requestDownload(ExportProgress progress) {
+    Activity activity = getActivity();
+    ExportService.requestDownloadPermissions(
+        () -> {
+          Uri sourceUri = progress.getFileUri();
+          ExportService.saveToDownloads(activity, sourceUri);
+          dismiss();
+        },
+        activity,
+        android.R.id.content,
+        TrackerConstants.CATEGORY_RUNS,
+        TrackerConstants.LABEL_RUN_REVIEW);
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    if (untilStop != null) {
+      untilStop.dispose();
     }
+  }
+
+  @Nullable
+  @Override
+  public View onCreateView(
+      LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    View view = inflater.inflate(R.layout.dialog_export_options, container, false);
+    relativeTime = (CheckBox) view.findViewById(R.id.export_relative_time);
+    progressBar = (ProgressBar) view.findViewById(R.id.progress);
+    progressBar.setMax(100);
+    view.findViewById(R.id.action_cancel)
+        .setOnClickListener(
+            v -> {
+              // TODO: could cancel the export action here: requires saving references in
+              // ExportService.
+              dismiss();
+            });
+    AppAccount appAccount =
+        WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
+    final String experimentId = getArguments().getString(KEY_EXPERIMENT_ID);
+    // onCreateView is called before onStart so we need to grab these values for onCreateView
+    final String trialId = getArguments().getString(KEY_TRIAL_ID);
+    final boolean saveLocally = getArguments().getBoolean(KEY_SAVE_LOCALLY);
+    DataService.bind(getActivity())
+        .map(
+            appSingleton -> {
+              return appSingleton.getDataController(appAccount);
+            })
+        .flatMap(dc -> RxDataController.getExperimentById(dc, experimentId))
+        .subscribe(
+            experiment -> {
+              Trial trial = experiment.getTrial(trialId);
+              sensorIds = trial.getSensorIds();
+              // TODO: fill in UI with these sensors.
+            },
+            error -> {
+              if (Log.isLoggable(TAG, Log.ERROR)) {
+                Log.e(TAG, "Unable to bind DataService in ExportOptionsDialogFragment", error);
+              }
+              throw new IllegalStateException(
+                  "Unable to bind DataService in ExportOptionsDialogFragment", error);
+            });
+    exportButton = (Button) view.findViewById(R.id.action_export);
+    if (saveLocally) {
+      TextView title = (TextView) view.findViewById(R.id.export_title);
+      title.setText(R.string.download_options_title);
+      exportButton.setText(R.string.download_copy_action);
+    }
+    exportButton.setOnClickListener(
+        v -> {
+          ExportService.exportTrial(
+              getActivity(),
+              appAccount,
+              experimentId,
+              trialId,
+              relativeTime.isChecked(),
+              saveLocally,
+              sensorIds.toArray(new String[] {}));
+        });
+
+    return view;
+  }
 }

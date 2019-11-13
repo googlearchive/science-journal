@@ -17,37 +17,34 @@ package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import com.google.android.apps.forscience.whistlepunk.devicemanager.SensorDiscoverer;
 import com.google.common.collect.Lists;
-
 import java.util.List;
 
 public class RecordingScanListener implements SensorDiscoverer.ScanListener {
-    public List<SensorDiscoverer.DiscoveredService> services = Lists.newArrayList();
-    public List<SensorDiscoverer.DiscoveredDevice> devices = Lists.newArrayList();
-    public List<SensorDiscoverer.DiscoveredSensor> sensors = Lists.newArrayList();
-    public boolean isDone = false;
+  public List<SensorDiscoverer.DiscoveredService> services = Lists.newArrayList();
+  public List<SensorDiscoverer.DiscoveredDevice> devices = Lists.newArrayList();
+  public List<SensorDiscoverer.DiscoveredSensor> sensors = Lists.newArrayList();
+  public boolean isDone = false;
 
-    @Override
-    public void onServiceFound(SensorDiscoverer.DiscoveredService service) {
-        services.add(service);
-    }
+  @Override
+  public void onServiceFound(SensorDiscoverer.DiscoveredService service) {
+    services.add(service);
+  }
 
-    @Override
-    public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {
-        devices.add(device);
-    }
+  @Override
+  public void onDeviceFound(SensorDiscoverer.DiscoveredDevice device) {
+    devices.add(device);
+  }
 
-    @Override
-    public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
-        sensors.add(sensor);
-    }
+  @Override
+  public void onSensorFound(SensorDiscoverer.DiscoveredSensor sensor) {
+    sensors.add(sensor);
+  }
 
-    @Override
-    public void onServiceScanComplete(String serviceId) {
+  @Override
+  public void onServiceScanComplete(String serviceId) {}
 
-    }
-
-    @Override
-    public void onScanDone() {
-        isDone = true;
-    }
+  @Override
+  public void onScanDone() {
+    isDone = true;
+  }
 }

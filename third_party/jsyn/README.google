@@ -7,4 +7,6 @@ Description:
 Android integration for Java synthesizer library with unit generators
 
 Local Modifications:
-No modifications.
+Modified AndroidAudioForJSyn.java: Made JSyn work on API 19.
+This change uses a version of the JSyn/Android adapter that uses shorts,
+instead of doubles, enabling it to work with API 19.

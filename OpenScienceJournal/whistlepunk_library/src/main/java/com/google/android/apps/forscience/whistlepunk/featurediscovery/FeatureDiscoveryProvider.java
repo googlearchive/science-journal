@@ -17,32 +17,44 @@
 package com.google.android.apps.forscience.whistlepunk.featurediscovery;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 
-/**
- * An object which can show feature discovery to the user.
- */
+/** An object which can show feature discovery to the user. */
 public interface FeatureDiscoveryProvider {
+  public static FeatureDiscoveryProvider STUB =
+      new FeatureDiscoveryProvider() {
+        @Override
+        public boolean isEnabled(Context context, AppAccount appAccount, String feature) {
+          return false;
+        }
 
-    public static final String FEATURE_NEW_EXTERNAL_SENSOR = "fd_new_external_sensor";
+        @Override
+        public void show(
+            FragmentActivity activity, AppAccount appAccount, String feature, String tag) {
+          // do nothing
+        }
+      };
 
-    /**
-     * Amount of time in ms to delay showing the feature discovery dialog.
-     */
-    public static final long FEATURE_DISCOVERY_SHOW_DELAY_MS = 500;
+  public static final String FEATURE_NEW_EXTERNAL_SENSOR = "fd_new_external_sensor";
+  public static final String FEATURE_NEW_EXPERIMENT = "fd_new_experiment";
 
-    /**
-     * Returns {@code true} if the given feature is available for discovery. It's expected that
-     * the provider will only show features the first time to the user.
-     */
-    public boolean isEnabled(Context context, String feature);
+  /** Amount of time in ms to delay showing the feature discovery dialog. */
+  public static final long FEATURE_DISCOVERY_SHOW_DELAY_MS = 500;
 
-    /**
-     * Shows the feature discovery view to the user.
-     *
-     * @param activity    activity hosting the view
-     * @param feature     which feature to show
-     * @param tag         tag set on the view using View#setTag, used to find the view later
-     */
-    public void show(FragmentActivity activity, String feature, String tag);
+  /**
+   * Returns {@code true} if the given feature is available for discovery. It's expected that the
+   * provider will only show features the first time to the user.
+   */
+  public boolean isEnabled(Context context, AppAccount appAccount, String feature);
+
+  /**
+   * Shows the feature discovery view to the user.
+   *
+   * @param activity activity hosting the view
+   * @param appAccount the account
+   * @param feature which feature to show
+   * @param tag tag set on the view using View#setTag, used to find the view later
+   */
+  public void show(FragmentActivity activity, AppAccount appAccount, String feature, String tag);
 }

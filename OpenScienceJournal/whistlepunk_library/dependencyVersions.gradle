@@ -1,0 +1,11 @@
+ext {
+    daggerVersion = "2.23.2"
+    glideVersion = "4.1.1"
+    guavaVersion = "28.0-android"
+    jsr250Version = "1.0"
+    junitVersion = "4.12"
+    leakCanaryVersion = "1.5.4"
+    robolectricVersion = "3.7"
+    // Major version should always match compileSdkVersion in android.properties
+    supportLibraryVersion = "28.0.0"
+}

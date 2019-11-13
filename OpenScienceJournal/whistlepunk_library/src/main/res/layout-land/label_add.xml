@@ -29,9 +29,9 @@
         android:gravity="center_vertical"
         >
 
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:imeOptions="flagNoExtractUi"
-            android:id="@+id/edit_note_text"
+            android:id="@+id/edit_note_text_input_layout"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -39,9 +39,17 @@
             android:layout_marginStart="@dimen/edit_note_dialog_margin"
             android:layout_marginTop="@dimen/edit_note_image_button_margin"
             android:layout_marginBottom="@dimen/edit_note_textedit_margin_bottom"
-            android:hint="@string/add_run_note_placeholder_text"
+            android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
             android:maxLines="@integer/label_edit_max_lines"
-            />
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_note_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <ImageButton
             android:layout_width="@dimen/accessibility_touch_target_min_size"
@@ -93,3 +101,4 @@
         />
 
 </LinearLayout>
+

@@ -21,30 +21,31 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
 import io.reactivex.Single;
 
 public class KeyboardUtil {
-    /**
-     * Returns Observable that will receive true if the keyboard is closed
-     */
-    public static Single<Boolean> closeKeyboard(Activity activity) {
-        View view = activity.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(
-                    Context.INPUT_METHOD_SERVICE);
+  /** Returns Observable that will receive true if the keyboard is closed */
+  public static Single<Boolean> closeKeyboard(Activity activity) {
+    View view = activity.getCurrentFocus();
+    if (view != null) {
+      InputMethodManager imm =
+          (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
-            return Single.create(s -> {
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0, new ResultReceiver(null) {
-                    @Override
-                    protected void onReceiveResult(int resultCode, Bundle resultData) {
-                        s.onSuccess(resultCode == InputMethodManager.RESULT_HIDDEN);
-                        super.onReceiveResult(resultCode, resultData);
-                    }
+      return Single.create(
+          s -> {
+            imm.hideSoftInputFromWindow(
+                view.getWindowToken(),
+                0,
+                new ResultReceiver(null) {
+                  @Override
+                  protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    s.onSuccess(resultCode == InputMethodManager.RESULT_HIDDEN);
+                    super.onReceiveResult(resultCode, resultData);
+                  }
                 });
-            });
-        } else {
-            return Single.just(false);
-        }
+          });
+    } else {
+      return Single.just(false);
     }
+  }
 }

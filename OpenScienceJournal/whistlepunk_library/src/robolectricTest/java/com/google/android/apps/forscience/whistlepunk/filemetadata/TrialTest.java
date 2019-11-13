@@ -16,80 +16,83 @@
 
 package com.google.android.apps.forscience.whistlepunk.filemetadata;
 
-import android.content.Context;
+import static org.junit.Assert.assertEquals;
 
-import com.google.android.apps.forscience.whistlepunk.BuildConfig;
+import android.content.Context;
+import com.google.android.apps.forscience.whistlepunk.ExperimentCreator;
 import com.google.android.apps.forscience.whistlepunk.FakeAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.accounts.NonSignedInAccount;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
+import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
-import static org.junit.Assert.assertEquals;
-
-/**
- * Tests for Trials
- */
+/** Tests for Trials */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class TrialTest {
-    @Test
-    public void testTrialWithLabels() throws Exception {
-        GoosciTrial.Trial trialProto = new GoosciTrial.Trial();
-        trialProto.labels = new GoosciLabel.Label[1];
-        GoosciLabel.Label labelProto = new GoosciLabel.Label();
-        labelProto.labelId = "labelId";
-        labelProto.timestampMs = 1;
-        trialProto.labels[0] = labelProto;
-        Trial trial = Trial.fromTrial(trialProto);
+  @Test
+  public void testTrialWithLabels() throws Exception {
+    GoosciTrial.Trial.Builder trialProto = GoosciTrial.Trial.newBuilder();
+    GoosciLabel.Label.Builder labelProto =
+        GoosciLabel.Label.newBuilder().setLabelId("labelId").setTimestampMs(1);
+    trialProto.addLabels(labelProto);
+    Experiment experiment = ExperimentCreator.newExperimentForTesting(1, "id", 1);
+    Trial trial = Trial.fromTrial(trialProto.build());
+    experiment.addTrial(trial);
 
-        assertEquals(trial.getLabelCount(), 1);
+    assertEquals(1, trial.getLabelCount());
 
-        Label label = trial.getLabels().get(0);
-        label.setTimestamp(10);
-        trial.updateLabel(label);
-        assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
+    Label label = trial.getLabels().get(0);
+    label.setTimestamp(10);
+    trial.updateLabel(label);
+    assertEquals(10, trial.getLabels().get(0).getTimeStamp());
 
-        Label second = Label.newLabel(20, GoosciLabel.Label.TEXT);
-        trial.addLabel(second);
-        assertEquals(trial.getLabelCount(), 2);
+    Label second = Label.newLabel(20, ValueType.TEXT);
+    trial.addLabel(second);
+    assertEquals(2, trial.getLabelCount());
 
-        trial.deleteLabelAndReturnAssetDeleter(label, "experimentId").accept(getContext());
-        assertEquals(trial.getLabelCount(), 1);
-    }
+    trial.deleteLabelAndReturnAssetDeleter(experiment, label, getAppAccount()).accept(getContext());
+    assertEquals(1, trial.getLabelCount());
+  }
 
-    @Test
-    public void testLabelsStillSortedOnAdd() {
-        Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0],
-                new FakeAppearanceProvider(), getContext());
-        trial.addLabel(Label.newLabel(20, GoosciLabel.Label.TEXT));
-        trial.addLabel(Label.newLabel(30, GoosciLabel.Label.TEXT));
-        trial.addLabel(Label.newLabel(10, GoosciLabel.Label.TEXT));
-        assertEquals(trial.getLabels().size(), 3);
-        assertEquals(trial.getLabels().get(0).getTimeStamp(), 10);
-        assertEquals(trial.getLabels().get(1).getTimeStamp(), 20);
-        assertEquals(trial.getLabels().get(2).getTimeStamp(), 30);
-    }
+  @Test
+  public void testLabelsStillSortedOnAdd() {
+    Trial trial =
+        Trial.newTrial(
+            10, new GoosciSensorLayout.SensorLayout[0], new FakeAppearanceProvider(), getContext());
+    trial.addLabel(Label.newLabel(20, ValueType.TEXT));
+    trial.addLabel(Label.newLabel(30, ValueType.TEXT));
+    trial.addLabel(Label.newLabel(10, ValueType.TEXT));
+    assertEquals(3, trial.getLabels().size());
+    assertEquals(10, trial.getLabels().get(0).getTimeStamp());
+    assertEquals(20, trial.getLabels().get(1).getTimeStamp());
+    assertEquals(30, trial.getLabels().get(2).getTimeStamp());
+  }
 
-    @Test
-    public void testLabelsStillSortedOnUpdate() {
-        Trial trial = Trial.newTrial(10, new GoosciSensorLayout.SensorLayout[0],
-                new FakeAppearanceProvider(), getContext());
-        trial.addLabel(Label.newLabel(10, GoosciLabel.Label.TEXT));
-        trial.addLabel(Label.newLabel(20, GoosciLabel.Label.TEXT));
-        trial.addLabel(Label.newLabel(30, GoosciLabel.Label.TEXT));
-        Label second = trial.getLabels().get(1);
-        second.setTimestamp(40);
-        trial.updateLabel(second);
-        assertEquals(trial.getLabels().get(2).getTimeStamp(), 40);
-    }
+  @Test
+  public void testLabelsStillSortedOnUpdate() {
+    Trial trial =
+        Trial.newTrial(
+            10, new GoosciSensorLayout.SensorLayout[0], new FakeAppearanceProvider(), getContext());
+    trial.addLabel(Label.newLabel(10, ValueType.TEXT));
+    trial.addLabel(Label.newLabel(20, ValueType.TEXT));
+    trial.addLabel(Label.newLabel(30, ValueType.TEXT));
+    Label second = trial.getLabels().get(1);
+    second.setTimestamp(40);
+    trial.updateLabel(second);
+    assertEquals(40, trial.getLabels().get(2).getTimeStamp());
+  }
 
-    private Context getContext() {
-        return RuntimeEnvironment.application.getApplicationContext();
-    }
+  private static Context getContext() {
+    return RuntimeEnvironment.application.getApplicationContext();
+  }
+
+  private static AppAccount getAppAccount() {
+    return NonSignedInAccount.getInstance(getContext());
+  }
 }

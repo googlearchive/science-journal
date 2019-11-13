@@ -14,18 +14,27 @@
   limitations under the License.
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.apps.forscience.whistlepunk.opensource">
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:name=".OpenScienceJournalApplication">
 
+        <activity
+            android:name=".licenses.LicenseActivity"
+            android:exported="false"
+            android:label="@string/settings_open_source_title"
+            android:theme="@style/AppTheme"
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.google.android.apps.forscience.whistlepunk.SettingsActivity"/>
+        </activity>
     </application>
+
 
 </manifest>

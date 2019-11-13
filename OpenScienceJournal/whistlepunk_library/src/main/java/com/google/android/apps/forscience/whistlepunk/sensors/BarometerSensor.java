@@ -21,7 +21,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
 import com.google.android.apps.forscience.whistlepunk.Clock;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AbstractSensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.AvailableSensors;
@@ -31,57 +30,55 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorRecorder;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamConsumer;
 
-/**
- * Class to get sensor data from the Pressure Sensor (barometer).
- */
+/** Class to get sensor data from the Pressure Sensor (barometer). */
 public class BarometerSensor extends ScalarSensor {
-    public static final String ID = "BarometerSensor";
-    private SensorEventListener mSensorEventListener;
+  public static final String ID = "BarometerSensor";
+  private SensorEventListener sensorEventListener;
 
-    public BarometerSensor() {
-        super(ID);
-    }
+  public BarometerSensor() {
+    super(ID);
+  }
 
-    @Override
-    protected SensorRecorder makeScalarControl(final StreamConsumer c,
-            final SensorEnvironment environment, final Context context,
-            final SensorStatusListener listener) {
-        return new AbstractSensorRecorder() {
-            @Override
-            public void startObserving() {
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
-                SensorManager sensorManager = getSensorManager(context);
-                Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-                if (mSensorEventListener != null) {
-                    getSensorManager(context).unregisterListener(mSensorEventListener);
-                }
-                final Clock clock = environment.getDefaultClock();
-                mSensorEventListener = new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        // values[0]: Atmospheric pressure in hPa (millibar).
-                        // 1 hPa == 1 millibar
-                        c.addData(clock.getNow(), event.values[0]);
-                    }
+  @Override
+  protected SensorRecorder makeScalarControl(
+      final StreamConsumer c,
+      final SensorEnvironment environment,
+      final Context context,
+      final SensorStatusListener listener) {
+    return new AbstractSensorRecorder() {
+      @Override
+      public void startObserving() {
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_CONNECTED);
+        SensorManager sensorManager = getSensorManager(context);
+        Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        if (sensorEventListener != null) {
+          getSensorManager(context).unregisterListener(sensorEventListener);
+        }
+        final Clock clock = environment.getDefaultClock();
+        sensorEventListener =
+            new SensorEventListener() {
+              @Override
+              public void onSensorChanged(SensorEvent event) {
+                // values[0]: Atmospheric pressure in hPa (millibar).
+                // 1 hPa == 1 millibar
+                c.addData(clock.getNow(), event.values[0]);
+              }
 
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+              @Override
+              public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+            };
+        sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_UI);
+      }
 
-                    }
-                };
-                sensorManager.registerListener(mSensorEventListener, sensor,
-                        SensorManager.SENSOR_DELAY_UI);
-            }
+      @Override
+      public void stopObserving() {
+        getSensorManager(context).unregisterListener(sensorEventListener);
+        listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
+      }
+    };
+  }
 
-            @Override
-            public void stopObserving() {
-                getSensorManager(context).unregisterListener(mSensorEventListener);
-                listener.onSourceStatus(getId(), SensorStatusListener.STATUS_DISCONNECTED);
-            }
-        };
-    }
-
-    public static boolean isBarometerSensorAvailable(AvailableSensors availableSensors) {
-        return availableSensors.isSensorAvailable(Sensor.TYPE_PRESSURE);
-    }
+  public static boolean isBarometerSensorAvailable(AvailableSensors availableSensors) {
+    return availableSensors.isSensorAvailable(Sensor.TYPE_PRESSURE);
+  }
 }

@@ -16,109 +16,102 @@
 
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartData;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.RecordingSensorObserver;
 import com.google.android.apps.forscience.whistlepunk.sensordb.ScalarReading;
-import com.google.common.collect.Lists;
-
-import junit.framework.Assert;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import junit.framework.Assert;
 
 public class TestData {
-    private static final double DELTA = 0.01;
+  private static final double DELTA = 0.01;
 
-    @NonNull
-    public static TestData allPointsBetween(int min, int max, int step) {
-        TestData data = new TestData();
-        for (int i = min; i <= max; i += step) {
-            data.addPoint(i, i);
-        }
-        return data;
+  @NonNull
+  public static TestData allPointsBetween(int min, int max, int step) {
+    TestData data = new TestData();
+    for (int i = min; i <= max; i += step) {
+      data.addPoint(i, i);
+    }
+    return data;
+  }
+
+  public static TestData fromPoints(List<ChartData.DataPoint> points) {
+    TestData data = new TestData();
+    for (ChartData.DataPoint point : points) {
+      data.addPoint(point.getX(), point.getY());
+    }
+    return data;
+  }
+
+  private static class Point {
+    long x;
+    double y;
+
+    public Point(long x, double y) {
+      this.x = x;
+      this.y = y;
     }
 
-    public static TestData fromPoints(List<ChartData.DataPoint> points) {
-        TestData data = new TestData();
-        for (ChartData.DataPoint point : points) {
-            data.addPoint(point.getX(), point.getY());
-        }
-        return data;
+    @Override
+    public String toString() {
+      return "Point{" + "x=" + x + ", y=" + y + '}';
+    }
+  }
+
+  private List<Point> points = new ArrayList<>();
+
+  public TestData addPoint(long x, double y) {
+    points.add(new Point(x, y));
+    return this;
+  }
+
+  public void checkObserver(RecordingSensorObserver observer) {
+    ArrayList<ChartData.DataPoint> rawData = new ArrayList<>();
+    for (ScalarReading sr : observer.getReadings()) {
+      rawData.add(new ChartData.DataPoint(sr.getCollectedTimeMillis(), sr.getValue()));
     }
 
-    private static class Point {
-        long x;
-        double y;
+    checkRawData(rawData);
+  }
 
-        public Point(long x, double y) {
-            this.x = x;
-            this.y = y;
-        }
+  public void checkRawData(List<ChartData.DataPoint> rawData) {
+    removeDupes(rawData);
+    final Iterator<Point> iterator = points.iterator();
 
-        @Override
-        public String toString() {
-            return "Point{" +
-                    "x=" + x +
-                    ", y=" + y +
-                    '}';
-        }
+    for (ChartData.DataPoint entry : rawData) {
+      // rawData (due to other bugs) can have duplicate entries, which aren't important to
+      // us here.
+      if (!iterator.hasNext()) {
+        Assert.fail("Expected fewer values in " + rawData);
+      }
+      final Point expected = iterator.next();
+      Assert.assertEquals(expected.x, entry.getX());
+      Assert.assertEquals(expected.y, entry.getY(), DELTA);
     }
 
-    private List<Point> mPoints = new ArrayList<>();
-
-    public TestData addPoint(long x, double y) {
-        mPoints.add(new Point(x, y));
-        return this;
+    if (iterator.hasNext()) {
+      Assert.fail("Expected another value: " + iterator.next() + " in " + rawData);
     }
+  }
 
-    public void checkObserver(RecordingSensorObserver observer) {
-        ArrayList<ChartData.DataPoint> rawData = new ArrayList<>();
-        for (ScalarReading sr : observer.getReadings()) {
-            rawData.add(new ChartData.DataPoint(sr.getCollectedTimeMillis(), sr.getValue()));
-        }
-
-        checkRawData(rawData);
+  private void removeDupes(List<ChartData.DataPoint> rawData) {
+    // rawData (due to other bugs) can have duplicate entries, which aren't important to
+    // us here.
+    if (rawData.size() < 2) {
+      return;
     }
-
-    public void checkRawData(List<ChartData.DataPoint> rawData) {
-        removeDupes(rawData);
-        final Iterator<Point> iterator = mPoints.iterator();
-
-        for (ChartData.DataPoint entry : rawData) {
-            // rawData (due to other bugs) can have duplicate entries, which aren't important to
-            // us here.
-            if (!iterator.hasNext()) {
-                Assert.fail("Expected fewer values in " + rawData);
-            }
-            final Point expected = iterator.next();
-            Assert.assertEquals(expected.x, entry.getX());
-            Assert.assertEquals(expected.y, entry.getY(), DELTA);
-        }
-
-        if (iterator.hasNext()) {
-            Assert.fail("Expected another value: " + iterator.next() + " in " + rawData);
-        }
+    Iterator<ChartData.DataPoint> iterator = rawData.iterator();
+    ChartData.DataPoint thisPoint = iterator.next();
+    ChartData.DataPoint nextPoint;
+    while (iterator.hasNext()) {
+      nextPoint = iterator.next();
+      if (nextPoint.getX() == thisPoint.getX() && nextPoint.getY() == thisPoint.getY()) {
+        iterator.remove();
+      } else {
+        thisPoint = nextPoint;
+      }
     }
-
-    private void removeDupes(List<ChartData.DataPoint> rawData) {
-        // rawData (due to other bugs) can have duplicate entries, which aren't important to
-        // us here.
-        if (rawData.size() < 2) {
-            return;
-        }
-        Iterator<ChartData.DataPoint> iterator = rawData.iterator();
-        ChartData.DataPoint thisPoint = iterator.next();
-        ChartData.DataPoint nextPoint;
-        while (iterator.hasNext()) {
-            nextPoint = iterator.next();
-            if (nextPoint.getX() == thisPoint.getX() && nextPoint.getY() == thisPoint.getY()) {
-                iterator.remove();
-            } else {
-                thisPoint = nextPoint;
-            }
-        }
-    }
+  }
 }

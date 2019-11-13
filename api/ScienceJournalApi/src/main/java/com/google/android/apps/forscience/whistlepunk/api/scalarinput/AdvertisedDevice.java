@@ -16,35 +16,30 @@
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
 import android.app.PendingIntent;
-
 import java.util.List;
 
-/**
- * A device advertised through the API
- */
+/** A device advertised through the API */
 public abstract class AdvertisedDevice {
-    private final String mDeviceId;
-    private final String mDeviceName;
+  private final String deviceId;
+  private final String deviceName;
 
-    protected AdvertisedDevice(String deviceId, String deviceName) {
-        mDeviceId = deviceId;
-        mDeviceName = deviceName;
-    }
+  protected AdvertisedDevice(String deviceId, String deviceName) {
+    this.deviceId = deviceId;
+    this.deviceName = deviceName;
+  }
 
-    /**
-     * @return a pending intent to change settings on the device.
-     */
-    protected PendingIntent getSettingsIntent() {
-        return null;
-    }
+  /** @return a pending intent to change settings on the device. */
+  protected PendingIntent getSettingsIntent() {
+    return null;
+  }
 
-    public abstract List<? extends AdvertisedSensor> getSensors();
+  public abstract List<? extends AdvertisedSensor> getSensors();
 
-    String getDeviceId() {
-        return mDeviceId;
-    }
+  String getDeviceId() {
+    return deviceId;
+  }
 
-    String getDeviceName() {
-        return mDeviceName;
-    }
+  String getDeviceName() {
+    return deviceName;
+  }
 }

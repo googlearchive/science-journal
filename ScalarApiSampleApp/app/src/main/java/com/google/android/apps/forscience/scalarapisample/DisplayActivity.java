@@ -16,18 +16,18 @@
 package com.google.android.apps.forscience.scalarapisample;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Main point of this activity is so that the app shows up in the launcher, as an easy way to
  * determine whether the app is installed on a particular test device.
  */
 public class DisplayActivity extends AppCompatActivity {
-    private static final String TAG = "DisplayActivity";
+  private static final String TAG = "DisplayActivity";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_display);
-    }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_display);
+  }
 }

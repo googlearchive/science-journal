@@ -15,23 +15,20 @@
  */
 package com.google.android.apps.forscience.whistlepunk.api.scalarinput;
 
-import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 
 public class Versions {
-    public static int FIRST_RELEASE_SCALAR_API_VERSION = 1;
+  public static int FIRST_RELEASE_SCALAR_API_VERSION = 1;
 
-    public static int getScalarApiVersion(String packageName, Resources resources) {
-        try {
-            int identifier = resources.getIdentifier("scalar_api_version", "integer",
-                    packageName);
-            if (identifier != 0) {
-                return resources.getInteger(identifier);
-            }
-        } catch (Resources.NotFoundException e) {
-            // Fall through to default version
-        }
-        return FIRST_RELEASE_SCALAR_API_VERSION;
+  public static int getScalarApiVersion(String packageName, Resources resources) {
+    try {
+      int identifier = resources.getIdentifier("scalar_api_version", "integer", packageName);
+      if (identifier != 0) {
+        return resources.getInteger(identifier);
+      }
+    } catch (Resources.NotFoundException e) {
+      // Fall through to default version
     }
+    return FIRST_RELEASE_SCALAR_API_VERSION;
+  }
 }

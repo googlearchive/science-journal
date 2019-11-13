@@ -15,51 +15,49 @@
  */
 package com.google.android.apps.forscience.whistlepunk.devicemanager;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-/**
- * Simple RecyclerView.Adapter that always contains a single TextView
- */
+/** Simple RecyclerView.Adapter that always contains a single TextView */
 public class HeaderAdapter extends RecyclerView.Adapter<HeaderAdapter.ViewHolder> {
-    private final int mLayoutId;
-    private int mStringResourceId;
+  private final int layoutId;
+  private int stringResourceId;
 
-    public HeaderAdapter(int layoutId, int stringResourceId) {
-        mStringResourceId = stringResourceId;
-        mLayoutId = layoutId;
+  public HeaderAdapter(int layoutId, int stringResourceId) {
+    this.stringResourceId = stringResourceId;
+    this.layoutId = layoutId;
+  }
+
+  @Override
+  public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    TextView textView =
+        (TextView) LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
+    return new ViewHolder(textView);
+  }
+
+  @Override
+  public void onBindViewHolder(ViewHolder holder, int position) {
+    holder.textView.setText(stringResourceId);
+  }
+
+  @Override
+  public int getItemCount() {
+    return 1;
+  }
+
+  @Override
+  public int getItemViewType(int position) {
+    return layoutId;
+  }
+
+  public static class ViewHolder extends RecyclerView.ViewHolder {
+    public TextView textView;
+
+    ViewHolder(TextView textView) {
+      super(textView);
+      this.textView = textView;
     }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        TextView textView = (TextView) LayoutInflater.from(parent.getContext()).inflate(
-                mLayoutId, parent, false);
-        return new ViewHolder(textView);
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.textView.setText(mStringResourceId);
-    }
-
-    @Override
-    public int getItemCount() {
-        return 1;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return mLayoutId;
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView textView;
-
-        ViewHolder(TextView textView) {
-            super(textView);
-            this.textView = textView;
-        }
-    }
+  }
 }

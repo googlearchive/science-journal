@@ -53,8 +53,7 @@
     <dimen name="cardview_margin">8dp</dimen>
     <dimen name="cardview_margin_sides">8dp</dimen>
     <dimen name="cardview_radius">2dp</dimen>
-
-    <dimen name="age_verifier_padding">16dp</dimen>
+    <dimen name="cardview_default_elevation">6dp</dimen>
 
     <dimen name="list_bottom_padding">48dp</dimen>
 
@@ -140,7 +139,6 @@
     <dimen name="run_review_external_axis_left_padding">4dp</dimen>
     <dimen name="run_review_external_axis_right_padding">16dp</dimen>
     <dimen name="run_review_sensor_section_margin_top_bottom">4dp</dimen>
-    <dimen name="run_review_duration_text_height">30dp</dimen>
 
     <dimen name="run_review_notes_text_size">16sp</dimen>
     <dimen name="run_review_notes_timestamp_text_size">14sp</dimen>
@@ -213,5 +211,46 @@
          multiple cards are shown. -->
     <bool name="always_use_multi_card_height">false</bool>
 
-    <integer name="gallery_column_count">3</integer>
+    <!-- On small screens, do not allow half-height drawer in landscape mode -->
+    <bool name="allow_half_height_drawer_in_landscape">false</bool>
+
+    <integer name="gallery_column_count">4</integer>
+
+    <!-- Margins for placement on getting started screen -->
+    <dimen name="get_started_explore_your_world_margin_top">68dp</dimen>
+    <dimen name="get_started_use_science_journal_margin_top">15dp</dimen>
+    <dimen name="get_started_btn_get_started_margin_top">32dp</dimen>
+    <dimen name="get_started_image_margin_bottom">25dp</dimen>
+    <dimen name="get_started_image_margin_sides">25dp</dimen>
+
+    <!-- Font sizing for getting started screen -->
+    <dimen name="get_started_explore_your_world_font_size">24sp</dimen>
+    <dimen name="get_started_use_science_journal_font_size">16sp</dimen>
+    <dimen name="get_started_btn_get_started_font_size">14sp</dimen>
+
+    <!-- Margins for placement on sign in screen -->
+    <dimen name="sign_in_image_margin_bottom">20dp</dimen>
+    <dimen name="sign_in_image_margin_sides">25dp</dimen>
+    <dimen name="sign_in_text_top_margin">29dp</dimen>
+
+    <!-- Font sizing for sign in screen -->
+    <dimen name="sign_in_text_font_size">14sp</dimen>
+
+    <!-- Height of action area -->
+    <dimen name="action_area_height">90dp</dimen>
+    <!-- Margins of action area -->
+    <dimen name="action_area_bottom_margin">20dp</dimen>
+    <dimen name="action_area_side_margin">10dp</dimen>
+    <!-- Padding for list above/behind action area -->
+    <dimen name="list_bottom_padding_with_action_area">130dp</dimen>
+
+    <!-- Columns in More Observations fragment grid -->
+    <integer name="more_observations_column_count">2</integer>
+
+    <!-- Sensor Note record button dimens -->
+    <dimen name="record_sensor_button_height">48dp</dimen>
+    <dimen name="record_sensor_button_radius">24dp</dimen>
+    <dimen name="record_sensor_button_icon">16dp</dimen>
+
+    <bool name="is_tablet">false</bool>
 </resources>

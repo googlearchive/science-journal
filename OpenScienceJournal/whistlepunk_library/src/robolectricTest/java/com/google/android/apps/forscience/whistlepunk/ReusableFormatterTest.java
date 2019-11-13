@@ -21,19 +21,15 @@ import static junit.framework.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
-/**
- * Tests for ResuableFormatter
- */
+/** Tests for ResuableFormatter */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ReusableFormatterTest {
-    @Test
-    public void testReusingFormatter() {
-        ReusableFormatter formatter = new ReusableFormatter();
-        assertEquals("I am a cat", formatter.format("I am a %s", "cat").toString());
-        assertEquals("I am still a cat", formatter.format("I am still a %s", "cat").toString());
-        assertEquals("3:14.16", formatter.format("%1d:%02d.%2d", 3, 14, 16).toString());
-    }
+  @Test
+  public void testReusingFormatter() {
+    ReusableFormatter formatter = new ReusableFormatter();
+    assertEquals("I am a cat", formatter.format("I am a %s", "cat").toString());
+    assertEquals("I am still a cat", formatter.format("I am still a %s", "cat").toString());
+    assertEquals("3:14.16", formatter.format("%1d:%02d.%2d", 3, 14, 16).toString());
+  }
 }

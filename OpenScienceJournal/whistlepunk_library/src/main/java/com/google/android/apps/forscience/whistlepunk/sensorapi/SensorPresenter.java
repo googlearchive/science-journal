@@ -17,119 +17,106 @@
 package com.google.android.apps.forscience.whistlepunk.sensorapi;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
-import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorTrigger;
-
 import java.util.List;
 
 /**
- * After a view is created to show the current value of a sensor, the app may call back methods
- * on this SensorPresenter.  Implementations should respond to these events by updating the
- * capture view, if applicable.
- * <p/>
- * All calls are on the main thread.
+ * After a view is created to show the current value of a sensor, the app may call back methods on
+ * this SensorPresenter. Implementations should respond to these events by updating the capture
+ * view, if applicable.
+ *
+ * <p>All calls are on the main thread.
  */
 public interface SensorPresenter extends SensorObserver {
+  /**
+   * Sub-presenter based around allowing the user to change options, and applying the view-specific
+   * options to the current data display
+   */
+  interface OptionsPresenter {
     /**
-     * Sub-presenter based around allowing the user to change options, and applying the
-     * view-specific options to the current data display
+     * @param activeBundle can be queried for current values, and changed to make live changes to
+     *     presentation.
+     * @param context
+     * @return a View for seeing the current options and making changes. Caller is responsible for
+     *     laying out and displaying this View
      */
-    interface OptionsPresenter {
-        /**
-         * @param activeBundle can be queried for current values, and changed to make live
-         *                     changes to presentation.
-         * @param context
-         * @return a View for seeing the current options and making changes.  Caller
-         *         is responsible for laying out and displaying this View
-         */
-        View buildOptionsView(ActiveBundle activeBundle, Context context);
-
-        /**
-         * Apply the given options to the presentation of the sensor data.  This should only
-         * attempt to change the data _display_, not the underlying collection or data storage.
-         * @param bundle
-         */
-        void applyOptions(ReadableSensorOptions bundle);
-    }
+    View buildOptionsView(ActiveBundle activeBundle, Context context);
 
     /**
-     * The view is ready for the data to be displayed.
+     * Apply the given options to the presentation of the sensor data. This should only attempt to
+     * change the data _display_, not the underlying collection or data storage.
      *
-     * @param contentView The view onto which to show the data.
-     * @param listener The interaction listener for the view
+     * @param bundle
      */
-    void startShowing(View contentView, ExternalAxisController.InteractionListener listener);
+    void applyOptions(ReadableSensorOptions bundle);
+  }
 
-    /**
-     * The SensorPresenter may update its UI to show whether it is currently
-     * recording.
-     *
-     * @param isRecording Whether recording is currently in progress.
-     * @param recordingStart The time at which recording last started.
-     */
-    void onRecordingStateChange(boolean isRecording, long recordingStart);
+  /**
+   * The view is ready for the data to be displayed.
+   *
+   * @param contentView The view onto which to show the data.
+   * @param listener The interaction listener for the view
+   */
+  void startShowing(View contentView, ExternalAxisController.InteractionListener listener);
 
-    /**
-     * The list of labels has changed.
-     *
-     * @param labels The list of labels.
-     */
-    void onLabelsChanged(List<Label> labels);
+  /**
+   * The SensorPresenter may update its UI to show whether it is currently recording.
+   *
+   * @param isRecording Whether recording is currently in progress.
+   * @param recordingStart The time at which recording last started.
+   */
+  void onRecordingStateChange(boolean isRecording, long recordingStart);
 
-    /**
-     * The x axis range, min or max has changed.
-     * Includes whether the user is pinned to "now" or not, since that may impact the graph UI
-     * and interactions.
-     * @param xMin The minimum X axis value.
-     * @param xMax The maximum X axis value.
-     * @param isPinnedToNow Whether the X axis is currently "pinned" to now.
-     * @param dataController For potentially loading sensor data that was forgotten
-     */
-    void onGlobalXAxisChanged(long xMin, long xMax, boolean isPinnedToNow,
-            DataController dataController);
+  /**
+   * The list of labels has changed.
+   *
+   * @param labels The list of labels.
+   */
+  void onLabelsChanged(List<Label> labels);
 
-    /**
-     * Gets the minimum Y axis value currently displayed for this sensor.
-     */
-    double getMinY();
+  /**
+   * The x axis range, min or max has changed. Includes whether the user is pinned to "now" or not,
+   * since that may impact the graph UI and interactions.
+   *
+   * @param xMin The minimum X axis value.
+   * @param xMax The maximum X axis value.
+   * @param isPinnedToNow Whether the X axis is currently "pinned" to now.
+   * @param dataController For potentially loading sensor data that was forgotten
+   */
+  void onGlobalXAxisChanged(
+      long xMin, long xMax, boolean isPinnedToNow, DataController dataController);
 
-    /**
-     * Gets the maximum Y axis value currently displayed for this sensor.
-     */
-    double getMaxY();
+  /** Gets the minimum Y axis value currently displayed for this sensor. */
+  double getMinY();
 
-    void onPause();
+  /** Gets the maximum Y axis value currently displayed for this sensor. */
+  double getMaxY();
 
-    void onResume(long resetTime);
+  void onPause();
 
-    /**
-     * The view is about to be removed.  Clean up any unneeded resources.
-     */
-    void onStopObserving();
+  void onResume(long resetTime);
 
-    /**
-     * The view is about to be recycled, but continue observing the sensor data.
-     */
-    void onViewRecycled();
+  /** The view is about to be removed. Clean up any unneeded resources. */
+  void onStopObserving();
 
-    OptionsPresenter getOptionsPresenter();
+  /** The view is about to be recycled, but continue observing the sensor data. */
+  void onViewRecycled();
 
-    void updateAudioSettings(boolean audioEnabled, String sonificationType);
+  OptionsPresenter getOptionsPresenter();
 
-    void setShowStatsOverlay(boolean showStatsOverlay);
+  void updateAudioSettings(boolean audioEnabled, String sonificationType);
 
-    void updateStats(List<StreamStat> stats);
+  void setShowStatsOverlay(boolean showStatsOverlay);
 
-    void setYAxisRange(double minimumYAxisValue, double maximumYAxisValue);
+  void updateStats(List<StreamStat> stats);
 
-    void resetView();
+  void setYAxisRange(double minimumYAxisValue, double maximumYAxisValue);
 
-    void setTriggers(List<SensorTrigger> triggers);
+  void resetView();
+
+  void setTriggers(List<SensorTrigger> triggers);
 }

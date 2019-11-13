@@ -1,0 +1,83 @@
+<!--
+   Copyright 2019 Google LLC
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".arcore.ARVelocityActivity">
+
+
+  <fragment android:name="com.google.android.apps.forscience.whistlepunk.arcore.AugmentedImageFragment"
+        android:id="@+id/ux_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+  <ImageView
+      android:id="@+id/image_view_fit_to_scan"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_gravity="center"
+      android:scaleType="fitCenter"
+      android:src="@drawable/fit_to_scan"
+      android:contentDescription="@string/fit_image_to_scan" />
+
+  <!-- Use match_parent here or else every value change causes a full requestLayout -->
+  <com.google.android.apps.forscience.whistlepunk.SingleLineResizableTextView
+      android:id="@+id/velocity_tracker_velocity_text"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:minWidth="@dimen/sensor_card_back_icon_size"
+      android:textColor="@color/text_color_dark_grey"
+      android:textSize="@dimen/sensor_card_live_value_text_size"
+      android:visibility="invisible"
+      android:background="@color/text_color_white"
+      android:layout_centerVertical="true"
+      android:focusable="true"
+      android:layout_marginTop="600dp"
+      android:layout_marginLeft="200dp"
+      />
+
+  <ImageButton
+      android:id="@+id/snapshot_button"
+      android:layout_width="@dimen/accessibility_touch_target_min_size"
+      android:layout_height="@dimen/accessibility_touch_target_min_size"
+      android:layout_marginTop="300dp"
+      android:layout_marginEnd="50dp"
+      android:visibility="gone"
+      android:contentDescription="@string/snapshot_button_description"
+      android:src="@drawable/snapshot_icon"
+      android:layout_gravity="center"
+      android:background="?attr/selectableItemBackgroundBorderless"
+      style="?attr/borderlessButtonStyle"
+      />
+
+  <ImageButton
+      android:id="@+id/record_button"
+      android:layout_width="@dimen/accessibility_touch_target_min_size"
+      android:layout_height="@dimen/accessibility_touch_target_min_size"
+      android:layout_marginTop="300dp"
+      android:layout_marginEnd="150dp"
+      android:visibility="gone"
+      android:src="@drawable/ic_recording_red_42dp"
+      android:alpha="@dimen/icon_active_alpha"
+      android:contentDescription="@string/btn_record_description"
+      android:layout_gravity="center"
+      android:scaleType="center"
+      android:background="?attr/selectableItemBackgroundBorderless"
+      style="?attr/borderlessButtonStyle"
+      />
+
+</FrameLayout>

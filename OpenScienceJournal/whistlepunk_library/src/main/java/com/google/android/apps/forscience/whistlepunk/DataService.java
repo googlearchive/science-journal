@@ -15,7 +15,6 @@
  */
 package com.google.android.apps.forscience.whistlepunk;
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,23 +22,19 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
-
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
+import androidx.annotation.Nullable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * This is deprecated; we will be using an application-global AppState class instead.
  *
- * A main-process service that provides global data connectivity to any activity
+ * <p>A main-process service that provides global data connectivity to any activity
  *
- * Over time, using this should replace AppSingleton, so that eventually Android can better
+ * <p>Over time, using this should replace AppSingleton, so that eventually Android can better
  * garbage collect global resources when unneeded.
  *
- * To bind from an activity, use:
+ * <p>To bind from an activity, use:
  *
  * <pre>
  * class MyActivity extends Activity {
@@ -51,66 +46,66 @@ import io.reactivex.subjects.BehaviorSubject;
  * }
  * </pre>
  *
- * Following the RxJava style, this separates the users of a stream from how it is produced.
- * The current implementation binds to the service just long enough to satisfy the immediate
- * subscriber, and then unbinds again.  If this turns out to have a poor performance impact, we
- * can switch the implementation here to cache the connection without effecting users of the
- * interface.
+ * Following the RxJava style, this separates the users of a stream from how it is produced. The
+ * current implementation binds to the service just long enough to satisfy the immediate subscriber,
+ * and then unbinds again. If this turns out to have a poor performance impact, we can switch the
+ * implementation here to cache the connection without effecting users of the interface.
  */
 public class DataService extends Service {
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return new DataBinder(AppSingleton.getInstance(this));
+  @Nullable
+  @Override
+  public IBinder onBind(Intent intent) {
+    return new DataBinder(AppSingleton.getInstance(this));
+  }
+
+  private class DataBinder extends Binder {
+    private AppSingleton singleton;
+
+    public DataBinder(AppSingleton singleton) {
+      this.singleton = singleton;
     }
 
-    private class DataBinder extends Binder {
-        private AppSingleton mSingleton;
-
-        public DataBinder(AppSingleton singleton) {
-            mSingleton = singleton;
-        }
-
-        public AppSingleton getData() {
-            return mSingleton;
-        }
+    public AppSingleton getData() {
+      return singleton;
     }
+  }
 
-    public static Single<AppSingleton> bind(Context context) {
-        Context appContext = context.getApplicationContext();
+  public static Single<AppSingleton> bind(Context context) {
+    Context appContext = context.getApplicationContext();
 
-        return Single.create(emitter -> {
-            ServiceConnection conn = new ServiceConnection() {
+    return Single.create(
+        emitter -> {
+          ServiceConnection conn =
+              new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
-                    DataBinder binder = (DataBinder) service;
-                    emitter.onSuccess(binder.getData());
+                  DataBinder binder = (DataBinder) service;
+                  emitter.onSuccess(binder.getData());
                 }
 
                 @Override
-                public void onServiceDisconnected(ComponentName name) {
+                public void onServiceDisconnected(ComponentName name) {}
+              };
+          Intent intent = new Intent(appContext, DataService.class);
+          if (appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE)) {
+            emitter.setDisposable(
+                new Disposable() {
+                  public boolean disposed = false;
 
-                }
-            };
-            Intent intent = new Intent(appContext, DataService.class);
-            if (appContext.bindService(intent, conn, Context.BIND_AUTO_CREATE)) {
-                emitter.setDisposable(new Disposable() {
-                    public boolean mDisposed = false;
+                  @Override
+                  public void dispose() {
+                    appContext.unbindService(conn);
+                    disposed = true;
+                  }
 
-                    @Override
-                    public void dispose() {
-                        appContext.unbindService(conn);
-                        mDisposed = true;
-                    }
-
-                    @Override
-                    public boolean isDisposed() {
-                        return mDisposed;
-                    }
+                  @Override
+                  public boolean isDisposed() {
+                    return disposed;
+                  }
                 });
-            } else {
-                emitter.onError(new Exception("Could not bind DataService"));
-            }
+          } else {
+            emitter.onError(new Exception("Could not bind DataService"));
+          }
         });
-    }
+  }
 }

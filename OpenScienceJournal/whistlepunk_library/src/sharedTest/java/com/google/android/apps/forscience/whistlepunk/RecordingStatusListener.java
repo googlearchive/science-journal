@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.android.apps.forscience.whistlepunk.sensorapi.SensorStatusListener;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,24 +27,24 @@ import java.util.List;
 import java.util.Map;
 
 public class RecordingStatusListener implements SensorStatusListener {
-    public Map<String, Integer> mostRecentStatuses = new HashMap<>();
-    private List<String> mErrors = new ArrayList<>();
+  public Map<String, Integer> mostRecentStatuses = new HashMap<>();
+  private List<String> errors = new ArrayList<>();
 
-    @Override
-    public void onSourceStatus(String id, int status) {
-        mostRecentStatuses.put(id, status);
-    }
+  @Override
+  public void onSourceStatus(String id, int status) {
+    mostRecentStatuses.put(id, status);
+  }
 
-    @Override
-    public void onSourceError(String id, int error, String errorMessage) {
-        mErrors.add(errorMessage);
-    }
+  @Override
+  public void onSourceError(String id, int error, String errorMessage) {
+    errors.add(errorMessage);
+  }
 
-    public void assertNoErrors() {
-        assertTrue("" + mErrors, mErrors.isEmpty());
-    }
+  public void assertNoErrors() {
+    assertTrue("" + errors, errors.isEmpty());
+  }
 
-    public void assertErrors(String... messages) {
-        assertEquals(Arrays.asList(messages), mErrors);
-    }
+  public void assertErrors(String... messages) {
+    assertEquals(Arrays.asList(messages), errors);
+  }
 }
