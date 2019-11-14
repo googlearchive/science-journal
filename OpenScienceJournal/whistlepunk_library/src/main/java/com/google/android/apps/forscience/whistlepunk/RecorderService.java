@@ -92,16 +92,10 @@ public class RecorderService extends Service implements IRecorderService {
 
   private void notifyRecordingEnded(
       AppAccount appAccount, String runId, String experimentId, String experimentTitle) {
-    Intent intent;
-    if (Flags.showActionBar()) {
-      intent =
-          RunReviewActivity.createLaunchIntent(
-              getApplicationContext(), appAccount, runId, experimentId, 0, false, false, false);
-    } else {
-      intent =
-          RunReviewDeprecatedActivity.createLaunchIntent(
-              getApplicationContext(), appAccount, runId, experimentId, 0, false, false, false);
-    }
+    Intent intent =
+        RunReviewActivity.createLaunchIntent(
+            getApplicationContext(), appAccount, runId, experimentId, 0, false, false, false);
+
     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
     PendingIntent notificationIntent =

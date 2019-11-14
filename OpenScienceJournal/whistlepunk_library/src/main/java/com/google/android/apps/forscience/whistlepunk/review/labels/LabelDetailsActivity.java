@@ -147,11 +147,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
           WhistlePunkApplication.getLaunchIntentForPanesActivity(
               this, getAppAccount(), getExperimentId(), false /* claimExperimentsMode */);
     } else if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
-      if (Flags.showActionBar()) {
-        upIntent = new Intent(this, RunReviewActivity.class);
-      } else {
-        upIntent = new Intent(this, RunReviewDeprecatedActivity.class);
-      }
+      upIntent = new Intent(this, RunReviewActivity.class);
       upIntent.putExtra(
           RunReviewFragment.ARG_ACCOUNT_KEY, getIntent().getExtras().getString(ARG_ACCOUNT_KEY));
       upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, getExperimentId());
