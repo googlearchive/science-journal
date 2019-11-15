@@ -57,8 +57,6 @@
     <color name="nav_item_background_color">#e0e0e0</color>
     <color name="caption_background_color">#f7f7f7</color>
     <color name="sensor_tab_indicator_color">#fff8f081</color>
-    <color name="recording_toolbar_color">#d9453d</color>
-    <color name="recording_status_bar_color">#b73328</color>
     <color name="add_note_image_button_tint">#727272</color>
     <color name="thumb_color_transparent">#57000000</color>
     <color name="snackbar_action_color">#f8f081</color>
@@ -85,7 +83,6 @@
     <color name="action_area_blue_dark">#2A84FC</color>
     <color name="action_area_purple_light">#F5E7FF</color>
     <color name="action_area_purple_dark">#7627BB</color>
-    <color name="action_area_view_background">#FCFCFC</color>
 
     <color name="app_bar_purple">#6F2EBE</color>
     <color name="app_bar_red">#D5000A</color>
