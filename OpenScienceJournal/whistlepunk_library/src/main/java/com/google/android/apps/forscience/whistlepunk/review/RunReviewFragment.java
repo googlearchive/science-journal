@@ -509,11 +509,7 @@ public class RunReviewFragment extends Fragment
     } else {
       actionArea.setVisibility(View.GONE);
     }
-    if (Flags.showActionBar()) {
-      if (activity instanceof RunReviewActivity) {
-        runReviewOverlay.setOnTimestampChangeListener((RunReviewActivity) activity);
-      }
-    }
+    runReviewOverlay.setOnTimestampChangeListener((RunReviewActivity) activity);
     return rootView;
   }
 
@@ -582,16 +578,9 @@ public class RunReviewFragment extends Fragment
         menu.findItem(R.id.action_download).setVisible(false);
       }
 
-      if (Flags.showActionBar()) {
-        if (((RunReviewActivity) getActivity()).isFromRecord()) {
-          // If this is from record, always enable deletion.
-          menu.findItem(R.id.action_run_review_delete).setEnabled(true);
-        }
-      } else {
-        if (((RunReviewDeprecatedActivity) getActivity()).isFromRecord()) {
-          // If this is from record, always enable deletion.
-          menu.findItem(R.id.action_run_review_delete).setEnabled(true);
-        }
+      if (((RunReviewActivity) getActivity()).isFromRecord()) {
+        // If this is from record, always enable deletion.
+        menu.findItem(R.id.action_run_review_delete).setEnabled(true);
       }
     }
 
@@ -869,9 +858,7 @@ public class RunReviewFragment extends Fragment
       ((AppCompatActivity) activity).supportStartPostponedEnterTransition();
       return;
     }
-    if (Flags.showActionBar()) {
-      setTitle(trial.getTitle(rootView.getContext()));
-    }
+    setTitle(trial.getTitle(rootView.getContext()));
 
     LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
     layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -1405,9 +1392,7 @@ public class RunReviewFragment extends Fragment
               getTrial().getAppearances().get(sensorLayout.getSensorId()),
               sensorLayout.getSensorId(),
               AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount));
-      if (Flags.showActionBar()) {
-        sensorNameText.setText(Appearances.getSensorDisplayName(appearance, context));
-      }
+      sensorNameText.setText(Appearances.getSensorDisplayName(appearance, context));
       Appearances.applyDrawableToImageView(
           appearance.getIconDrawable(context),
           sensorIconImage,

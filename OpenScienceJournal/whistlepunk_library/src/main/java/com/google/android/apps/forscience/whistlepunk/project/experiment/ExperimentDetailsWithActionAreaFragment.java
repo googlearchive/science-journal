@@ -1081,12 +1081,10 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
       }
       CardView cardView = view.findViewById(R.id.card_view);
       if (cardView != null) {
-        if (Flags.showActionBar()) {
-          cardView.setUseCompatPadding(true);
-          cardView.setCardElevation(0);
-          cardView.setBackground(
-              cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
-        }
+        cardView.setUseCompatPadding(true);
+        cardView.setCardElevation(0);
+        cardView.setBackground(
+            cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
       }
       return new DetailsViewHolder(view, viewType);
     }
@@ -1743,30 +1741,16 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     }
 
     private void launchRunReviewActivity(Context context, String runId, int activeSensorIndex) {
-      if (Flags.showActionBar()) {
-        RunReviewActivity.launch(
-            context,
-            parentReference.get().appAccount,
-            runId,
-            experiment.getExperimentId(),
-            activeSensorIndex,
-            false /* from record */,
-            false /* create task */,
-            parentReference.get().claimExperimentsMode,
-            null);
-
-      } else {
-        RunReviewDeprecatedActivity.launch(
-            context,
-            parentReference.get().appAccount,
-            runId,
-            experiment.getExperimentId(),
-            activeSensorIndex,
-            false /* from record */,
-            false /* create task */,
-            parentReference.get().claimExperimentsMode,
-            null);
-      }
+      RunReviewActivity.launch(
+          context,
+          parentReference.get().appAccount,
+          runId,
+          experiment.getExperimentId(),
+          activeSensorIndex,
+          false /* from record */,
+          false /* create task */,
+          parentReference.get().claimExperimentsMode,
+          null);
     }
 
     private View.OnClickListener createRunClickListener(final int selectedSensorIndex) {
@@ -2075,12 +2059,10 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
       public RecordingViewHolder(View itemView) {
         super(itemView);
         cardView = itemView.findViewById(R.id.card_view);
-        if (Flags.showActionBar()) {
-          cardView.setUseCompatPadding(true);
-          cardView.setCardElevation(0);
-          cardView.setBackground(
-              cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
-        }
+        cardView.setUseCompatPadding(true);
+        cardView.setCardElevation(0);
+        cardView.setBackground(
+            cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
         noteHolder = (ViewGroup) itemView.findViewById(R.id.notes_holder);
         title = (TextView) itemView.findViewById(R.id.title);
       }

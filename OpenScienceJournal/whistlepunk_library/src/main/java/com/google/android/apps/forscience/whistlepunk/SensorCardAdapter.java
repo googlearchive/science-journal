@@ -262,20 +262,7 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
   @Override
   public int getItemCount() {
-    int size = sensorCardPresenters.size();
-    if (shouldShowAddMoreSensorCardsButton()) {
-      return size + 1;
-    } else {
-      return size;
-    }
-  }
-
-  private boolean shouldShowAddMoreSensorCardsButton() {
-    int size = sensorCardPresenters.size();
-    return ENABLE_MULTIPLE_SENSOR_CARDS
-        && !uiIsLocked
-        && getMaxSensorCount() > size
-        && !Flags.showActionBar();
+    return sensorCardPresenters.size();
   }
 
   @Override

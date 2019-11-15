@@ -63,12 +63,10 @@ public class NoteViewHolder extends RecyclerView.ViewHolder {
     valuesList = (ViewGroup) itemView.findViewById(R.id.snapshot_values_list);
     relativeTimeView = (RelativeTimeTextView) itemView.findViewById(R.id.relative_time_text);
     CardView cardView = v.findViewById(R.id.card_view);
-    if (Flags.showActionBar()) {
-      cardView.setUseCompatPadding(true);
-      cardView.setCardElevation(0);
-      cardView.setBackground(
-          cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
-    }
+    cardView.setUseCompatPadding(true);
+    cardView.setCardElevation(0);
+    cardView.setBackground(
+        cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
   }
 
   public void setNote(

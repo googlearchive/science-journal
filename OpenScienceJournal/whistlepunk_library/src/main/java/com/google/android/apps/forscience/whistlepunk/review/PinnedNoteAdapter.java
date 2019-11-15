@@ -165,11 +165,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
     int viewType = getItemViewType(position);
     if (viewType == TYPE_ADD_LABEL) {
-      if (!claimExperimentsMode && !Flags.showActionBar()) {
-        holder.itemView.setOnClickListener(view -> clickListener.onAddLabelButtonClicked());
-      } else {
-        holder.itemView.setVisibility(View.GONE);
-      }
+      holder.itemView.setVisibility(View.GONE);
       return;
     }
 
