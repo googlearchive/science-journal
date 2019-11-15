@@ -13,15 +13,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <include layout="@layout/experiment_details" />
 
+    <include layout="@layout/record_button" />
+
     <com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView
         android:id="@+id/action_area"
-        style="@style/DefaultActionArea" />
+        style="@style/DefaultActionArea"
+        android:layout_alignParentBottom="true" />
 
-</FrameLayout>
+</RelativeLayout>

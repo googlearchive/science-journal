@@ -139,6 +139,40 @@ public class ControlBarController {
             });
   }
 
+  public void attachStopButton(CardView recordButton, FragmentManager fragmentManager) {
+    Observable<RecordingStatus> recordingStatus =
+        AppSingleton.getInstance(recordButton.getContext())
+            .getRecorderController(appAccount)
+            .watchRecordingStatus();
+
+    Resources resources = recordButton.getResources();
+    ((TextView) recordButton.findViewById(R.id.record_button_text))
+        .setText(R.string.btn_stop_label);
+    recordButton.setContentDescription(resources.getString(R.string.btn_stop_description));
+    ((ImageView) recordButton.findViewById(R.id.record_button_icon))
+        .setImageDrawable(resources.getDrawable(R.drawable.ic_recording_stop_42dp));
+
+    RxView.clicks(recordButton)
+        .flatMapMaybe(click -> recordingStatus.firstElement())
+        .subscribe(
+            status -> {
+              if (status.isRecording()) {
+                tryStopRecording(recordButton, fragmentManager);
+              }
+            });
+
+    recordingStatus
+        .takeUntil(RxView.detaches(recordButton))
+        .subscribe(
+            status -> {
+              if (status.state.shouldShowStopButton()) {
+                recordButton.setVisibility(View.VISIBLE);
+              } else {
+                recordButton.setVisibility(View.INVISIBLE);
+              }
+            });
+  }
+
   /**
    * Updates the recording button, action area, title bar, and sensor card view for {@link
    * SensorFragment} when a recording starts/stops.

@@ -56,6 +56,7 @@ import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
+import com.google.android.apps.forscience.whistlepunk.ControlBarController;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
@@ -73,6 +74,7 @@ import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -172,6 +174,7 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
   private RxEvent destroyed = new RxEvent();
   private LocalSyncManager localSyncManager;
   private ExperimentLibraryManager experimentLibraryManager;
+  private ControlBarController controlBarController;
 
   /**
    * Creates a new instance of this fragment.
@@ -223,6 +226,8 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
     setHasOptionsMenu(true);
+    controlBarController =
+        new ControlBarController(appAccount, getExperimentId(), new SnackbarManager());
     if (claimExperimentsMode) {
       WhistlePunkApplication.getUsageTracker(getActivity())
           .trackEvent(
@@ -394,10 +399,14 @@ public class ExperimentDetailsWithActionAreaFragment extends Fragment
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, view);
 
     ActionAreaView actionArea = view.findViewById(R.id.action_area);
+    CardView recordButton = view.findViewById(R.id.record);
+
     ExperimentActivity experimentActivity = (ExperimentActivity) getActivity();
     if (experimentActivity.isTwoPane()) {
+      recordButton.setVisibility(View.GONE);
       actionArea.setVisibility(View.GONE);
     } else {
+      controlBarController.attachStopButton(recordButton, getChildFragmentManager());
       actionArea.addItems(
           getContext(), experimentActivity.getActionAreaItems(), experimentActivity);
       actionArea.setUpScrollListener(details);
