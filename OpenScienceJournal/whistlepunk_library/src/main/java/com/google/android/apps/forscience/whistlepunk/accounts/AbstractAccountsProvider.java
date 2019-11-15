@@ -36,8 +36,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** An abstract base class for accounts providers. */
-abstract class AbstractAccountsProvider implements AccountsProvider {
-  final Context applicationContext;
+public abstract class AbstractAccountsProvider implements AccountsProvider {
+  public final Context applicationContext;
   final UsageTracker usageTracker;
   final BehaviorSubject<AppAccount> observableCurrentAccount;
   private final Object lockCurrentAccount = new Object();
@@ -53,20 +53,13 @@ abstract class AbstractAccountsProvider implements AccountsProvider {
     USER_AUTH_ACTION_REQUIRED
   }
 
-  AbstractAccountsProvider(Context context) {
+  public AbstractAccountsProvider(Context context) {
     applicationContext = context.getApplicationContext();
     usageTracker = WhistlePunkApplication.getUsageTracker(applicationContext);
     NonSignedInAccount nonSignedInAccount = NonSignedInAccount.getInstance(applicationContext);
     addAccount(nonSignedInAccount);
     currentAccount = nonSignedInAccount;
     observableCurrentAccount = BehaviorSubject.createDefault(nonSignedInAccount);
-  }
-
-  protected Single<PermissionStatus> isAccountPermitted(Activity activity, AppAccount appAccount) {
-    if (!appAccount.isSignedIn()) {
-      return Single.just(PermissionStatus.PERMITTED);
-    }
-    throw new IllegalArgumentException("This should have been handled by subclass.");
   }
 
   @Override
