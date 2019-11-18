@@ -50,7 +50,6 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
   private List<SensorCardPresenter> sensorCardPresenters;
   private int availableSensorCount;
-  private View.OnClickListener onAddButtonClickListener;
   private SensorCardHeaderToggleListener sensorCardHeaderToggleListener;
   private CardRemovedListener cardRemovedListener;
   private int singleCardPresenterHeight;
@@ -75,8 +74,6 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       CardRemovedListener cardRemovedListener,
       SensorCardHeaderToggleListener sensorCardHeaderToggleListener) {
     this.sensorCardPresenters = sensorCardPresenters;
-    // TODO(b/134590927): Delete onAddButtonClickListener as part of killing RecordFragment
-    this.onAddButtonClickListener = onAddButtonClickListener;
     this.sensorCardHeaderToggleListener = sensorCardHeaderToggleListener;
     this.cardRemovedListener = cardRemovedListener;
   }
@@ -240,9 +237,6 @@ public class SensorCardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
       cardViewHolder.toggleButton.setOnClickListener(onToggleClickListener);
     } else if (getItemViewType(position) == TYPE_SENSOR_ADD) {
       AddCardViewHolder addCardViewHolder = (AddCardViewHolder) viewHolder;
-      if (onAddButtonClickListener != null) {
-        addCardViewHolder.button.setOnClickListener(onAddButtonClickListener);
-      }
       addView = addCardViewHolder.itemView;
     }
   }

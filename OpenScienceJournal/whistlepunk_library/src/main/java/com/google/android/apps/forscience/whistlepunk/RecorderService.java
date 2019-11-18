@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
-import com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity;
 
 /**
  * Foreground service that keeps our application alive while recorders are recording.

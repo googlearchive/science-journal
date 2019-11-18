@@ -39,7 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.arcore.ARVelocityActivity;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsWithActionAreaFragment;
+import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.google.android.material.snackbar.Snackbar;
 import io.reactivex.Observable;
@@ -50,7 +50,7 @@ import java.util.List;
 /** Displays the experiment and the action bar. */
 public class ExperimentActivity extends NoteTakingActivity
     implements SensorFragment.CallbacksProvider,
-        ExperimentDetailsWithActionAreaFragment.ListenerProvider,
+        ExperimentDetailsFragment.ListenerProvider,
         ActionAreaListener {
 
   private static final String EXTRA_FROM_SENSOR_FRAGMENT = "fromSensorFragmentKey";
@@ -67,7 +67,7 @@ public class ExperimentActivity extends NoteTakingActivity
 
   // SingleSubject remembers the loaded value (if any) and delivers it to any observers.
   private SingleSubject<Experiment> activeExperiment = SingleSubject.create();
-  private ExperimentDetailsWithActionAreaFragment experimentFragment = null;
+  private ExperimentDetailsFragment experimentFragment = null;
   private boolean claimExperimentsMode;
   private RxEvent destroyed = new RxEvent();
   private boolean isRecording;
@@ -151,7 +151,7 @@ public class ExperimentActivity extends NoteTakingActivity
 
   private void setExperimentFragmentId(Experiment experiment) {
     if (experimentFragment == null) {
-      ExperimentDetailsWithActionAreaFragment oldFragment = lookupExperimentFragment();
+      ExperimentDetailsFragment oldFragment = lookupExperimentFragment();
       if (oldFragment != null
           && oldFragment.getExperimentId().equals(experiment.getExperimentId())) {
         experimentFragment = oldFragment;
@@ -177,14 +177,14 @@ public class ExperimentActivity extends NoteTakingActivity
     return DEFAULT_ADD_MORE_OBSERVATIONS_TAG;
   }
 
-  private ExperimentDetailsWithActionAreaFragment lookupExperimentFragment() {
+  private ExperimentDetailsFragment lookupExperimentFragment() {
     FragmentManager fragmentManager = getSupportFragmentManager();
-    return (ExperimentDetailsWithActionAreaFragment)
+    return (ExperimentDetailsFragment)
         fragmentManager.findFragmentByTag(DEFAULT_FRAGMENT_TAG);
   }
 
-  private ExperimentDetailsWithActionAreaFragment createExperimentFragment(String id) {
-    return ExperimentDetailsWithActionAreaFragment.newInstance(
+  private ExperimentDetailsFragment createExperimentFragment(String id) {
+    return ExperimentDetailsFragment.newInstance(
         appAccount, id, true /* createTaskStack */, claimExperimentsMode);
   }
 

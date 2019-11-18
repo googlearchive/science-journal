@@ -18,7 +18,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28" />
+    <uses-sdk android:targetSdkVersion="28" />
 
     <!-- Necessary to scan for BLE devices. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -119,18 +119,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PanesActivity"
-            android:exported="false"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.Panes"
-            android:launchMode="singleTask"
-            android:parentActivityName=".MainActivity"
-            >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
-        </activity>
-        <activity
             android:name=".ExperimentActivity"
             android:exported="false"
             android:label="@string/app_name"
@@ -152,22 +140,11 @@
                 android:value="com.google.android.apps.forscience.whistlepunk.MainActivity"/>
         </activity>
         <activity
-            android:name=".review.RunReviewDeprecatedActivity"
-            android:exported="false"
-            android:label="@string/run_review_activity_label"
-            android:theme="@style/AppTheme.RunReview"
-            android:parentActivityName=".PanesActivity"
-            >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
-        </activity>
-        <activity
             android:name=".review.RunReviewActivity"
             android:exported="false"
             android:label="@string/run_review_activity_label"
             android:theme="@style/AppTheme.RunReview"
-            android:parentActivityName=".PanesActivity"
+            android:parentActivityName=".ExperimentActivity"
             >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -184,32 +161,32 @@
             android:name=".devicemanager.ManageDevicesActivity"
             android:exported="false"
             android:label="@string/title_activity_sensor_settings"
-            android:parentActivityName=".PanesActivity">
+            android:parentActivityName=".ExperimentActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.ExperimentActivity"/>
         </activity>
         <activity
             android:name=".project.experiment.UpdateExperimentActivity"
             android:exported="false"
             android:label="@string/title_activity_update_experiment"
-            android:parentActivityName=".PanesActivity"
+            android:parentActivityName=".ExperimentActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateVisible|adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.ExperimentActivity"/>
         </activity>
         <activity
             android:name=".metadata.TriggerListActivity"
             android:exported="false"
             android:label="@string/title_activity_trigger_list"
-            android:parentActivityName=".PanesActivity"
+            android:parentActivityName=".ExperimentActivity"
             android:theme="@style/AppTheme.Triggers"
             >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.PanesActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.ExperimentActivity"/>
         </activity>
         <!-- Hide the keyboard by default in the EditTriggerActivity so a11y users don't get stuck
              in the keyboard when starting the activity -->
@@ -229,12 +206,12 @@
             android:name=".review.UpdateRunActivity"
             android:exported="false"
             android:label="@string/title_edit_trial_activity"
-            android:parentActivityName=".review.RunReviewDeprecatedActivity"
+            android:parentActivityName=".review.RunReviewActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateVisible|adjustResize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity"/>
+                android:value="com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity"/>
         </activity>
         <activity
             android:name=".SettingsActivity"

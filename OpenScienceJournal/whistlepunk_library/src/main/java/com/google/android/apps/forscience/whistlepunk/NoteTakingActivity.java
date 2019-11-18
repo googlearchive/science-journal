@@ -44,7 +44,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue.PictureLabelValue;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsWithActionAreaFragment;
+import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.material.snackbar.Snackbar;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import io.reactivex.Single;
@@ -54,7 +54,7 @@ import java.util.UUID;
 public abstract class NoteTakingActivity extends AppCompatActivity
     implements TextNoteFragment.ListenerProvider,
         GalleryNoteFragment.ListenerProvider,
-        ExperimentDetailsWithActionAreaFragment.ListenerProvider,
+        ExperimentDetailsFragment.ListenerProvider,
         ActionAreaListener {
   private static final String TAG = "NoteTakingActivity";
   public static final String EXTRA_ACCOUNT_KEY = "accountKey";
@@ -344,7 +344,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
   }
 
   @Override
-  public ExperimentDetailsWithActionAreaFragment.Listener getExperimentDetailsFragmentListener() {
+  public ExperimentDetailsFragment.Listener getExperimentDetailsFragmentListener() {
     return changed -> onArchivedStateChanged();
   }
 

@@ -132,7 +132,7 @@ public class SensorRegistry {
    * gets added.
    *
    * <p>This is needed because especially BluetoothSensors can be added considerably after the rest
-   * of the RecordFragment setup.
+   * of the SensorFragment setup.
    */
   public void withSensorChoice(String tag, String sensorId, Consumer<SensorChoice> consumer) {
     SensorRegistryItem item = sensorRegistry.get(sensorId);

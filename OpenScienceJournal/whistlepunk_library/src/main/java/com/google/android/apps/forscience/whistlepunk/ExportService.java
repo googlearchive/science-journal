@@ -711,7 +711,7 @@ public class ExportService extends Service {
                   .subscribe(
                       activity -> {
                         activity.startActivity(
-                            WhistlePunkApplication.getLaunchIntentForPanesActivity(
+                            WhistlePunkApplication.getLaunchIntentForExperimentActivity(
                                 context,
                                 appAccount,
                                 progress.getId(),

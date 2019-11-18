@@ -55,51 +55,6 @@ public class ControlBarController {
     this.snackbarManager = snackbarManager;
   }
 
-  public void attachSnapshotButton(View snapshotButton) {
-    final Context context = snapshotButton.getContext();
-    AppSingleton singleton = AppSingleton.getInstance(context);
-    snapshotButton.setOnClickListener(
-        v -> {
-          Snapshotter snapshotter =
-              new Snapshotter(
-                  singleton.getRecorderController(appAccount),
-                  singleton.getDataController(appAccount),
-                  singleton.getSensorRegistry());
-          singleton
-              .getRecorderController(appAccount)
-              .watchRecordingStatus()
-              .firstElement()
-              .flatMapSingle(status -> snapshotter.addSnapshotLabel(experimentId, status))
-              .subscribe(
-                  (Label label) -> singleton.onLabelsAdded().onNext(label),
-                  (Throwable e) -> {
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
-                      Log.d(TAG, Throwables.getStackTraceAsString(e));
-                    }
-                  });
-        });
-    TooltipCompat.setTooltipText(
-        snapshotButton, context.getResources().getString(R.string.snapshot_button_description));
-  }
-
-  private void attachAddButton(Observable<RecordingStatus> recordingState, ImageButton addButton) {
-    recordingState
-        .takeUntil(RxView.detaches(addButton))
-        .subscribe(
-            status -> {
-              addButton.setEnabled(status.state.shouldEnableRecordButton());
-
-              Resources resources = addButton.getResources();
-              if (status.state.shouldShowStopButton()) {
-                addButton.setContentDescription(
-                    resources.getString(R.string.btn_add_run_note_description));
-              } else {
-                addButton.setContentDescription(
-                    resources.getString(R.string.btn_add_experiment_note_description));
-              }
-            });
-  }
-
   public void attachRecordButton(ImageButton recordButton, FragmentManager fragmentManager) {
     Observable<RecordingStatus> recordingStatus =
         AppSingleton.getInstance(recordButton.getContext())
@@ -305,7 +260,7 @@ public class ControlBarController {
     }
 
     Intent launchIntent =
-        WhistlePunkApplication.getLaunchIntentForPanesActivity(
+        WhistlePunkApplication.getLaunchIntentForExperimentActivity(
             anchorView.getContext(), appAccount, experimentId, false /* claimExperimentsMode */);
 
     // This isn't currently used, but does ensure this intent doesn't match any other intent.
@@ -340,37 +295,5 @@ public class ControlBarController {
         AccessibilityUtils.makeSnackbar(
             anchorView, anchorView.getResources().getString(stringId), Snackbar.LENGTH_LONG);
     snackbarManager.showSnackbar(bar);
-  }
-
-  void attachRecordButtons(ViewGroup rootView, FragmentManager fragmentManager) {
-    ImageButton recordButton = (ImageButton) rootView.findViewById(R.id.btn_record);
-    attachRecordButton(recordButton, fragmentManager);
-
-    View snapshotButton = rootView.findViewById(R.id.snapshot_button);
-    attachSnapshotButton(snapshotButton);
-  }
-
-  void attachElapsedTime(ViewGroup rootView, RecordFragment fragment) {
-    TextView elapsedTime = (TextView) rootView.findViewById(R.id.recorded_time);
-    Observable<RecordingStatus> recordingStatus =
-        AppSingleton.getInstance(elapsedTime.getContext())
-            .getRecorderController(appAccount)
-            .watchRecordingStatus();
-    recordingStatus
-        .takeUntil(RxView.detaches(elapsedTime))
-        .subscribe(
-            status -> {
-              if (status.isRecording()) {
-                elapsedTime.setVisibility(View.VISIBLE);
-              } else {
-                elapsedTime.setVisibility(View.GONE);
-              }
-            });
-    ElapsedTimeAxisFormatter formatter =
-        ElapsedTimeAxisFormatter.getInstance(elapsedTime.getContext());
-    // This clears any old listener as well as setting a new one, so we don't need to worry
-    // about having multiple listeners active.
-    fragment.setRecordingTimeUpdateListener(
-        recordingTime -> elapsedTime.setText(formatter.format(recordingTime, true)));
   }
 }

@@ -595,7 +595,7 @@ public class Experiment extends LabelListHolder {
 
   public void updateSensorLayout(int layoutPosition, SensorLayoutPojo layout) {
     if (layoutPosition == 0 && sensorLayouts.size() == 0) {
-      // First one! RecordFragment calls this function when first observing;
+      // First one! SensorFragment calls this function when first observing;
       // make sure to handle the empty state correctly by doing this.
       sensorLayouts.add(layout);
     }
