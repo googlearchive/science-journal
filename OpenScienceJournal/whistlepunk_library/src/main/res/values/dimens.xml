@@ -18,17 +18,12 @@
     <dimen name="activity_horizontal_margin">0dp</dimen>
     <dimen name="activity_vertical_margin">0dp</dimen>
     <dimen name="chart_labels_text_size">14sp</dimen>
-    <dimen name="ruler_hash_size">16dp</dimen>
-    <dimen name="ruler_label_offset">4dp</dimen>
     <dimen name="label_dot_radius">4dp</dimen>
     <dimen name="label_dot_outline_radius">6dp</dimen>
     <dimen name="chart_leading_dot_size">5dp</dimen>
     <dimen name="graph_line_width">2dp</dimen>
 
     <dimen name="stream_presenter_padding_sides">16dp</dimen>
-    <dimen name="stream_presenter_padding_top_bottom">12dp</dimen>
-    <dimen name="stream_presenter_padding_top">12dp</dimen>
-    <dimen name="stream_presenter_margin_top">12dp</dimen>
 
     <!-- The margin between the left edge of the graph and the left edge of the chart.
          The Y axis labels will be drawn in this space. -->
@@ -128,7 +123,6 @@
 
     <dimen name="run_review_section_margin">16dp</dimen>
     <dimen name="run_review_divider_thickness">1dp</dimen>
-    <dimen name="run_review_run_name_text_size">24sp</dimen>
     <dimen name="run_review_label_text_size">14sp</dimen>
     <dimen name="run_review_stat_size">18sp</dimen>
     <dimen name="run_review_sensor_name_text_size">16sp</dimen>
@@ -219,8 +213,6 @@
     <!-- Margins for placement on getting started screen -->
     <dimen name="get_started_explore_your_world_margin_top">68dp</dimen>
     <dimen name="get_started_use_science_journal_margin_top">15dp</dimen>
-    <dimen name="get_started_btn_get_started_margin_top">32dp</dimen>
-    <dimen name="get_started_image_margin_bottom">25dp</dimen>
     <dimen name="get_started_image_margin_sides">25dp</dimen>
 
     <!-- Font sizing for getting started screen -->
@@ -250,7 +242,6 @@
     <!-- Sensor Note record button dimens -->
     <dimen name="record_sensor_button_height">48dp</dimen>
     <dimen name="record_sensor_button_radius">24dp</dimen>
-    <dimen name="record_sensor_button_icon">16dp</dimen>
 
     <bool name="is_tablet">false</bool>
 </resources>
