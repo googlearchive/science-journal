@@ -20,17 +20,11 @@
     <!-- Menu option for sending feedback on the application [CHAR_LIMIT=25] -->
     <string name="action_feedback">Feedback</string>
 
-    <!-- Menu option for the settings screen [CHAR_LIMIT=25] -->
-    <string name="action_settings">Settings</string>
-
     <!-- Menu option for the about informational screen [CHAR_LIMIT=25] -->
     <string name="action_about">About</string>
 
     <!-- Menu option for saving an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_save">Save</string>
-
-    <!-- Menu option for discarding an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
-    <string name="action_discard">Discard</string>
 
     <!-- Menu option for editing an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_edit">Edit</string>
@@ -49,12 +43,6 @@
 
     <!-- Menu option for deleting an entity (e.g. project, experiment) [CHAR_LIMIT=10] -->
     <string name="action_delete">Delete</string>
-
-    <!-- Menu option for the ruler tool [CHAR_LIMIT=25] -->
-    <string name="action_ruler">Ruler</string>
-
-    <!-- Menu option for the level tool [CHAR_LIMIT=25] -->
-    <string name="action_level">Level</string>
 
     <!-- Displayed name of a sensor that shows a sine wave [CHAR_LIMIT=25] -->
     <string name="sine_wave">Sine wave</string>
@@ -82,9 +70,6 @@
 
     <!-- Displayed name of a sensor that measure ambient temperature [CHAR_LIMIT=25] -->
     <string name="ambient_temperature">Ambient temperature</string>
-
-    <!-- Displayed name of a sensor that records and displays a video stream [CHAR_LIMIT=25] -->
-    <string name="video_stream">Video stream</string>
 
     <!-- Displayed units for a velocity sensor [CHAR_LIMIT=10] -->
     <string name="vel_units">m/s</string>
@@ -122,9 +107,6 @@
     <!-- Display of a sensor header name with the units for that sensor [CHAR_LIMIT=10] -->
     <string name="header_name_and_units"><xliff:g id="sensor_name">%1$s</xliff:g> (<xliff:g id="sensor_units">%2$s</xliff:g>)</string>
 
-    <!-- Content description for experiment details button [CHAR_LIMIT=none] -->
-    <string name="experiment_details">Experiment details</string>
-
     <!-- Content description for the add a new sensor button [CHAR_LIMIT=none] -->
     <string name="add_sensor" translatable="false">@string/title_activity_sensor_settings</string>
 
@@ -140,38 +122,6 @@
 
     <!-- Pitch sensor name [CHAR_LIMIT=25] -->
     <string name="pitch">Pitch</string>
-
-    <!-- The title of the ruler tool activity [CHAR_LIMIT=25] -->
-    <string name="title_activity_ruler">Ruler</string>
-
-    <!-- The string formatting string for labeling a millimeter value on the ruler in the metric system
-         [CHAR_LIMIT=10] -->
-    <string name="ruler_label_metric"><xliff:g id="length_value">%1$.2f</xliff:g> mm</string>
-
-    <!-- The string formatting string for labeling an inch value on the ruler in the imperial system
-         [CHAR_LIMIT=10] -->
-    <string name="ruler_label_imperial"><xliff:g id="length_value">%1$.2f</xliff:g> in</string>
-
-    <!-- The title of the level activity [CHAR_LIMIT=25] -->
-    <string name="title_activity_level">Level</string>
-
-    <!-- The menu option for the user to calibrate the ruler [CHAR_LIMIT=25] -->
-    <string name="action_calibrate">Calibrate</string>
-
-    <!-- The menu option for the user to end a calibration [CHAR_LIMIT=25] -->
-    <string name="action_end_calibrate">End calibration</string>
-
-    <!-- The title of an alert with calibration options [CHAR_LIMIT=NONE] -->
-    <string name="title_calibrate">Calibrate with\u2026"</string>
-
-    <!-- The calibration option to use a credit card height [CHAR_LIMIT=NONE] -->
-    <string name="calibration_credit_card">Credit card (height)</string>
-
-    <!-- The calibration option to use three inches on a ruler [CHAR_LIMIT=NONE] -->
-    <string name="calibration_ruler_imperial">Ruler (3in)</string>
-
-    <!-- The calibration option to use 80mm on a ruler [CHAR_LIMIT=NONE] -->
-    <string name="calibration_ruler_metric">Ruler (80mm)</string>
 
     <!-- The description of a button to add a label to an experiment [CHAR_LIMIT=NONE] -->
     <string name="btn_add_experiment_note_description">Add experiment note</string>
@@ -281,15 +231,6 @@
     <!-- Title for activity that handles sensor settings [CHAR_LIMIT=40] -->
     <string name="title_activity_sensor_settings">Sensor settings</string>
 
-    <!-- Header for a list of paired external devices [CHAR_LIMIT=40]-->
-    <string name="external_devices_paired">Paired devices</string>
-
-    <!-- Text shown as a summary when device is pairing [CHAR_LIMIT=100] -->
-    <string name="external_devices_pairing">Pairing\u2026</string>
-
-    <!-- Header for a list of available external devices [CHAR_LIMIT=40]-->
-    <string name="external_devices_available">Available devices</string>
-
     <!-- Button label for option to forget a device [CHAR_LIMIT=15]-->
     <string name="external_devices_settings_forget">Forget</string>
 
@@ -311,9 +252,6 @@
 
     <!-- Prompt to edit sine wave frequency [CHAR_LIMIT=none] -->
     <string name="sine_wave_frequency_option">Set sine wave frequency in milliseconds:</string>
-
-    <!-- Prompt to edit video stream FPS [CHAR_LIMIT=none] -->
-    <string name="video_stream_fps_option">Set video stream recording rate in frames per second:</string>
 
     <!-- Name of the chart or graph, for displaying in no_options_title or no_options_message
          [CHAR_LIMIT=25] -->
@@ -460,12 +398,6 @@
     <!-- Hint (aka. placeholder) for experiment title input field [CHAR_LIMIT=50] -->
     <string name="experiment_title_hint">Experiment title</string>
 
-    <!-- Hint (aka. placeholder) for experiment description input field [CHAR_LIMIT=50] -->
-    <string name="experiment_description_hint">Experiment description</string>
-
-    <!-- Update experiment activity title [CHAR_LIMIT=30] -->
-    <string name="title_activity_new_experiment">New experiment</string>
-
     <!-- Update experiment activity title [CHAR_LIMIT=30] -->
     <string name="title_activity_update_experiment">Update experiment</string>
 
@@ -510,9 +442,6 @@
 
     <!-- Label for option to display frequency [CHAR_LIMIT=25] -->
     <string name="enable_frequency_checkbox_label">Show frequency</string>
-
-    <!-- Notify user that there was an error when saving the options [CHAR_LIMIT=25] -->
-    <string name="options_save_error">Error saving options</string>
 
     <!-- Notify user that there was an error when loading the options [CHAR_LIMIT=25] -->
     <string name="options_load_error">Error loading options</string>
@@ -568,14 +497,8 @@
         <item>@string/amplitude</item>
     </string-array>
 
-    <!-- Recording label set as subtitle during recording [CHAR_LIMIT=25] -->
-    <string name="recording_title_label">Recording\u2026</string>
-
     <!-- Message shown to user if they have no recordings or notes yet. [CHAR_LIMIT=60]-->
     <string name="empty_experiment">You have no observations yet</string>
-
-    <!-- Alert message when user deny access to external storage [CHAR_LIMIT=100] -->
-    <string name="permission_request_write">Permission needed to write to external storage.</string>
 
     <!-- Device options view sensor label text [CHAR_LIMIT=100] -->
     <string name="device_options_sensor_label_text">Sensor</string>
@@ -587,17 +510,9 @@
         [CHAR_LIMIT=40] -->
     <string name="sensor_rotation_rpm">Rotation</string>
 
-    <!-- Device options dropdown item for preconfigured sensor with value in volts
-        [CHAR_LIMIT=40] -->
-    <string name="sensor_voltage">Voltage</string>
-
     <!-- Device options dropdown item for preconfigured sensor with value in raw percentage
         [CHAR_LIMIT=40] -->
     <string name="sensor_raw">Raw</string>
-
-    <!-- Device options dropdown item for preconfigured sensor item with Temperature in Fahrenheit
-        [CHAR_LIMIT=40] -->
-    <string name="sensor_temperature_fahrenheit">Temperature in F</string>
 
     <!-- Device options dropdown item for Custom sensor [CHAR_LIMIT=40] -->
     <string name="sensor_custom">Custom</string>
@@ -797,9 +712,6 @@
     <!-- The heading on a sensor info page where the user can learn more about a sensor [CHAR_LIMIT=40] -->
     <string name="heading_info_section">What\'s Going On?</string>
 
-    <!-- Menu option to edit a note [CHAR_LIMIT=25] -->
-    <string name="edit_note_menu_item">Edit</string>
-
     <!-- Title of contextual action bar shown when editing a note's time [CHAR_LIMIT=25] -->
     <string name="edit_note_time">Edit note time</string>
 
@@ -833,9 +745,6 @@
     <!-- Text for snackbar shown when a run note is deleted [CHAR_LIMIT=100] -->
     <string name="snackbar_note_deleted">Note deleted</string>
 
-    <!-- Text for snackbar shown when a recording is deleted [CHAR_LIMIT=100] -->
-    <string name="snackbar_recording_deleted">Recording deleted</string>
-
     <!-- Text for a snackbar action to undo something [CHAR_LIMIT=20] -->
     <string name="snackbar_undo">Undo</string>
 
@@ -853,9 +762,6 @@
 
     <!-- Label for an item which is archived. This displays over the top of the other elements so must be short [CHAR_LIMIT=20]-->
     <string name="archived_badge">Archived</string>
-
-    <!-- Checkable menu item label for viewing all experiments, including the archived ones [CHAR_LIMIT=50]-->
-    <string name="action_include_archived_experiments">Include archived experiments</string>
 
     <!-- Dialog title for deleting an experiment [CHAR_LIMIT=30]-->
     <string name="delete_experiment_dialog_title">Delete this experiment?</string>
@@ -914,76 +820,6 @@
     <!-- Snackbar message shown to user if no application exists to handle a CSV file export [CHAR_LIMIT=100]-->
     <string name="no_app_found_for_csv">No app installed to handle CSV export.</string>
 
-    <!-- The text for a snackbar button to learn more about why no app was found [CHAR_LIMIT=25] -->
-    <string name="no_app_found_learn_more">Learn More</string>
-
-    <!-- Play Store Listing Strings -->
-    <skip />
-
-    <!-- Title to display for the Science Journal listing [CHAR LIMIT=30] -->
-    <string name="listing_title">Science Journal</string>
-
-    <!-- Tagline to display for the Android Wear listing [CHAR LIMIT=30] -->
-    <string name="listing_tagline">Experiment on your world.</string>
-
-    <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
-    <string name="listing_changelog">
-New features and improvements:
-\n\u2022 Download experiments, photos, and sensor recordings to your device.
-\n\u2022 Added support for connecting to Arduino MKR WiFi 1010 boards.
-    </string>
-
-    <!-- Note: following here are partial strings for stitching together changelogs: our changelog
-         extraction script is responsible for concatenating the right features for each release. -->
-
-    <!-- Reusable partial string for changelog introducing new features [CHAR LIMIT=50] -->
-    <string name="listing_changelog_features">New features:</string>
-
-    <!-- Reusable partial string for changelog mentioning that we fixed bugs.  This should start with two newlines to give it space  [CHAR LIMIT=75] -->
-    <string name="listing_changelog_bug_fixes">Performance improvements and bug fixes.</string>
-
-    <!-- Separator between features and bugs in release notes when both are present.  Should be two newlines  [CHAR LIMIT=5] -->
-    <string name="listing_changelog_separator">\n\n</string>
-
-    <!-- Feature 1 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=80] -->
-    <string name="listing_h_feature_1">\n\u2022 Sound pitch sensor.</string>
-
-    <!-- Feature 2 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=120] -->
-    <string name="listing_h_feature_2">\n\u2022 Export experiments to a file, and import them to other devices.</string>
-
-    <!-- Feature 3 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=100] -->
-    <string name="listing_h_feature_3">\n\u2022 Export photos from an experiment.</string>
-
-    <!-- Description text shown in the Play Store for this app. Ensure a space
-         remains before and after urls. [CHAR LIMIT=4000]-->
-    <string name="listing__description">
-Science Journal is the free digital science notebook brought to you by Google.
-\n
-\nWhether you\'re a science educator or a hobbyist doing science at home, you can keep your notes, photos, and observations all in one convenient place. Use the sensors in your phone to measure and graph phenomena such as light, sound, and motion, or connect to external sensors via bluetooth to conduct experiments on the world around you.
-\n
-\nWith the Science Journal app, you can:
-\n\u2022 Measure light, sound, acceleration, air pressure, and more using your phone\'s built-in sensors.
-\n\u2022 Take notes and photos to document your science experiments. More note types coming soon!
-\n\u2022 Connect to external sensors using select Bluetooth-enabled Arduino and Vernier devices.
-\n\u2022 Access your experiments across your devices using Google Drive.
-\n\u2022 Export recorded sensor data as CSV files.
-\n\u2022 Create automated triggers for recording data and taking notes.
-\n\u2022 Use sonification to hear the movement of your graphs.
-\n
-\nScience Journal is available for free on Android, iPhone, iPad, and compatible Chromebook devices.
-\n
-\nEducational activities by our partners: https://makingscience.withgoogle.com/science-journal/activities
-\nFor support: https://productforums.google.com/forum/#!forum/sciencejournal
-\nOpen-source code available: https://github.com/google/science-journal
-\n\n
-Permissions notice:
-\n\u2022 Location: needed to scan for bluetooth sensor devices.
-\n\u2022 Camera: needed to take pictures to document experiments.
-\n\u2022 Microphone: needed for sound intensity sensor.
-\n\u2022 Storage: needed to access photos to insert into experiments.
-    </string>
-    <!-- End of Play Store Listing Strings -->
-
     <!-- The title for the option to enable third-party sensors [CHAR_LIMIT=35] -->
     <string name="third_party_sensors_option_title">Scan for third-party sensors</string>
     <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
@@ -993,13 +829,6 @@ Permissions notice:
     <string name="use_new_manage_devices_ux_option_title" translatable="false">Use new manage devices screen</string>
     <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
     <string name="use_new_manage_devices_ux_option_summary" translatable="false">Temporary until fully ready.</string>
-
-    <!-- Title of developer option to display a magnetic sensor [CHAR_LIMIT=35]-->
-    <!-- TODO: enable translation if this is going to stay behind options in D release -->
-    <string name="enable_magnetometer_sensor_title" translatable="false">Enable magnetometer</string>
-
-    <!-- Summary of developer option to display a magnetic sensor [CHAR_LIMIT=none] -->
-    <string name="enable_magnetometer_sensor_summary" translatable="false">Enable experimental magnetometer sensor</string>
 
     <!-- Title of developer option to enable an ambient temperature sensor [CHAR_LIMIT=35] -->
     <string name="enable_temperature_sensor_title">Enable ambient temperature</string>
@@ -1171,9 +1000,6 @@ Permissions notice:
     <!-- The option to only use the trigger while the app is recording, instead of all the time [CHAR_LIMIT=30] -->
     <string name="trigger_only_when_recording">Trigger only when recording</string>
 
-    <!-- The auto-generated note text for a note type trigger. For example,this might say, "Ambient light rose above 3.0 lux". [CHAR_LIMIT=200]-->
-    <string name="trigger_label_auto_text"><xliff:g id="sensor_name">%1$s</xliff:g> <xliff:g id="trigger_when">%2$s</xliff:g> <xliff:g id="trigger_value">%3$.2f</xliff:g> <xliff:g id="sensor_units">%4$s</xliff:g></string>
-
     <!-- The format for a floating point data value when displayed to the user. This has more significant figures than on the Y axis. DO NOT TRANSLATE -->
     <string name="run_review_chart_label_format" translatable="false"><xliff:g id="value">%.2f</xliff:g></string>
 
@@ -1258,32 +1084,11 @@ Permissions notice:
     <!-- Content description for a checkbox that removes a sensor to the current experiment [CHAR_LIMIT=NONE] -->
     <string name="remove_device_from_experiment_checkbox">remove from experiment</string>
 
-    <!-- Content description for a checkbox that adds or removes a sensor from the current experiment [CHAR_LIMIT=NONE] -->
-    <string name="include_device_in_experiment">Include <xliff:g id="sensorName">%1$s</xliff:g> in experiment</string>
-
-    <!-- Label for a section that shows bluetooth devices that speak the Science Journal protocol [CHAR_LIMIT=40] -->
-    <string name="native_ble_service_name" translatable="false">@string/app_name</string>
-
     <!-- Content descripton of the menu button to change options on the current sensor [CHAR_LIMIT=NONE] -->
     <string name="sensor_options_for">Options for <xliff:g id="sensorName">%1$s</xliff:g></string>
 
     <!-- Content description of button to refresh a device in the Sensor Settings page [CHAR_LIMIT=NONE] -->
     <string name="refresh_device">Refresh <xliff:g id="deviceName">%1$s</xliff:g></string>
-
-    <!-- Content description for button that reveals sensors available on a paired device [CHAR_LIMIT=NONE] -->
-    <string name="btn_expand_device_for">show sensors for <xliff:g id="deviceName">%1$s</xliff:g></string>
-
-    <!-- Content description for button that hides sensors available on a paired device [CHAR_LIMIT=NONE] -->
-    <string name="btn_contract_device_for">hide sensors for <xliff:g id="deviceName">%1$s</xliff:g></string>
-
-    <!-- Content description for click action that reveals devices available on a service [CHAR_LIMIT=NONE] -->
-    <string name="btn_expand_service_for">show devices for <xliff:g id="serviceName">%1$s</xliff:g></string>
-
-    <!-- Content description for click action that hides devices available on a service[CHAR_LIMIT=NONE] -->
-    <string name="btn_contract_service_for">hide devices for <xliff:g id="serviceName">%1$s</xliff:g></string>
-
-    <!-- Message on error dialog that appears if the user tries to leave Sensor Settings with no sensors selected for the current experiment. [CHAR_LIMIT=NONE] -->
-    <string name="dialog_message_please_add_one_sensor">Please select at least one sensor for this experiment.</string>
 
     <!-- Content description for the crop overflow menu button [CHAR_LIMIT=none] -->
     <string name="crop_overflow_menu_content_description">More options</string>
@@ -1336,8 +1141,6 @@ Permissions notice:
     <!-- Experiment title prefixed by project title, i.e. if the project is named "Airplanes" and the experiment is "Takeoff", this would be "Airplanes: Takeoff". CHAR_LIMIT=NONE]-->
     <string name="project_experiment_title"><xliff:g id="project_name">%1$s</xliff:g>: <xliff:g id="experiment_name">%2$s</xliff:g></string>
 
-    <string name="snapshot_button_text">snapshot</string>
-
     <!-- Dialog title shown when exporting the data to another app [CHAR_LIMIT=100]-->
     <string name="export_options_title">Export…</string>
     <!-- Export option for selecting whether to use relative timestamps when exporting (0, 1, 2) vs absolute time [CHAR_LIMIT=100]-->
@@ -1348,12 +1151,6 @@ Permissions notice:
 
     <!-- Text format for old trigger notes. This includes the type of note (Trigger note), as well as the auto-genererated and user-generated strings [CHAR_LIMIT=NONE] -->
     <string name="old_trigger_note_format_custom">Triggered note: <xliff:g id="user_text">%1$s</xliff:g>; <xliff:g id="auto_text">%2$s</xliff:g></string>
-
-    <!-- Title of developer option to display a compass sensor [CHAR_LIMIT=35]-->
-    <string name="enable_compass_sensor_title" translatable="false">Enable compass</string>
-
-    <!-- Summary of developer option to display a compass sensor [CHAR_LIMIT=none] -->
-    <string name="enable_compass_sensor_summary" translatable="false">Enable experimental compass sensor</string>
 
     <!-- Displayed name of a sensor that shows a compass orientation [CHAR_LIMIT=25]  -->
     <string name="compass">Compass</string>
@@ -1386,12 +1183,6 @@ Permissions notice:
 
     <!-- String to format a date to the nearest month and year. For example, "May 2015" or "September 2017". Use 4 'y' characters for the year and 4 'M' characters for the month. [CHAR_LIMIT=NONE] -->
     <string name="month_year_format">MMMM yyyy</string>
-
-    <!-- Title of developer option to display total magnitude of acceleration excluding gravity  [CHAR_LIMIT=35]-->
-    <string name="enable_linear_acceleration_sensor_title" translatable="false">Enable linear accelerometer</string>
-
-    <!-- Summary of developer option to display total magnitude of acceleration excluding gravity  [CHAR_LIMIT=none] -->
-    <string name="enable_linear_acceleration_sensor_summary" translatable="false">Enable experimental combined linear accelerometer sensor</string>
 
     <!-- Displayed name of a sensor that shows total magnitude of acceleration excluding gravity [CHAR_LIMIT=25]  -->
     <string name="linear_accelerometer">Linear accelerometer</string>
@@ -1497,9 +1288,6 @@ Permissions notice:
     <!-- Content description for an icon showing a gallery image is selected [CHAR_LIMIT="none"] -->
     <string name="content_description_selected">selected</string>
 
-    <!-- Content description for an icon showing a gallery image is not selected [CHAR_LIMIT="none"] -->
-    <string name="content_description_not_selected">not selected</string>
-
     <!-- Title for note taking activity when gallery is active and has a non-zero number of images selected [CHAR_LIMIT=50] -->
     <string name="gallery_selected_title"><xliff:g id="selected_number" example="6">%1$d</xliff:g> Selected</string>
 
@@ -1533,9 +1321,6 @@ Permissions notice:
     <!-- Error message for gallery view when permissions are denied [CHAR_LIMIT=NONE] -->
     <string name="input_photo_library_permission_denied">Your photo gallery cannot be used because Science Journal does not have permission to access it.</string>
 
-    <!-- Button text to open phone settings [CHAR_LIMIT=30] -->
-    <string name="input_blocked_open_settings_button">Open Settings</string>
-
     <!-- Menu item label for viewing all experiments, including the archived ones [CHAR_LIMIT=50]-->
     <string name="action_show_archived_experiments">Show archived experiments</string>
 
@@ -1554,41 +1339,14 @@ Permissions notice:
     <!-- Description for the notification channel in Oreo [CHAR_LIMIT=50] -->
     <string name="notification_channel_description">Recording status</string>
 
-    <!-- Headline for import error dialogs [CHAR_LIMIT=50] -->
-    <string name="open_experiment_failed">Cannot open experiment</string>
-
-    <!-- Headline for import error dialogs [CHAR_LIMIT=50] -->
-    <string name="open_file_failed">Cannot open file</string>
-
-    <!-- Body for import error dialogs [CHAR_LIMIT=NONE] -->
-    <string name="open_file_failed_body">Experiments must be a Science Journal file format (.sj)</string>
-
     <!-- Error for attempting to import while recording [CHAR_LIMIT=NONE] -->
     <string name="import_failed_recording">Science Journal is currently in use. Please stop recording and try again.</string>
 
     <!-- Error for attempting to import a corrupted file [CHAR_LIMIT=NONE] -->
     <string name="import_failed_file">Import failed. Something\'s wrong with this experiment.</string>
 
-    <!-- Headline for insufficient storage dialog [CHAR_LIMIT=50] -->
-    <string name="import_storage_limit">Not enough storage space</string>
-
-    <!-- Body for insufficient storage dialog [CHAR_LIMIT=NONE] -->
-    <string name="import_storage_limit_body">You can manage your storage in settings.</string>
-
-    <!-- Button to dismiss [CHAR_LIMIT=25] -->
-    <string name="action_dismiss">Dismiss</string>
-
-    <!-- Button to report an issue [CHAR_LIMIT=25] -->
-    <string name="action_report">Report</string>
-
     <!-- Generic Error for attempting to import [CHAR_LIMIT=NONE] -->
     <string name="import_failed">Unfortunately, an unknown error has occurred.</string>
-
-    <!-- Title for Add To Library confirmation dialog [CHAR_LIMIT=25] -->
-    <string name="save_experiment">Save experiment</string>
-
-    <!-- Text for Add To Library confirmation dialog [CHAR_LIMIT=NONE] -->
-    <string name="save_experiment_text">Would you like to add this experiment to your library?</string>
 
     <!-- Title for not signed in fragment [CHAR_LIMIT=NONE] -->
     <string name="explore_your_world">Explore your world</string>
@@ -1735,14 +1493,8 @@ Permissions notice:
     <!-- Menu item label to use Science Journal without an account [CHAR_LIMIT=50]-->
     <string name="action_use_without_an_account">Use without an account</string>
 
-    <!-- Menu item label to sync now [CHAR_LIMIT=50]-->
-    <string name="action_sync">Sync</string>
-
     <!-- Accessibility announcement at beginning of sync [CHAR_LIMIT=NONE]-->
     <string name="action_sync_start">Syncing library to Google Drive.</string>
-
-    <!-- Accessibility announcement at end of sync [CHAR_LIMIT=NONE]-->
-    <string name="action_sync_end">Syncing library to Google Drive complete.</string>
 
     <!-- Menu option for removing the cover image of an experiment [CHAR_LIMIT=50] -->
     <string name="action_remove_cover_image">Remove cover image</string>
@@ -1767,12 +1519,6 @@ Permissions notice:
 
     <!-- Name of the menu item to download an experiment file [CHAR_LIMIT=25] -->
     <string name="download_copy_action">Download</string>
-
-    <!-- Name of the menu item to download a csv file [CHAR_LIMIT=25] -->
-    <string name="download_copy_csv_action">Download (.csv)</string>
-
-    <!-- Name of the menu item to share a csv file [CHAR_LIMIT=25] -->
-    <string name="share_copy_csv_action">Send a copy (.csv)</string>
 
     <!-- The body content for the saved to device notification, indicating that the file is in Downloads [CHAR_LIMIT=50] -->
     <string name="saved_to_device_text">Saved to Downloads folder.</string>
