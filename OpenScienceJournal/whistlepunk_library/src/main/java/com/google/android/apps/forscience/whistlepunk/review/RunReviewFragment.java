@@ -56,23 +56,22 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
+import com.google.android.apps.forscience.whistlepunk.ExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
-import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
 import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
-import com.google.android.apps.forscience.whistlepunk.PanesActivity;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.SensorFragment;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -603,19 +602,19 @@ public class RunReviewFragment extends Fragment
       Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
       if (experiment != null) {
         String accountKey = appAccount.getAccountKey();
-        // Ensure that we set the values we need to go up to PanesActivity from RunReview after
+        // Ensure that we set the values we need to go up to ExperimentActivity from RunReview after
         // starting the app from a notification (b/66162829).
-        upIntent.putExtra(PanesActivity.EXTRA_ACCOUNT_KEY, accountKey);
-        upIntent.putExtra(PanesActivity.EXTRA_EXPERIMENT_ID, experimentId);
-        upIntent.putExtra(PanesActivity.EXTRA_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
+        upIntent.putExtra(ExperimentActivity.EXTRA_ACCOUNT_KEY, accountKey);
+        upIntent.putExtra(ExperimentActivity.EXTRA_EXPERIMENT_ID, experimentId);
+        upIntent.putExtra(ExperimentActivity.EXTRA_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
 
         upIntent.putExtra(ExperimentDetailsFragment.ARG_ACCOUNT_KEY, accountKey);
         upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, experimentId);
         upIntent.putExtra(
-            ExperimentDetailsFragment.ARG_CREATE_TASK,
+                ExperimentDetailsFragment.ARG_CREATE_TASK,
             getArguments().getBoolean(ARG_CREATE_TASK, false));
         upIntent.putExtra(
-            ExperimentDetailsFragment.ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
+                ExperimentDetailsFragment.ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
         upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         getActivity().startActivity(upIntent, null);
       } else if (getActivity() != null) {
@@ -1262,7 +1261,7 @@ public class RunReviewFragment extends Fragment
                           0);
                 }
                 // Go back to the observe & record.
-                Intent intent = new Intent(getActivity(), RecordFragment.class);
+                Intent intent = new Intent(getActivity(), SensorFragment.class);
                 NavUtils.navigateUpTo(getActivity(), intent);
               }
             });

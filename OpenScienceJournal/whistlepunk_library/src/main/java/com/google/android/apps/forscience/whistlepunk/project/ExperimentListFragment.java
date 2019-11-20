@@ -390,7 +390,7 @@ public class ExperimentListFragment extends Fragment
                                 TrackerConstants.ACTION_CREATE,
                                 TrackerConstants.LABEL_EXPERIMENT_LIST,
                                 0);
-                        launchPanesActivity(
+                        launchExperimentActivity(
                             v.getContext(),
                             appAccount,
                             experiment.getExperimentId(),
@@ -403,10 +403,10 @@ public class ExperimentListFragment extends Fragment
     return view;
   }
 
-  public static void launchPanesActivity(
+  public static void launchExperimentActivity(
       Context context, AppAccount appAccount, String experimentId, boolean claimExperimentsMode) {
     context.startActivity(
-        WhistlePunkApplication.getLaunchIntentForPanesActivity(
+        WhistlePunkApplication.getLaunchIntentForExperimentActivity(
             context, appAccount, experimentId, claimExperimentsMode));
   }
 
@@ -1146,11 +1146,11 @@ public class ExperimentListFragment extends Fragment
             if (isParentGone()) {
               return;
             }
-            // If we are currently claiming an experiment, don't launch PanesActivity.
+            // If we are currently claiming an experiment, don't launch ExperimentActivity.
             if (parentReference.get().claimProgressBarVisible) {
               return;
             }
-            launchPanesActivity(
+            launchExperimentActivity(
                 v.getContext(),
                 parentReference.get().appAccount,
                 overview.getExperimentId(),

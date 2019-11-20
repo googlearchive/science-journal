@@ -34,7 +34,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -50,18 +49,22 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
 import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
+import com.google.android.apps.forscience.whistlepunk.ControlBarController;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
+import com.google.android.apps.forscience.whistlepunk.ExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MainActivity;
+import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
@@ -70,10 +73,13 @@ import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
+import com.google.android.apps.forscience.whistlepunk.actionarea.TitleProvider;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncManager;
 import com.google.android.apps.forscience.whistlepunk.cloudsync.CloudSyncProvider;
@@ -93,7 +99,7 @@ import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial.Senso
 import com.google.android.apps.forscience.whistlepunk.review.DeleteMetadataItemDialog;
 import com.google.android.apps.forscience.whistlepunk.review.ExportOptionsDialogFragment;
 import com.google.android.apps.forscience.whistlepunk.review.PinnedNoteAdapter;
-import com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 import com.google.android.apps.forscience.whistlepunk.review.labels.LabelDetailsActivity;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartController;
@@ -121,12 +127,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * A fragment to handle displaying Experiment details, runs and labels.
  *
- * @deprecated Moving to {@link ExperimentDetailsWithActionAreaFragment} to use the new action area.
- **/
-@Deprecated
+ * <p>This fragment is displayed in ExperimentActivity and shows the Experiment details and the
+ * action area to add notes to the current experiment.
+ */
 public class ExperimentDetailsFragment extends Fragment
     implements DeleteMetadataItemDialog.DeleteDialogListener,
-        NameExperimentDialog.OnExperimentTitleChangeListener {
+        NameExperimentDialog.OnExperimentTitleChangeListener,
+        TitleProvider {
 
   public interface Listener {
     void onArchivedStateChanged(Experiment changed);
@@ -163,6 +170,7 @@ public class ExperimentDetailsFragment extends Fragment
   private RxEvent destroyed = new RxEvent();
   private LocalSyncManager localSyncManager;
   private ExperimentLibraryManager experimentLibraryManager;
+  private ControlBarController controlBarController;
 
   /**
    * Creates a new instance of this fragment.
@@ -177,7 +185,8 @@ public class ExperimentDetailsFragment extends Fragment
       String experimentId,
       boolean createTaskStack,
       boolean claimExperimentsMode) {
-    ExperimentDetailsFragment fragment = new ExperimentDetailsFragment();
+    ExperimentDetailsFragment fragment =
+        new ExperimentDetailsFragment();
     Bundle args = new Bundle();
     args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     args.putString(ARG_EXPERIMENT_ID, experimentId);
@@ -213,6 +222,8 @@ public class ExperimentDetailsFragment extends Fragment
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
     setHasOptionsMenu(true);
+    controlBarController =
+        new ControlBarController(appAccount, getExperimentId(), new SnackbarManager());
     if (claimExperimentsMode) {
       WhistlePunkApplication.getUsageTracker(getActivity())
           .trackEvent(
@@ -224,8 +235,7 @@ public class ExperimentDetailsFragment extends Fragment
   }
 
   public void setExperimentId(String experimentId) {
-    // TODO(lizlooney): Investigate where this is called to see if we also need to set the
-    // AppAccount.
+    // Investigate where this is called to see if we also need to set the AppAccount.
     if (!Objects.equals(experimentId, this.experimentId)) {
       this.experimentId = experimentId;
       if (isResumed()) {
@@ -337,14 +347,9 @@ public class ExperimentDetailsFragment extends Fragment
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    View view = inflater.inflate(R.layout.fragment_panes_experiment_details, container, false);
-
-    AppCompatActivity activity = (AppCompatActivity) getActivity();
-    ActionBar actionBar = activity.getSupportActionBar();
-    if (actionBar != null) {
-      actionBar.setDisplayHomeAsUpEnabled(true);
-      actionBar.setHomeButtonEnabled(true);
-    }
+    View view =
+        inflater.inflate(
+            R.layout.fragment_panes_experiment_details_with_action_area, container, false);
 
     emptyView = (TextView) view.findViewById(R.id.empty_list);
     emptyView.setText(R.string.empty_experiment);
@@ -366,6 +371,10 @@ public class ExperimentDetailsFragment extends Fragment
           if (activeTrialId != null) {
             adapter.addActiveRecording(experiment.getTrial(activeTrialId));
           }
+          Context context = getContext();
+          if (context != null) {
+            setTitle(experiment.getDisplayTitle(context));
+          }
         },
         error -> {
           if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -385,6 +394,19 @@ public class ExperimentDetailsFragment extends Fragment
     GraphOptionsController graphOptionsController = new GraphOptionsController(getActivity());
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, view);
 
+    ActionAreaView actionArea = view.findViewById(R.id.action_area);
+    CardView recordButton = view.findViewById(R.id.record);
+
+    ExperimentActivity experimentActivity = (ExperimentActivity) getActivity();
+    if (experimentActivity.isTwoPane()) {
+      recordButton.setVisibility(View.GONE);
+      actionArea.setVisibility(View.GONE);
+    } else {
+      controlBarController.attachStopButton(recordButton, getChildFragmentManager());
+      actionArea.addItems(
+          getContext(), experimentActivity.getActionAreaItems(), experimentActivity);
+      actionArea.setUpScrollListener(details);
+    }
     if (savedInstanceState != null) {
       includeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
       getActivity().invalidateOptionsMenu();
@@ -408,7 +430,7 @@ public class ExperimentDetailsFragment extends Fragment
                 if (Log.isLoggable(TAG, Log.ERROR)) {
                   Log.e(TAG, "onStartRecording failed", error);
                 }
-                throw new IllegalStateException("onStartRecording failed failed", error);
+                throw new IllegalStateException("onStartRecording failed", error);
               });
     }
     if (getActivity() != null) {
@@ -451,7 +473,7 @@ public class ExperimentDetailsFragment extends Fragment
             },
             error -> {
               if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "onRecordingTrailUpdated failed", error);
+                Log.e(TAG, "onRecordingTrialUpdated failed", error);
               }
               throw new IllegalStateException("onRecordingTrialUpdated failed", error);
             });
@@ -530,13 +552,6 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     setExperimentItemsOrder(experiment);
-
-    getActivity().setTitle(experiment.getDisplayTitle(getActivity()));
-
-    Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
-    if (toolbar != null) {
-      toolbar.setTitle(experiment.getDisplayTitle(getActivity()));
-    }
   }
 
   private DataController getDataController() {
@@ -699,10 +714,14 @@ public class ExperimentDetailsFragment extends Fragment
             },
             error -> {
               if (Log.isLoggable(TAG, Log.ERROR)) {
-                Log.e(TAG, "Delete current experiment in ExperimentDetailsFragment failed", error);
+                Log.e(
+                    TAG,
+                    "Delete current experiment in ExperimentDetailsFragment failed",
+                    error);
+                throw new IllegalStateException(
+                    "Delete current experiment in ExperimentDetailsFragment failed",
+                    error);
               }
-              throw new IllegalStateException(
-                  "Delete current experiment in ExperimentDetailsFragment failed", error);
             });
   }
 
@@ -1064,6 +1083,13 @@ public class ExperimentDetailsFragment extends Fragment
       } else {
         // TODO(b/117987511): display a card that explains why we can't show this data
         view = inflater.inflate(R.layout.exp_card_empty, parent, false);
+      }
+      CardView cardView = view.findViewById(R.id.card_view);
+      if (cardView != null) {
+        cardView.setUseCompatPadding(true);
+        cardView.setCardElevation(0);
+        cardView.setBackground(
+            cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
       }
       return new DetailsViewHolder(view, viewType);
     }
@@ -1604,6 +1630,13 @@ public class ExperimentDetailsFragment extends Fragment
               holder.noteHolder);
         }
       }
+      holder.itemView.setOnClickListener(
+          view -> {
+            NoteTakingActivity activity = (NoteTakingActivity) holder.itemView.getContext();
+            if (activity != null) {
+              activity.openSensorFragment();
+            }
+          });
     }
 
     private void loadLabelIntoHolder(Label label, long trialStartTime, ViewGroup noteHolder) {
@@ -1702,16 +1735,8 @@ public class ExperimentDetailsFragment extends Fragment
 
       button.setOnClickListener(
           view ->
-              RunReviewDeprecatedActivity.launch(
-                  noteHolder.getContext(),
-                  parentReference.get().appAccount,
-                  runId,
-                  experiment.getExperimentId(),
-                  0 /* sensor index deprecated */,
-                  false /* from record */,
-                  false /* create task */,
-                  parentReference.get().claimExperimentsMode,
-                  null));
+              launchRunReviewActivity(
+                  noteHolder.getContext(), runId, 0 /* sensor index deprecated */));
     }
 
     private void removeSensorData(DetailsViewHolder holder) {
@@ -1720,21 +1745,25 @@ public class ExperimentDetailsFragment extends Fragment
       setIndeterminateSensorData(holder);
     }
 
+    private void launchRunReviewActivity(Context context, String runId, int activeSensorIndex) {
+      RunReviewActivity.launch(
+          context,
+          parentReference.get().appAccount,
+          runId,
+          experiment.getExperimentId(),
+          activeSensorIndex,
+          false /* from record */,
+          false /* create task */,
+          parentReference.get().claimExperimentsMode,
+          null);
+    }
+
     private View.OnClickListener createRunClickListener(final int selectedSensorIndex) {
       return v -> {
         if (!isRecording()) {
           // Can't click into details pages when recording.
           String runId = (String) v.getTag(R.id.run_title_text);
-          RunReviewDeprecatedActivity.launch(
-              v.getContext(),
-              parentReference.get().appAccount,
-              runId,
-              experiment.getExperimentId(),
-              selectedSensorIndex,
-              false /* from record */,
-              false /* create task */,
-              parentReference.get().claimExperimentsMode,
-              null);
+          launchRunReviewActivity(v.getContext(), runId, selectedSensorIndex);
         }
       };
     }
@@ -1891,12 +1920,6 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public void addActiveRecording(Trial trial) {
-      // If trial is somehow null, there's nothing much we can do. This was causing NPE crashes,
-      // probably due to asynchronous modifications of the protos. This case will hopefully occur
-      // less often with Lite protos, but checking to be sure will at least prevent a crash.
-      if (trial == null) {
-        return;
-      }
       if (findTrialIndex(trial.getTrialId()) == -1) {
         // active recording goes to end of list
         items.add(new ExperimentDetailItem(trial, scalarDisplayOptions, true));
@@ -2034,13 +2057,17 @@ public class ExperimentDetailsFragment extends Fragment
     }
 
     public static class RecordingViewHolder extends RecyclerView.ViewHolder {
-      View cardView;
+      CardView cardView;
       ViewGroup noteHolder;
       TextView title;
 
       public RecordingViewHolder(View itemView) {
         super(itemView);
         cardView = itemView.findViewById(R.id.card_view);
+        cardView.setUseCompatPadding(true);
+        cardView.setCardElevation(0);
+        cardView.setBackground(
+            cardView.getResources().getDrawable(R.drawable.card_view_with_hairline_border));
         noteHolder = (ViewGroup) itemView.findViewById(R.id.notes_holder);
         title = (TextView) itemView.findViewById(R.id.title);
       }
@@ -2067,5 +2094,17 @@ public class ExperimentDetailsFragment extends Fragment
     return experiment != null
         && !TextUtils.isEmpty(experiment.getImagePath())
         && claimExperimentsMode;
+  }
+
+  private void setTitle(String experimentName) {
+    Activity activity = getActivity();
+    if (activity != null) {
+      ((NoteTakingActivity) activity).updateTitleByDefaultFragment(experimentName);
+    }
+  }
+
+  @Override
+  public String getTitle() {
+    return experiment == null ? null : experiment.getTitle();
   }
 }

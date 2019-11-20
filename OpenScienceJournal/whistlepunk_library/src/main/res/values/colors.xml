@@ -30,8 +30,6 @@
     <color name="chart_margins_color">#FFFFFF</color>
     <color name="card_background_color">#FFFFFF</color>
     <color name="chart_grid_color">#CCCCCC</color>
-    <color name="capture_bottom_panel">#F2424242</color>
-    <color name="control_panel">#424242</color>
     <color name="observe_external_axis_color">#CCFFFFFF</color>
     <color name="recording_axis_bar_color">#FFDB4437</color>
     <color name="recording_axis_overlay_color">#2edb4437</color>

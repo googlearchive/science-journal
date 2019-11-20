@@ -1219,18 +1219,6 @@
     <!-- Title of an activity to view details about a trigger note [CHAR_LIMIT=30] -->
     <string name="trigger_label_details_title">Triggered note details</string>
 
-    <!-- Content description of draggable bar with icons for note tools [CHAR_LIMIT=none] -->
-    <string name="tool_picker_tab_layout_description">Available tools</string>
-
-    <!-- Content description for tab icon to add a text note [CHAR_LIMIT=none] -->
-    <string name="tab_description_add_note">Write text</string>
-
-    <!-- Content description for tab icon to observe sensors [CHAR_LIMIT=none] -->
-    <string name="tab_description_observe">Observe sensors</string>
-
-    <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
-    <string name="tab_description_camera">Take photo</string>
-
     <!-- Button to view more notes in a trial [CHAR_LIMIT=50] -->
     <string name="load_more_notes_btn">View more notes</string>
 
@@ -1276,9 +1264,6 @@
     <!-- Content description for button to take a picture to use as the experiment image [CHAR_LIMIT=NONE] -->
     <string name="btn_take_picture_content_description">Take picture</string>
 
-    <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
-    <string name="tab_description_gallery">Choose picture</string>
-
     <!-- Content description for an image in the gallery view that could be selected for a photo note [CHAR_LIMIT=NONE] -->
     <string name="gallery_image_content_description">Image taken on <xliff:g id="date" example="July 8th 7:45 PM">%s</xliff:g></string>
 
@@ -1297,23 +1282,8 @@
     <!-- Title for the Primes debug screen preference [CHAR_LIMIT=50] -->
     <string name="perf_tracker_debug_pref_title" translatable="false">Show Perf Tracker Debug Screen</string>
 
-    <!-- Button shown to users with accessibility settings on that allows them to expand the pane from collapsed to the middle of the screen [CHAR_LIMIT=NONE] -->
-    <string name="btn_show_tools">Show tool drawer</string>
-
-    <!-- Button shown to users with accessibility settings on that allows them to expand the pane from the middle to the fully expanded [CHAR_LIMIT=NONE] -->
-    <string name="btn_expand_tools">Expand tool drawer</string>
-
-    <!-- Button shown to users with accessibility settings on that allows them to collapse a fully expanded pane [CHAR_LIMIT=NONE] -->
-    <string name="btn_hide_tools">Collapse tool drawer</string>
-
     <!-- Menu option to edit a photo [CHAR_LIMIT=30] -->
     <string name="action_edit_photo">Edit photo</string>
-
-    <!-- Experiment Details menu option to add a text note [CHAR_LIMIT=25] -->
-    <string name="add_text_note">Add text note</string>
-
-    <!-- Content description for the camera preview [CHAR_LIMIT=NONE] -->
-    <string name="camera_preview_content_description">Camera live view</string>
 
     <!-- Error message for camera view when permissions are denied [CHAR_LIMIT=NONE] -->
     <string name="input_camera_permission_denied">The camera cannot be used because Science Journal does not have permission to access it.</string>

@@ -89,12 +89,8 @@
     <dimen name="small_stat_icon_size">12dp</dimen>
     <dimen name="stats_divider_margin">4dp</dimen>
 
-    <dimen name="observe_control_panel_bottom_height">62dp</dimen>
-
     <!-- The external axis side margins must be the cardview_margin plus
          stream_presenter_padding_sides plus chart_margin_size_left -->
-    <dimen name="external_axis_left_padding">62dp</dimen>
-    <dimen name="external_axis_right_padding">26dp</dimen>
     <dimen name="external_axis_note_dot_size">16dp</dimen>
     <dimen name="external_axis_recording_dot_size">10dp</dimen>
     <dimen name="external_axis_label_dot_size">10dp</dimen>
@@ -195,7 +191,6 @@
 
     <dimen name="crop_thumb_radius">14dp</dimen>
     <dimen name="crop_thumb_offset">28dp</dimen>
-    <dimen name="panes_toolbar_height">58dp</dimen>
     <dimen name="recording_indicator_height">4dp</dimen>
 
     <!-- Maximum number of lines to show when editing a text label or note. -->
@@ -204,9 +199,6 @@
     <!-- For small and medium views, single cards fill the screen, but card size shrinks when
          multiple cards are shown. -->
     <bool name="always_use_multi_card_height">false</bool>
-
-    <!-- On small screens, do not allow half-height drawer in landscape mode -->
-    <bool name="allow_half_height_drawer_in_landscape">false</bool>
 
     <integer name="gallery_column_count">4</integer>
 

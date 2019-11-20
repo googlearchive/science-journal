@@ -703,16 +703,9 @@ public class SensorCardPresenter {
                   recorderController.getAppAccount().getAccountKey());
               intent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, sensorId);
               intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, experimentId);
-              if (parentFragment instanceof SensorFragment) {
-                intent.putExtra(
-                    TriggerListActivity.EXTRA_LAYOUT_POSITION,
-                    ((SensorFragment) parentFragment).getPositionOfLayout(layout));
-              } else if (parentFragment instanceof RecordFragment) {
-                // TODO(b/134590927): Delete this logic when deleting RecordFragment
-                intent.putExtra(
-                    TriggerListActivity.EXTRA_LAYOUT_POSITION,
-                    ((RecordFragment) parentFragment).getPositionOfLayout(layout));
-              }
+              intent.putExtra(
+                      TriggerListActivity.EXTRA_LAYOUT_POSITION,
+                      ((SensorFragment) parentFragment).getPositionOfLayout(layout));
               parentFragment.getActivity().startActivity(intent);
               return true;
             } else if (itemId == R.id.btn_sensor_card_set_triggers) {
@@ -740,12 +733,7 @@ public class SensorCardPresenter {
       return false;
     }
     layout.clearActiveTriggerIds();
-    if (parentFragment instanceof SensorFragment) {
-      ((SensorFragment) parentFragment).disableAllTriggers(layout, this);
-    } else if (parentFragment instanceof RecordFragment) {
-      // TODO(b/134590927): Delete this logic when deleting RecordFragment
-      ((RecordFragment) parentFragment).disableAllTriggers(layout, this);
-    }
+    ((SensorFragment) parentFragment).disableAllTriggers(layout, this);
     return true;
   }
 
@@ -765,16 +753,9 @@ public class SensorCardPresenter {
         TriggerListActivity.EXTRA_ACCOUNT_KEY, recorderController.getAppAccount().getAccountKey());
     intent.putExtra(TriggerListActivity.EXTRA_SENSOR_ID, sensorId);
     intent.putExtra(TriggerListActivity.EXTRA_EXPERIMENT_ID, experimentId);
-    if (parentFragment instanceof SensorFragment) {
-      intent.putExtra(
-          TriggerListActivity.EXTRA_LAYOUT_POSITION,
-          ((SensorFragment) parentFragment).getPositionOfLayout(layout));
-    } else if (parentFragment instanceof RecordFragment) {
-      // TODO(b/134590927): Delete this logic when deleting RecordFragment
-      intent.putExtra(
-          TriggerListActivity.EXTRA_LAYOUT_POSITION,
-          ((RecordFragment) parentFragment).getPositionOfLayout(layout));
-    }
+    intent.putExtra(
+            TriggerListActivity.EXTRA_LAYOUT_POSITION,
+            ((SensorFragment) parentFragment).getPositionOfLayout(layout));
     parentFragment.getActivity().startActivity(intent);
     return true;
   }

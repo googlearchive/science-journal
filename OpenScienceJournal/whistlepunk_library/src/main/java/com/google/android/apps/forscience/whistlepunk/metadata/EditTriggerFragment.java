@@ -47,8 +47,8 @@ import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.SensorFragment;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
@@ -140,7 +140,7 @@ public class EditTriggerFragment extends Fragment {
       if (Log.isLoggable(TAG, Log.ERROR)) {
         Log.e(TAG, "Error parsing the SensorLayout", e);
       }
-      sensorLayout = RecordFragment.defaultLayout(0);
+      sensorLayout = SensorFragment.defaultLayout(0);
     }
     sensorLayoutPosition = getArguments().getInt(ARG_LAYOUT_POSITION);
     getDataController()

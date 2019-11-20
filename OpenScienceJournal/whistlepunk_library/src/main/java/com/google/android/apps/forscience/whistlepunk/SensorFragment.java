@@ -1320,7 +1320,7 @@ public class SensorFragment extends Fragment
 
   /**
    * Ensures that the experiment is unarchived, in case we make a new run or label. TODO: Find a
-   * different home than RecordFragment.
+   * different home than SensorFragment.
    */
   public static void ensureUnarchived(Context context, Experiment experiment, DataController dc) {
     if (experiment != null) {
