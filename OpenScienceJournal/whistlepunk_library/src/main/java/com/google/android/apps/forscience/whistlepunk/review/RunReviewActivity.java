@@ -126,7 +126,8 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
               getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
               getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
               getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true),
-              getIntent().getExtras().getBoolean(NoteTakingActivity.EXTRA_CLAIM_EXPERIMENTS_MODE));
+              getIntent().getExtras().getBoolean(NoteTakingActivity.EXTRA_CLAIM_EXPERIMENTS_MODE),
+              getIntent().getExtras().getInt(RunReviewFragment.ARG_EDITED_LABEL_INDEX));
     }
     return fragment;
   }
@@ -202,7 +203,7 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
 
   @Override
   protected void onLabelAdded(String trialId, Label label) {
-    fragment.reloadAndScrollToLabel(label);
+    fragment.onLabelAdded(label);
   }
 
   @Override

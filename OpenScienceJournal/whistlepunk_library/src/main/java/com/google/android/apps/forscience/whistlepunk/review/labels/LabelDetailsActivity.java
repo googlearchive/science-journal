@@ -62,7 +62,8 @@ public class LabelDetailsActivity extends AppCompatActivity {
       int selectedSensor,
       Label label,
       boolean createTask,
-      boolean fromRecord) {
+      boolean fromRecord,
+      int labelIndex) {
     final Intent intent = new Intent(context, LabelDetailsActivity.class);
     intent.putExtra(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(ARG_EXPERIMENT_ID, experimentId);
@@ -72,6 +73,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
     intent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD, fromRecord);
     intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, selectedSensor);
     intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, trialId);
+    intent.putExtra(RunReviewFragment.ARG_EDITED_LABEL_INDEX, labelIndex);
     context.startActivity(intent);
   }
 
@@ -166,6 +168,9 @@ public class LabelDetailsActivity extends AppCompatActivity {
       upIntent.putExtra(
           RunReviewFragment.ARG_START_LABEL_ID,
           getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID));
+      upIntent.putExtra(
+          RunReviewFragment.ARG_EDITED_LABEL_INDEX,
+          getIntent().getExtras().getInt(RunReviewFragment.ARG_EDITED_LABEL_INDEX));
     } else {
       // unknown parent.
       finish();

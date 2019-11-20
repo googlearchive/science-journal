@@ -52,7 +52,6 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
-import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
@@ -871,16 +870,6 @@ public class ExperimentDetailsFragment extends Fragment
 
   private void setExperimentItemsOrder(Experiment experiment) {
     adapter.setReverseLayout(!experiment.isArchived());
-  }
-
-  @Override
-  public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
-      Fragment dialog = getChildFragmentManager().findFragmentByTag(AddNoteDialog.TAG);
-      if (dialog != null) {
-        dialog.onActivityResult(requestCode, resultCode, data);
-      }
-    }
   }
 
   void deleteLabel(Label label) {

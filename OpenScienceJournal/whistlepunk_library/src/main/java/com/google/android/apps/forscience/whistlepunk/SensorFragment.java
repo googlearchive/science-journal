@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -368,11 +367,6 @@ public class SensorFragment extends Fragment
     // state, update the UI.
     if (prevRecording != null && !newStatus.isRecording()) {
       externalAxis.onStopRecording();
-      AddNoteDialog dialog =
-          (AddNoteDialog) getChildFragmentManager().findFragmentByTag(AddNoteDialog.TAG);
-      if (dialog != null) {
-        dialog.dismiss();
-      }
       if (!recordingWasCanceled) {
         uICallbacks.onRecordingSaved(prevRecording.getRunId(), selectedExperiment);
       }
@@ -989,16 +983,6 @@ public class SensorFragment extends Fragment
               TrackerConstants.ACTION_CREATE,
               trackerLabel,
               TrackerConstants.getLabelValueType(label));
-    }
-  }
-
-  @Override
-  public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
-      Fragment dialog = getChildFragmentManager().findFragmentByTag(AddNoteDialog.TAG);
-      if (dialog != null) {
-        dialog.onActivityResult(requestCode, resultCode, data);
-      }
     }
   }
 
