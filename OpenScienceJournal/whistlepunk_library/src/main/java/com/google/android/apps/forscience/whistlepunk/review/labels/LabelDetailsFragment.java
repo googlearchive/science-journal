@@ -110,8 +110,8 @@ abstract class LabelDetailsFragment extends Fragment {
     ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
 
     actionBar.setDisplayHomeAsUpEnabled(true);
-    actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
-    actionBar.setHomeActionContentDescription(android.R.string.cancel);
+    actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
+    actionBar.setHomeActionContentDescription(R.string.action_save);
 
     super.onCreateOptionsMenu(menu, inflater);
   }
@@ -127,19 +127,18 @@ abstract class LabelDetailsFragment extends Fragment {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
-    if (id == android.R.id.home) {
-      saved.onDoneHappening();
-      boolean labelDeleted = false;
-      returnToParent(labelDeleted, null);
-      return true;
-    } else if (id == R.id.action_save) {
-      saved.onHappened();
-      returnToParent(false, null);
+    if (id == android.R.id.home || id == R.id.action_save) {
+      saveLabel();
     } else if (id == R.id.action_delete) {
       deleteAndReturnToParent();
       return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  protected void saveLabel() {
+    saved.onHappened();
+    returnToParent(false, null);
   }
 
   protected void saveUpdatedOriginalLabel(Experiment experiment, Change change) {

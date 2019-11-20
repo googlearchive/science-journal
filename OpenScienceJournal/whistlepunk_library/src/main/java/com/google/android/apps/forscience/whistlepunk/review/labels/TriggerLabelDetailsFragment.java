@@ -16,15 +16,12 @@
 
 package com.google.android.apps.forscience.whistlepunk.review.labels;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
@@ -72,16 +69,11 @@ public class TriggerLabelDetailsFragment extends LabelDetailsFragment {
     inflater.inflate(R.menu.menu_sensor_item_label_details, menu);
 
     ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-    actionBar.setTitle(
-        getActivity().getResources().getString(R.string.trigger_label_details_title));
+    if (actionBar != null) {
+      actionBar.setTitle(
+          getActivity().getResources().getString(R.string.trigger_label_details_title));
+    }
 
     super.onCreateOptionsMenu(menu, inflater);
-  }
-
-  @Override
-  public void onPrepareOptionsMenu(Menu menu) {
-    MenuItem item = menu.findItem(R.id.action_delete);
-    item.getIcon().mutate().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
-    super.onPrepareOptionsMenu(menu);
   }
 }

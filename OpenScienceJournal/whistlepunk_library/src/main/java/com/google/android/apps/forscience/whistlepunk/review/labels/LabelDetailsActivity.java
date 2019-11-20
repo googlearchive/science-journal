@@ -82,15 +82,9 @@ public class LabelDetailsActivity extends AppCompatActivity {
       finish();
       return;
     }
-    ValueType labelType = originalLabel.getType();
-
-    // Update the theme if this is a text note before setting the view.
-    if (labelType == ValueType.TEXT) {
-      setTheme(R.style.text_label_details);
-    } else if (labelType == ValueType.PICTURE) {
-      setTheme(R.style.picture_label_details);
+    if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
+      setTheme(R.style.AppTheme_RunReview);
     }
-
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_label_details);
     boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
@@ -101,6 +95,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
     // TODO: Enable transitions between note views in the experiment or trial note list
     // and these activities, similar to RunReview transition. This may involve
     // supportPostponeEnterTransition();?
+    ValueType labelType = originalLabel.getType();
 
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
       LabelDetailsFragment fragment;
@@ -129,6 +124,15 @@ public class LabelDetailsActivity extends AppCompatActivity {
           .beginTransaction()
           .add(R.id.container, fragment, FRAGMENT_TAG)
           .commit();
+    }
+  }
+
+  @Override
+  public void onBackPressed() {
+    LabelDetailsFragment currentFragment =
+        (LabelDetailsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+    if (currentFragment != null) {
+      currentFragment.saveLabel();
     }
   }
 

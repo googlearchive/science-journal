@@ -153,7 +153,7 @@
         <activity
             android:name=".review.labels.LabelDetailsActivity"
             android:exported="false"
-            android:theme="@style/AppTheme.Triggers"
+            android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize"
             >
         </activity>
