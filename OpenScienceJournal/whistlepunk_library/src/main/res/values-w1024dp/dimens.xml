@@ -15,10 +15,5 @@
   limitations under the License.
  -->
 <resources>
-    <!-- For large views, the cards are always shown at the multiple card height. -->
-    <bool name="always_use_multi_card_height">true</bool>
-    <dimen name="meter_mode_layout_margin_bottom">36dp</dimen>
-    <integer name="gallery_column_count">4</integer>
-
-    <bool name="is_tablet">true</bool>
+    <dimen name="project_list_padding_sides">144dp</dimen>
 </resources>
