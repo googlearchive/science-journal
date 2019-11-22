@@ -32,7 +32,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.transition.Slide;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -169,10 +168,7 @@ public class GalleryNoteFragment extends Fragment
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     // The send button coloring depends on whether or not were recording so we have to set the theme
     // here. The theme will be updated by the activity if we're currently recording.
-    Context contextThemeWrapper =
-        new ContextThemeWrapper(getActivity(), R.style.DefaultActionAreaIcon);
-    LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
-    View rootView = localInflater.inflate(R.layout.gallery_note_fragment, null);
+    View rootView = inflater.inflate(R.layout.gallery_note_fragment, null);
 
     RecyclerView gallery = rootView.findViewById(R.id.gallery);
     GridLayoutManager layoutManager =
@@ -264,7 +260,7 @@ public class GalleryNoteFragment extends Fragment
             .setText(R.string.action_bar_gallery);
         ((ImageView) titleBarView.findViewById(R.id.title_bar_icon))
             .setImageDrawable(
-                getResources().getDrawable(R.drawable.ic_gallery, activity.getActivityTheme()));
+                getResources().getDrawable(R.drawable.ic_gallery));
         titleBarView
             .findViewById(R.id.title_bar_close)
             .setOnClickListener(v -> activity.closeToolFragment());

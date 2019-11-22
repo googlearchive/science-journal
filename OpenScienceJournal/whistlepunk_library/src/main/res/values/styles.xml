@@ -57,6 +57,9 @@
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
         <item name="android:actionModeBackground">@color/color_accent</item>
         <item name="actionModeBackground">@color/color_accent</item>
+
+        <item name="icon_color">@color/action_area_blue_dark</item>
+        <item name="icon_background">@color/action_area_blue_light</item>
     </style>
 
     <style name="AppTheme.Panes">
@@ -65,6 +68,9 @@
 
     <style name="AppTheme.Experiment">
         <item name="android:windowActionBar">false</item>
+
+        <item name="icon_color">@color/action_area_purple_dark</item>
+        <item name="icon_background">@color/action_area_purple_light</item>
     </style>
 
     <style name="AppTheme.GetStarted">
@@ -111,6 +117,9 @@
     <style name="RecordingProgressBarColor" parent="AppTheme">
         <item name="colorAccent">@color/recording_axis_bar_color</item>
         <item name="colorPrimary">@color/recording_axis_bar_color</item>
+
+        <item name="icon_color">@color/action_area_red_dark</item>
+        <item name="icon_background">@color/action_area_red_light</item>
     </style>
 
     <style name="RecordingProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
@@ -131,20 +140,11 @@
         <item name="colorPrimaryDark">@color/preview_experiment_details_status_bar</item>
         <item name="colorPrimary">@color/preview_experiment_details_action_bar</item>
         <item name="titleTextColor">@color/preview_experiment_details_action_bar_text</item>
+
+        <item name="icon_color">@color/google_grey_600</item>
+        <item name="icon_background">@color/google_grey_100</item>
     </style>
 
-    <style name="DefaultActionAreaIcon">
-        <item name="icon_color">@color/action_area_purple_dark</item>
-        <item name="icon_background">@color/action_area_purple_light</item>
-    </style>
-    <style name="BlueActionAreaIcon" parent="DefaultActionAreaIcon">
-        <item name="icon_color">@color/action_area_blue_dark</item>
-        <item name="icon_background">@color/action_area_blue_light</item>
-    </style>
-    <style name="RedActionAreaIcon" parent="DefaultActionAreaIcon">
-        <item name="icon_color">@color/action_area_red_dark</item>
-        <item name="icon_background">@color/action_area_red_light</item>
-    </style>
     <style name="DisabledActionAreaIcon">
         <item name="icon_color">@color/google_grey_600</item>
         <item name="icon_background">@color/google_grey_100</item>

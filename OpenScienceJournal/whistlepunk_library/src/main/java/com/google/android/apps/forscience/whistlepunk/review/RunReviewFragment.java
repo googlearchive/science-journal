@@ -499,7 +499,6 @@ public class RunReviewFragment extends Fragment
             0,
             0,
             getResources().getDimensionPixelOffset(R.dimen.list_bottom_padding_with_action_area));
-        actionArea.updateColor(getContext(), R.style.BlueActionAreaIcon);
         actionArea.setUpScrollListener(pinnedNoteList);
       }
     } else {

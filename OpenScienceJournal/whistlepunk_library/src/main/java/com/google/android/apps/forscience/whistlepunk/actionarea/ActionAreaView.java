@@ -110,7 +110,7 @@ public class ActionAreaView extends CardView {
   public void disableAddSensorItem(Context context, boolean disabled) {
     ActionAreaItemView itemView = getItemView(ActionAreaItem.ADD_SENSOR);
     if (itemView != null && context != null) {
-      int style = disabled ? R.style.DisabledActionAreaIcon : R.style.DefaultActionAreaIcon;
+      int style = disabled ? R.style.DisabledActionAreaIcon : -1;
       itemView.updateView(context, style);
       itemView.setClickable(!disabled);
     }

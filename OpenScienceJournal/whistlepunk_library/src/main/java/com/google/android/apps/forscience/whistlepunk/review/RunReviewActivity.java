@@ -18,10 +18,8 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources.Theme;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
-import android.view.ContextThemeWrapper;
 import com.google.android.apps.forscience.whistlepunk.AddMoreObservationNotesFragment;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
@@ -162,11 +160,6 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   public void onRequestPermissionsResult(
       int requestCode, String permissions[], int[] grantResults) {
     PermissionUtils.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
-  }
-
-  @Override
-  public Theme getActivityTheme() {
-    return new ContextThemeWrapper(this, R.style.BlueActionAreaIcon).getTheme();
   }
 
   @Override

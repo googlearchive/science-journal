@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.content.res.Resources.Theme;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -462,8 +461,6 @@ public abstract class NoteTakingActivity extends AppCompatActivity
       }
     }
   }
-
-  public abstract Theme getActivityTheme();
 
   public abstract ActionAreaItem[] getActionAreaItems();
 }

@@ -54,9 +54,6 @@ public class AddMoreObservationNotesFragment extends Fragment {
     ActionAreaView actionArea = rootView.findViewById(R.id.action_area);
     NoteTakingActivity noteTakingActivity = (NoteTakingActivity) getActivity();
     actionArea.addItems(getContext(), noteTakingActivity.getActionAreaItems(), noteTakingActivity);
-    if (isRunReview) {
-      actionArea.updateColor(getContext(), R.style.BlueActionAreaIcon);
-    }
     return rootView;
   }
 

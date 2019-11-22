@@ -23,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import android.text.TextUtils;
 import android.transition.Slide;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,10 +67,7 @@ public class TextNoteFragment extends Fragment {
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     // The send button coloring depends on whether or not were recording so we have to set the theme
     // here. The theme will be updated by the activity if we're currently recording.
-    Context contextThemeWrapper =
-        new ContextThemeWrapper(getActivity(), R.style.DefaultActionAreaIcon);
-    LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
-    View rootView = localInflater.inflate(R.layout.text_note_fragment, null);
+    View rootView = inflater.inflate(R.layout.text_note_fragment, null);
 
     textView = rootView.findViewById(R.id.text);
     textSize.onNext((int) textView.getTextSize());
@@ -138,7 +134,7 @@ public class TextNoteFragment extends Fragment {
             .setText(R.string.action_bar_text_note);
         ((ImageView) titleBarView.findViewById(R.id.title_bar_icon))
             .setImageDrawable(
-                getResources().getDrawable(R.drawable.ic_text, activity.getActivityTheme()));
+                getResources().getDrawable(R.drawable.ic_text));
         titleBarView
             .findViewById(R.id.title_bar_close)
             .setOnClickListener(v -> activity.closeToolFragment());

@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.transition.Slide;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -500,9 +499,7 @@ public class SensorFragment extends Fragment
             .setImageDrawable(
                 getResources()
                     .getDrawable(
-                        R.drawable.ic_sensor,
-                        new ContextThemeWrapper(getActivity(), R.style.DefaultActionAreaIcon)
-                            .getTheme()));
+                        R.drawable.ic_sensor));
         titleBarView
             .findViewById(R.id.title_bar_close)
             .setOnClickListener(v -> activity.closeToolFragment());

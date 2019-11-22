@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources.Theme;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -27,7 +26,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.Window;
 import com.google.android.apps.forscience.whistlepunk.MoreObservationsFragment.ObservationOption;
@@ -314,12 +312,6 @@ public class ExperimentActivity extends NoteTakingActivity
     }
     onNoteSaved();
     logState(TrackerConstants.ACTION_LABEL_ADDED);
-  }
-
-  @Override
-  public Theme getActivityTheme() {
-    int themeResId = isRecording ? R.style.RedActionAreaIcon : R.style.DefaultActionAreaIcon;
-    return new ContextThemeWrapper(this, themeResId).getTheme();
   }
 
   @Override
