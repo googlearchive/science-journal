@@ -18,8 +18,6 @@ package com.google.android.apps.forscience.whistlepunk.review.labels;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
@@ -114,7 +112,9 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
     }
 
     ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-    actionBar.setTitle("");
+    if (actionBar != null) {
+      actionBar.setTitle("");
+    }
 
     super.onCreateOptionsMenu(menu, inflater);
   }
@@ -167,12 +167,5 @@ public class PictureLabelDetailsFragment extends LabelDetailsFragment {
         R.id.root_layout,
         TrackerConstants.CATEGORY_NOTES,
         TrackerConstants.LABEL_PICTURE_DETAIL);
-  }
-
-  @Override
-  public void onPrepareOptionsMenu(Menu menu) {
-    MenuItem item = menu.findItem(R.id.action_edit);
-    item.getIcon().mutate().setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP);
-    super.onPrepareOptionsMenu(menu);
   }
 }

@@ -47,7 +47,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
-import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
@@ -64,7 +63,6 @@ import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
 import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
-import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
@@ -82,16 +80,12 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
@@ -106,15 +100,13 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorag
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
-import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
 
 public class RunReviewFragment extends Fragment
-    implements AddNoteDialog.ListenerProvider,
-        EditTimeDialogListener,
+    implements EditTimeDialogListener,
         DeleteMetadataItemDialog.DeleteDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener,
         ChartController.ChartLoadingStatus,
@@ -125,6 +117,7 @@ public class RunReviewFragment extends Fragment
   public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
   public static final String ARG_CREATE_TASK = "create_task";
   public static final String ARG_CLAIM_EXPERIMENTS_MODE = "claim_experiments_mode";
+  public static final String ARG_EDITED_LABEL_INDEX = "edited_label_index";
   private static final String TAG = "RunReviewFragment";
 
   private static final String KEY_SELECTED_SENSOR_INDEX = "selected_sensor_index";
@@ -154,6 +147,7 @@ public class RunReviewFragment extends Fragment
   private String trialId;
   private String experimentId;
   private int selectedSensorIndex = 0;
+  private int editedLabelIndex = 0;
   private boolean claimExperimentsMode;
   private GraphOptionsController graphOptionsController;
   private ScalarDisplayOptions scalarDisplayOptions;
@@ -192,7 +186,8 @@ public class RunReviewFragment extends Fragment
       String startLabelId,
       int sensorIndex,
       boolean createTask,
-      boolean claimExperimentsMode) {
+      boolean claimExperimentsMode,
+      int editedLabelIndex) {
     RunReviewFragment fragment = new RunReviewFragment();
     Bundle args = new Bundle();
     args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
@@ -201,6 +196,7 @@ public class RunReviewFragment extends Fragment
     args.putInt(ARG_SENSOR_INDEX, sensorIndex);
     args.putBoolean(ARG_CREATE_TASK, createTask);
     args.putBoolean(ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
+    args.putInt(ARG_EDITED_LABEL_INDEX, editedLabelIndex);
     fragment.setArguments(args);
     return fragment;
   }
@@ -262,6 +258,7 @@ public class RunReviewFragment extends Fragment
       selectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
       experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
       claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
+      editedLabelIndex = getArguments().getInt(ARG_EDITED_LABEL_INDEX);
     }
     if (savedInstanceState != null) {
       if (savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
@@ -888,23 +885,6 @@ public class RunReviewFragment extends Fragment
           public void onLabelDelete(Label item) {
             deleteLabel(item);
           }
-
-          @Override
-          public void onCaptionEdit(String updatedCaption) {
-            if (!claimExperimentsMode) {
-              Caption caption =
-                  GoosciCaption.Caption.newBuilder()
-                      .setText(updatedCaption)
-                      .setLastEditedTimestamp(System.currentTimeMillis())
-                      .build();
-              getTrial().setCaption(caption);
-              experiment.addChange(
-                  Change.newModifyTypeChange(ElementType.CAPTION, getTrial().getTrialId()));
-              getDataController()
-                  .updateExperiment(
-                      experimentId, LoggingConsumer.expectSuccess(TAG, "update caption"));
-            }
-          }
         });
 
     pinnedNoteAdapter.setListItemClickListener(
@@ -920,16 +900,8 @@ public class RunReviewFragment extends Fragment
                   selectedSensorIndex,
                   item,
                   getArguments().getBoolean(ARG_CREATE_TASK),
-                  getArguments().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD));
-            }
-          }
-
-          @Override
-          public void onAddLabelButtonClicked() {
-            if (!claimExperimentsMode && experiment != null && !runReviewOverlay.getIsCropping()) {
-              launchLabelAdd(
-                  null,
-                  Math.max(runReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
+                  getArguments().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD),
+                  pinnedNoteAdapter.findLabelIndexById(item.getLabelId()));
             }
           }
 
@@ -943,6 +915,7 @@ public class RunReviewFragment extends Fragment
         });
 
     pinnedNoteList.setAdapter(pinnedNoteAdapter);
+    scrollToIndex(editedLabelIndex);
 
     // Re-enable appropriate menu options.
     activity.invalidateOptionsMenu();
@@ -1001,7 +974,7 @@ public class RunReviewFragment extends Fragment
         experiment,
         getTrial(),
         () -> {
-          pinnedNoteAdapter.onLabelAdded(item.getLabel());
+          pinnedNoteAdapter.onLabelChanged(item.getLabel());
           chartController.setLabels(getTrial().getLabels());
           WhistlePunkApplication.getUsageTracker(getActivity())
               .trackEvent(
@@ -1011,7 +984,7 @@ public class RunReviewFragment extends Fragment
                   TrackerConstants.getLabelValueType(item.getLabel()));
         });
 
-    pinnedNoteAdapter.onLabelUpdated(item.getLabel());
+    pinnedNoteAdapter.onLabelOrderingChanged();
     chartController.setLabels(getTrial().getLabels());
 
     WhistlePunkApplication.getUsageTracker(getActivity())
@@ -1401,71 +1374,6 @@ public class RunReviewFragment extends Fragment
     }
   }
 
-  private void launchLabelAdd(Label editedLabel, long timestamp) {
-    String labelTimeText =
-        PinnedNoteAdapter.getNoteTimeText(timestamp, getTrial().getFirstTimestamp());
-    AddNoteDialog dialog =
-        AddNoteDialog.newInstance(
-            appAccount,
-            timestamp,
-            getTrial().getTrialId(),
-            experiment.getExperimentId(),
-            R.string.add_note_hint_text,
-            labelTimeText,
-            editedLabel,
-            PinnedNoteAdapter.getNoteTimeContentDescription(
-                timestamp, getTrial().getFirstTimestamp(), getActivity()));
-    dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
-  }
-
-  @Override
-  public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
-    return new AddNoteDialog.AddNoteDialogListener() {
-      @Override
-      public MaybeConsumer<Label> onLabelAdd() {
-        return new LoggingConsumer<Label>(TAG, "add label") {
-          @Override
-          public void success(Label newLabel) {
-            pinnedNoteAdapter.onLabelAdded(newLabel);
-            chartController.setLabels(getTrial().getLabels());
-            WhistlePunkApplication.getUsageTracker(getActivity())
-                .trackEvent(
-                    TrackerConstants.CATEGORY_NOTES,
-                    TrackerConstants.ACTION_CREATE,
-                    TrackerConstants.LABEL_RUN_REVIEW,
-                    TrackerConstants.getLabelValueType(newLabel));
-          }
-        };
-      }
-
-      @Override
-      public void onAddNoteTimestampClicked(Label editedLabel, long selectedTimestamp) {
-        AddNoteDialog addDialog =
-            (AddNoteDialog) getChildFragmentManager().findFragmentByTag(AddNoteDialog.TAG);
-        if (addDialog != null) {
-          addDialog.dismiss();
-        }
-
-        // Show the timestamp edit window below the graph / over the notes
-        getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
-        EditLabelTimeDialog timeDialog =
-            EditLabelTimeDialog.newInstance(
-                editedLabel, selectedTimestamp, getTrial().getFirstTimestamp());
-        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
-        ft.commit();
-        runReviewOverlay.setActiveTimestamp(selectedTimestamp);
-        runReviewOverlay.setOnTimestampChangeListener(timeDialog);
-        setTimepickerUi(getView(), true);
-      }
-
-      @Override
-      public Single<String> whenExperimentId() {
-        return Single.just(experimentId);
-      }
-    };
-  }
-
   private Trial getTrial() {
     if (experiment == null) {
       return null;
@@ -1473,21 +1381,12 @@ public class RunReviewFragment extends Fragment
     return experiment.getTrial(trialId);
   }
 
-  @Override
-  public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
-      Fragment dialog = getChildFragmentManager().findFragmentByTag(AddNoteDialog.TAG);
-      if (dialog != null) {
-        dialog.onActivityResult(requestCode, resultCode, data);
-      }
-    }
-  }
-
   private MaybeConsumer<Success> onLabelEdit(final Label label) {
     return new LoggingConsumer<Success>(TAG, "edit label") {
       @Override
       public void success(Success value) {
-        pinnedNoteAdapter.onLabelUpdated(label);
+        pinnedNoteAdapter.onLabelOrderingChanged();
+        scrollToLabel(label);
         // The timestamp was edited, so also refresh the line graph presenter.
         chartController.setLabels(getTrial().getLabels());
         WhistlePunkApplication.getUsageTracker(getActivity())
@@ -1719,12 +1618,6 @@ public class RunReviewFragment extends Fragment
         .subscribe(MaybeConsumers.toCompletableObserver(onLabelEdit(label)));
   }
 
-  @Override
-  public void onEditTimeDialogDismissedAdd(Label editedLabel, long selectedTimestamp) {
-    setTimepickerUi(getView(), false);
-    launchLabelAdd(editedLabel, selectedTimestamp);
-  }
-
   private void launchAudioSettings() {
     audioPlaybackController.stopPlayback();
 
@@ -1938,14 +1831,24 @@ public class RunReviewFragment extends Fragment
     return getTrial().getSensorLayouts().get(selectedSensorIndex);
   }
 
-  public void reloadAndScrollToLabel(Label newLabel) {
-    int index = pinnedNoteAdapter.onLabelAdded(newLabel);
+  public void onLabelAdded(Label label) {
     chartController.setLabels(getTrial().getLabels());
-    if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
-      pinnedNoteList.smoothScrollToPosition(index);
-    } else {
-      pinnedNoteList.scrollToPosition(index);
+    pinnedNoteAdapter.onLabelChanged(label);
+    scrollToLabel(label);
+  }
+
+  private void scrollToIndex(int index) {
+    if (index != -1) {
+      if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
+        pinnedNoteList.smoothScrollToPosition(index);
+      } else {
+        pinnedNoteList.scrollToPosition(index);
+      }
     }
+  }
+
+  private void scrollToLabel(Label label) {
+    scrollToIndex(pinnedNoteAdapter.findLabelIndexById(label.getLabelId()));
   }
 
   private void setTitle(String trialName) {

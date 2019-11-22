@@ -23,19 +23,15 @@ import android.net.Uri;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
-import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.NoteViewHolder;
 import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -45,7 +41,6 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataU
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
-import com.jakewharton.rxbinding2.widget.RxTextView;
 import java.io.File;
 
 /** Adapter for a recycler view of pinned notes. */
@@ -57,9 +52,7 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
   private static final int TYPE_TRIGGER_NOTE = 2;
   private static final int TYPE_SNAPSHOT_NOTE = 3;
   private static final int TYPE_UNKNOWN = -1;
-  private static final int TYPE_ADD_LABEL = 4;
-  private static final int TYPE_CAPTION = 5;
-  private static final int FIRST_NOTE_INDEX = 1;
+  private static final int FIRST_NOTE_INDEX = 0;
 
   private PopupMenu popupMenu = null;
 
@@ -70,9 +63,6 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     // When a user deletes a particular label.
     void onLabelDelete(Label item);
-
-    // When the user makes a change to the caption -- needs to be saved.
-    void onCaptionEdit(String updatedCaption);
   }
 
   /** An interface for listening to when a pinned note is clicked. */
@@ -80,17 +70,8 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     // Anywhere on the label was clicked.
     void onLabelClicked(Label item);
 
-    // The add label button was clicked.
-    void onAddLabelButtonClicked();
-
     // The label's timestamp section was clicked.
     void onLabelTimestampClicked(Label item);
-  }
-
-  public class BlankViewHolder extends RecyclerView.ViewHolder {
-    public BlankViewHolder(View v) {
-      super(v);
-    }
   }
 
   private final AppAccount appAccount;
@@ -145,17 +126,6 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.exp_card_pinned_note, parent, false);
         return new NoteViewHolder(v);
-      case TYPE_ADD_LABEL:
-        v =
-            LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.add_label_button_item, parent, false);
-        v.findViewById(R.id.add_note_to_timeline_button)
-            .setContentDescription(
-                parent.getContext().getResources().getString(R.string.add_note_button_text));
-        return new BlankViewHolder(v);
-      case TYPE_CAPTION:
-        v = LayoutInflater.from(parent.getContext()).inflate(R.layout.caption_item, parent, false);
-        return new BlankViewHolder(v);
       default:
         return null;
     }
@@ -163,26 +133,8 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
   @Override
   public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-    int viewType = getItemViewType(position);
-    if (viewType == TYPE_ADD_LABEL) {
-      holder.itemView.setVisibility(View.GONE);
-      return;
-    }
-
-    if (viewType == TYPE_CAPTION) {
-      if (!claimExperimentsMode) {
-        EditText editText = (EditText) holder.itemView.findViewById(R.id.caption);
-        editText.setText(trial.getCaptionText());
-        editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
-        RxTextView.afterTextChangeEvents(editText)
-            .subscribe(event -> editListener.onCaptionEdit(editText.getText().toString()));
-      }
-      return;
-    }
-
     final NoteViewHolder noteHolder = (NoteViewHolder) holder;
-    final Label label = trial.getLabels().get(position - 1);
+    final Label label = trial.getLabels().get(position);
     noteHolder.setNote(label, appAccount, experimentId, claimExperimentsMode);
 
     // Do work specific to RunReview.
@@ -295,26 +247,12 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
   @Override
   public int getItemCount() {
-    // The caption is temporarily removed per b/65063919 so the size is labels + 1.
-    return trial.getLabelCount() + 1;
-
-    /*
-    // We always show caption and add note button, making the size the labels + 2.
-    return trial.getLabelCount() + 2;
-    */
+    return trial.getLabelCount();
   }
 
   @Override
   public int getItemViewType(int position) {
-    if (position == 0) {
-      // First item always add label
-      return TYPE_ADD_LABEL;
-    }
-    if (position == trial.getLabelCount() + 1) {
-      // Last item always the caption
-      return TYPE_CAPTION;
-    }
-    ValueType labelType = trial.getLabels().get(position - 1).getType();
+    ValueType labelType = trial.getLabels().get(position).getType();
     if (labelType == ValueType.TEXT) {
       return TYPE_TEXT_NOTE;
     }
@@ -330,32 +268,24 @@ public class PinnedNoteAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     return TYPE_UNKNOWN;
   }
 
-  public void onLabelUpdated(Label label) {
-    // If the timestamp has changed, updating only the changed position is not enough because
-    // the labels have been rearranged.
+  public void onLabelOrderingChanged() {
+    // If the timestamp has changed or the label has been deleted, updating only the changed
+    // position is not enough because the labels have been rearranged.
     // TODO: Is there a more efficient way to update only the labels which have moved?
     notifyDataSetChanged();
   }
 
-  // TODO (b/134097634): Update this logic once we can fully remove the "add note" button
-  public int onLabelAdded(Label label) {
-    if (trial.getLabelCount() == 1) {
-      notifyItemChanged(FIRST_NOTE_INDEX); // First label at index 1 (0 is the "add note" button)
-    } else {
-      int position = findLabelIndexById(label.getLabelId());
-      if (position != -1) {
-        notifyItemInserted(position);
-        return position;
-      }
+  public void onLabelChanged(Label label) {
+    int position = findLabelIndexById(label.getLabelId());
+    if (position != -1) {
+      notifyItemChanged(position);
     }
-    return FIRST_NOTE_INDEX;
   }
 
-  private int findLabelIndexById(String id) {
+  public int findLabelIndexById(String id) {
     for (int i = 0; i < trial.getLabelCount(); i++) {
       if (TextUtils.equals(trial.getLabels().get(i).getLabelId(), id)) {
-        // The 0th index item is "add note to timeline" button
-        return i + 1;
+        return i;
       }
     }
     return -1;
