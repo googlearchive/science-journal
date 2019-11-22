@@ -179,7 +179,7 @@ public class ControlBarController {
                   ActionAreaItem.NOTE, ActionAreaItem.SNAPSHOT, ActionAreaItem.CAMERA
                 };
                 actionAreaView.addItems(actionAreaView.getContext(), actionAreaItems, listener);
-                actionAreaView.updateColor(actionAreaView.getContext(), R.style.RedActionAreaIcon);
+                actionAreaView.updateColor(actionAreaView.getContext(), R.style.RecordingProgressBarColor);
 
                 int paddingTop = resources.getDimensionPixelSize(R.dimen.external_axis_height);
                 sensorCardRecyclerView.setPadding(0, paddingTop, 0, paddingBottom);
@@ -195,7 +195,7 @@ public class ControlBarController {
                 };
                 actionAreaView.addItems(actionAreaView.getContext(), actionAreaItems, listener);
                 actionAreaView.updateColor(
-                    actionAreaView.getContext(), R.style.DefaultActionAreaIcon);
+                    actionAreaView.getContext(), -1);
 
                 sensorCardRecyclerView.setPadding(0, 0, 0, paddingBottom);
 
