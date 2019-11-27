@@ -28,10 +28,13 @@ import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
-import com.google.android.apps.forscience.whistlepunk.MoreObservationsFragment.ObservationOption;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.MoreObservationsFragment.ObservationOption;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
+import com.google.android.apps.forscience.whistlepunk.actionarea.AddMoreObservationNotesFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.SensorFragment;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.arcore.ARVelocityActivity;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -265,14 +268,14 @@ public class ExperimentActivity extends NoteTakingActivity
   public SensorFragment.UICallbacks getRecordFragmentCallbacks() {
     return new SensorFragment.UICallbacks() {
       @Override
-      void onRecordingSaved(String runId, Experiment experiment) {
+      public void onRecordingSaved(String runId, Experiment experiment) {
         logState(TrackerConstants.ACTION_RECORDED);
         experimentFragment.loadExperimentData(experiment);
         onNoteSaved();
       }
 
       @Override
-      void onRecordingStart(RecordingStatus recordingStatus) {
+      public void onRecordingStart(RecordingStatus recordingStatus) {
         if (recordingStatus.state == RecordingState.STOPPING) {
           // If we call "recording start" when stopping it leads to extra work.
           return;
@@ -284,7 +287,7 @@ public class ExperimentActivity extends NoteTakingActivity
       }
 
       @Override
-      void onRecordingStopped() {
+      public void onRecordingStopped() {
         experimentFragment.onStopRecording();
       }
     };
@@ -346,7 +349,7 @@ public class ExperimentActivity extends NoteTakingActivity
         this, appAccount, getIntent().getStringExtra(EXTRA_EXPERIMENT_ID)));
   }
 
-  protected ObservationOption[] getMoreObservationOptions() {
+  public ObservationOption[] getMoreObservationOptions() {
     List<ObservationOption> options = new ArrayList<>();
     ObservationOption galleryOption =
         new ObservationOption(
@@ -395,7 +398,9 @@ public class ExperimentActivity extends NoteTakingActivity
   }
 
   @Override
-  protected Fragment newInstanceAddMoreObservationNotes() {
-    return AddMoreObservationNotesFragment.newInstance(false /* isRunReview */);
+  protected ActionFragment newInstanceAddMoreObservationNotes(
+      AppAccount appAccount, String experimentId) {
+    return AddMoreObservationNotesFragment.newInstance(false /* isRunReview */,
+        appAccount, experimentId);
   }
 }

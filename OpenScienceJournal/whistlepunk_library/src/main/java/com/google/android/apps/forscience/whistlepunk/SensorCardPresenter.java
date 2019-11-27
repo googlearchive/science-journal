@@ -33,6 +33,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import com.google.android.apps.forscience.whistlepunk.actionarea.SensorFragment;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ManageDevicesActivity;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
@@ -1276,7 +1277,7 @@ public class SensorCardPresenter {
   }
 
   @NonNull
-  SensorLayoutPojo buildLayout() {
+  public SensorLayoutPojo buildLayout() {
     // Get an updated min and max, and return layout.
     layout.setSensorId(getSelectedSensorId());
     if (sensorPresenter != null) {
@@ -1293,7 +1294,7 @@ public class SensorCardPresenter {
     return layout.getColorIndex();
   }
 
-  NewOptionsStorage getCardOptions(SensorChoice sensorChoice, Context context) {
+  public NewOptionsStorage getCardOptions(SensorChoice sensorChoice, Context context) {
     if (sensorChoice == null) {
       return cardOptions;
     }
@@ -1308,7 +1309,7 @@ public class SensorCardPresenter {
     }
   }
 
-  void setConnectingUI(String sensorId, boolean hasError, Context context, boolean allowRetry) {
+  public void setConnectingUI(String sensorId, boolean hasError, Context context, boolean allowRetry) {
     this.allowRetry = allowRetry;
     SensorAppearance appearance = appearanceProvider.getAppearance(sensorId);
     setUiForConnectingNewSensor(

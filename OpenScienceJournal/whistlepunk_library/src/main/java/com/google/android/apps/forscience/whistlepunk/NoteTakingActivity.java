@@ -38,6 +38,11 @@ import android.view.MenuItem;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.GalleryNoteFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.MoreObservationsFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.SensorFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.TextNoteFragment;
 import com.google.android.apps.forscience.whistlepunk.actionarea.TitleProvider;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -172,6 +177,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
   public void closeToolFragment() {
     activeToolFragmentTag = null;
     showDefaultFragments();
+    invalidateOptionsMenu();
   }
 
   public void openSensorFragment() {
@@ -182,6 +188,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     showFragmentByTagInToolPane(tag);
     activeToolFragmentTag = tag;
     updateTitle();
+    invalidateOptionsMenu();
   }
 
   public boolean isTwoPane() {
@@ -200,9 +207,13 @@ public abstract class NoteTakingActivity extends AppCompatActivity
   }
 
   public void updateTitleByToolFragment(String title) {
-    if (activeToolFragmentTag != null && !isTwoPane) {
+    if (isToolFragmentVisible() && !isTwoPane) {
       setTitle(title);
     }
+  }
+
+  public boolean isToolFragmentVisible() {
+    return activeToolFragmentTag != null;
   }
 
   public void updateTitleByDefaultFragment(String title) {
@@ -290,7 +301,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     return AppSingleton.getInstance(context).getSensorEnvironment().getDefaultClock();
   }
 
-  protected long getTimestamp(Context context) {
+  public long getTimestamp(Context context) {
     return getClock(context).getNow();
   }
 
@@ -376,7 +387,7 @@ public abstract class NoteTakingActivity extends AppCompatActivity
   private void showFragmentByTagInToolPane(String tag) {
     hideAllFragmentsInToolPane();
     FragmentManager fragmentManager = getSupportFragmentManager();
-    Fragment fragment = fragmentManager.findFragmentByTag(tag);
+    ActionFragment fragment = (ActionFragment) fragmentManager.findFragmentByTag(tag);
     if (fragment != null) {
       fragmentManager.beginTransaction().show(fragment).commit();
     } else {
@@ -387,24 +398,25 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     }
   }
 
-  private Fragment createFragmentByTag(String tag) {
+  private ActionFragment createFragmentByTag(String tag) {
     switch (tag) {
       case NOTE_TAG:
-        return new TextNoteFragment();
+        return TextNoteFragment.newInstance(appAccount, experimentId);
       case SENSOR_TAG:
         return SensorFragment.newInstance(appAccount, experimentId);
       case GALLERY_TAG:
-        return GalleryNoteFragment.newInstance(appAccount);
+        return GalleryNoteFragment.newInstance(appAccount, experimentId);
       case MORE_OBSERVATIONS_TAG:
-        return MoreObservationsFragment.newInstance();
+        return MoreObservationsFragment.newInstance(appAccount, experimentId);
       case DEFAULT_ADD_MORE_OBSERVATIONS_TAG:
-        return newInstanceAddMoreObservationNotes();
+        return newInstanceAddMoreObservationNotes(appAccount, experimentId);
       default:
         throw new IllegalArgumentException("Invalid fragment tag: " + tag);
     }
   }
 
-  protected abstract Fragment newInstanceAddMoreObservationNotes();
+  protected abstract ActionFragment newInstanceAddMoreObservationNotes(
+      AppAccount appAccount, String experimentId);
 
   @Override
   protected void onSaveInstanceState(Bundle outState) {
@@ -435,7 +447,8 @@ public abstract class NoteTakingActivity extends AppCompatActivity
                   pictureUUID = UUID.randomUUID().toString();
                   // After a user takes a picture, onActivityResult will be called.
                   pictureRelativePath =
-                      PictureUtils.capturePictureLabel(this, appAccount, experimentId, pictureUUID);
+                      PictureUtils.capturePictureLabel(this,
+                          appAccount, experimentId, pictureUUID);
                 } else {
                   AccessibilityUtils.makeSnackbar(
                           findViewById(R.id.tool_pane),
@@ -456,7 +469,8 @@ public abstract class NoteTakingActivity extends AppCompatActivity
             PictureLabelValue.newBuilder().setFilePath(pictureRelativePath).build();
         Label label =
             Label.fromUuidAndValue(
-                getTimestamp(this), pictureUUID, GoosciLabel.Label.ValueType.PICTURE, labelValue);
+                getTimestamp(this), pictureUUID,
+                GoosciLabel.Label.ValueType.PICTURE, labelValue);
         addNewLabel(label);
       }
     }

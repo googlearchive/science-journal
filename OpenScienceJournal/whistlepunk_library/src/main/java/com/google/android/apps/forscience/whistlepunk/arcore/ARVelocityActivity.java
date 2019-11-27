@@ -30,8 +30,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.google.android.apps.forscience.whistlepunk.ActionController;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
-import com.google.android.apps.forscience.whistlepunk.ControlBarController;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.RecorderController;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
@@ -78,7 +78,7 @@ public class ARVelocityActivity extends AppCompatActivity {
   private ImageButton snapshotButton;
   private ImageButton recordButton;
   private RecorderController rc;
-  private ControlBarController cbc;
+  private ActionController actionController;
   private String observerId;
   private VelocitySensor velocitySensor;
   private List<Vector3> positions;
@@ -103,15 +103,15 @@ public class ARVelocityActivity extends AppCompatActivity {
     singleton = AppSingleton.getInstance(this);
     rc = singleton.getRecorderController(appAccount);
     velocitySensor = singleton.getVelocitySensor();
-    cbc = new ControlBarController(appAccount, experimentId, new SnackbarManager());
+    actionController = new ActionController(appAccount, experimentId, new SnackbarManager(),
+        getApplicationContext());
     positions = new ArrayList<>();
 
     setUpRecording();
 
     // Hiding button after previous method call, which sets visibility to true due to
-    // ControlBarController's methods. We don't want the
-    // button to be shown until the image tracking has started. Once Action Area is completed, we
-    // probably won't be using ControlBarController and should revisit this then.
+    // ActionController's methods. We don't want the
+    // button to be shown until the image tracking has started.
     recordButton.setVisibility(View.GONE);
   }
 
@@ -156,7 +156,7 @@ public class ARVelocityActivity extends AppCompatActivity {
             experiment -> {
               rc.setSelectedExperiment(experiment);
               attachSnapshotButton(snapshotButton);
-              cbc.attachRecordButton(recordButton, getSupportFragmentManager());
+              actionController.attachRecordButton(recordButton, getSupportFragmentManager());
             },
             error -> {
               if (Log.isLoggable(TAG, Log.ERROR)) {

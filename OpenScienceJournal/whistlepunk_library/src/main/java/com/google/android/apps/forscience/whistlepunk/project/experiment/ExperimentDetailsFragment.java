@@ -52,10 +52,10 @@ import android.widget.TextView;
 import androidx.cardview.widget.CardView;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
+import com.google.android.apps.forscience.whistlepunk.ActionController;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.ColorUtils;
-import com.google.android.apps.forscience.whistlepunk.ControlBarController;
 import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
@@ -169,7 +169,7 @@ public class ExperimentDetailsFragment extends Fragment
   private RxEvent destroyed = new RxEvent();
   private LocalSyncManager localSyncManager;
   private ExperimentLibraryManager experimentLibraryManager;
-  private ControlBarController controlBarController;
+  private ActionController actionController;
 
   /**
    * Creates a new instance of this fragment.
@@ -221,8 +221,8 @@ public class ExperimentDetailsFragment extends Fragment
     experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
     claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
     setHasOptionsMenu(true);
-    controlBarController =
-        new ControlBarController(appAccount, getExperimentId(), new SnackbarManager());
+    actionController =
+        new ActionController(appAccount, getExperimentId(), new SnackbarManager(), getContext());
     if (claimExperimentsMode) {
       WhistlePunkApplication.getUsageTracker(getActivity())
           .trackEvent(
@@ -401,10 +401,11 @@ public class ExperimentDetailsFragment extends Fragment
       recordButton.setVisibility(View.GONE);
       actionArea.setVisibility(View.GONE);
     } else {
-      controlBarController.attachStopButton(recordButton, getChildFragmentManager());
+      actionController.attachStopButton(recordButton, getChildFragmentManager());
       actionArea.addItems(
           getContext(), experimentActivity.getActionAreaItems(), experimentActivity);
       actionArea.setUpScrollListener(details);
+      actionController.attachActionArea(actionArea);
     }
     if (savedInstanceState != null) {
       includeArchived = savedInstanceState.getBoolean(EXTRA_INCLUDE_ARCHIVED, false);
@@ -564,30 +565,39 @@ public class ExperimentDetailsFragment extends Fragment
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    inflater.inflate(R.menu.menu_experiment_details, menu);
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (!activity.isToolFragmentVisible() || activity.isTwoPane()) {
+      inflater.inflate(R.menu.menu_experiment_details, menu);
+    }
   }
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
-    menu.findItem(R.id.action_archive_experiment).setVisible(canArchive());
-    menu.findItem(R.id.action_unarchive_experiment).setVisible(canUnarchive());
-    // Disable archive option when recording.
-    menu.findItem(R.id.action_archive_experiment).setEnabled(!isRecording());
-    menu.findItem(R.id.action_delete_experiment).setEnabled(canDelete());
-    menu.findItem(R.id.action_remove_cover_image).setVisible(canRemoveCoverImage());
-    menu.findItem(R.id.action_include_archived).setVisible(!includeArchived);
-    menu.findItem(R.id.action_exclude_archived).setVisible(includeArchived);
-    menu.findItem(R.id.action_edit_experiment).setVisible(canEdit());
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (!activity.isToolFragmentVisible() || activity.isTwoPane()) {
+      menu.findItem(R.id.action_archive_experiment).setVisible(canArchive());
+      menu.findItem(R.id.action_unarchive_experiment).setVisible(canUnarchive());
+      // Disable archive option when recording.
+      menu.findItem(R.id.action_archive_experiment).setEnabled(!isRecording());
+      menu.findItem(R.id.action_delete_experiment).setEnabled(canDelete());
+      menu.findItem(R.id.action_remove_cover_image).setVisible(canRemoveCoverImage());
+      menu.findItem(R.id.action_include_archived).setVisible(!includeArchived);
+      menu.findItem(R.id.action_exclude_archived).setVisible(includeArchived);
+      menu.findItem(R.id.action_edit_experiment).setVisible(canEdit());
 
-    boolean isShareIntentValid =
-        FileMetadataUtil.getInstance().validateShareIntent(getContext(), appAccount, experimentId);
+      boolean isShareIntentValid =
+          FileMetadataUtil.getInstance()
+              .validateShareIntent(getContext(), appAccount, experimentId);
 
-    menu.findItem(R.id.action_export_experiment)
-        .setVisible(experiment != null && isShareIntentValid);
-    menu.findItem(R.id.action_export_experiment).setEnabled(!isRecording());
-    menu.findItem(R.id.action_download_experiment).setVisible(experiment != null);
-    menu.findItem(R.id.action_download_experiment).setEnabled(!isRecording());
-    setHomeButtonState(isRecording());
+      menu.findItem(R.id.action_export_experiment)
+          .setVisible(experiment != null && isShareIntentValid);
+      menu.findItem(R.id.action_export_experiment).setEnabled(!isRecording());
+      menu.findItem(R.id.action_download_experiment).setVisible(experiment != null);
+      menu.findItem(R.id.action_download_experiment).setEnabled(!isRecording());
+      setHomeButtonState(isRecording());
+    } else {
+      setHomeButtonState(!activity.isToolFragmentVisible() && isRecording());
+    }
   }
 
   @Override

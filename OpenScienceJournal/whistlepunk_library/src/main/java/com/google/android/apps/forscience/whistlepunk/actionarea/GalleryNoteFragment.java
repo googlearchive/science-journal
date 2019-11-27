@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.google.android.apps.forscience.whistlepunk;
+package com.google.android.apps.forscience.whistlepunk.actionarea;
 
 import android.Manifest;
 import android.app.Activity;
@@ -23,14 +23,12 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.format.DateUtils;
-import android.transition.Slide;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +39,12 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.apps.forscience.whistlepunk.GlideApp;
+import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
+import com.google.android.apps.forscience.whistlepunk.actionarea.PhotoAsyncLoader.Image;
+import com.google.android.apps.forscience.whistlepunk.PictureUtils;
+import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RxEvent;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.FileMetadataUtil;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
@@ -63,11 +67,9 @@ import java.util.Locale;
  *
  * This fragment assumes that it does not outlive its initial context.
  **/
-public class GalleryNoteFragment extends Fragment
-    implements LoaderManager.LoaderCallbacks<List<PhotoAsyncLoader.Image>> {
+public class GalleryNoteFragment extends ActionFragment
+    implements LoaderManager.LoaderCallbacks<List<Image>> {
   private static final String TAG = "GalleryNoteFragment";
-
-  private static final String KEY_ACCOUNT_KEY = "accountKey";
 
   private static final int PHOTO_LOADER_INDEX = 1;
   private static final String KEY_SELECTED_PHOTOS = "selected_photos";
@@ -79,6 +81,7 @@ public class GalleryNoteFragment extends Fragment
   private BehaviorSubject<Boolean> addButtonEnabled = BehaviorSubject.create();
   private BehaviorSubject<Boolean> permissionGranted = BehaviorSubject.create();
   private RxEvent destroyed = new RxEvent();
+  private FloatingActionButton addButton;
 
   public interface Listener {
     String getExperimentId();
@@ -92,10 +95,11 @@ public class GalleryNoteFragment extends Fragment
     Listener getGalleryListener();
   }
 
-  public static Fragment newInstance(AppAccount appAccount) {
+  public static ActionFragment newInstance(AppAccount appAccount, String experimentId) {
     GalleryNoteFragment fragment = new GalleryNoteFragment();
     Bundle args = new Bundle();
     args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
+    args.putString(KEY_EXPERIMENT_ID, experimentId);
     fragment.setArguments(args);
     return fragment;
   }
@@ -130,8 +134,6 @@ public class GalleryNoteFragment extends Fragment
             });
 
     whenLoaderManager.onSuccess(getLoaderManager());
-    setEnterTransition(new Slide());
-    setExitTransition(new Slide());
   }
 
   @Override
@@ -166,8 +168,6 @@ public class GalleryNoteFragment extends Fragment
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-    // The send button coloring depends on whether or not were recording so we have to set the theme
-    // here. The theme will be updated by the activity if we're currently recording.
     View rootView = inflater.inflate(R.layout.gallery_note_fragment, null);
 
     RecyclerView gallery = rootView.findViewById(R.id.gallery);
@@ -178,17 +178,15 @@ public class GalleryNoteFragment extends Fragment
     gallery.setLayoutManager(layoutManager);
     gallery.setItemAnimator(new DefaultItemAnimator());
     gallery.setAdapter(galleryAdapter);
-    FloatingActionButton addButton = rootView.findViewById(R.id.btn_add);
+    addButton = rootView.findViewById(R.id.btn_add);
 
     requestPermission();
     attachAddButton(addButton);
-    setUpTitle(rootView.findViewById(R.id.tool_pane_title_bar));
+    actionController.attachAddButton(addButton);
+    actionController.attachProgressBar(rootView.findViewById(R.id.recording_progress_bar));
+    setUpTitleBar(rootView, false, R.string.action_bar_gallery, R.drawable.ic_gallery);
 
     return rootView;
-  }
-
-  private AppAccount getAppAccount() {
-    return WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
   }
 
   private void complainPermissions() {
@@ -252,24 +250,6 @@ public class GalleryNoteFragment extends Fragment
     addButtonEnabled.subscribe(enabled -> addButton.setEnabled(enabled));
   }
 
-  private void setUpTitle(View titleBarView) {
-    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
-    if (activity != null) {
-      if (activity.isTwoPane()) {
-        ((TextView) titleBarView.findViewById(R.id.title_bar_text))
-            .setText(R.string.action_bar_gallery);
-        ((ImageView) titleBarView.findViewById(R.id.title_bar_icon))
-            .setImageDrawable(
-                getResources().getDrawable(R.drawable.ic_gallery));
-        titleBarView
-            .findViewById(R.id.title_bar_close)
-            .setOnClickListener(v -> activity.closeToolFragment());
-      } else {
-        titleBarView.setVisibility(View.GONE);
-      }
-    }
-  }
-
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
@@ -289,7 +269,7 @@ public class GalleryNoteFragment extends Fragment
   }
 
   @Override
-  public Loader<List<PhotoAsyncLoader.Image>> onCreateLoader(int i, Bundle bundle) {
+  public Loader<List<Image>> onCreateLoader(int i, Bundle bundle) {
     return new PhotoAsyncLoader(getActivity().getApplicationContext());
   }
 
@@ -483,36 +463,12 @@ public class GalleryNoteFragment extends Fragment
   }
 
   @Override
-  public void onResume() {
-    super.onResume();
-    if (isVisible()) {
-      updateTitle();
+  protected String getTitle() {
+    String title = getString(R.string.action_bar_gallery);
+    int selectedImagesCount = galleryAdapter.getSelectedImages().size();
+    if (selectedImagesCount > 0) {
+      title = String.format(getString(R.string.gallery_selected_title), selectedImagesCount);
     }
-  }
-
-  @Override
-  public void onHiddenChanged(boolean hidden) {
-    super.onHiddenChanged(hidden);
-    if (!hidden) {
-      updateTitle();
-    }
-  }
-
-  private void updateTitle() {
-    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
-    if (activity != null) {
-
-      String title = getString(R.string.action_bar_gallery);
-      int selectedImagesCount = galleryAdapter.getSelectedImages().size();
-      if (selectedImagesCount > 0) {
-        title = String.format(getString(R.string.gallery_selected_title), selectedImagesCount);
-      }
-
-      if (activity.isTwoPane()) {
-        ((TextView) getView().findViewById(R.id.title_bar_text)).setText(title);
-      } else {
-        activity.updateTitleByToolFragment(title);
-      }
-    }
+    return title;
   }
 }

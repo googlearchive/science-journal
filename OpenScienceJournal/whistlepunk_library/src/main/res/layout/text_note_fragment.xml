@@ -25,6 +25,17 @@
 
     <include layout="@layout/fragment_tool_pane_title"/>
 
+    <ProgressBar
+        android:id="@+id/recording_progress_bar"
+        style="@style/RecordingProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="26dp"
+        android:layout_marginTop="-11dp"
+        android:layout_marginBottom="-11dp"
+        android:indeterminate="true"
+        android:indeterminateBehavior="repeat"
+        android:theme="@style/RecordingProgressBarColor" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"

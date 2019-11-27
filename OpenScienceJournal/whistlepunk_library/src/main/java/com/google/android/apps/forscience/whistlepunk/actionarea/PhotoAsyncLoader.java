@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.google.android.apps.forscience.whistlepunk;
+package com.google.android.apps.forscience.whistlepunk.actionarea;
 
 import android.content.Context;
 import android.database.Cursor;

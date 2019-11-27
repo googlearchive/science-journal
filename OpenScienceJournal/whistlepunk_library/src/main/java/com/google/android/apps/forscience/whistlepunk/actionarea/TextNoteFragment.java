@@ -14,21 +14,22 @@
  *  limitations under the License.
  */
 
-package com.google.android.apps.forscience.whistlepunk;
+package com.google.android.apps.forscience.whistlepunk.actionarea;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import android.text.TextUtils;
-import android.transition.Slide;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.TextView;
+import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
+import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
@@ -39,7 +40,7 @@ import com.jakewharton.rxbinding2.widget.RxTextView;
 import io.reactivex.subjects.BehaviorSubject;
 
 /** Fragment controlling adding text notes in the ExperimentActivity. */
-public class TextNoteFragment extends Fragment {
+public class TextNoteFragment extends ActionFragment {
   private static final String KEY_TEXT = "saved_text";
 
   private TextView textView;
@@ -55,11 +56,13 @@ public class TextNoteFragment extends Fragment {
     TextNoteFragment.TextLabelFragmentListener getTextLabelFragmentListener();
   }
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setEnterTransition(new Slide());
-    setExitTransition(new Slide());
+  public static TextNoteFragment newInstance(AppAccount appAccount, String experimentId) {
+    TextNoteFragment fragment = new TextNoteFragment();
+    Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
+    args.putString(KEY_EXPERIMENT_ID, experimentId);
+    fragment.setArguments(args);
+    return fragment;
   }
 
   @Override
@@ -93,7 +96,9 @@ public class TextNoteFragment extends Fragment {
 
     FloatingActionButton addButton = rootView.findViewById(R.id.btn_add_inline);
     setupAddButton(addButton);
-    setUpTitle(rootView.findViewById(R.id.tool_pane_title_bar));
+    actionController.attachAddButton(addButton);
+    actionController.attachProgressBar(rootView.findViewById(R.id.recording_progress_bar));
+    setUpTitleBar(rootView, false, R.string.action_bar_text_note, R.drawable.ic_text);
     return rootView;
   }
 
@@ -126,24 +131,6 @@ public class TextNoteFragment extends Fragment {
     whenText.subscribe(text -> addButton.setEnabled(!TextUtils.isEmpty(text)));
   }
 
-  private void setUpTitle(View titleBarView) {
-    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
-    if (activity != null) {
-      if (activity.isTwoPane()) {
-        ((TextView) titleBarView.findViewById(R.id.title_bar_text))
-            .setText(R.string.action_bar_text_note);
-        ((ImageView) titleBarView.findViewById(R.id.title_bar_icon))
-            .setImageDrawable(
-                getResources().getDrawable(R.drawable.ic_text));
-        titleBarView
-            .findViewById(R.id.title_bar_close)
-            .setOnClickListener(v -> activity.closeToolFragment());
-      } else {
-        titleBarView.setVisibility(View.GONE);
-      }
-    }
-  }
-
   private void log(Context context, Label result) {
     WhistlePunkApplication.getUsageTracker(context)
         .trackEvent(
@@ -174,30 +161,7 @@ public class TextNoteFragment extends Fragment {
   }
 
   @Override
-  public void onResume() {
-    super.onResume();
-    if (isVisible()) {
-      updateTitle();
-    }
-  }
-
-  @Override
-  public void onHiddenChanged(boolean hidden) {
-    super.onHiddenChanged(hidden);
-    if (!hidden) {
-      updateTitle();
-    }
-  }
-
-  private void updateTitle() {
-    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
-    if (activity != null) {
-      String title = getString(R.string.action_bar_text_note);
-      if (activity.isTwoPane()) {
-        ((TextView) getView().findViewById(R.id.title_bar_text)).setText(title);
-      } else {
-        activity.updateTitleByToolFragment(title);
-      }
-    }
+  public String getTitle() {
+    return getString(R.string.action_bar_text_note);
   }
 }

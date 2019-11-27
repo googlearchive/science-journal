@@ -20,7 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
-import com.google.android.apps.forscience.whistlepunk.AddMoreObservationNotesFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.AddMoreObservationNotesFragment;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
@@ -200,7 +201,7 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   }
 
   @Override
-  protected long getTimestamp(Context context) {
+  public long getTimestamp(Context context) {
     return ((RunReviewFragment) getDefaultFragment()).getTimestamp();
   }
 
@@ -217,9 +218,10 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   }
 
   @Override
-  protected Fragment newInstanceAddMoreObservationNotes() {
+  protected ActionFragment newInstanceAddMoreObservationNotes(
+      AppAccount appAccount, String experimentId) {
     moreObservationNotesFragment =
-        AddMoreObservationNotesFragment.newInstance(true /* isRunReview */);
+        AddMoreObservationNotesFragment.newInstance(true /* isRunReview */, appAccount, experimentId);
     return moreObservationNotesFragment;
   }
 
