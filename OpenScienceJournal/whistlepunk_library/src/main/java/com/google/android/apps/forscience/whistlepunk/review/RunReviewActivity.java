@@ -196,6 +196,11 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   }
 
   @Override
+  public boolean isRecording() {
+    return false;
+  }
+
+  @Override
   protected void onLabelAdded(String trialId, Label label) {
     fragment.onLabelAdded(label);
   }

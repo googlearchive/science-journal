@@ -22,6 +22,9 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
@@ -223,6 +226,16 @@ public class SensorFragment extends ActionFragment
     handler = new Handler(this);
     featureDiscoveryProvider =
         WhistlePunkApplication.getAppServices(getActivity()).getFeatureDiscoveryProvider();
+  }
+
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu,inflater);
+    inflater.inflate(R.menu.menu_sensor_fragment, menu);
+
+    MenuItem timingChip = menu.findItem(R.id.timing_chip);
+    timingChip.setVisible(recordingStatus.getValue().state == RecordingState.ACTIVE);
+    actionController.attachElapsedTime(timingChip,this);
   }
 
   private void onAudioPermissionChanged(@PermissionState int newState) {
@@ -1026,6 +1039,7 @@ public class SensorFragment extends ActionFragment
         sensorCardAdapter.setUiLockedForRecording(false);
       }
     }
+    updateTitle();
   }
 
   private void refreshLabels(RecordingStatus status) {
@@ -1405,6 +1419,7 @@ public class SensorFragment extends ActionFragment
 
   @Override
   protected String getTitle() {
-    return getString(R.string.action_bar_sensor_note);
+    return getString(recordingStatus.getValue().state == RecordingState.ACTIVE
+        ? R.string.record_title : R.string.action_bar_sensor_note);
   }
 }

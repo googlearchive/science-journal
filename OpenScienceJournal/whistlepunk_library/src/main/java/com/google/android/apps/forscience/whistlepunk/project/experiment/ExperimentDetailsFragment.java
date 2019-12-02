@@ -583,7 +583,8 @@ public class ExperimentDetailsFragment extends Fragment
       menu.findItem(R.id.action_remove_cover_image).setVisible(canRemoveCoverImage());
       menu.findItem(R.id.action_include_archived).setVisible(!includeArchived);
       menu.findItem(R.id.action_exclude_archived).setVisible(includeArchived);
-      menu.findItem(R.id.action_edit_experiment).setVisible(canEdit());
+      menu.findItem(R.id.action_edit_experiment).setVisible(canEdit() && !isRecording());
+      menu.findItem(R.id.run_review_overflow_menu).setVisible(!isRecording());
 
       boolean isShareIntentValid =
           FileMetadataUtil.getInstance()
@@ -596,7 +597,14 @@ public class ExperimentDetailsFragment extends Fragment
       menu.findItem(R.id.action_download_experiment).setEnabled(!isRecording());
       setHomeButtonState(isRecording());
     } else {
-      setHomeButtonState(!activity.isToolFragmentVisible() && isRecording());
+      if (activity.isSensorFragmentVisible() && isRecording()) {
+        final Drawable v =
+            ContextCompat.getDrawable(activity, R.drawable.ic_keyboard_arrow_down_24dp);
+        ActionBar actionBar = activity.getSupportActionBar();
+        actionBar.setHomeAsUpIndicator(v);
+      } else {
+        setHomeButtonState(!activity.isToolFragmentVisible() && isRecording());
+      }
     }
   }
 

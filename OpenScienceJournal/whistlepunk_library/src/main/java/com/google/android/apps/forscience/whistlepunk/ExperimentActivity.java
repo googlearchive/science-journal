@@ -332,6 +332,12 @@ public class ExperimentActivity extends NoteTakingActivity
   }
 
   @Override
+  public boolean isRecording() {
+    String recordingId = experimentFragment.getActiveRecordingId();
+    return recordingId != null && !recordingId.isEmpty();
+  }
+
+  @Override
   protected boolean handleDefaultFragmentOnBackPressed() {
     return experimentFragment.handleOnBackPressed();
   }

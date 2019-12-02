@@ -464,7 +464,13 @@ public class GalleryNoteFragment extends ActionFragment
 
   @Override
   protected String getTitle() {
-    String title = getString(R.string.action_bar_gallery);
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    boolean isRecording = false;
+    if (activity != null && activity.isRecording()) {
+      isRecording = true;
+    }
+    String title = getString(isRecording ?
+        R.string.action_bar_gallery_recording : R.string.action_bar_gallery);
     int selectedImagesCount = galleryAdapter.getSelectedImages().size();
     if (selectedImagesCount > 0) {
       title = String.format(getString(R.string.gallery_selected_title), selectedImagesCount);

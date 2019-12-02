@@ -174,6 +174,8 @@ public abstract class NoteTakingActivity extends AppCompatActivity
 
   protected abstract String getDefaultToolFragmentTag();
 
+  public abstract boolean isRecording();
+
   public void closeToolFragment() {
     activeToolFragmentTag = null;
     showDefaultFragments();
@@ -214,6 +216,10 @@ public abstract class NoteTakingActivity extends AppCompatActivity
 
   public boolean isToolFragmentVisible() {
     return activeToolFragmentTag != null;
+  }
+
+  public boolean isSensorFragmentVisible() {
+    return activeToolFragmentTag != null && activeToolFragmentTag.equals(SENSOR_TAG);
   }
 
   public void updateTitleByDefaultFragment(String title) {

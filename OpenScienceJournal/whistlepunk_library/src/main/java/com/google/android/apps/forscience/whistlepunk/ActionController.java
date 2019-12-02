@@ -23,6 +23,8 @@ import android.content.res.Resources.Theme;
 import android.net.Uri;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import androidx.core.content.res.ResourcesCompat;
@@ -41,6 +43,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding2.view.RxView;
 import io.reactivex.Observable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controls starting and stopping recordings and updating UI elements based on recording state
@@ -275,6 +279,50 @@ public class ActionController {
               recordButton.invalidate();
             });
   }
+
+  public void attachElapsedTime(MenuItem timingChip, SensorFragment fragment) {
+    TextView elapsedTime = timingChip.getActionView().findViewById(R.id.timing_chip_text);
+    recordingStatus
+        .takeUntil(RxView.detaches(elapsedTime))
+        .subscribe(
+            status -> {
+              if (status.isRecording()) {
+                timingChip.setVisible(true);
+              } else {
+                timingChip.setVisible(false);
+              }
+            });
+    ElapsedTimeAxisFormatter formatter =
+        ElapsedTimeAxisFormatter.getInstance(elapsedTime.getContext());
+    // This clears any old listener as well as setting a new one, so we don't need to worry
+    // about having multiple listeners active.
+    fragment.setRecordingTimeUpdateListener(
+        recordingTime -> elapsedTime.setText(formatter.format(recordingTime, true)));
+  }
+
+  public void attachMenu(Menu menu, View view) {
+    List<MenuItem> items = new ArrayList<>();
+    for (int i = 0; i < menu.size()-1; i++) {
+      items.add(menu.getItem(i));
+    }
+    if (menu.size() > 0) {
+      recordingStatus
+          .takeUntil(RxView.detaches(view))
+          .subscribe(
+              status -> {
+                if (status.isRecording()) {
+                  for (MenuItem item : items) {
+                    item.setVisible(false);
+                  }
+                } else {
+                  for (MenuItem item : items) {
+                    item.setVisible(true);
+                  }
+                }
+              });
+    }
+  }
+
 
   /**
    * Updates the title bar for {@link ActionFragment} when a recording starts/stops.

@@ -162,6 +162,10 @@ public class TextNoteFragment extends ActionFragment {
 
   @Override
   public String getTitle() {
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (activity != null && activity.isRecording()) {
+      return getString(R.string.action_bar_text_note_recording);
+    }
     return getString(R.string.action_bar_text_note);
   }
 }
