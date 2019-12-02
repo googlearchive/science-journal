@@ -26,10 +26,6 @@
             android:icon="@drawable/ic_navlibrary_black_24dp"
             android:title="@string/navigation_item_experiments"/>
         <item
-            android:id="@+id/navigation_item_activities"
-            android:icon="@drawable/baseline_open_in_browser_black_24dp"
-            android:title="@string/navigation_item_activities"/>
-        <item
             android:id="@+id/navigation_item_settings"
             android:icon="@drawable/ic_settings_black_24dp"
             android:title="@string/navigation_item_settings"/>
