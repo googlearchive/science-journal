@@ -454,6 +454,10 @@ public class MainActivity extends ActivityWithNavigationView {
                 showFeedbackError();
               }
             });
+      } else if (itemId == R.id.navigation_item_sign_in) {
+        final String tag = String.valueOf(R.id.navigation_item_experiments);
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+        accountsProvider.showAccountSwitcherDialog(fragment, ActivityRequestCodes.REQUEST_GOOGLE_SIGN_IN);
       }
       if (intent != null) {
         try {
@@ -515,6 +519,11 @@ public class MainActivity extends ActivityWithNavigationView {
       if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
         drawerLayout.closeDrawer(GravityCompat.START);
       } else {
+        if (accountsProvider.isSignedIn()) {
+          navigationView.getMenu().getItem(0).setTitle(R.string.navigation_item_sign_out);
+        } else {
+          navigationView.getMenu().getItem(0).setTitle(R.string.navigation_item_sign_in);
+        }
         drawerLayout.openDrawer(GravityCompat.START);
       }
     }
@@ -561,6 +570,9 @@ public class MainActivity extends ActivityWithNavigationView {
         if (resultCode == RESULT_CANCELED) {
           finish();
         }
+        return;
+      case ActivityRequestCodes.REQUEST_GOOGLE_SIGN_IN:
+        accountsProvider.onLoginAccountsChanged(data);
         return;
       default:
         break;

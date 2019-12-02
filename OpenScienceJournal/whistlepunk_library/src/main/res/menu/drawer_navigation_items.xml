@@ -18,6 +18,10 @@
     <group
         android:checkableBehavior="single">
         <item
+            android:id="@+id/navigation_item_sign_in"
+            android:icon="@drawable/ic_account_circle_black_24dp"
+            android:title="@string/navigation_item_sign_in"/>
+        <item
             android:id="@+id/navigation_item_experiments"
             android:icon="@drawable/ic_navlibrary_black_24dp"
             android:title="@string/navigation_item_experiments"/>

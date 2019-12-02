@@ -4,7 +4,7 @@ import android.content.Context;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** An abstract base class for an account. */
-abstract class AbstractAccount implements AppAccount {
+public abstract class AbstractAccount implements AppAccount {
   protected final Context applicationContext;
   private final Object lockForExperimentLibraryFile = new Object();
   private final Object lockForExperimentProtoFile = new Object();
