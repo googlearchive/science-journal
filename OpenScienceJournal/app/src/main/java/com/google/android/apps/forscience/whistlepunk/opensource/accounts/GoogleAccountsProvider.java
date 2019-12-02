@@ -41,12 +41,6 @@ public final class GoogleAccountsProvider extends AbstractAccountsProvider {
   }
 
   @Override
-  protected Single<PermissionStatus> isAccountPermitted(Activity activity, AppAccount appAccount) {
-    return Single.just(PermissionStatus.PERMITTED);
-  }
-
-
-  @Override
   protected void afterSetCurrentAccount(AppAccount currentAccount) {
     super.afterSetCurrentAccount(currentAccount);
   }

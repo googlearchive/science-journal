@@ -28,15 +28,12 @@
         <item
             android:id="@+id/navigation_item_settings"
             android:icon="@drawable/ic_settings_black_24dp"
-            android:title="@string/navigation_item_settings"/>
+            android:title="@string/navigation_item_settings"
+            android:visibility="gone"/>
         <item
             android:id="@+id/dev_testing_options"
             android:icon="@drawable/ic_notes_white_24dp"
             android:title="@string/navigation_item_testing_options"/>
-        <item
-            android:id="@+id/navigation_item_feedback"
-            android:icon="@drawable/ic_feedback_black_24dp"
-            android:title="@string/action_feedback" />
         <item
             android:id="@+id/navigation_item_about"
             android:icon="@drawable/ic_info_black_24dp"
