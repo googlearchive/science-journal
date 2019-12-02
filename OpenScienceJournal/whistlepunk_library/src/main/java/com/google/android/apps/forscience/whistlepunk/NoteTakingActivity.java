@@ -390,18 +390,20 @@ public abstract class NoteTakingActivity extends AppCompatActivity
     ft.commit();
   }
 
-  private void showFragmentByTagInToolPane(String tag) {
+  public ActionFragment showFragmentByTagInToolPane(String tag) {
     hideAllFragmentsInToolPane();
     FragmentManager fragmentManager = getSupportFragmentManager();
     ActionFragment fragment = (ActionFragment) fragmentManager.findFragmentByTag(tag);
     if (fragment != null) {
       fragmentManager.beginTransaction().show(fragment).commit();
     } else {
+      fragment = createFragmentByTag(tag);
       fragmentManager
           .beginTransaction()
-          .add(R.id.tool_pane, createFragmentByTag(tag), tag)
+          .add(R.id.tool_pane, fragment, tag)
           .commit();
     }
+    return fragment;
   }
 
   private ActionFragment createFragmentByTag(String tag) {

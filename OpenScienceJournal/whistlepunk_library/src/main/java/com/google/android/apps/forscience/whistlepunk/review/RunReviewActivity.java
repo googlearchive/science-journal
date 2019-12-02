@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionFragment;
 import com.google.android.apps.forscience.whistlepunk.actionarea.AddMoreObservationNotesFragment;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
@@ -41,6 +42,7 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   private boolean fromRecord;
   private RunReviewFragment fragment;
   private AddMoreObservationNotesFragment moreObservationNotesFragment;
+  private long currentTimestamp;
 
   /**
    * Launches a new recording review activity
@@ -186,6 +188,13 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   }
 
   @Override
+  public ActionFragment showFragmentByTagInToolPane(String tag) {
+    ActionFragment fragment = super.showFragmentByTagInToolPane(tag);
+    onTimestampChanged(fragment, currentTimestamp);
+    return fragment;
+  }
+
+  @Override
   protected boolean handleDefaultFragmentOnBackPressed() {
     return handleOnBackPressed();
   }
@@ -230,10 +239,30 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
     return moreObservationNotesFragment;
   }
 
+  public void onTimestampChanged(ActionFragment actionFragment, long timestamp) {
+    String timeText = PinnedNoteAdapter.getNoteTimeText(0, 0);
+    if (fragment != null) {
+      timeText = PinnedNoteAdapter.getNoteTimeText(timestamp, fragment.getStartTimestamp());
+    }
+    actionFragment.updateTime(timeText);
+  }
+
   @Override
   public void onTimestampChanged(long timestamp) {
+    currentTimestamp = timestamp;
     if (moreObservationNotesFragment != null) {
-      moreObservationNotesFragment.updateTime(timestamp, fragment.getStartTimestamp());
+      onTimestampChanged(moreObservationNotesFragment, timestamp);
+    }
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    ActionFragment fragment =
+        (ActionFragment) fragmentManager.findFragmentByTag(GALLERY_TAG);
+    if (fragment != null) {
+      onTimestampChanged(fragment, timestamp);
+    }
+    fragment =
+        (ActionFragment) fragmentManager.findFragmentByTag(NOTE_TAG);
+    if (fragment != null) {
+      onTimestampChanged(fragment, timestamp);
     }
   }
 }

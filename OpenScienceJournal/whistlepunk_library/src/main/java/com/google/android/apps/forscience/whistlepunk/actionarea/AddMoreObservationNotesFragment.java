@@ -70,13 +70,13 @@ public class AddMoreObservationNotesFragment extends ActionFragment {
     return rootView;
   }
 
-  public void updateTime(long currentTimestamp, long runStartTimestamp) {
+  public void updateTime(String timestamp) {
     if (isRunReview) {
       TextView view = getView().findViewById(R.id.title_with_time);
       view.setText(
           String.format(
               getString(R.string.add_note_to_time_text),
-              PinnedNoteAdapter.getNoteTimeText(currentTimestamp, runStartTimestamp)));
+              timestamp));
     }
   }
 

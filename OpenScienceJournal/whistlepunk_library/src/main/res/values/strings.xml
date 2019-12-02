@@ -1213,6 +1213,12 @@
     <!-- Text description to add a note to the trial at a specified time [CHAR_LIMIT=50] -->
     <string name="add_note_to_time_text">Add note to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
 
+    <!-- Text description to add a text note to the trial at a specified time [CHAR_LIMIT=50] -->
+    <string name="add_text_note_to_time_text">Add text note to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
+
+    <!-- Text description to add a image note to the trial at a specified time [CHAR_LIMIT=50] -->
+    <string name="add_gallery_note_to_time_text">Add image to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
+
     <!-- Hint text in a trial caption textfield [CHAR_LIMIT=50] -->
     <string name="trial_caption_hint_text">Add description of recording here</string>
 

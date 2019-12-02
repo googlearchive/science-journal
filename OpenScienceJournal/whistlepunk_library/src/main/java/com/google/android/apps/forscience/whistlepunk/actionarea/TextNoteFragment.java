@@ -35,6 +35,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTextLabelValue.TextLabelValue;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import io.reactivex.subjects.BehaviorSubject;
@@ -163,6 +164,13 @@ public class TextNoteFragment extends ActionFragment {
   @Override
   public String getTitle() {
     NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (activity instanceof RunReviewActivity) {
+      if (currentTime != null) {
+        return String.format(
+            getString(R.string.add_text_note_to_time_text),
+            currentTime);
+      }
+    }
     if (activity != null && activity.isRecording()) {
       return getString(R.string.action_bar_text_note_recording);
     }

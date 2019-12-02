@@ -34,6 +34,7 @@ public abstract class ActionFragment extends Fragment {
   static final String KEY_ACCOUNT_KEY = "accountKey";
   static final String KEY_EXPERIMENT_ID = "experimentId";
   ActionController actionController;
+  String currentTime;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,11 @@ public abstract class ActionFragment extends Fragment {
     actionController.attachTitleBar(rootView.findViewById(R.id.tool_pane_title_bar),
         isTwoPane(), v -> {if(activity != null) activity.closeToolFragment();},
         hideDuringRecording, titleResource, iconResource);
+  }
+
+  public void updateTime(String timestamp) {
+    currentTime = timestamp;
+    updateTitle();
   }
 
   protected abstract String getTitle();

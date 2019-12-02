@@ -51,6 +51,7 @@ import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciPictureLabelValue;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.UpdateExperimentFragment;
+import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -474,6 +475,13 @@ public class GalleryNoteFragment extends ActionFragment
     int selectedImagesCount = galleryAdapter.getSelectedImages().size();
     if (selectedImagesCount > 0) {
       title = String.format(getString(R.string.gallery_selected_title), selectedImagesCount);
+    }
+    if (activity instanceof RunReviewActivity) {
+      if (currentTime != null && selectedImagesCount == 0) {
+        return String.format(
+            getString(R.string.add_gallery_note_to_time_text),
+            currentTime);
+      }
     }
     return title;
   }
