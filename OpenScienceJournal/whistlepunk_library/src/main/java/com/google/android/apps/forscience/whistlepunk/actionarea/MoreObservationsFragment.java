@@ -14,16 +14,14 @@
  *  limitations under the License.
  */
 
-package com.google.android.apps.forscience.whistlepunk;
+package com.google.android.apps.forscience.whistlepunk.actionarea;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.transition.Slide;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,24 +29,23 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import com.google.android.apps.forscience.whistlepunk.ExperimentActivity;
+import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 
 /** Fragment for adding more observations (drawing, velocity, etc) in the ExperimentActivity. */
-public class MoreObservationsFragment extends Fragment {
+public class MoreObservationsFragment extends ActionFragment {
 
   private RecyclerView gridView;
   private ObservationsAdapter adapter;
 
-  public static Fragment newInstance() {
+  public static MoreObservationsFragment newInstance(AppAccount appAccount, String experimentId) {
     MoreObservationsFragment fragment = new MoreObservationsFragment();
-    fragment.setArguments(new Bundle());
+    Bundle args = new Bundle();
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
+    args.putString(KEY_EXPERIMENT_ID, experimentId);
+    fragment.setArguments(args);
     return fragment;
-  }
-
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setEnterTransition(new Slide());
-    setExitTransition(new Slide());
   }
 
   @Nullable
@@ -132,13 +129,13 @@ public class MoreObservationsFragment extends Fragment {
     }
   }
 
-  static class ObservationOption {
+  public static class ObservationOption {
     final int titleId;
     final int descriptionId;
     final int iconId;
     final OnClickListener listener;
 
-    ObservationOption(int titleId, int descriptionId, int iconId, OnClickListener listener) {
+    public ObservationOption(int titleId, int descriptionId, int iconId, OnClickListener listener) {
       this.titleId = titleId;
       this.descriptionId = descriptionId;
       this.iconId = iconId;
@@ -147,26 +144,7 @@ public class MoreObservationsFragment extends Fragment {
   }
 
   @Override
-  public void onResume() {
-    super.onResume();
-    if (isVisible()) {
-      updateTitle();
-    }
-  }
-
-  @Override
-  public void onHiddenChanged(boolean hidden) {
-    super.onHiddenChanged(hidden);
-    if (!hidden) {
-      updateTitle();
-    }
-  }
-
-  private void updateTitle() {
-    Activity activity = getActivity();
-    if (activity != null) {
-      ((NoteTakingActivity) activity)
-          .updateTitleByToolFragment(getString(R.string.action_bar_more));
-    }
+  protected String getTitle() {
+    return getString(R.string.action_bar_more);
   }
 }

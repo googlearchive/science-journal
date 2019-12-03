@@ -10,6 +10,7 @@
     android:layout_centerInParent="true"
     android:layout_gravity="center"
     app:cardCornerRadius="@dimen/record_sensor_button_radius"
+    android:contentDescription="@string/btn_stop_description"
     >
   <LinearLayout
       android:layout_width="wrap_content"
@@ -24,6 +25,7 @@
         android:layout_height="16dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_recording_stop_42dp"
         />
     <TextView
         android:id="@+id/record_button_text"
@@ -31,6 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:text="@string/btn_stop_label"
         />
   </LinearLayout>
 </androidx.cardview.widget.CardView>

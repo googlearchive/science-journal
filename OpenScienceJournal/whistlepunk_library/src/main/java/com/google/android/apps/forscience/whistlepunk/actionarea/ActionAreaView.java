@@ -110,7 +110,7 @@ public class ActionAreaView extends CardView {
   public void disableAddSensorItem(Context context, boolean disabled) {
     ActionAreaItemView itemView = getItemView(ActionAreaItem.ADD_SENSOR);
     if (itemView != null && context != null) {
-      int style = disabled ? R.style.DisabledActionAreaIcon : R.style.DefaultActionAreaIcon;
+      int style = disabled ? R.style.DisabledActionAreaIcon : ActionAreaItemView.USE_DEFAULT_STYLE;
       itemView.updateView(context, style);
       itemView.setClickable(!disabled);
     }
@@ -120,11 +120,11 @@ public class ActionAreaView extends CardView {
    * Changes the color of all the items in the action area.
    *
    * @param context The current context
-   * @param style The action area style declared in @see styles.xml
+   * @param optionalStyle The action area style declared in @see styles.xml
    */
-  public void updateColor(Context context, int style) {
+  public void updateColor(Context context, int optionalStyle) {
     for (ActionAreaItemView item : actionAreaItemViews) {
-      item.updateView(context, style);
+      item.updateView(context, optionalStyle);
     }
   }
 

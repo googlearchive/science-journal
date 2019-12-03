@@ -13,29 +13,41 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.google.android.apps.forscience.whistlepunk;
+package com.google.android.apps.forscience.whistlepunk.actionarea;
 
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
+import androidx.transition.Fade;
+import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
+import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.review.PinnedNoteAdapter;
 
 /** Fragment that prompts the user to choose a note-adding tool from the action area. */
-public class AddMoreObservationNotesFragment extends Fragment {
+public class AddMoreObservationNotesFragment extends ActionFragment {
   private static final String EXTRA_IS_RUN_REVIEW = "isRunReview";
   private boolean isRunReview;
 
-  public static AddMoreObservationNotesFragment newInstance(boolean isRunReview) {
+  public static AddMoreObservationNotesFragment newInstance(
+      boolean isRunReview, AppAccount appAccount, String experimentId) {
     AddMoreObservationNotesFragment fragment = new AddMoreObservationNotesFragment();
-    Bundle bundle = new Bundle();
-    bundle.putBoolean(EXTRA_IS_RUN_REVIEW, isRunReview);
-    fragment.setArguments(bundle);
+    Bundle args = new Bundle();
+    args.putBoolean(EXTRA_IS_RUN_REVIEW, isRunReview);
+    args.putString(KEY_ACCOUNT_KEY, appAccount.getAccountKey());
+    args.putString(KEY_EXPERIMENT_ID, experimentId);
+    fragment.setArguments(args);
     return fragment;
+  }
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setEnterTransition(new Fade());
+    setExitTransition(new Fade());
   }
 
   @Nullable
@@ -54,19 +66,22 @@ public class AddMoreObservationNotesFragment extends Fragment {
     ActionAreaView actionArea = rootView.findViewById(R.id.action_area);
     NoteTakingActivity noteTakingActivity = (NoteTakingActivity) getActivity();
     actionArea.addItems(getContext(), noteTakingActivity.getActionAreaItems(), noteTakingActivity);
-    if (isRunReview) {
-      actionArea.updateColor(getContext(), R.style.BlueActionAreaIcon);
-    }
+    actionController.attachActionArea(actionArea);
     return rootView;
   }
 
-  public void updateTime(long currentTimestamp, long runStartTimestamp) {
+  public void updateTime(String timestamp) {
     if (isRunReview) {
       TextView view = getView().findViewById(R.id.title_with_time);
       view.setText(
           String.format(
               getString(R.string.add_note_to_time_text),
-              PinnedNoteAdapter.getNoteTimeText(currentTimestamp, runStartTimestamp)));
+              timestamp));
     }
+  }
+
+  @Override
+  protected String getTitle() {
+    return "";
   }
 }

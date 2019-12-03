@@ -69,7 +69,7 @@ import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.SensorFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.SensorFragment;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -499,7 +499,6 @@ public class RunReviewFragment extends Fragment
             0,
             0,
             getResources().getDimensionPixelOffset(R.dimen.list_bottom_padding_with_action_area));
-        actionArea.updateColor(getContext(), R.style.BlueActionAreaIcon);
         actionArea.setUpScrollListener(pinnedNoteList);
       }
     } else {
@@ -528,55 +527,61 @@ public class RunReviewFragment extends Fragment
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    inflater.inflate(R.menu.menu_run_review, menu);
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (!activity.isToolFragmentVisible() || activity.isTwoPane()) {
+      inflater.inflate(R.menu.menu_run_review, menu);
+    }
   }
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
-    if (claimExperimentsMode) {
-      // In claim experiments mode, hide all menu items except download and delete.
-      menu.findItem(R.id.action_export).setVisible(false);
-      menu.findItem(R.id.action_download).setVisible(true);
-      menu.findItem(R.id.action_run_review_delete).setVisible(true);
-      menu.findItem(R.id.action_run_review_archive).setVisible(false);
-      menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
-      menu.findItem(R.id.action_run_review_edit).setVisible(false);
-      menu.findItem(R.id.action_run_review_crop).setVisible(false);
-      menu.findItem(R.id.action_run_review_audio_settings).setVisible(false);
-      menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
-      menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
-      menu.findItem(R.id.action_graph_options).setVisible(false);
-    } else {
-      menu.findItem(R.id.action_graph_options).setVisible(false); // b/29771945
-
-      // Hide some menu buttons if the run isn't loaded yet.
-      if (experiment != null) {
-        menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
-        menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
-
-        menu.findItem(R.id.action_disable_auto_zoom).setVisible(getTrial().getAutoZoomEnabled());
-        menu.findItem(R.id.action_enable_auto_zoom).setVisible(!getTrial().getAutoZoomEnabled());
-
-        // You can only do a crop if the run length is long enough.
-        menu.findItem(R.id.action_run_review_crop)
-            .setEnabled(CropHelper.experimentIsLongEnoughForCrop(getTrial()));
-
-        menu.findItem(R.id.action_export).setVisible(shouldShowExport());
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (!activity.isToolFragmentVisible() || activity.isTwoPane()) {
+      if (claimExperimentsMode) {
+        // In claim experiments mode, hide all menu items except download and delete.
+        menu.findItem(R.id.action_export).setVisible(false);
         menu.findItem(R.id.action_download).setVisible(true);
-      } else {
+        menu.findItem(R.id.action_run_review_delete).setVisible(true);
         menu.findItem(R.id.action_run_review_archive).setVisible(false);
         menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
-        menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
-        menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
-        menu.findItem(R.id.action_run_review_delete).setVisible(false);
+        menu.findItem(R.id.action_run_review_edit).setVisible(false);
         menu.findItem(R.id.action_run_review_crop).setVisible(false);
-        menu.findItem(R.id.action_export).setVisible(false);
-        menu.findItem(R.id.action_download).setVisible(false);
-      }
+        menu.findItem(R.id.action_run_review_audio_settings).setVisible(false);
+        menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
+        menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
+        menu.findItem(R.id.action_graph_options).setVisible(false);
+      } else {
+        menu.findItem(R.id.action_graph_options).setVisible(false); // b/29771945
 
-      if (((RunReviewActivity) getActivity()).isFromRecord()) {
-        // If this is from record, always enable deletion.
-        menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+        // Hide some menu buttons if the run isn't loaded yet.
+        if (experiment != null) {
+          menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
+          menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
+
+          menu.findItem(R.id.action_disable_auto_zoom).setVisible(getTrial().getAutoZoomEnabled());
+          menu.findItem(R.id.action_enable_auto_zoom).setVisible(!getTrial().getAutoZoomEnabled());
+
+          // You can only do a crop if the run length is long enough.
+          menu.findItem(R.id.action_run_review_crop)
+              .setEnabled(CropHelper.experimentIsLongEnoughForCrop(getTrial()));
+
+          menu.findItem(R.id.action_export).setVisible(shouldShowExport());
+          menu.findItem(R.id.action_download).setVisible(true);
+        } else {
+          menu.findItem(R.id.action_run_review_archive).setVisible(false);
+          menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
+          menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
+          menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
+          menu.findItem(R.id.action_run_review_delete).setVisible(false);
+          menu.findItem(R.id.action_run_review_crop).setVisible(false);
+          menu.findItem(R.id.action_export).setVisible(false);
+          menu.findItem(R.id.action_download).setVisible(false);
+        }
+
+        if (((RunReviewActivity) getActivity()).isFromRecord()) {
+          // If this is from record, always enable deletion.
+          menu.findItem(R.id.action_run_review_delete).setEnabled(true);
+        }
       }
     }
 

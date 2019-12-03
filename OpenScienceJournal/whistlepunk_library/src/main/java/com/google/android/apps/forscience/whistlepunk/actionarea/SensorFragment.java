@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.google.android.apps.forscience.whistlepunk;
+package com.google.android.apps.forscience.whistlepunk.actionarea;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,6 +22,9 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,20 +32,46 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
-import android.transition.Slide;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import com.google.android.apps.forscience.ble.DeviceDiscoverer;
 import com.google.android.apps.forscience.javalib.Consumer;
 import com.google.android.apps.forscience.javalib.Success;
+import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
+import com.google.android.apps.forscience.whistlepunk.AddedLabelEvent;
+import com.google.android.apps.forscience.whistlepunk.AppSingleton;
+import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog.AudioSettingsDialogListener;
+import com.google.android.apps.forscience.whistlepunk.BluetoothDisabledDialog;
+import com.google.android.apps.forscience.whistlepunk.ColorAllocator;
+import com.google.android.apps.forscience.whistlepunk.CurrentTimeClock;
+import com.google.android.apps.forscience.whistlepunk.DataController;
+import com.google.android.apps.forscience.whistlepunk.ExperimentActivity;
+import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
+import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
+import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
+import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
+import com.google.android.apps.forscience.whistlepunk.PermissionUtils.PermissionState;
+import com.google.android.apps.forscience.whistlepunk.R;
+import com.google.android.apps.forscience.whistlepunk.RecorderController;
+import com.google.android.apps.forscience.whistlepunk.RecordingState;
+import com.google.android.apps.forscience.whistlepunk.RecordingStatus;
+import com.google.android.apps.forscience.whistlepunk.RxDataController;
+import com.google.android.apps.forscience.whistlepunk.RxEvent;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.SensorAppearanceProvider;
+import com.google.android.apps.forscience.whistlepunk.SensorCardAdapter;
+import com.google.android.apps.forscience.whistlepunk.SensorCardPresenter;
+import com.google.android.apps.forscience.whistlepunk.SensorRegistry;
+import com.google.android.apps.forscience.whistlepunk.SensorSettingsController;
+import com.google.android.apps.forscience.whistlepunk.SensorSettingsControllerImpl;
+import com.google.android.apps.forscience.whistlepunk.SnackbarManager;
+import com.google.android.apps.forscience.whistlepunk.Snapshotter;
+import com.google.android.apps.forscience.whistlepunk.StopRecordingNoDataDialog.StopRecordingDialogListener;
+import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
-import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
-import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.devicemanager.ConnectableSensor;
@@ -81,39 +110,37 @@ import java.util.List;
 import java.util.Objects;
 
 /** Fragment controlling adding sensor recordings in the ExperimentActivity. */
-public class SensorFragment extends Fragment
+public class SensorFragment extends ActionFragment
     implements Handler.Callback,
-        StopRecordingNoDataDialog.StopRecordingDialogListener,
-        AudioSettingsDialog.AudioSettingsDialogListener,
+    StopRecordingDialogListener,
+    AudioSettingsDialogListener,
         ActionAreaListener {
   private static final String TAG = "SensorFragment";
 
   private static final String KEY_SAVED_ACTIVE_SENSOR_CARD = "savedActiveCardIndex";
   private static final String KEY_SAVED_RECYCLER_LAYOUT = "savedRecyclerLayout";
-  private static final String KEY_ACCOUNT_KEY = "accountKey";
-  private static final String KEY_EXPERIMENT_ID = "experimentId";
 
   private static final int MSG_SHOW_FEATURE_DISCOVERY = 111;
   private final SnackbarManager snackbarManager = new SnackbarManager();
 
   public abstract static class UICallbacks {
-    public static UICallbacks NULL = new UICallbacks() {};
+    static UICallbacks NULL = new UICallbacks() {};
 
     /**
      * Called when recording starts
      *
      * @param recordingStatus the current recording status
      */
-    void onRecordingStart(RecordingStatus recordingStatus) {}
+    public void onRecordingStart(RecordingStatus recordingStatus) {}
 
     /** Called when recording actually stops. Updates the UI to remove "recording" markers */
-    void onRecordingStopped() {}
+    public void onRecordingStopped() {}
 
     /**
      * Called when a trial is fully saved and assigned a runId, so that we can update the UI
      * accordingly
      */
-    void onRecordingSaved(String runId, Experiment experiment) {}
+    public void onRecordingSaved(String runId, Experiment experiment) {}
   }
 
   public interface CallbacksProvider {
@@ -153,7 +180,6 @@ public class SensorFragment extends Fragment
   private Handler handler;
   private FeatureDiscoveryProvider featureDiscoveryProvider;
 
-  private ControlBarController controlBarController;
   private ActionAreaView actionAreaView;
 
   /**
@@ -200,17 +226,19 @@ public class SensorFragment extends Fragment
     handler = new Handler(this);
     featureDiscoveryProvider =
         WhistlePunkApplication.getAppServices(getActivity()).getFeatureDiscoveryProvider();
-
-    controlBarController =
-        new ControlBarController(getAppAccount(), getExperimentId(), new SnackbarManager());
-
-    setHasOptionsMenu(true);
-
-    setEnterTransition(new Slide());
-    setExitTransition(new Slide());
   }
 
-  private void onAudioPermissionChanged(@PermissionUtils.PermissionState int newState) {
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu,inflater);
+    inflater.inflate(R.menu.menu_sensor_fragment, menu);
+
+    MenuItem timingChip = menu.findItem(R.id.timing_chip);
+    timingChip.setVisible(recordingStatus.getValue().state == RecordingState.ACTIVE);
+    actionController.attachElapsedTime(timingChip,this);
+  }
+
+  private void onAudioPermissionChanged(@PermissionState int newState) {
     if (sensorCardPresenterForAudio == null || getActivity() == null) {
       return;
     }
@@ -283,9 +311,6 @@ public class SensorFragment extends Fragment
     getSensorAppearanceProvider()
         .loadAppearances(LoggingConsumer.<Success>expectSuccess(TAG, "Load appearances"));
     startUI();
-    if (isVisible()) {
-      updateTitle();
-    }
   }
 
   private void startUI() {
@@ -467,20 +492,15 @@ public class SensorFragment extends Fragment
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, getView());
     sensorCardLayoutManager = new LinearLayoutManager(getActivity());
 
-    setUpTitle(rootView.findViewById(R.id.tool_pane_title_bar));
-
     androidx.cardview.widget.CardView record = rootView.findViewById(R.id.record);
     sensorCardRecyclerView = (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);
     NoteTakingActivity activity = (NoteTakingActivity) getActivity();
-    boolean isTwoPane = activity != null && activity.isTwoPane();
-    controlBarController.attachSensorFragmentView(
+    actionController.attachSensorFragmentView(
         record,
-        getChildFragmentManager(),
-        actionAreaView,
-        this,
-        sensorCardRecyclerView,
-        rootView.findViewById(R.id.tool_pane_title_bar),
-        isTwoPane);
+        getChildFragmentManager());
+    actionController.attachActionAreaAndSensorCardViews(actionAreaView,
+        this, sensorCardRecyclerView);
+    setUpTitleBar(rootView, true, R.string.action_bar_sensor_note, R.drawable.ic_sensor);
 
     if (savedInstanceState != null) {
       sensorCardLayoutManager.onRestoreInstanceState(
@@ -490,41 +510,11 @@ public class SensorFragment extends Fragment
     return rootView;
   }
 
-  private void setUpTitle(View titleBarView) {
-    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
-    if (activity != null) {
-      if (activity.isTwoPane()) {
-        ((TextView) titleBarView.findViewById(R.id.title_bar_text))
-            .setText(R.string.action_bar_sensor_note);
-        ((ImageView) titleBarView.findViewById(R.id.title_bar_icon))
-            .setImageDrawable(
-                getResources()
-                    .getDrawable(
-                        R.drawable.ic_sensor,
-                        new ContextThemeWrapper(getActivity(), R.style.DefaultActionAreaIcon)
-                            .getTheme()));
-        titleBarView
-            .findViewById(R.id.title_bar_close)
-            .setOnClickListener(v -> activity.closeToolFragment());
-      } else {
-        titleBarView.setVisibility(View.GONE);
-      }
-    }
-  }
-
   public void setRecordingTimeUpdateListener(
       ExternalAxisController.RecordingTimeUpdateListener listener) {
     if (externalAxis != null) {
       externalAxis.setRecordingTimeUpdateListener(listener);
     }
-  }
-
-  private AppAccount getAppAccount() {
-    return WhistlePunkApplication.getAccount(getContext(), getArguments(), KEY_ACCOUNT_KEY);
-  }
-
-  private String getExperimentId() {
-    return getArguments().getString(KEY_EXPERIMENT_ID);
   }
 
   private void activateSensorCardPresenter(
@@ -1049,6 +1039,7 @@ public class SensorFragment extends Fragment
         sensorCardAdapter.setUiLockedForRecording(false);
       }
     }
+    updateTitle();
   }
 
   private void refreshLabels(RecordingStatus status) {
@@ -1427,18 +1418,8 @@ public class SensorFragment extends Fragment
   }
 
   @Override
-  public void onHiddenChanged(boolean hidden) {
-    super.onHiddenChanged(hidden);
-    if (!hidden) {
-      updateTitle();
-    }
-  }
-
-  private void updateTitle() {
-    Activity activity = getActivity();
-    if (activity != null) {
-      ((NoteTakingActivity) activity)
-          .updateTitleByToolFragment(getString(R.string.action_bar_sensor_note));
-    }
+  protected String getTitle() {
+    return getString(recordingStatus.getValue().state == RecordingState.ACTIVE
+        ? R.string.record_title : R.string.action_bar_sensor_note);
   }
 }

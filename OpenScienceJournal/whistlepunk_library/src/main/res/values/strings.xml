@@ -129,6 +129,9 @@
     <!-- The description of a button to add a label to a run [CHAR_LIMIT=NONE] -->
     <string name="btn_add_run_note_description">Add trial note</string>
 
+    <!-- The title of screen when recording [CHAR_LIMIT=NONE] -->
+    <string name="record_title">Recording</string>
+
     <!-- The description of a button to start recording [CHAR_LIMIT=NONE] -->
     <string name="btn_record_description">Start recording</string>
 
@@ -1210,6 +1213,12 @@
     <!-- Text description to add a note to the trial at a specified time [CHAR_LIMIT=50] -->
     <string name="add_note_to_time_text">Add note to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
 
+    <!-- Text description to add a text note to the trial at a specified time [CHAR_LIMIT=50] -->
+    <string name="add_text_note_to_time_text">Add text note to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
+
+    <!-- Text description to add a image note to the trial at a specified time [CHAR_LIMIT=50] -->
+    <string name="add_gallery_note_to_time_text">Add image to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
+
     <!-- Hint text in a trial caption textfield [CHAR_LIMIT=50] -->
     <string name="trial_caption_hint_text">Add description of recording here</string>
 
@@ -1565,8 +1574,14 @@
     <!-- Action bar title for new text note fragment [CHAR_LIMIT=40] -->
     <string name="action_bar_text_note">Create text note</string>
 
+    <!-- Action bar title for new text note fragment during a recording [CHAR_LIMIT=40] -->
+    <string name="action_bar_text_note_recording">Create text note for recording</string>
+
     <!-- Action bar title for new sensor note fragment [CHAR_LIMIT=40] -->
     <string name="action_bar_sensor_note">Create sensor recording</string>
+
+    <!-- Action bar title for gallery fragment during a recording [CHAR_LIMIT=40] -->
+    <string name="action_bar_gallery_recording">Select images for recording</string>
 
     <!-- Action bar title for gallery fragment [CHAR_LIMIT=40] -->
     <string name="action_bar_gallery">Select images</string>
