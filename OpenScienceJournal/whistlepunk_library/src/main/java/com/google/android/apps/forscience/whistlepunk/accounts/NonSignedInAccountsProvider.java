@@ -18,6 +18,7 @@ package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
 
@@ -45,7 +46,7 @@ public final class NonSignedInAccountsProvider extends AbstractAccountsProvider 
   public void disconnectAccountSwitcher(ActivityWithNavigationView activity) {}
 
   @Override
-  public void onLoginAccountsChanged() {}
+  public void onLoginAccountsChanged(Intent task) {}
 
   @Override
   public void showAddAccountDialog(Activity activity) {

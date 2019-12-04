@@ -1246,6 +1246,12 @@ Permissions notice:
     <!-- Title of the navigation item to select experiment list page [CHAR_LIMIT=25] -->
     <string name="navigation_item_experiments">Experiments</string>
 
+    <!-- Title of the navigation item to sign in [CHAR_LIMIT=25] -->
+    <string name="navigation_item_sign_in">Sign In</string>
+
+    <!-- Title of the navigation item to sign out [CHAR_LIMIT=25] -->
+    <string name="navigation_item_sign_out">Sign Out</string>
+
     <!-- Hint text for the caption text input field while picture note editing [CHAR_LIMIT=30]-->
     <string name="note_caption_hint">Add a description</string>
 

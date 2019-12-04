@@ -187,6 +187,7 @@ public class DriveSyncManager implements CloudSyncManager {
       // If the remote experiment library already exists, merge it into our local library
       experimentLibraryManager.merge(remoteLibrary, localSyncManager);
     }
+
     String sjDirectoryId = getSJDirectoryId(experimentLibraryManager);
     experimentLibraryManager.setFolderId(sjDirectoryId);
     List<ExperimentOverviewPojo> overviews = dc.blockingGetExperimentOverviews(true);

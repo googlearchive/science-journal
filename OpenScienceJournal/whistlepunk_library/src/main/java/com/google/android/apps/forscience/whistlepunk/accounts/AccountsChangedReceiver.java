@@ -11,7 +11,7 @@ public class AccountsChangedReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
     if (intent != null && AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(intent.getAction())) {
-      WhistlePunkApplication.getAppServices(context).getAccountsProvider().onLoginAccountsChanged();
+      WhistlePunkApplication.getAppServices(context).getAccountsProvider().onLoginAccountsChanged(intent);
     }
   }
 }
