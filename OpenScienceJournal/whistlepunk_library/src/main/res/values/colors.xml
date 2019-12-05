@@ -88,6 +88,9 @@
     <color name="action_fragment_background">#FFFFFF</color>
     <color name="action_fragment_title_font_color">#202124</color>
 
-    <color name="google_grey_100">#F1F3F4</color>
-    <color name="google_grey_600">#80868B</color>
+    <color name="grey_100">#F1F3F4</color>
+    <color name="grey_600">#80868B</color>
+
+    <color name="recording_icon_tint">#D73025</color>
+    <color name="recording_button_text_color">#3C4043</color>
 </resources>
