@@ -106,6 +106,7 @@ import com.google.android.apps.forscience.whistlepunk.scalarchart.ChartView;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.GraphOptionsController;
 import com.google.android.apps.forscience.whistlepunk.scalarchart.ScalarDisplayOptions;
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding2.view.RxView;
 import io.reactivex.Completable;
@@ -348,7 +349,7 @@ public class ExperimentDetailsFragment extends Fragment
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view =
         inflater.inflate(
-            R.layout.fragment_panes_experiment_details_with_action_area, container, false);
+            R.layout.fragment_panes_experiment_details, container, false);
 
     emptyView = (TextView) view.findViewById(R.id.empty_list);
     emptyView.setText(R.string.empty_experiment);
@@ -394,7 +395,7 @@ public class ExperimentDetailsFragment extends Fragment
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, view);
 
     ActionAreaView actionArea = view.findViewById(R.id.action_area);
-    CardView recordButton = view.findViewById(R.id.record);
+    ExtendedFloatingActionButton recordButton = view.findViewById(R.id.record);
 
     ExperimentActivity experimentActivity = (ExperimentActivity) getActivity();
     if (experimentActivity.isTwoPane()) {

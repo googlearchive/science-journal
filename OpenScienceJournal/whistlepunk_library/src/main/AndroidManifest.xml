@@ -18,9 +18,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-sdk android:targetSdkVersion="28" />
-
-    <!-- Necessary to scan for BLE devices. -->
+  <!-- Necessary to scan for BLE devices. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- Necessary to connect to BLE devices. -->
     <uses-permission android:name="android.permission.BLUETOOTH"/>

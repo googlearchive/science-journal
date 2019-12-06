@@ -17,6 +17,7 @@
 package com.google.android.apps.forscience.whistlepunk.accounts;
 
 import android.app.Activity;
+import android.content.Intent;
 import androidx.fragment.app.Fragment;
 import com.google.android.apps.forscience.whistlepunk.ActivityWithNavigationView;
 import io.reactivex.Observable;
@@ -67,7 +68,7 @@ public interface AccountsProvider {
   void disconnectAccountSwitcher(ActivityWithNavigationView activity);
 
   /** Called from AccountsChangedReceiver when we receive the LOGIN_ACCOUNTS_CHANGED_ACTION. */
-  void onLoginAccountsChanged();
+  void onLoginAccountsChanged(Intent data);
 
   /** Shows the dialog where the user adds an account. */
   void showAddAccountDialog(Activity activity);

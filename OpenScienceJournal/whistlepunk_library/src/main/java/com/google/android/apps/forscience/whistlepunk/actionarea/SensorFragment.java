@@ -97,6 +97,7 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.WriteableSensorO
 import com.google.android.apps.forscience.whistlepunk.sensors.DecibelSensor;
 import com.google.android.apps.forscience.whistlepunk.sensors.PitchSensor;
 import com.google.android.apps.forscience.whistlepunk.wireapi.RecordingMetadata;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
@@ -492,7 +493,7 @@ public class SensorFragment extends ActionFragment
     graphOptionsController.loadIntoScalarDisplayOptions(scalarDisplayOptions, getView());
     sensorCardLayoutManager = new LinearLayoutManager(getActivity());
 
-    androidx.cardview.widget.CardView record = rootView.findViewById(R.id.record);
+    ExtendedFloatingActionButton record = rootView.findViewById(R.id.record);
     sensorCardRecyclerView = (RecyclerView) rootView.findViewById(R.id.sensor_card_recycler_view);
     NoteTakingActivity activity = (NoteTakingActivity) getActivity();
     actionController.attachSensorFragmentView(
@@ -506,7 +507,6 @@ public class SensorFragment extends ActionFragment
       sensorCardLayoutManager.onRestoreInstanceState(
           savedInstanceState.getParcelable(KEY_SAVED_RECYCLER_LAYOUT));
     }
-
     return rootView;
   }
 

@@ -39,6 +39,7 @@ import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
 import com.google.android.apps.forscience.whistlepunk.actionarea.SensorFragment;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.jakewharton.rxbinding2.view.RxView;
@@ -95,12 +96,12 @@ public class ActionController {
                 recordButton.setContentDescription(
                     resources.getString(R.string.btn_stop_description));
                 recordButton.setImageDrawable(
-                    resources.getDrawable(R.drawable.ic_recording_stop_42dp));
+                    resources.getDrawable(R.drawable.ic_stop_icon));
               } else {
                 recordButton.setContentDescription(
                     resources.getString(R.string.btn_record_description));
                 recordButton.setImageDrawable(
-                    resources.getDrawable(R.drawable.ic_recording_red_42dp));
+                    resources.getDrawable(R.drawable.ic_record_icon));
               }
             });
   }
@@ -109,7 +110,9 @@ public class ActionController {
    * Updates the stop recording button for {@link ExperimentDetailsFragment} when a recording
    * starts/stops.
    */
-  public void attachStopButton(CardView recordButton, FragmentManager fragmentManager) {
+  public void attachStopButton(
+      ExtendedFloatingActionButton recordButton, FragmentManager fragmentManager) {
+    recordButton.setAllCaps(false);
     RxView.clicks(recordButton)
         .flatMapMaybe(click -> recordingStatus.firstElement())
         .subscribe(
@@ -239,8 +242,9 @@ public class ActionController {
    * Updates the recording button for {@link SensorFragment} when a recording starts/stops.
    */
   public void attachSensorFragmentView(
-      CardView recordButton,
+      ExtendedFloatingActionButton recordButton,
       FragmentManager fragmentManager) {
+    recordButton.setAllCaps(false);
     recordButton.setVisibility(View.VISIBLE);
     RxView.clicks(recordButton)
         .flatMapMaybe(click -> recordingStatus.firstElement())
@@ -266,15 +270,14 @@ public class ActionController {
               if (status.state.shouldShowStopButton()) {
                 titleId = R.string.btn_stop_label;
                 contentDescriptionId = R.string.btn_stop_description;
-                imageResourceId = R.drawable.ic_recording_stop_42dp;
+                imageResourceId = R.drawable.ic_stop_icon;
               } else {
                 titleId = R.string.btn_record_label;
                 contentDescriptionId = R.string.btn_record_description;
-                imageResourceId = R.drawable.ic_recording_red_42dp;
+                imageResourceId = R.drawable.ic_record_icon;
               }
-              ((TextView) recordButton.findViewById(R.id.record_button_text)).setText(titleId);
-              ((ImageView) recordButton.findViewById(R.id.record_button_icon))
-                  .setImageResource(imageResourceId);
+              recordButton.setText(titleId);
+              recordButton.setIcon(resources.getDrawable(imageResourceId));
               recordButton.setContentDescription(resources.getString(contentDescriptionId));
               recordButton.invalidate();
             });
