@@ -41,8 +41,6 @@ public class EditLabelTimeDialog extends DialogFragment
 
   public interface EditTimeDialogListener {
     void onEditTimeDialogDismissedEdit(Label originalLabel, long selectedTimestamp);
-
-    void onEditTimeDialogDismissedAdd(Label label, long selectedTimestamp);
   }
 
   // The timestamp to initially show to the user.
@@ -63,14 +61,6 @@ public class EditLabelTimeDialog extends DialogFragment
   public static EditLabelTimeDialog newInstance(Label label, long runStartTimestamp) {
     EditLabelTimeDialog dialog = newInstanceHelper(label, label.getTimeStamp(), runStartTimestamp);
     dialog.getArguments().putParcelable(KEY_LABEL, label);
-    return dialog;
-  }
-
-  // For adding a new label.
-  public static EditLabelTimeDialog newInstance(
-      Label editedLabel, long initialTimestamp, long runStartTimestamp) {
-    EditLabelTimeDialog dialog =
-        newInstanceHelper(editedLabel, initialTimestamp, runStartTimestamp);
     return dialog;
   }
 
@@ -117,19 +107,10 @@ public class EditLabelTimeDialog extends DialogFragment
     // Avoid double-callbacks by checking if this was already dismissed.
     if (!dismissed) {
       dismissed = true;
-      if (getArguments().containsKey(KEY_LABEL)) {
-        // Then this came from editing an existing label.
-        ((EditTimeDialogListener) getParentFragment())
-            .onEditTimeDialogDismissedEdit(
-                getArguments().getParcelable(KEY_LABEL),
-                timestampSelected ? currentTimestamp : initialTimestamp);
-      } else {
-        // Then this came from adding a new label.
-        Label label = getArguments().getParcelable(KEY_EDITED_LABEL);
-        ((EditTimeDialogListener) getParentFragment())
-            .onEditTimeDialogDismissedAdd(
-                label, timestampSelected ? currentTimestamp : initialTimestamp);
-      }
+      ((EditTimeDialogListener) getParentFragment())
+          .onEditTimeDialogDismissedEdit(
+              getArguments().getParcelable(KEY_LABEL),
+              timestampSelected ? currentTimestamp : initialTimestamp);
     }
     super.dismiss();
   }

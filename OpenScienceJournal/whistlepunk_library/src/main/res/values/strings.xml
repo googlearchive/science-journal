@@ -123,11 +123,8 @@
     <!-- Pitch sensor name [CHAR_LIMIT=25] -->
     <string name="pitch">Pitch</string>
 
-    <!-- The description of a button to add a label to an experiment [CHAR_LIMIT=NONE] -->
-    <string name="btn_add_experiment_note_description">Add experiment note</string>
-
-    <!-- The description of a button to add a label to a run [CHAR_LIMIT=NONE] -->
-    <string name="btn_add_run_note_description">Add trial note</string>
+    <!-- The title of screen when recording [CHAR_LIMIT=NONE] -->
+    <string name="record_title">Recording</string>
 
     <!-- The description of a button to start recording [CHAR_LIMIT=NONE] -->
     <string name="btn_record_description">Start recording</string>
@@ -739,20 +736,11 @@
     <!-- Content description for the arrow button to move to the next sensor in RunReview [CHAR_LIMIT=none] -->
     <string name="run_review_switch_sensor_btn_next">next sensor: <xliff:g id="sensor_name">%s</xliff:g></string>
 
-    <!-- Hint text for adding a run text note [CHAR_LIMIT=100] -->
-    <string name="add_note_hint_text">Add a new note</string>
-
     <!-- Text for snackbar shown when a run note is deleted [CHAR_LIMIT=100] -->
     <string name="snackbar_note_deleted">Note deleted</string>
 
     <!-- Text for a snackbar action to undo something [CHAR_LIMIT=20] -->
     <string name="snackbar_undo">Undo</string>
-
-    <!-- Text placeholder for adding a run note [CHAR_LIMIT=NONE] -->
-    <string name="add_run_note_placeholder_text">Add note to this recording</string>
-
-    <!-- Content description for the add note button [CHAR_LIMIT=NONE] -->
-    <string name="add_note_image_button_content_description">Take picture note</string>
 
     <!-- Text shown in a textnote when that note has no text set yet [CHAR_LIMIT=NONE] -->
     <string name="pinned_note_placeholder_text">Add note</string>
@@ -1278,32 +1266,20 @@ Permissions notice:
     <!-- Menu option to edit a note's timestamp [CHAR_LIMIT=30] -->
     <string name="edit_note_time_menu_item">Edit time</string>
 
-    <!-- Text button to add a note to the trial [CHAR_LIMIT=50] -->
-    <string name="add_note_button_text">Add note to timeline</string>
-
     <!-- Text description to add a note to the trial at a specified time [CHAR_LIMIT=50] -->
     <string name="add_note_to_time_text">Add note to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
 
-    <!-- Hint text in a trial caption textfield [CHAR_LIMIT=50] -->
-    <string name="trial_caption_hint_text">Add description of recording here</string>
+    <!-- Text description to add a text note to the trial at a specified time [CHAR_LIMIT=50] -->
+    <string name="add_text_note_to_time_text">Add text note to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
+
+    <!-- Text description to add a image note to the trial at a specified time [CHAR_LIMIT=50] -->
+    <string name="add_gallery_note_to_time_text">Add image to <xliff:g id="time" example="00:04">%1$s</xliff:g></string>
 
     <!-- Title of an activity to view details about a snapshot [CHAR_LIMIT=30] -->
     <string name="snapshot_label_details_title">Snapshot details</string>
 
     <!-- Title of an activity to view details about a trigger note [CHAR_LIMIT=30] -->
     <string name="trigger_label_details_title">Triggered note details</string>
-
-    <!-- Content description of draggable bar with icons for note tools [CHAR_LIMIT=none] -->
-    <string name="tool_picker_tab_layout_description">Available tools</string>
-
-    <!-- Content description for tab icon to add a text note [CHAR_LIMIT=none] -->
-    <string name="tab_description_add_note">Write text</string>
-
-    <!-- Content description for tab icon to observe sensors [CHAR_LIMIT=none] -->
-    <string name="tab_description_observe">Observe sensors</string>
-
-    <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
-    <string name="tab_description_camera">Take photo</string>
 
     <!-- Button to view more notes in a trial [CHAR_LIMIT=50] -->
     <string name="load_more_notes_btn">View more notes</string>
@@ -1350,9 +1326,6 @@ Permissions notice:
     <!-- Content description for button to take a picture to use as the experiment image [CHAR_LIMIT=NONE] -->
     <string name="btn_take_picture_content_description">Take picture</string>
 
-    <!-- Content description for tab icon to take a picture [CHAR_LIMIT=none] -->
-    <string name="tab_description_gallery">Choose picture</string>
-
     <!-- Content description for an image in the gallery view that could be selected for a photo note [CHAR_LIMIT=NONE] -->
     <string name="gallery_image_content_description">Image taken on <xliff:g id="date" example="July 8th 7:45 PM">%s</xliff:g></string>
 
@@ -1371,23 +1344,8 @@ Permissions notice:
     <!-- Title for the Primes debug screen preference [CHAR_LIMIT=50] -->
     <string name="perf_tracker_debug_pref_title" translatable="false">Show Perf Tracker Debug Screen</string>
 
-    <!-- Button shown to users with accessibility settings on that allows them to expand the pane from collapsed to the middle of the screen [CHAR_LIMIT=NONE] -->
-    <string name="btn_show_tools">Show tool drawer</string>
-
-    <!-- Button shown to users with accessibility settings on that allows them to expand the pane from the middle to the fully expanded [CHAR_LIMIT=NONE] -->
-    <string name="btn_expand_tools">Expand tool drawer</string>
-
-    <!-- Button shown to users with accessibility settings on that allows them to collapse a fully expanded pane [CHAR_LIMIT=NONE] -->
-    <string name="btn_hide_tools">Collapse tool drawer</string>
-
     <!-- Menu option to edit a photo [CHAR_LIMIT=30] -->
     <string name="action_edit_photo">Edit photo</string>
-
-    <!-- Experiment Details menu option to add a text note [CHAR_LIMIT=25] -->
-    <string name="add_text_note">Add text note</string>
-
-    <!-- Content description for the camera preview [CHAR_LIMIT=NONE] -->
-    <string name="camera_preview_content_description">Camera live view</string>
 
     <!-- Error message for camera view when permissions are denied [CHAR_LIMIT=NONE] -->
     <string name="input_camera_permission_denied">The camera cannot be used because Science Journal does not have permission to access it.</string>
@@ -1585,12 +1543,6 @@ Permissions notice:
     <!-- String format used to concatenate two titles that have been edited in conflict. [CHAR_LIMIT=5] -->
     <string name="experiment_title_concatenator"><xliff:g id="first_title">%1$s</xliff:g> / <xliff:g id="second_title">%2$s</xliff:g></string>
 
-    <!-- Title for New Experiment feature discovery -->
-    <string name="create_experiment_feature_discovery_title">Create a new experiment</string>
-
-    <!-- Body text for New Experiment feature discovery -->
-    <string name="create_experiment_feature_discovery_body">Organize your thoughts and observations by taking notes, recording data, or taking pictures</string>
-
     <!-- Name of the menu item to download an experiment file [CHAR_LIMIT=25] -->
     <string name="download_copy_action">Download</string>
 
@@ -1669,8 +1621,14 @@ Permissions notice:
     <!-- Action bar title for new text note fragment [CHAR_LIMIT=40] -->
     <string name="action_bar_text_note">Create text note</string>
 
+    <!-- Action bar title for new text note fragment during a recording [CHAR_LIMIT=40] -->
+    <string name="action_bar_text_note_recording">Create text note for recording</string>
+
     <!-- Action bar title for new sensor note fragment [CHAR_LIMIT=40] -->
     <string name="action_bar_sensor_note">Create sensor recording</string>
+
+    <!-- Action bar title for gallery fragment during a recording [CHAR_LIMIT=40] -->
+    <string name="action_bar_gallery_recording">Select images for recording</string>
 
     <!-- Action bar title for gallery fragment [CHAR_LIMIT=40] -->
     <string name="action_bar_gallery">Select images</string>

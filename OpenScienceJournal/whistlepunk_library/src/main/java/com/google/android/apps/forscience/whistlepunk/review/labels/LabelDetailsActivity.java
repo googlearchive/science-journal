@@ -24,7 +24,6 @@ import androidx.core.app.NavUtils;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
-import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
 import com.google.android.apps.forscience.whistlepunk.R;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -32,7 +31,6 @@ import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciLabel.Label.ValueType;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewActivity;
-import com.google.android.apps.forscience.whistlepunk.review.RunReviewDeprecatedActivity;
 import com.google.android.apps.forscience.whistlepunk.review.RunReviewFragment;
 
 /** Activity managing a LabelDetails page */
@@ -64,7 +62,8 @@ public class LabelDetailsActivity extends AppCompatActivity {
       int selectedSensor,
       Label label,
       boolean createTask,
-      boolean fromRecord) {
+      boolean fromRecord,
+      int labelIndex) {
     final Intent intent = new Intent(context, LabelDetailsActivity.class);
     intent.putExtra(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
     intent.putExtra(ARG_EXPERIMENT_ID, experimentId);
@@ -74,6 +73,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
     intent.putExtra(RunReviewActivity.EXTRA_FROM_RECORD, fromRecord);
     intent.putExtra(RunReviewFragment.ARG_SENSOR_INDEX, selectedSensor);
     intent.putExtra(RunReviewFragment.ARG_START_LABEL_ID, trialId);
+    intent.putExtra(RunReviewFragment.ARG_EDITED_LABEL_INDEX, labelIndex);
     context.startActivity(intent);
   }
 
@@ -84,15 +84,9 @@ public class LabelDetailsActivity extends AppCompatActivity {
       finish();
       return;
     }
-    ValueType labelType = originalLabel.getType();
-
-    // Update the theme if this is a text note before setting the view.
-    if (labelType == ValueType.TEXT) {
-      setTheme(R.style.text_label_details);
-    } else if (labelType == ValueType.PICTURE) {
-      setTheme(R.style.picture_label_details);
+    if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
+      setTheme(R.style.AppTheme_RunReview);
     }
-
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_label_details);
     boolean isTablet = getResources().getBoolean(R.bool.is_tablet);
@@ -103,6 +97,7 @@ public class LabelDetailsActivity extends AppCompatActivity {
     // TODO: Enable transitions between note views in the experiment or trial note list
     // and these activities, similar to RunReview transition. This may involve
     // supportPostponeEnterTransition();?
+    ValueType labelType = originalLabel.getType();
 
     if (getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG) == null) {
       LabelDetailsFragment fragment;
@@ -134,6 +129,15 @@ public class LabelDetailsActivity extends AppCompatActivity {
     }
   }
 
+  @Override
+  public void onBackPressed() {
+    LabelDetailsFragment currentFragment =
+        (LabelDetailsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+    if (currentFragment != null) {
+      currentFragment.saveLabel();
+    }
+  }
+
   public void returnToParent(boolean labelDeleted, DeletedLabel originalLabel) {
     // Must return to the parent using all the appropriate args if the label was deleted.
     // We would use NavUtils.getParentActivityIntent() instead of making a new intent, but it
@@ -144,14 +148,10 @@ public class LabelDetailsActivity extends AppCompatActivity {
     Intent upIntent;
     if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_EXP_DETAILS)) {
       upIntent =
-          WhistlePunkApplication.getLaunchIntentForPanesActivity(
+          WhistlePunkApplication.getLaunchIntentForExperimentActivity(
               this, getAppAccount(), getExperimentId(), false /* claimExperimentsMode */);
     } else if (getIntent().getExtras().getBoolean(LabelDetailsActivity.ARG_PARENT_RUN_REVIEW)) {
-      if (Flags.showActionBar()) {
-        upIntent = new Intent(this, RunReviewActivity.class);
-      } else {
-        upIntent = new Intent(this, RunReviewDeprecatedActivity.class);
-      }
+      upIntent = new Intent(this, RunReviewActivity.class);
       upIntent.putExtra(
           RunReviewFragment.ARG_ACCOUNT_KEY, getIntent().getExtras().getString(ARG_ACCOUNT_KEY));
       upIntent.putExtra(RunReviewFragment.ARG_EXPERIMENT_ID, getExperimentId());
@@ -168,6 +168,9 @@ public class LabelDetailsActivity extends AppCompatActivity {
       upIntent.putExtra(
           RunReviewFragment.ARG_START_LABEL_ID,
           getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID));
+      upIntent.putExtra(
+          RunReviewFragment.ARG_EDITED_LABEL_INDEX,
+          getIntent().getExtras().getInt(RunReviewFragment.ARG_EDITED_LABEL_INDEX));
     } else {
       // unknown parent.
       finish();

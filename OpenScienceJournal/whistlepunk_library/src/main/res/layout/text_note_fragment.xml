@@ -25,6 +25,17 @@
 
     <include layout="@layout/fragment_tool_pane_title"/>
 
+    <ProgressBar
+        android:id="@+id/recording_progress_bar"
+        style="@style/RecordingProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="26dp"
+        android:layout_marginTop="-11dp"
+        android:layout_marginBottom="-11dp"
+        android:indeterminate="true"
+        android:indeterminateBehavior="repeat"
+        android:theme="@style/RecordingProgressBarColor" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -49,13 +60,12 @@
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btn_add_inline"
-                app:fabCustomSize="@dimen/accessibility_touch_target_min_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 app:backgroundTint="?attr/icon_background"
                 android:contentDescription="@string/add_experiment_note"
-                android:src="@drawable/ic_sending_fab_icon"
+                android:src="@drawable/ic_send_24dp"
                 app:rippleColor="?attr/icon_color"
                 android:layout_gravity="bottom|center"/>
         </FrameLayout>

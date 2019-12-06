@@ -27,7 +27,7 @@ public interface ActivityNavigator {
   ActivityNavigator STUB =
       new ActivityNavigator() {
         @Override
-        public Intent launchIntentForPanesActivity(
+        public Intent launchIntentForExperimentActivity(
             Context context,
             AppAccount appAccount,
             String experimentId,
@@ -36,6 +36,6 @@ public interface ActivityNavigator {
         }
       };
 
-  Intent launchIntentForPanesActivity(
+  Intent launchIntentForExperimentActivity(
       Context context, AppAccount appAccount, String experimentId, boolean claimExperimentsMode);
 }

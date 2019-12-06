@@ -89,12 +89,8 @@
     <dimen name="small_stat_icon_size">12dp</dimen>
     <dimen name="stats_divider_margin">4dp</dimen>
 
-    <dimen name="observe_control_panel_bottom_height">62dp</dimen>
-
     <!-- The external axis side margins must be the cardview_margin plus
          stream_presenter_padding_sides plus chart_margin_size_left -->
-    <dimen name="external_axis_left_padding">62dp</dimen>
-    <dimen name="external_axis_right_padding">26dp</dimen>
     <dimen name="external_axis_note_dot_size">16dp</dimen>
     <dimen name="external_axis_recording_dot_size">10dp</dimen>
     <dimen name="external_axis_label_dot_size">10dp</dimen>
@@ -158,13 +154,8 @@
     <dimen name="run_review_overlay_margin_bottom">42dp</dimen>
     <dimen name="run_review_overlay_padding_bottom">8dp</dimen>
 
-    <dimen name="picture_note_preview_size">300dp</dimen>
-
-    <dimen name="edit_note_bottom_time_height">48dp</dimen>
     <dimen name="edit_note_dialog_margin">24dp</dimen>
-    <dimen name="edit_note_textedit_margin_bottom">8dp</dimen>
     <dimen name="edit_note_time_drawable_padding">8dp</dimen>
-    <dimen name="edit_note_image_button_margin">16dp</dimen>
 
     <dimen name="edit_time_dialog_height">52dp</dimen>
     <dimen name="edit_time_dialog_margin">8dp</dimen>
@@ -195,18 +186,10 @@
 
     <dimen name="crop_thumb_radius">14dp</dimen>
     <dimen name="crop_thumb_offset">28dp</dimen>
-    <dimen name="panes_toolbar_height">58dp</dimen>
-    <dimen name="recording_indicator_height">4dp</dimen>
-
-    <!-- Maximum number of lines to show when editing a text label or note. -->
-    <integer name="label_edit_max_lines">10</integer>
 
     <!-- For small and medium views, single cards fill the screen, but card size shrinks when
          multiple cards are shown. -->
     <bool name="always_use_multi_card_height">false</bool>
-
-    <!-- On small screens, do not allow half-height drawer in landscape mode -->
-    <bool name="allow_half_height_drawer_in_landscape">false</bool>
 
     <integer name="gallery_column_count">4</integer>
 
@@ -238,10 +221,6 @@
 
     <!-- Columns in More Observations fragment grid -->
     <integer name="more_observations_column_count">2</integer>
-
-    <!-- Sensor Note record button dimens -->
-    <dimen name="record_sensor_button_height">48dp</dimen>
-    <dimen name="record_sensor_button_radius">24dp</dimen>
 
     <bool name="is_tablet">false</bool>
 </resources>

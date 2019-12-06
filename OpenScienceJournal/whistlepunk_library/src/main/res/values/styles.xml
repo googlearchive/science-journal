@@ -16,7 +16,7 @@
 <resources>
 
     <!-- For activities without toolbar or implementing their own toolbar. e.g. MainActivity. -->
-    <style name="NoBarTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="NoBarTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorAccent">@color/color_accent_dark</item>
@@ -28,7 +28,7 @@
     </style>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorPrimary">@color/color_primary</item>
@@ -36,7 +36,7 @@
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
 
-    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+    <style name="AppCompatAlertDialogStyle" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="colorAccent">@color/color_accent</item>
     </style>
 
@@ -46,7 +46,7 @@
         <item name="colorPrimary">@color/color_accent</item>
     </style>
 
-    <style name="lightCheckBoxStyle" parent="Base.Theme.AppCompat">
+    <style name="lightCheckBoxStyle" parent="Base.Theme.MaterialComponents">
         <item name="colorAccent">@color/color_accent</item>
         <item name="android:textColorSecondary">@color/text_color_light_grey</item>
     </style>
@@ -57,14 +57,17 @@
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
         <item name="android:actionModeBackground">@color/color_accent</item>
         <item name="actionModeBackground">@color/color_accent</item>
-    </style>
 
-    <style name="AppTheme.Panes">
-        <item name="android:windowActionBar">false</item>
+        <item name="icon_color">@color/action_area_blue_dark</item>
+        <item name="icon_background">@color/action_area_blue_light</item>
     </style>
 
     <style name="AppTheme.Experiment">
         <item name="android:windowActionBar">false</item>
+
+        <item name="icon_color">@color/action_area_purple_dark</item>
+        <item name="icon_background">@color/action_area_purple_light</item>
+        <item name="colorSecondary">@color/text_color_white</item>
     </style>
 
     <style name="AppTheme.GetStarted">
@@ -108,19 +111,12 @@
         <item name="colorPrimary">@color/color_primary</item>
     </style>
 
-    <style name="text_label_details" parent="AppTheme">
-        <item name="colorPrimaryDark">#494949</item>
-        <item name="colorPrimary">#757575</item>
-    </style>
-
-    <style name="picture_label_details" parent="AppTheme">
-        <item name="colorPrimaryDark">#000</item>
-        <item name="colorPrimary">#000</item>
-    </style>
-
     <style name="RecordingProgressBarColor" parent="AppTheme">
         <item name="colorAccent">@color/recording_axis_bar_color</item>
         <item name="colorPrimary">@color/recording_axis_bar_color</item>
+
+        <item name="icon_color">@color/action_area_red_dark</item>
+        <item name="icon_background">@color/action_area_red_light</item>
     </style>
 
     <style name="RecordingProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
@@ -130,34 +126,25 @@
         <item name="android:maxHeight">26dip</item>
     </style>
 
-    <style name="AppTheme.ClaimExperiments" parent="Theme.AppCompat.Light">
+    <style name="AppTheme.ClaimExperiments" parent="Theme.MaterialComponents.Light">
         <item name="colorPrimaryDark">@color/claim_experiments_status_bar</item>
         <item name="colorPrimary">@color/claim_experiments_action_bar</item>
         <item name="titleTextColor">@color/claim_experiments_action_bar_text</item>
         <item name="subtitleTextColor">@color/claim_experiments_action_bar_text</item>
     </style>
 
-    <style name="preview_experiment_details" parent="Theme.AppCompat.Light">
+    <style name="preview_experiment_details" parent="Theme.MaterialComponents.Light">
         <item name="colorPrimaryDark">@color/preview_experiment_details_status_bar</item>
         <item name="colorPrimary">@color/preview_experiment_details_action_bar</item>
         <item name="titleTextColor">@color/preview_experiment_details_action_bar_text</item>
+
+        <item name="icon_color">@color/grey_600</item>
+        <item name="icon_background">@color/grey_100</item>
     </style>
 
-    <style name="DefaultActionAreaIcon">
-        <item name="icon_color">@color/action_area_purple_dark</item>
-        <item name="icon_background">@color/action_area_purple_light</item>
-    </style>
-    <style name="BlueActionAreaIcon" parent="DefaultActionAreaIcon">
-        <item name="icon_color">@color/action_area_blue_dark</item>
-        <item name="icon_background">@color/action_area_blue_light</item>
-    </style>
-    <style name="RedActionAreaIcon" parent="DefaultActionAreaIcon">
-        <item name="icon_color">@color/action_area_red_dark</item>
-        <item name="icon_background">@color/action_area_red_light</item>
-    </style>
     <style name="DisabledActionAreaIcon">
-        <item name="icon_color">@color/google_grey_600</item>
-        <item name="icon_background">@color/google_grey_100</item>
+        <item name="icon_color">@color/grey_600</item>
+        <item name="icon_background">@color/grey_100</item>
     </style>
 
     <style name="DefaultActionArea">

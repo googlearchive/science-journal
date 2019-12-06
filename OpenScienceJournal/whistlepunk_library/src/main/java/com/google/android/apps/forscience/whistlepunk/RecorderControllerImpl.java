@@ -30,6 +30,7 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.Scheduler;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
+import com.google.android.apps.forscience.whistlepunk.actionarea.SensorFragment;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorLayout.SensorLayout.CardView;
@@ -906,7 +907,7 @@ public class RecorderControllerImpl implements RecorderController {
 
   @VisibleForTesting
   void ensureUnarchived(Experiment experiment, DataController dc) {
-    RecordFragment.ensureUnarchived(context, experiment, dc);
+    SensorFragment.ensureUnarchived(context, experiment, dc);
   }
 
   @Override

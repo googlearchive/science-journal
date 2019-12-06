@@ -45,17 +45,17 @@ public class PermissionUtils {
 
   public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 0;
   public static final int REQUEST_CAMERA = 1;
-  static final int REQUEST_RECORD_AUDIO = 2;
+  public static final int REQUEST_RECORD_AUDIO = 2;
   public static final int REQUEST_ACCESS_COARSE_LOCATION = 3;
   public static final int REQUEST_READ_EXTERNAL_STORAGE = 4;
 
   @IntDef({DENIED, GRANTED, PERMANENTLY_DENIED})
   @Retention(RetentionPolicy.SOURCE)
-  @interface PermissionState {}
+  public @interface PermissionState {}
 
-  static final int DENIED = 0;
-  static final int GRANTED = 1;
-  static final int PERMANENTLY_DENIED = 2;
+  public static final int DENIED = 0;
+  public static final int GRANTED = 1;
+  public static final int PERMANENTLY_DENIED = 2;
 
   private static final String[] PERMISSIONS = {
     Manifest.permission.WRITE_EXTERNAL_STORAGE, // 0

@@ -47,7 +47,6 @@ import com.google.android.apps.forscience.javalib.MaybeConsumer;
 import com.google.android.apps.forscience.javalib.MaybeConsumers;
 import com.google.android.apps.forscience.javalib.Success;
 import com.google.android.apps.forscience.whistlepunk.AccessibilityUtils;
-import com.google.android.apps.forscience.whistlepunk.AddNoteDialog;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.Appearances;
 import com.google.android.apps.forscience.whistlepunk.AudioSettingsDialog;
@@ -56,23 +55,21 @@ import com.google.android.apps.forscience.whistlepunk.DataController;
 import com.google.android.apps.forscience.whistlepunk.DeletedLabel;
 import com.google.android.apps.forscience.whistlepunk.DevOptionsFragment;
 import com.google.android.apps.forscience.whistlepunk.ElapsedTimeFormatter;
+import com.google.android.apps.forscience.whistlepunk.ExperimentActivity;
 import com.google.android.apps.forscience.whistlepunk.ExportService;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisController;
 import com.google.android.apps.forscience.whistlepunk.ExternalAxisView;
-import com.google.android.apps.forscience.whistlepunk.Flags;
 import com.google.android.apps.forscience.whistlepunk.LocalSensorOptionsStorage;
 import com.google.android.apps.forscience.whistlepunk.LoggingConsumer;
 import com.google.android.apps.forscience.whistlepunk.MultiWindowUtils;
 import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
-import com.google.android.apps.forscience.whistlepunk.PanesActivity;
-import com.google.android.apps.forscience.whistlepunk.PictureUtils;
 import com.google.android.apps.forscience.whistlepunk.ProtoSensorAppearance;
 import com.google.android.apps.forscience.whistlepunk.R;
-import com.google.android.apps.forscience.whistlepunk.RecordFragment;
 import com.google.android.apps.forscience.whistlepunk.RelativeTimeTextView;
 import com.google.android.apps.forscience.whistlepunk.RunReviewOverlay;
 import com.google.android.apps.forscience.whistlepunk.RxDataController;
 import com.google.android.apps.forscience.whistlepunk.SensorAppearance;
+import com.google.android.apps.forscience.whistlepunk.actionarea.SensorFragment;
 import com.google.android.apps.forscience.whistlepunk.StatsAccumulator;
 import com.google.android.apps.forscience.whistlepunk.StatsList;
 import com.google.android.apps.forscience.whistlepunk.WhistlePunkApplication;
@@ -83,16 +80,12 @@ import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants
 import com.google.android.apps.forscience.whistlepunk.audiogen.AudioPlaybackController;
 import com.google.android.apps.forscience.whistlepunk.audiogen.SonificationTypeAdapterFactory;
 import com.google.android.apps.forscience.whistlepunk.data.GoosciSensorAppearance;
-import com.google.android.apps.forscience.whistlepunk.filemetadata.Change;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.SensorLayoutPojo;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Trial;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.TrialStats;
 import com.google.android.apps.forscience.whistlepunk.metadata.CropHelper;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciCaption.Caption;
-import com.google.android.apps.forscience.whistlepunk.metadata.GoosciExperiment.ChangedElement.ElementType;
 import com.google.android.apps.forscience.whistlepunk.metadata.GoosciTrial;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
 import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
@@ -107,15 +100,13 @@ import com.google.android.apps.forscience.whistlepunk.sensorapi.NewOptionsStorag
 import com.google.android.apps.forscience.whistlepunk.sensorapi.StreamStat;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
-import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
 
 public class RunReviewFragment extends Fragment
-    implements AddNoteDialog.ListenerProvider,
-        EditTimeDialogListener,
+    implements EditTimeDialogListener,
         DeleteMetadataItemDialog.DeleteDialogListener,
         AudioSettingsDialog.AudioSettingsDialogListener,
         ChartController.ChartLoadingStatus,
@@ -126,6 +117,7 @@ public class RunReviewFragment extends Fragment
   public static final String ARG_SENSOR_INDEX = "sensor_tag_index";
   public static final String ARG_CREATE_TASK = "create_task";
   public static final String ARG_CLAIM_EXPERIMENTS_MODE = "claim_experiments_mode";
+  public static final String ARG_EDITED_LABEL_INDEX = "edited_label_index";
   private static final String TAG = "RunReviewFragment";
 
   private static final String KEY_SELECTED_SENSOR_INDEX = "selected_sensor_index";
@@ -155,6 +147,7 @@ public class RunReviewFragment extends Fragment
   private String trialId;
   private String experimentId;
   private int selectedSensorIndex = 0;
+  private int editedLabelIndex = 0;
   private boolean claimExperimentsMode;
   private GraphOptionsController graphOptionsController;
   private ScalarDisplayOptions scalarDisplayOptions;
@@ -193,7 +186,8 @@ public class RunReviewFragment extends Fragment
       String startLabelId,
       int sensorIndex,
       boolean createTask,
-      boolean claimExperimentsMode) {
+      boolean claimExperimentsMode,
+      int editedLabelIndex) {
     RunReviewFragment fragment = new RunReviewFragment();
     Bundle args = new Bundle();
     args.putString(ARG_ACCOUNT_KEY, appAccount.getAccountKey());
@@ -202,6 +196,7 @@ public class RunReviewFragment extends Fragment
     args.putInt(ARG_SENSOR_INDEX, sensorIndex);
     args.putBoolean(ARG_CREATE_TASK, createTask);
     args.putBoolean(ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
+    args.putInt(ARG_EDITED_LABEL_INDEX, editedLabelIndex);
     fragment.setArguments(args);
     return fragment;
   }
@@ -263,6 +258,7 @@ public class RunReviewFragment extends Fragment
       selectedSensorIndex = getArguments().getInt(ARG_SENSOR_INDEX);
       experimentId = getArguments().getString(ARG_EXPERIMENT_ID);
       claimExperimentsMode = getArguments().getBoolean(ARG_CLAIM_EXPERIMENTS_MODE);
+      editedLabelIndex = getArguments().getInt(ARG_EDITED_LABEL_INDEX);
     }
     if (savedInstanceState != null) {
       if (savedInstanceState.containsKey(KEY_SELECTED_SENSOR_INDEX)) {
@@ -503,17 +499,12 @@ public class RunReviewFragment extends Fragment
             0,
             0,
             getResources().getDimensionPixelOffset(R.dimen.list_bottom_padding_with_action_area));
-        actionArea.updateColor(getContext(), R.style.BlueActionAreaIcon);
         actionArea.setUpScrollListener(pinnedNoteList);
       }
     } else {
       actionArea.setVisibility(View.GONE);
     }
-    if (Flags.showActionBar()) {
-      if (activity instanceof RunReviewActivity) {
-        runReviewOverlay.setOnTimestampChangeListener((RunReviewActivity) activity);
-      }
-    }
+    runReviewOverlay.setOnTimestampChangeListener((RunReviewActivity) activity);
     return rootView;
   }
 
@@ -536,59 +527,58 @@ public class RunReviewFragment extends Fragment
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     super.onCreateOptionsMenu(menu, inflater);
-    inflater.inflate(R.menu.menu_run_review, menu);
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (!activity.isToolFragmentVisible() || activity.isTwoPane()) {
+      inflater.inflate(R.menu.menu_run_review, menu);
+    }
   }
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
-    if (claimExperimentsMode) {
-      // In claim experiments mode, hide all menu items except download and delete.
-      menu.findItem(R.id.action_export).setVisible(false);
-      menu.findItem(R.id.action_download).setVisible(true);
-      menu.findItem(R.id.action_run_review_delete).setVisible(true);
-      menu.findItem(R.id.action_run_review_archive).setVisible(false);
-      menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
-      menu.findItem(R.id.action_run_review_edit).setVisible(false);
-      menu.findItem(R.id.action_run_review_crop).setVisible(false);
-      menu.findItem(R.id.action_run_review_audio_settings).setVisible(false);
-      menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
-      menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
-      menu.findItem(R.id.action_graph_options).setVisible(false);
-    } else {
-      menu.findItem(R.id.action_graph_options).setVisible(false); // b/29771945
-
-      // Hide some menu buttons if the run isn't loaded yet.
-      if (experiment != null) {
-        menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
-        menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
-
-        menu.findItem(R.id.action_disable_auto_zoom).setVisible(getTrial().getAutoZoomEnabled());
-        menu.findItem(R.id.action_enable_auto_zoom).setVisible(!getTrial().getAutoZoomEnabled());
-
-        // You can only do a crop if the run length is long enough.
-        menu.findItem(R.id.action_run_review_crop)
-            .setEnabled(CropHelper.experimentIsLongEnoughForCrop(getTrial()));
-
-        menu.findItem(R.id.action_export).setVisible(shouldShowExport());
+    NoteTakingActivity activity = (NoteTakingActivity) getActivity();
+    if (!activity.isToolFragmentVisible() || activity.isTwoPane()) {
+      if (claimExperimentsMode) {
+        // In claim experiments mode, hide all menu items except download and delete.
+        menu.findItem(R.id.action_export).setVisible(false);
         menu.findItem(R.id.action_download).setVisible(true);
-      } else {
+        menu.findItem(R.id.action_run_review_delete).setVisible(true);
         menu.findItem(R.id.action_run_review_archive).setVisible(false);
         menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
-        menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
-        menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
-        menu.findItem(R.id.action_run_review_delete).setVisible(false);
+        menu.findItem(R.id.action_run_review_edit).setVisible(false);
         menu.findItem(R.id.action_run_review_crop).setVisible(false);
-        menu.findItem(R.id.action_export).setVisible(false);
-        menu.findItem(R.id.action_download).setVisible(false);
-      }
-
-      if (Flags.showActionBar()) {
-        if (((RunReviewActivity) getActivity()).isFromRecord()) {
-          // If this is from record, always enable deletion.
-          menu.findItem(R.id.action_run_review_delete).setEnabled(true);
-        }
+        menu.findItem(R.id.action_run_review_audio_settings).setVisible(false);
+        menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
+        menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
+        menu.findItem(R.id.action_graph_options).setVisible(false);
       } else {
-        if (((RunReviewDeprecatedActivity) getActivity()).isFromRecord()) {
+        menu.findItem(R.id.action_graph_options).setVisible(false); // b/29771945
+
+        // Hide some menu buttons if the run isn't loaded yet.
+        if (experiment != null) {
+          menu.findItem(R.id.action_run_review_archive).setVisible(!getTrial().isArchived());
+          menu.findItem(R.id.action_run_review_unarchive).setVisible(getTrial().isArchived());
+
+          menu.findItem(R.id.action_disable_auto_zoom).setVisible(getTrial().getAutoZoomEnabled());
+          menu.findItem(R.id.action_enable_auto_zoom).setVisible(!getTrial().getAutoZoomEnabled());
+
+          // You can only do a crop if the run length is long enough.
+          menu.findItem(R.id.action_run_review_crop)
+              .setEnabled(CropHelper.experimentIsLongEnoughForCrop(getTrial()));
+
+          menu.findItem(R.id.action_export).setVisible(shouldShowExport());
+          menu.findItem(R.id.action_download).setVisible(true);
+        } else {
+          menu.findItem(R.id.action_run_review_archive).setVisible(false);
+          menu.findItem(R.id.action_run_review_unarchive).setVisible(false);
+          menu.findItem(R.id.action_disable_auto_zoom).setVisible(false);
+          menu.findItem(R.id.action_enable_auto_zoom).setVisible(false);
+          menu.findItem(R.id.action_run_review_delete).setVisible(false);
+          menu.findItem(R.id.action_run_review_crop).setVisible(false);
+          menu.findItem(R.id.action_export).setVisible(false);
+          menu.findItem(R.id.action_download).setVisible(false);
+        }
+
+        if (((RunReviewActivity) getActivity()).isFromRecord()) {
           // If this is from record, always enable deletion.
           menu.findItem(R.id.action_run_review_delete).setEnabled(true);
         }
@@ -614,19 +604,19 @@ public class RunReviewFragment extends Fragment
       Intent upIntent = NavUtils.getParentActivityIntent(getActivity());
       if (experiment != null) {
         String accountKey = appAccount.getAccountKey();
-        // Ensure that we set the values we need to go up to PanesActivity from RunReview after
+        // Ensure that we set the values we need to go up to ExperimentActivity from RunReview after
         // starting the app from a notification (b/66162829).
-        upIntent.putExtra(PanesActivity.EXTRA_ACCOUNT_KEY, accountKey);
-        upIntent.putExtra(PanesActivity.EXTRA_EXPERIMENT_ID, experimentId);
-        upIntent.putExtra(PanesActivity.EXTRA_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
+        upIntent.putExtra(ExperimentActivity.EXTRA_ACCOUNT_KEY, accountKey);
+        upIntent.putExtra(ExperimentActivity.EXTRA_EXPERIMENT_ID, experimentId);
+        upIntent.putExtra(ExperimentActivity.EXTRA_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
 
         upIntent.putExtra(ExperimentDetailsFragment.ARG_ACCOUNT_KEY, accountKey);
         upIntent.putExtra(ExperimentDetailsFragment.ARG_EXPERIMENT_ID, experimentId);
         upIntent.putExtra(
-            ExperimentDetailsFragment.ARG_CREATE_TASK,
+                ExperimentDetailsFragment.ARG_CREATE_TASK,
             getArguments().getBoolean(ARG_CREATE_TASK, false));
         upIntent.putExtra(
-            ExperimentDetailsFragment.ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
+                ExperimentDetailsFragment.ARG_CLAIM_EXPERIMENTS_MODE, claimExperimentsMode);
         upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         getActivity().startActivity(upIntent, null);
       } else if (getActivity() != null) {
@@ -869,9 +859,7 @@ public class RunReviewFragment extends Fragment
       ((AppCompatActivity) activity).supportStartPostponedEnterTransition();
       return;
     }
-    if (Flags.showActionBar()) {
-      setTitle(trial.getTitle(rootView.getContext()));
-    }
+    setTitle(trial.getTitle(rootView.getContext()));
 
     LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
     layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -902,23 +890,6 @@ public class RunReviewFragment extends Fragment
           public void onLabelDelete(Label item) {
             deleteLabel(item);
           }
-
-          @Override
-          public void onCaptionEdit(String updatedCaption) {
-            if (!claimExperimentsMode) {
-              Caption caption =
-                  GoosciCaption.Caption.newBuilder()
-                      .setText(updatedCaption)
-                      .setLastEditedTimestamp(System.currentTimeMillis())
-                      .build();
-              getTrial().setCaption(caption);
-              experiment.addChange(
-                  Change.newModifyTypeChange(ElementType.CAPTION, getTrial().getTrialId()));
-              getDataController()
-                  .updateExperiment(
-                      experimentId, LoggingConsumer.expectSuccess(TAG, "update caption"));
-            }
-          }
         });
 
     pinnedNoteAdapter.setListItemClickListener(
@@ -934,16 +905,8 @@ public class RunReviewFragment extends Fragment
                   selectedSensorIndex,
                   item,
                   getArguments().getBoolean(ARG_CREATE_TASK),
-                  getArguments().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD));
-            }
-          }
-
-          @Override
-          public void onAddLabelButtonClicked() {
-            if (!claimExperimentsMode && experiment != null && !runReviewOverlay.getIsCropping()) {
-              launchLabelAdd(
-                  null,
-                  Math.max(runReviewOverlay.getTimestamp(), getTrial().getFirstTimestamp()));
+                  getArguments().getBoolean(RunReviewActivity.EXTRA_FROM_RECORD),
+                  pinnedNoteAdapter.findLabelIndexById(item.getLabelId()));
             }
           }
 
@@ -957,6 +920,7 @@ public class RunReviewFragment extends Fragment
         });
 
     pinnedNoteList.setAdapter(pinnedNoteAdapter);
+    scrollToIndex(editedLabelIndex);
 
     // Re-enable appropriate menu options.
     activity.invalidateOptionsMenu();
@@ -1015,7 +979,7 @@ public class RunReviewFragment extends Fragment
         experiment,
         getTrial(),
         () -> {
-          pinnedNoteAdapter.onLabelAdded(item.getLabel());
+          pinnedNoteAdapter.onLabelChanged(item.getLabel());
           chartController.setLabels(getTrial().getLabels());
           WhistlePunkApplication.getUsageTracker(getActivity())
               .trackEvent(
@@ -1025,7 +989,7 @@ public class RunReviewFragment extends Fragment
                   TrackerConstants.getLabelValueType(item.getLabel()));
         });
 
-    pinnedNoteAdapter.onLabelUpdated(item.getLabel());
+    pinnedNoteAdapter.onLabelOrderingChanged();
     chartController.setLabels(getTrial().getLabels());
 
     WhistlePunkApplication.getUsageTracker(getActivity())
@@ -1275,7 +1239,7 @@ public class RunReviewFragment extends Fragment
                           0);
                 }
                 // Go back to the observe & record.
-                Intent intent = new Intent(getActivity(), RecordFragment.class);
+                Intent intent = new Intent(getActivity(), SensorFragment.class);
                 NavUtils.navigateUpTo(getActivity(), intent);
               }
             });
@@ -1405,9 +1369,7 @@ public class RunReviewFragment extends Fragment
               getTrial().getAppearances().get(sensorLayout.getSensorId()),
               sensorLayout.getSensorId(),
               AppSingleton.getInstance(context).getSensorAppearanceProvider(appAccount));
-      if (Flags.showActionBar()) {
-        sensorNameText.setText(Appearances.getSensorDisplayName(appearance, context));
-      }
+      sensorNameText.setText(Appearances.getSensorDisplayName(appearance, context));
       Appearances.applyDrawableToImageView(
           appearance.getIconDrawable(context),
           sensorIconImage,
@@ -1417,71 +1379,6 @@ public class RunReviewFragment extends Fragment
     }
   }
 
-  private void launchLabelAdd(Label editedLabel, long timestamp) {
-    String labelTimeText =
-        PinnedNoteAdapter.getNoteTimeText(timestamp, getTrial().getFirstTimestamp());
-    AddNoteDialog dialog =
-        AddNoteDialog.newInstance(
-            appAccount,
-            timestamp,
-            getTrial().getTrialId(),
-            experiment.getExperimentId(),
-            R.string.add_note_hint_text,
-            labelTimeText,
-            editedLabel,
-            PinnedNoteAdapter.getNoteTimeContentDescription(
-                timestamp, getTrial().getFirstTimestamp(), getActivity()));
-    dialog.show(getChildFragmentManager(), AddNoteDialog.TAG);
-  }
-
-  @Override
-  public AddNoteDialog.AddNoteDialogListener getAddNoteDialogListener() {
-    return new AddNoteDialog.AddNoteDialogListener() {
-      @Override
-      public MaybeConsumer<Label> onLabelAdd() {
-        return new LoggingConsumer<Label>(TAG, "add label") {
-          @Override
-          public void success(Label newLabel) {
-            pinnedNoteAdapter.onLabelAdded(newLabel);
-            chartController.setLabels(getTrial().getLabels());
-            WhistlePunkApplication.getUsageTracker(getActivity())
-                .trackEvent(
-                    TrackerConstants.CATEGORY_NOTES,
-                    TrackerConstants.ACTION_CREATE,
-                    TrackerConstants.LABEL_RUN_REVIEW,
-                    TrackerConstants.getLabelValueType(newLabel));
-          }
-        };
-      }
-
-      @Override
-      public void onAddNoteTimestampClicked(Label editedLabel, long selectedTimestamp) {
-        AddNoteDialog addDialog =
-            (AddNoteDialog) getChildFragmentManager().findFragmentByTag(AddNoteDialog.TAG);
-        if (addDialog != null) {
-          addDialog.dismiss();
-        }
-
-        // Show the timestamp edit window below the graph / over the notes
-        getView().findViewById(R.id.embedded).setVisibility(View.VISIBLE);
-        EditLabelTimeDialog timeDialog =
-            EditLabelTimeDialog.newInstance(
-                editedLabel, selectedTimestamp, getTrial().getFirstTimestamp());
-        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        ft.add(R.id.embedded, timeDialog, EditLabelTimeDialog.TAG);
-        ft.commit();
-        runReviewOverlay.setActiveTimestamp(selectedTimestamp);
-        runReviewOverlay.setOnTimestampChangeListener(timeDialog);
-        setTimepickerUi(getView(), true);
-      }
-
-      @Override
-      public Single<String> whenExperimentId() {
-        return Single.just(experimentId);
-      }
-    };
-  }
-
   private Trial getTrial() {
     if (experiment == null) {
       return null;
@@ -1489,21 +1386,12 @@ public class RunReviewFragment extends Fragment
     return experiment.getTrial(trialId);
   }
 
-  @Override
-  public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == PictureUtils.REQUEST_TAKE_PHOTO) {
-      Fragment dialog = getChildFragmentManager().findFragmentByTag(AddNoteDialog.TAG);
-      if (dialog != null) {
-        dialog.onActivityResult(requestCode, resultCode, data);
-      }
-    }
-  }
-
   private MaybeConsumer<Success> onLabelEdit(final Label label) {
     return new LoggingConsumer<Success>(TAG, "edit label") {
       @Override
       public void success(Success value) {
-        pinnedNoteAdapter.onLabelUpdated(label);
+        pinnedNoteAdapter.onLabelOrderingChanged();
+        scrollToLabel(label);
         // The timestamp was edited, so also refresh the line graph presenter.
         chartController.setLabels(getTrial().getLabels());
         WhistlePunkApplication.getUsageTracker(getActivity())
@@ -1735,12 +1623,6 @@ public class RunReviewFragment extends Fragment
         .subscribe(MaybeConsumers.toCompletableObserver(onLabelEdit(label)));
   }
 
-  @Override
-  public void onEditTimeDialogDismissedAdd(Label editedLabel, long selectedTimestamp) {
-    setTimepickerUi(getView(), false);
-    launchLabelAdd(editedLabel, selectedTimestamp);
-  }
-
   private void launchAudioSettings() {
     audioPlaybackController.stopPlayback();
 
@@ -1954,14 +1836,24 @@ public class RunReviewFragment extends Fragment
     return getTrial().getSensorLayouts().get(selectedSensorIndex);
   }
 
-  public void reloadAndScrollToLabel(Label newLabel) {
-    int index = pinnedNoteAdapter.onLabelAdded(newLabel);
+  public void onLabelAdded(Label label) {
     chartController.setLabels(getTrial().getLabels());
-    if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
-      pinnedNoteList.smoothScrollToPosition(index);
-    } else {
-      pinnedNoteList.scrollToPosition(index);
+    pinnedNoteAdapter.onLabelChanged(label);
+    scrollToLabel(label);
+  }
+
+  private void scrollToIndex(int index) {
+    if (index != -1) {
+      if (DevOptionsFragment.isSmoothScrollingToBottomEnabled(getContext())) {
+        pinnedNoteList.smoothScrollToPosition(index);
+      } else {
+        pinnedNoteList.scrollToPosition(index);
+      }
     }
+  }
+
+  private void scrollToLabel(Label label) {
+    scrollToIndex(pinnedNoteAdapter.findLabelIndexById(label.getLabelId()));
   }
 
   private void setTitle(String trialName) {
