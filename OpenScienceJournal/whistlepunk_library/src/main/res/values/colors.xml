@@ -55,7 +55,6 @@
     <color name="nav_item_background_color">#e0e0e0</color>
     <color name="caption_background_color">#f7f7f7</color>
     <color name="sensor_tab_indicator_color">#fff8f081</color>
-    <color name="add_note_image_button_tint">#727272</color>
     <color name="thumb_color_transparent">#57000000</color>
     <color name="snackbar_action_color">#f8f081</color>
     <color name="snackbar_background_color">#202124</color>

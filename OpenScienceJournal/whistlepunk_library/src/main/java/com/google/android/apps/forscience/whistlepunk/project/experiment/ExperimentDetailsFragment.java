@@ -349,7 +349,7 @@ public class ExperimentDetailsFragment extends Fragment
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view =
         inflater.inflate(
-            R.layout.fragment_panes_experiment_details_with_action_area, container, false);
+            R.layout.fragment_panes_experiment_details, container, false);
 
     emptyView = (TextView) view.findViewById(R.id.empty_list);
     emptyView.setText(R.string.empty_experiment);

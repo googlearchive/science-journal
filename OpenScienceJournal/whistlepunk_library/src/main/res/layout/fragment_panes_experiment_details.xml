@@ -1,5 +1,5 @@
 <!--
-  Copyright 2016 Google Inc. All Rights Reserved.
+  Copyright 2019 Google Inc. All Rights Reserved.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -13,44 +13,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    android:layout_height="match_parent">
 
-    <include layout="@layout/empty_list"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        />
+    <include layout="@layout/experiment_details" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/details_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="@dimen/list_bottom_padding"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    <include layout="@layout/record_button" />
 
-    </androidx.recyclerview.widget.RecyclerView>
+    <com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView
+        android:id="@+id/action_area"
+        style="@style/DefaultActionArea"
+        android:layout_alignParentBottom="true" />
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <ProgressBar
-            android:id="@+id/detailsIndeterminateBar"
-            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="gone"
-            android:layout_marginTop="-7dp"
-            android:layout_gravity="top"/>
-    </androidx.appcompat.widget.LinearLayoutCompat>
-
-
-</FrameLayout>
+</RelativeLayout>

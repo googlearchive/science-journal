@@ -62,10 +62,6 @@
         <item name="icon_background">@color/action_area_blue_light</item>
     </style>
 
-    <style name="AppTheme.Panes">
-        <item name="android:windowActionBar">false</item>
-    </style>
-
     <style name="AppTheme.Experiment">
         <item name="android:windowActionBar">false</item>
 
