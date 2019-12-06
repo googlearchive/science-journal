@@ -808,6 +808,74 @@
     <!-- Snackbar message shown to user if no application exists to handle a CSV file export [CHAR_LIMIT=100]-->
     <string name="no_app_found_for_csv">No app installed to handle CSV export.</string>
 
+
+    <!-- Play Store Listing Strings -->
+    <skip />
+
+    <!-- Title to display for the Science Journal listing [CHAR LIMIT=30] -->
+    <string name="listing_title">Science Journal</string>
+
+    <!-- Tagline to display for the Android Wear listing [CHAR LIMIT=30] -->
+    <string name="listing_tagline">Experiment on your world.</string>
+
+    <!-- Change log for Science Journal (note: this is multiline, with \n to separate lines) [CHAR LIMIT=500] -->
+    <string name="listing_changelog">
+New features and improvements:
+\n\u2022 Download experiments, photos, and sensor recordings to your device.
+\n\u2022 Added support for connecting to Arduino MKR WiFi 1010 boards.
+    </string>
+
+    <!-- Note: following here are partial strings for stitching together changelogs: our changelog
+         extraction script is responsible for concatenating the right features for each release. -->
+
+    <!-- Reusable partial string for changelog introducing new features [CHAR LIMIT=50] -->
+    <string name="listing_changelog_features">New features:</string>
+
+    <!-- Reusable partial string for changelog mentioning that we fixed bugs.  This should start with two newlines to give it space  [CHAR LIMIT=75] -->
+    <string name="listing_changelog_bug_fixes">Performance improvements and bug fixes.</string>
+
+    <!-- Separator between features and bugs in release notes when both are present.  Should be two newlines  [CHAR LIMIT=5] -->
+    <string name="listing_changelog_separator">\n\n</string>
+
+    <!-- Feature 1 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=80] -->
+    <string name="listing_h_feature_1">\n\u2022 Sound pitch sensor.</string>
+
+    <!-- Feature 2 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=120] -->
+    <string name="listing_h_feature_2">\n\u2022 Export experiments to a file, and import them to other devices.</string>
+
+    <!-- Feature 3 of the H release.  Should begin with a newline and bullet character [CHAR LIMIT=100] -->
+    <string name="listing_h_feature_3">\n\u2022 Export photos from an experiment.</string>
+
+    <!-- Description text shown in the Play Store for this app. Ensure a space
+         remains before and after urls. [CHAR LIMIT=4000]-->
+    <string name="listing__description">
+Science Journal is the free digital science notebook brought to you by Google.
+\n
+\nWhether you\'re a science educator or a hobbyist doing science at home, you can keep your notes, photos, and observations all in one convenient place. Use the sensors in your phone to measure and graph phenomena such as light, sound, and motion, or connect to external sensors via bluetooth to conduct experiments on the world around you.
+\n
+\nWith the Science Journal app, you can:
+\n\u2022 Measure light, sound, acceleration, air pressure, and more using your phone\'s built-in sensors.
+\n\u2022 Take notes and photos to document your science experiments. More note types coming soon!
+\n\u2022 Connect to external sensors using select Bluetooth-enabled Arduino and Vernier devices.
+\n\u2022 Access your experiments across your devices using Google Drive.
+\n\u2022 Export recorded sensor data as CSV files.
+\n\u2022 Create automated triggers for recording data and taking notes.
+\n\u2022 Use sonification to hear the movement of your graphs.
+\n
+\nScience Journal is available for free on Android, iPhone, iPad, and compatible Chromebook devices.
+\n
+\nEducational activities by our partners: https://makingscience.withgoogle.com/science-journal/activities
+\nFor support: https://productforums.google.com/forum/#!forum/sciencejournal
+\nOpen-source code available: https://github.com/google/science-journal
+\n\n
+Permissions notice:
+\n\u2022 Location: needed to scan for bluetooth sensor devices.
+\n\u2022 Camera: needed to take pictures to document experiments.
+\n\u2022 Microphone: needed for sound intensity sensor.
+\n\u2022 Storage: needed to access photos to insert into experiments.
+    </string>
+    <!-- End of Play Store Listing Strings -->
+
     <!-- The title for the option to enable third-party sensors [CHAR_LIMIT=35] -->
     <string name="third_party_sensors_option_title">Scan for third-party sensors</string>
     <!-- The summary for the option to enable third-party sensors [CHAR_LIMIT=None] -->
@@ -1165,6 +1233,12 @@
 
     <!-- Title of the navigation item to select experiment list page [CHAR_LIMIT=25] -->
     <string name="navigation_item_experiments">Experiments</string>
+
+    <!-- Title of the navigation item to sign in [CHAR_LIMIT=25] -->
+    <string name="navigation_item_sign_in">Sign In</string>
+
+    <!-- Title of the navigation item to sign out [CHAR_LIMIT=25] -->
+    <string name="navigation_item_sign_out">Sign Out</string>
 
     <!-- Hint text for the caption text input field while picture note editing [CHAR_LIMIT=30]-->
     <string name="note_caption_hint">Add a description</string>
