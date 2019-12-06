@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import com.google.android.apps.forscience.whistlepunk.R;
@@ -82,32 +81,29 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
 
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
     inflater.inflate(R.menu.menu_text_label_details, menu);
 
     ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-    actionBar.setTitle(getActivity().getResources().getString(R.string.text_label_details_title));
-    actionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp);
-    actionBar.setHomeActionContentDescription(android.R.string.cancel);
+    if (actionBar != null) {
+      actionBar.setTitle(getActivity().getResources().getString(R.string.text_label_details_title));
+    }
     super.onCreateOptionsMenu(menu, inflater);
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    if (item.getItemId() == R.id.action_save) {
-      experiment
-          .firstElement()
-          .subscribe(
-              experiment -> {
-                if (noteTextLayout.isErrorEnabled()) {
-                  // No-op. Shows an error, doesn't exit.
-                  return;
-                }
-                saveTextChanges(noteText.getText().toString(), experiment);
-                returnToParent(false, null);
-              });
-      return true;
-    }
-    return super.onOptionsItemSelected(item);
+  protected void saveLabel() {
+    experiment
+        .firstElement()
+        .subscribe(
+            experiment -> {
+              if (noteTextLayout.isErrorEnabled()) {
+                // No-op. Shows an error, doesn't exit.
+                return;
+              }
+              saveTextChanges(noteText.getText().toString(), experiment);
+              returnToParent(false, null);
+            });
   }
 
   private void saveTextChanges(String newText, Experiment experiment) {
@@ -118,14 +114,13 @@ public class TextLabelDetailsFragment extends LabelDetailsFragment {
         experiment, Change.newModifyTypeChange(ElementType.NOTE, originalLabel.getLabelId()));
   }
 
-  private boolean verifyInput(String text) {
+  private void verifyInput(String text) {
     if (TextUtils.isEmpty(text)) {
       noteTextLayout.setError(
           getActivity().getResources().getString(R.string.empty_text_note_error));
       noteTextLayout.setErrorEnabled(true);
-      return false;
+    } else {
+      noteTextLayout.setErrorEnabled(false);
     }
-    noteTextLayout.setErrorEnabled(false);
-    return true;
   }
 }

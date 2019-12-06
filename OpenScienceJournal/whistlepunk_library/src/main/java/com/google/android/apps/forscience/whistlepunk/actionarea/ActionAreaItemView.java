@@ -36,6 +36,8 @@ import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.
  * remainder of the view.
  */
 public class ActionAreaItemView extends LinearLayout {
+  public static final int USE_DEFAULT_STYLE = -1;
+
   private ActionAreaItem actionAreaItem;
 
   public ActionAreaItemView(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -51,7 +53,7 @@ public class ActionAreaItemView extends LinearLayout {
       textView.setText(actionAreaItem.getContentDescriptionId());
       textView.setContentDescription(
           getResources().getString(actionAreaItem.getContentDescriptionId()));
-      updateView(context, R.style.DefaultActionAreaIcon);
+      updateView(context, USE_DEFAULT_STYLE);
       setOnClickListener((View view) -> listener.onClick(actionAreaItem));
     } else {
       textView.setText("");
@@ -61,9 +63,12 @@ public class ActionAreaItemView extends LinearLayout {
     }
   }
 
-  protected void updateView(Context context, int style) {
+  protected void updateView(Context context, int optionalStyle) {
     if (actionAreaItem != null) {
-      ContextThemeWrapper wrapper = new ContextThemeWrapper(context, style);
+      ContextThemeWrapper wrapper = new ContextThemeWrapper(context, context.getTheme());
+      if (optionalStyle != USE_DEFAULT_STYLE) {
+        wrapper = new ContextThemeWrapper(context, optionalStyle);
+      }
       // Use the correctly colored icon and on touch ripple based on the passed in style
       Drawable drawable =
           ResourcesCompat.getDrawable(

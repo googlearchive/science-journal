@@ -18,11 +18,11 @@ package com.google.android.apps.forscience.whistlepunk.review;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources.Theme;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
-import android.view.ContextThemeWrapper;
-import com.google.android.apps.forscience.whistlepunk.AddMoreObservationNotesFragment;
+import androidx.fragment.app.FragmentManager;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.AddMoreObservationNotesFragment;
 import com.google.android.apps.forscience.whistlepunk.AppSingleton;
 import com.google.android.apps.forscience.whistlepunk.NoteTakingActivity;
 import com.google.android.apps.forscience.whistlepunk.PermissionUtils;
@@ -42,6 +42,7 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   private boolean fromRecord;
   private RunReviewFragment fragment;
   private AddMoreObservationNotesFragment moreObservationNotesFragment;
+  private long currentTimestamp;
 
   /**
    * Launches a new recording review activity
@@ -126,7 +127,8 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
               getIntent().getExtras().getString(RunReviewFragment.ARG_START_LABEL_ID),
               getIntent().getExtras().getInt(RunReviewFragment.ARG_SENSOR_INDEX),
               getIntent().getExtras().getBoolean(EXTRA_CREATE_TASK, true),
-              getIntent().getExtras().getBoolean(NoteTakingActivity.EXTRA_CLAIM_EXPERIMENTS_MODE));
+              getIntent().getExtras().getBoolean(NoteTakingActivity.EXTRA_CLAIM_EXPERIMENTS_MODE),
+              getIntent().getExtras().getInt(RunReviewFragment.ARG_EDITED_LABEL_INDEX));
     }
     return fragment;
   }
@@ -164,11 +166,6 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   }
 
   @Override
-  public Theme getActivityTheme() {
-    return new ContextThemeWrapper(this, R.style.BlueActionAreaIcon).getTheme();
-  }
-
-  @Override
   public void onBackPressed() {
     if (!handleOnBackPressed()) {
       super.onBackPressed();
@@ -191,6 +188,13 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   }
 
   @Override
+  public ActionFragment showFragmentByTagInToolPane(String tag) {
+    ActionFragment fragment = super.showFragmentByTagInToolPane(tag);
+    onTimestampChanged(fragment, currentTimestamp);
+    return fragment;
+  }
+
+  @Override
   protected boolean handleDefaultFragmentOnBackPressed() {
     return handleOnBackPressed();
   }
@@ -201,12 +205,17 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   }
 
   @Override
-  protected void onLabelAdded(String trialId, Label label) {
-    fragment.reloadAndScrollToLabel(label);
+  public boolean isRecording() {
+    return false;
   }
 
   @Override
-  protected long getTimestamp(Context context) {
+  protected void onLabelAdded(String trialId, Label label) {
+    fragment.onLabelAdded(label);
+  }
+
+  @Override
+  public long getTimestamp(Context context) {
     return ((RunReviewFragment) getDefaultFragment()).getTimestamp();
   }
 
@@ -223,16 +232,37 @@ public class RunReviewActivity extends NoteTakingActivity implements OnTimestamp
   }
 
   @Override
-  protected Fragment newInstanceAddMoreObservationNotes() {
+  protected ActionFragment newInstanceAddMoreObservationNotes(
+      AppAccount appAccount, String experimentId) {
     moreObservationNotesFragment =
-        AddMoreObservationNotesFragment.newInstance(true /* isRunReview */);
+        AddMoreObservationNotesFragment.newInstance(true /* isRunReview */, appAccount, experimentId);
     return moreObservationNotesFragment;
+  }
+
+  public void onTimestampChanged(ActionFragment actionFragment, long timestamp) {
+    String timeText = PinnedNoteAdapter.getNoteTimeText(0, 0);
+    if (fragment != null) {
+      timeText = PinnedNoteAdapter.getNoteTimeText(timestamp, fragment.getStartTimestamp());
+    }
+    actionFragment.updateTime(timeText);
   }
 
   @Override
   public void onTimestampChanged(long timestamp) {
+    currentTimestamp = timestamp;
     if (moreObservationNotesFragment != null) {
-      moreObservationNotesFragment.updateTime(timestamp, fragment.getStartTimestamp());
+      onTimestampChanged(moreObservationNotesFragment, timestamp);
+    }
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    ActionFragment fragment =
+        (ActionFragment) fragmentManager.findFragmentByTag(GALLERY_TAG);
+    if (fragment != null) {
+      onTimestampChanged(fragment, timestamp);
+    }
+    fragment =
+        (ActionFragment) fragmentManager.findFragmentByTag(NOTE_TAG);
+    if (fragment != null) {
+      onTimestampChanged(fragment, timestamp);
     }
   }
 }

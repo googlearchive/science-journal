@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2017 Google Inc. All Rights Reserved.
+  Copyright 2019 Google Inc. All Rights Reserved.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,18 +14,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/action_save"
-        android:icon="@drawable/ic_check_white_24dp"
-        android:title="@string/action_save"
-        app:showAsAction="always"
-        />
-    <item
-        android:id="@+id/action_delete"
-        android:icon="@drawable/ic_delete_white_24dp"
-        android:title="@string/action_delete"
-        app:showAsAction="always"
-        />
-</menu>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M7.41,8.59L12,13.17l4.59,-4.58L18,10l-6,6 -6,-6 1.41,-1.41z"/>
+</vector>

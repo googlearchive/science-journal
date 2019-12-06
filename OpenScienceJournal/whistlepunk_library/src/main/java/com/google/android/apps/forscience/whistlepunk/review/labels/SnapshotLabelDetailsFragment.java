@@ -69,8 +69,10 @@ public class SnapshotLabelDetailsFragment extends LabelDetailsFragment {
     inflater.inflate(R.menu.menu_sensor_item_label_details, menu);
 
     ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-    actionBar.setTitle(
-        getActivity().getResources().getString(R.string.snapshot_label_details_title));
+    if (actionBar != null) {
+      actionBar.setTitle(
+          getActivity().getResources().getString(R.string.snapshot_label_details_title));
+    }
 
     super.onCreateOptionsMenu(menu, inflater);
   }

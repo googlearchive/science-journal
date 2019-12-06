@@ -18,7 +18,6 @@ package com.google.android.apps.forscience.whistlepunk;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources.Theme;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -27,19 +26,21 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.Window;
-import com.google.android.apps.forscience.whistlepunk.MoreObservationsFragment.ObservationOption;
+import com.google.android.apps.forscience.whistlepunk.actionarea.ActionFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.MoreObservationsFragment.ObservationOption;
 import com.google.android.apps.forscience.whistlepunk.accounts.AppAccount;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaItem;
 import com.google.android.apps.forscience.whistlepunk.actionarea.ActionAreaView.ActionAreaListener;
+import com.google.android.apps.forscience.whistlepunk.actionarea.AddMoreObservationNotesFragment;
+import com.google.android.apps.forscience.whistlepunk.actionarea.SensorFragment;
 import com.google.android.apps.forscience.whistlepunk.analytics.TrackerConstants;
 import com.google.android.apps.forscience.whistlepunk.arcore.ARVelocityActivity;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Experiment;
 import com.google.android.apps.forscience.whistlepunk.filemetadata.Label;
 import com.google.android.apps.forscience.whistlepunk.performance.PerfTrackerProvider;
-import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsWithActionAreaFragment;
+import com.google.android.apps.forscience.whistlepunk.project.experiment.ExperimentDetailsFragment;
 import com.google.android.apps.forscience.whistlepunk.sensors.VelocitySensor;
 import com.google.android.material.snackbar.Snackbar;
 import io.reactivex.Observable;
@@ -50,7 +51,7 @@ import java.util.List;
 /** Displays the experiment and the action bar. */
 public class ExperimentActivity extends NoteTakingActivity
     implements SensorFragment.CallbacksProvider,
-        ExperimentDetailsWithActionAreaFragment.ListenerProvider,
+        ExperimentDetailsFragment.ListenerProvider,
         ActionAreaListener {
 
   private static final String EXTRA_FROM_SENSOR_FRAGMENT = "fromSensorFragmentKey";
@@ -67,7 +68,7 @@ public class ExperimentActivity extends NoteTakingActivity
 
   // SingleSubject remembers the loaded value (if any) and delivers it to any observers.
   private SingleSubject<Experiment> activeExperiment = SingleSubject.create();
-  private ExperimentDetailsWithActionAreaFragment experimentFragment = null;
+  private ExperimentDetailsFragment experimentFragment = null;
   private boolean claimExperimentsMode;
   private RxEvent destroyed = new RxEvent();
   private boolean isRecording;
@@ -151,7 +152,7 @@ public class ExperimentActivity extends NoteTakingActivity
 
   private void setExperimentFragmentId(Experiment experiment) {
     if (experimentFragment == null) {
-      ExperimentDetailsWithActionAreaFragment oldFragment = lookupExperimentFragment();
+      ExperimentDetailsFragment oldFragment = lookupExperimentFragment();
       if (oldFragment != null
           && oldFragment.getExperimentId().equals(experiment.getExperimentId())) {
         experimentFragment = oldFragment;
@@ -177,14 +178,14 @@ public class ExperimentActivity extends NoteTakingActivity
     return DEFAULT_ADD_MORE_OBSERVATIONS_TAG;
   }
 
-  private ExperimentDetailsWithActionAreaFragment lookupExperimentFragment() {
+  private ExperimentDetailsFragment lookupExperimentFragment() {
     FragmentManager fragmentManager = getSupportFragmentManager();
-    return (ExperimentDetailsWithActionAreaFragment)
+    return (ExperimentDetailsFragment)
         fragmentManager.findFragmentByTag(DEFAULT_FRAGMENT_TAG);
   }
 
-  private ExperimentDetailsWithActionAreaFragment createExperimentFragment(String id) {
-    return ExperimentDetailsWithActionAreaFragment.newInstance(
+  private ExperimentDetailsFragment createExperimentFragment(String id) {
+    return ExperimentDetailsFragment.newInstance(
         appAccount, id, true /* createTaskStack */, claimExperimentsMode);
   }
 
@@ -267,14 +268,14 @@ public class ExperimentActivity extends NoteTakingActivity
   public SensorFragment.UICallbacks getRecordFragmentCallbacks() {
     return new SensorFragment.UICallbacks() {
       @Override
-      void onRecordingSaved(String runId, Experiment experiment) {
+      public void onRecordingSaved(String runId, Experiment experiment) {
         logState(TrackerConstants.ACTION_RECORDED);
         experimentFragment.loadExperimentData(experiment);
         onNoteSaved();
       }
 
       @Override
-      void onRecordingStart(RecordingStatus recordingStatus) {
+      public void onRecordingStart(RecordingStatus recordingStatus) {
         if (recordingStatus.state == RecordingState.STOPPING) {
           // If we call "recording start" when stopping it leads to extra work.
           return;
@@ -286,7 +287,7 @@ public class ExperimentActivity extends NoteTakingActivity
       }
 
       @Override
-      void onRecordingStopped() {
+      public void onRecordingStopped() {
         experimentFragment.onStopRecording();
       }
     };
@@ -317,12 +318,6 @@ public class ExperimentActivity extends NoteTakingActivity
   }
 
   @Override
-  public Theme getActivityTheme() {
-    int themeResId = isRecording ? R.style.RedActionAreaIcon : R.style.DefaultActionAreaIcon;
-    return new ContextThemeWrapper(this, themeResId).getTheme();
-  }
-
-  @Override
   public void closeToolFragment() {
     super.closeToolFragment();
     if (isRecording && toolFragmentOpenedFromSensorFragment) {
@@ -334,6 +329,12 @@ public class ExperimentActivity extends NoteTakingActivity
   @Override
   protected String getTrialIdForLabel() {
     return experimentFragment.getActiveRecordingId();
+  }
+
+  @Override
+  public boolean isRecording() {
+    String recordingId = experimentFragment.getActiveRecordingId();
+    return recordingId != null && !recordingId.isEmpty();
   }
 
   @Override
@@ -354,7 +355,7 @@ public class ExperimentActivity extends NoteTakingActivity
         this, appAccount, getIntent().getStringExtra(EXTRA_EXPERIMENT_ID)));
   }
 
-  protected ObservationOption[] getMoreObservationOptions() {
+  public ObservationOption[] getMoreObservationOptions() {
     List<ObservationOption> options = new ArrayList<>();
     ObservationOption galleryOption =
         new ObservationOption(
@@ -403,7 +404,9 @@ public class ExperimentActivity extends NoteTakingActivity
   }
 
   @Override
-  protected Fragment newInstanceAddMoreObservationNotes() {
-    return AddMoreObservationNotesFragment.newInstance(false /* isRunReview */);
+  protected ActionFragment newInstanceAddMoreObservationNotes(
+      AppAccount appAccount, String experimentId) {
+    return AddMoreObservationNotesFragment.newInstance(false /* isRunReview */,
+        appAccount, experimentId);
   }
 }

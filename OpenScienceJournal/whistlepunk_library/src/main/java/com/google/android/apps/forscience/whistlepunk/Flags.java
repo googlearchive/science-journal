@@ -27,16 +27,11 @@ package com.google.android.apps.forscience.whistlepunk;
  * the full rollout of the feature.
  **/
 public class Flags {
-  private static boolean showActionBar = false;
   private static boolean showTestingOptions = false;
   private static boolean showDrawOption = false;
   private static boolean showVelocityTrackerOption = false;
 
   private Flags() {} // uninstantiable
-
-  public static void setShowActionBar(boolean show) {
-    showActionBar = show;
-  }
 
   public static void setShowDrawOption(boolean show) {
     showDrawOption = show;
@@ -48,10 +43,6 @@ public class Flags {
 
   public static void setShowTestingOptions(boolean show) {
     showTestingOptions = show;
-  }
-
-  public static boolean showActionBar() {
-    return showActionBar;
   }
 
   public static boolean showTestingOptions() {

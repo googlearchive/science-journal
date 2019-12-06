@@ -323,7 +323,7 @@ public class MainActivity extends ActivityWithNavigationView {
                           public void success(Experiment experiment) {
                             if (experiment != null && appAccount.equals(currentAccount)) {
                               startActivity(
-                                  WhistlePunkApplication.getLaunchIntentForPanesActivity(
+                                  WhistlePunkApplication.getLaunchIntentForExperimentActivity(
                                       MainActivity.this,
                                       currentAccount,
                                       experiment.getExperimentId(),
