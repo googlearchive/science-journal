@@ -164,7 +164,7 @@ public class AccountsUtils {
    * Returns the account key for the given namespace and account id. The account key is used to
    * separate file storage, database storage, and preferences for different accounts.
    */
-  static String makeAccountKey(String namespace, String accountId) {
+  public static String makeAccountKey(String namespace, String accountId) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(namespace), "namespace is null or empty!");
     Preconditions.checkArgument(
         !namespace.contains(SHARED_PREFS_NAME_DELIMITER),
@@ -204,7 +204,7 @@ public class AccountsUtils {
    * Returns the files directory for the account with the given account key. If the directory
    * doesn't already exist, it is created.
    */
-  static File getFilesDir(String accountKey, Context context) {
+  public static File getFilesDir(String accountKey, Context context) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(accountKey), "accountKey is null or empty!");
     File accountDir = new File(getAccountsParentDirectory(context), accountKey);
     if (!accountDir.exists()) {
@@ -234,7 +234,7 @@ public class AccountsUtils {
   }
 
   /** Returns the database file name that combines the given accountKey and dbName. */
-  static String getDatabaseFileName(String accountKey, String dbName) {
+  public static String getDatabaseFileName(String accountKey, String dbName) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(accountKey), "accountKey is null or empty!");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(dbName), "dbName is null or empty!");
     Preconditions.checkArgument(
@@ -260,7 +260,7 @@ public class AccountsUtils {
   }
 
   /** Returns the name of the SharedPreferences for the given accountKey. */
-  static String getSharedPreferencesName(String accountKey) {
+  public static String getSharedPreferencesName(String accountKey) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(accountKey), "accountKey is null or empty!");
     return SHARED_PREFS_NAME_PREFIX
         + SHARED_PREFS_NAME_DELIMITER

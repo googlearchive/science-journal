@@ -16,8 +16,6 @@
 <resources>
     <dimen name="get_started_explore_your_world_margin_top">207dp</dimen>
     <dimen name="get_started_use_science_journal_margin_top">29dp</dimen>
-    <dimen name="get_started_btn_get_started_margin_top">32dp</dimen>
-    <dimen name="get_started_image_margin_bottom">93dp</dimen>
     <dimen name="get_started_explore_your_world_font_size">36sp</dimen>
     <dimen name="get_started_use_science_journal_font_size">24sp</dimen>
     <dimen name="get_started_btn_get_started_font_size">14sp</dimen>

@@ -412,9 +412,7 @@ public class MainActivity extends ActivityWithNavigationView {
       Intent intent = null;
       int itemId = menuItem.getItemId();
 
-      if (itemId == R.id.navigation_item_activities) {
-        intent = new Intent(ACTION_VIEW, Uri.parse(getString(R.string.activities_url)));
-      } else if (itemId == R.id.navigation_item_settings) {
+      if (itemId == R.id.navigation_item_settings) {
         // We need currentAccount for the TYPE_SETTINGS version of the SettingsActivity.
         if (currentAccount == null) {
           return false;
@@ -432,28 +430,10 @@ public class MainActivity extends ActivityWithNavigationView {
         intent =
             SettingsActivity.getLaunchIntent(
                 this, menuItem.getTitle(), SettingsActivity.TYPE_DEV_OPTIONS);
-      } else if (itemId == R.id.navigation_item_feedback) {
-        // The two log statements below aren't guaranteed to succeed before the user has submitted
-        // their feedback, but this is a significantly less complicated way to implement this, and
-        // they are very, very likely to succeed before human input completes. The worst case is we
-        // don't get the logging we want, but in testing, it's basically instant.
-        logExperimentInfo(currentAccount);
-        logDriveInfo(currentAccount);
-        feedbackProvider.sendFeedback(
-            new LoggingConsumer<Boolean>(TAG, "Send feedback") {
-              @Override
-              public void success(Boolean value) {
-                if (!value) {
-                  showFeedbackError();
-                }
-              }
-
-              @Override
-              public void fail(Exception e) {
-                super.fail(e);
-                showFeedbackError();
-              }
-            });
+      } else if (itemId == R.id.navigation_item_sign_in) {
+        final String tag = String.valueOf(R.id.navigation_item_experiments);
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+        accountsProvider.showAccountSwitcherDialog(fragment, ActivityRequestCodes.REQUEST_GOOGLE_SIGN_IN);
       }
       if (intent != null) {
         try {
@@ -515,6 +495,11 @@ public class MainActivity extends ActivityWithNavigationView {
       if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
         drawerLayout.closeDrawer(GravityCompat.START);
       } else {
+        if (accountsProvider.isSignedIn()) {
+          navigationView.getMenu().getItem(0).setTitle(R.string.navigation_item_sign_out);
+        } else {
+          navigationView.getMenu().getItem(0).setTitle(R.string.navigation_item_sign_in);
+        }
         drawerLayout.openDrawer(GravityCompat.START);
       }
     }
@@ -561,6 +546,9 @@ public class MainActivity extends ActivityWithNavigationView {
         if (resultCode == RESULT_CANCELED) {
           finish();
         }
+        return;
+      case ActivityRequestCodes.REQUEST_GOOGLE_SIGN_IN:
+        accountsProvider.onLoginAccountsChanged(data);
         return;
       default:
         break;
