@@ -24,6 +24,12 @@ The [OpenScienceJournal README](https://github.com/google/science-journal/tree/m
 contains details about the organization of the source code, and the relationship of this published source
 to the [published app][play-store].
 
+### Google Drive Sync
+
+In order to enable Google Drive Sync, you must first create a Google API project and enable the Drive API 
+for your app. See instructions in the 
+[Google Drive API documentation](https://developers.google.com/drive/api/v2/enable-drive-api)
+
 ## Release names
 
 We have fun choosing names for our releases.  Read the [stories][releasenames].
